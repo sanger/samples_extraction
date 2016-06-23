@@ -29,6 +29,9 @@
       <ul class="nav navbar-nav">
         <%
         [
+          { :section => { :name => 'samples', :options => [
+            ['view_started', samples_started_index_path],
+            ['view_not_started', samples_not_started_index_path]] } },
           { :section => { :name => 'kit_types', :options => [
             ['new', new_kit_type_path],
             ['show', kit_types_path]] } },
