@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @kit_type.name %>
+</p>
+
+<p>
+  <strong>Target type:</strong>
+  <%= @kit_type.target_type %>
+</p>
+
+<p>
+  <strong>Process type:</strong>
+  <%= @kit_type.process_type %>
+</p>
+
+<%= link_to 'Edit', edit_kit_type_path(@kit_type) %> |
+<%= link_to 'Back', kit_types_path %>

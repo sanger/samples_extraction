@@ -1,8 +1,23 @@
-<li class="dropdown <%= [section[:name]].include?(controller_name) ? 'active' : '' %>">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%= t(section[:name]) %> <span class="caret"></span></a>
-  <ul class="dropdown-menu">
-    <% section[:options].each do |option_name, path| %>
-      <li><%= link_to t('.' + option_name), path %></li>
+<li class="dropdown <%= [section[:name]].include?(controller_name) ? 'underlined' : '' %>">
+  <a
+    <% if section[:path] %>
+      href="<%= section[:path] %>"
+    <% else %>
+      href="#"
+      class="dropdown-toggle" data-toggle="dropdown" role="button"
+      aria-haspopup="true" aria-expanded="false"
     <% end %>
-  </ul>
+  >
+    <%= t(section[:name]) %>
+    <% if section[:options] %>
+      <span class="caret"></span>
+    <% end %>
+  </a>
+  <% if section[:options] %>
+    <ul class="dropdown-menu">
+      <% section[:options].each do |option_name, path| %>
+        <li><%= link_to t('.' + option_name), path %></li>
+      <% end %>
+    </ul>
+  <% end %>
 </li>

@@ -43,7 +43,9 @@
             ['show', instruments_path]] } },
           { :section => { :name => 'process_types', :options => [
             ['new', new_process_type_path],
-            ['show', process_types_path]] } }
+            ['show', process_types_path]] } },
+          { :section => { :name => 'history', :path => history_index_path}},
+          { :section => { :name => 'reracking', :path => reracking_index_path}}
         ].each do |obj| %>
           <%= render :partial => 'menu_section', :locals => obj %>
         <% end %>

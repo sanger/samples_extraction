@@ -1,4 +1,11 @@
 Rails.application.routes.draw do
+  resources :process_types
+  resources :instruments
+  resources :kit_types
+  resources :kits
+  resources :kits
+  resources :kits
+  resources :kits
   root 'instruments#index'
 
   resources :kit_types
@@ -8,6 +15,8 @@ Rails.application.routes.draw do
   resources :processes
   resources :samples_started
   resources :samples_not_started
+  resources :history
+  resources :reracking
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

@@ -1,0 +1,33 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Kits</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Barcode</th>
+      <th>Max num reactions</th>
+      <th>Num reactions performed</th>
+      <th>Kit type</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @kits.each do |kit| %>
+      <tr>
+        <td><%= kit.barcode %></td>
+        <td><%= kit.max_num_reactions %></td>
+        <td><%= kit.num_reactions_performed %></td>
+        <td><%= kit.kit_type %></td>
+        <td><%= link_to 'Show', kit %></td>
+        <td><%= link_to 'Edit', edit_kit_path(kit) %></td>
+        <td><%= link_to 'Destroy', kit, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Kit', new_kit_path %>
