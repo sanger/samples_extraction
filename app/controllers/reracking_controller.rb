@@ -1,0 +1,2 @@
+class RerackingController < ApplicationController
+end

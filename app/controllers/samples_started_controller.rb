@@ -1,0 +1,2 @@
+class SamplesStartedController < ApplicationController
+end

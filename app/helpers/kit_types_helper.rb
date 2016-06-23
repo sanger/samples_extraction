@@ -1,0 +1,2 @@
+module KitTypesHelper
+end

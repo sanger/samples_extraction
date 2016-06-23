@@ -1,0 +1,50 @@
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Samples Extraction</a>
+
+    </div>
+
+    <form class="navbar-form navbar-right" role="search" method='get' action='/barcodes'>
+      <div class="form-group">
+      <div class="input-group">
+        <input name="barcode" type="search" class="form-control"
+        placeholder="<%= t('.barcode',default:'Type or scan barcode...') %>">
+        <span class="input-group-btn">
+          <button type="submit" class="btn btn-default"><%= t('.search') %></button>
+        </span>
+        </div>
+      </div>
+    </form>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <%
+        [
+          { :section => { :name => 'kit_types', :options => [
+            ['new', new_kit_type_path],
+            ['show', kit_types_path]] } },
+          { :section => { :name => 'kits', :options => [
+            ['new',  new_kit_path],
+            ['show', kits_path]] } },
+          { :section => { :name => 'instruments', :options => [
+            ['new', new_instrument_path],
+            ['show', instruments_path]] } },
+          { :section => { :name => 'process_types', :options => [
+            ['new', new_process_type_path],
+            ['show', process_types_path]] } }
+        ].each do |obj| %>
+          <%= render :partial => 'menu_section', :locals => obj %>
+        <% end %>
+    </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
