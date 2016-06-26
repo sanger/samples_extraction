@@ -1,6 +1,6 @@
-class CreateSteps < ActiveRecord::Migration
+class CreateStepTypes < ActiveRecord::Migration
   def change
-    create_table :steps do |t|
+    create_table :step_types do |t|
       t.string :name
 
       t.timestamps null: false

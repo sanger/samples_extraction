@@ -11,15 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160623160701) do
-
-  create_table "asset_groups", force: :cascade do |t|
-    t.integer  "step_id",    limit: 4
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
-  end
-
-  add_index "asset_groups", ["step_id"], name: "index_asset_groups_on_step_id", using: :btree
+ActiveRecord::Schema.define(version: 20160626224625) do
 
   create_table "capacities", force: :cascade do |t|
     t.integer  "instrument_id",   limit: 4
@@ -30,14 +22,6 @@ ActiveRecord::Schema.define(version: 20160623160701) do
 
   add_index "capacities", ["instrument_id"], name: "index_capacities_on_instrument_id", using: :btree
   add_index "capacities", ["process_type_id"], name: "index_capacities_on_process_type_id", using: :btree
-
-  create_table "enroled_assets", force: :cascade do |t|
-    t.integer  "asset_group_id", limit: 4
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
-  end
-
-  add_index "enroled_assets", ["asset_group_id"], name: "index_enroled_assets_on_asset_group_id", using: :btree
 
   create_table "instruments", force: :cascade do |t|
     t.string   "barcode",    limit: 255
@@ -93,34 +77,51 @@ ActiveRecord::Schema.define(version: 20160623160701) do
     t.datetime "updated_at",                   null: false
   end
 
-  create_table "marks", force: :cascade do |t|
-    t.integer  "asset_group_id", limit: 4
-    t.string   "name",           limit: 255
-    t.date     "complete?"
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
-  end
-
-  add_index "marks", ["asset_group_id"], name: "index_marks_on_asset_group_id", using: :btree
-
-  create_table "process_progresses", force: :cascade do |t|
-    t.integer  "capacity_id", limit: 4
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
-  end
-
-  add_index "process_progresses", ["capacity_id"], name: "index_process_progresses_on_capacity_id", using: :btree
-
   create_table "process_types", force: :cascade do |t|
     t.string   "name",       limit: 255
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
   end
 
-  create_table "steps", force: :cascade do |t|
+  create_table "processes", force: :cascade do |t|
+    t.integer  "process_type_id", limit: 4
+    t.date     "completion_date"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "prod_condition_groups", force: :cascade do |t|
+    t.integer "step_type_id", limit: 4, null: false
+    t.integer "cardinality",  limit: 4
+  end
+
+  create_table "prod_conditions", force: :cascade do |t|
+    t.integer  "prod_condition_group_id", limit: 4,   null: false
+    t.string   "predicate",               limit: 255, null: false
+    t.string   "object",                  limit: 255
+    t.integer  "subject_condition_id",    limit: 4
+    t.integer  "object_condition_id",     limit: 4
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
+  end
+
+  create_table "prod_facts", force: :cascade do |t|
+    t.string "predicate", limit: 255, null: false
+    t.string "object",    limit: 255
+  end
+
+  create_table "step_types", force: :cascade do |t|
     t.string   "name",       limit: 255
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
+  end
+
+  create_table "steps", force: :cascade do |t|
+    t.integer  "step_type_id",    limit: 4
+    t.date     "completion_date"
+    t.integer  "process_id",      limit: 4
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "users", force: :cascade do |t|
@@ -130,12 +131,8 @@ ActiveRecord::Schema.define(version: 20160623160701) do
     t.datetime "updated_at",             null: false
   end
 
-  add_foreign_key "asset_groups", "steps"
   add_foreign_key "capacities", "instruments"
   add_foreign_key "capacities", "process_types"
-  add_foreign_key "enroled_assets", "asset_groups"
   add_foreign_key "kit_types", "process_types"
   add_foreign_key "kits", "kit_types"
-  add_foreign_key "marks", "asset_groups"
-  add_foreign_key "process_progresses", "capacities"
 end
