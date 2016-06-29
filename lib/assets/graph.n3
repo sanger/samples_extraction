@@ -14,7 +14,7 @@
   } .
 } .
 
-
+{?p :is :ReceivedTube .} => { :step :addFacts { ?p :is :ReceptionTube .} . } .
 
 { ?p :is :ReceptionTube .
 } => { :step :addFacts { ?p :is :Tube} .}.

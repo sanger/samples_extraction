@@ -14,9 +14,10 @@ module SupportN3
       quads = reader.quads
       rules = quads.select{|quad| fragment(quad[1])=='implies'}
       rules.each do |k,p,v,g|
-        step_type = step_type(quads)
-        conditions = quads.select{|quad| quad[3] === k}
-        actions = quads.select{|quad| quad[3] === v}
+        conditions = quads.select{|quad| quad.last === k}
+        actions = quads.select{|quad| quad.last === v}
+
+        step_type = step_type(actions)
 
         c_groups = {}
         conditions.each do |k,p,v,g|
@@ -35,8 +36,9 @@ module SupportN3
           action = fragment(p)
           unless v.literal?
             quads.select{|quad| quad.last == v}.each do |k,p,v,g|
-              Action.create({:action => action, :predicate => fragment(p),
+              Action.create({:action_type => action, :predicate => fragment(p),
                 :object => fragment(v),
+                :step_type_id => step_type.id,
                 :condition_group_id => c_groups[fragment(k)].id})
             end
           end
