@@ -5,5 +5,12 @@
   <%= @instrument.barcode %>
 </p>
 
+<%= form_tag(activities_path, action: 'create') do %>
+  <%= text_field_tag(:kit_barcode) %>
+  <%= submit_tag("Create activity") %>
+<% end %>
+
+
+
 <%= link_to 'Edit', edit_instrument_path(@instrument) %> |
 <%= link_to 'Back', instruments_path %>

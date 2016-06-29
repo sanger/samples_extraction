@@ -1,0 +1,15 @@
+{ ?p :is :ReceptionTube .
+  ?q :is :EmptyTube .
+} => {
+  :prod :add {
+    ?q :is :ReceivedTube .
+  } .
+  :prod :del {
+    ?p :is :ReceptionTube .
+    ?q :is :EmptyTube
+  } .
+}.
+
+{ ?p :is :ReceptionTube .
+  ?q :is :EmptyTube .
+} => { :prod :add { ?p :is :Tube}}.

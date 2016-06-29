@@ -1,18 +1,16 @@
 Rails.application.routes.draw do
-  resources :process_types
-  resources :instruments
+  resources :steps
+  resources :activities
+  resources :activities
+  resources :assets
+  resources :steps
+  resources :activity_types
   resources :kit_types
   resources :kits
-  resources :kits
-  resources :kits
-  resources :kits
+  resources :instruments
   root 'instruments#index'
 
-  resources :kit_types
-  resources :kits
-  resources :instruments
-  resources :process_types
-  resources :processes
+  resources :activities
   resources :samples_started
   resources :samples_not_started
   resources :history

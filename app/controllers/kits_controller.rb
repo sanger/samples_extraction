@@ -32,7 +32,7 @@ class KitsController < ApplicationController
         format.json { render :show, status: :created, location: @kit }
       else
         format.html { render :new }
-        format.json { render json: @kit.errors, status: :unprocessable_entity }
+        format.json { render json: @kit.errors, status: :unActivityable_entity }
       end
     end
   end
@@ -46,7 +46,7 @@ class KitsController < ApplicationController
         format.json { render :show, status: :ok, location: @kit }
       else
         format.html { render :edit }
-        format.json { render json: @kit.errors, status: :unprocessable_entity }
+        format.json { render json: @kit.errors, status: :unActivityable_entity }
       end
     end
   end

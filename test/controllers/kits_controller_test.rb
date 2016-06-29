@@ -2,7 +2,7 @@ require 'test_helper'
 
 class KitsControllerTest < ActionController::TestCase
   setup do
-    @kit = kits(:one)
+    @kit = FactoryGirl.create :kit
   end
 
   test "should get index" do
@@ -18,7 +18,7 @@ class KitsControllerTest < ActionController::TestCase
 
   test "should create kit" do
     assert_difference('Kit.count') do
-      post :create, kit: { barcode: @kit.barcode, kit_type_id: @kit.kit_type_id, max_num_reactions: @kit.max_num_reactions, num_reactions_performed: @kit.num_reactions_performed }
+      post :create, kit: @kit.attributes
     end
 
     assert_redirected_to kit_path(assigns(:kit))
@@ -35,7 +35,7 @@ class KitsControllerTest < ActionController::TestCase
   end
 
   test "should update kit" do
-    patch :update, id: @kit, kit: { barcode: @kit.barcode, kit_type_id: @kit.kit_type_id, max_num_reactions: @kit.max_num_reactions, num_reactions_performed: @kit.num_reactions_performed }
+    patch :update, id: @kit, kit: @kit.attributes
     assert_redirected_to kit_path(assigns(:kit))
   end
 

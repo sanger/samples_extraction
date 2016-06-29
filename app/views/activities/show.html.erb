@@ -1,0 +1,13 @@
+<p id="notice"><%= notice %></p>
+<% if @assets %>
+  <%= render :partial =>'steps/finished', :locals => {:steps => @activity.steps_for(@assets)} %>
+  <%= render :partial =>'steps/active', :locals => {:step_type => @activity.step_types_for(@assets) }%>
+<% else %>
+  <%= render :partial =>'steps/finished', :locals => {:steps => @activity.steps } %>
+  <%= form_for @activity, action: 'update' do |f| %>
+    <%= render :partial => 'barcode_reader' %>
+    <%= f.submit "Start" %>
+  <% end %>
+<% end %>
+<%= link_to 'Edit', edit_activity_path(@activity) %> |
+<%= link_to 'Back', activities_path %>

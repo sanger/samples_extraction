@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'rdf-n3'
 
 gem 'rails-assets-tether', '>= 1.1.0'
 
@@ -41,6 +42,13 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
+  gem 'factory_girl_rails'
+  gem 'pry'
+end
+
+group :test do
+  gem 'shoulda'
+  gem 'factory_girl'
 end
 
 group :development do

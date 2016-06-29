@@ -1,3 +1,4 @@
+require 'pry'
 class InstrumentsController < ApplicationController
   before_action :set_instrument, only: [:show, :edit, :update, :destroy]
 
@@ -32,7 +33,7 @@ class InstrumentsController < ApplicationController
         format.json { render :show, status: :created, location: @instrument }
       else
         format.html { render :new }
-        format.json { render json: @instrument.errors, status: :unprocessable_entity }
+        format.json { render json: @instrument.errors, status: :unActivityable_entity }
       end
     end
   end
@@ -46,7 +47,7 @@ class InstrumentsController < ApplicationController
         format.json { render :show, status: :ok, location: @instrument }
       else
         format.html { render :edit }
-        format.json { render json: @instrument.errors, status: :unprocessable_entity }
+        format.json { render json: @instrument.errors, status: :unActivityable_entity }
       end
     end
   end

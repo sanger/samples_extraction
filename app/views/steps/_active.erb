@@ -1,0 +1,10 @@
+<h3> Active step </h3>
+<ul>
+  <li>
+    <% if step_type.empty? %>
+      There is no paths to follow for this barcode
+    <% else %>
+      <%= render step_type %>
+    <% end %>
+  </li>
+</ul>
