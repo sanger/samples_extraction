@@ -2,8 +2,10 @@
 <ul>
   <li>
     <% if step_type %>
-      <%= render :partial => 'step_types/step_type', :locals => {:step_type => step_type,
-        :asset_group => asset_group} %>
+      <%= render :partial => 'step_types/step_type', :locals => {
+        :step_type => step_type,
+        :asset_group => asset_group,
+        :activity => activity} %>
     <% else %>
       There is no paths to follow for this barcode
     <% end %>

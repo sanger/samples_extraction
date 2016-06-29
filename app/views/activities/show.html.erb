@@ -9,7 +9,8 @@
   <%= render :partial =>'steps/finished', :locals => {:steps => @steps} %>
   <%= render :partial =>'steps/active', :locals => {
     :step_type => @step_type,
-    :asset_group => @asset_group }
+    :asset_group => @asset_group,
+    :activity => @activity }
     %>
 <% else %>
   <%= render :partial =>'steps/finished', :locals => {:steps => @steps } %>

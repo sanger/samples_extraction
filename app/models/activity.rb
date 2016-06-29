@@ -6,6 +6,7 @@ class Activity < ActiveRecord::Base
 
   has_many :steps
   has_many :step_types, :through => :activity_type
+  belongs_to :asset_group
 
   def assets
     steps.last.assets

@@ -1,9 +1,17 @@
 class ActivitiesController < ApplicationController
   before_action :set_activity, only: [:show, :update]
+  before_action :load_barcodes, only: [:update]
+
+  def load_barcodes
+    if params[:asset_barcode]
+      @assets = params[:asset_barcode].map{|b| Asset.find_by_barcode!(b)}
+      @activity.asset_group.assets << @assets
+    end
+    @assets = @activity.asset_group.assets
+  end
 
   def update
-    @assets = params[:asset_barcode].map{|b| Asset.find_by_barcode!(b)} unless params[:asset_barcode].nil?
-    @step_type = @activity.step_types_for(@assets).first
+    @step_type = @activity.step_types_for(@assets).last
 
     if @step_type
       @steps = @activity.steps_for(@assets)
@@ -38,7 +46,11 @@ class ActivitiesController < ApplicationController
   def create
     @kit = Kit.find_by_barcode!(params[:kit_barcode])
     @instrument = Instrument.find_by_barcode!(params[:instrument_barcode])
-    @activity = @kit.kit_type.activity_type.activities.create(:instrument => @instrument, :kit => @kit)
+    @asset_group = AssetGroup.create
+    @activity = @kit.kit_type.activity_type.activities.create(
+      :instrument => @instrument,
+      :asset_group => @asset_group,
+      :kit => @kit)
 
     respond_to do |format|
       if @activity.save
