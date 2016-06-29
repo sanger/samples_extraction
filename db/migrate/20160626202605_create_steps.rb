@@ -4,7 +4,7 @@ class CreateSteps < ActiveRecord::Migration
       t.references :step_type, index: true, foreign_key: true
       t.date :completion_date
       t.references :activity, index: true, foreign_key: true
-      t.references :asset, index: true, foreign_key: true
+      t.references :asset_group, index: true, foreign_key: true
       t.timestamps
     end
   end

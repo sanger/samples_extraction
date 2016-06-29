@@ -10,11 +10,12 @@ class ActivitiesControllerTest < ActionController::TestCase
       @activity_type = FactoryGirl.create :activity_type
       @kit_type = FactoryGirl.create :kit_type, :activity_type => @activity_type
       @kit = FactoryGirl.create :kit, {:kit_type => @kit_type}
+      @instrument = FactoryGirl.create :instrument
     end
 
     should "create a new activity of the activity type of the kit" do
       count = @kit.kit_type.activity_type.activities.count
-      post :create, :kit => @kit
+      post :create, :kit => @kit, :instrument => @instrument
       assert_equal @kit.kit_type.activity_type.activities.count, count + 1
       assert_equal @activity_type.activities.count, count + 1
     end
@@ -50,6 +51,10 @@ class ActivitiesControllerTest < ActionController::TestCase
 
 
         @asset.facts << @facts
+
+        @asset_group = FactoryGirl.create :asset_group
+
+        @asset.asset_groups << @asset_group
         @activity = FactoryGirl.create :activity, :activity_type => @activity_type
 
         @activity_type.activities << @activity
@@ -57,7 +62,7 @@ class ActivitiesControllerTest < ActionController::TestCase
         @step = FactoryGirl.create :step, {
           :step_type_id => @step_type2.id,
           :activity_id => @activity.id,
-          :asset_id => @asset.id
+          :asset_group_id => @asset_group.id
         }
       end
 

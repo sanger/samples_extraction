@@ -1,6 +1,6 @@
-class CreateCapacities < ActiveRecord::Migration
+class CreateActivityTypesInstruments < ActiveRecord::Migration
   def change
-    create_table :capacities do |t|
+    create_table :activity_types_instruments do |t|
       t.references :instrument, index: true, foreign_key: true
       t.references :activity_type, index: true, foreign_key: true
 

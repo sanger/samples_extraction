@@ -2,7 +2,29 @@ class ActivitiesController < ApplicationController
   before_action :set_activity, only: [:show, :update]
 
   def update
-    @assets = params[:asset_barcode].map{|b| Asset.find_by_barcode!(b)}
+    @assets = params[:asset_barcode].map{|b| Asset.find_by_barcode!(b)} unless params[:asset_barcode].nil?
+    @step_type = @activity.step_types_for(@assets).first
+
+    if @step_type
+      @steps = @activity.steps_for(@assets)
+      if params[:asset_group].nil?
+        @asset_group = AssetGroup.create(:assets => @assets)
+      else
+        @asset_group = AssetGroup.find(params[:asset_group])
+      end
+      @activity.create_step(@step_type, @asset_group)
+    else
+      @steps = @activity.steps
+    end
+
+    respond_to do |format|
+      format.html { render :show }
+      format.json { render :show, status: :created, location: @activity }
+    end
+  end
+
+  def show
+    @steps = @activity.steps
 
     respond_to do |format|
       format.html { render :show }
@@ -15,7 +37,8 @@ class ActivitiesController < ApplicationController
 
   def create
     @kit = Kit.find_by_barcode!(params[:kit_barcode])
-    @activity = @kit.kit_type.activity_type.activities.create
+    @instrument = Instrument.find_by_barcode!(params[:instrument_barcode])
+    @activity = @kit.kit_type.activity_type.activities.create(:instrument => @instrument, :kit => @kit)
 
     respond_to do |format|
       if @activity.save

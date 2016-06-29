@@ -1,10 +1,19 @@
+<div>
+  Instrument: <%= @activity.instrument.barcode %>
+</div>
+<div>
+  Kit: <%= @activity.kit.barcode %>
+</div>
 <p id="notice"><%= notice %></p>
 <% if @assets %>
-  <%= render :partial =>'steps/finished', :locals => {:steps => @activity.steps_for(@assets)} %>
-  <%= render :partial =>'steps/active', :locals => {:step_type => @activity.step_types_for(@assets) }%>
+  <%= render :partial =>'steps/finished', :locals => {:steps => @steps} %>
+  <%= render :partial =>'steps/active', :locals => {
+    :step_type => @step_type,
+    :asset_group => @asset_group }
+    %>
 <% else %>
-  <%= render :partial =>'steps/finished', :locals => {:steps => @activity.steps } %>
-  <%= form_for @activity, action: 'update' do |f| %>
+  <%= render :partial =>'steps/finished', :locals => {:steps => @steps } %>
+  <%= form_for @activity, action: 'show' do |f| %>
     <%= render :partial => 'barcode_reader' %>
     <%= f.submit "Start" %>
   <% end %>

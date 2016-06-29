@@ -1,1 +1,11 @@
 <%= step_type.name %>
+
+<%= form_for @activity, action: 'update' do |f| %>
+  <input type="hidden" name="step_type" value="<%= step_type.id %>" />
+  <input type="hidden" name="asset_group" value="<%= asset_group.id %>" />
+  <% @assets.each_with_index do |asset, pos| %>
+    <input type="hidden" name="asset_barcode[<%= pos %>]" value="<%= asset.barcode %>" />
+  <% end %>
+  <!-- %= render :partial => 'barcode_reader' % -->
+  <%= f.submit "Next" %>
+<% end %>

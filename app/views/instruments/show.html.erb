@@ -1,12 +1,13 @@
 <p id="notice"><%= notice %></p>
 
 <p>
-  <strong>Barcode:</strong>
+  <strong>Instrument Barcode:</strong>
   <%= @instrument.barcode %>
 </p>
 
 <%= form_tag(activities_path, action: 'create') do %>
-  <%= text_field_tag(:kit_barcode) %>
+  <input type="hidden" name="instrument_barcode" value="<%= @instrument.barcode %>" />
+  <%= render :partial => 'kit_barcode_reader' %>
   <%= submit_tag("Create activity") %>
 <% end %>
 

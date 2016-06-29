@@ -1,10 +1,11 @@
 <h3> Active step </h3>
 <ul>
   <li>
-    <% if step_type.empty? %>
-      There is no paths to follow for this barcode
+    <% if step_type %>
+      <%= render :partial => 'step_types/step_type', :locals => {:step_type => step_type,
+        :asset_group => asset_group} %>
     <% else %>
-      <%= render step_type %>
+      There is no paths to follow for this barcode
     <% end %>
   </li>
 </ul>

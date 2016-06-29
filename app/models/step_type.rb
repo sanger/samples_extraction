@@ -21,4 +21,11 @@ class StepType < ActiveRecord::Base
       condition_group.conditions_compatible_with?(asset)
     end
   end
+
+  def actions_for_condition_group(condition_group)
+  end
+
+  def actions_for(assets)
+    #condition_group_classification_for(assets)
+  end
 end

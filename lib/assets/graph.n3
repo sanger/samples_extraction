@@ -1,15 +1,20 @@
 { ?p :is :ReceptionTube .
   ?q :is :EmptyTube .
+  ?p :is :Tube .
+  ?q :is :Empty .
 } => {
-  :prod :add {
+  :step :stepTypeName """From Reception tube to Received tube""" .
+  :step :stepTypeClassName """TransferTubeToTube""" .
+  :step :addFacts {
     ?q :is :ReceivedTube .
   } .
-  :prod :del {
+  :step :deleteFacts {
     ?p :is :ReceptionTube .
-    ?q :is :EmptyTube
+    ?q :is :EmptyTube .
   } .
-}.
+} .
+
+
 
 { ?p :is :ReceptionTube .
-  ?q :is :EmptyTube .
-} => { :prod :add { ?p :is :Tube}}.
+} => { :step :addFacts { ?p :is :Tube} .}.
