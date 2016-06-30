@@ -1,29 +1,13 @@
 class ActivitiesController < ApplicationController
   before_action :set_activity, only: [:show, :update]
-  before_action :load_barcodes, only: [:update]
-
-  def load_barcodes
-    if params[:asset_barcode]
-      @assets = params[:asset_barcode].map{|b| Asset.find_by_barcode!(b)}
-      @activity.asset_group.assets << @assets
-    end
-    @assets = @activity.asset_group.assets
-  end
+  before_action :remove_barcodes, only: [:update, :show]
+  before_action :add_barcodes, only: [:update, :show]
+  before_action :select_assets, only: [:show, :update]
 
   def update
-    @step_type = @activity.step_types_for(@assets).last
-
-    if @step_type
-      @steps = @activity.steps_for(@assets)
-      if params[:asset_group].nil?
-        @asset_group = AssetGroup.create(:assets => @assets)
-      else
-        @asset_group = AssetGroup.find(params[:asset_group])
-      end
-      @activity.create_step(@step_type, @asset_group)
-    else
-      @steps = @activity.steps
-    end
+    perform_previous_step_type
+    @step_types = @activity.step_types_for(@assets)
+    @steps = @activity.steps
 
     respond_to do |format|
       format.html { render :show }
@@ -32,6 +16,7 @@ class ActivitiesController < ApplicationController
   end
 
   def show
+    @step_types = @activity.step_types_for(@assets)
     @steps = @activity.steps
 
     respond_to do |format|
@@ -74,4 +59,32 @@ class ActivitiesController < ApplicationController
     def activity_params
       params.require(:activity).permit(:kit_barcode, :asset_barcodes)
     end
+
+  def remove_barcodes
+    if params[:delete_barcode]
+      @activity.unselect_barcodes(params[:delete_barcode].values)
+    end
+  end
+
+  def add_barcodes
+    if params[:asset_barcode]
+      @activity.select_barcodes(params[:asset_barcode].values)
+    end
+  end
+
+  def select_assets
+    @assets = @activity.asset_group.assets
+  end
+
+  def perform_previous_step_type
+    if params[:step_type]
+      valid_step_types = @activity.step_types_for(@assets)
+      step_type_to_do = @activity.step_types.find_by_id!(params[:step_type])
+      if valid_step_types.include?(step_type_to_do)
+        @step_performed = @activity.create_step(step_type_to_do)
+        @assets.reload
+      end
+    end
+  end
+
 end

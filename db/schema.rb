@@ -14,8 +14,9 @@
 ActiveRecord::Schema.define(version: 20160629144842) do
 
   create_table "actions", force: :cascade do |t|
-    t.string   "action",             limit: 255, null: false
+    t.string   "action_type",        limit: 255, null: false
     t.integer  "condition_group_id", limit: 4
+    t.integer  "step_type_id",       limit: 4
     t.string   "predicate",          limit: 255, null: false
     t.string   "object",             limit: 255
     t.datetime "created_at",                     null: false
@@ -23,10 +24,12 @@ ActiveRecord::Schema.define(version: 20160629144842) do
   end
 
   add_index "actions", ["condition_group_id"], name: "index_actions_on_condition_group_id", using: :btree
+  add_index "actions", ["step_type_id"], name: "index_actions_on_step_type_id", using: :btree
 
   create_table "activities", force: :cascade do |t|
     t.integer  "activity_type_id", limit: 4
     t.integer  "instrument_id",    limit: 4
+    t.integer  "asset_group_id",   limit: 4
     t.integer  "kit_id",           limit: 4
     t.date     "completion_date"
     t.datetime "created_at"
@@ -34,6 +37,7 @@ ActiveRecord::Schema.define(version: 20160629144842) do
   end
 
   add_index "activities", ["activity_type_id"], name: "index_activities_on_activity_type_id", using: :btree
+  add_index "activities", ["asset_group_id"], name: "index_activities_on_asset_group_id", using: :btree
   add_index "activities", ["instrument_id"], name: "index_activities_on_instrument_id", using: :btree
   add_index "activities", ["kit_id"], name: "index_activities_on_kit_id", using: :btree
 
@@ -122,11 +126,14 @@ ActiveRecord::Schema.define(version: 20160629144842) do
   add_index "conditions", ["condition_group_id"], name: "index_conditions_on_condition_group_id", using: :btree
 
   create_table "facts", force: :cascade do |t|
+    t.integer  "asset_id",   limit: 4
     t.string   "predicate",  limit: 255, null: false
     t.string   "object",     limit: 255
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
   end
+
+  add_index "facts", ["asset_id"], name: "index_facts_on_asset_id", using: :btree
 
   create_table "instruments", force: :cascade do |t|
     t.string   "barcode",    limit: 255
@@ -209,7 +216,9 @@ ActiveRecord::Schema.define(version: 20160629144842) do
   end
 
   add_foreign_key "actions", "condition_groups"
+  add_foreign_key "actions", "step_types"
   add_foreign_key "activities", "activity_types"
+  add_foreign_key "activities", "asset_groups"
   add_foreign_key "activities", "instruments"
   add_foreign_key "activities", "kits"
   add_foreign_key "activity_type_step_types", "activity_types"
@@ -224,6 +233,7 @@ ActiveRecord::Schema.define(version: 20160629144842) do
   add_foreign_key "assets_facts", "facts"
   add_foreign_key "condition_groups", "step_types"
   add_foreign_key "conditions", "condition_groups"
+  add_foreign_key "facts", "assets"
   add_foreign_key "kit_types", "activity_types"
   add_foreign_key "kits", "kit_types"
   add_foreign_key "steps", "activities"

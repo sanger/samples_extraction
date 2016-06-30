@@ -18,10 +18,16 @@ class StepType < ActiveRecord::Base
     end)
   end
 
-  def compatible_with?(assets)
+  def every_required_asset_is_in_classification?(classification, required_assets)
+    return true if required_assets.nil?
+    required_assets.all?{|asset| !classification[asset].empty?}
+  end
+
+  def compatible_with?(assets, required_assets=nil)
     # Every asset has at least one condition group satisfied
     classification = condition_group_classification_for(assets)
-    every_condition_group_has_at_least_one_asset?(classification)
+    every_condition_group_has_at_least_one_asset?(classification) &&
+      every_required_asset_is_in_classification?(classification, required_assets)
   end
 
   def condition_groups_for(asset)

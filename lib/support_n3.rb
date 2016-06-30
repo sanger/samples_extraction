@@ -5,7 +5,7 @@ module SupportN3
 
   def self.step_type(quads)
     names = quads.select{|quad| fragment(quad[1]) == 'stepTypeName'}.flatten
-    return StepType.find_by_name!(names[2].to_s) unless names.empty?
+    return StepType.find_or_create_by(:name => names[2].to_s) unless names.empty?
     return StepType.create(:name => "Rule from #{DateTime.now.to_s}")
   end
 
@@ -18,6 +18,7 @@ module SupportN3
         actions = quads.select{|quad| quad.last === v}
 
         step_type = step_type(actions)
+        step_type.activity_types << ActivityType.last
 
         c_groups = {}
         conditions.each do |k,p,v,g|

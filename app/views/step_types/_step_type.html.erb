@@ -1,8 +1,11 @@
-<%= step_type.name %>
+<% step_types.each do |step_type| %>
+  <li>
+    <%= step_type.name %>
 
-<%= form_for @activity, action: 'update' do |f| %>
-  <input type="hidden" name="step_type" value="<%= step_type.id %>" />
-  <input type="hidden" name="asset_group" value="<%= asset_group.id %>" />
-  <!-- %= render :partial => 'barcode_reader' % -->
-  <%= f.submit "Next" %>
+    <%= form_for @activity, action: 'update' do |f| %>
+      <input type="hidden" name="step_type" value="<%= step_type.id %>" />
+      <!-- %= render :partial => 'barcode_reader' % -->
+      <%= f.submit "Next" %>
+    <% end %>
+  </li>
 <% end %>

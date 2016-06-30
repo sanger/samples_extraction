@@ -1,3 +1,4 @@
 class Fact < ActiveRecord::Base
-  has_many :asset, :through => :asset_fact
+  belongs_to :asset
+  #has_many :asset, :through => :asset_fact
 end
