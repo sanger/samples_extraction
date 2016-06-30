@@ -2,7 +2,7 @@
   <li>
     <%= step_type.name %>
 
-    <%= form_for @activity, action: 'update' do |f| %>
+    <%= bootstrap_form_for @activity, action: 'update' do |f| %>
       <input type="hidden" name="step_type" value="<%= step_type.id %>" />
       <!-- %= render :partial => 'barcode_reader' % -->
       <%= f.submit "Next" %>

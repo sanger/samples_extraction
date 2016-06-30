@@ -1,4 +1,4 @@
-<%= form_for(@kit_type) do |f| %>
+<%= bootstrap_form_for(@kit_type) do |f| %>
   <% if @kit_type.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@kit_type.errors.count, "error") %> prohibited this kit_type from being saved:</h2>
@@ -12,15 +12,12 @@
   <% end %>
 
   <div class="field">
-    <%= f.label :name %><br>
     <%= f.text_field :name %>
   </div>
   <div class="field">
-    <%= f.label :target_type %><br>
     <%= f.text_field :target_type %>
   </div>
   <div class="field">
-    <%= f.label :activity_type_id %><br>
     <%= f.text_field :activity_type_id %>
   </div>
   <div class="actions">

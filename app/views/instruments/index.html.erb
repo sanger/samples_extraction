@@ -14,9 +14,9 @@
     <% @instruments.each do |instrument| %>
       <tr>
         <td><%= instrument.barcode %></td>
-        <td><%= link_to 'Show', instrument %></td>
-        <td><%= link_to 'Edit', edit_instrument_path(instrument) %></td>
-        <td><%= link_to 'Destroy', instrument, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= bootstrap_link_to 'Show', instrument %></td>
+        <td><%= bootstrap_link_to 'Edit', edit_instrument_path(instrument) %></td>
+        <td><%= bootstrap_link_to 'Destroy', instrument, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>
@@ -24,4 +24,4 @@
 
 <br>
 
-<%= link_to 'New Instrument', new_instrument_path %>
+<%= bootstrap_link_to 'New Instrument', new_instrument_path %>

@@ -12,8 +12,8 @@
 
 <p>
   <strong>Activity type:</strong>
-  <%= @kit_type.activity_type %>
+  <%= @kit_type.activity_type.name %>
 </p>
 
-<%= link_to 'Edit', edit_kit_type_path(@kit_type) %> |
-<%= link_to 'Back', kit_types_path %>
+<%= bootstrap_link_to 'Edit', edit_kit_type_path(@kit_type) %> |
+<%= bootstrap_link_to 'Back', kit_types_path %>

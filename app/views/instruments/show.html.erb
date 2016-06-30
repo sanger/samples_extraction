@@ -5,13 +5,11 @@
   <%= @instrument.barcode %>
 </p>
 
-<%= form_tag(activities_path, action: 'create') do %>
-  <input type="hidden" name="instrument_barcode" value="<%= @instrument.barcode %>" />
-  <%= render :partial => 'kit_barcode_reader' %>
-  <%= submit_tag("Create activity") %>
+<%= bootstrap_form_tag(url: activities_path, action: 'create') do |f| %>
+  <%= f.hidden_field(:instrument_barcode, :value => @instrument.barcode) %>
+  <%= f.text_field(:kit_barcode, :placeholder => 'Scan a kit barcode') %>
+  <%= f.submit("Create activity") %>
 <% end %>
 
-
-
-<%= link_to 'Edit', edit_instrument_path(@instrument) %> |
-<%= link_to 'Back', instruments_path %>
+<%= bootstrap_link_to 'Edit', edit_instrument_path(@instrument) %> |
+<%= bootstrap_link_to 'Back', instruments_path %>
