@@ -21,7 +21,8 @@
     <%= f.number_field :num_reactions_performed, :readonly => readonly %>
   </div>
   <div class="field">
-    <%= f.text_field :kit_type_id, :readonly => readonly %>
+    <%= f.select :kit_type_id, options_for_select(@kit_types.map{|a| [a.name, a.id]}), {},
+    :disabled => readonly %>
   </div>
   <% unless readonly %>
     <div class="actions">

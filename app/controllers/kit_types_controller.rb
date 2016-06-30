@@ -1,5 +1,6 @@
 class KitTypesController < ApplicationController
   before_action :set_kit_type, only: [:show, :edit, :update, :destroy]
+  before_action :set_activity_types, only: [:new, :show, :edit, :update]
 
   # GET /kit_types
   # GET /kit_types.json
@@ -65,6 +66,10 @@ class KitTypesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_kit_type
       @kit_type = KitType.find(params[:id])
+    end
+
+    def set_activity_types
+      @activity_types = ActivityType.all
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

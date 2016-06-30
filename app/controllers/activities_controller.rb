@@ -35,7 +35,7 @@ class ActivitiesController < ApplicationController
   def set_kit
     @kit = Kit.find_by_barcode!(params[:kit_barcode])
   rescue ActiveRecord::RecordNotFound => e
-    flash[:notice] = 'Kit not found'
+    flash[:danger] = 'Kit not found'
     redirect_to :back
   end
 

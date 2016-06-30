@@ -11,10 +11,17 @@
 
 <div class="main-view">
   <% unless flash[:notice].blank? %>
-    <div class="alert alert-danger">
+    <div class="alert alert-info">
       <%= flash[:notice] %>
     </div>
   <% end %>
+
+  <% unless flash[:danger].blank? %>
+    <div class="alert alert-danger">
+      <%= flash[:danger] %>
+    </div>
+  <% end %>
+
   <%= yield %>
 </div>
 
