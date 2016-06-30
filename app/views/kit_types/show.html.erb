@@ -1,19 +1,6 @@
 <p id="notice"><%= notice %></p>
 
-<p>
-  <strong>Name:</strong>
-  <%= @kit_type.name %>
-</p>
+<%= render 'form' %>
 
-<p>
-  <strong>Target type:</strong>
-  <%= @kit_type.target_type %>
-</p>
-
-<p>
-  <strong>Activity type:</strong>
-  <%= @kit_type.activity_type.name %>
-</p>
-
-<%= bootstrap_link_to 'Edit', edit_kit_type_path(@kit_type) %> |
+<%= bootstrap_link_to 'Edit', edit_kit_type_path(@kit_type) %>
 <%= bootstrap_link_to 'Back', kit_types_path %>

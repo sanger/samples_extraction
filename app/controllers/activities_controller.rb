@@ -4,6 +4,10 @@ class ActivitiesController < ApplicationController
   before_action :add_barcodes, only: [:update, :show]
   before_action :select_assets, only: [:show, :update]
 
+  before_action :set_kit, only: [:create]
+  before_action :set_instrument, only: [:create]
+
+
   def update
     perform_previous_step_type
     @step_types = @activity.step_types_for(@assets)
@@ -28,9 +32,20 @@ class ActivitiesController < ApplicationController
   def index
   end
 
-  def create
+  def set_kit
     @kit = Kit.find_by_barcode!(params[:kit_barcode])
+  rescue ActiveRecord::RecordNotFound => e
+    flash[:notice] = 'Kit not found'
+    redirect_to :back
+  end
+
+  def set_instrument
     @instrument = Instrument.find_by_barcode!(params[:instrument_barcode])
+  rescue RecordNotFound => e
+
+  end
+
+  def create
     @asset_group = AssetGroup.create
     @activity = @kit.kit_type.activity_type.activities.create(
       :instrument => @instrument,
@@ -46,7 +61,6 @@ class ActivitiesController < ApplicationController
         format.json { render json: @activity.errors, status: :unprocessable_entity }
       end
     end
-
   end
 
   private

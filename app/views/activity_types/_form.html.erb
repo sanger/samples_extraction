@@ -11,10 +11,13 @@
     </div>
   <% end %>
 
+  <% readonly = params[:action] == 'show' %>
   <div class="field form-group">
-    <%= f.text_field :name %>
+    <%= f.text_field :name, :readonly => readonly %>
   </div>
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+  <% unless readonly %>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+  <% end %>
 <% end %>

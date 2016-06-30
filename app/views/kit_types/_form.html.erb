@@ -10,17 +10,19 @@
       </ul>
     </div>
   <% end %>
-
+  <% readonly = params[:action] == 'show' %>
   <div class="field">
-    <%= f.text_field :name %>
-  </div>
-  <div class="field">
-    <%= f.text_field :target_type %>
+    <%= f.text_field :name, :readonly => readonly %>
   </div>
   <div class="field">
-    <%= f.text_field :activity_type_id %>
+    <%= f.text_field :target_type, :readonly => readonly %>
   </div>
-  <div class="actions">
-    <%= f.submit %>
+  <div class="field">
+    <%= f.text_field :activity_type_id, :readonly => readonly %>
   </div>
+  <% unless readonly %>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+  <% end %>
 <% end %>
