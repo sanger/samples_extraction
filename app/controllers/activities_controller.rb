@@ -82,7 +82,10 @@ class ActivitiesController < ApplicationController
 
   def add_barcodes
     if params[:asset_barcode]
-      @activity.select_barcodes(params[:asset_barcode].values)
+      barcodes = params[:asset_barcode].values
+      if !@activity.select_barcodes(barcodes)
+        flash[:danger] = "Could not find barcodes #{barcodes}"
+      end
     end
   end
 

@@ -1,8 +1,19 @@
-<% unless steps.count == 0 %>
-  <h3>Previous steps</h3>
-  <ol>
-  <% steps.each do |step| %>
-    <li><%= render step %></li>
-  <% end %>
-  </ol>
-<% end %>
+<div class="form-group">
+  <label class="control-label">Previous steps</label>
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <% unless steps.count == 0 %>
+      <table class="table table-condensed">
+        <thead><th>Step id</th><th>Step type</th><th>Activity id</th><th>Activity type</th></thead>
+        <tbody>
+          <% steps.each do |step| %>
+            <tr><td><%= step.id %></td><td><%= step.step_type.name %></td><td><%= step.activity.id %></td><td><%= step.activity.activity_type.name %></td></tr>
+          <% end %>
+        </tbody>
+      </table>
+      <% else %>
+        <div class="empty-description"><span>This activity has no steps yet.</span></div>
+      <% end %>
+    </div>
+  </div>
+</div>

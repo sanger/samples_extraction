@@ -1,28 +1,16 @@
-<div>
-  Instrument: <%= @activity.instrument.barcode %>
-</div>
-<div>
-  Kit: <%= @activity.kit.barcode %>
-</div>
 <p id="notice"><%= notice %></p>
 
-<%= bootstrap_form_for @activity, action: 'show' do |f| %>
-  <%= render :partial => 'barcode_reader' %>
-  <%= f.submit "Add barcode" %>
+<h1>Activity <%= @activity.id %></h1>
+
+<%= bootstrap_form_for @activity, action: 'show', :html => { :class => 'form-inline activity-desc' } do |f| %>
+  <%= f.text_field :activity_type, :value => @activity.activity_type.name,:readonly => true %>
+  <%= f.text_field :instrument, :value => @activity.instrument.barcode,:readonly => true %>
+  <%= f.text_field :kit, :value => @activity.kit.barcode,:readonly => true %>
 <% end %>
 
+<%= render :partial => 'assets_selection' %>
+
 <% if @assets %>
-    <div>
-      <h3>Barcodes</h3>
-      <% @assets.uniq.each_with_index do |asset, i| %>
-        <div><%= asset.barcode %>: <%= asset.facts.map{|f| f.predicate+':'+f.object}.join(',')%>
-          <%= bootstrap_form_for @activity, action: 'update' do |f| %>
-            <input type="hidden" name="delete_barcode[<%= i %>]" value="<%= asset.barcode %>" />
-            <button type="submit">Delete</button>
-          <% end %>
-        </div>
-      <% end %>
-    </div>
   <%= render :partial =>'steps/active', :locals => {
     :step_types => @step_types,
     :activity => @activity }
@@ -31,5 +19,5 @@
 <% else %>
   <%= render :partial =>'steps/finished', :locals => {:steps => @steps } %>
 <% end %>
-<%= bootstrap_link_to 'Edit', edit_activity_path(@activity) %> |
+<%= bootstrap_link_to 'Edit', edit_activity_path(@activity) %>
 <%= bootstrap_link_to 'Back', activities_path %>

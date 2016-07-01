@@ -13,6 +13,7 @@
  *= require_tree .
  *= require_self
  */
+@import "bootstrap-sprockets";
 @import "bootstrap";
 
 /*.navbar .nav .underlined {
@@ -30,6 +31,20 @@
 .main-view form {
   padding-bottom: 1em;
 }
+.main-view .panel-body {
+  padding-bottom: 0px;
+}
+.main-view table {
+  margin-bottom: 0px;
+}
+
+.empty-description { margin-bottom: 1em;}
+
+.main-view table tbody tr td { padding-top: 1em;}
 
 p#notice { display:none;}
 p#danger { display:none;}
+
+form.activity-desc {margin-top: 1em; margin-bottom: 1em;}
+form.activity-desc label { margin-right: 1em; }
+form.activity-desc .form-group {margin-right: 0.5em; }

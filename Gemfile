@@ -4,7 +4,7 @@ gem 'rdf-n3'
 
 gem 'rails-assets-tether', '>= 1.1.0'
 gem 'bootstrap_form'
-
+gem 'sprockets-rails'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.6'

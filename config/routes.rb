@@ -1,3 +1,7 @@
+
+require 'sass'
+require 'bootstrap-sass'
+
 Rails.application.routes.draw do
   resources :steps
   resources :activities

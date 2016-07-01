@@ -11,10 +11,12 @@ class Activity < ActiveRecord::Base
   def select_barcodes(barcodes)
     barcodes.each do |barcode|
       if asset_group.assets.select{|a| a.barcode == barcode}.empty?
-        asset = Asset.find_by_barcode!(barcode)
+        asset = Asset.find_by_barcode(barcode)
+        return false if asset.nil?
         asset_group.assets << asset
       end
     end
+    return true
   end
 
   def unselect_barcodes(barcodes)
