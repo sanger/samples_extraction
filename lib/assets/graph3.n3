@@ -1,0 +1,24 @@
+:activity :activityTypeName """Testing activity type2""" .
+
+{ ?p :is :Tube .} => { :step :stepTypeName """Get inputs""" .
+       :step :addFacts { ?p :is :1DTube .} .
+      }.
+
+{ ?p :is :1DTube .} => { :step :stepTypeName """Obtain outputs""" .
+        :step :createAsset { ?q :is :Empty2DTube .} .
+        :step :unselectAsset { ?p :is :1DTube .} .
+      }.
+
+{ ?p :is :1DTube .
+  ?q :is :Empty2DTube .
+} => { :step :stepTypeName """Transfer 1D to 2D tubes""" .
+        :step :removeFacts {
+          ?p :is :1DTube .
+          ?q :is :Empty2DTube .
+        } .
+        :step :addFacts {
+          ?p :is :Empty1DTube .
+          ?q :is :2DTube .
+          ?p :transferAliquots ?q .
+        } .
+      }.

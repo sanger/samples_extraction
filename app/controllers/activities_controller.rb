@@ -47,8 +47,10 @@ class ActivitiesController < ApplicationController
 
   def create
     @asset_group = AssetGroup.create
-    @activity = @kit.kit_type.activity_type.activities.create(
+    @activity_type = @kit.kit_type.activity_type
+    @activity = @activity_type.activities.create(
       :instrument => @instrument,
+      :activity_type => @activity_type,
       :asset_group => @asset_group,
       :kit => @kit)
 
@@ -71,7 +73,7 @@ class ActivitiesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def activity_params
-      params.require(:activity).permit(:kit_barcode, :asset_barcodes)
+      params.require(:activity).permit(:kit_barcode, :asset_barcode, :step_type, :instrument_barcode, :delete_barcode)
     end
 
   def remove_barcodes

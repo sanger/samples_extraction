@@ -1,3 +1,4 @@
+:activity :activityTypeName """Testing activity type""" .
 { ?p :is :stage1 .} => { :step :stepTypeName """Stage 1""" .
        :step :deleteFacts { ?p :is :stage1 .} .
        :step :addFacts { ?p :is :stage2 .} .

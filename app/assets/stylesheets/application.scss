@@ -42,6 +42,12 @@
 
 .main-view table tbody tr td { padding-top: 1em;}
 
+div#error_explanation {
+  h2 { @extend .alert-danger; @extend .alert;}
+  @extend .alert-danger;
+  @extend .alert;
+}
+
 p#notice { display:none;}
 p#danger { display:none;}
 

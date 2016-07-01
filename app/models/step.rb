@@ -22,7 +22,8 @@ class Step < ActiveRecord::Base
     classify_assets.each do |asset, r|
       if r.action_type == 'addFacts'
         asset.facts << Fact.create(:predicate => r.predicate, :object => r.object)
-      else
+      end
+      if r.action_type == 'deleteFacts'
         asset.facts.delete(asset.facts.select{|f| f.predicate == r.predicate && f.object == r.object })
       end
     end

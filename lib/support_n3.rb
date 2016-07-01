@@ -9,16 +9,28 @@ module SupportN3
     return StepType.create(:name => "Rule from #{DateTime.now.to_s}")
   end
 
+  def self.activity_type(quads)
+    name = quads.select{|quad| fragment(quad[1]) == 'activityTypeName'}.flatten[2].to_s
+    unless name.empty?
+      old_activity_type = ActivityType.find_by({ :name => name, :superceded_by_id => nil })
+    end
+    activity_type = old_activity_type ? old_activity_type.dup : ActivityType.new(:name => name)
+    activity_type.save!
+    old_activity_type.deprecate_with(activity_type) if old_activity_type
+    return activity_type
+  end
+
   def self.load_n3(file_path)
     RDF::N3::Reader.open(file_path) do |reader|
       quads = reader.quads
+      activity_type = activity_type(quads)
       rules = quads.select{|quad| fragment(quad[1])=='implies'}
       rules.each do |k,p,v,g|
         conditions = quads.select{|quad| quad.last === k}
         actions = quads.select{|quad| quad.last === v}
 
         step_type = step_type(actions)
-        step_type.activity_types << ActivityType.last
+        step_type.activity_types << activity_type
 
         c_groups = {}
         conditions.each do |k,p,v,g|
