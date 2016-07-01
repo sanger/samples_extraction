@@ -1,4 +1,4 @@
-<%= bootstrap_form_for(@kit) do |f| %>
+<%= bootstrap_form_for(@kit, :html => { :autocomplete => 'off'}) do |f| %>
   <% if @kit.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@kit.errors.count, "error") %> prohibited this kit from being saved:</h2>
