@@ -5,6 +5,13 @@ module SupportN3
 
   def self.step_type(quads)
     names = quads.select{|quad| fragment(quad[1]) == 'stepTypeName'}.flatten
+    old_step_type = StepType.where(:name => names[2].to_s, :superceded_by_id => nil).first
+    if old_step_type
+      step_type =  old_step_type.dup
+      step_type.save!
+      old_step_type.deprecate_with(step_type)
+      return step_type
+    end
     return StepType.find_or_create_by(:name => names[2].to_s) unless names.empty?
     return StepType.create(:name => "Rule from #{DateTime.now.to_s}")
   end
@@ -32,6 +39,7 @@ module SupportN3
         step_type = step_type(actions)
         step_type.activity_types << activity_type
 
+        # Creation of condition groups in the antecedents
         c_groups = {}
         conditions.each do |k,p,v,g|
           fr = fragment(k)
@@ -49,6 +57,14 @@ module SupportN3
           action = fragment(p)
           unless v.literal?
             quads.select{|quad| quad.last == v}.each do |k,p,v,g|
+              if c_groups[fragment(k)].nil?
+                # Whenever I find a new variable name for an element I have to create a
+                # new ConditionGroup for it and collect it. This is because I need a way
+                # to remember
+                c_groups[fragment(k)] = ConditionGroup.create
+              end
+
+              #condition_group_id = c_groups[fragment(k)].nil? ? nil : c_groups[fragment(k)].id
               Action.create({:action_type => action, :predicate => fragment(p),
                 :object => fragment(v),
                 :step_type_id => step_type.id,

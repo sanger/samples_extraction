@@ -12,6 +12,8 @@ asset.facts << [
   ['is', 'Tube'],
   ['is', 'ReceptionTube'],
   ['aliquotType', 'DNA']
+
+
 ].map do |a,b|
   Fact.create({ :predicate => a, :object => b})
 end
@@ -62,5 +64,5 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 1111})
 #asset_group.steps << step
 
 require 'support_n3'
-SupportN3.load_n3("lib/assets/graph2.n3")
+SupportN3.load_n3("lib/assets/graph3.n3")
 

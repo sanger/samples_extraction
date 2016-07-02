@@ -4,6 +4,8 @@ class StepType < ActiveRecord::Base
   has_many :condition_groups
   has_many :actions
 
+  include Deprecatable
+
   def condition_group_classification_for(assets)
     Hash[assets.map{|asset| [asset, condition_groups_for(asset)]}]
   end

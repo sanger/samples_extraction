@@ -19,7 +19,20 @@ class Step < ActiveRecord::Base
 
 
   def execute_actions
+    created_assets = {}
     classify_assets.each do |asset, r|
+      if r.condition_group.conditions.empty?
+        asset = created_assets[r.condition_group.id]
+      end
+      if r.action_type == 'selectAsset'
+        activity.asset_group.assets << asset
+      end
+      if r.action_type == 'createAsset'
+        unless created_assets.keys.include?(r.condition_group.id)
+          created_assets[r.condition_group.id] = Asset.create(:barcode => 4)
+        end
+        created_assets[r.condition_group.id].facts << Fact.create(:predicate => r.predicate, :object => r.object)
+      end
       if r.action_type == 'addFacts'
         asset.facts << Fact.create(:predicate => r.predicate, :object => r.object)
       end

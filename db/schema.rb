@@ -88,7 +88,7 @@ ActiveRecord::Schema.define(version: 20160629144842) do
   end
 
   create_table "assets", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "barcode",    null: false
+    t.string   "barcode"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -180,8 +180,10 @@ ActiveRecord::Schema.define(version: 20160629144842) do
 
   create_table "step_types", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.integer  "superceded_by_id"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+    t.index ["superceded_by_id"], name: "index_step_types_on_superceded_by_id", using: :btree
   end
 
   create_table "steps", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
