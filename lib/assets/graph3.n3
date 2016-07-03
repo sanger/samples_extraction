@@ -1,11 +1,11 @@
 :activity :activityTypeName """Testing activity type""" .
 
-{ ?p :is :Tube .} => { :step :stepTypeName """Get inputs""" .
+{ ?p :is :Tube .} => { :step :stepTypeName """Change purpose of tube to 1D Tube""" .
        :step :addFacts { ?p :is :Tube1D .} .
        :step :removeFacts { ?p :is :Tube .} .
       }.
 
-{ ?p :is :Tube1D .} => { :step :stepTypeName """Obtain outputs""" .
+{ ?p :is :Tube1D .} => { :step :stepTypeName """Print 2D barcodes""" .
         :step :createAsset { ?q :is :EmptyTube2D .} .
         :step :selectAsset { ?q :is :EmptyTube2D .} .
       }.

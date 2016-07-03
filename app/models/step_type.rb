@@ -29,6 +29,7 @@ class StepType < ActiveRecord::Base
     # Every asset has at least one condition group satisfied
     classification = condition_group_classification_for(assets)
     every_condition_group_has_at_least_one_asset?(classification) &&
+      every_asset_has_at_least_one_condition_group?(classification) &&
       every_required_asset_is_in_classification?(classification, required_assets)
   end
 

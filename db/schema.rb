@@ -88,6 +88,7 @@ ActiveRecord::Schema.define(version: 20160629144842) do
   end
 
   create_table "assets", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "uuid"
     t.string   "barcode"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

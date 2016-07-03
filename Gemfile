@@ -1,6 +1,8 @@
 source 'https://rubygems.org'
 
 gem 'rdf-n3'
+gem 'tzinfo-data'
+
 
 gem 'rails-assets-tether', '>= 1.1.0'
 gem 'bootstrap_form'

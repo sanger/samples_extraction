@@ -6,6 +6,7 @@ class Step < ActiveRecord::Base
   after_create :execute_actions
 
   def classify_assets
+    binding.pry
     perform_list = []
     step_type.actions.each do |r|
       asset_group.assets.each do |asset|
@@ -29,15 +30,15 @@ class Step < ActiveRecord::Base
       end
       if r.action_type == 'createAsset'
         unless created_assets.keys.include?(r.condition_group.id)
-          created_assets[r.condition_group.id] = Asset.create(:barcode => 4)
+          created_assets[r.condition_group.id] = Asset.create!
         end
         created_assets[r.condition_group.id].facts << Fact.create(:predicate => r.predicate, :object => r.object)
       end
       if r.action_type == 'addFacts'
         asset.facts << Fact.create(:predicate => r.predicate, :object => r.object)
       end
-      if r.action_type == 'deleteFacts'
-        asset.facts.delete(asset.facts.select{|f| f.predicate == r.predicate && f.object == r.object })
+      if r.action_type == 'removeFacts'
+        asset.facts.select{|f| f.predicate == r.predicate && f.object == r.object }.each(&:destroy)
       end
     end
   end

@@ -8,6 +8,7 @@
 
 asset=Asset.create!(:barcode => '1')
 asset.facts << [
+  ['barcode', '1'],
   ['is', 'stage1'],
   ['is', 'Tube'],
   ['is', 'ReceptionTube'],
@@ -20,6 +21,7 @@ end
 
 asset2=Asset.create!(:barcode => '2')
 asset2.facts << [
+  ['barcode', '2'],  
   ['is', 'Tube'],
   ['is', 'EmptyTube'],
   ['is', 'Empty']

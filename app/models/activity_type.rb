@@ -14,6 +14,9 @@ class ActivityType < ActiveRecord::Base
       activity_type.kit_types.each do |kit_type|
         kit_type.update_attributes!(:activity_type => main_instance)
       end
+      activities.each do |activity|
+        activity.update_attributes!(:activity_type => main_instance)
+      end      
     end
   end
 end
