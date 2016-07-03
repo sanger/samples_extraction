@@ -10,6 +10,20 @@ class StepType < ActiveRecord::Base
     Hash[assets.map{|asset| [asset, condition_groups_for(asset)]}]
   end
 
+  def every_condition_group_satisfies_cardinality(classification)
+    # http://stackoverflow.com/questions/10989259/swapping-keys-and-values-in-a-hash
+    inverter_classification = classification.each_with_object({}) do |(k,v),o|
+      v.each do |cg|
+        (o[cg]||=[])<<k
+      end
+    end
+    inverter_classification.keys.all? do |condition_group|
+      return false unless defined?(condition_group.cardinality)
+      condition_group.cardinality.nil? ||
+        (condition_group.cardinality >= inverter_classification[condition_group].length)
+    end
+  end
+
   def every_condition_group_has_at_least_one_asset?(classification)
     (classification.values.flatten.uniq.length == condition_groups.length)
   end
@@ -28,6 +42,7 @@ class StepType < ActiveRecord::Base
   def compatible_with?(assets, required_assets=nil)
     # Every asset has at least one condition group satisfied
     classification = condition_group_classification_for(assets)
+    every_condition_group_satisfies_cardinality(classification) &&
     every_condition_group_has_at_least_one_asset?(classification) &&
       every_asset_has_at_least_one_condition_group?(classification) &&
       every_required_asset_is_in_classification?(classification, required_assets)

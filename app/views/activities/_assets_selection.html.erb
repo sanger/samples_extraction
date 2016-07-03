@@ -5,14 +5,14 @@
     <div class="panel-body">
       <% if !@assets.empty? %>
       <table class="table table-condensed">
-        <thead><th>Barcode</th><th>Facts</th><th>Actions</th></thead>
+        <thead><th>Barcode</th><th>Facts</th><th><span class='pull-right'></span></th></thead>
         <tbody>
           <% @assets.uniq.each_with_index do |asset, i| %>
             <tr>
               <td><%= asset.barcode %></td>
               <td><%= asset.facts.map{|f| f.predicate+':'+f.object}.join(', ')%></td>
               <td>
-                <%= bootstrap_form_for @activity, action: 'update' do |f| %>
+                <%= bootstrap_form_for @activity, action: 'update', html: { :class => 'pull-right'} do |f| %>
                   <input type="hidden" name="delete_barcode[<%= i %>]" value="<%= asset.barcode %>" />
                   <%= f.submit "Delete" %>
                 <% end %>

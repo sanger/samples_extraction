@@ -7,7 +7,6 @@
 
 { ?p :is :Tube1D .} => { :step :stepTypeName """Print 2D barcodes""" .
         :step :createAsset { ?q :is :EmptyTube2D .} .
-        :step :selectAsset { ?q :is :EmptyTube2D .} .
       }.
 
 { ?p :is :Tube1D .
@@ -23,3 +22,34 @@
           ?p :transferAliquots ?q .
         } .
       }.
+
+{ ?p :is :Tube2D .
+  ?p :maxCardinality """96""" .
+} => { :step :stepTypeName """Put tubes in 96 rack""" .
+      ?step :removeFacts { ?p :is :Tube2D} .
+      ?step :addFacts { ?p :inRack :q} .
+      ?step :createAsset {
+        :q :is :TubeRack .
+      } .
+} .
+
+{ ?p :is :Tube2D .
+  ?p :maxCardinality """384""" .
+} => { :step :stepTypeName """Put tubes in 384 rack""" .
+      ?step :removeFacts { ?p :is :Tube2D} .
+      ?step :addFacts { ?p :inRack :q} .
+      ?step :createAsset {
+        :q :is :TubeRack .
+      } .
+} .
+
+{ ?p :is :Tube2D .
+  ?p :maxCardinality """2""" .
+} => { :step :stepTypeName """Put tubes in 2 rack""" .
+      ?step :removeFacts { ?p :is :Tube2D} .
+      ?step :addFacts { ?p :inRack :q} .
+      ?step :createAsset {
+        :q :is :TubeRack .
+      } .
+} .
+

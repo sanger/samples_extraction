@@ -6,12 +6,15 @@ class Step < ActiveRecord::Base
   after_create :execute_actions
 
   def classify_assets
-    binding.pry
     perform_list = []
     step_type.actions.each do |r|
-      asset_group.assets.each do |asset|
-        if r.condition_group.compatible_with?(asset)
-          perform_list.push([asset, r])
+      if r.condition_group.cardinality == 1
+        perform_list.push([nil, r])
+      else
+        asset_group.assets.each do |asset|
+          if r.condition_group.compatible_with?(asset)
+            perform_list.push([asset, r])
+          end
         end
       end
     end
@@ -29,9 +32,11 @@ class Step < ActiveRecord::Base
         activity.asset_group.assets << asset
       end
       if r.action_type == 'createAsset'
-        unless created_assets.keys.include?(r.condition_group.id)
-          created_assets[r.condition_group.id] = Asset.create!
-        end
+        #unless created_assets.keys.include?(r.condition_group.id)
+        asset = Asset.create!
+        created_assets[r.condition_group.id] = asset
+        activity.asset_group.assets << asset
+        #end
         created_assets[r.condition_group.id].facts << Fact.create(:predicate => r.predicate, :object => r.object)
       end
       if r.action_type == 'addFacts'

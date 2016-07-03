@@ -1,6 +1,6 @@
 module SupportN3
   def self.fragment(k)
-    k.try(:fragment) || k.name.to_s.gsub(/.*#/,'')
+    k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/,'')
   end
 
   def self.step_type(quads)
@@ -49,8 +49,12 @@ module SupportN3
             condition_group = ConditionGroup.create(:step_type => step_type)
             c_groups[fr] = condition_group
           end
-          Condition.create({ :predicate => fragment(p), :object => fragment(v),
+          if fragment(p) == 'maxCardinality'
+            condition_group.update_attributes(:cardinality => fragment(v))
+          else
+            Condition.create({ :predicate => fragment(p), :object => fragment(v),
             :condition_group_id => condition_group.id})
+          end
         end
 
         actions.each do |k,p,v,g|
@@ -61,7 +65,13 @@ module SupportN3
                 # Whenever I find a new variable name for an element I have to create a
                 # new ConditionGroup for it and collect it. This is because I need a way
                 # to remember
-                c_groups[fragment(k)] = ConditionGroup.create
+                cardinality = nil
+                # If it's a variable (like :q, instead of ?q), it will be applied just
+                # once for all the step, not for every actioned element
+                if k.class.name=='RDF::Query::Variable'
+                  cardinality=1
+                end
+                c_groups[fragment(k)] = ConditionGroup.create(:cardinality => cardinality)
               end
 
               #condition_group_id = c_groups[fragment(k)].nil? ? nil : c_groups[fragment(k)].id
