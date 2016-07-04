@@ -6,7 +6,8 @@
   <thead>
     <tr>
       <th>Barcode</th>
-      <th colspan="3"></th>
+      <th></th>
+      <!--th colspan="3"></th -->
     </tr>
   </thead>
 
@@ -14,9 +15,9 @@
     <% @instruments.each do |instrument| %>
       <tr>
         <td><%= instrument.barcode %></td>
-        <td><%= bootstrap_link_to 'Show', instrument %></td>
-        <td><%= bootstrap_link_to 'Edit', edit_instrument_path(instrument) %></td>
-        <td><%= bootstrap_link_to 'Destroy', instrument, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= bootstrap_link_to 'Use', instrument %></td>
+        <!--td><%= bootstrap_link_to 'Edit', edit_instrument_path(instrument) %></td>
+        <td><%= bootstrap_link_to 'Destroy', instrument, method: :delete, data: { confirm: 'Are you sure?' } %></td -->
       </tr>
     <% end %>
   </tbody>

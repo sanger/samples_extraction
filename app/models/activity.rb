@@ -19,6 +19,10 @@ class Activity < ActiveRecord::Base
     return true
   end
 
+  def previous_steps
+    asset_group.assets.map(&:steps).concat(steps).flatten.sort{|a,b| a.created_at <=> b.created_at}.uniq
+  end
+
   def unselect_barcodes(barcodes)
     barcodes.each do |barcode|
       selection = asset_group.assets.select{|a| a.barcode == barcode}

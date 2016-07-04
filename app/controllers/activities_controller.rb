@@ -11,7 +11,7 @@ class ActivitiesController < ApplicationController
   def update
     perform_previous_step_type
     @step_types = @activity.step_types_for(@assets)
-    @steps = @activity.steps
+    @steps = @activity.previous_steps
 
     respond_to do |format|
       format.html { render :show }
@@ -21,7 +21,7 @@ class ActivitiesController < ApplicationController
 
   def show
     @step_types = @activity.step_types_for(@assets)
-    @steps = @activity.steps
+    @steps = @activity.previous_steps
 
     respond_to do |format|
       format.html { render :show }
