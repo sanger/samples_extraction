@@ -31,7 +31,7 @@ ActiveRecord::Schema.define(version: 20160629144842) do
     t.integer  "instrument_id"
     t.integer  "asset_group_id"
     t.integer  "kit_id"
-    t.date     "completion_date"
+    t.datetime "completed_at"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.index ["activity_type_id"], name: "index_activities_on_activity_type_id", using: :btree

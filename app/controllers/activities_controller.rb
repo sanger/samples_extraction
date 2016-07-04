@@ -10,6 +10,7 @@ class ActivitiesController < ApplicationController
 
   def update
     perform_previous_step_type
+    @activity.finish unless params[:finish].nil?
     @step_types = @activity.step_types_for(@assets)
     @steps = @activity.previous_steps
 

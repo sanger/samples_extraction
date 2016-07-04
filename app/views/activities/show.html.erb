@@ -8,9 +8,15 @@
   <%= f.text_field :kit, :value => @activity.kit.barcode,:readonly => true %>
 <% end %>
 
-<%= render :partial => 'assets_selection' %>
+<% if @activity.finished? %>
+<div class="panel">
+  This activity was finished at <%= @activity.completed_at %>
+</div>
+<% else %>
+  <%= render :partial => 'assets_selection' %>
+<% end %>
 
-<% if @assets %>
+<% if @assets && !@activity.finished? %>
   <%= render :partial =>'steps/active', :locals => {
     :step_types => @step_types,
     :activity => @activity }
@@ -19,6 +25,10 @@
 <% else %>
   <%= render :partial =>'steps/finished', :locals => {:steps => @steps } %>
 <% end %>
-    <button class='btn btn-danger'>Finish activity?</button>
+  <% unless @activity.finished? %>
+    <%= bootstrap_form_for @activity, action: 'update' do |f| %>
+      <button name="finish" class='btn btn-danger'>Finish activity?</button>
+    <% end %>
+  <% end %>
 <%= bootstrap_link_to 'Edit', edit_activity_path(@activity) %>
 <%= bootstrap_link_to 'Back', activities_path %>

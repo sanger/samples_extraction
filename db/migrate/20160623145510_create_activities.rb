@@ -5,7 +5,7 @@ class CreateActivities < ActiveRecord::Migration
       t.references :instrument, index: true, foreign_key: true
       t.references :asset_group, index: true, foreign_key: true
       t.references :kit, index: true, foreign_key: true
-      t.date :completion_date
+      t.datetime :completed_at
       t.timestamps
     end
   end

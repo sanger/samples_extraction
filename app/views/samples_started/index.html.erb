@@ -22,7 +22,7 @@
                 <th>Activity id</th><th>Barcode</th><th>Facts</th><th>Status</th>
               </thead>
               <tbody>
-                <% activity_type.activities.each do |activity| %>
+                <% activity_type.activities.in_progress.each do |activity| %>
                   <% if activity.asset_group.nil? || activity.asset_group.assets.empty? %>
                     <tr><td><%= bootstrap_link_to 'Visit', activity %> <%= activity.id %></td></tr>
                   <% else %>

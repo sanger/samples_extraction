@@ -1,3 +1,5 @@
+require 'date'
+
 class Activity < ActiveRecord::Base
   validates :activity_type, :presence => true
   belongs_to :activity_type
@@ -19,8 +21,15 @@ class Activity < ActiveRecord::Base
     return true
   end
 
+  scope :in_progress, ->() { where('completed_at is null')}
+  scope :finished, ->() { where('completed_at is not null')}
+
+  def finish
+    update_attributes(:completed_at => DateTime.now)
+  end
+
   def finished?
-    'In progress'
+    !completed_at.nil?
   end
 
   def previous_steps
