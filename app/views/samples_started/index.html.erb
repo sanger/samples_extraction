@@ -19,12 +19,14 @@
           <% else %>
             <table class='table table-condensed'>
               <thead>
-                <th>Activity id</th><th>Barcode</th><th>Facts</th><th>Status</th>
+                <th>Activity id</th><th>Barcode</th><th>Facts</th><th>Completed?</th>
               </thead>
               <tbody>
-                <% activity_type.activities.in_progress.each do |activity| %>
+                <% activity_type.activities.each do |activity| %>
                   <% if activity.asset_group.nil? || activity.asset_group.assets.empty? %>
-                    <tr><td><%= bootstrap_link_to 'Visit', activity %> <%= activity.id %></td></tr>
+                    <tr><td><%= bootstrap_link_to 'Visit', activity %> <%= activity.id %></td>
+                      <td></td><td></td><td><%= activity.completed_at || 'In progress' %></td>
+                    </tr>
                   <% else %>
                     <% activity.asset_group.assets.each_with_index do |asset, index| %>
                       <tr>
@@ -33,7 +35,7 @@
                             <%= bootstrap_link_to 'Visit', activity %> <%= activity.id %>
                           <% end %>
                         </td><td><%= asset.barcode %></td>
-                        <td><%= asset.facts_to_s %></td><td><%= activity.finished? %></td>
+                        <td><%= asset.facts_to_s %></td><td><%= activity.completed_at || 'In progress' %></td>
                       </tr>
                     <% end %>
                   <% end %>

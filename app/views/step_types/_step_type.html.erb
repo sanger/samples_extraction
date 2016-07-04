@@ -1,10 +1,14 @@
 <ul class="list-inline">
 <% step_types.each do |step_type| %>
   <li>
-    <%= bootstrap_form_for @activity, action: 'update' do |f| %>
-      <input type="hidden" name="step_type" value="<%= step_type.id %>" />
-      <!-- %= render :partial => 'barcode_reader' % -->
-      <%= f.submit step_type.name, :class => 'btn btn-primary' %>
+    <% if step_type.step_template %>
+      <%= render :partial => 'step_types/step_templates/' + step_type.step_template %>
+    <% else %>
+      <%= bootstrap_form_for @activity, action: 'update' do |f| %>
+        <input type="hidden" name="step_type" value="<%= step_type.id %>" />
+        <!-- %= render :partial => 'barcode_reader' % -->
+        <%= f.submit step_type.name, :class => 'btn btn-primary' %>
+      <% end %>
     <% end %>
   </li>
 <% end %>

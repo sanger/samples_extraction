@@ -9,6 +9,7 @@ class ActivitiesController < ApplicationController
 
 
   def update
+    binding.pry
     perform_previous_step_type
     @activity.finish unless params[:finish].nil?
     @step_types = @activity.step_types_for(@assets)
@@ -18,6 +19,10 @@ class ActivitiesController < ApplicationController
       format.html { render :show }
       format.json { render :show, status: :created, location: @activity }
     end
+  end
+
+  def upload_file_step
+    binding.pry
   end
 
   def show
