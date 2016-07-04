@@ -19,7 +19,6 @@
         :step :addFacts {
           ?p :is :EmptyTube1D .
           ?q :is :Tube2D .
-          ?p :transferAliquots ?q .
         } .
       }.
 
@@ -53,3 +52,18 @@
       } .
 } .
 
+{ ?p :is :TubeRack .
+} => { :step :stepTypeName """Upload volume check""" .
+      ?step :removeFacts { ?p :is :TubeRack} .
+      ?step :addFacts { ?p :is :TubeRackChecked} .
+} .
+
+{ ?p :is :TubeRackChecked .
+?q :is :TubeRackChecked .
+} => { :step :stepTypeName """Re-rack""" .
+      ?step :removeFacts { ?p :is :TubeRack .} .
+      ?step :removeFacts { ?q :is :TubeRack .} .
+      ?step :createAsset { :r :is :TubeRack .} .
+      ?step :addFacts { ?p :reracked :r} .
+      ?step :addFacts { ?q :reracked :r} .
+} .

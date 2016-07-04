@@ -13,15 +13,17 @@
 ActiveRecord::Schema.define(version: 20160629144842) do
 
   create_table "actions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "action_type",        null: false
-    t.integer  "condition_group_id"
+    t.string   "action_type",                null: false
     t.integer  "step_type_id"
-    t.string   "predicate",          null: false
+    t.integer  "subject_condition_group_id"
+    t.string   "predicate",                  null: false
     t.string   "object"
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
-    t.index ["condition_group_id"], name: "index_actions_on_condition_group_id", using: :btree
+    t.integer  "object_condition_group_id"
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+    t.index ["object_condition_group_id"], name: "index_actions_on_object_condition_group_id", using: :btree
     t.index ["step_type_id"], name: "index_actions_on_step_type_id", using: :btree
+    t.index ["subject_condition_group_id"], name: "index_actions_on_subject_condition_group_id", using: :btree
   end
 
   create_table "activities", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -206,7 +208,6 @@ ActiveRecord::Schema.define(version: 20160629144842) do
     t.datetime "updated_at", null: false
   end
 
-  add_foreign_key "actions", "condition_groups"
   add_foreign_key "actions", "step_types"
   add_foreign_key "activities", "activity_types"
   add_foreign_key "activities", "asset_groups"

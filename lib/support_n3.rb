@@ -73,12 +73,20 @@ module SupportN3
                 end
                 c_groups[fragment(k)] = ConditionGroup.create(:cardinality => cardinality)
               end
-
-              #condition_group_id = c_groups[fragment(k)].nil? ? nil : c_groups[fragment(k)].id
+              object_condition_group_id = nil
+              if v.class.name == 'RDF::Query::Variable'
+                if c_groups[fragment(v)].nil?
+                  c_groups[fragment(v)] = ConditionGroup.create(:cardinality => 1)
+                end
+                object_condition_group_id = c_groups[fragment(v)].id
+              end
+              #subject_condition_group_id = c_groups[fragment(k)].nil? ? nil : c_groups[fragment(k)].id
               Action.create({:action_type => action, :predicate => fragment(p),
                 :object => fragment(v),
                 :step_type_id => step_type.id,
-                :condition_group_id => c_groups[fragment(k)].id})
+                :subject_condition_group_id => c_groups[fragment(k)].id,
+                :object_condition_group_id => object_condition_group_id
+              })
             end
           end
         end
