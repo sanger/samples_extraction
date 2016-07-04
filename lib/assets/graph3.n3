@@ -55,7 +55,8 @@
 { ?p :is :TubeRack .
 } => { :step :stepTypeName """Upload volume check""" .
       ?step :removeFacts { ?p :is :TubeRack} .
-      ?step :addFacts { ?p :is :TubeRackChecked} .
+      ?step :addFacts { ?p :is :TubeRackChecked .
+      ?p :is :stage2} .
 } .
 
 { ?p :is :TubeRackChecked .

@@ -40,6 +40,11 @@ instrument.activity_types << activity_type
 kit_type = KitType.create(:activity_type => activity_type, :name => 'Testing kit type')
 kit = Kit.create( {:kit_type => kit_type, :barcode => 1111})
 
+activity_type2 = ActivityType.create(:name => 'Testing activity type 2')
+kit_type = KitType.create(:activity_type => activity_type2, :name => 'Testing kit type 2')
+kit = Kit.create( {:kit_type => kit_type, :barcode => 2222})
+
+
 #step_type = StepType.create(:name => 'Step B')
 #step_type2 = StepType.create(:name => 'From Reception tube to Received tube')
 
@@ -65,4 +70,5 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 1111})
 
 require 'support_n3'
 SupportN3.load_n3("lib/assets/graph3.n3")
+SupportN3.load_n3("lib/assets/graph2.n3")
 
