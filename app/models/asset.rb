@@ -6,6 +6,10 @@ class Asset < ActiveRecord::Base
   before_save :generate_uuid
   before_save :generate_barcode
 
+  def facts_to_s
+    facts.map{|f| f.predicate+':'+f.object}.join(', ')
+  end
+
   def generate_uuid
     update_attributes(:uuid => SecureRandom.uuid) if uuid.nil?
   end

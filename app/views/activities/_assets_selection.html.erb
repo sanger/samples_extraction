@@ -10,7 +10,7 @@
           <% @assets.uniq.each_with_index do |asset, i| %>
             <tr>
               <td><%= asset.barcode %></td>
-              <td><%= asset.facts.map{|f| f.predicate+':'+f.object}.join(', ')%></td>
+              <td><%= asset.facts_to_s %></td>
               <td>
                 <%= bootstrap_form_for @activity, action: 'update', html: { :class => 'pull-right'} do |f| %>
                   <input type="hidden" name="delete_barcode[<%= i %>]" value="<%= asset.barcode %>" />

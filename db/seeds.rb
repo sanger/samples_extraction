@@ -31,8 +31,8 @@ asset_group = AssetGroup.create
 asset.asset_groups << asset_group
 
 activity_type = ActivityType.create(:name => 'Testing activity type')
-activity = Activity.create(:activity_type => activity_type)
-activity_type.activities << activity
+#activity = Activity.create(:activity_type => activity_type)
+#activity_type.activities << activity
 
 instrument = Instrument.create(:barcode => '1111')
 instrument.activity_types << activity_type
