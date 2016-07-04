@@ -1,24 +1,6 @@
 <p id="notice"><%= notice %></p>
 
-<p>
-  <strong>Barcode:</strong>
-  <%= @kit.barcode %>
-</p>
+<%= render 'form' %>
 
-<p>
-  <strong>Max num reactions:</strong>
-  <%= @kit.max_num_reactions %>
-</p>
-
-<p>
-  <strong>Num reactions performed:</strong>
-  <%= @kit.num_reactions_performed %>
-</p>
-
-<p>
-  <strong>Kit type:</strong>
-  <%= @kit.kit_type %>
-</p>
-
-<%= link_to 'Edit', edit_kit_path(@kit) %> |
-<%= link_to 'Back', kits_path %>
+<%= bootstrap_link_to 'Edit', edit_kit_path(@kit) %>
+<%= bootstrap_link_to 'Back', kits_path %>

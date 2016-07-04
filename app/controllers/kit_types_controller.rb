@@ -1,5 +1,6 @@
 class KitTypesController < ApplicationController
   before_action :set_kit_type, only: [:show, :edit, :update, :destroy]
+  before_action :set_activity_types, only: [:new, :show, :edit, :update]
 
   # GET /kit_types
   # GET /kit_types.json
@@ -32,7 +33,7 @@ class KitTypesController < ApplicationController
         format.json { render :show, status: :created, location: @kit_type }
       else
         format.html { render :new }
-        format.json { render json: @kit_type.errors, status: :unprocessable_entity }
+        format.json { render json: @kit_type.errors, status: :unActivityable_entity }
       end
     end
   end
@@ -46,7 +47,7 @@ class KitTypesController < ApplicationController
         format.json { render :show, status: :ok, location: @kit_type }
       else
         format.html { render :edit }
-        format.json { render json: @kit_type.errors, status: :unprocessable_entity }
+        format.json { render json: @kit_type.errors, status: :unActivityable_entity }
       end
     end
   end
@@ -67,8 +68,12 @@ class KitTypesController < ApplicationController
       @kit_type = KitType.find(params[:id])
     end
 
+    def set_activity_types
+      @activity_types = ActivityType.all
+    end
+
     # Never trust parameters from the scary internet, only allow the white list through.
     def kit_type_params
-      params.require(:kit_type).permit(:name, :target_type, :process_type_id)
+      params.require(:kit_type).permit(:name, :target_type, :activity_type_id)
     end
 end

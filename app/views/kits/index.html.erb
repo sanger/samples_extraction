@@ -2,7 +2,7 @@
 
 <h1>Listing Kits</h1>
 
-<table>
+<table class="table table-bordered">
   <thead>
     <tr>
       <th>Barcode</th>
@@ -19,10 +19,10 @@
         <td><%= kit.barcode %></td>
         <td><%= kit.max_num_reactions %></td>
         <td><%= kit.num_reactions_performed %></td>
-        <td><%= kit.kit_type %></td>
-        <td><%= link_to 'Show', kit %></td>
-        <td><%= link_to 'Edit', edit_kit_path(kit) %></td>
-        <td><%= link_to 'Destroy', kit, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= kit.kit_type.name %></td>
+        <td><%= bootstrap_link_to 'Show', kit %></td>
+        <td><%= bootstrap_link_to 'Edit', edit_kit_path(kit) %></td>
+        <td><%= bootstrap_link_to 'Destroy', kit, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>
@@ -30,4 +30,4 @@
 
 <br>
 
-<%= link_to 'New Kit', new_kit_path %>
+<%= bootstrap_link_to 'New Kit', new_kit_path %>

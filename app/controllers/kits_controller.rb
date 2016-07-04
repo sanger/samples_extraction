@@ -1,5 +1,6 @@
 class KitsController < ApplicationController
   before_action :set_kit, only: [:show, :edit, :update, :destroy]
+  before_action :set_kit_types, only: [:new, :show, :edit, :update]
 
   # GET /kits
   # GET /kits.json
@@ -32,7 +33,7 @@ class KitsController < ApplicationController
         format.json { render :show, status: :created, location: @kit }
       else
         format.html { render :new }
-        format.json { render json: @kit.errors, status: :unprocessable_entity }
+        format.json { render json: @kit.errors, status: :unActivityable_entity }
       end
     end
   end
@@ -46,7 +47,7 @@ class KitsController < ApplicationController
         format.json { render :show, status: :ok, location: @kit }
       else
         format.html { render :edit }
-        format.json { render json: @kit.errors, status: :unprocessable_entity }
+        format.json { render json: @kit.errors, status: :unActivityable_entity }
       end
     end
   end
@@ -65,6 +66,10 @@ class KitsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_kit
       @kit = Kit.find(params[:id])
+    end
+
+    def set_kit_types
+      @kit_types = KitType.all
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

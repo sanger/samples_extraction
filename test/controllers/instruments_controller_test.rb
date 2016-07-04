@@ -2,7 +2,7 @@ require 'test_helper'
 
 class InstrumentsControllerTest < ActionController::TestCase
   setup do
-    @instrument = instruments(:one)
+    @instrument = FactoryGirl.create :instrument
   end
 
   test "should get index" do
@@ -18,7 +18,7 @@ class InstrumentsControllerTest < ActionController::TestCase
 
   test "should create instrument" do
     assert_difference('Instrument.count') do
-      post :create, instrument: { barcode: @instrument.barcode }
+      post :create, instrument: @instrument.attributes
     end
 
     assert_redirected_to instrument_path(assigns(:instrument))
@@ -35,7 +35,7 @@ class InstrumentsControllerTest < ActionController::TestCase
   end
 
   test "should update instrument" do
-    patch :update, id: @instrument, instrument: { barcode: @instrument.barcode }
+    patch :update, id: @instrument, instrument: @instrument.attributes
     assert_redirected_to instrument_path(assigns(:instrument))
   end
 

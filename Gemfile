@@ -1,10 +1,15 @@
 source 'https://rubygems.org'
 
+gem 'rdf-n3'
+gem 'tzinfo-data'
+
 
 gem 'rails-assets-tether', '>= 1.1.0'
+gem 'bootstrap_form'
+gem 'sprockets-rails'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.2.6'
+gem 'rails'
 # Use mysql as the database for Active Record
 gem 'mysql2', '>= 0.3.13', '< 0.5'
 #gem 'sqlite3'
@@ -41,6 +46,13 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
+  gem 'factory_girl_rails'
+  gem 'pry'
+end
+
+group :test do
+  gem 'shoulda'
+  gem 'factory_girl'
 end
 
 group :development do

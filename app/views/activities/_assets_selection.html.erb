@@ -1,0 +1,41 @@
+
+<div class="form-group">
+  <label for="asset_barcode[0]" class="control-label">What do I have?</label>
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <% if !@assets.empty? %>
+      <table class="table table-condensed">
+        <thead><th>Barcode</th><th>Facts</th><th><span class='pull-right'></span></th></thead>
+        <tbody>
+          <% @assets.uniq.each_with_index do |asset, i| %>
+            <tr>
+              <td><%= asset.barcode %></td>
+              <td><%= asset.facts_to_s %></td>
+              <td>
+                <%= bootstrap_form_for @activity, action: 'update', html: { :class => 'pull-right'} do |f| %>
+                  <input type="hidden" name="delete_barcode[<%= i %>]" value="<%= asset.barcode %>" />
+                  <%= f.submit "Delete" %>
+                <% end %>
+              </td>
+          <% end %>
+        </tbody>
+      </table>
+      <% else %>
+        <div class="empty-description"><span>This activity has no assets selected yet.</span></div>
+      <% end %>
+    </div>
+    <div class="panel-footer">
+      <%= bootstrap_form_for @activity, action: 'update', :html => { :autocomplete => 'off'} do |f| %>
+        <label for="asset_barcode[0]" class="control-label">Add a barcode</label>
+        <div class="input-group">
+          <input name='asset_barcode[0]' class="form-control" type='text' placeholder='Scan a barcode' />
+          <span class="input-group-btn">
+            <%= button_tag(type: 'submit', class: "btn btn-default") do %>
+               <span class="glyphicon glyphicon-arrow-up"></span>
+            <% end %>
+          </span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

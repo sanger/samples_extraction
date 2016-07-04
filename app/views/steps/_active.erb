@@ -1,0 +1,19 @@
+
+
+<div class="form-group">
+  <label class="control-label">What can I do with it?</label>
+  <div class="panel panel-default">
+    <div class="panel-body">
+
+  <% unless step_types.nil? || step_types.empty? %>
+    <%= render :partial => 'step_types/step_type', :locals => {
+      :step_types => step_types,
+      :activity => activity} %>
+  <% else %>
+    <div class="empty-description">
+      <span>No actions can be performed with the selected group of assets for this activity type.</span>
+    </div>
+  <% end %>
+    </div>
+  </div>
+</div>

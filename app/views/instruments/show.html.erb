@@ -1,9 +1,11 @@
 <p id="notice"><%= notice %></p>
 
-<p>
-  <strong>Barcode:</strong>
-  <%= @instrument.barcode %>
-</p>
 
-<%= link_to 'Edit', edit_instrument_path(@instrument) %> |
-<%= link_to 'Back', instruments_path %>
+<%= bootstrap_form_tag(url: activities_path, action: 'create', :html => { :autocomplete => 'off'}) do |f| %>
+  <%= f.text_field(:instrument_barcode, :value => @instrument.barcode, :readonly => true) %>
+  <%= f.text_field(:kit_barcode, :placeholder => 'Scan a kit barcode') %>
+  <%= f.submit("Create activity") %>
+<% end %>
+
+<%= bootstrap_link_to 'Edit', edit_instrument_path(@instrument) %>
+<%= bootstrap_link_to 'Back', instruments_path %>

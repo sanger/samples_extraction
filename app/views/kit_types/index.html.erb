@@ -2,12 +2,12 @@
 
 <h1>Listing Kit Types</h1>
 
-<table>
+<table class="table table-bordered">
   <thead>
     <tr>
       <th>Name</th>
       <th>Target type</th>
-      <th>Process type</th>
+      <th>Activity type</th>
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -17,10 +17,10 @@
       <tr>
         <td><%= kit_type.name %></td>
         <td><%= kit_type.target_type %></td>
-        <td><%= kit_type.process_type %></td>
-        <td><%= link_to 'Show', kit_type %></td>
-        <td><%= link_to 'Edit', edit_kit_type_path(kit_type) %></td>
-        <td><%= link_to 'Destroy', kit_type, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= kit_type.activity_type.name %></td>
+        <td><%= bootstrap_link_to 'Show', kit_type %></td>
+        <td><%= bootstrap_link_to 'Edit', edit_kit_type_path(kit_type) %></td>
+        <td><%= bootstrap_link_to 'Destroy', kit_type, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>
@@ -28,4 +28,4 @@
 
 <br>
 
-<%= link_to 'New Kit type', new_kit_type_path %>
+<%= bootstrap_link_to 'New Kit type', new_kit_type_path %>

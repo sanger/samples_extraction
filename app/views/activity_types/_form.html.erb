@@ -1,0 +1,23 @@
+<%= bootstrap_form_for(@activity_type, :html => { :autocomplete => 'off'}) do |f| %>
+  <% if @activity_type.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@activity_type.errors.count, "error") %> prohibited this activity_type from being saved:</h2>
+
+      <ul>
+      <% @activity_type.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% readonly = params[:action] == 'show' %>
+  <div class="field form-group">
+    <%= f.text_field :name, :readonly => readonly %>
+  </div>
+  <% unless readonly %>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+  <% end %>
+<% end %>

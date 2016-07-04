@@ -1,4 +1,4 @@
-<%= form_for(@kit) do |f| %>
+<%= bootstrap_form_for(@kit, :html => { :autocomplete => 'off'}) do |f| %>
   <% if @kit.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@kit.errors.count, "error") %> prohibited this kit from being saved:</h2>
@@ -10,24 +10,23 @@
       </ul>
     </div>
   <% end %>
-
+  <% readonly = params[:action] == 'show' %>
   <div class="field">
-    <%= f.label :barcode %><br>
-    <%= f.text_field :barcode %>
-  </div>
-  <div class="field">
-    <%= f.label :max_num_reactions %><br>
-    <%= f.number_field :max_num_reactions %>
+    <%= f.text_field :barcode, :readonly => readonly %>
   </div>
   <div class="field">
-    <%= f.label :num_reactions_performed %><br>
-    <%= f.number_field :num_reactions_performed %>
+    <%= f.number_field :max_num_reactions, :readonly => readonly %>
   </div>
   <div class="field">
-    <%= f.label :kit_type_id %><br>
-    <%= f.text_field :kit_type_id %>
+    <%= f.number_field :num_reactions_performed, :readonly => readonly %>
   </div>
-  <div class="actions">
-    <%= f.submit %>
+  <div class="field">
+    <%= f.select :kit_type_id, options_for_select(@kit_types.map{|a| [a.name, a.id]}), {},
+    :disabled => readonly %>
   </div>
+  <% unless readonly %>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+  <% end %>
 <% end %>
