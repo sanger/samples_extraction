@@ -1,15 +1,28 @@
-<ul class="list-inline">
-<% step_types.each do |step_type| %>
-  <li>
-    <% if step_type.step_template %>
-      <%= render :partial => 'step_types/step_templates/' + step_type.step_template %>
-    <% else %>
-      <%= bootstrap_form_for @activity, action: 'update' do |f| %>
-        <input type="hidden" name="step_type" value="<%= step_type.id %>" />
-        <!-- %= render :partial => 'barcode_reader' % -->
-        <%= f.submit step_type.name, :class => 'btn btn-primary' %>
+<ul class="step-selection list-inline ">
+  <% step_types.each do |step_type| %>
+    <li>
+      <% if step_type.step_template%>
+        <% if step_types.count > 1 %>
+          <a href="#step-type-id-<%= step_type.id %>" class="btn btn-primary" data-toggle="pill"><%= step_type.name %></a>
+        <% end %>
+      <% else %>
+        <%= bootstrap_form_for @activity, action: 'update' do |f| %>
+          <input type="hidden" name="step_type" value="<%= step_type.id %>" />
+          <!-- %= render :partial => 'barcode_reader' % -->
+          <%= f.submit step_type.name, :class => 'btn btn-primary' %>
+        <% end %>
       <% end %>
-    <% end %>
-  </li>
-<% end %>
+    </li>
+  <% end %>
 </ul>
+
+<div class="pull-left">
+  <div class="tab-content">
+  <% step_types.select{|s| s.step_template }.each do |step_type| %>
+    <div id="step-type-id-<%= step_type.id %>" class="tab-pane container">
+      <%= render :partial => 'step_types/step_template',
+          :locals => { :step_type => step_type } %>
+    </div>
+  <% end %>
+  </div>
+</div>

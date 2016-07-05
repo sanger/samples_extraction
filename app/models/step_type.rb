@@ -6,6 +6,8 @@ class StepType < ActiveRecord::Base
 
   include Deprecatable
 
+  scope :with_template, ->() { where('step_template is not null')}
+
   def condition_group_classification_for(assets)
     Hash[assets.map{|asset| [asset, condition_groups_for(asset)]}]
   end

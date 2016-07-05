@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160629144842) do
+ActiveRecord::Schema.define(version: 20160705084036) do
 
   create_table "actions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "action_type",                null: false
@@ -202,6 +202,16 @@ ActiveRecord::Schema.define(version: 20160629144842) do
     t.index ["step_type_id"], name: "index_steps_on_step_type_id", using: :btree
   end
 
+  create_table "uploads", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "step_id"
+    t.binary   "data",         limit: 16777215
+    t.string   "filename"
+    t.string   "content_type"
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.index ["step_id"], name: "index_uploads_on_step_id", using: :btree
+  end
+
   create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "login"
     t.string   "password"
@@ -232,4 +242,5 @@ ActiveRecord::Schema.define(version: 20160629144842) do
   add_foreign_key "steps", "activities"
   add_foreign_key "steps", "asset_groups"
   add_foreign_key "steps", "step_types"
+  add_foreign_key "uploads", "steps"
 end

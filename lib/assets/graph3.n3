@@ -60,6 +60,16 @@
       ?p :is :stage2} .
 } .
 
+
+{ ?p :is :TubeRack .
+} => { :step :stepTypeName """Another upload""" .
+       :step :stepTemplate """upload_file_step""" .
+      ?step :removeFacts { ?p :is :TubeRack} .
+      ?step :addFacts { ?p :is :TubeRackChecked .
+      ?p :is :stage2} .
+} .
+
+
 { ?p :is :TubeRackChecked .
 } => { :step :stepTypeName """Update Sequencescape""" .
        ?step :addFacts {?p :is :stage2 .} .

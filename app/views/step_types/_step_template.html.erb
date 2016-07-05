@@ -1,0 +1,14 @@
+<div class="container">
+<h5><%= step_type.name %></h5>
+<%= render :partial => 'step_types/step_templates/' + step_type.step_template,
+      :locals => { :step_type => step_type } %>
+</div>
+<%= bootstrap_form_for @activity, action: 'update' do |f| %>
+  <input type="hidden" name="step_type" value="<%= step_type.id %>" />
+  <% if @upload_ids %>
+    <input type="hidden" name="upload_ids" value="<%= @upload_ids %>" />
+  <% end %>
+  <button type="submit" class="btn btn-default next-step" disabled="disabled" style="display:none;">
+    <span>Update changes!!</span>
+  </button>
+<% end %>

@@ -2,7 +2,7 @@ class Step < ActiveRecord::Base
   belongs_to :activity
   belongs_to :step_type
   belongs_to :asset_group
-
+  has_many :uploads
   after_create :execute_actions
 
   def classify_assets
@@ -65,4 +65,5 @@ class Step < ActiveRecord::Base
       end
     end
   end
+
 end
