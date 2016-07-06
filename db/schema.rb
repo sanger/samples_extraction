@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160705084036) do
+ActiveRecord::Schema.define(version: 20160706142323) do
 
   create_table "actions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "action_type",                null: false
@@ -181,6 +181,19 @@ ActiveRecord::Schema.define(version: 20160705084036) do
     t.datetime "updated_at",       null: false
   end
 
+  create_table "operations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "action_id"
+    t.integer  "step_id"
+    t.integer  "asset_id"
+    t.string   "predicate"
+    t.string   "object"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["action_id"], name: "index_operations_on_action_id", using: :btree
+    t.index ["asset_id"], name: "index_operations_on_asset_id", using: :btree
+    t.index ["step_id"], name: "index_operations_on_step_id", using: :btree
+  end
+
   create_table "step_types", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
     t.string   "step_template"
@@ -204,11 +217,13 @@ ActiveRecord::Schema.define(version: 20160705084036) do
 
   create_table "uploads", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "step_id"
+    t.integer  "activity_id"
     t.binary   "data",         limit: 16777215
     t.string   "filename"
     t.string   "content_type"
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
+    t.index ["activity_id"], name: "index_uploads_on_activity_id", using: :btree
     t.index ["step_id"], name: "index_uploads_on_step_id", using: :btree
   end
 
@@ -239,8 +254,12 @@ ActiveRecord::Schema.define(version: 20160705084036) do
   add_foreign_key "facts", "assets"
   add_foreign_key "kit_types", "activity_types"
   add_foreign_key "kits", "kit_types"
+  add_foreign_key "operations", "actions"
+  add_foreign_key "operations", "assets"
+  add_foreign_key "operations", "steps"
   add_foreign_key "steps", "activities"
   add_foreign_key "steps", "asset_groups"
   add_foreign_key "steps", "step_types"
+  add_foreign_key "uploads", "activities"
   add_foreign_key "uploads", "steps"
 end

@@ -4,8 +4,9 @@ require 'bootstrap-sass'
 
 Rails.application.routes.draw do
   resources :steps
-  resources :activities
-  resources :activities
+  resources :activities do
+    resources :uploads
+  end
   resources :assets
   resources :steps
   resources :activity_types
@@ -14,7 +15,6 @@ Rails.application.routes.draw do
   resources :instruments
   root 'instruments#index'
 
-  resources :activities
   resources :samples_started
   resources :samples_not_started
   resources :history

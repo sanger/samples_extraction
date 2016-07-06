@@ -102,15 +102,7 @@ class ActivitiesController < ApplicationController
   def set_uploaded_files
     @upload_ids = []
     if params[:upload_ids]
-      @upload_ids = params[:upload_ids]
-    end
-
-    if params[:file]
-      f = Upload.create!(:data => params[:file].read,
-        :filename => params[:file].original_filename,
-        :content_type => params[:content_type])
-      @upload_ids << f.id
-    else
+      @upload_ids = JSON.parse(params[:upload_ids])
     end
   end
 

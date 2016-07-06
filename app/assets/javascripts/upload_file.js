@@ -4,7 +4,7 @@
     this.url = obj.url;
     this.identifier = obj.identifier;
     this.node = $("#"+this.identifier);
-    this.node.addClass('dropzone');
+    this.node.addClass('custom-dropzone');
 
     this.fileUploadElement = $(".file-upload", this.node);
     this.nextStepElement = $("form", this.node);
@@ -16,7 +16,7 @@
 
     this.myDropzone = new Dropzone(this.node[0], { // Make the whole body a dropzone
       url: this.url, // Set the url
-      method: 'PUT',
+      method: 'POST',
       thumbnailWidth: 80,
       thumbnailHeight: 80,
       parallelUploads: 20,
@@ -59,8 +59,13 @@
   ActivityUploadFile.prototype.attachEvents = function() {
     var myDropzone = this.myDropzone;
     var obj = this;
-    myDropzone.on("success", function() {
+    myDropzone.on("success", function(data, json, xhr) {
       $('.total-progress', obj.node).hide();
+      var input = $('<input></input>');
+      input.attr('name', 'upload_ids');
+      input.attr('type', 'hidden');
+      input.val('['+json.id+']');
+      obj.nextStepElement.append(input);
       obj.nextStepElement.submit();
     });
 
@@ -105,6 +110,7 @@
     });
 
     myDropzone.on("error", function(file, xhr, data) {
+      obj.alertShow(xhr.responseText);
       // Show the total progress bar when upload starts
       obj.disableUploadButtons(false);
       $('.start', this.node).attr('disabled', true);

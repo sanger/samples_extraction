@@ -1,9 +1,8 @@
-<div class="alert alert-danger alert-dismissible" style="display:none;" role="alert">
-  <!--button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button -->
-  <span class='msg'></span>
-</div>
+<div id="actions" class="row file-upload" data-uploader-config='{"url": "<%= activity_uploads_path(@activity.id) %>","identifier": "step-type-id-<%= step_type.id %>"}'>
+  <div class="alert alert-danger alert-dismissible" style="display:none;" role="alert">
+    <span class='msg'></span>
+  </div>
 
-<div id="actions" class="row file-upload" data-uploader-config='{"url": "<%= activities_path + '/' + @activity.id.to_s %>","identifier": "step-type-id-<%= step_type.id %>"}'>
       <div class="col-lg-7">
         <span class="btn btn-default fileinput-button dz-clickable">
             <i class="glyphicon glyphicon-plus"></i>

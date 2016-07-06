@@ -2,9 +2,7 @@
   <% step_types.each do |step_type| %>
     <li>
       <% if step_type.step_template%>
-        <% if step_types.count > 1 %>
-          <a href="#step-type-id-<%= step_type.id %>" class="btn btn-primary" data-toggle="pill"><%= step_type.name %></a>
-        <% end %>
+        <a href="#step-type-id-<%= step_type.id %>" class="btn btn-primary" data-toggle="pill"><%= step_type.name %></a>
       <% else %>
         <%= bootstrap_form_for @activity, action: 'update' do |f| %>
           <input type="hidden" name="step_type" value="<%= step_type.id %>" />
@@ -16,12 +14,12 @@
   <% end %>
 </ul>
 
-<div class="pull-left">
+<div class="pull-left step-template-view">
   <div class="tab-content">
-  <% step_types.select{|s| s.step_template }.each do |step_type| %>
-    <div id="step-type-id-<%= step_type.id %>" class="tab-pane container">
+  <% step_types.select{|s| s.step_template }.each_with_index do |step_type, index| %>
+    <div id="step-type-id-<%= step_type.id %>" class="tab-pane container step-type-template">
       <%= render :partial => 'step_types/step_template',
-          :locals => { :step_type => step_type } %>
+          :locals => { :step_type => step_type, :index => index } %>
     </div>
   <% end %>
   </div>

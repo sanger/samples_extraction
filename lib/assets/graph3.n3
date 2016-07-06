@@ -12,6 +12,7 @@
 { ?p :is :Tube1D .
   ?q :is :EmptyTube2D .
 } => { :step :stepTypeName """Transfer 1D to 2D tubes""" .
+      :step :stepTemplate """transfer_tube_to_tube""" .
         :step :removeFacts {
           ?p :is :Tube1D .
           ?q :is :EmptyTube2D .
@@ -21,6 +22,7 @@
           ?q :is :Tube2D .
         } .
       }.
+
 
 { ?p :is :Tube2D .
   ?p :maxCardinality """96""" .
@@ -51,6 +53,28 @@
         :q :is :TubeRack .
       } .
 } .
+
+{ ?p :is :TubeRack .
+} => { :step :stepTypeName """Reracking""" .
+      ?step :removeFacts { ?p :is :TubeRack} .
+      ?step :addFacts { ?p :is :TubeRackToRerack .} .
+} .
+
+{ ?p :is :TubeRackToRerack .
+} => { :step :stepTypeName """Upload re-racking layout""" .
+      :step :stepTemplate """upload_file_step""" .
+      ?step :removeFacts { ?p :is :TubeRackToRerack} .
+      ?step :addFacts { ?p :is :TubeRackWithRerackLayout .} .
+} .
+
+{ ?p :is :TubeRackWithRerackLayout .
+} => { :step :stepTypeName """Print re-racked Tube rack""" .
+      ?step :removeFacts { ?p :is :TubeRackWithRerackLayout} .
+      ?step :addFacts { ?p :is :TubeRack} .
+      ?step :createAsset { :q :is :TubeRack .} .
+      ?step :addFacts { ?p :rerackedTo :q } .
+} .
+
 
 { ?p :is :TubeRack .
 } => { :step :stepTypeName """Upload volume check""" .

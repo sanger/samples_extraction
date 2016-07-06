@@ -3,6 +3,8 @@ class Step < ActiveRecord::Base
   belongs_to :step_type
   belongs_to :asset_group
   has_many :uploads
+  has_many :operations
+
   after_create :execute_actions
 
   def classify_assets
@@ -29,40 +31,10 @@ class Step < ActiveRecord::Base
     end
   end
 
-  def build_fact(r, created_assets)
-    if r.object_condition_group.nil?
-      fact = Fact.create(:predicate => r.predicate, :object => r.object)
-    else
-      fact = Fact.create(
-        :predicate => r.predicate,
-        :object => created_assets[r.object_condition_group.id].uuid)
-    end
-  end
-
   def execute_actions
     created_assets = {}
     classify_assets.each do |asset, r|
-      if r.subject_condition_group.conditions.empty?
-        asset = created_assets[r.subject_condition_group.id]
-      end
-      if r.action_type == 'selectAsset'
-        activity.asset_group.assets << asset
-      end
-      if r.action_type == 'createAsset'
-
-        asset = Asset.create!
-        created_assets[r.subject_condition_group.id] = asset
-        activity.asset_group.assets << asset
-
-        created_assets[r.subject_condition_group.id].facts << build_fact(r, created_assets)
-      end
-      if r.action_type == 'addFacts'
-        asset.facts << build_fact(r, created_assets)
-      end
-      if r.action_type == 'removeFacts'
-        asset.facts.select{|f| f.predicate == r.predicate && r.object.nil? ||
-          (f.object == r.object) }.each(&:destroy)
-      end
+      r.execute(self, asset, created_assets)
     end
   end
 
