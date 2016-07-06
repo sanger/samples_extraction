@@ -109,7 +109,7 @@ class ActivitiesController < ApplicationController
       f = Upload.create!(:data => params[:file].read,
         :filename => params[:file].original_filename,
         :content_type => params[:content_type])
-      @upload_ids.push(f.id)
+      @upload_ids << f.id
     else
     end
   end
