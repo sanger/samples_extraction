@@ -35,12 +35,16 @@ class Action < ActiveRecord::Base
       asset.facts << fact
     end
     if action_type == 'removeFacts'
-      asset.facts.select{|f| f.predicate == predicate && object.nil? ||
-        (f.object == object) }.each(&:destroy)
+      facts_to_remove = asset.facts.select{|f| f.predicate == predicate && object.nil? ||
+        (f.object == object) }
+      predicate = facts.first.predicate
+      object = facts.first.object
+      facts_to_remove.each(&:destroy)
     end
     if asset && fact
       operation = Operation.create!(:action => self, :step => step,
-        :asset=> asset, :predicate => fact.predicate, :object => fact.object)
+        :asset=> asset, :predicate => fact.predicate || predicate, :object => fact.object || object)
     end
+
   end
 end

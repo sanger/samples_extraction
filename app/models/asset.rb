@@ -9,7 +9,9 @@ class Asset < ActiveRecord::Base
   has_many :operations
 
   def facts_to_s
-    facts.map{|f| f.predicate+':'+f.object}.join(', ')
+    facts.each do |fact|
+      render :partial => fact
+    end
   end
 
   def generate_uuid

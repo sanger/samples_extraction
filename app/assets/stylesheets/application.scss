@@ -67,3 +67,24 @@ form.activity-desc .form-group {margin-right: 0.5em; }
   padding: 20px 20px;
   box-sizing: border-box;
 }
+
+table.steps-table {
+  tr { cursor: pointer;}
+  /*tr[data-toggle]:hover {background-color: lightyellow;}*/
+  tr.operations td {padding-top: 0px; padding-bottom: 0px;}
+
+  tr.operations {
+    margin-left: 1em;
+    margin-right: 1em;
+  }
+}
+
+div.fact {
+  margin-top: 4px;
+  margin-left: 4px;
+  float:left;
+  span.label {
+    font-size: 90%;
+    font-weight: normal;
+    }
+}

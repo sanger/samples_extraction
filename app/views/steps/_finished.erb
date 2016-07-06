@@ -3,11 +3,31 @@
   <div class="panel panel-default">
     <div class="panel-body">
       <% unless steps.count == 0 %>
-      <table class="table table-condensed">
+      <table class="table table-condensed table-hover steps-table">
         <thead><th>Step id</th><th>Step type</th><th>Activity id</th><th>Activity type</th></thead>
         <tbody>
           <% steps.each do |step| %>
-            <tr><td><%= step.id %></td><td><%= step.step_type.name %></td><td><%= step.activity.id %></td><td><%= step.activity.activity_type.name %></td></tr>
+            <tr data-toggle="collapse" data-target="#step-<%= step.id %>" class="clickable info"><td><%= step.id %></td><td><%= step.step_type.name %></td><td><%= step.activity.id %></td><td><%= step.activity.activity_type.name %></td></tr>
+            <tr class="operations">
+              <td colspan="4">
+                <div id="step-<%= step.id %>" class="collapse">
+                  <table class="table">
+                    <thead><th>Action</th><th>Barcode</th><th>Fact</th>
+                    </thead>
+                    <tbody>
+                      <% step.operations.each do |operation| %>
+                        <%= render operation %>
+                      <% end %>
+                      <% step.uploads.each do |upload| %>
+                        <tr>
+                          <td></td>
+                        </tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              </td>
+            </tr>
           <% end %>
         </tbody>
       </table>
