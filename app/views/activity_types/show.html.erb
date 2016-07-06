@@ -2,5 +2,11 @@
 
 <%= render 'form' %>
 
+<ul>
+<% @activity_type.step_types.each do |step_type|%>
+  <li><%= step_type.name %></li>
+<% end %>
+</ul>
+
 <%= bootstrap_link_to 'Edit', edit_activity_type_path(@activity_type) %>
 <%= bootstrap_link_to 'Back', activity_types_path %>

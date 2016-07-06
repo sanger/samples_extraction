@@ -18,7 +18,7 @@
       <tr>
         <td><%= kit.barcode %></td>
         <td><%= kit.max_num_reactions %></td>
-        <td><%= kit.num_reactions_performed %></td>
+        <td><%= kit.activities.count %></td>
         <td><%= kit.kit_type.name %></td>
         <td><%= bootstrap_link_to 'Show', kit %></td>
         <td><%= bootstrap_link_to 'Edit', edit_kit_path(kit) %></td>

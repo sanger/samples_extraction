@@ -8,7 +8,7 @@ class Action < ActiveRecord::Base
     else
       fact = Fact.create(
         :predicate => predicate,
-        :object => created_assets[object_condition_group.id].uuid)
+        :object => 'barcode:'+created_assets[object_condition_group.id].barcode)
     end
   end
 
