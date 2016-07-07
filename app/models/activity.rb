@@ -8,6 +8,9 @@ class Activity < ActiveRecord::Base
 
   has_many :steps
   has_many :step_types, :through => :activity_type
+
+  has_many :uploads
+
   belongs_to :asset_group
 
   def select_barcodes(barcodes)

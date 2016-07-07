@@ -1,0 +1,41 @@
+<div id="actions" class="row file-upload" data-uploader-config='{"url": "<%= activity_uploads_path(@activity.id) %>","identifier": "step-type-id-<%= step_type.id %>"}'>
+  <div class="alert alert-danger alert-dismissible" style="display:none;" role="alert">
+    <span class='msg'></span>
+  </div>
+
+      <div class="col-lg-7">
+        <span class="btn btn-default fileinput-button dz-clickable">
+            <i class="glyphicon glyphicon-plus"></i>
+            <span>Add file...</span>
+        </span>
+        <button type="button" class="btn btn-primary start" disabled="disabled">
+            <i class="glyphicon glyphicon-upload"></i>
+            <span>Upload file</span>
+        </button>
+      </div>
+    </div>
+
+<div class="row previews" class="files">
+
+  <div class="template file-row col-md-6">
+    <div>
+        <span class="preview"><img data-dz-thumbnail /></span>
+    </div>
+    <div>
+        <p class="name" data-dz-name></p>
+        <strong class="error text-danger" data-dz-errormessage></strong>
+    </div>
+    <div>
+        <p class="size" data-dz-size></p>
+        <div class="total-progress progress progress-striped active " role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" style="display:none;">
+          <div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress>Uploading...</div>
+        </div>
+    </div>
+    <div class='upload-buttons'>
+      <button data-dz-remove class="btn btn-default delete">
+        <i class="glyphicon glyphicon-trash"></i>
+        <span>Delete</span>
+      </button>
+    </div>
+  </div>
+</div>

@@ -12,6 +12,7 @@
  *
  *= require_tree .
  *= require_self
+ *= require dropzone/dropzone
  */
 @import "bootstrap-sprockets";
 @import "bootstrap";
@@ -54,3 +55,62 @@ p#danger { display:none;}
 form.activity-desc {margin-top: 1em; margin-bottom: 1em;}
 form.activity-desc label { margin-right: 1em; }
 form.activity-desc .form-group {margin-right: 0.5em; }
+
+.file-row div.upload-buttons { margin-bottom: 0.5em; }
+.previews { margin-top: 0.5em;}
+
+.main-view .custom-dropzone {
+  margin-bottom: 0.5em;
+  min-height: 150px;
+  border: 1px dashed rgba(0, 0, 0, 0.3);
+  background: white;
+  padding: 20px 20px;
+  box-sizing: border-box;
+}
+
+table.steps-table {
+  tr { cursor: pointer;}
+  tr.operations td {padding-top: 0px; padding-bottom: 0px;}
+
+  tr.operations {
+    margin-left: 1em;
+    margin-right: 1em;
+    table {
+
+      border-left: 1px;
+      border-right: 1px;
+      border-style: solid;
+      border-top: 0px;
+      border-bottom: 0px;
+      border-color: rgba(0, 0, 0, 0.3);
+
+    }
+    div {
+      border-bottom: 1px;
+      border-left: 0px;
+      border-right: 0px;
+      border-top: 0px;
+      border-style: solid;
+      border-color: rgba(0, 0, 0, 0.3);
+    }
+  }
+  tr.clickable > td {
+    border-top:0px;
+    border-bottom:0px;
+    border-left:1px;
+    border-right:1px;
+    border-style: solid;
+    border-color: lightgray;
+  }
+  margin-bottom: 1em;
+}
+
+div.fact {
+  margin-top: 4px;
+  margin-left: 4px;
+  float:left;
+  span.label {
+    font-size: 90%;
+    font-weight: normal;
+    }
+}

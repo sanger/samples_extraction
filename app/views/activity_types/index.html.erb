@@ -11,7 +11,7 @@
   </thead>
 
   <tbody>
-    <% @activity_types.each do |activity_type| %>
+    <% @activity_types.visible.each do |activity_type| %>
       <tr>
         <td><%= activity_type.name %></td>
         <td><%= bootstrap_link_to 'Show', activity_type %></td>

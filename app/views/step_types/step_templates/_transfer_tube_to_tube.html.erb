@@ -1,0 +1,20 @@
+<label for="source" class="control-label">Scan a source</label>
+<div class="input-group">
+  <input name='source' class="form-control" type='text' placeholder='Scan a source' />
+</div>
+
+<label for="target" class="control-label">Scan a destination</label>
+<div class="input-group">
+  <input name='destination' class="form-control" type='text' placeholder='Scan a destination' />
+</div>
+
+<a id="next" class="button btn btn-default">Next</a>
+
+<script type="text/javascript">
+(function() {
+  $('#next').on('click', function() {
+    $('.step-template-view form').submit();
+    });
+  }());
+
+</script>

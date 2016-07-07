@@ -3,6 +3,11 @@ module SupportN3
     k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/,'')
   end
 
+  def self.step_template(quads)
+    value = quads.select{|quad| fragment(quad[1]) == 'stepTemplate'}.flatten[2]
+    fragment(value) unless value.nil?
+  end
+
   def self.step_type(quads)
     names = quads.select{|quad| fragment(quad[1]) == 'stepTypeName'}.flatten
     old_step_type = StepType.where(:name => names[2].to_s, :superceded_by_id => nil).first
@@ -37,6 +42,10 @@ module SupportN3
         actions = quads.select{|quad| quad.last === v}
 
         step_type = step_type(actions)
+        template = step_template(actions)
+        unless template.nil?
+          step_type.update_attributes(:step_template => template)
+        end
         step_type.activity_types << activity_type
 
         # Creation of condition groups in the antecedents

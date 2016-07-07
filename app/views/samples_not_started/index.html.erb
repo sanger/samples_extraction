@@ -1,6 +1,6 @@
 <p id="notice"><%= notice %></p>
 
-<h1>Samples finished</h1>
+<h1>Samples not started</h1>
 
 <div id="samples_started">
 <ul class="nav nav-tabs">
@@ -14,33 +14,24 @@
     <% @activity_types.each_with_index do |activity_type, index| %>
       <div role="tabpanel" class="tab-pane  <%= 'active' if index==0%>" id="at-<%= activity_type.id %>">
         <div class="panel-body">
-          <% if activity_type.activities.empty? %>
-            This activity type has no activities yet.
-          <% else %>
             <table class='table table-condensed'>
               <thead>
-                <th>Activity id</th><th>Barcode</th><th>Facts</th><th>Status</th>
+                <th>Barcode</th><th>Facts</th>
               </thead>
               <tbody>
-                <% activity_type.activities.finished.each do |activity| %>
-                  <% if activity.asset_group.nil? || activity.asset_group.assets.empty? %>
-                    <tr><td><%= bootstrap_link_to 'Visit', activity %> <%= activity.id %></td></tr>
-                  <% else %>
-                    <% activity.asset_group.assets.each_with_index do |asset, index| %>
-                      <tr>
-                        <td>
-                          <% if index==0 %>
-                            <%= bootstrap_link_to 'Visit', activity %> <%= activity.id %>
-                          <% end %>
-                        </td><td><%= asset.barcode %></td>
-                        <td><%= asset.facts_to_s %></td><td><%= activity.finished? %></td>
-                      </tr>
-                    <% end %>
-                  <% end %>
+                <% Asset.all.select{|asset| asset.asset_groups.empty?}.each do |asset| %>
+                  <tr>
+                    <td><%= asset.barcode %>
+                    </td><td></td>
+                    <td>
+                      <% asset.facts.each do |fact| %>
+                        <%= render :partial => 'facts/fact', :locals => { :fact => fact} %>
+                      <% end %>
+                    </td>
+                  </tr>
                 <% end %>
               </tbody>
             </table>
-          <% end %>
         </div>
       </div>
     <% end %>

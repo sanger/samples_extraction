@@ -6,8 +6,12 @@ class Asset < ActiveRecord::Base
   before_save :generate_uuid
   before_save :generate_barcode
 
+  has_many :operations
+
   def facts_to_s
-    facts.map{|f| f.predicate+':'+f.object}.join(', ')
+    facts.each do |fact|
+      render :partial => fact
+    end
   end
 
   def generate_uuid

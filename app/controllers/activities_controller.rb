@@ -7,9 +7,11 @@ class ActivitiesController < ApplicationController
   before_action :set_kit, only: [:create]
   before_action :set_instrument, only: [:create]
 
+  before_action :set_uploaded_files, only: [:update]
+  before_action :perform_previous_step_type, only: [:update]
+
 
   def update
-    perform_previous_step_type
     @activity.finish unless params[:finish].nil?
     @step_types = @activity.step_types_for(@assets)
     @steps = @activity.previous_steps
@@ -19,6 +21,7 @@ class ActivitiesController < ApplicationController
       format.json { render :show, status: :created, location: @activity }
     end
   end
+
 
   def show
     @step_types = @activity.step_types_for(@assets)
@@ -96,12 +99,23 @@ class ActivitiesController < ApplicationController
     @assets = @activity.asset_group.assets
   end
 
+  def set_uploaded_files
+    @upload_ids = []
+    if params[:upload_ids]
+      @upload_ids = JSON.parse(params[:upload_ids])
+    end
+  end
+
   def perform_previous_step_type
     if params[:step_type]
       valid_step_types = @activity.step_types_for(@assets)
       step_type_to_do = @activity.step_types.find_by_id!(params[:step_type])
       if valid_step_types.include?(step_type_to_do)
         @step_performed = @activity.create_step(step_type_to_do)
+        @upload_ids.each do |upload_id|
+          @step_performed.uploads << Upload.find_by_id!(upload_id)
+        end
+        @upload_ids=[]
         @assets.reload
       end
     end
