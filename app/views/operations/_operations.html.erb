@@ -1,3 +1,4 @@
+<% operations.each do |operation| %>
 <tr>
   <td class="col-md-3">
     <% if operation.action.action_type == 'addFacts' %>
@@ -16,3 +17,4 @@
   <td class="col-md-3"><%= operation.asset.barcode %></td>
   <td class="col-md-6"><%= render :partial => 'facts/fact', :locals => { :fact => operation} %></td>
 </tr>
+<% end %>

@@ -15,9 +15,11 @@
                     <thead><th>Action</th><th>Barcode</th><th>Fact</th>
                     </thead>
                     <tbody>
-                      <% step.operations.each do |operation| %>
-                        <%= render operation %>
-                      <% end %>
+                      <%= render :partial => 'operations/operations', :locals => {
+                        :operations => step.operations.for_presenting } %>
+                      <!-- % step.operations.each do |operation| %>
+                        < %= render operation % -->
+                      <!--  % end % -->
                       <% step.uploads.each do |upload| %>
                         <tr>
                           <td></td>
