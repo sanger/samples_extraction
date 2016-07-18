@@ -17,4 +17,7 @@
 //= require bootstrap-sprockets
 //= require dropzone
 //= require upload_file
+//= require activities
+//= require_tree ./templates
+//= require_tree .
 

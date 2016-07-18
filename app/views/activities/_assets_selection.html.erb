@@ -1,12 +1,13 @@
-
 <div class="form-group">
-  <label for="asset_barcode[0]" class="control-label">What do I have?</label>
+  <%= bootstrap_form_for [@activity, @asset_group], action: 'update', remote: true, html: { :autocomplete => 'off', :"data-psd-asset-group-form" => "1"} do |f| %>
+  <input type="hidden" name="delete_barcode" value="" />
+  <label class="control-label">What do I have?</label>
   <div class="panel panel-default">
     <div class="panel-body">
-      <% if !@assets.empty? %>
+      <!-- % if !@assets.empty? % -->
       <table class="table table-condensed">
         <thead><th>Barcode</th><th>Facts</th><th><span class='pull-right'></span></th></thead>
-        <tbody>
+        <tbody data-psd-asset-group-content="1">
           <% @assets.uniq.each_with_index do |asset, i| %>
             <tr>
               <td><%= asset.barcode %></td>
@@ -16,30 +17,28 @@
                 <% end %>
               </td>
               <td>
-                <%= bootstrap_form_for @activity, action: 'update', html: { :class => 'pull-right'} do |f| %>
-                  <input type="hidden" name="delete_barcode[<%= i %>]" value="<%= asset.barcode %>" />
-                  <%= f.submit "Delete" %>
-                <% end %>
+                <button class="btn btn-default delete-button" data-psg-asset-group-delete-barcode="<%= asset.barcode %>">Delete</button>
               </td>
+            </tr>
           <% end %>
         </tbody>
       </table>
-      <% else %>
+      <%#-- % else % >
         <div class="empty-description"><span>This activity has no assets selected yet.</span></div>
-      <% end %>
+      <%# end % -- #%>
     </div>
     <div class="panel-footer">
-      <%= bootstrap_form_for @activity, action: 'update', :html => { :autocomplete => 'off'} do |f| %>
-        <label for="asset_barcode[0]" class="control-label">Add a barcode</label>
-        <div class="input-group">
-          <input name='asset_barcode[0]' class="form-control" type='text' placeholder='Scan a barcode' />
-          <span class="input-group-btn">
-            <%= button_tag(type: 'submit', class: "btn btn-default") do %>
-               <span class="glyphicon glyphicon-arrow-up"></span>
-            <% end %>
-          </span>
-        </div>
-      <% end %>
+      <label for="add_barcode" class="control-label">Add a barcode</label>
+      <div class="input-group">
+        <input name='add_barcode' class="form-control" type='text' placeholder='Scan a barcode' />
+        <span class="input-group-btn">
+          <%= button_tag(class: "btn btn-default") do %>
+             <span class="glyphicon glyphicon-arrow-up"></span>
+          <% end %>
+        </span>
+      </div>
     </div>
   </div>
+  <% end %>
 </div>
+

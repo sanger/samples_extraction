@@ -6,7 +6,9 @@ Rails.application.routes.draw do
   resources :steps
   resources :activities do
     resources :uploads
+    resources :asset_groups
   end
+
   resources :assets
   resources :steps
   resources :activity_types

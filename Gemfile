@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 gem 'rdf-n3'
 gem 'tzinfo-data'
 
+gem 'ejs'
 gem 'dropzonejs-rails'
 
 gem 'rails-assets-tether', '>= 1.1.0'

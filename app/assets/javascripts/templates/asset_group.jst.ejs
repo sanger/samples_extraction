@@ -1,0 +1,17 @@
+<% for (var i=0; i<assets.length; i++) { %>
+  <tr>
+    <% var asset = assets[i]; %>
+    <td><%= asset.barcode %></td>
+    <td>
+      <% for (var j=0; j<asset.facts.length; j++) {%>
+        <% var fact = asset.facts[j]; %>
+        <div class="fact">
+          <span class="label label-default"><%= fact.predicate %>:<%= fact.object %></span>
+        </div>
+      <% } %>
+    </td>
+    <td>
+      <button class="btn btn-default delete-button" data-psg-asset-group-delete-barcode="<%= asset.barcode %>">Delete</button>
+    </td>
+  </tr>
+<% } %>

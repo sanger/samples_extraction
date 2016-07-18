@@ -1,7 +1,5 @@
 class ActivitiesController < ApplicationController
   before_action :set_activity, only: [:show, :update]
-  before_action :remove_barcodes, only: [:update, :show]
-  before_action :add_barcodes, only: [:update, :show]
   before_action :select_assets, only: [:show, :update]
 
   before_action :set_kit, only: [:create]
@@ -36,19 +34,6 @@ class ActivitiesController < ApplicationController
   def index
   end
 
-  def set_kit
-    @kit = Kit.find_by_barcode!(params[:kit_barcode])
-  rescue ActiveRecord::RecordNotFound => e
-    flash[:danger] = 'Kit not found'
-    redirect_to :back
-  end
-
-  def set_instrument
-    @instrument = Instrument.find_by_barcode!(params[:instrument_barcode])
-  rescue RecordNotFound => e
-
-  end
-
   def create
     @asset_group = AssetGroup.create
     @activity_type = @kit.kit_type.activity_type
@@ -70,9 +55,24 @@ class ActivitiesController < ApplicationController
   end
 
   private
+
+    def set_kit
+      @kit = Kit.find_by_barcode!(params[:kit_barcode])
+    rescue ActiveRecord::RecordNotFound => e
+      flash[:danger] = 'Kit not found'
+      redirect_to :back
+    end
+
+    def set_instrument
+      @instrument = Instrument.find_by_barcode!(params[:instrument_barcode])
+    rescue RecordNotFound => e
+
+    end
+
     # Use callbacks to share common setup or constraints between actions.
     def set_activity
       @activity = Activity.find(params[:id])
+      @asset_group = @activity.asset_group
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
@@ -80,20 +80,6 @@ class ActivitiesController < ApplicationController
       params.require(:activity).permit(:kit_barcode, :asset_barcode, :step_type, :instrument_barcode, :delete_barcode)
     end
 
-  def remove_barcodes
-    if params[:delete_barcode]
-      @activity.unselect_barcodes(params[:delete_barcode].values)
-    end
-  end
-
-  def add_barcodes
-    if params[:asset_barcode]
-      barcodes = params[:asset_barcode].values
-      if !@activity.select_barcodes(barcodes)
-        flash[:danger] = "Could not find barcodes #{barcodes}"
-      end
-    end
-  end
 
   def select_assets
     @assets = @activity.asset_group.assets
