@@ -3,6 +3,7 @@ require 'sass'
 require 'bootstrap-sass'
 
 Rails.application.routes.draw do
+  resources :step_types
   resources :steps
   resources :activities do
     resources :uploads

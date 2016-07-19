@@ -18,6 +18,10 @@
 //= require dropzone
 //= require upload_file
 //= require activities
+//= require condition_groups
+//= require condition_group
+//= require fact_reader
 //= require_tree ./templates
 //= require_tree .
+//= require component_builder
 

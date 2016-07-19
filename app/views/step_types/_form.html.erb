@@ -1,0 +1,68 @@
+<%= bootstrap_form_for(step_type) do |f| %>
+  <% if step_type.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(step_type.errors.count, "error") %> prohibited this step_type from being saved:</h2>
+
+      <ul>
+      <% step_type.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <% readonly = params[:action] == 'show' %>
+  <div class="field">
+    <%= f.text_field :name, :readonly => readonly %>
+  </div>
+  <div class="field">
+
+<a class="btn btn-default" data-psg-component-class="ConditionGroups" data-psd-condition-group-action-types="<%= Action.types.to_json %>"
+>New Condition Group</a>
+
+<div id="conditionGroups">
+</div>
+
+<div class="panel panel-default hidden">
+  <div class="panel-heading">
+    <h3 class="panel-title">Asset 1</h3>
+  </div>
+  <div class="panel-body">
+    <div class="fact"></span><span class="label label-default glyphicon glyphicon-pencil">is:Tube</span></div>
+    <div class="fact"><span class="label label-default">is:Tube</span></div>
+
+    This asset has no annotations yet.
+  </div>
+  <div class="panel-footer">
+
+    <div class="input-group">
+      <div class="input-group-btn" >
+        <button type="button" class="btn btn-default dropdown-toggle"
+          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select Operation
+          <span class="caret"></span>
+          <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu">
+          <% Action.types.each do |type_sym| %>
+            <li><a href="#"><%= render :partial => 'operations/action_type', :locals => { :action_type => type_sym.to_s } %></a></li>
+          <% end %>
+        </ul>
+      </div>
+      <input type="text" name="object" class="form-control" aria-label="...">
+      <div class="input-group-btn">
+        <button type="button" class="btn btn-default form-control">Add</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+    <!-- %= f.select :step_template, :readonly => readonly % -->
+  </div>
+
+  <% unless readonly %>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+  <% end %>
+<% end %>
