@@ -2,17 +2,26 @@
   function ConditionGroup(node){
     this.factTemplate = JST['templates/fact'];
     this.node = node;
-    this.name = $('h3[psd-condition-group-title]', node).data('psd-condition-group-title');
+    this.title=$('h3[data-psd-condition-group-title]', node);
+    this.checksDiv = $('.check-facts', this.node);
+    this.facts = $('.facts', this.node);
+    this.name = this.title.data('psd-condition-group-title');
     this.attachHandlers();
   };
 
   var proto = ConditionGroup.prototype;
 
   proto.addFact = function(fact) {
-    if ($('.panel-body .fact', this.node).length===0) {
-      $('.panel-body', this.node).text('');
+    if ($('.facts .fact', this.node).length===0) {
+      this.facts.text('');
     }
-    $('.panel-body', this.node).append(this.factTemplate(fact));
+    var renderedFact = this.factTemplate(fact);
+    if (fact.actionType=='checkFacts') {
+      this.checksDiv.append(renderedFact);
+    } else {
+      this.facts.append(renderedFact);
+    }
+    $(document).trigger('execute.builder');
   };
 
   proto.listenFactsHandler = function(event, fact) {

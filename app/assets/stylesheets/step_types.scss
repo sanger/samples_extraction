@@ -6,3 +6,11 @@
   margin-top: 1em;
 }
 #conditionGroups div.alert { padding: 0px; }
+
+.main-view #conditionGroups .panel-body {
+  padding-bottom: 15px;
+}
+
+span[data-psd-delete-icon] {
+  cursor: pointer;
+}

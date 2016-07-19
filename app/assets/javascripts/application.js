@@ -20,6 +20,7 @@
 //= require activities
 //= require condition_groups
 //= require condition_group
+//= require delete_icon
 //= require fact_reader
 //= require_tree ./templates
 //= require_tree .

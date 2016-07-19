@@ -1,15 +1,24 @@
-<div class="alert panel panel-default" data-psg-component-class="ConditionGroup">
+<div class="alert panel panel-default" data-psd-component-class="ConditionGroup">
   <div class="panel-heading">
     <h3 class="panel-title" data-psd-condition-group-title="<%= name %>"><%= name %><button data-condition-group-remove="1" data-dismiss="alert"  class="close pull-right ">&times;</button></h3>
 
   </div>
   <div class="panel-body">
-
-    This asset has no annotations yet.
+    <div class="check-facts">
+    </div>
+  </ul>
   </div>
+  <hr />
+  <div class="panel-body">
+    <div class="facts">
+      This asset has no annotations yet.
+    </div>
+  </ul>
+  </div>
+
   <div class="panel-footer">
 
-    <div class="input-group" data-psg-component-class="FactReader">
+    <div class="input-group" data-psd-component-class="FactReader">
       <div class="input-group-btn" data-psd-fact-reader-operation-selector="true">
         <button type="button" class="btn btn-default dropdown-toggle"
           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -31,13 +40,13 @@
                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
               <% } %>
               <% if (action_type == 'selectAsset') { %>
-                <span class="glyphicon glyphicon-save" aria-hidden="true"></span>
+                <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
               <% } %>
-              <% if (action_type == 'uncheckFacts') { %>
+              <% if (action_type == 'unselectAsset') { %>
                 <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
               <% } %>
               <% if (action_type == 'checkFacts') { %>
-                <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
               <% } %>
 
               <%= action_type %>

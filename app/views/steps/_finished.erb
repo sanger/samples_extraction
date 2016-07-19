@@ -1,4 +1,4 @@
-<div class="form-group" id="steps_finished" data-psg-steps-update-url="<%= activity_path(@activity)+'/steps_finished' %>" data-psg-steps-update-complete-url="<%= activity_path(@activity)+'/steps_finished_with_operations' %>">
+<div class="form-group" id="steps_finished" data-psd-steps-update-url="<%= activity_path(@activity)+'/steps_finished' %>" data-psd-steps-update-complete-url="<%= activity_path(@activity)+'/steps_finished_with_operations' %>">
   <label class="control-label">What happened before?</label>
   <div class="panel panel-default">
     <div class="panel-body">
@@ -7,7 +7,7 @@
         <thead><th>Step id</th><th>Step type</th><th>Activity id</th><th>Activity type</th></thead>
         <tbody>
           <% steps.each do |step| %>
-            <tr data-toggle="collapse" data-target="#step-<%= step.id %>" data-psg-step-id="<%= step.id %>" class="clickable info"><td><%= step.id %></td><td><%= step.step_type.name %></td><td><%= step.activity.id %></td><td><%= step.activity.activity_type.name %></td></tr>
+            <tr data-toggle="collapse" data-target="#step-<%= step.id %>" data-psd-step-id="<%= step.id %>" class="clickable info"><td><%= step.id %></td><td><%= step.step_type.name %></td><td><%= step.activity.id %></td><td><%= step.activity.activity_type.name %></td></tr>
 
             <tr class="operations">
               <td colspan="4">
@@ -47,7 +47,7 @@
 
 <script type="text/javascript">
   $("tr[data-target]").on('click', function(e) {
-    $("#steps_finished").load($("#steps_finished").data("psg-steps-update-complete-url")+'/'+$(e.currentTarget).data('psg-step-id'));
+    $("#steps_finished").load($("#steps_finished").data("psd-steps-update-complete-url")+'/'+$(e.currentTarget).data('psd-step-id'));
   });
 </script>
 <% end %>

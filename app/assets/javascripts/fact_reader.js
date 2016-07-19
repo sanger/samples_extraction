@@ -13,7 +13,7 @@
   proto.selectOperationHandler = function(e) {
     this.actionType = $(e.target).data('psd-fact-reader-action-type');
     this.cssClasses = $('span', e.target)[0].className;
-    this.selectButtonText.html($(e.target).clone());
+    this.selectButtonText.html($(e.target).contents().clone());
     //e.stopPropagation();
     e.preventDefault();
     //return false;

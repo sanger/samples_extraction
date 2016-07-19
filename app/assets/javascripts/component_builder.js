@@ -15,13 +15,13 @@
   };
 
   proto.instantiateNode = function(node) {
-    var className = $(node).data('psg-component-class');
-    $(node).removeAttr('data-psg-component-class');
+    var className = $(node).data('psd-component-class');
+    $(node).removeAttr('data-psd-component-class');
     this.addInstance(new this.components[className](node));
   };
 
   proto.builderProcess = function() {
-    $('[data-psg-component-class]').each($.proxy(function(pos, node) {
+    $('[data-psd-component-class]').each($.proxy(function(pos, node) {
       this.instantiateNode(node);
     }, this));
   };
