@@ -1,3 +1,4 @@
+<% operations.each do |operation| %>
 <tr>
   <td class="col-md-3">
     <% if operation.action.action_type == 'addFacts' %>
@@ -14,5 +15,9 @@
     <%= operation.action.action_type %>
   </td>
   <td class="col-md-3"><%= operation.asset.barcode %></td>
-  <td class="col-md-6"><%= render :partial => 'facts/fact', :locals => { :fact => operation} %></td>
+  <td class="col-md-6">
+    <%#= render :partial => 'facts/fact', :locals => { :fact => operation} %>
+    <div class="fact"><span class="label label-default"><%= operation.predicate %>:<%= operation.object %></span></div>
+  </td>
 </tr>
+<% end %>

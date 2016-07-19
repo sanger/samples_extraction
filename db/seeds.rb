@@ -27,7 +27,10 @@ asset2.facts << [
   Fact.create({ :predicate => a, :object => b})
 end
 
+
+
 activity_type = ActivityType.create(:name => 'Testing activity type')
+
 
 instrument = Instrument.create(:barcode => '1111')
 instrument.activity_types << activity_type
@@ -38,6 +41,16 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 1111})
 activity_type2 = ActivityType.create(:name => 'Testing activity type 2')
 kit_type = KitType.create(:activity_type => activity_type2, :name => 'Testing kit type 2')
 kit = Kit.create( {:kit_type => kit_type, :barcode => 2222})
+
+
+asset_group = AssetGroup.create!
+1000.times do |pos|
+  asset = Asset.create!
+  asset.facts << Fact.create({ :predicate => 'is', :object => 'Tube'})
+  asset_group.assets << asset
+end
+activity_type.activities.create!(:asset_group => asset_group, :kit => kit, :instrument => instrument)
+
 
 require 'support_n3'
 SupportN3.load_n3("lib/assets/graph3.n3")

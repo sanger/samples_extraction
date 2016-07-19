@@ -2,6 +2,9 @@ require 'date'
 
 class Activity < ActiveRecord::Base
   validates :activity_type, :presence => true
+  validates :instrument, :presence => true
+  validates :kit, :presence => true
+  validates :asset_group, :presence => true
   belongs_to :activity_type
   belongs_to :instrument
   belongs_to :kit
@@ -13,16 +16,6 @@ class Activity < ActiveRecord::Base
 
   belongs_to :asset_group
 
-  def select_barcodes(barcodes)
-    barcodes.each do |barcode|
-      if asset_group.assets.select{|a| a.barcode == barcode}.empty?
-        asset = Asset.find_by_barcode(barcode)
-        return false if asset.nil?
-        asset_group.assets << asset
-      end
-    end
-    return true
-  end
 
   scope :in_progress, ->() { where('completed_at is null')}
   scope :finished, ->() { where('completed_at is not null')}
@@ -37,13 +30,6 @@ class Activity < ActiveRecord::Base
 
   def previous_steps
     asset_group.assets.map(&:steps).concat(steps).flatten.sort{|a,b| a.created_at <=> b.created_at}.uniq
-  end
-
-  def unselect_barcodes(barcodes)
-    barcodes.each do |barcode|
-      selection = asset_group.assets.select{|a| a.barcode == barcode}
-      asset_group.assets.delete(selection)
-    end
   end
 
   def assets

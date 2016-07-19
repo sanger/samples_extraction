@@ -61,6 +61,7 @@ GEM
     debug_inspector (0.0.2)
     dropzonejs-rails (0.7.3)
       rails (> 3.1)
+    ejs (1.1.1)
     erubis (2.7.0)
     execjs (2.7.0)
     factory_girl (4.7.0)
@@ -201,6 +202,7 @@ DEPENDENCIES
   byebug
   coffee-rails (~> 4.1.0)
   dropzonejs-rails
+  ejs
   factory_girl
   factory_girl_rails
   jbuilder (~> 2.0)

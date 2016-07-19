@@ -2,7 +2,9 @@
   <% step_types.each do |step_type| %>
     <li>
       <% if step_type.step_template%>
-        <a href="#step-type-id-<%= step_type.id %>" class="btn btn-primary" data-toggle="pill"><%= step_type.name %></a>
+        <a href="#step-type-id-<%= step_type.id %>" class="btn btn-primary" data-toggle="pill">
+          <%= step_type.name %>
+        </a>
       <% else %>
         <%= bootstrap_form_for @activity, action: 'update' do |f| %>
           <input type="hidden" name="step_type" value="<%= step_type.id %>" />
