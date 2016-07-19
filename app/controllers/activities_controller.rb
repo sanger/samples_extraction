@@ -1,6 +1,6 @@
 class ActivitiesController < ApplicationController
-  before_action :set_activity, only: [:show, :update]
-  before_action :select_assets, only: [:show, :update]
+  before_action :set_activity, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
+  before_action :select_assets, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
 
   before_action :set_kit, only: [:create]
   before_action :set_instrument, only: [:create]
@@ -54,7 +54,49 @@ class ActivitiesController < ApplicationController
     end
   end
 
+
+  def step_types_active
+    @step_types = @activity.step_types_for(@assets)
+
+    respond_to do |format|
+      format.html {
+        render 'steps/_active', :locals => {
+          :step_types => @step_types,
+          :activity => @activity
+        }, :layout => false
+      }
+    end
+  end
+
+  def steps_finished
+    @steps = @activity.previous_steps
+
+    respond_to do |format|
+      format.html {
+        render 'steps/_finished', :locals => {
+          :steps => @steps,
+          :activity => @activity,
+        }, :layout => false
+      }
+    end
+  end
+
+  def steps_finished_with_operations
+    @steps = @activity.previous_steps
+
+    respond_to do |format|
+      format.html {
+        render 'steps/_finished', :locals => {
+          :steps => @steps,
+          :activity => @activity,
+          :selected_step_id => params[:step_id]
+        }, :layout => false
+      }
+    end
+  end
+
   private
+
 
     def set_kit
       @kit = Kit.find_by_barcode!(params[:kit_barcode])

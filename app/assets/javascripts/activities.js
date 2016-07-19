@@ -37,6 +37,16 @@
     $('input[name=delete_barcode]', this.form).val('');
   };
 
+  proto.reloadStepTypes = function() {
+    var url = $('#step_types_active').data('psg-step-types-update-url');
+    $('#step_types_active').load(url);
+  };
+
+  proto.reloadSteps = function() {
+    var url = $('#steps_finished').data('psg-steps-update-url');
+    $('#steps_finished').load(url);
+  };
+
   proto.attachHandlers = function(node) {
     this.attachDeleteButtons(node);
 
@@ -54,6 +64,15 @@
       this.cleanInput();
     }, this)).on('ajax:error', $.proxy(function(msg) {
       this.cleanInput();
+    }, this)).on('ajax:complete', $.proxy(function() {
+      if (!this.loadInProgress) {
+        this.loadInProgress=true;
+        setTimeout($.proxy(function() {
+          this.reloadStepTypes();
+          this.reloadSteps();
+          this.loadInProgress=false;
+        }, this), 3000);
+      }
     }, this));
   };
 
