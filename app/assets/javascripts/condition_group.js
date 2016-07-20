@@ -2,7 +2,7 @@
   function ConditionGroup(node){
     this.factTemplate = JST['templates/fact'];
     this.node = node;
-    this.title=$('h3[data-psd-condition-group-title]', node);
+    this.title=$('[data-psd-condition-group-title]', node);
     this.checksDiv = $('.check-facts', this.node);
     this.facts = $('.facts', this.node);
     this.name = this.title.text();
@@ -34,8 +34,15 @@
     event.stopPropagation();
   };
 
+  proto.listenEditableHandler = function(event, data) {
+    if ($(data.node).data('psd-condition-group-title')) {
+      this.name=data.text;
+    }
+  };
+
   proto.attachHandlers = function() {
     $(this.node).on('fact.fact_reader', $.proxy(this.listenFactsHandler, this));
+    $(this.node).on('updated-text.editable-text', $.proxy(this.listenEditableHandler, this));
   };
 
   $(document).trigger('registerComponent.builder', {'ConditionGroup': ConditionGroup});

@@ -12,6 +12,8 @@
     //this.contents.html(this.getTextFromEditor());
     $(this.node).html(this.getTextFromEditor());
     this.attachEditor();
+
+    $(this.node).trigger('updated-text.editable-text', {text: this.getTextFromEditor(), node: this.node});
   };
 
   proto.attachEditor = function() {
