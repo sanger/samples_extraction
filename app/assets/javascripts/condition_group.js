@@ -5,7 +5,7 @@
     this.title=$('h3[data-psd-condition-group-title]', node);
     this.checksDiv = $('.check-facts', this.node);
     this.facts = $('.facts', this.node);
-    this.name = this.title.data('psd-condition-group-title');
+    this.name = this.title.text();
     this.attachHandlers();
   };
 

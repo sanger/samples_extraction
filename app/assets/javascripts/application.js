@@ -22,6 +22,7 @@
 //= require condition_group
 //= require delete_icon
 //= require display_error
+//= require editable_text
 //= require fact_reader
 //= require_tree ./templates
 //= require_tree .
