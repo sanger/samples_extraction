@@ -1,4 +1,4 @@
-<%= bootstrap_form_for(step_type) do |f| %>
+<%= bootstrap_form_for(step_type, :html => { :"data-psd-component-class" => "ConditionGroups"}) do |f| %>
   <% if step_type.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(step_type.errors.count, "error") %> prohibited this step_type from being saved:</h2>
@@ -11,15 +11,15 @@
     </div>
   <% end %>
   <% readonly = params[:action] == 'show' %>
-  <div class="field">
+  <div class="field step_type_name">
     <%= f.text_field :name, :readonly => readonly %>
   </div>
   <div class="field">
 
-<a class="btn btn-default" data-psd-component-class="ConditionGroups" data-psd-condition-group-action-types="<%= Action.types.to_json %>"
->New Condition Group</a>
-
 <div id="conditionGroups">
+  <a class="btn btn-default" data-psd-condition-group-action-types="<%= Action.types.to_json %>"
+  >New Condition Group</a>
+  <div></div>
 </div>
 
 <div class="panel panel-default hidden">
@@ -62,7 +62,7 @@
 
   <% unless readonly %>
     <div class="actions">
-      <%= f.submit %>
+      <%= f.submit :class => 'btn btn-default',"data-psd-condition-groups-save"=>true %>
     </div>
   <% end %>
 <% end %>

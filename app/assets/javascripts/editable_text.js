@@ -10,7 +10,11 @@
 
   proto.restoreContent = function() {
     //this.contents.html(this.getTextFromEditor());
+    if (this.contents===null) {
+      return;
+    }
     $(this.node).html(this.getTextFromEditor());
+    this.contents=null;
     this.attachEditor();
 
     $(this.node).trigger('updated-text.editable-text', {text: this.getTextFromEditor(), node: this.node});
@@ -35,6 +39,11 @@
     }
   };
 
+  proto.setInputFocus = function() {
+    $(this.editor).focus();
+    this.editor[0].selectionStart = this.editor[0].selectionEnd = this.editor[0].value.length;
+  };
+
   proto.addEditor = function(event) {
     var editorRendered = this.template({text: $(this.node).text()});
     this.contents = $(this.node).contents();
@@ -42,7 +51,11 @@
 
     this.editor = $('input', this.node);
     this.editor.on('blur', $.proxy(this.restoreContent, this));
+    //$(document).one('click', $.proxy(this.restoreContent, this));
     this.editor.on('keydown', $.proxy(this.specialKeysHandler, this));
+
+    this.setInputFocus();
+
   };
 
   proto.attachHandlers = function() {

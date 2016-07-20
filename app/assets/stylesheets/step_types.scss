@@ -2,8 +2,8 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-#conditionGroups {
-  margin-top: 1em;
+#conditionGroups a[data-psd-condition-group-action-types]{
+  margin-bottom: 1em;
 }
 #conditionGroups div.alert { padding: 0px; }
 

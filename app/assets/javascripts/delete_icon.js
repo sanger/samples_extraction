@@ -9,6 +9,7 @@
   var proto = DeleteIcon.prototype;
 
   proto.deleteElement = function() {
+    $(this.node).trigger('deleted_node.delete_icon', { node : this.node });
     this.node.remove();
   };
 
