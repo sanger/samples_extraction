@@ -1,6 +1,7 @@
 (function($, undefined) {
   function FactReader(node) {
     this.node = node;
+    this.actionType = null;
     this.select = $("[data-psd-fact-reader-operation-selector]", node);
     this.input = $("[data-psd-fact-reader-text-input]", node);
     this.selectButtonText = $("span[data-psd-fact-reader-button-text]", this.node);
@@ -20,7 +21,16 @@
   };
 
   proto.addFactHandler = function() {
+    if (this.actionType===null) {
+      $(document).trigger('msg.display_error', { msg: 'You need to select an operation to add a new fact'});
+      return false;
+    }
+
     var textInput = this.input.val();
+    if (textInput.length === 0) {
+      $(document).trigger('msg.display_error', { msg: 'You need to supply an input'});
+      return false;
+    }
 
     if (textInput.search(/:/) >= 0) {
       var list = textInput.split(':');
@@ -44,6 +54,7 @@
   proto.readTabulatorHandler = function(e) {
     if (e.keyCode === 9) {
       this.addFactHandler();
+      e.preventDefault();
     }
     if (e.keyCode == 13) {
       this.addFactHandler();

@@ -11,15 +11,19 @@
 
   var proto = ConditionGroup.prototype;
 
-  proto.addFact = function(fact) {
-    if ($('.facts .fact', this.node).length===0) {
-      this.facts.text('');
+  proto.addRenderedFact = function(node, renderedFact) {
+    if ($('.fact', node).length===0) {
+      node.text('');
     }
+    node.append(renderedFact);
+  };
+
+  proto.addFact = function(fact) {
     var renderedFact = this.factTemplate(fact);
     if (fact.actionType=='checkFacts') {
-      this.checksDiv.append(renderedFact);
+      this.addRenderedFact(this.checksDiv, renderedFact);
     } else {
-      this.facts.append(renderedFact);
+      this.addRenderedFact(this.facts, renderedFact);
     }
     $(document).trigger('execute.builder');
   };
