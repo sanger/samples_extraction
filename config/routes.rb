@@ -10,7 +10,7 @@ Rails.application.routes.draw do
     resources :asset_groups
   end
 
-  resources :assets
+  resources :assets, :path => 'labware'
   resources :steps
   resources :activity_types
   resources :kit_types

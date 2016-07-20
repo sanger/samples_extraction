@@ -198,10 +198,10 @@ ActiveRecord::Schema.define(version: 20160706142323) do
   create_table "step_types", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
     t.string   "step_template"
-    t.string   "n3_definition"
+    t.binary   "n3_definition",    limit: 65535
     t.integer  "superceded_by_id"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
     t.index ["superceded_by_id"], name: "index_step_types_on_superceded_by_id", using: :btree
   end
 

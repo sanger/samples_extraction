@@ -30,7 +30,7 @@ class StepType < ActiveRecord::Base
       condition_group.conditions.map do |condition|
         {
           :cssClasses => fact_css_classes['checkFacts'],
-          :name => condition_group.name,
+          :name => condition_group.name || "a#{condition_group.id}",
           :actionType => 'checkFacts',
           :predicate => condition.predicate,
           :object => condition.object
@@ -40,7 +40,7 @@ class StepType < ActiveRecord::Base
     agroups = actions.map do |action|
         {
           :cssClasses => fact_css_classes[action.action_type],
-          :name => action.subject_condition_group.name,
+          :name => action.subject_condition_group.name || "a#{action.subject_condition_group.id}",
           :actionType => action.action_type,
           :predicate => action.predicate,
           :object => action.object

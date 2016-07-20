@@ -11,6 +11,13 @@
     </div>
   <% end %>
 
+
+<div data-psd-component-class="ConditionGroup">
+  <div class="facts">
+  </div>
+  <div data-psd-component-class="FactReader" data-psd-component-parameters="<%= {'template' => 'templates/fact_reader', 'actionType' => 'addFacts'}.to_json %>">
+  </div>
+</div>
   <div class="actions">
     <%= f.submit %>
   </div>

@@ -1,12 +1,22 @@
 (function($, undefined) {
-  function FactReader(node) {
-    this.node = node;
+  function FactReader(node, params) {
+     this.node = $(node);
+
+    if (params && params.template) {
+      this.template = JST[params.template];
+      this.node.append(this.template());
+    }
     this.actionType = null;
+    if (params && params.actionType) {
+      this.actionType=params.actionType;
+    }
+
     this.select = $("[data-psd-fact-reader-operation-selector]", node);
     this.input = $("[data-psd-fact-reader-text-input]", node);
     this.selectButtonText = $("span[data-psd-fact-reader-button-text]", this.node);
     this.addButton = $("[data-psd-fact-reader-add]", node);
     this.attachHandlers();
+
   };
 
   var proto = FactReader.prototype;
