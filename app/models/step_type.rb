@@ -14,6 +14,41 @@ class StepType < ActiveRecord::Base
 
   scope :with_template, ->() { where('step_template is not null')}
 
+  def fact_css_classes
+    {
+      'addFacts' => 'glyphicon glyphicon-pencil',
+      'removeFacts' => 'glyphicon glyphicon-erase',
+      'createAsset' => 'glyphicon glyphicon-plus',
+      'selectAsset' => 'glyphicon glyphicon-eye-open',
+      'unselectAsset' => 'glyphicon glyphicon-eye-close',
+      'checkFacts' => 'glyphicon glyphicon-search'
+    }
+  end
+
+  def condition_groups_init
+    cgroups = condition_groups.map do |condition_group|
+      condition_group.conditions.map do |condition|
+        {
+          :cssClasses => fact_css_classes['checkFacts'],
+          :name => condition_group.name,
+          :actionType => 'checkFacts',
+          :predicate => condition.predicate,
+          :object => condition.object
+        }
+      end
+    end
+    agroups = actions.map do |action|
+        {
+          :cssClasses => fact_css_classes[action.action_type],
+          :name => action.subject_condition_group.name,
+          :actionType => action.action_type,
+          :predicate => action.predicate,
+          :object => action.object
+        }
+    end
+    [cgroups, agroups].flatten.to_json
+  end
+
   def create_next_conditions
     unless n3_definition.nil?
       SupportN3::parse_string(n3_definition, {}, self)

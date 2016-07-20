@@ -106,6 +106,7 @@ ActiveRecord::Schema.define(version: 20160706142323) do
   end
 
   create_table "condition_groups", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string  "name"
     t.integer "step_type_id"
     t.integer "cardinality"
     t.index ["step_type_id"], name: "index_condition_groups_on_step_type_id", using: :btree

@@ -59,7 +59,7 @@ module SupportN3
         if c_groups.keys.include?(fr)
           condition_group = c_groups[fr]
         else
-          condition_group = ConditionGroup.create(:step_type => step_type)
+          condition_group = ConditionGroup.create(:step_type => step_type, :name => fr)
           c_groups[fr] = condition_group
         end
         if fragment(p) == 'maxCardinality'
@@ -84,12 +84,12 @@ module SupportN3
               if k.class.name=='RDF::Query::Variable'
                 cardinality=1
               end
-              c_groups[fragment(k)] = ConditionGroup.create(:cardinality => cardinality)
+              c_groups[fragment(k)] = ConditionGroup.create(:cardinality => cardinality, :name => fragment(k))
             end
             object_condition_group_id = nil
             if v.class.name == 'RDF::Query::Variable'
               if c_groups[fragment(v)].nil?
-                c_groups[fragment(v)] = ConditionGroup.create(:cardinality => 1)
+                c_groups[fragment(v)] = ConditionGroup.create(:cardinality => 1, :name => fragment(v))
               end
               object_condition_group_id = c_groups[fragment(v)].id
             end

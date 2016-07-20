@@ -17,13 +17,15 @@
   proto.instantiateNode = function(node) {
     var className = $(node).data('psd-component-class');
     $(node).removeAttr('data-psd-component-class');
-    this.addInstance(new this.components[className](node));
+    var params = $(node).data('psd-component-parameters');
+    this.addInstance(new this.components[className](node, params));
   };
 
   proto.builderProcess = function() {
     $('[data-psd-component-class]').each($.proxy(function(pos, node) {
       this.instantiateNode(node);
     }, this));
+    $(document).trigger('done.builder');
   };
 
   proto.listenComponentRegistration  = function() {

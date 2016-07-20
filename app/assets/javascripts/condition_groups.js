@@ -1,20 +1,42 @@
   (function() {
     var POS = 0;
 
-    function ConditionGroups(node) {
+    function ConditionGroups(node, params) {
       this.template = JST['templates/condition_group'];
       this.node = $(node);
       this.button = $('[data-psd-condition-group-action-types]', this.node);
-      this.factReaders = [];
       this.conditionGroups = [];
       this.attachHandlers();
+
+      if (params) {
+        this.initializeConditionGroups(params);
+      }
     };
 
     var proto = ConditionGroups.prototype;
 
-    proto.addGroup = function() {
+    proto.initializeConditionGroups = function(params) {
+      var groupNames = Array.from(new Set($.map(params, function(p){
+        return p.name;
+      })));
+      for (var i=0; i<groupNames.length; i++) {
+        this.addGroup(groupNames[i]);
+      }
+      // I need to wait for the creation of the condition groups before using them
+      //$(document).one('done.builder', $.proxy(function() {
+        var conditionGroupsByName = this.conditionGroups.reduce(function(memo, conditionGroup) {
+          memo[conditionGroup.name] = conditionGroup;
+          return memo;
+        }, {});
+        for (var i=0; i<params.length; i++) {
+          conditionGroupsByName[params[i].name].addFact(params[i]);
+        }
+      //}, this));
+    };
+
+    proto.addGroup = function(name) {
       var conditionGroup = this.template({
-        name: this.generateGroupName(),
+        name: name,
         actionTypes: this.button.data('psd-condition-group-action-types')
       });
       $('#conditionGroups').append(conditionGroup);
@@ -78,7 +100,9 @@
     };
 
     proto.attachHandlers = function() {
-      $(this.button).on('click', $.proxy(this.addGroup, this));
+      $(this.button).on('click', $.proxy(function() {
+        this.addGroup(this.generateGroupName());
+      }, this));
       $(this.node).on('registered.condition-group', $.proxy(this.storeConditionGroup, this));
       $(this.node).on('changed-name.condition-group', $.proxy(this.updateConditionGroupName, this));
 

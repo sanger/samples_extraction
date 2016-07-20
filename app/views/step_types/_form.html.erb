@@ -1,4 +1,4 @@
-<%= bootstrap_form_for(step_type, :html => { :"data-psd-component-class" => "ConditionGroups"}) do |f| %>
+<%= bootstrap_form_for(step_type, :html => { :"data-psd-component-class" => "ConditionGroups", :"data-psd-component-parameters" => @step_type.condition_groups_init}) do |f| %>
   <% if step_type.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(step_type.errors.count, "error") %> prohibited this step_type from being saved:</h2>
@@ -16,47 +16,10 @@
   </div>
   <div class="field">
     <%= f.hidden_field :n3_definition %>
-    <!-- input type="hidden" name="n3_definition" value="" / -->
 
 <div id="conditionGroups">
   <a class="btn btn-default" data-psd-condition-group-action-types="<%= Action.types.to_json %>"
   >New Condition Group</a>
-  <div></div>
-</div>
-
-<div class="panel panel-default hidden">
-  <div class="panel-heading">
-    <h3 class="panel-title">Asset 1</h3>
-  </div>
-  <div class="panel-body">
-    <div class="fact"></span><span class="label label-default glyphicon glyphicon-pencil">is:Tube</span></div>
-    <div class="fact"><span class="label label-default">is:Tube</span></div>
-
-    This asset has no annotations yet.
-  </div>
-  <div class="panel-footer">
-
-    <div class="input-group">
-      <div class="input-group-btn" >
-        <button type="button" class="btn btn-default dropdown-toggle"
-          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select Operation
-          <span class="caret"></span>
-          <span class="sr-only">Toggle Dropdown</span>
-        </button>
-        <ul class="dropdown-menu">
-          <% Action.types.each do |type_sym| %>
-            <li><a href="#"><%= render :partial => 'operations/action_type', :locals => { :action_type => type_sym.to_s } %></a></li>
-          <% end %>
-        </ul>
-      </div>
-      <input type="text" name="object" class="form-control" aria-label="...">
-      <div class="input-group-btn">
-        <button type="button" class="btn btn-default form-control">Add</button>
-      </div>
-    </div>
-
-  </div>
-
 </div>
 
     <!-- %= f.select :step_template, :readonly => readonly % -->
