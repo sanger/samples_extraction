@@ -47,8 +47,6 @@
     };
 
     proto.toN3 = function(e) {
-      e.preventDefault();
-      e.stopPropagation();
 
       var checksN3 = $.map(this.conditionGroups, $.proxy(function(group) {
         return $.map(group.getCheckFacts(), $.proxy(this.checkFactToN3, this, group));
@@ -62,6 +60,11 @@
 
       $(this.node).trigger('msg.display_error', {msg: n3});
 
+      return n3;
+    };
+
+    proto.storeN3 = function(e) {
+      $('input#step_type_n3_definition').val(this.toN3());
     };
 
     proto.storeConditionGroup = function(e, data) {
@@ -79,7 +82,7 @@
       $(this.node).on('registered.condition-group', $.proxy(this.storeConditionGroup, this));
       $(this.node).on('changed-name.condition-group', $.proxy(this.updateConditionGroupName, this));
 
-      $('[data-psd-condition-groups-save]').on('click', $.proxy(this.toN3, this));
+      $('[data-psd-condition-groups-save]').on('click', $.proxy(this.storeN3, this));
     };
 
     $(document).trigger('registerComponent.builder', {'ConditionGroups': ConditionGroups});

@@ -69,6 +69,6 @@ class StepTypesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def step_type_params
-      params.fetch(:step_type, {})
+      params.require(:step_type).permit(:name, :n3_definition, :step_template)
     end
 end

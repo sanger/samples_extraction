@@ -1,4 +1,10 @@
+require 'support_n3'
+
 class StepType < ActiveRecord::Base
+
+  before_update :remove_previous_conditions
+  after_save :create_next_conditions
+
   has_many :activity_type_step_types
   has_many :activity_types, :through => :activity_type_step_types
   has_many :condition_groups
@@ -7,6 +13,20 @@ class StepType < ActiveRecord::Base
   include Deprecatable
 
   scope :with_template, ->() { where('step_template is not null')}
+
+  def create_next_conditions
+    unless n3_definition.nil?
+      SupportN3::parse_string(n3_definition, {}, self)
+    end
+  end
+
+  def remove_previous_conditions
+    condition_groups.each do |condition_group|
+      condition_group.conditions.each(&:destroy)
+      condition_group.destroy
+    end
+    actions.each(&:destroy)
+  end
 
   def condition_group_classification_for(assets)
     Hash[assets.map{|asset| [asset, condition_groups_for(asset)]}]

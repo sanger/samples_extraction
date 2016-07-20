@@ -53,6 +53,6 @@ activity_type.activities.create!(:asset_group => asset_group, :kit => kit, :inst
 
 
 require 'support_n3'
-SupportN3.load_n3("lib/assets/graph3.n3")
-SupportN3.load_n3("lib/assets/graph2.n3")
+SupportN3.parse_file("lib/assets/graph3.n3")
+SupportN3.parse_file("lib/assets/graph2.n3")
 

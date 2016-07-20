@@ -32,71 +32,142 @@ module SupportN3
     return activity_type
   end
 
-  def self.load_n3(file_path)
+  def self.parse_string(input, options = {}, step_type)
+    options = {
+      validate: false,
+      canonicalize: false,
+    }.merge(options)
+    self.parse_rules(RDF::N3::Reader.new(input, options).quads, step_type)
+  end
+
+  def self.parse_file(file_path)
     RDF::N3::Reader.open(file_path) do |reader|
-      quads = reader.quads
-      activity_type = activity_type(quads)
-      rules = quads.select{|quad| fragment(quad[1])=='implies'}
-      rules.each do |k,p,v,g|
-        conditions = quads.select{|quad| quad.last === k}
-        actions = quads.select{|quad| quad.last === v}
+      self.load_quads(reader.quads)
+    end
+  end
 
-        step_type = step_type(actions)
-        template = step_template(actions)
-        unless template.nil?
-          step_type.update_attributes(:step_template => template)
+  def self.parse_rules(quads, step_type)
+    rules = quads.select{|quad| fragment(quad[1])=='implies'}
+    rules.each do |k,p,v,g|
+      conditions = quads.select{|quad| quad.last === k}
+      actions = quads.select{|quad| quad.last === v}
+
+      # Creation of condition groups in the antecedents
+      c_groups = {}
+      conditions.each do |k,p,v,g|
+        fr = fragment(k)
+        if c_groups.keys.include?(fr)
+          condition_group = c_groups[fr]
+        else
+          condition_group = ConditionGroup.create(:step_type => step_type)
+          c_groups[fr] = condition_group
         end
-        step_type.activity_types << activity_type
-
-        # Creation of condition groups in the antecedents
-        c_groups = {}
-        conditions.each do |k,p,v,g|
-          fr = fragment(k)
-          if c_groups.keys.include?(fr)
-            condition_group = c_groups[fr]
-          else
-            condition_group = ConditionGroup.create(:step_type => step_type)
-            c_groups[fr] = condition_group
-          end
-          if fragment(p) == 'maxCardinality'
-            condition_group.update_attributes(:cardinality => fragment(v))
-          else
-            Condition.create({ :predicate => fragment(p), :object => fragment(v),
-            :condition_group_id => condition_group.id})
-          end
+        if fragment(p) == 'maxCardinality'
+          condition_group.update_attributes(:cardinality => fragment(v))
+        else
+          Condition.create({ :predicate => fragment(p), :object => fragment(v),
+          :condition_group_id => condition_group.id})
         end
+      end
 
-        actions.each do |k,p,v,g|
-          action = fragment(p)
-          unless v.literal?
-            quads.select{|quad| quad.last == v}.each do |k,p,v,g|
-              if c_groups[fragment(k)].nil?
-                # Whenever I find a new variable name for an element I have to create a
-                # new ConditionGroup for it and collect it. This is because I need a way
-                # to remember
-                cardinality = nil
-                # If it's a variable (like :q, instead of ?q), it will be applied just
-                # once for all the step, not for every actioned element
-                if k.class.name=='RDF::Query::Variable'
-                  cardinality=1
-                end
-                c_groups[fragment(k)] = ConditionGroup.create(:cardinality => cardinality)
+      actions.each do |k,p,v,g|
+        action = fragment(p)
+        unless v.literal?
+          quads.select{|quad| quad.last == v}.each do |k,p,v,g|
+            if c_groups[fragment(k)].nil?
+              # Whenever I find a new variable name for an element I have to create a
+              # new ConditionGroup for it and collect it. This is because I need a way
+              # to remember
+              cardinality = nil
+              # If it's a variable (like :q, instead of ?q), it will be applied just
+              # once for all the step, not for every actioned element
+              if k.class.name=='RDF::Query::Variable'
+                cardinality=1
               end
-              object_condition_group_id = nil
-              if v.class.name == 'RDF::Query::Variable'
-                if c_groups[fragment(v)].nil?
-                  c_groups[fragment(v)] = ConditionGroup.create(:cardinality => 1)
-                end
-                object_condition_group_id = c_groups[fragment(v)].id
-              end
-              #subject_condition_group_id = c_groups[fragment(k)].nil? ? nil : c_groups[fragment(k)].id
-              Action.create({:action_type => action, :predicate => fragment(p),
-                :object => fragment(v),
-                :step_type_id => step_type.id,
-                :subject_condition_group_id => c_groups[fragment(k)].id,
-                :object_condition_group_id => object_condition_group_id
-              })
+              c_groups[fragment(k)] = ConditionGroup.create(:cardinality => cardinality)
             end
+            object_condition_group_id = nil
+            if v.class.name == 'RDF::Query::Variable'
+              if c_groups[fragment(v)].nil?
+                c_groups[fragment(v)] = ConditionGroup.create(:cardinality => 1)
+              end
+              object_condition_group_id = c_groups[fragment(v)].id
+            end
+            #subject_condition_group_id = c_groups[fragment(k)].nil? ? nil : c_groups[fragment(k)].id
+            Action.create({:action_type => action, :predicate => fragment(p),
+              :object => fragment(v),
+              :step_type_id => step_type.id,
+              :subject_condition_group_id => c_groups[fragment(k)].id,
+              :object_condition_group_id => object_condition_group_id
+            })
+          end
+        end
+      end
+    end
+  end
+
+  def self.load_quads(quads)
+    activity_type = activity_type(quads)
+    rules = quads.select{|quad| fragment(quad[1])=='implies'}
+    rules.each do |k,p,v,g|
+      conditions = quads.select{|quad| quad.last === k}
+      actions = quads.select{|quad| quad.last === v}
+
+      step_type = step_type(actions)
+      template = step_template(actions)
+      unless template.nil?
+        step_type.update_attributes(:step_template => template)
+      end
+      step_type.activity_types << activity_type
+
+      # Creation of condition groups in the antecedents
+      c_groups = {}
+      conditions.each do |k,p,v,g|
+        fr = fragment(k)
+        if c_groups.keys.include?(fr)
+          condition_group = c_groups[fr]
+        else
+          condition_group = ConditionGroup.create(:step_type => step_type)
+          c_groups[fr] = condition_group
+        end
+        if fragment(p) == 'maxCardinality'
+          condition_group.update_attributes(:cardinality => fragment(v))
+        else
+          Condition.create({ :predicate => fragment(p), :object => fragment(v),
+          :condition_group_id => condition_group.id})
+        end
+      end
+
+      actions.each do |k,p,v,g|
+        action = fragment(p)
+        unless v.literal?
+          quads.select{|quad| quad.last == v}.each do |k,p,v,g|
+            if c_groups[fragment(k)].nil?
+              # Whenever I find a new variable name for an element I have to create a
+              # new ConditionGroup for it and collect it. This is because I need a way
+              # to remember
+              cardinality = nil
+              # If it's a variable (like :q, instead of ?q), it will be applied just
+              # once for all the step, not for every actioned element
+              if k.class.name=='RDF::Query::Variable'
+                cardinality=1
+              end
+              c_groups[fragment(k)] = ConditionGroup.create(:cardinality => cardinality)
+            end
+            object_condition_group_id = nil
+            if v.class.name == 'RDF::Query::Variable'
+              if c_groups[fragment(v)].nil?
+                c_groups[fragment(v)] = ConditionGroup.create(:cardinality => 1)
+              end
+              object_condition_group_id = c_groups[fragment(v)].id
+            end
+            #subject_condition_group_id = c_groups[fragment(k)].nil? ? nil : c_groups[fragment(k)].id
+            Action.create({:action_type => action, :predicate => fragment(p),
+              :object => fragment(v),
+              :step_type_id => step_type.id,
+              :subject_condition_group_id => c_groups[fragment(k)].id,
+              :object_condition_group_id => object_condition_group_id
+            })
           end
         end
       end
