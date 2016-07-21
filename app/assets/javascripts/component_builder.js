@@ -16,9 +16,11 @@
 
   proto.instantiateNode = function(node) {
     var className = $(node).data('psd-component-class');
-    $(node).removeAttr('data-psd-component-class');
-    var params = $(node).data('psd-component-parameters');
-    this.addInstance(new this.components[className](node, params));
+    if (typeof this.components[className]!== 'undefined') {
+      $(node).removeAttr('data-psd-component-class');
+      var params = $(node).data('psd-component-parameters');
+      this.addInstance(new this.components[className](node, params));
+    }
   };
 
   proto.builderProcess = function() {
@@ -51,7 +53,6 @@
     //$(document).on('ajax:complete', builderProcess);
 
   };
-
 
   var componentBuilder = new ComponentBuilder();
   componentBuilder.listenPageLoad();

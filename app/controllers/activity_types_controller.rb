@@ -69,6 +69,6 @@ class ActivityTypesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def activity_type_params
-      params.require(:activity_type).permit(:name)
+      params.require(:activity_type).permit(:name, { :step_type_ids => [] })
     end
 end

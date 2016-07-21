@@ -13,11 +13,25 @@
     if (this.contents===null) {
       return;
     }
-    $(this.node).html(this.getTextFromEditor());
+    if (this.validatesContent()) {
+      $(this.node).html(this.getTextFromEditor());
+    } else {
+      $(this.node).html(this.contents);
+      $(document).trigger('msg.display_error', {msg: 'The supplied text should be composed of alphabetic characters'});
+    }
+
     this.contents=null;
     this.attachEditor();
 
     $(this.node).trigger('updated-text.editable-text', {text: this.getTextFromEditor(), node: this.node});
+  };
+
+  proto.validatesContent = function() {
+    var regexp = $(this.node).data('psg-editable-text-regexp');
+    if (regexp) {
+      return !!(this.getTextFromEditor().match(new RegExp(regexp)));
+    }
+    return true;
   };
 
   proto.attachEditor = function() {

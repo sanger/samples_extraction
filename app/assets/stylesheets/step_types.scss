@@ -18,3 +18,17 @@ span[data-psd-delete-icon] {
 span.editable-text {
   cursor: pointer;
 }
+
+.activity-step-types label.checkbox-inline {
+  width: 30%;
+}
+
+#conditionGroups hr {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.button-switch {
+  cursor: pointer;
+  color: lighten(#000, 46.7%);
+}
