@@ -15,6 +15,7 @@
     }
     if (this.validatesContent()) {
       $(this.node).html(this.getTextFromEditor());
+      $(this.node).trigger('updated-text.editable-text', {text: this.getTextFromEditor(), node: this.node});
     } else {
       $(this.node).html(this.contents);
       $(document).trigger('msg.display_error', {msg: 'The supplied text should be composed of alphabetic characters'});
@@ -23,7 +24,6 @@
     this.contents=null;
     this.attachEditor();
 
-    $(this.node).trigger('updated-text.editable-text', {text: this.getTextFromEditor(), node: this.node});
   };
 
   proto.validatesContent = function() {
@@ -76,6 +76,9 @@
     this.attachEditor();
   };
 
-  $(document).trigger('registerComponent.builder', {'EditableText': EditableText});
+  $(document).on('ready', function() {
+    $(document).trigger('registerComponent.builder', {'EditableText': EditableText});
+  });
+
 
 }(jQuery));

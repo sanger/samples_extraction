@@ -26,27 +26,35 @@ class StepType < ActiveRecord::Base
   end
 
   def condition_groups_init
-    cgroups = condition_groups.map do |condition_group|
-      condition_group.conditions.map do |condition|
-        {
-          :cssClasses => fact_css_classes['checkFacts'],
-          :name => condition_group.name || "a#{condition_group.id}",
-          :actionType => 'checkFacts',
-          :predicate => condition.predicate,
-          :object => condition.object
-        }
-      end
+    cgroups = condition_groups.reduce({}) do |memo, condition_group|
+      name = condition_group.name || "a#{condition_group.id}"
+      memo[name] = {
+        :keepSelected => condition_group.keep_selected,
+        :facts =>  condition_group.conditions.map do |condition|
+          {
+            :cssClasses => fact_css_classes['checkFacts'],
+            :name => name,
+            :actionType => 'checkFacts',
+            :predicate => condition.predicate,
+            :object => condition.object
+          }
+        end
+      }
+      memo
     end
-    agroups = actions.map do |action|
-        {
+    agroups = actions.reduce(cgroups) do |memo, action|
+      name = action.subject_condition_group.name || "a#{action.subject_condition_group.id}"
+      memo[name]={:facts => []} unless memo[name]
+      memo[name][:facts].push({
           :cssClasses => fact_css_classes[action.action_type],
-          :name => action.subject_condition_group.name || "a#{action.subject_condition_group.id}",
+          :name => name,
           :actionType => action.action_type,
           :predicate => action.predicate,
           :object => action.object
-        }
+        })
+      memo
     end
-    [cgroups, agroups].flatten.to_json
+    agroups.to_json
   end
 
   def create_next_conditions

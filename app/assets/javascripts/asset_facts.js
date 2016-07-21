@@ -1,9 +1,8 @@
 (function($, undefined) {
-  function ConditionGroup(node, params){
+  function AssetFacts(node, params){
     this.factTemplate = JST['templates/fact'];
     this.node = node;
     this.title=$('[data-psd-condition-group-title]', node);
-    this.checksDiv = $('.check-facts', this.node);
     this.facts = $('.facts', this.node);
     this.name = this.title.text();
 
@@ -18,7 +17,7 @@
 
   };
 
-  var proto = ConditionGroup.prototype;
+  var proto = AssetFacts.prototype;
 
   proto.initialize = function(facts) {
     if (typeof facts!=='undefined') {
@@ -58,11 +57,7 @@
     }
     this.factsStore.push(fact);
     var renderedFact = this.factTemplate(fact);
-    if (fact.actionType=='checkFacts') {
-      this.addRenderedFact(this.checksDiv, renderedFact);
-    } else {
-      this.addRenderedFact(this.facts, renderedFact);
-    }
+    this.addRenderedFact(this.facts, renderedFact);
     $(document).trigger('execute.builder');
   };
 
@@ -114,11 +109,11 @@
   };
 
   proto.onChangeSelectionCheck = function(e, data) {
-    this.selectAsset = (data==="open");
+    this.selectAsset = true;
   };
 
   proto.isSelected = function() {
-    return this.selectAsset;
+    return true;
   };
 
   proto.attachHandlers = function() {
@@ -128,5 +123,8 @@
     $(this.node).on('value.button_switch', $.proxy(this.onChangeSelectionCheck, this))
   };
 
-  $(document).trigger('registerComponent.builder', {'ConditionGroup': ConditionGroup});
+  $(document).on('ready', function() {
+    $(document).trigger('registerComponent.builder', {'AssetFacts': AssetFacts});
+  });
+
 }(jQuery));

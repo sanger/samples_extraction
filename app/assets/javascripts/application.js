@@ -20,6 +20,7 @@
 //= require component_builder
 //= require upload_file
 //= require activities
+//= require asset_facts
 //= require condition_groups
 //= require condition_group
 //= require delete_icon

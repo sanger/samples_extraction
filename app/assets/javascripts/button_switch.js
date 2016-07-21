@@ -2,7 +2,7 @@
   function ButtonSwitch(node) {
     this.node = $(node);
     this.contents = $('[data-psd-button-switch-content]', this.node);
-    this.default = $('[data-psd-button-switch-selected]', this.node)[0];
+    this.default = $('[data-psd-button-switch-selected=true]', this.node)[0];
 
     this.selectedIndex = this.contents.index(this.default);
 

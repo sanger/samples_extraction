@@ -8,6 +8,15 @@ module SupportN3
     fragment(value) unless value.nil?
   end
 
+  def self.keep_selectedList(quads)
+    quads.select{|quad| fragment(quad[1]) == 'unselectAsset'}.map{|q| fragment(q[2])}.flatten
+  end
+
+  def self.check_keep_selected_asset(fr, quads)
+    list = keep_selectedList(quads)
+    !list.include?(fr)
+  end
+
   def self.step_type(quads)
     names = quads.select{|quad| fragment(quad[1]) == 'stepTypeName'}.flatten
     old_step_type = StepType.where(:name => names[2].to_s, :superceded_by_id => nil).first
@@ -59,7 +68,7 @@ module SupportN3
         if c_groups.keys.include?(fr)
           condition_group = c_groups[fr]
         else
-          condition_group = ConditionGroup.create(:step_type => step_type, :name => fr)
+          condition_group = ConditionGroup.create(:step_type => step_type, :name => fr, :keep_selected => check_keep_selected_asset(fr, quads))
           c_groups[fr] = condition_group
         end
         if fragment(p) == 'maxCardinality'
@@ -84,12 +93,12 @@ module SupportN3
               if k.class.name=='RDF::Query::Variable'
                 cardinality=1
               end
-              c_groups[fragment(k)] = ConditionGroup.create(:cardinality => cardinality, :name => fragment(k))
+              c_groups[fragment(k)] = ConditionGroup.create(:cardinality => cardinality, :name => fragment(k), :keep_selected => check_keep_selected_asset(fragment(k), quads))
             end
             object_condition_group_id = nil
             if v.class.name == 'RDF::Query::Variable'
               if c_groups[fragment(v)].nil?
-                c_groups[fragment(v)] = ConditionGroup.create(:cardinality => 1, :name => fragment(v))
+                c_groups[fragment(v)] = ConditionGroup.create(:cardinality => 1, :name => fragment(v), :keep_selected => check_keep_selected_asset(fragment(v), quads))
               end
               object_condition_group_id = c_groups[fragment(v)].id
             end

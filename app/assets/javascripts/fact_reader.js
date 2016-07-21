@@ -1,7 +1,6 @@
 (function($, undefined) {
   function FactReader(node, params) {
-     this.node = $(node);
-
+    this.node = $(node);
     if (params && params.template) {
       this.template = JST[params.template];
       this.node.append(this.template());

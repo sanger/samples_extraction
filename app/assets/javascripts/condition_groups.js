@@ -5,45 +5,51 @@
       this.template = JST['templates/condition_group'];
       this.node = $(node);
       this.button = $('[data-psd-condition-group-action-types]', this.node);
+      this.buttonNewAsset = $('[data-psd-asset-facts-action-types]', this.node);
       this.conditionGroups = [];
       this.attachHandlers();
 
       if (params) {
-        this.initializeConditionGroups(params);
+        setTimeout($.proxy(function() {
+          this.initializeConditionGroups(params);
+        }, this), 0);
       }
     };
 
     var proto = ConditionGroups.prototype;
 
-    proto.initializeConditionGroups = function(params) {
-      var groupNames = Array.from(new Set($.map(params, function(p){
-        return p.name;
-      })));
-      for (var i=0; i<groupNames.length; i++) {
-        this.addGroup(groupNames[i]);
-      }
-      // I need to wait for the creation of the condition groups before using them
-      //$(document).one('done.builder', $.proxy(function() {
-        var conditionGroupsByName = this.conditionGroups.reduce(function(memo, conditionGroup) {
-          memo[conditionGroup.name] = conditionGroup;
-          return memo;
-        }, {});
-        for (var i=0; i<params.length; i++) {
-          conditionGroupsByName[params[i].name].addFact(params[i]);
-        }
-      //}, this));
+    proto.assetFactsTemplate = function() {
+      return JST['templates/asset_facts'];
     };
 
-    proto.addGroup = function(name) {
-      var conditionGroup = this.template({
+    proto.initializeConditionGroups = function(params) {
+      for (var key in params) {
+        var template = this.template;
+        if (params[key].facts.find(function(f) { return (f.actionType ==="createAsset"); })) {
+          template = this.assetFactsTemplate();
+        }
+        this.addGroup(key, params[key].keepSelected, params[key].facts, template);
+      }
+    };
+
+    proto.addGroup = function(name, keepSelected, facts, template) {
+      var template = template || this.template;
+      var conditionGroup = template({
         name: name,
-        actionTypes: this.button.data('psd-condition-group-action-types')
+        keepSelected: !!keepSelected,
+        actionTypes: this.button.data('psd-condition-group-action-types'),
+        facts: JSON.stringify(facts)
       });
       $('#conditionGroups').append(conditionGroup);
       $(document).trigger('execute.builder');
     };
 
     proto.generateGroupName = function() {
+      POS = POS + 1;
+      return "Condition" + POS;
+    };
+
+    proto.generateAssetName = function() {
       POS = POS + 1;
       return "Asset" + POS;
     };
@@ -64,8 +70,8 @@
       return ":step\t :stepTypeName \"\"\""+this.getStepTypeName()+"\"\"\" .";
     };
 
-    proto.renderRuleN3 = function(n3Checks, n3Actions) {
-      return "{"+n3Checks+"} => {"+this.stepTypeToN3() + n3Actions+"} .\n";
+    proto.renderRuleN3 = function(n3Checks, n3Actions, n3Selects) {
+      return "{"+n3Checks+"} => {"+this.stepTypeToN3() + n3Selects + n3Actions+"} .\n";
     };
 
     proto.toN3 = function(e) {
@@ -78,7 +84,15 @@
         return $.map(group.getActionFacts(), $.proxy(this.actionFactToN3, this, group));
       }, this)).join('\n');
 
-      var n3 = this.renderRuleN3(checksN3, actionsN3);
+      var selectsN3 = $.map(this.conditionGroups, $.proxy(function(group) {
+        if (!group.isSelected()) {
+          return ":step\t :unselectAsset\t ?" + group.name+".\n";
+        } else {
+          return "";
+        }
+      })).join("");
+
+      var n3 = this.renderRuleN3(checksN3, actionsN3, selectsN3);
 
       $(this.node).trigger('msg.display_error', {msg: n3});
 
@@ -102,6 +116,9 @@
     proto.attachHandlers = function() {
       $(this.button).on('click', $.proxy(function() {
         this.addGroup(this.generateGroupName());
+      }, this));
+      $(this.buttonNewAsset).on('click', $.proxy(function() {
+        this.addGroup(this.generateAssetName(), true, [], this.assetFactsTemplate())
       }, this));
       $(this.node).on('registered.condition-group', $.proxy(this.storeConditionGroup, this));
       $(this.node).on('changed-name.condition-group', $.proxy(this.updateConditionGroupName, this));

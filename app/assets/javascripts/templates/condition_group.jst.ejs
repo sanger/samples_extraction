@@ -1,9 +1,9 @@
-<div class="alert panel panel-default" data-psd-component-class="ConditionGroup">
+<div class="alert panel panel-default" data-psd-component-class="ConditionGroup" data-psd-component-parameters='<%= facts %>'>
   <div class="panel-heading">
     <h3 class="panel-title">
     <span class="button-switch" data-psd-component-class="ButtonSwitch">
-      <span data-psd-button-switch-content="open" data-psd-button-switch-selected="true" class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-      <span data-psd-button-switch-content="close" class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+      <span data-psd-button-switch-content="open" data-psd-button-switch-selected="<%= keepSelected %>" class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+      <span data-psd-button-switch-content="close" data-psd-button-switch-selected="<%= !keepSelected %>" class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
     </span>
 
       <span data-psd-condition-group-title="true" data-psg-editable-text-regexp="^[a-zA-Z][a-zA-Z0-9]*$"
