@@ -29,7 +29,7 @@ class AssetGroupsController < ActionController::Base
     if params[:add_barcode]
       barcodes = [params[:add_barcode]]
       if !@asset_group.select_barcodes(barcodes)
-        flash[:danger] = "Could not find barcodes #{barcodes}"
+        #flash[:danger] = "Could not find barcodes #{barcodes}"
       end
     end
   end

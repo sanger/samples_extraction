@@ -26,7 +26,7 @@ class StepType < ActiveRecord::Base
   end
 
   def all_step_templates
-    ['transfer_tube_to_tube', 'upload_file_step']
+    ['', 'transfer_tube_to_tube', 'upload_file_step']
   end
 
   def condition_groups_init
