@@ -16,6 +16,11 @@
     <%= f.text_field :name, :readonly => readonly %>
   </div>
   <div class="field">
+    <%= f.select :step_template, options_for_select(step_type.all_step_templates.map{|a| [a, a]}, step_type.step_template), {},
+    :disabled => readonly %>
+  </div>
+
+  <div class="field">
     <%= f.hidden_field :n3_definition %>
 
 <div id="conditionGroups" class="<%= 'readonly' if readonly %>">

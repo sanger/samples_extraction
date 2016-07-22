@@ -55,6 +55,7 @@
       $(this.node).trigger('msg.display_error', {msg: 'The fact provided is already present in the condition group'});
       return;
     }
+    fact.actionType='createAsset';
     this.factsStore.push(fact);
     var renderedFact = this.factTemplate(fact);
     this.addRenderedFact(this.facts, renderedFact);

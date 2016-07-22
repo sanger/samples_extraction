@@ -25,6 +25,10 @@ class StepType < ActiveRecord::Base
     }
   end
 
+  def all_step_templates
+    ['transfer_tube_to_tube', 'upload_file_step']
+  end
+
   def condition_groups_init
     cgroups = condition_groups.reduce({}) do |memo, condition_group|
       name = condition_group.name || "a#{condition_group.id}"

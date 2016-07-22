@@ -28,7 +28,6 @@ class Action < ActiveRecord::Base
       activity.asset_group.assets << asset
     end
     if action_type == 'createAsset'
-
       asset = Asset.create!
       created_assets[subject_condition_group.id] = asset
       activity.asset_group.assets << asset
