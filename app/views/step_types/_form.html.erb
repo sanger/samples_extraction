@@ -1,0 +1,48 @@
+<div data-psd-component-class="DisplayError"></div>
+<%= bootstrap_form_for(step_type, :html => { :"data-psd-component-class" => "ConditionGroups", :"data-psd-component-parameters" => @step_type.condition_groups_init}) do |f| %>
+  <% if step_type.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(step_type.errors.count, "error") %> prohibited this step_type from being saved:</h2>
+
+      <ul>
+      <% step_type.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <% readonly = params[:action] == 'show' %>
+  <div class="field step_type_name">
+    <%= f.text_field :name, :readonly => readonly %>
+  </div>
+  <div class="field">
+    <%= f.select :step_template, options_for_select(step_type.all_step_templates.map do |a|
+      if a.empty?
+        ['None', nil]
+      else
+        [a, a]
+      end
+    end, step_type.step_template), {},
+    :disabled => readonly %>
+  </div>
+
+  <div class="field">
+    <%= f.hidden_field :n3_definition %>
+
+<div id="conditionGroups" class="<%= 'readonly' if readonly %>">
+  <div class="btn-group">
+    <a class="btn btn-default" data-psd-condition-group-action-types="<%= Action.types.to_json %>"
+    >New Condition Group</a>
+    <a class="btn btn-default" data-psd-asset-facts-action-types="[addFacts]"
+    >New Asset</a>
+  </div>
+</div>
+
+  </div>
+
+  <% unless readonly %>
+    <div class="actions">
+      <%= f.submit :class => 'btn btn-default',"data-psd-condition-groups-save"=>true %>
+    </div>
+  <% end %>
+<% end %>

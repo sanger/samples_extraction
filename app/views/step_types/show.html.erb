@@ -1,0 +1,6 @@
+<p id="notice"><%= notice %></p>
+
+<%= render 'form', step_type: @step_type %>
+
+<%= bootstrap_link_to 'Edit', edit_step_type_path(@step_type) %>
+<%= bootstrap_link_to 'Back', step_types_path %>

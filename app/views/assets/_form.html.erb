@@ -11,7 +11,32 @@
     </div>
   <% end %>
 
-  <div class="actions">
-    <%= f.submit %>
+  <% readonly = params[:action] == 'show' %>
+  <div class="field">
+    <%= f.text_field :barcode, :readonly => readonly %>
   </div>
+
+  <div  data-psd-component-class="ConditionGroups" data-psd-component-parameters="<%= @asset.condition_groups_init.to_json %>">
+    <div id="conditionGroups">
+    </div>
+  </div>
+  <div class="actions">
+    <%= f.submit :class => 'submitAssetFacts btn btn-default' %>
+  </div>
+  <script type="text/javascript">
+  $('.submitAssetFacts').on('click', function() {
+    var input = document.createElement('input');
+    $(input).attr('type', 'hidden');
+    $(input).attr('name', "asset[facts]");
+    var val = $('.fact').map(function(pos, fact) {
+      return {
+        action_type: $(fact).data('psd-fact-action-type'),
+        predicate: $(fact).data('psd-fact-predicate'),
+        object: $(fact).data('psd-fact-object')
+      };
+    }).toArray();
+    $(input).attr('value', JSON.stringify(val));
+    $('.submitAssetFacts').append($(input));
+  });
+  </script>
 <% end %>

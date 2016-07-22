@@ -2,6 +2,12 @@ class Action < ActiveRecord::Base
   belongs_to :subject_condition_group, :class_name => 'ConditionGroup'
   belongs_to :object_condition_group, :class_name => 'ConditionGroup'
 
+  @@TYPES = [:checkFacts, :addFacts, :removeFacts]
+
+  def self.types
+    @@TYPES
+  end
+
   def build_fact(created_assets)
     if object_condition_group.nil?
       fact = Fact.create(:predicate => predicate, :object => object)
@@ -22,7 +28,6 @@ class Action < ActiveRecord::Base
       activity.asset_group.assets << asset
     end
     if action_type == 'createAsset'
-
       asset = Asset.create!
       created_assets[subject_condition_group.id] = asset
       activity.asset_group.assets << asset

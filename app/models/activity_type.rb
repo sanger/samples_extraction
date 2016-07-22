@@ -16,7 +16,7 @@ class ActivityType < ActiveRecord::Base
       end
       activities.each do |activity|
         activity.update_attributes!(:activity_type => main_instance)
-      end      
+      end
     end
   end
 end

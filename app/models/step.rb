@@ -31,11 +31,21 @@ class Step < ActiveRecord::Base
     end
   end
 
+  def unselect_groups
+    step_type.condition_groups.each do |condition_group|
+      unless condition_group.keep_selected
+        unselect_assets = activity.asset_group.assets.select{|asset| condition_group.compatible_with?(asset)}
+        activity.asset_group.assets.delete(unselect_assets) if unselect_assets
+      end
+    end
+  end
+
   def execute_actions
     created_assets = {}
     classify_assets.each do |asset, r|
       r.execute(self, asset, created_assets)
     end
+    unselect_groups
   end
 
 end

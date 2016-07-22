@@ -14,6 +14,23 @@ class Asset < ActiveRecord::Base
     end
   end
 
+  def condition_groups_init
+    obj = {}
+    obj[barcode] = {}
+    obj[barcode][:facts]=facts.map do |fact|
+          {
+            :cssClasses => '',
+            :name => uuid,
+            :actionType => 'createAsset',
+            :predicate => fact.predicate,
+            :object => fact.object
+          }
+        end
+
+    obj
+  end
+
+
   def generate_uuid
     update_attributes(:uuid => SecureRandom.uuid) if uuid.nil?
   end

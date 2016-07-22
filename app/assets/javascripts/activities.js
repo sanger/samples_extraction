@@ -24,10 +24,10 @@
   };
 
   proto.attachDeleteButtons = function(node) {
-    $('[data-psg-asset-group-delete-barcode]', node).on('click', $.proxy(function(e) {
+    $('[data-psd-asset-group-delete-barcode]', node).on('click', $.proxy(function(e) {
       if (!((e.screenX==0) && (e.screenY==0))) {
         // Yes, I know...
-        $('input[name=delete_barcode]', this.form).val($(e.target).attr('data-psg-asset-group-delete-barcode'));
+        $('input[name=delete_barcode]', this.form).val($(e.target).attr('data-psd-asset-group-delete-barcode'));
       }
     }, this));
   };
@@ -38,17 +38,18 @@
   };
 
   proto.reloadStepTypes = function() {
-    var url = $('#step_types_active').data('psg-step-types-update-url');
+    var url = $('#step_types_active').data('psd-step-types-update-url');
     $('#step_types_active').load(url);
   };
 
   proto.reloadSteps = function() {
-    var url = $('#steps_finished').data('psg-steps-update-url');
+    var url = $('#steps_finished').data('psd-steps-update-url');
     $('#steps_finished').load(url);
   };
 
   proto.attachHandlers = function(node) {
     this.attachDeleteButtons(node);
+
 
     $(document).on('keydown', 'input[name=add_barcode]', $.proxy(function(e) {
       if (e.keyCode === 9) {

@@ -1,0 +1,39 @@
+// Place all the styles related to the step_types controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+#conditionGroups a[data-psd-condition-group-action-types]{
+  margin-bottom: 1em;
+}
+#conditionGroups div.alert { padding: 0px; }
+
+.main-view #conditionGroups .panel-body {
+  padding-bottom: 15px;
+}
+
+span[data-psd-delete-icon] {
+  cursor: pointer;
+}
+
+span.editable-text {
+  cursor: pointer;
+}
+
+.activity-step-types label.checkbox-inline {
+  width: 30%;
+}
+
+#conditionGroups hr {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.button-switch {
+  cursor: pointer;
+  color: lighten(#000, 46.7%);
+}
+
+.readonly .btn-group { display: none; }
+.readonly .input-group { display: none; }
+.readonly span[data-psd-delete-icon] { display: none; }
+.readonly button { display: none; }

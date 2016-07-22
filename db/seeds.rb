@@ -44,7 +44,7 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 2222})
 
 
 asset_group = AssetGroup.create!
-1000.times do |pos|
+10.times do |pos|
   asset = Asset.create!
   asset.facts << Fact.create({ :predicate => 'is', :object => 'Tube'})
   asset_group.assets << asset
@@ -53,6 +53,6 @@ activity_type.activities.create!(:asset_group => asset_group, :kit => kit, :inst
 
 
 require 'support_n3'
-SupportN3.load_n3("lib/assets/graph3.n3")
-SupportN3.load_n3("lib/assets/graph2.n3")
+SupportN3.parse_file("lib/assets/graph3.n3")
+SupportN3.parse_file("lib/assets/graph2.n3")
 

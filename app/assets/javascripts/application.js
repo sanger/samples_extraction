@@ -16,8 +16,18 @@
 //= require_tree .
 //= require bootstrap-sprockets
 //= require dropzone
+
+//= require component_builder
 //= require upload_file
 //= require activities
+//= require asset_facts
+//= require condition_groups
+//= require condition_group
+//= require delete_icon
+//= require display_error
+//= require editable_text
+//= require button_switch
+//= require fact_reader
 //= require_tree ./templates
 //= require_tree .
 

@@ -15,6 +15,22 @@
   <div class="field form-group">
     <%= f.text_field :name, :readonly => readonly %>
   </div>
+
+  <div class="field form-group activity-step-types">
+    <div>
+    <%= f.label :step_types %>
+    </div>
+    <% options = {} %>
+    <% options = options.merge({:disabled => StepType.all.map(&:id)}) if readonly %>
+      <%= collection_check_boxes(:activity_type, :step_type_ids, StepType.all, :id, :name, options) do |b| %>
+        <div class="checkbox  ">
+          <%= b.label :class => "checkbox-inline #{'active' if @activity_type.step_types.include?(b.object)}" do %>
+            <% b.check_box + b.text %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
   <% unless readonly %>
     <div class="actions">
       <%= f.submit %>
