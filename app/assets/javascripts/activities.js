@@ -50,6 +50,7 @@
   proto.attachHandlers = function(node) {
     this.attachDeleteButtons(node);
 
+
     $(document).on('keydown', 'input[name=add_barcode]', $.proxy(function(e) {
       if (e.keyCode === 9) {
         // Default behaviour of Tabulator is to change to the next input before keyup event; we

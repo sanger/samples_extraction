@@ -41,7 +41,13 @@ class AssetsController < ApplicationController
   # PATCH/PUT /assets/1.json
   def update
     respond_to do |format|
-      if @asset.update(asset_params)
+      params = asset_params
+      params[:facts] = JSON.parse(params[:facts]).map do |obj|
+        Fact.create(:predicate => obj["predicate"], :object => obj["object"])
+      end
+
+
+      if @asset.update(params)
         format.html { redirect_to @asset, notice: 'Asset was successfully updated.' }
         format.json { render :show, status: :ok, location: @asset }
       else
@@ -69,6 +75,7 @@ class AssetsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def asset_params
-      params.fetch(:asset, {})
+
+      params.require(:asset).permit(:barcode, :facts)
     end
 end
