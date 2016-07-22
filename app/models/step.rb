@@ -13,7 +13,7 @@ class Step < ActiveRecord::Base
       if r.subject_condition_group.cardinality == 1
         perform_list.push([nil, r])
       else
-        asset_group.assets.each do |asset|
+        asset_group.assets.includes(:facts).each do |asset|
           if r.subject_condition_group.compatible_with?(asset)
             perform_list.push([asset, r])
           end
@@ -34,7 +34,7 @@ class Step < ActiveRecord::Base
   def unselect_groups
     step_type.condition_groups.each do |condition_group|
       unless condition_group.keep_selected
-        unselect_assets = activity.asset_group.assets.select{|asset| condition_group.compatible_with?(asset)}
+        unselect_assets = activity.asset_group.assets.includes(:facts).select{|asset| condition_group.compatible_with?(asset)}
         activity.asset_group.assets.delete(unselect_assets) if unselect_assets
       end
     end

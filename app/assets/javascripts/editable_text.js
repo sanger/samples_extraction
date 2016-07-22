@@ -24,10 +24,10 @@
         text=this.textWhenEmpty;
       }
       $(this.node).html(text);
-      $(this.node).trigger('updated-text.editable-text', {text: this.getTextFromEditor(), node: this.node});
+      $(this.node).trigger('updated-text.editable-text', {text: this.getTextFromEditor(), node: this.node, oldText: this.contents.text()});
     } else {
       $(this.node).html(this.contents);
-      $(document).trigger('msg.display_error', {msg: 'The supplied text should be composed of alphabetic characters'});
+      $(document).trigger('msg.display_error', {msg: 'The supplied text should follow the pattern:'+$(this.node).data('psd-editable-text-regexp')});
     }
 
     this.contents=null;
@@ -36,7 +36,7 @@
   };
 
   proto.validatesContent = function() {
-    var regexp = $(this.node).data('psg-editable-text-regexp');
+    var regexp = $(this.node).data('psd-editable-text-regexp');
     if (regexp) {
       return !!(this.getTextFromEditor().match(new RegExp(regexp)));
     }
@@ -69,6 +69,11 @@
   };
 
   proto.addEditor = function(event) {
+    if ($(this.node).parents('.readonly').length!=0) {
+      this.attachEditor();
+      return;
+    }
+
     var text = $(this.node).text()
     if (text===this.textWhenEmpty) {
       text = "";

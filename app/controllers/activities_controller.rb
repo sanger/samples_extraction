@@ -124,7 +124,7 @@ class ActivitiesController < ApplicationController
 
 
   def select_assets
-    @assets = @activity.asset_group.assets
+    @assets = @activity.asset_group.assets.includes(:facts)
   end
 
   def set_uploaded_files

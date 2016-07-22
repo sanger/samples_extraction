@@ -29,7 +29,7 @@ class Activity < ActiveRecord::Base
   end
 
   def previous_steps
-    asset_group.assets.map(&:steps).concat(steps).flatten.sort{|a,b| a.created_at <=> b.created_at}.uniq
+    asset_group.assets.includes(:steps).map(&:steps).concat(steps).flatten.sort{|a,b| a.created_at <=> b.created_at}.uniq
   end
 
   def assets
@@ -37,11 +37,11 @@ class Activity < ActiveRecord::Base
   end
 
   def steps_for(assets)
-    assets.map(&:steps).concat(steps).flatten.compact.uniq
+    assets.includes(:steps).map(&:steps).concat(steps).flatten.compact.uniq
   end
 
   def step_types_for(assets, required_assets=nil)
-    step_types.select{|step_type| step_type.compatible_with?(assets, required_assets)}
+    step_types.includes(:condition_groups => :conditions).select{|step_type| step_type.compatible_with?(assets, required_assets)}
   end
 
   def create_step(step_type)
