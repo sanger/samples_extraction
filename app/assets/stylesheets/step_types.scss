@@ -32,3 +32,8 @@ span.editable-text {
   cursor: pointer;
   color: lighten(#000, 46.7%);
 }
+
+.readonly .btn-group { display: none; }
+.readonly .input-group { display: none; }
+.readonly span[data-psd-delete-icon] { display: none; }
+.readonly button { display: none; }

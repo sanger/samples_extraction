@@ -37,7 +37,7 @@
       var conditionGroup = template({
         name: name,
         keepSelected: !!keepSelected,
-        actionTypes: this.button.data('psd-condition-group-action-types'),
+        actionTypes: this.button.data('psd-condition-group-action-types')||[],
         facts: JSON.stringify(facts)
       });
       $('#conditionGroups').append(conditionGroup);

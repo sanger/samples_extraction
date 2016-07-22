@@ -18,11 +18,13 @@
   <div class="field">
     <%= f.hidden_field :n3_definition %>
 
-<div id="conditionGroups">
-  <a class="btn btn-default" data-psd-condition-group-action-types="<%= Action.types.to_json %>"
-  >New Condition Group</a>
-  <a class="btn btn-default" data-psd-asset-facts-action-types="[addFacts]"
-  >New Asset</a>
+<div id="conditionGroups" class="<%= 'readonly' if readonly %>">
+  <div class="btn-group">
+    <a class="btn btn-default" data-psd-condition-group-action-types="<%= Action.types.to_json %>"
+    >New Condition Group</a>
+    <a class="btn btn-default" data-psd-asset-facts-action-types="[addFacts]"
+    >New Asset</a>
+  </div>
 </div>
 
   </div>

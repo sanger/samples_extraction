@@ -68,7 +68,9 @@ class StepType < ActiveRecord::Base
       condition_group.conditions.each(&:destroy)
       condition_group.destroy
     end
-    actions.each(&:destroy)
+    actions.each do |action|
+      action.update_attributes(:step_type_id => nil)
+    end
   end
 
   def condition_group_classification_for(assets)
