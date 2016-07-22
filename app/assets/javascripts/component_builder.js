@@ -25,10 +25,15 @@
   };
 
   proto.builderProcess = function() {
-    $('[data-psd-component-class]').each($.proxy(function(pos, node) {
-      this.instantiateNode(node);
-    }, this));
-    $(document).trigger('done.builder');
+    // When triggering the event to re-execute the builder, sometimes the DOM is not totally up to date
+    // with the latest changes, which could result in instantiating temporary nodes instead of the final
+    // ones. Events are lost in the path
+    setTimeout($.proxy(function() {
+      $('[data-psd-component-class]').each($.proxy(function(pos, node) {
+        this.instantiateNode(node);
+      }, this));
+      $(document).trigger('done.builder');
+    },this), 100);
   };
 
   proto.listenComponentRegistration  = function() {

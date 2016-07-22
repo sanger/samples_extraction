@@ -38,18 +38,48 @@
   };
 
   proto.reloadStepTypes = function() {
+    /*var node;
+    node = $("#step_types_active .panel-body .content_step_types");
+    node.trigger("load_stop.loading_spinner", {
+      node: node
+    });*/
+
     var url = $('#step_types_active').data('psd-step-types-update-url');
-    $('#step_types_active').load(url);
+    $('#step_types_active').load(url, $.proxy(function() {
+      $(this.form).trigger("execute.builder");
+    }, this));
+
+    $(this.form).trigger("execute.builder");
   };
 
   proto.reloadSteps = function() {
+    /*var node = $("#steps_finished .panel-body .steps-table");
+    node.trigger("load_stop.loading_spinner", {
+      node: node
+    });*/
+
     var url = $('#steps_finished').data('psd-steps-update-url');
-    $('#steps_finished').load(url);
+    $('#steps_finished').load(url, $.proxy(function() {
+      $(this.form).trigger("execute.builder");
+    }, this));
+
+    //$(this.form).trigger("execute.builder");
   };
 
   proto.attachHandlers = function(node) {
     this.attachDeleteButtons(node);
 
+    $(this.form).on('submit.rails', function() {
+      var node;
+      node = $("#step_types_active .panel-body .content_step_types");
+      node.trigger("load_start.loading_spinner", {
+        node: node
+      });
+      node = $("#steps_finished .panel-body .steps-table");
+      node.trigger("load_start.loading_spinner", {
+        node: node
+      });
+    });
 
     $(document).on('keydown', 'input[name=add_barcode]', $.proxy(function(e) {
       if (e.keyCode === 9) {
@@ -68,11 +98,10 @@
     }, this)).on('ajax:complete', $.proxy(function() {
       if (!this.loadInProgress) {
         this.loadInProgress=true;
-        setTimeout($.proxy(function() {
-          this.reloadStepTypes();
-          this.reloadSteps();
-          this.loadInProgress=false;
-        }, this), 3000);
+
+        this.reloadStepTypes();
+        this.reloadSteps();
+        this.loadInProgress=false;
       }
     }, this));
   };

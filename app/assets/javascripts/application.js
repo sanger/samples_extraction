@@ -26,6 +26,7 @@
 //= require delete_icon
 //= require display_error
 //= require editable_text
+//= require loading_icon
 //= require button_switch
 //= require fact_reader
 //= require_tree ./templates
