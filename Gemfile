@@ -48,8 +48,15 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
+  gem 'bullet'
+  gem 'peek'
+  gem 'peek-mysql2'
+  gem 'peek-gc'
+  gem 'peek-performance_bar'
+  gem 'rails_panel'
   gem 'factory_girl_rails'
   gem 'pry'
+  gem 'ruby-growl'
 end
 
 group :test do

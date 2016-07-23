@@ -27,6 +27,9 @@ Rails.application.routes.draw do
   get 'activities/:id/steps_finished' => 'activities#steps_finished'
   get 'activities/:id/steps_finished_with_operations/:step_id' => 'activities#steps_finished_with_operations'
 
+  mount Peek::Railtie => '/peek'
+
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

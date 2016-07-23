@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160706142323) do
+ActiveRecord::Schema.define(version: 20160723210242) do
 
   create_table "actions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "action_type",                null: false
@@ -92,8 +92,9 @@ ActiveRecord::Schema.define(version: 20160706142323) do
   create_table "assets", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "uuid"
     t.string   "barcode"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.integer  "facts_count"
   end
 
   create_table "assets_facts", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|

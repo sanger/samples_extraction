@@ -31,4 +31,7 @@
 //= require fact_reader
 //= require_tree ./templates
 //= require_tree .
+//= require peek
+//= require peek/views/performance_bar
+
 

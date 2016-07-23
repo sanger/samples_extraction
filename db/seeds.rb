@@ -44,7 +44,7 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 2222})
 
 
 asset_group = AssetGroup.create!
-1000.times do |pos|
+100.times do |pos|
   asset = Asset.create!
   asset.facts << Fact.create({ :predicate => 'is', :object => 'Tube'})
   asset_group.assets << asset

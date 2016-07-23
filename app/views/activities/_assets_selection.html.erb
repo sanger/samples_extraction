@@ -8,7 +8,7 @@
       <table class="table table-condensed">
         <thead><th>Barcode</th><th>Facts</th><th><span class='pull-right'></span></th></thead>
         <tbody data-psd-asset-group-content="1">
-          <% @assets.uniq.each_with_index do |asset, i| %>
+          <% @assets.distinct.each_with_index do |asset, i| %>
             <tr>
               <td><%= asset.barcode %></td>
               <td>
