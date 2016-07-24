@@ -102,7 +102,7 @@
 
     proto.storeN3 = function(e) {
       $('input#step_type_n3_definition').val(this.toN3());
-      alert(this.toN3());
+      //alert(this.toN3());
     };
 
     proto.storeConditionGroup = function(e, data) {
