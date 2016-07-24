@@ -78,6 +78,6 @@
   };
 
   //window.FactReader = FactReader;
-  $(document).trigger('registerComponent.builder', {'FactReader': FactReader});
+    $(document).trigger('registerComponent.builder', {'FactReader': FactReader});
 
-})(jQuery);w
+})(jQuery);

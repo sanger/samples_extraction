@@ -22,6 +22,7 @@
 //= require upload_file
 //= require activities
 //= require asset_facts
+//= require barcode_reader
 //= require condition_groups
 //= require condition_group
 //= require delete_icon

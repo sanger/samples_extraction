@@ -13,11 +13,13 @@
 <%= render 'header' %>
 
 <div class="main-view">
+    <div data-psd-component-class="DisplayError"></div>      
   <% unless flash[:notice].blank? %>
     <div class="alert alert-info">
       <%= flash[:notice] %>
     </div>
-  <% end %>
+    <% end %>
+
 
   <% unless flash[:danger].blank? %>
     <div class="alert alert-danger">

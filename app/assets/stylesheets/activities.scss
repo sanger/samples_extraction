@@ -1,3 +1,14 @@
 // Place all the styles related to the activities controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+#step_types_active .panel-header {
+  position: relative;
+  padding-top: 1em;
+  padding-left: 1em;
+}
+
+body.logged-off ul.step-selection input {
+  pointer-events:none;
+  opacity: 0.65;
+}

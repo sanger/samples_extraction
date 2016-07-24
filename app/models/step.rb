@@ -2,6 +2,7 @@ class Step < ActiveRecord::Base
   belongs_to :activity
   belongs_to :step_type
   belongs_to :asset_group
+  belongs_to :user
   has_many :uploads
   has_many :operations
 
@@ -34,7 +35,6 @@ class Step < ActiveRecord::Base
   def unselect_groups
     step_type.condition_groups.each do |condition_group|
       unless condition_group.keep_selected
-        binding.pry
         unselect_assets = activity.asset_group.assets.includes(:facts).select{|asset| condition_group.compatible_with?(asset)}
         activity.asset_group.assets.delete(unselect_assets) if unselect_assets
       end

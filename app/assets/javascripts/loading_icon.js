@@ -6,7 +6,8 @@
     this.iconClass = params.iconClass || "glyphicon";
     this.icon = $('.'+this.iconClass, this.node);
     this.loadingClass = params.loadingClass || "fast-right-spinner"
-    this.container = $('.'+this.containerIconClass, this.node);
+      this.container = $('.'+this.containerIconClass, this.node);
+      this.hideNode = $(params.hideNodeSelector);
 
     $(this.container).hide();
 
@@ -14,16 +15,27 @@
   };
   var proto = LoadingIcon.prototype;
 
-  proto.onStartLoad = function(e, data) {
-    $(data.node).hide();
+    proto.onStartLoad = function(e, data) {
+	if (data.node) {
+	    $(data.node).hide();
+	}
+	if (this.hideNode) {
+	    this.hideNode.hide();
+	}
     $(this.icon).addClass(this.loadingClass);
     $(this.container).show();
   };
 
-  proto.onStopLoad = function(e, data) {
+    proto.onStopLoad = function(e, data) {
     $(this.container).hide();
-    $(this.icon).removeClass(this.loadingClass);
-    $(data.node).show();
+      $(this.icon).removeClass(this.loadingClass);
+      if (data.node) {
+	  $(data.node).show();	  
+      }
+	if (this.hideNode) {
+	    this.hideNode.show();
+	}
+
   };
 
   proto.attachHandlers = function() {
