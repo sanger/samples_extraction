@@ -16,12 +16,14 @@
     <%= f.text_field :barcode, :readonly => readonly %>
   </div>
 
-  <div  data-psd-component-class="ConditionGroups" data-psd-component-parameters="<%= @asset.condition_groups_init.to_json %>">
+  <div class="<%= 'readonly' if readonly %>" data-psd-component-class="ConditionGroups" data-psd-component-parameters="<%= @asset.condition_groups_init.to_json %>">
     <div id="conditionGroups">
     </div>
   </div>
   <div class="actions">
-    <%= f.submit :class => 'submitAssetFacts btn btn-default' %>
+    <% unless readonly %>
+      <%= f.submit :class => 'submitAssetFacts btn btn-default' %>
+    <% end %>
   </div>
   <script type="text/javascript">
   $('.submitAssetFacts').on('click', function() {

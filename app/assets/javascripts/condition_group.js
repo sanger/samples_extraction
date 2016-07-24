@@ -43,8 +43,20 @@
     return this.factsStore;
   };
 
+  proto.getCardinality = function() {
+    return $("[data-psd-condition-group-cardinality]", this.node).text();
+  };
+
   proto.getCheckFacts = function() {
-    return this.factsStore.filter(function(fact) { return fact.actionType==='checkFacts'});
+    var checkFacts =  this.factsStore.filter(function(fact) { return fact.actionType==='checkFacts'});
+    if (this.getCardinality()!==null) {
+      checkFacts.push({
+        actionType: 'checkFacts',
+        predicate: 'maxCardinality',
+        literal: "\"\"\""+this.getCardinality()+"\"\"\""
+      });
+    }
+    return checkFacts;
   };
 
   proto.getActionFacts = function() {
@@ -75,6 +87,24 @@
     if ($(data.node).data('psd-condition-group-title')) {
       $(this.node).trigger('changed-name.condition-group', { nameOld: this.name, nameNew: data.text});
     }
+    if ($(data.node).hasClass('editable-fact')) {
+      this.updateFact(data.text, data.oldText);
+    }
+  };
+
+  proto.updateFact = function(text, oldText) {
+    var list = oldText.split(":");
+    var list2 = text.split(":");
+    var pos = this.findSimilarFact({predicate : list[0], object: list[1]});
+    this.factsStore[pos].predicate = list2[0];
+    this.factsStore[pos].object = list2[1];
+  };
+
+  proto.findSimilarFact = function(fact) {
+    return this.factsStore.findIndex(function(storedFact) {
+      return ((fact.predicate=== storedFact.predicate) &&
+              (fact.object=== storedFact.object));
+    });
   };
 
   proto.findFact = function(fact) {

@@ -28,17 +28,18 @@
         if (params[key].facts.find(function(f) { return (f.actionType ==="createAsset"); })) {
           template = this.assetFactsTemplate();
         }
-        this.addGroup(key, params[key].keepSelected, params[key].facts, template);
+        this.addGroup(key, params[key], template);
       }
     };
 
-    proto.addGroup = function(name, keepSelected, facts, template) {
+    proto.addGroup = function(name, params, template) {
       var template = template || this.template;
       var conditionGroup = template({
         name: name,
-        keepSelected: !!keepSelected,
+        cardinality: params.cardinality || 0,
+        keepSelected: !!params.keepSelected,
         actionTypes: this.button.data('psd-condition-group-action-types')||[],
-        facts: JSON.stringify(facts)
+        facts: JSON.stringify(params.facts)
       });
       $('#conditionGroups').append(conditionGroup);
       $(document).trigger('execute.builder');
@@ -55,7 +56,7 @@
     };
 
     proto.checkFactToN3 = function(group, fact) {
-      return "?"+group.getName()+"\t :"+fact.predicate+"\t :"+fact.object+" .\n"
+      return ["?"+group.getName(), ":"+fact.predicate, fact.object? ":"+fact.object : fact.literal].join("\t ")+" .\n"
     };
 
     proto.actionFactToN3 = function(group, fact) {
@@ -101,6 +102,7 @@
 
     proto.storeN3 = function(e) {
       $('input#step_type_n3_definition').val(this.toN3());
+      //alert(this.toN3());
     };
 
     proto.storeConditionGroup = function(e, data) {
@@ -115,7 +117,7 @@
 
     proto.attachHandlers = function() {
       $(this.button).on('click', $.proxy(function() {
-        this.addGroup(this.generateGroupName());
+        this.addGroup(this.generateGroupName(), {});
       }, this));
       $(this.buttonNewAsset).on('click', $.proxy(function() {
         this.addGroup(this.generateAssetName(), true, [], this.assetFactsTemplate())

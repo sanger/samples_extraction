@@ -10,6 +10,8 @@ gem 'rails-assets-tether', '>= 1.1.0'
 gem 'bootstrap_form'
 gem 'sprockets-rails'
 
+gem 'js_cookie_rails'
+
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails'
 # Use mysql as the database for Active Record
@@ -50,6 +52,17 @@ group :development, :test do
   gem 'byebug'
   gem 'factory_girl_rails'
   gem 'pry'
+  gem 'ruby-growl'
+end
+
+group :debug do
+  gem 'bullet'
+  gem 'peek'
+  gem 'peek-mysql2'
+  gem 'peek-gc'
+  gem 'peek-performance_bar'
+  gem 'rails_panel'
+  
 end
 
 group :test do

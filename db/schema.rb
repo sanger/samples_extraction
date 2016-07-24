@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160706142323) do
+ActiveRecord::Schema.define(version: 20160723210242) do
 
   create_table "actions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "action_type",                null: false
@@ -92,8 +92,9 @@ ActiveRecord::Schema.define(version: 20160706142323) do
   create_table "assets", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "uuid"
     t.string   "barcode"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.integer  "facts_count"
   end
 
   create_table "assets_facts", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -208,6 +209,7 @@ ActiveRecord::Schema.define(version: 20160706142323) do
 
   create_table "steps", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "step_type_id"
+    t.integer  "user_id"
     t.date     "completion_date"
     t.integer  "activity_id"
     t.integer  "asset_group_id"
@@ -216,6 +218,7 @@ ActiveRecord::Schema.define(version: 20160706142323) do
     t.index ["activity_id"], name: "index_steps_on_activity_id", using: :btree
     t.index ["asset_group_id"], name: "index_steps_on_asset_group_id", using: :btree
     t.index ["step_type_id"], name: "index_steps_on_step_type_id", using: :btree
+    t.index ["user_id"], name: "index_steps_on_user_id", using: :btree
   end
 
   create_table "uploads", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -233,6 +236,9 @@ ActiveRecord::Schema.define(version: 20160706142323) do
   create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "login"
     t.string   "password"
+    t.string   "barcode"
+    t.string   "username"
+    t.string   "fullname"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -263,6 +269,7 @@ ActiveRecord::Schema.define(version: 20160706142323) do
   add_foreign_key "steps", "activities"
   add_foreign_key "steps", "asset_groups"
   add_foreign_key "steps", "step_types"
+  add_foreign_key "steps", "users"
   add_foreign_key "uploads", "activities"
   add_foreign_key "uploads", "steps"
 end

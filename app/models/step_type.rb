@@ -33,6 +33,7 @@ class StepType < ActiveRecord::Base
     cgroups = condition_groups.reduce({}) do |memo, condition_group|
       name = condition_group.name || "a#{condition_group.id}"
       memo[name] = {
+        :cardinality => condition_group.cardinality,
         :keepSelected => condition_group.keep_selected,
         :facts =>  condition_group.conditions.map do |condition|
           {
@@ -89,8 +90,7 @@ class StepType < ActiveRecord::Base
       end
     end
     inverter_classification.keys.all? do |condition_group|
-      return false unless defined?(condition_group.cardinality)
-      condition_group.cardinality.nil? ||
+      condition_group.cardinality.nil? || (condition_group.cardinality==0) ||
         (condition_group.cardinality >= inverter_classification[condition_group].length)
     end
   end

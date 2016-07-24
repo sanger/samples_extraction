@@ -12,6 +12,7 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require js.cookie
 //= require turbolinks
 //= require_tree .
 //= require bootstrap-sprockets
@@ -21,13 +22,19 @@
 //= require upload_file
 //= require activities
 //= require asset_facts
+//= require barcode_reader
 //= require condition_groups
 //= require condition_group
 //= require delete_icon
 //= require display_error
 //= require editable_text
+//= require loading_icon
 //= require button_switch
 //= require fact_reader
+//= require user_status
 //= require_tree ./templates
 //= require_tree .
+//    require_asset "peek"
+//    require_asset "peek/views/performance_bar"
+
 

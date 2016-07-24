@@ -18,6 +18,9 @@
   };
 
   proto.switchContent = function() {
+    if ($(this.node).parents('.readonly').length!=0) {
+      return;
+    }
     this.selectedIndex += 1;
     if (this.selectedIndex >= this.contents.length) {
       this.selectedIndex=0;

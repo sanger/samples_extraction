@@ -1,14 +1,21 @@
 <div class="alert panel panel-default" data-psd-component-class="ConditionGroup" data-psd-component-parameters='<%= facts %>'>
   <div class="panel-heading">
-    <h3 class="panel-title">
-    <span class="button-switch" data-psd-component-class="ButtonSwitch">
-      <span data-psd-button-switch-content="open" data-psd-button-switch-selected="<%= keepSelected %>" class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-      <span data-psd-button-switch-content="close" data-psd-button-switch-selected="<%= !keepSelected %>" class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
-    </span>
+    <h4 class="panel-title">
 
-      <span data-psd-condition-group-title="true" data-psg-editable-text-regexp="^[a-zA-Z][a-zA-Z0-9]*$"
-      data-psd-component-class="EditableText"><%= name %></span><button data-condition-group-remove="1" data-dismiss="alert"  class="close pull-right ">&times;</button>
-    </h3>
+      <span>Name: <ins><span data-psd-condition-group-title="true" data-psd-editable-text-regexp="^[a-zA-Z][a-zA-Z0-9]*$" data-psd-component-class="EditableText"><%= name %></span></ins></span>
+
+      <span class="title">Cardinality: <ins><span data-psd-condition-group-cardinality="true" data-psd-editable-text-regexp="^[0-9]*$"
+      data-psd-component-class="EditableText"><%= cardinality %></span></ins></span>
+
+      <span>Selection: <ins>
+      <span class="button-switch" data-psd-component-class="ButtonSwitch">
+        <span data-psd-button-switch-content="open" data-psd-button-switch-selected="<%= keepSelected %>" class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+        <span data-psd-button-switch-content="close" data-psd-button-switch-selected="<%= !keepSelected %>" class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+      </span></ins></span>
+
+
+      <button data-condition-group-remove="1" data-dismiss="alert"  class="close pull-right ">&times;</button>
+    </h4>
 
   </div>
   <div class="panel-body">

@@ -3,6 +3,7 @@ require 'sass'
 require 'bootstrap-sass'
 
 Rails.application.routes.draw do
+  resources :users
   resources :step_types
   resources :steps
   resources :activities do
@@ -22,10 +23,16 @@ Rails.application.routes.draw do
   resources :samples_not_started
   resources :history
   resources :reracking
+              
+
 
   get 'activities/:id/step_types_active' => 'activities#step_types_active'
   get 'activities/:id/steps_finished' => 'activities#steps_finished'
   get 'activities/:id/steps_finished_with_operations/:step_id' => 'activities#steps_finished_with_operations'
+
+  if (ENV["RAILS_ENV"]==:debug)
+    mount Peek::Railtie => '/peek'
+  end
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

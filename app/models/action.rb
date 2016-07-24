@@ -10,15 +10,15 @@ class Action < ActiveRecord::Base
 
   def build_fact(created_assets)
     if object_condition_group.nil?
-      fact = Fact.create(:predicate => predicate, :object => object)
+      fact = Fact.new(:predicate => predicate, :object => object)
     else
-      fact = Fact.create(
+      fact = Fact.new(
         :predicate => predicate,
         :object => 'barcode:'+created_assets[object_condition_group.id].barcode)
     end
   end
 
-  def execute(step, asset, created_assets)
+  def execute(step, asset, created_assets, marked_facts_to_destroy)
     activity = step.activity
 
     if subject_condition_group.conditions.empty?
@@ -49,7 +49,8 @@ class Action < ActiveRecord::Base
       operation = Operation.create!(:action => self, :step => step,
         :asset=> asset, :predicate => predicate, :object => object)
 
-      facts_to_remove.each(&:destroy)
+      marked_facts_to_destroy.push(facts_to_remove)
+      #facts_to_remove.each(&:destroy)
     end
     if asset && fact
       operation = Operation.create!(:action => self, :step => step,

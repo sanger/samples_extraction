@@ -5,8 +5,7 @@
     this.attachHandlers();
   }
   var proto = DisplayError.prototype;
-
-  proto.showMsg = function(e, msg) {
+    proto.showMsg = function(e, msg) {
     this.node.html(this.template(msg));
   };
 

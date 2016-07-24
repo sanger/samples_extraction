@@ -3,6 +3,11 @@
     this.node = $(node);
     this.template = JST['templates/editable_text'];
     this.node.addClass('editable-text');
+    this.textWhenEmpty = "None";
+
+    if ($(this.node).text().length===0) {
+      $(this.node).html(this.textWhenEmpty)
+    }
     this.attachHandlers();
   };
 
@@ -14,11 +19,15 @@
       return;
     }
     if (this.validatesContent()) {
-      $(this.node).html(this.getTextFromEditor());
-      $(this.node).trigger('updated-text.editable-text', {text: this.getTextFromEditor(), node: this.node});
+      var text = this.getTextFromEditor();
+      if (text.length===0) {
+        text=this.textWhenEmpty;
+      }
+      $(this.node).html(text);
+      $(this.node).trigger('updated-text.editable-text', {text: this.getTextFromEditor(), node: this.node, oldText: this.contents.text()});
     } else {
       $(this.node).html(this.contents);
-      $(document).trigger('msg.display_error', {msg: 'The supplied text should be composed of alphabetic characters'});
+      $(document).trigger('msg.display_error', {msg: 'The supplied text should follow the pattern:'+$(this.node).data('psd-editable-text-regexp')});
     }
 
     this.contents=null;
@@ -27,7 +36,7 @@
   };
 
   proto.validatesContent = function() {
-    var regexp = $(this.node).data('psg-editable-text-regexp');
+    var regexp = $(this.node).data('psd-editable-text-regexp');
     if (regexp) {
       return !!(this.getTextFromEditor().match(new RegExp(regexp)));
     }
@@ -43,6 +52,7 @@
   };
 
   proto.specialKeysHandler = function(e) {
+    this.resizeEditor();
     if (e.keyCode === 9) {
       this.restoreContent();
       e.preventDefault();
@@ -59,17 +69,28 @@
   };
 
   proto.addEditor = function(event) {
-    var editorRendered = this.template({text: $(this.node).text()});
+    if ($(this.node).parents('.readonly').length!=0) {
+      this.attachEditor();
+      return;
+    }
+
+    var text = $(this.node).text()
+    if (text===this.textWhenEmpty) {
+      text = "";
+    }
+    var editorRendered = this.template({text: text});
     this.contents = $(this.node).contents();
     $(this.node).html(editorRendered);
 
     this.editor = $('input', this.node);
     this.editor.on('blur', $.proxy(this.restoreContent, this));
-    //$(document).one('click', $.proxy(this.restoreContent, this));
     this.editor.on('keydown', $.proxy(this.specialKeysHandler, this));
-
+    this.resizeEditor();
     this.setInputFocus();
+  };
 
+  proto.resizeEditor = function() {
+    $(this.editor).attr('size', $(this.editor).val().length+1);
   };
 
   proto.attachHandlers = function() {

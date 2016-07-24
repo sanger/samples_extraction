@@ -3,8 +3,15 @@
 <div id="step_types_active" class="form-group" data-psd-step-types-update-url="<%= activity_path(@activity)+'/step_types_active' %>">
   <label class="control-label">What can I do with it?</label>
   <div class="panel panel-default">
-    <div class="panel-body">
-
+  <div class="panel-header">
+    <%= render :partial => 'user_status_navbar' %>
+  </div>
+  
+    <div class="panel-body" data-psd-component-class="LoadingIcon" data-psd-component-parameters='{ "iconClass": "glyphicon", "containerIconClass": "spinner", "loadingClass": "fast-right-spinner"}'>
+      <div class="spinner" style="display:none;">
+        <span class="glyphicon glyphicon-refresh"></span> Please, wait while we refresh this content...
+      </div>
+      <div class="content_step_types">
   <% unless step_types.nil? || step_types.empty? %>
     <%= render :partial => 'step_types/step_type', :locals => {
       :step_types => step_types,
@@ -14,6 +21,7 @@
       <span>No actions can be performed with the selected group of assets for this activity type.</span>
     </div>
   <% end %>
+    </div>
     </div>
   </div>
 </div>

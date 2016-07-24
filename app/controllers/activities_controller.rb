@@ -5,6 +5,8 @@ class ActivitiesController < ApplicationController
   before_action :set_kit, only: [:create]
   before_action :set_instrument, only: [:create]
 
+  before_action :set_user, only: [:update]
+
   before_action :set_uploaded_files, only: [:update]
   before_action :perform_previous_step_type, only: [:update]
 
@@ -97,6 +99,12 @@ class ActivitiesController < ApplicationController
 
   private
 
+    def set_user
+      @user = User.find_by_barcode!(params[:user_barcode])
+    rescue ActiveRecord::RecordNotFound => e
+      flash[:danger] = 'User not found'
+      redirect_to :back    
+    end
 
     def set_kit
       @kit = Kit.find_by_barcode!(params[:kit_barcode])
@@ -124,7 +132,7 @@ class ActivitiesController < ApplicationController
 
 
   def select_assets
-    @assets = @activity.asset_group.assets
+    @assets = @activity.asset_group.assets.includes(:facts)
   end
 
   def set_uploaded_files
@@ -139,7 +147,7 @@ class ActivitiesController < ApplicationController
       valid_step_types = @activity.step_types_for(@assets)
       step_type_to_do = @activity.step_types.find_by_id!(params[:step_type])
       if valid_step_types.include?(step_type_to_do)
-        @step_performed = @activity.create_step(step_type_to_do)
+        @step_performed = @activity.create_step(step_type_to_do, @user)
         @upload_ids.each do |upload_id|
           @step_performed.uploads << Upload.find_by_id!(upload_id)
         end
