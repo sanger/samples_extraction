@@ -13,8 +13,8 @@
  *= require_tree .
  *= require_self
  *= require dropzone/dropzone
- *= require peek
- *= require peek/views/performance_bar
+ * require peek
+ * require peek/views/performance_bar
  */
 @import "bootstrap-sprockets";
 @import "bootstrap";
@@ -207,4 +207,28 @@ header, .blurheader {
         -webkit-transform: rotate(0deg);
         transform: rotate(0deg);
     }
+}
+
+.icon-size
+{
+    font-size: 6em;
+}
+
+.navbar-login
+{
+    /*width: 25em;*/
+    padding: 1em;
+    padding-bottom: 0px;
+}
+
+.navbar-logout
+{
+    padding: 10px;
+    padding-bottom: 0px;
+    padding-top: 0px;
+}
+
+.user-status .dropdown-menu {
+	     padding-left: 1em;
+	     padding-right: 1em;
 }

@@ -12,6 +12,7 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require js.cookie
 //= require turbolinks
 //= require_tree .
 //= require bootstrap-sprockets
@@ -29,9 +30,10 @@
 //= require loading_icon
 //= require button_switch
 //= require fact_reader
+//= require user_status
 //= require_tree ./templates
 //= require_tree .
-//= require peek
-//= require peek/views/performance_bar
+//    require_asset "peek"
+//    require_asset "peek/views/performance_bar"
 
 

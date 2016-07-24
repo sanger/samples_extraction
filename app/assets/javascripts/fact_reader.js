@@ -80,4 +80,4 @@
   //window.FactReader = FactReader;
   $(document).trigger('registerComponent.builder', {'FactReader': FactReader});
 
-})(jQuery);
+})(jQuery);w

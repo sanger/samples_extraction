@@ -1,0 +1,72 @@
+<div class="form-group user-status" data-psd-component-class="UserStatus" data-psd-component-parameters='{"usernameSelector" : ".username", "fullNameSelector": ".fullname", "logoutSelector": ".logged-out", "loginSelector": ".logged-in", "changeLoginSelector": ".change-login", "userServiceUrl": "/users/login"}'>
+<div class="logged-out">
+  <div href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown">  
+    <div class="login-button" style="">
+      <span class="glyphicon glyphicon glyphicon-log-in" aria-hidden="true"></span>
+      Not logged
+    </div>
+  </div>
+  <ul class="dropdown-menu">
+    <li>
+          <div class="">
+	    <div class="form-group" data-psd-component-class="BarcodeReader">
+	      <label for="userBarcode">User barcode</label>
+              <input name="userBarcode" class="form-control" type="text" placeholder="Scan a user barcode" />
+	    </div>
+          </div>
+    </li>
+    <li class="divider"></li>
+    <li>
+          <div class="">
+            <p>
+              <a class="btn btn-danger btn-block logout">Login</a>
+            </p>
+          </div>
+    </li>
+  </ul>  
+</div>
+
+  
+<div class="input-group logged-in" style="display:none;">
+  <div href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+    <div class="change-login-status-button">
+      <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+      Logged as <strong class="username"></strong>
+    </div>
+
+    <!-- span class="glyphicon glyphicon-chevron-down"></span -->
+  </div>
+  <ul class="dropdown-menu">
+    <li>
+      <div class="navbar-login">
+        <div class="row">
+          <div class="col-lg-4">
+            <p class="text-center">
+              <span class="glyphicon glyphicon-user icon-size"></span>
+            </p>
+          </div>
+          <div class="col-lg-8">
+            <p class="text-left"><strong class="fullname">Eduardo Martin</strong></p>
+            <p class="text-left small"></p>
+            <p class="text-left">
+              <a href="#" class="btn btn-default btn-block btn-sm">Change user</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </li>
+    <li class="divider"></li>
+    <li>
+      <div class="navbar-logout">
+        <div class="row">
+          <div class="col-lg-12">
+            <p>
+              <a href="#" class="btn btn-danger btn-block logout">Logout</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </li>
+  </ul>  
+</div>
+
