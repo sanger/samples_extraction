@@ -24,6 +24,9 @@
   };
 
   proto.concatNodes = function(nodesList) {
+    if (nodesList === null) {
+      return "";
+    }
     if (nodesList.length > 1) {
       var n = $('<div></div>');
       n.append(nodesList)
@@ -52,12 +55,24 @@
         cssClasses: ''
       });
     } else {
-      return keyword;
+      return keyword.replace(/ /g, "&nbsp;");
     }
   };
 
+  proto.joinSemicolon = function(list) {
+    var copy = [list[0]];
+    for (var i=1; i<list.length; i++) {
+      if ((list[i] === ':') || (list[i-1]===':')) {
+        copy[copy.length-1] = copy[copy.length-1].concat(list[i]);
+      } else {
+        copy.push(list[i]);
+      }
+    }
+    return copy;
+  };
+
   proto.renderLabel = function(e) {
-    var keywords = this.input.val().split(" ");
+    var keywords = this.joinSemicolon(this.input.val().split(/\b/));
     keywords = this.moveCursor(keywords);
 
     var html = $.map(keywords, $.proxy(this.renderKeyword, this)).join(' ');
@@ -111,16 +126,16 @@
     var currentPos = 0;
     var found = false;
     return $.map(keywords, $.proxy(function(keyword) {
-      var relativePos = (currentPos+keyword.length+1) - absolutePos;
+      var relativePos = (currentPos+keyword.length) - absolutePos;
       if (!found && (relativePos >= 0)) {
         var p = $('<div><span class="cursor">|</span></div>');
         //p.append(this.cursor);
-        keyword = this.splice(keyword, keyword.length+1 - relativePos, 0, p.html());
+        keyword = this.splice(keyword, keyword.length - relativePos, 0, p.html());
         this.cursor.remove();
         this.reloadCursor();
         found = true;
       }
-      currentPos += keyword.length+1;
+      currentPos += keyword.length;
       return keyword;
     }, this));
   };
