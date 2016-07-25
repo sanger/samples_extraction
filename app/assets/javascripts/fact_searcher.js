@@ -16,11 +16,24 @@
   var proto = FactSearcher.prototype;
 
   proto.onKeyDown = function(e) {
+    if ((e.keyCode === 9) || (e.keyCode == 13) || (e.keyCode == 32)) {
+      this.prepareInput();
+    }
     if ((e.keyCode === 9) || (e.keyCode == 13)) {
       e.preventDefault();
-      return this.search();
     }
     return true;
+  };
+
+  proto.prepareInput = function() {
+    var value = this.input.val();
+    var list = this.joinSemicolon(value.split(/\b/));
+    this.input.val($.map(list, function(keyword) {
+      if ((keyword.match(/\w/)) && (!keyword.match(/:/))) {
+        keyword = 'is:'+keyword;
+      }
+      return keyword;
+    }).join(''));
   };
 
   proto.concatNodes = function(nodesList) {
@@ -55,7 +68,10 @@
         cssClasses: ''
       });
     } else {
-      return keyword.replace(/ /g, "&nbsp;");
+      if (keyword.match(/^[\b]*$/)) {
+        keyword =  keyword.replace(/ /g, "&nbsp;");
+      }
+      return keyword;
     }
   };
 
