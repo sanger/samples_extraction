@@ -11,7 +11,12 @@ Rails.application.routes.draw do
     resources :asset_groups
   end
 
-  resources :assets, :path => 'labware'
+  resources :assets, :path => 'labware' do
+    collection do
+      get 'search'
+    end
+  end
+
   resources :steps
   resources :activity_types
   resources :kit_types
@@ -23,7 +28,7 @@ Rails.application.routes.draw do
   resources :samples_not_started
   resources :history
   resources :reracking
-              
+
 
 
   get 'activities/:id/step_types_active' => 'activities#step_types_active'

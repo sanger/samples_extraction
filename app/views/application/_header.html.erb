@@ -11,7 +11,8 @@
       <a class="navbar-brand" href="/">Samples Extraction</a>
     </div>
 
-    <div class="navbar-form navbar-right" role="search" method='get' action='/barcodes'>
+    <form class="navbar-form navbar-right" role="search"
+          method='get' action='<%= search_assets_path %>'>
 
       <div class="input-group">
         <div class="form-control searcher" data-psd-component-class="FactSearcher"></div>
@@ -24,7 +25,7 @@
       </div>
       <%= render :partial => 'user_status_navbar' %>
       </div>
-    </div>
+    </form>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="navbar-collapse-1">

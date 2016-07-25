@@ -7,6 +7,16 @@ class AssetsController < ApplicationController
     @assets = Asset.all.includes(:facts)
   end
 
+  def search
+    @assets = params.keys.map{|k| k.match(/^[pq](\d*)$/)}.compact.map{|k| k[1]}.map do |val|
+      Asset.with_fact(params["p"+val], params["o"+val])
+    end.reduce(nil) do |memo, result|
+      val = result
+      val = val.merge(memo) unless memo.nil?
+      val
+    end
+  end
+
   # GET /assets/1
   # GET /assets/1.json
   def show
@@ -75,7 +85,6 @@ class AssetsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def asset_params
-
       params.require(:asset).permit(:barcode, :facts)
     end
 end

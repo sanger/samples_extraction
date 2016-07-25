@@ -8,6 +8,10 @@ class Asset < ActiveRecord::Base
 
   has_many :operations
 
+  scope :with_fact, ->(predicate, object) {
+    joins(:facts).where(:facts => {:predicate => predicate, :object => object})
+  }
+
   def facts_to_s
     facts.each do |fact|
       render :partial => fact

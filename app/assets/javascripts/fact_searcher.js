@@ -48,6 +48,19 @@
     return nodesList;
   },
 
+  proto.resetHiddenInputs = function() {
+    if (typeof this.containerHiddenInputs === 'undefined') {
+      this.containerHiddenInputs = $('<div class="hidden"></div>')
+      this.node.append(this.containerHiddenInputs);
+    }
+    this.containerHiddenInputs.html('');
+  };
+
+  proto.addHiddenInput = function(name, value) {
+    var input = $('<input type="hidden" name="'+name+'" value="'+value+'" ></input>');
+    this.containerHiddenInputs.append(input);
+  };
+
   proto.renderKeyword = function(keyword) {
     var list = keyword.split(':');
     if ((list.length >1) && (list[1].length>0)) {
@@ -68,9 +81,7 @@
         cssClasses: ''
       });
     } else {
-      if (keyword.match(/^[\b]*$/)) {
-        keyword =  keyword.replace(/ /g, "&nbsp;");
-      }
+      keyword =  keyword.replace(/ /g, "&nbsp;");
       return keyword;
     }
   };
@@ -87,12 +98,21 @@
     return copy;
   };
 
+  proto.createHiddenInputs = function() {
+    this.resetHiddenInputs();
+    $('.fact', this.node).each($.proxy(function(pos, node) {
+      this.addHiddenInput('p'+(pos+1), $(node).data('psd-fact-predicate').replace(/\|/,''));
+      this.addHiddenInput('o'+(pos+1), $(node).data('psd-fact-object').replace(/\|/,''));
+    }, this));
+  };
+
   proto.renderLabel = function(e) {
     var keywords = this.joinSemicolon(this.input.val().split(/\b/));
     keywords = this.moveCursor(keywords);
 
     var html = $.map(keywords, $.proxy(this.renderKeyword, this)).join(' ');
     this.content.html(html)
+    this.createHiddenInputs();
     $(document).trigger('execute.builder');
     this.reloadCursor();
     return true;
@@ -100,6 +120,7 @@
 
 
   proto.onFocus = function() {
+    this.setInputFocus();
     this.renderLabel();
     this.cursor.show();
     if (typeof this.cursorInterval!== 'undefined') {
@@ -107,7 +128,7 @@
     }
     this.cursorInterval = setInterval($.proxy(function() {
       this.cursor.hide();
-      setTimeout($.proxy(function() {
+      this.timeout = setTimeout($.proxy(function() {
         this.cursor.show();
       }, this), 325);
     },this),  650);
@@ -128,9 +149,14 @@
     return pos;
   };
 
+  proto.setInputFocus = function() {
+    this.input[0].selectionStart = this.input[0].selectionEnd = this.input[0].value.length;
+  };
 
   proto.onBlur = function() {
+    clearTimeout(this.timeout);
     clearInterval(this.cursorInterval);
+    this.cursor.hide();
   };
 
   proto.splice = function(str, start, delCount, newSubStr) {
