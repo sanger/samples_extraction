@@ -236,12 +236,16 @@ header, .blurheader {
 
 .searcher {
    width: 15em !important;
-   padding-top: 4px;
+   padding: 4px;
   .facts-searcher {
     div.fact {
       float: none;
       margin-top: 2px;
+      margin-bottom: 2px;
       display:inline-block;
+    };
+    div.fact + span {
+      display:none;
     };
     label {
       position:relative;
@@ -256,3 +260,5 @@ header, .blurheader {
     }
   }
 };
+
+.well div.fact { display:inline; float:none;}

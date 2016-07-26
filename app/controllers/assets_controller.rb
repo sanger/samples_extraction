@@ -8,13 +8,20 @@ class AssetsController < ApplicationController
   end
 
   def search
-    @assets = params.keys.map{|k| k.match(/^[pq](\d*)$/)}.compact.map{|k| k[1]}.map do |val|
-      Asset.with_fact(params["p"+val], params["o"+val])
-    end.reduce(nil) do |memo, result|
-      val = result
-      val = val.merge(memo) unless memo.nil?
-      val
+    valid_indexes = params.keys.map{|k| k.match(/^[pq](\d*)$/)}.compact.map{|k| k[1]}
+    @queries = valid_indexes.map do |val|
+      OpenStruct.new({:predicate => params["p"+val], :object => params["o"+val]})
     end
+    @ids = @queries.map do |query|
+      Asset.with_fact(query.predicate, query.object).map(&:id)
+    end.reduce(nil) do |memo, result|
+      if memo.nil?
+        result
+      else
+        result & memo
+      end
+    end
+    @assets = @ids.map{|id| Asset.find_by_id(id)}
   end
 
   # GET /assets/1

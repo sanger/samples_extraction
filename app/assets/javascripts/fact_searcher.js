@@ -9,6 +9,7 @@
     this.label = $('label', this.node);
     this.content = $('.content', this.label);
     this.cursor = $('span.cursor', this.node);
+    this.container = $('div.searcher');
 
     this.attachHandlers();
   };
@@ -16,13 +17,25 @@
   var proto = FactSearcher.prototype;
 
   proto.onKeyDown = function(e) {
+    if ((e.keyCode === 9) || (e.keyCode == 13)) {
+      this.input.val(this.input.val()+' ');
+    }
     if ((e.keyCode === 9) || (e.keyCode == 13) || (e.keyCode == 32)) {
       this.prepareInput();
     }
     if ((e.keyCode === 9) || (e.keyCode == 13)) {
       e.preventDefault();
     }
+    this.resizeInput();
     return true;
+  };
+
+  proto.resizeInput = function() {
+    if (this.input.val().length>15) {
+      $(this.container).css('height', 'auto');
+    } else {
+      $(this.container).css('height', 'initial');
+    }
   };
 
   proto.prepareInput = function() {
@@ -81,9 +94,18 @@
         cssClasses: ''
       });
     } else {
-      keyword =  keyword.replace(/ /g, "&nbsp;");
+      keyword= this.replaceEmptySpacesWithHTMLEntity(keyword);
       return keyword;
     }
+  };
+
+  proto.replaceEmptySpacesWithHTMLEntity = function(keyword) {
+    return keyword.split(/(<[^>]*>)/g).map(function(str) {
+      if (str.match(/^\s*$/)) {
+        str = str.replace(/\s/g,'<span>&nbsp;</span>');
+      }
+      return str;
+    }).join('');
   };
 
   proto.joinSemicolon = function(list) {
@@ -156,6 +178,8 @@
   proto.onBlur = function() {
     clearTimeout(this.timeout);
     clearInterval(this.cursorInterval);
+    this.timeout=null;
+    this.cursorInterval = null;
     this.cursor.hide();
   };
 

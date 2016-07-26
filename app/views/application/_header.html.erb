@@ -15,13 +15,15 @@
           method='get' action='<%= search_assets_path %>'>
 
       <div class="input-group">
-        <div class="form-control searcher" data-psd-component-class="FactSearcher"></div>
-
-        <!--input name="barcode" type="search" class="form-control"
-        placeholder="< %= t('.barcode',default:'Type or scan barcode...') % >" -->
+        <div class="form-control searcher" data-psd-component-class="FactSearcher">
+        </div>
         <span class="input-group-btn">
           <button type="submit" class="btn btn-default"><%= t('.search') %></button>
         </span>
+
+
+        <!--input name="barcode" type="search" class="form-control"
+        placeholder="< %= t('.barcode',default:'Type or scan barcode...') % >" -->
       </div>
       <%= render :partial => 'user_status_navbar' %>
       </div>
