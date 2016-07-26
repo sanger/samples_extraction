@@ -24,7 +24,7 @@ class Asset < ActiveRecord::Base
 
   def condition_groups_init
     obj = {}
-    obj[barcode] = {}
+    obj[barcode] = { :template => 'templates/asset_facts'}
     obj[barcode][:facts]=facts.map do |fact|
           {
             :cssClasses => '',

@@ -25,6 +25,9 @@
     proto.initializeConditionGroups = function(params) {
       for (var key in params) {
         var template = this.template;
+        if (params[key].template) {
+          template = JST[params[key].template]
+        }
         if (params[key].facts.find(function(f) { return (f.actionType ==="createAsset"); })) {
           template = this.assetFactsTemplate();
         }

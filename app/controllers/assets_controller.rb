@@ -1,4 +1,5 @@
 class AssetsController < ApplicationController
+  before_action :prepare_asset_params, only: [:create, :update]
   before_action :set_asset, only: [:show, :edit, :update, :destroy]
   before_action :set_queries, only: [:search]
 
@@ -41,7 +42,7 @@ class AssetsController < ApplicationController
   # POST /assets
   # POST /assets.json
   def create
-    @asset = Asset.new(asset_params)
+    @asset = Asset.new(@prepared_params)
 
     respond_to do |format|
       if @asset.save
@@ -58,13 +59,8 @@ class AssetsController < ApplicationController
   # PATCH/PUT /assets/1.json
   def update
     respond_to do |format|
-      params = asset_params
-      params[:facts] = JSON.parse(params[:facts]).map do |obj|
-        Fact.create(:predicate => obj["predicate"], :object => obj["object"])
-      end
 
-
-      if @asset.update(params)
+      if @asset.update(@prepared_params)
         format.html { redirect_to @asset, notice: 'Asset was successfully updated.' }
         format.json { render :show, status: :ok, location: @asset }
       else
@@ -100,5 +96,12 @@ class AssetsController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def asset_params
       params.require(:asset).permit(:barcode, :facts)
+    end
+
+    def prepare_asset_params
+      @prepared_params = asset_params
+      @prepared_params[:facts] = JSON.parse(@prepared_params[:facts]).map do |obj|
+        Fact.create(:predicate => obj["predicate"], :object => obj["object"])
+      end
     end
 end
