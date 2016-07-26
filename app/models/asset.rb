@@ -12,6 +12,10 @@ class Asset < ActiveRecord::Base
     joins(:facts).where(:facts => {:predicate => predicate, :object => object})
   }
 
+  scope :with_field, ->(predicate, object) {
+    where(predicate => object)
+  }
+
   def facts_to_s
     facts.each do |fact|
       render :partial => fact

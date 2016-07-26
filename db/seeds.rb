@@ -51,6 +51,7 @@ asset_group = AssetGroup.create!
 end
 activity_type.activities.create!(:asset_group => asset_group, :kit => kit, :instrument => instrument)
 
+User.create!(:barcode => 1, :username => 'test', :fullname => 'Testing user')
 
 require 'support_n3'
 SupportN3.parse_file("lib/assets/graph3.n3")

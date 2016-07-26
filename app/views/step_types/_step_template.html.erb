@@ -5,6 +5,7 @@
 </div>
 <%= bootstrap_form_for @activity, action: 'update', class: 'step-template-form' do |f| %>
   <input type="hidden" name="step_type" value="<%= step_type.id %>" />
+  <input type="hidden" name="user_barcode" value="" />
   <% if @upload_ids %>
     <input type="hidden" name="upload_ids" value="<%= @upload_ids %>" />
   <% end %>

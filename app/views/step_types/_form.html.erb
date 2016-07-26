@@ -40,9 +40,11 @@
 
   </div>
 
-  <% unless readonly %>
-    <div class="actions">
+  <div class="actions">
+    <button class='btn btn-default show-n3'>Show N3</button>
+    <% unless readonly %>
       <%= f.submit :class => 'btn btn-default',"data-psd-condition-groups-save"=>true %>
-    </div>
-  <% end %>
+    <% end %>
+  </div>
+
 <% end %>

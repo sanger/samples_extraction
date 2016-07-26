@@ -126,6 +126,10 @@
       $(this.node).on('changed-name.condition-group', $.proxy(this.updateConditionGroupName, this));
 
       $('[data-psd-condition-groups-save]').on('click', $.proxy(this.storeN3, this));
+      $('.show-n3').on('click', $.proxy(function(e) {
+        e.preventDefault();
+        alert(this.toN3());
+      }, this));
     };
 
     $(document).trigger('registerComponent.builder', {'ConditionGroups': ConditionGroups});
