@@ -42,8 +42,11 @@
     var value = this.input.val();
     var list = this.joinSemicolon(value.split(/\b/));
     this.input.val($.map(list, function(keyword) {
+      if ((keyword.match(/\d/)) && (!keyword.match(/:/))) {
+        return 'barcode:'+keyword;
+      }
       if ((keyword.match(/\w/)) && (!keyword.match(/:/))) {
-        keyword = 'is:'+keyword;
+        return 'is:'+keyword;
       }
       return keyword;
     }).join(''));
@@ -124,7 +127,7 @@
     this.resetHiddenInputs();
     $('.fact', this.node).each($.proxy(function(pos, node) {
       this.addHiddenInput('p'+(pos+1), $(node).data('psd-fact-predicate').replace(/\|/,''));
-      this.addHiddenInput('o'+(pos+1), $(node).data('psd-fact-object').replace(/\|/,''));
+      this.addHiddenInput('o'+(pos+1), $(node).data('psd-fact-object').toString().replace(/\|/,''));
     }, this));
   };
 

@@ -32,7 +32,7 @@ end
 activity_type = ActivityType.create(:name => 'Testing activity type')
 
 
-instrument = Instrument.create(:barcode => '1111')
+instrument = Instrument.create(:barcode => '1111', :name => 'An instrument')
 instrument.activity_types << activity_type
 
 kit_type = KitType.create(:activity_type => activity_type, :name => 'Testing kit type')
