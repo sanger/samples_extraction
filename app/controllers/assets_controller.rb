@@ -1,10 +1,27 @@
 class AssetsController < ApplicationController
   before_action :set_asset, only: [:show, :edit, :update, :destroy]
+  before_action :set_queries, only: [:search]
 
   # GET /assets
   # GET /assets.json
   def index
     @assets = Asset.all.includes(:facts)
+  end
+
+  def search
+    @assets = @queries.map do |query|
+      if Asset.has_attribute?(query.predicate)
+        Asset.with_field(query.predicate, query.object)
+      else
+        Asset.with_fact(query.predicate, query.object)
+      end
+    end.reduce([]) do |memo, result|
+      if memo.empty?
+        result
+      else
+        result & memo
+      end
+    end
   end
 
   # GET /assets/1
@@ -73,9 +90,15 @@ class AssetsController < ApplicationController
       @asset = Asset.find(params[:id])
     end
 
+    def set_queries
+      valid_indexes = params.keys.map{|k| k.match(/^[pq](\d*)$/)}.compact.map{|k| k[1]}
+      @queries = valid_indexes.map do |val|
+        OpenStruct.new({:predicate => params["p"+val], :object => params["o"+val]})
+      end
+    end
+
     # Never trust parameters from the scary internet, only allow the white list through.
     def asset_params
-
       params.require(:asset).permit(:barcode, :facts)
     end
 end

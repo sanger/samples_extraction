@@ -1,4 +1,44 @@
 <p id="notice"><%= notice %></p>
 
-<h1>History</h1>
+<h1>History <small>All</small></h1>
+<% steps = @steps %>
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <% unless steps.count == 0 %>
+      <table class="table table-condensed table-hover steps-table">
+        <thead><th>Step id</th><th>Step type</th><th>Activity id</th><th>Activity type</th><th>Username</th></thead>
+        <tbody>
+          <% steps.each do |step| %>
+            <tr data-toggle="collapse" data-target="#step-<%= step.id %>" data-psd-step-id="<%= step.id %>" class="clickable info"><td><%= step.id %></td><td><%= step.step_type.name %></td><td><%= step.activity.id %></td><td><%= step.activity.activity_type.name %></td><td><%= step.user.username %></td></tr>
+
+            <tr class="operations">
+              <td colspan="5">
+                <div id="step-<%= step.id %>" class="collapse <%= 'in' if params[:step_id].to_i==step.id %>">
+
+                  <table class="table">
+                    <thead><th>Action</th><th>Barcode</th><th>Fact</th>
+                    </thead>
+                    <tbody>
+                        <%= render :partial => 'operations/operations', :locals => {
+                          :operations => step.operations.for_presenting } %>
+                        <% step.uploads.each do |upload| %>
+                          <tr>
+                            <td></td>
+                          </tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+
+
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <% else %>
+        <div class="empty-description"><span>This activity has no steps yet.</span></div>
+      <% end %>
+    </div>
+  </div>
 

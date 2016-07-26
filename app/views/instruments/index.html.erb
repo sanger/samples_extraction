@@ -1,11 +1,12 @@
 <p id="notice"><%= notice %></p>
 
-<h1>Listing Instruments</h1>
+<h1>Instruments <small>Index</small></h1>
 
 <table class="table table-bordered">
   <thead>
     <tr>
       <th>Barcode</th>
+      <th>Name</th>
       <th></th>
       <!--th colspan="3"></th -->
     </tr>
@@ -15,6 +16,7 @@
     <% @instruments.each do |instrument| %>
       <tr>
         <td><%= instrument.barcode %></td>
+        <td><%= instrument.name %></td>
         <td><%= bootstrap_link_to 'Use', instrument %></td>
         <!--td><%= bootstrap_link_to 'Edit', edit_instrument_path(instrument) %></td>
         <td><%= bootstrap_link_to 'Destroy', instrument, method: :delete, data: { confirm: 'Are you sure?' } %></td -->

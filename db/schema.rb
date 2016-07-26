@@ -134,6 +134,7 @@ ActiveRecord::Schema.define(version: 20160723210242) do
 
   create_table "instruments", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "barcode"
+    t.string   "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
