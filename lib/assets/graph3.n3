@@ -28,7 +28,6 @@
 { ?p :is :Tube2D .
   ?p :maxCardinality """96""" .
 } => { :step :stepTypeName """Put tubes in 96 rack""" .
-      ?step :removeFacts { ?p :is :Tube2D} .
       ?step :addFacts { ?p :inRack :q} .
       ?step :createAsset {
         :q :is :TubeRack .
@@ -38,7 +37,6 @@
 { ?p :is :Tube2D .
   ?p :maxCardinality """384""" .
 } => { :step :stepTypeName """Put tubes in 384 rack""" .
-      ?step :removeFacts { ?p :is :Tube2D} .
       ?step :addFacts { ?p :inRack :q} .
       ?step :createAsset {
         :q :is :TubeRack .
@@ -48,7 +46,6 @@
 { ?p :is :Tube2D .
   ?p :maxCardinality """2""" .
 } => { :step :stepTypeName """Put tubes in 2 rack""" .
-      ?step :removeFacts { ?p :is :Tube2D} .
       ?step :addFacts { ?p :inRack :q} .
       ?step :createAsset {
         :q :is :TubeRack .
