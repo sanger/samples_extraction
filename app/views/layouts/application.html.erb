@@ -12,7 +12,8 @@
   <% end %>
 <%= render 'header' %>
 
-<div class="main-view">
+<div style="width: 100%; display:table;">
+<div class="main-view table-cell">
     <div data-psd-component-class="DisplayError"></div>
   <% unless flash[:notice].blank? %>
     <div class="alert alert-info">
@@ -28,7 +29,9 @@
   <% end %>
 
   <%= yield %>
-</div>
 
+
+</div>
+</div>
 </body>
 </html>

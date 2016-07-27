@@ -23,6 +23,9 @@ class AssetsController < ApplicationController
         result & memo
       end
     end
+    respond_to do |format|
+      format.html { render :search, layout: false }
+    end
   end
 
   # GET /assets/1
