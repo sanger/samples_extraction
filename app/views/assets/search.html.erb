@@ -13,17 +13,23 @@
     <tr>
       <th>Barcode</th>
       <th>Facts</th>
+      <th>Activities</th>
       <th colspan="3"></th>
     </tr>
   </thead>
 
   <tbody>
-    <% @assets.each do |asset| %>
+    <% @assets.each_with_index do |asset, index| %>
       <tr>
         <td><%= asset.barcode %></td>
         <td>
           <% asset.facts.each do |fact| %>
             <%= render :partial => 'facts/fact', :locals => {:fact => fact} %>
+          <% end %>
+        </td>
+        <td>
+          <% @activities[index].each do |a| %>
+            <%= bootstrap_link_to a.id, a %>
           <% end %>
         </td>
         <td><%= bootstrap_link_to 'Show', asset %></td>
@@ -35,3 +41,5 @@
 </table>
 
 <br>
+
+<%= render :partial => 'steps/steps', :locals => {:steps => @steps } %>
