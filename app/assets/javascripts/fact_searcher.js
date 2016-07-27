@@ -42,7 +42,7 @@
     var value = this.input.val();
     var list = this.joinSemicolon(value.split(/\b/));
     this.input.val($.map(list, function(keyword) {
-      if ((keyword.match(/\d/)) && (!keyword.match(/:/))) {
+      if ((keyword.match(/^\d*$/)) && (!keyword.match(/:/))) {
         return 'barcode:'+keyword;
       }
       if ((keyword.match(/\w/)) && (!keyword.match(/:/))) {
