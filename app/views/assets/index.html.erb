@@ -16,9 +16,7 @@
       <tr>
         <td><%= asset.barcode %></td>
         <td>
-          <% asset.facts.each do |fact| %>
-            <%= render :partial => 'facts/fact', :locals => {:fact => fact} %>
-          <% end %>
+          <%= render :partial => 'facts/facts', :locals => {:facts => asset.facts} %>
         </td>
         <td><%= bootstrap_link_to 'Show', asset %></td>
         <td><%= bootstrap_link_to 'Edit', edit_asset_path(asset) %></td>

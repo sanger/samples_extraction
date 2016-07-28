@@ -1,0 +1,17 @@
+<span class="facts-list">
+  <span>
+  <!-- img src="/assets/tube.svg" style="width: 50px; float:left;" / -->
+  <div class='svg'><%= svg 'tube' %></div>
+  <% facts.each do |fact| %>
+    <%= render :partial => 'facts/fact', :locals => { :fact => fact} %>
+<script type="text/javascript">
+(function() {
+  var scriptTag = document.getElementsByTagName('script');
+  scriptTag = scriptTag[scriptTag.length - 1];
+  var parentTag = scriptTag.parentNode;
+  $(parentTag).addClass("<%= fact.predicate %>-<%= fact.object %>");
+}());
+</script>
+  <% end %>
+</span>
+</span>

@@ -264,3 +264,32 @@ header, .blurheader {
 .well div.fact { display:inline; float:none;}
 
 .activity-step-types { padding-left: 2em;}
+
+
+/* images */
+
+.facts-list svg { width: 20px; height: 30px; float:left; }
+
+.facts-list {
+  .is-empty             { fill: #f5f5f5; background-color: #f5f5f5; }
+  .is-full              { fill: #5bb75b; background-color: #5bb75b; }
+  .resource-not-data { fill: #49afcd; background-color: #49afcd; }
+  .data-not-resource { fill: #da4f49; background-color: #da4f49; }
+  .resource-and-data { fill: #5bb75b; background-color: #5bb75b; }
+
+  .has-error     { fill: #ff0000; background-color: #ff0000; }
+  .is-very-poor { fill: hsl(120, 100%, 75%); background-color: hsl(120, 100%, 75%); }
+  .is-poor      { fill: hsl(120, 100%, 50%); background-color: hsl(120, 100%, 50%); }
+  .is-good      { fill: hsl(120, 100%, 30%); background-color: hsl(120, 100%, 30%); }
+  .is-very-good { fill: hsl(120, 100%, 20%); background-color: hsl(120, 100%, 20%); }
+  .is-excellent { fill: hsl(120, 100%, 10%); background-color: hsl(120, 100%, 10%); }
+
+  .has-dna,.has-DNA   { fill: hsl(120, 45%, 58%);  background-color: hsl(120, 45%, 58%); }
+  .has-dnap,.has-DNAP { fill: hsl(120, 34%, 25%);  background-color: hsl(120, 34%, 25%); }
+  .has-rna,.has-RNA   { fill: hsl(3, 60%, 46%);    background-color: hsl(3, 60%, 46%); }
+  .has-rna_p,.has-RNAP { fill: hsl(3, 60%, 25%);    background-color: hsl(3, 60%, 25%); }
+  .has-na_p,has-NAP  { fill: hsl(194, 59%, 45%);  background-color: hsl(194, 59%, 45%); }
+  .has-blood {
+    fill: red;
+  }
+}
