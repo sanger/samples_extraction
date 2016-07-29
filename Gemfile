@@ -62,12 +62,14 @@ group :debug do
   gem 'peek-gc'
   gem 'peek-performance_bar'
   gem 'rails_panel'
-  
+
 end
 
 group :test do
   gem 'shoulda'
   gem 'factory_girl'
+  gem 'rspec-rails'
+  gem 'shoulda-matchers'
 end
 
 group :development do
