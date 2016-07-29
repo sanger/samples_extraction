@@ -11,14 +11,12 @@
 
   proto.readInput = function(e) {
     if (e.keyCode === 9) {
-	this.send();
-	this.input.val('');
-      e.preventDefault();
+	   this.send(e);
+	   this.input.val('');
     }
     if (e.keyCode == 13) {
-	this.send();
-	this.input.val('');
-      e.preventDefault();
+	   this.send(e);
+	   this.input.val('');
     }
   };
 
