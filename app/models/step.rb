@@ -8,6 +8,10 @@ class Step < ActiveRecord::Base
 
   after_create :execute_actions
 
+  scope :for_assets, ->(assets) { joins(:asset_group => :assets).where(:asset_group => {
+    :asset_groups_assets=> {:asset_id => assets }
+    }) }
+
   def classify_assets
     perform_list = []
     step_type.actions.includes([:subject_condition_group, :object_condition_group]).each do |r|

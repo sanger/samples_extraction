@@ -18,7 +18,7 @@
     <%= f.text_field :target_type, :readonly => readonly %>
   </div>
   <div class="field">
-    <%= f.select :activity_type_id, options_for_select(@activity_types.map{|a| [a.name, a.id]}), {},
+    <%= f.select :activity_type_id, options_for_select(@activity_types.visible.map{|a| [a.name, a.id]}), {},
     :disabled => readonly %>
   </div>
   <% unless readonly %>

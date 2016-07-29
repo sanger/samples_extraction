@@ -24,9 +24,7 @@
                     <td><%= asset.barcode %>
                     </td><td></td>
                     <td>
-                      <% asset.facts.each do |fact| %>
-                        <%= render :partial => 'facts/fact', :locals => { :fact => fact} %>
-                      <% end %>
+                      <%= render :partial => 'facts/facts', :locals => { :facts => asset.facts} %>
                     </td>
                   </tr>
                 <% end %>

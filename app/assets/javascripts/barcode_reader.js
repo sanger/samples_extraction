@@ -11,29 +11,27 @@
 
   proto.readInput = function(e) {
     if (e.keyCode === 9) {
-	this.send();
-	this.input.val('');
-      e.preventDefault();
+	   this.send(e);
+	   this.input.val('');
     }
     if (e.keyCode == 13) {
-	this.send();
-	this.input.val('');	
-      e.preventDefault();
+	   this.send(e);
+	   this.input.val('');
     }
   };
 
-    
+
     proto.attachHandlers = function() {
 	this.input.on('keydown', $.proxy(this.readInput, this));
-	this.button.on('click', $.proxy(this.send, this));	
+	this.button.on('click', $.proxy(this.send, this));
     };
 
-    proto.send = function() {
+    proto.send = function(e) {
+      e.preventDefault();
 	var data = {barcode: this.input.val()};
-        $(this.node).trigger('barcode.barcode_reader', data);	
+        $(this.node).trigger('barcode.barcode_reader', data);
 
     };
-
     $(document).on('ready', function() {
 	$(document).trigger('registerComponent.builder', {'BarcodeReader': BarcodeReader});
     });

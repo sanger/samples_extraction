@@ -71,6 +71,7 @@ class ActivitiesController < ApplicationController
   end
 
   def steps_finished
+    @in_steps_finished = true
     @steps = @activity.previous_steps
 
     respond_to do |format|
@@ -103,7 +104,7 @@ class ActivitiesController < ApplicationController
       @user = User.find_by_barcode!(params[:user_barcode])
     rescue ActiveRecord::RecordNotFound => e
       flash[:danger] = 'User not found'
-      redirect_to :back    
+      redirect_to :back
     end
 
     def set_kit

@@ -123,7 +123,7 @@
         this.addGroup(this.generateGroupName(), {});
       }, this));
       $(this.buttonNewAsset).on('click', $.proxy(function() {
-        this.addGroup(this.generateAssetName(), true, [], this.assetFactsTemplate())
+        this.addGroup(this.generateAssetName(), {}, this.assetFactsTemplate())
       }, this));
       $(this.node).on('registered.condition-group', $.proxy(this.storeConditionGroup, this));
       $(this.node).on('changed-name.condition-group', $.proxy(this.updateConditionGroupName, this));

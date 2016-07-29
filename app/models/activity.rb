@@ -16,6 +16,10 @@ class Activity < ActiveRecord::Base
 
   belongs_to :asset_group
 
+  scope :for_assets, ->(assets) { joins(:asset_group => :assets).where(:asset_group => {
+    :asset_groups_assets=> {:asset_id => assets }
+    })
+  }
 
   scope :in_progress, ->() { where('completed_at is null')}
   scope :finished, ->() { where('completed_at is not null')}

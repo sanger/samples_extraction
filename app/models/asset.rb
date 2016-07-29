@@ -8,6 +8,8 @@ class Asset < ActiveRecord::Base
 
   has_many :operations
 
+  has_many :activities, :through => :asset_groups
+
   scope :with_fact, ->(predicate, object) {
     joins(:facts).where(:facts => {:predicate => predicate, :object => object})
   }
@@ -15,6 +17,23 @@ class Asset < ActiveRecord::Base
   scope :with_field, ->(predicate, object) {
     where(predicate => object)
   }
+
+  def self.assets_for_queries(queries)
+    queries.map do |query|
+      if Asset.has_attribute?(query.predicate)
+        Asset.with_field(query.predicate, query.object)
+      else
+        Asset.with_fact(query.predicate, query.object)
+      end
+    end.reduce([]) do |memo, result|
+      if memo.empty?
+        result
+      else
+        result & memo
+      end
+    end
+  end
+
 
   def facts_to_s
     facts.each do |fact|

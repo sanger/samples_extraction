@@ -36,9 +36,7 @@
                           <% end %>
                         </td><td><%= asset.barcode %></td>
                         <td>
-                          <% asset.facts.each do |fact| %>
-                            <%= render :partial => 'facts/fact', :locals => { :fact => fact} %>
-                          <% end %>
+                          <%= render :partial => 'facts/facts', :locals => { :facts => asset.facts} %>
                         </td><td><%= activity.completed_at || 'In progress' %></td>
                       </tr>
                     <% end %>

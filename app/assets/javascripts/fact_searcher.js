@@ -24,17 +24,29 @@
       this.prepareInput();
     }
     if ((e.keyCode === 9) || (e.keyCode == 13)) {
+      /* Tab will not change focus to next input */
+      /* We'll change carriage return later */
       e.preventDefault();
     }
     this.resizeInput();
     return true;
   };
 
+  proto.getSelectedText = function() {
+    var selection;
+    if (window.getSelection) {
+      selection = window.getSelection().toString()
+    } else if (document.selection && document.selection.type != "Control") {
+      selection = document.selection.createRange().text;
+    }
+    return selection;
+  };
+
   proto.resizeInput = function() {
-    if (this.input.val().length>15) {
-      $(this.container).css('height', 'auto');
+    if (this.input.val().length>21) {
+      $(this.container)[0].style.setProperty('width', 'auto', 'important');
     } else {
-      $(this.container).css('height', 'initial');
+      $(this.container)[0].style.setProperty('width', 'auto', '');
     }
   };
 
@@ -42,7 +54,7 @@
     var value = this.input.val();
     var list = this.joinSemicolon(value.split(/\b/));
     this.input.val($.map(list, function(keyword) {
-      if ((keyword.match(/^\d*$/)) && (!keyword.match(/:/))) {
+      if ((keyword.match(/^\d\d*$/)) && (!keyword.match(/:/))) {
         return 'barcode:'+keyword;
       }
       if ((keyword.match(/\w/)) && (!keyword.match(/:/))) {
@@ -98,6 +110,7 @@
       });
     } else {
       keyword= this.replaceEmptySpacesWithHTMLEntity(keyword);
+      keyword = this.selectSelectedText(keyword);
       return keyword;
     }
   };
@@ -131,6 +144,17 @@
     }, this));
   };
 
+  proto.selectSelectedText = function(text) {
+    var selectedText = this.getSelectedText();
+    if (selectedText.length>0) {
+      text = text.replace(
+        new RegExp("</span>"+selectedText),
+        "</span><span id='select' class='selection'>"+selectedText+"</span>"
+      );
+    }
+    return text;
+  };
+
   proto.renderLabel = function(e) {
     var keywords = this.joinSemicolon(this.input.val().split(/\b/));
     keywords = this.moveCursor(keywords);
@@ -140,26 +164,39 @@
     this.createHiddenInputs();
     $(document).trigger('execute.builder');
     this.reloadCursor();
+
+    if (e && e.keyCode == 13) {
+      $(this.input[0].form).trigger('submit');
+    }
     return true;
+  };
+
+  proto.showCursor = function() {
+    this.cursor.css('visibility', 'visible');
+  };
+
+  proto.hideCursor = function() {
+    this.cursor.css('visibility', 'hidden');
   };
 
 
   proto.onFocus = function() {
     this.setInputFocus();
     this.renderLabel();
-    this.cursor.show();
+    this.showCursor();
     if (typeof this.cursorInterval!== 'undefined') {
       clearInterval(this.cursorInterval);
     }
     this.cursorInterval = setInterval($.proxy(function() {
-      this.cursor.hide();
+      this.hideCursor();
       this.timeout = setTimeout($.proxy(function() {
-        this.cursor.show();
+        this.showCursor();
       }, this), 325);
     },this),  650);
   };
 
-  proto.getCursorPosition = function(element) {
+  proto.getCursorPosition = function() {
+    var element = this.input;
     var el = $(element).get(0);
     var pos = 0;
     if ('selectionStart' in el) {
@@ -183,7 +220,7 @@
     clearInterval(this.cursorInterval);
     this.timeout=null;
     this.cursorInterval = null;
-    this.cursor.hide();
+    this.hideCursor();
   };
 
   proto.splice = function(str, start, delCount, newSubStr) {
@@ -191,7 +228,7 @@
   };
 
   proto.moveCursor = function(keywords) {
-    var absolutePos = this.getCursorPosition(this.input);
+    var absolutePos = this.getCursorPosition();
     var currentPos = 0;
     var found = false;
     return $.map(keywords, $.proxy(function(keyword) {
@@ -216,13 +253,26 @@
   proto.onKeyPressed = function(e) {
     var keywords = this.input.val().split(' ');
     keywords = this.moveCursor(keywords);
+
+    /*this.repeatKeys = setInterval($.proxy(function() {
+      this.input.val(this.input.val()+String.fromCharCode(e.keyCode));
+      var keywords = this.input.val().split(' ');
+      keywords = this.moveCursor(keywords);
+    }, this), 500);*/
     return true;
   };
+
+
+  /*proto.onKeyUp = function() {
+    clearInterval(this.repeatKeys);
+    this.repeatKeys = null;
+  };*/
 
   proto.attachHandlers = function() {
     this.input.on('keydown', $.proxy(this.onKeyDown, this));
     this.input.on('keyup', $.proxy(this.renderLabel, this));
     this.input.on('keydown', $.proxy(this.onKeyPressed, this));
+    //this.input.on('keyup', $.proxy(this.onKeyUp, this));
     this.input.on('focus', $.proxy(this.onFocus, this));
     this.input.on('blur', $.proxy(this.onBlur, this));
   };

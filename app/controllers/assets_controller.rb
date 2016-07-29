@@ -10,18 +10,13 @@ class AssetsController < ApplicationController
   end
 
   def search
-    @assets = @queries.map do |query|
-      if Asset.has_attribute?(query.predicate)
-        Asset.with_field(query.predicate, query.object)
-      else
-        Asset.with_fact(query.predicate, query.object)
-      end
-    end.reduce([]) do |memo, result|
-      if memo.empty?
-        result
-      else
-        result & memo
-      end
+    @assets = Asset.assets_for_queries(@queries)
+    @activities = @assets.map(&:activities)
+    @steps = Step.for_assets(@assets)
+
+
+    respond_to do |format|
+      format.html { render :search, layout: false }
     end
   end
 
