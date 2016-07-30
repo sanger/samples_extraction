@@ -110,7 +110,7 @@ RSpec.describe SupportN3 do
           Action => [{:action_type => 'addFacts',
                       :predicate => 'transferTo',
                       :step_type_id => @step_type.id,
-                      :object => nil}]
+                      :object => 'q'}]
           })
         p= ConditionGroup.find_by_name('p')
         q= ConditionGroup.find_by_name('q')
@@ -118,30 +118,30 @@ RSpec.describe SupportN3 do
         assert_equal q, Action.first.object_condition_group
       end
 
-      it '{ ?p :is :Tube2D .} => {?step :addFacts { ?p :inRack :q} .?step :createAsset {
-          :q :is :TubeRack .
+      it '{ ?p :is :Tube2D . } => {?step :addFacts { ?p :inRack ?rack .} .?step :createAsset {
+          ?rack :is :TubeRack .
+          ?rack :maxCardinality """1""".
         } .}.' do
         validates_rule_with({
           ConditionGroup => [
             {:name => 'p',:step_type => @step_type, :cardinality => nil,
             :keep_selected => true},
-            {:name => 'q',:step_type => nil, :cardinality => nil,
+            {:name => 'rack',:step_type => nil, :cardinality => 1,
             :keep_selected => true}],
           Condition => [
             {:predicate => 'is', :object => 'Tube2D'}
           ],
-          Action => [
-                     {:action_type => 'addFacts',
-                     :predicate => 'inRack', :object => nil,
-                     :step_type_id => @step_type.id},
-                     {:action_type => 'createAsset',
+          Action => [{:action_type => 'createAsset',
                      :predicate => 'is', :object => 'TubeRack',
                      :object_condition_group => nil,
+                     :step_type_id => @step_type.id},
+                     {:action_type => 'addFacts',
+                     :predicate => 'inRack', :object => 'rack',
                      :step_type_id => @step_type.id}
                      ]})
 
           p = ConditionGroup.find_by_name('p')
-          q = ConditionGroup.find_by_name('q')
+          q = ConditionGroup.find_by_name('rack')
           ac = Action.find_by_action_type('createAsset')
           af = Action.find_by_action_type('addFacts')
           assert_equal q, ac.subject_condition_group
