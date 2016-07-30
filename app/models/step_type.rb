@@ -111,6 +111,7 @@ class StepType < ActiveRecord::Base
   end
 
   def compatible_with?(assets, required_assets=nil)
+    assets = Array(assets)
     # Every asset has at least one condition group satisfied
     classification = condition_group_classification_for(assets)
     every_condition_group_satisfies_cardinality(classification) &&

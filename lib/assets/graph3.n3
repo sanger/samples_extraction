@@ -1,31 +1,34 @@
 :activity :activityTypeName """Testing activity type""" .
 
-{ ?p :is :Tube .} => { :step :stepTypeName """Change purpose of tube to 1D Tube""" .
-       :step :addFacts { ?p :is :Tube1D .} .
-       :step :removeFacts { ?p :is :Tube .} .
+{ ?p :a :Tube . ?p :is :NotStarted . } => { :step :stepTypeName """Change purpose of tube to 1D Tube""" .
+       :step :addFacts { ?p :has :Barcode1D .
+       ?p :is :Full .} .
       }.
 
-{ ?p :is :Tube1D .} => { :step :stepTypeName """Print 2D barcodes""" .
-        :step :createAsset { ?q :is :EmptyTube2D .} .
+{ ?p :has :Barcode1D .} => { :step :stepTypeName """Print 2D barcodes""" .
+        :step :createAsset { ?q :a :Tube . ?q :is :Empty . ?q :has :Barcode2D .} .
       }.
 
-{ ?p :is :Tube1D .
-  ?q :is :EmptyTube2D .
+{ ?p :has :Barcode1D .
+  ?p :is :Full .
+  ?q :has :Barcode2D .
+  ?q :is :Empty .
 } => { :step :stepTypeName """Transfer 1D to 2D tubes""" .
       :step :stepTemplate """transfer_tube_to_tube""" .
       :step :unselectAsset ?p.
         :step :removeFacts {
-          ?p :is :Tube1D .
-          ?q :is :EmptyTube2D .
+          ?p :is :Full .
+          ?q :is :Empty .
         } .
         :step :addFacts {
-          ?p :is :EmptyTube1D .
-          ?q :is :Tube2D .
+          ?p :is :Empty .
+          ?q :is :Full .
         } .
       }.
 
 
-{ ?p :is :Tube2D .
+{ ?p :is :Barcode2D .
+  ?p :is :Full .
   ?p :maxCardinality """96""" .
 } => { :step :stepTypeName """Put tubes in 96 rack""" .
       ?step :addFacts { ?p :inRack :q} .
