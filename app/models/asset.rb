@@ -18,6 +18,10 @@ class Asset < ActiveRecord::Base
     where(predicate => object)
   }
 
+  def relation_id
+    uuid
+  end
+
   def has_fact?(fact)
     facts.any?{|f| (fact.predicate == f.predicate) && (fact.object == f.object)}
   end

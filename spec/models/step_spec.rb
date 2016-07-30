@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Step, type: :model do
+  Struct.new('FakeFact', :predicate, :object)
+
   describe '#execute_actions' do
     setup do
       @step_type = FactoryGirl.create :step_type
@@ -22,6 +24,34 @@ RSpec.describe Step, type: :model do
         ]})}
       @assets = [@tubes, @racks].flatten
       @asset_group = FactoryGirl.create(:asset_group, {:assets => @assets})
+    end
+
+    describe 'when creating a new step' do
+      it 'raises an exception if assets are not compatible with step_type' do
+        @cg1.update_attributes(:cardinality => 1)
+        expect{
+          @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+          }.to raise_error(ActiveRecord::RecordNotSaved)
+      end
+    end
+
+    describe 'with unselectAsset action type' do
+      setup do
+        @action = FactoryGirl.create(:action, {:action_type => 'addFacts',
+          :predicate => 'is', :object => 'Empty', :subject_condition_group => @cg1})
+        @step_type.actions << @action
+      end
+
+      it 'unselects elements from condition group' do
+        @cg1.update_attributes(:keep_selected => false)
+
+        @asset_group.assets.reload
+        assert_equal true, @tubes.all?{|tube| @asset_group.assets.include?(tube)}
+
+        @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+
+        assert_equal false, @tubes.any?{|tube| @asset_group.assets.include?(tube)}
+      end
     end
 
     describe 'with addFacts action_type' do
@@ -51,10 +81,69 @@ RSpec.describe Step, type: :model do
             @action.update_attributes(:object_condition_group => @cg2)
           end
 
-          it 'raises exception if cardinality is not set to 1 in at least one of the sides' do
-            expect{
-              FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
-            }.to raise_error(Step::RelationCardinality)
+          it 'connects 1 to N if cardinality is set to 1 in the subject condition group' do
+            @asset_group.update_attributes(:assets => [@tubes.first, @racks].flatten)
+            @cg1.update_attributes(:cardinality => 1)
+
+            @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+
+            @tubes.each(&:reload)
+            @racks.each(&:reload)
+
+            @racks.each do |rack|
+              assert_equal true, @tubes.first.has_fact?(Struct::FakeFact.new(@action.predicate,
+                  rack.relation_id))
+            end
+            assert_equal false, @tubes.last.has_fact?(Struct::FakeFact.new(
+              @action.predicate,
+              @racks.first.relation_id))
+          end
+
+          it 'connects N to 1 if cardinality is set to 1 in the object condition group' do
+            @asset_group.update_attributes(:assets => [@tubes, @racks.first].flatten)
+            @cg2.update_attributes(:cardinality => 1)
+
+            @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+
+            @tubes.each(&:reload)
+            @racks.each(&:reload)
+
+            @tubes.each do |tube|
+              assert_equal true, tube.has_fact?(Struct::FakeFact.new(@action.predicate,
+                  @racks.first.relation_id))
+            end
+            assert_equal false, @tubes.first.has_fact?(Struct::FakeFact.new(@action.predicate,
+              @racks.last.relation_id))
+          end
+
+          it 'connects 1 to 1 if cardinality is set to 1 in both subject and object condition groups' do
+            @asset_group.update_attributes(:assets => [@tubes.first, @racks.first].flatten)
+            @cg1.update_attributes(:cardinality => 1)
+            @cg2.update_attributes(:cardinality => 1)
+
+            @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+
+            @tubes.each(&:reload)
+            @racks.each(&:reload)
+
+            assert_equal true, @tubes.first.has_fact?(Struct::FakeFact.new(@action.predicate,
+              @racks.first.relation_id))
+          end
+
+          it 'connects N to N if no cardinality is set' do
+            @asset_group.update_attributes(:assets => [@tubes, @racks].flatten)
+
+            @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+
+            @tubes.each(&:reload)
+            @racks.each(&:reload)
+
+            @tubes.each do |tube|
+              @racks.each do |rack|
+                assert_equal true, tube.has_fact?(Struct::FakeFact.new(@action.predicate,
+                  rack.relation_id))
+              end
+            end
           end
         end
       end
@@ -140,7 +229,99 @@ RSpec.describe Step, type: :model do
             assert_equal false, asset.has_fact?(@action)
           end
         end
+        describe 'relating different condition groups' do
+          setup do
+            # Something like removeFact(?tube :relatesTo ?rack)
+            @action = FactoryGirl.create(:action, {:action_type => 'removeFacts',
+              :predicate => 'relatesTo', :subject_condition_group => @cg1,
+              :object_condition_group => @cg2})
+            @step_type.actions << @action
+            @tubes.first.facts << FactoryGirl.create(:fact, {
+              :predicate => 'relatesTo', :object => @racks.first.relation_id,
+              :literal => false})
+          end
+
+          it 'removes the link between both assets' do
+            assert_equal 1, @tubes.first.facts.select{|f| f.predicate == 'relatesTo'}.length
+
+            @asset_group.update_attributes(:assets => [@tubes.first, @racks.first].flatten)
+            FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+
+            @tubes.each(&:reload)
+            @racks.each(&:reload)
+            assert_equal 0, @tubes.first.facts.select{|f| f.predicate == 'relatesTo'}.length
+          end
+          describe 'relating several assets' do
+            it 'removes the link between all assets' do
+              @tubes.each do |tube|
+                @racks.each do |rack|
+                  tube.facts << FactoryGirl.create(:fact, {
+                    :predicate => 'relatesTo', :object => rack.relation_id,
+                    :literal => false})
+                end
+              end
+
+              @tubes.each(&:reload)
+              @racks.each(&:reload)
+
+              @tubes.each do |tube|
+                assert_equal true, (tube.facts.select{|f| f.predicate == 'relatesTo'}.length>0)
+              end
+
+              FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+
+              @tubes.each(&:reload)
+              @racks.each(&:reload)
+
+              @tubes.each do |tube|
+                assert_equal 0, tube.facts.select{|f| f.predicate == 'relatesTo'}.length
+              end
+            end
+
+            it 'removes the link just between the matched assets' do
+              @tubes.each do |tube|
+                tube.facts << FactoryGirl.create(:fact, {
+                 :predicate => 'relatesTo', :object => @tubes.first.relation_id,
+                 :literal => false})
+              end
+
+              @racks.each do |rack|
+                rack.facts << FactoryGirl.create(:fact, {
+                 :predicate => 'relatesTo', :object => @racks.first.relation_id,
+                 :literal => false})
+              end
+
+              @tubes.each(&:reload)
+              @racks.each(&:reload)
+
+              @tubes.each do |tube|
+                assert_equal true, (tube.facts.select{|f| f.predicate == 'relatesTo'}.length>0)
+              end
+
+              @racks.each do |rack|
+                assert_equal true, (rack.facts.select{|f| f.predicate == 'relatesTo'}.length>0)
+              end
+
+              FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+
+              @tubes.each(&:reload)
+              @racks.each(&:reload)
+
+              @tubes.each do |tube|
+                assert_equal 0, tube.facts.select{|f| f.predicate == 'relatesTo'}.length
+              end
+
+              @racks.each do |rack|
+                assert_equal 1, rack.facts.select{|f| f.predicate == 'relatesTo'}.length
+              end
+
+            end
+
+          end
+        end
+
       end
+
       describe 'with several actions' do
         setup do
           @action = FactoryGirl.create(:action, {:action_type => 'removeFacts',

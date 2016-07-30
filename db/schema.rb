@@ -125,10 +125,11 @@ ActiveRecord::Schema.define(version: 20160723210242) do
 
   create_table "facts", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "asset_id"
-    t.string   "predicate",  null: false
+    t.string   "predicate",                 null: false
     t.string   "object"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.boolean  "literal",    default: true, null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
     t.index ["asset_id"], name: "index_facts_on_asset_id", using: :btree
   end
 

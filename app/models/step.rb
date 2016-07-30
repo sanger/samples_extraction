@@ -7,6 +7,7 @@ class Step < ActiveRecord::Base
   has_many :operations
 
   after_create :execute_actions
+  before_save :assets_compatible_with_step_type
 
   class RelationCardinality < StandardError
   end
@@ -17,6 +18,10 @@ class Step < ActiveRecord::Base
   scope :for_assets, ->(assets) { joins(:asset_group => :assets).where(:asset_group => {
     :asset_groups_assets=> {:asset_id => assets }
     }) }
+
+  def assets_compatible_with_step_type
+    throw :abort unless step_type.compatible_with?(asset_group.assets)
+  end
 
   # Identifies which asset acting as subject is compatible with which rule.
   def classify_assets
@@ -33,7 +38,7 @@ class Step < ActiveRecord::Base
           # one of the condition groups has maxCardinality set to 1
           msg = ['In a relation between condition groups, one of them needs to have ',
                 'maxCardinality set to 1 to be able to infer how to connect its assets'].join('')
-          raise RelationCardinality, msg
+          #raise RelationCardinality, msg
         end
       end
       # If this condition group is referring to an element not matched (like
@@ -62,8 +67,8 @@ class Step < ActiveRecord::Base
   def unselect_groups
     step_type.condition_groups.each do |condition_group|
       unless condition_group.keep_selected
-        unselect_assets = activity.asset_group.assets.includes(:facts).select{|asset| condition_group.compatible_with?(asset)}
-        activity.asset_group.assets.delete(unselect_assets) if unselect_assets
+        unselect_assets = asset_group.assets.includes(:facts).select{|asset| condition_group.compatible_with?(asset)}
+        asset_group.assets.delete(unselect_assets) if unselect_assets
       end
     end
   end
