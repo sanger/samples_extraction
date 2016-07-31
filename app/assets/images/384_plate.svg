@@ -1,5 +1,23 @@
-<ns0:svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:ns0="http://www.w3.org/2000/svg" xmlns:ns1="http://www.inkscape.org/namespaces/inkscape" xmlns:ns2="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns5="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" height="434.34375" id="svg2" version="1.1" width="655.96875" ns2:docname="384plate.svg" ns1:version="0.48.2 r9819">
-  <ns0:defs id="defs4">
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:ns0="http://www.w3.org/2000/svg"
+   xmlns:ns1="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:ns2="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:ns3="http://www.w3.org/1999/xlink"
+   xmlns:ns5="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   height="434.34375"
+   id="svg2"
+   version="1.1"
+   width="655.96875"
+   ns2:docname="384plate.svg"
+   ns1:version="0.48.2 r9819"   viewBox="0 0 350 255"
+>
+<ns0:defs id="defs4">
     <ns0:linearGradient id="linearGradient32882">
       <ns0:stop id="stop32884" offset="0" style="stop-color:#ff7f2a;stop-opacity:1;" />
       <ns0:stop id="stop32886" offset="1" style="stop-color:#b84a00;stop-opacity:1;" />
@@ -886,4 +904,4 @@
     <ns0:path d="m 50,46.25 a 7.5,7.5 0 1 1 -15,0 7.5,7.5 0 1 1 15,0 z" id="O24" style="fill:#f9f9f9;stroke:#000000;stroke-opacity:0.83137255" transform="matrix(1.1704,0,0,1.1704,562.53679,328.19695)" ns2:cx="42.5" ns2:cy="46.25" ns2:rx="7.5" ns2:ry="7.5" ns2:type="arc" />
     <ns0:path d="m 50,46.25 a 7.5,7.5 0 1 1 -15,0 7.5,7.5 0 1 1 15,0 z" id="P24" style="fill:#f9f9f9;stroke:#000000;stroke-opacity:0.83137255" transform="matrix(1.1704,0,0,1.1704,562.53679,353.24721)" ns2:cx="42.5" ns2:cy="46.25" ns2:rx="7.5" ns2:ry="7.5" ns2:type="arc" />
   </ns0:g>
-</ns0:svg>
+</svg>

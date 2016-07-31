@@ -6,16 +6,48 @@ class Step < ActiveRecord::Base
   has_many :uploads
   has_many :operations
 
-  after_create :execute_actions
+  after_create :execute_actions, :unless => :in_progress?
+
+  before_save :assets_compatible_with_step_type, :unless => :in_progress?
+
+  class RelationCardinality < StandardError
+  end
+
+  class RelationSubject < StandardError
+  end
+
+  class UnknownConditionGroup < StandardError
+  end
 
   scope :for_assets, ->(assets) { joins(:asset_group => :assets).where(:asset_group => {
     :asset_groups_assets=> {:asset_id => assets }
     }) }
 
+  def assets_compatible_with_step_type
+    throw :abort unless step_type.compatible_with?(asset_group.assets)
+  end
+
+  # Identifies which asset acting as subject is compatible with which rule.
   def classify_assets
     perform_list = []
     step_type.actions.includes([:subject_condition_group, :object_condition_group]).each do |r|
-      if r.subject_condition_group.cardinality == 1
+      if r.subject_condition_group.nil?
+        raise RelationSubject, 'A subject condition group needs to be specified to apply the rule'
+      end
+      if (r.object_condition_group)
+        unless [r.subject_condition_group, r.object_condition_group].any?{|c| c.cardinality == 1}
+          # Because a condition group can refer to an unknown number of assets,
+          # when a rule relates 2 condition groups (?p :transfers ?q) we cannot
+          # know how to connect their assets between each other unless at least
+          # one of the condition groups has maxCardinality set to 1
+          msg = ['In a relation between condition groups, one of them needs to have ',
+                'maxCardinality set to 1 to be able to infer how to connect its assets'].join('')
+          #raise RelationCardinality, msg
+        end
+      end
+      # If this condition group is referring to an element not matched (like
+      # a new created asset, for example) I cannot classify my assets with it
+      if (!step_type.condition_groups.include?(r.subject_condition_group))
         perform_list.push([nil, r])
       else
         asset_group.assets.includes(:facts).each do |asset|
@@ -36,13 +68,8 @@ class Step < ActiveRecord::Base
     end
   end
 
-  def unselect_groups
-    step_type.condition_groups.each do |condition_group|
-      unless condition_group.keep_selected
-        unselect_assets = activity.asset_group.assets.includes(:facts).select{|asset| condition_group.compatible_with?(asset)}
-        activity.asset_group.assets.delete(unselect_assets) if unselect_assets
-      end
-    end
+  def unselect_assets
+    asset_group.unselect_assets_with_conditions(step_type.condition_groups)
   end
 
   def execute_actions
@@ -50,10 +77,36 @@ class Step < ActiveRecord::Base
       created_assets = {}
       list_to_destroy = []
       classify_assets.each do |asset, r|
-        r.execute(self, asset, created_assets, list_to_destroy)
+        r.execute(self, asset_group, asset, created_assets, list_to_destroy)
       end
-      unselect_groups
+
+      unselect_assets
+
       Fact.where(:id => list_to_destroy.flatten.compact.pluck(:id)).delete_all
+    end
+  end
+
+  def progress_with(assets)
+    ActiveRecord::Base.transaction do |t|
+      update_attributes(:in_progress? => true)
+
+      asset_group.assets << assets
+
+      created_assets = {}
+      classify_assets.each do |asset, r|
+        r.execute(self, asset_group, asset, created_assets, nil)
+      end
+    end
+
+    #activity.asset_group.update_attributes(:assets => activity.asset_group.assets - assets)
+  end
+
+  def finish_with(assets)
+    ActiveRecord::Base.transaction do |t|
+      unselect_assets
+      Fact.where(:to_remove_by => self.id).delete_all
+      Fact.where(:to_add_by => self.id).update_all(:to_add_by => nil)
+      update_attributes(:in_progress? => false)
     end
   end
 

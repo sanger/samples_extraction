@@ -48,10 +48,26 @@ class Activity < ActiveRecord::Base
     step_types.includes(:condition_groups => :conditions).select{|step_type| step_type.compatible_with?(assets, required_assets)}
   end
 
-  def create_step(step_type, user)
-    group = AssetGroup.create
-    group.assets << asset_group.assets
-    step = steps.create(:step_type => step_type, :asset_group_id => group.id, :user_id => user.id)
+  def create_step(step_type, user, step_params)
+    if (step_params[:state])
+      if (step_params[:state][:in_progress])
+        step = Step.find_by(:step_type => step_type, :activity => self, :in_progress? => true)
+        unless step
+          group = AssetGroup.create!
+          step = steps.create!(:step_type => step_type, :asset_group_id => group.id, :user_id => user.id, :in_progress? => true)
+        end
+        step.progress_with(step_params[:assets])
+      elsif (step_params[:state][:done])
+        step = Step.find_by(:step_type => step_type, :activity => self, :in_progress? => true)
+        if step
+          step.finish_with(step_params[:assets])
+        else
+          step = steps.create!(:step_type => step_type, :asset_group_id => asset_group.id, :user_id => user.id)
+        end
+      end
+    else
+      step = steps.create!(:step_type => step_type, :asset_group_id => asset_group.id, :user_id => user.id)
+    end
   end
 
 end

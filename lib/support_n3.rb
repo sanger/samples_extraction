@@ -55,16 +55,35 @@ module SupportN3
     end
   end
 
+  def self.sort_created_assets_first(list)
+    list.sort do |a,b|
+      if fragment(a[1])=='createAsset'
+        -1
+      elsif fragment(b[1])=='createAsset'
+        1
+      else
+        fragment(a[1]) <=> fragment(b[1])
+      end
+    end
+  end
+
   def self.parse_rules(quads, step_type)
     rules = quads.select{|quad| fragment(quad[1])=='implies'}
     rules.each do |k,p,v,g|
       conditions = quads.select{|quad| quad.last === k}
-      actions = quads.select{|quad| quad.last === v}
+      actions = sort_created_assets_first(quads.select do |quad|
+        quad.last === v
+      end)
 
       # Creation of condition groups in the antecedents
       c_groups = {}
+      # Cardinalities for each condition group
+      c_groups_cardinalities = {}
+
+      # Left side of the rule
       conditions.each do |k,p,v,g|
         fr = fragment(k)
+        # Finds the condition group (or creates it)
         if c_groups.keys.include?(fr)
           condition_group = c_groups[fr]
         else
@@ -72,37 +91,50 @@ module SupportN3
           c_groups[fr] = condition_group
         end
         if fragment(p) == 'maxCardinality'
+          # Once we have the condition group, we update cardinality
+          c_groups_cardinalities[fr] = fragment(v)
           condition_group.update_attributes(:cardinality => fragment(v))
         else
+          # or we add the new condition
           Condition.create({ :predicate => fragment(p), :object => fragment(v),
           :condition_group_id => condition_group.id})
         end
       end
 
+      # Right side of the rule
       actions.each do |k,p,v,g|
         action = fragment(p)
         unless v.literal?
           quads.select{|quad| quad.last == v}.each do |k,p,v,g|
+            # Updates cardinality for the condition group
+            if fragment(p) == 'maxCardinality'
+              c_groups_cardinalities[fragment(k)] = fragment(v)
+              c = ConditionGroup.find_by_name(fragment(k))
+              if c
+                c.update_attributes(:cardinality => c_groups_cardinalities[fragment(k)])
+              end
+              next
+            end
+
+            # Creates condition groups from the subjects of the actions
+            # side of the rules
             if c_groups[fragment(k)].nil?
-              # Whenever I find a new variable name for an element I have to create a
-              # new ConditionGroup for it and collect it. This is because I need a way
-              # to remember
-              cardinality = nil
-              # If it's a variable (like :q, instead of ?q), it will be applied just
-              # once for all the step, not for every actioned element
-              if k.class.name=='RDF::Query::Variable'
-                cardinality=1
-              end
-              c_groups[fragment(k)] = ConditionGroup.create(:cardinality => cardinality, :name => fragment(k), :keep_selected => check_keep_selected_asset(fragment(k), quads))
+              c_groups[fragment(k)] = ConditionGroup.create({:cardinality => c_groups_cardinalities[fragment(k)],
+                :name => fragment(k), :keep_selected => check_keep_selected_asset(fragment(k), actions)})
             end
+            # Creates condition groups from the objects of the actions side
             object_condition_group_id = nil
-            if v.class.name == 'RDF::Query::Variable'
-              if c_groups[fragment(v)].nil?
-                c_groups[fragment(v)] = ConditionGroup.create(:cardinality => 1, :name => fragment(v), :keep_selected => check_keep_selected_asset(fragment(v), quads))
-              end
+            if c_groups[fragment(v)]
               object_condition_group_id = c_groups[fragment(v)].id
+            else
+              if v.class.name == 'RDF::Query::Variable'
+                if c_groups[fragment(v)].nil?
+                  c_groups[fragment(v)] = ConditionGroup.create(:cardinality => c_groups_cardinalities[fragment(v)],
+                    :name=> fragment(v), :keep_selected => check_keep_selected_asset(fragment(v), actions))
+                end
+                object_condition_group_id = c_groups[fragment(v)].id
+              end
             end
-            #subject_condition_group_id = c_groups[fragment(k)].nil? ? nil : c_groups[fragment(k)].id
             Action.create({:action_type => action, :predicate => fragment(p),
               :object => fragment(v),
               :step_type_id => step_type.id,
@@ -131,47 +163,63 @@ module SupportN3
 
       # Creation of condition groups in the antecedents
       c_groups = {}
+      # Cardinalities for each condition group
+      c_groups_cardinalities = {}
+
+      # Left side of the rule
       conditions.each do |k,p,v,g|
         fr = fragment(k)
+
+        # Finds the condition group (or creates it)
         if c_groups.keys.include?(fr)
           condition_group = c_groups[fr]
         else
-          condition_group = ConditionGroup.create(:step_type => step_type, :name=> fr, :keep_selected => check_keep_selected_asset(fr, actions))
+          condition_group = ConditionGroup.create(:step_type => step_type, :name=> fr,
+              :keep_selected => check_keep_selected_asset(fr, actions))
           c_groups[fr] = condition_group
         end
+
         if fragment(p) == 'maxCardinality'
+          # Once we have the condition group, we update cardinality
+          c_groups_cardinalities[fr] = fragment(v)
           condition_group.update_attributes(:cardinality => fragment(v))
         else
+          # or we add the new condition
           Condition.create({ :predicate => fragment(p), :object => fragment(v),
-          :condition_group_id => condition_group.id})
+            :condition_group_id => condition_group.id})
         end
       end
 
+      # Right side of the rule
       actions.each do |k,p,v,g|
         action = fragment(p)
         unless v.literal?
           quads.select{|quad| quad.last == v}.each do |k,p,v,g|
-            if c_groups[fragment(k)].nil?
-              # Whenever I find a new variable name for an element I have to create a
-              # new ConditionGroup for it and collect it. This is because I need a way
-              # to remember
-              cardinality = nil
-              # If it's a variable (like :q, instead of ?q), it will be applied just
-              # once for all the step, not for every actioned element
-              if k.class.name=='RDF::Query::Variable'
-                cardinality=1
+            # Updates cardinality for the condition group
+            if fragment(p) == 'maxCardinality'
+              c_groups_cardinalities[fragment(k)] = fragment(v)
+              c = ConditionGroup.find_by_name(fragment(k))
+              if c
+                c.update_attributes(:cardinality => c_groups_cardinalities[fragment(k)])
               end
-              c_groups[fragment(k)] = ConditionGroup.create({:cardinality => cardinality,
+              next
+            end
+
+            # Creates condition groups from the subjects of the actions
+            # side of the rules
+            if c_groups[fragment(k)].nil?
+              c_groups[fragment(k)] = ConditionGroup.create({:cardinality => c_groups_cardinalities[fragment(k)],
                 :name => fragment(k), :keep_selected => check_keep_selected_asset(fragment(k), actions)})
             end
+            # Creates condition groups from the objects of the actions side
             object_condition_group_id = nil
             if v.class.name == 'RDF::Query::Variable'
               if c_groups[fragment(v)].nil?
-                c_groups[fragment(v)] = ConditionGroup.create(:cardinality => 1, :name=> fragment(v), :keep_selected => check_keep_selected_asset(fragment(v), actions))
+                c_groups[fragment(v)] = ConditionGroup.create(:cardinality => c_groups_cardinalities[fragment(v)],
+                  :name=> fragment(v), :keep_selected => check_keep_selected_asset(fragment(v), actions))
               end
               object_condition_group_id = c_groups[fragment(v)].id
             end
-            #subject_condition_group_id = c_groups[fragment(k)].nil? ? nil : c_groups[fragment(k)].id
             Action.create({:action_type => action, :predicate => fragment(p),
               :object => fragment(v),
               :step_type_id => step_type.id,

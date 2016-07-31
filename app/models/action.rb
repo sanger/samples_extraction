@@ -8,54 +8,108 @@ class Action < ActiveRecord::Base
     @@TYPES
   end
 
-  def build_fact(created_assets)
+  def generate_facts(created_assets, asset_group, step)
+    data = {}
     if object_condition_group.nil?
-      fact = Fact.new(:predicate => predicate, :object => object)
+      data = [{:predicate => predicate, :object => object}]
     else
-      fact = Fact.new(
-        :predicate => predicate,
-        :object => created_assets[object_condition_group.id].barcode
-        )
+      if created_assets[object_condition_group.id].nil?
+        # If it is not a created object condition group, then it is
+        # a condition group from the left side of the rule. It can
+        # have N elements, so we'll create the fact for each one.
+        # This also means that 'asset' belongs to a condition group
+        # with cardinality = 1
+        data = asset_group.assets.select do |asset|
+          object_condition_group.compatible_with?(asset)
+        end.map do |asset|
+          {
+            :predicate => predicate,
+            :object => asset.relation_id,
+            :literal => false
+          }
+        end
+      else
+        data = created_assets[object_condition_group.id].map do |asset|
+          {
+          :predicate => predicate,
+          :object => asset.relation_id,
+          :literal => false
+          }
+        end
+      end
+    end
+    in_progress = step.in_progress? ? {:to_add_by => step.id} : {}
+    data.map do |obj|
+      Fact.create(obj.merge(in_progress))
     end
   end
 
-  def execute(step, asset, created_assets, marked_facts_to_destroy)
-    activity = step.activity
-
+  def execute(step, asset_group, asset, created_assets, marked_facts_to_destroy=nil)
+    assets = [asset]
     if subject_condition_group.conditions.empty?
-      asset = created_assets[subject_condition_group.id]
+      assets = created_assets[subject_condition_group.id]
     end
     if action_type == 'selectAsset'
-      activity.asset_group.assets << asset
+      asset_group.assets << asset
     end
     if action_type == 'createAsset'
-      asset = Asset.create!
-      created_assets[subject_condition_group.id] = asset
-      activity.asset_group.assets << asset
+      unless created_assets[subject_condition_group.id]
+        num_create = asset_group.assets.count
+        if subject_condition_group.cardinality
+          num_create = [asset_group.assets.count, subject_condition_group.cardinality].min
+        end
+        assets = num_create.times.map{|i| Asset.create!}
 
-      fact = build_fact(created_assets)
-      created_assets[subject_condition_group.id].facts << fact
+        # Each fact of a createAsset action is considered an action by
+        # itself, because of that, before creating the assets we check
+        # if they were already created by a previous action
+        created_assets[subject_condition_group.id] = assets
+        asset_group.assets << assets
+      end
+      assets = created_assets[subject_condition_group.id]
+
+      facts = generate_facts(created_assets, asset_group, step)
+      created_assets[subject_condition_group.id].each do |created_asset|
+        created_asset.facts << facts.map(&:dup)
+      end
     end
     if action_type == 'addFacts'
-      fact = build_fact(created_assets)
-      asset.facts << fact
+      msg = 'You cannot add facts to an asset not present in the conditions'
+      raise Step::UnknownConditionGroup, msg if assets.compact.length==0
+      facts = generate_facts(created_assets, asset_group, step)
+      assets.each do |asset|
+        asset.facts << facts
+      end
     end
     if action_type == 'removeFacts'
-      facts_to_remove = asset.facts.select{|f| f.predicate == predicate && object.nil? ||
-        (f.object == object) }
+      assets.each do |asset|
+        facts_to_remove = asset.facts.select do |f|
+          (f.predicate == predicate) && (object.nil? || (f.object == object))
+        end
 
-      predicate = facts_to_remove.first.predicate
-      object = facts_to_remove.first.object
+        facts_to_remove.each do |fact|
+          predicate = fact.predicate
+          object = fact.object
 
-      operation = Operation.create!(:action => self, :step => step,
-        :asset=> asset, :predicate => predicate, :object => object)
-
-      marked_facts_to_destroy.push(facts_to_remove)
-      #facts_to_remove.each(&:destroy)
+          operation = Operation.create!(:action => self, :step => step,
+            :asset=> asset, :predicate => predicate, :object => object)
+        end
+        if marked_facts_to_destroy.nil?
+          facts_to_remove.each do |fact|
+            fact.update_attributes(:to_remove_by => step.id)
+          end
+        else
+          marked_facts_to_destroy.push(facts_to_remove)
+        end
+      end
     end
-    if asset && fact
-      operation = Operation.create!(:action => self, :step => step,
-        :asset=> asset, :predicate => fact.predicate, :object => fact.object)
+    if assets && facts
+      assets.each do |asset|
+        facts.each do |fact|
+          operation = Operation.create!(:action => self, :step => step,
+            :asset=> asset, :predicate => fact.predicate, :object => fact.object)
+        end
+      end
     end
 
   end

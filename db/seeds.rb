@@ -8,21 +8,24 @@
 
 asset=Asset.create!(:barcode => '1')
 asset.facts << [
-  ['is', 'Tube']
+  ['a', 'Tube'],
+  ['has', 'RNA']
 ].map do |a,b|
   Fact.create({ :predicate => a, :object => b})
 end
 
 asset2=Asset.create!(:barcode => '2')
 asset2.facts << [
-  ['is', 'Tube']
+  ['a', 'Tube'],
+  ['has', 'DNAP']
 ].map do |a,b|
   Fact.create({ :predicate => a, :object => b})
 end
 
 asset2=Asset.create!(:barcode => '3')
 asset2.facts << [
-  ['is', 'Tube']
+  ['a', 'Tube'],
+  ['has', 'Blood']
 ].map do |a,b|
   Fact.create({ :predicate => a, :object => b})
 end
@@ -44,11 +47,44 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 2222})
 
 
 asset_group = AssetGroup.create!
+asset = Asset.create!
+asset.facts << Fact.create({ :predicate => 'a', :object => 'Rack'})
+asset.facts << Fact.create({ :predicate => 'A1', :object => 'DNA'})
+asset.facts << Fact.create({ :predicate => 'A2', :object => 'DNA'})
+asset.facts << Fact.create({ :predicate => 'A3', :object => 'DNA'})
+asset.facts << Fact.create({ :predicate => 'A4', :object => 'DNA'})
+asset.facts << Fact.create({ :predicate => 'B1', :object => 'DNA'})
+asset.facts << Fact.create({ :predicate => 'D6', :object => 'RNA'})
+asset_group.assets << asset
+asset = Asset.create!
+asset.facts << Fact.create({ :predicate => 'a', :object => '24_Rack'})
+asset_group.assets << asset
+asset = Asset.create!
+asset.facts << Fact.create({ :predicate => 'a', :object => '96_gel'})
+asset_group.assets << asset
+asset = Asset.create!
+asset.facts << Fact.create({ :predicate => 'a', :object => '96_plate'})
+asset_group.assets << asset
+asset = Asset.create!
+asset.facts << Fact.create({ :predicate => 'a', :object => 'filter_paper'})
+asset_group.assets << asset
+
+asset = Asset.create!
+asset.facts << Fact.create({ :predicate => 'a', :object => 'spin_column'})
+asset_group.assets << asset
+
 100.times do |pos|
   asset = Asset.create!
-  asset.facts << Fact.create({ :predicate => 'is', :object => 'Tube'})
+  asset.facts << Fact.create({ :predicate => 'a', :object => 'Tube'})
+  asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
+  asset.facts << Fact.create({ :predicate => 'is', :object => 'Full'})
+  asset.facts << Fact.create({ :predicate => 'has', :object => 'DNA'})
   asset_group.assets << asset
 end
+
+
+
+
 activity_type.activities.create!(:asset_group => asset_group, :kit => kit, :instrument => instrument)
 
 User.create!(:barcode => 1, :username => 'test', :fullname => 'Testing user')
