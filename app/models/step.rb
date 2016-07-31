@@ -6,9 +6,9 @@ class Step < ActiveRecord::Base
   has_many :uploads
   has_many :operations
 
-  after_create :execute_actions
+  after_create :execute_actions, :unless => :in_progress?
 
-  before_save :assets_compatible_with_step_type
+  before_save :assets_compatible_with_step_type, :unless => :in_progress?
 
   class RelationCardinality < StandardError
   end
@@ -83,6 +83,30 @@ class Step < ActiveRecord::Base
       unselect_assets
 
       Fact.where(:id => list_to_destroy.flatten.compact.pluck(:id)).delete_all
+    end
+  end
+
+  def progress_with(assets)
+    ActiveRecord::Base.transaction do |t|
+      update_attributes(:in_progress? => true)
+
+      asset_group.assets << assets
+
+      created_assets = {}
+      classify_assets.each do |asset, r|
+        r.execute(self, asset_group, asset, created_assets, nil)
+      end
+    end
+
+    #activity.asset_group.update_attributes(:assets => activity.asset_group.assets - assets)
+  end
+
+  def finish_with(assets)
+    ActiveRecord::Base.transaction do |t|
+      unselect_assets
+      Fact.where(:to_remove_by => self.id).delete_all
+      Fact.where(:to_add_by => self.id).update_all(:to_add_by => nil)
+      update_attributes(:in_progress? => false)
     end
   end
 

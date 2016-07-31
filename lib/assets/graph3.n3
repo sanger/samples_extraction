@@ -40,11 +40,12 @@
   :step :addFacts {
     ?p :is :Empty .
     ?q :is :Full .
+    ?p :transferTo ?q .
   } .
 } .
 
 
-{ ?p :is :Barcode2D .
+{ ?p :has :Barcode2D .
   ?p :is :Full .
   ?p :maxCardinality """96""" .
 } => {
@@ -53,7 +54,7 @@
     ?p :inRack ?q .
   } .
   ?step :createAsset {
-    ?q :is :TubeRack .
+    ?q :a :TubeRack .
     ?q :maxCardinality """1""" .
   } .
 } .
@@ -63,7 +64,7 @@
 } => { :step :stepTypeName """Put tubes in 384 rack""" .
       ?step :addFacts { ?p :inRack :q} .
       ?step :createAsset {
-        :q :is :TubeRack .
+        :q :a :TubeRack .
       } .
 } .
 
@@ -72,11 +73,11 @@
 } => { :step :stepTypeName """Put tubes in 2 rack""" .
       ?step :addFacts { ?p :inRack :q} .
       ?step :createAsset {
-        :q :is :TubeRack .
+        :q :a :TubeRack .
       } .
 } .
 
-{ ?p :is :TubeRack .
+{ ?p :a :TubeRack .
 } => { :step :stepTypeName """Reracking""" .
       ?step :removeFacts { ?p :is :TubeRack} .
       ?step :addFacts { ?p :is :TubeRackToRerack .} .

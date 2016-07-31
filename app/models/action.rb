@@ -8,9 +8,10 @@ class Action < ActiveRecord::Base
     @@TYPES
   end
 
-  def generate_facts(created_assets, asset_group)
+  def generate_facts(created_assets, asset_group, step)
+    data = {}
     if object_condition_group.nil?
-      facts = [Fact.new(:predicate => predicate, :object => object)]
+      data = [{:predicate => predicate, :object => object}]
     else
       if created_assets[object_condition_group.id].nil?
         # If it is not a created object condition group, then it is
@@ -18,27 +19,32 @@ class Action < ActiveRecord::Base
         # have N elements, so we'll create the fact for each one.
         # This also means that 'asset' belongs to a condition group
         # with cardinality = 1
-        facts = asset_group.assets.select do |asset|
+        data = asset_group.assets.select do |asset|
           object_condition_group.compatible_with?(asset)
         end.map do |asset|
-          Fact.new(
+          {
             :predicate => predicate,
             :object => asset.relation_id,
             :literal => false
-          )
+          }
         end
       else
-        facts = [Fact.new(
+        data = created_assets[object_condition_group.id].map do |asset|
+          {
           :predicate => predicate,
-          :object => created_assets[object_condition_group.id].relation_id,
+          :object => asset.relation_id,
           :literal => false
-          )]
+          }
+        end
       end
     end
-    facts
+    in_progress = step.in_progress? ? {:to_add_by => step.id} : {}
+    data.map do |obj|
+      Fact.create(obj.merge(in_progress))
+    end
   end
 
-  def execute(step, asset_group, asset, created_assets, marked_facts_to_destroy)
+  def execute(step, asset_group, asset, created_assets, marked_facts_to_destroy=nil)
     assets = [asset]
     if subject_condition_group.conditions.empty?
       assets = created_assets[subject_condition_group.id]
@@ -62,7 +68,7 @@ class Action < ActiveRecord::Base
       end
       assets = created_assets[subject_condition_group.id]
 
-      facts = generate_facts(created_assets, asset_group)
+      facts = generate_facts(created_assets, asset_group, step)
       created_assets[subject_condition_group.id].each do |created_asset|
         created_asset.facts << facts.map(&:dup)
       end
@@ -70,7 +76,7 @@ class Action < ActiveRecord::Base
     if action_type == 'addFacts'
       msg = 'You cannot add facts to an asset not present in the conditions'
       raise Step::UnknownConditionGroup, msg if assets.compact.length==0
-      facts = generate_facts(created_assets, asset_group)
+      facts = generate_facts(created_assets, asset_group, step)
       assets.each do |asset|
         asset.facts << facts
       end
@@ -88,7 +94,13 @@ class Action < ActiveRecord::Base
           operation = Operation.create!(:action => self, :step => step,
             :asset=> asset, :predicate => predicate, :object => object)
         end
-        marked_facts_to_destroy.push(facts_to_remove)
+        if marked_facts_to_destroy.nil?
+          facts_to_remove.each do |fact|
+            fact.update_attributes(:to_remove_by => step.id)
+          end
+        else
+          marked_facts_to_destroy.push(facts_to_remove)
+        end
       end
     end
     if assets && facts

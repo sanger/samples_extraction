@@ -125,11 +125,13 @@ ActiveRecord::Schema.define(version: 20160723210242) do
 
   create_table "facts", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "asset_id"
-    t.string   "predicate",                 null: false
+    t.string   "predicate",                   null: false
     t.string   "object"
-    t.boolean  "literal",    default: true, null: false
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+    t.boolean  "literal",      default: true, null: false
+    t.integer  "to_add_by"
+    t.integer  "to_remove_by"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
     t.index ["asset_id"], name: "index_facts_on_asset_id", using: :btree
   end
 
@@ -215,6 +217,7 @@ ActiveRecord::Schema.define(version: 20160723210242) do
     t.date     "completion_date"
     t.integer  "activity_id"
     t.integer  "asset_group_id"
+    t.boolean  "in_progress?",    default: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.index ["activity_id"], name: "index_steps_on_activity_id", using: :btree

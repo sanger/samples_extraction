@@ -143,12 +143,25 @@ class ActivitiesController < ApplicationController
     end
   end
 
+  def params_for_step_in_progress
+    if params[:step_params]
+      if params[:step_params][:barcode]
+        params[:step_params][:assets] = params[:step_params][:barcode].values.map do |b|
+          Asset.find_by_barcode!(b)
+        end
+      end
+      return params[:step_params]
+    else
+      {}
+    end
+  end
+
   def perform_previous_step_type
     if params[:step_type]
       valid_step_types = @activity.step_types_for(@assets)
       step_type_to_do = @activity.step_types.find_by_id!(params[:step_type])
       if valid_step_types.include?(step_type_to_do)
-        @step_performed = @activity.create_step(step_type_to_do, @user)
+        @step_performed = @activity.create_step(step_type_to_do, @user, params_for_step_in_progress)
         @upload_ids.each do |upload_id|
           @step_performed.uploads << Upload.find_by_id!(upload_id)
         end
