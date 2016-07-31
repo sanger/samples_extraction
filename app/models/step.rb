@@ -7,6 +7,7 @@ class Step < ActiveRecord::Base
   has_many :operations
 
   after_create :execute_actions
+
   before_save :assets_compatible_with_step_type
 
   class RelationCardinality < StandardError
@@ -67,13 +68,8 @@ class Step < ActiveRecord::Base
     end
   end
 
-  def unselect_groups
-    step_type.condition_groups.each do |condition_group|
-      unless condition_group.keep_selected
-        unselect_assets = asset_group.assets.includes(:facts).select{|asset| condition_group.compatible_with?(asset)}
-        asset_group.assets.delete(unselect_assets) if unselect_assets
-      end
-    end
+  def unselect_assets
+    asset_group.unselect_assets_with_conditions(step_type.condition_groups)
   end
 
   def execute_actions
@@ -81,9 +77,11 @@ class Step < ActiveRecord::Base
       created_assets = {}
       list_to_destroy = []
       classify_assets.each do |asset, r|
-        r.execute(self, asset, created_assets, list_to_destroy)
+        r.execute(self, asset_group, asset, created_assets, list_to_destroy)
       end
-      unselect_groups
+
+      unselect_assets
+
       Fact.where(:id => list_to_destroy.flatten.compact.pluck(:id)).delete_all
     end
   end

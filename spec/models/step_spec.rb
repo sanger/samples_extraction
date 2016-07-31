@@ -3,6 +3,13 @@ require 'rails_helper'
 RSpec.describe Step, type: :model do
   Struct.new('FakeFact', :predicate, :object)
 
+  def create_step
+    FactoryGirl.create(:step, {
+      :step_type =>@step_type,
+      :asset_group => @asset_group
+    })
+  end
+
   describe '#execute_actions' do
     setup do
       @step_type = FactoryGirl.create :step_type
@@ -30,7 +37,7 @@ RSpec.describe Step, type: :model do
       it 'raises an exception if assets are not compatible with step_type' do
         @cg1.update_attributes(:cardinality => 1)
         expect{
-          @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+          @step = create_step
           }.to raise_error(ActiveRecord::RecordNotSaved)
       end
     end
@@ -48,7 +55,7 @@ RSpec.describe Step, type: :model do
 
       it 'creates an asset for each input and adds it to the asset group' do
         previous_num = @asset_group.assets.count
-        @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+        @step = create_step
 
         @asset_group.reload
         assets_created = Asset.with_fact('is', 'NewTube')
@@ -62,7 +69,7 @@ RSpec.describe Step, type: :model do
       it 'cardinality restricts the number of assets created when it is below the number of inputs' do
         previous_num = @asset_group.assets.count
         @cg3.update_attributes(:cardinality => 6)
-        @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+        @step = create_step
 
         @asset_group.reload
         assets_created = Asset.with_fact('is', 'NewTube')
@@ -76,7 +83,7 @@ RSpec.describe Step, type: :model do
       it 'cardinality does not restrict the number of assets created when it is over the number of inputs' do
         previous_num = @asset_group.assets.count
         @cg3.update_attributes(:cardinality => @tubes.length + @racks.length + 2)
-        @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+        @step = create_step
 
         @asset_group.reload
         assets_created = Asset.with_fact('is', 'NewTube')
@@ -93,7 +100,7 @@ RSpec.describe Step, type: :model do
           :predicate => 'has', :object => "MoreData", :subject_condition_group => @cg3})
         @step_type.actions << action
 
-        @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+        @step = create_step
         @asset_group.reload
         assets_created = Asset.with_fact('has', 'MoreData')
         assets2_created = Asset.with_fact('is', 'NewTube')
@@ -113,7 +120,7 @@ RSpec.describe Step, type: :model do
         @step_type.actions << action
 
         expect{
-          @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+          @step = create_step
           }.to raise_error Step::UnknownConditionGroup
         expect(Operation.all.count).to eq(0)
       end
@@ -133,7 +140,7 @@ RSpec.describe Step, type: :model do
         @asset_group.assets.reload
         assert_equal true, @tubes.all?{|tube| @asset_group.assets.include?(tube)}
 
-        @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+        @step = create_step
 
         assert_equal false, @tubes.any?{|tube| @asset_group.assets.include?(tube)}
         expect(Operation.all.count).to eq(@tubes.length)
@@ -150,7 +157,7 @@ RSpec.describe Step, type: :model do
 
         it 'adds the fact to the matched assets' do
           @asset_group.assets.reload
-          @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+          @step = create_step
           @tubes.each(&:reload)
           @tubes.each do |asset|
             assert_equal true, asset.has_fact?(@action)
@@ -172,7 +179,7 @@ RSpec.describe Step, type: :model do
             @asset_group.update_attributes(:assets => [@tubes.first, @racks].flatten)
             @cg1.update_attributes(:cardinality => 1)
 
-            @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+            @step = create_step
 
             @tubes.each(&:reload)
             @racks.each(&:reload)
@@ -191,7 +198,7 @@ RSpec.describe Step, type: :model do
             @asset_group.update_attributes(:assets => [@tubes, @racks.first].flatten)
             @cg2.update_attributes(:cardinality => 1)
 
-            @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+            @step = create_step
 
             @tubes.each(&:reload)
             @racks.each(&:reload)
@@ -210,7 +217,7 @@ RSpec.describe Step, type: :model do
             @cg1.update_attributes(:cardinality => 1)
             @cg2.update_attributes(:cardinality => 1)
 
-            @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+            @step = create_step
 
             @tubes.each(&:reload)
             @racks.each(&:reload)
@@ -223,7 +230,7 @@ RSpec.describe Step, type: :model do
           it 'connects N to N if no cardinality is set' do
             @asset_group.update_attributes(:assets => [@tubes, @racks].flatten)
 
-            @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+            @step = create_step
 
             @tubes.each(&:reload)
             @racks.each(&:reload)
@@ -257,7 +264,7 @@ RSpec.describe Step, type: :model do
             @action2.update_attributes(:subject_condition_group => @cg1)
           end
           it 'adds all the facts to all the assets of the condition group' do
-            FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+            create_step
             @tubes.each(&:reload)
             @tubes.each do |asset|
               assert_equal true, asset.has_fact?(@action)
@@ -280,7 +287,7 @@ RSpec.describe Step, type: :model do
           end
 
           it 'adds the specific facts to the assets of the specific condition group' do
-            FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+            create_step
             @tubes.each(&:reload)
             @tubes.each do |asset|
               assert_equal true, asset.has_fact?(@action)
@@ -313,7 +320,7 @@ RSpec.describe Step, type: :model do
             assert_equal true, asset.has_fact?(@action)
           end
 
-          @step = FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+          @step = create_step
           @tubes.each(&:reload)
           @tubes.each do |asset|
             assert_equal false, asset.has_fact?(@action)
@@ -342,7 +349,7 @@ RSpec.describe Step, type: :model do
           assert_equal 1, @tubes.first.facts.select{|f| f.predicate == 'relatesTo'}.length
 
           @asset_group.update_attributes(:assets => [@tubes.first, @racks.first].flatten)
-          FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+          create_step
 
           @tubes.each(&:reload)
           @racks.each(&:reload)
@@ -366,7 +373,7 @@ RSpec.describe Step, type: :model do
               assert_equal true, (tube.facts.select{|f| f.predicate == 'relatesTo'}.length>0)
             end
 
-            FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+            create_step
 
             @tubes.each(&:reload)
             @racks.each(&:reload)
@@ -401,7 +408,7 @@ RSpec.describe Step, type: :model do
               assert_equal true, (rack.facts.select{|f| f.predicate == 'relatesTo'}.length>0)
             end
 
-            FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+            create_step
 
             @tubes.each(&:reload)
             @racks.each(&:reload)
@@ -446,7 +453,7 @@ RSpec.describe Step, type: :model do
               assert_equal true, asset.has_fact?(@action2)
             end
 
-            FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+            create_step
             @tubes.each(&:reload)
             @tubes.each do |asset|
               assert_equal false, asset.has_fact?(@action)
@@ -479,7 +486,7 @@ RSpec.describe Step, type: :model do
               assert_equal true, asset.has_fact?(@action2)
             end
 
-            FactoryGirl.create(:step, {:step_type =>@step_type, :asset_group => @asset_group})
+            create_step
 
             @tubes.each(&:reload)
             @tubes.each do |asset|

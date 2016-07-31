@@ -49,9 +49,7 @@ class Activity < ActiveRecord::Base
   end
 
   def create_step(step_type, user)
-    group = AssetGroup.create
-    group.assets << asset_group.assets
-    step = steps.create(:step_type => step_type, :asset_group_id => group.id, :user_id => user.id)
+    steps.create(:step_type => step_type, :asset_group_id => asset_group.id, :user_id => user.id)
   end
 
 end

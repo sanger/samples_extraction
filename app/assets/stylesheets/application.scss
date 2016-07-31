@@ -294,3 +294,24 @@ header, .blurheader {
     fill: red;
   }
 }
+
+
+/**
+* Navbar
+*/
+form.search-form .input-group-btn { display:flex; }
+
+@media (min-width: 768px)
+{
+  body nav {
+    .container-fluid {
+      border-bottom: 1px solid;
+      border-color: #e7e7e7;
+    };
+    .navbar-collapse {
+      background-color: #fff;
+      border-radius: 4px;
+    };
+  };
+}
+
