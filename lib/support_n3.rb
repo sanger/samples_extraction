@@ -152,7 +152,7 @@ module SupportN3
     end
 
     def step_template
-      value = @quads.select{|quad| fragment(quad[1]) == 'stepTemplate'}.flatten[2]
+      value = actions.select{|quad| fragment(quad[1]) == 'stepTemplate'}.flatten[2]
       fragment(value) unless value.nil?
     end
 

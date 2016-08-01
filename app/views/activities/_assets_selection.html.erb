@@ -3,6 +3,18 @@
   <input type="hidden" name="delete_barcode" value="" />
   <label class="control-label">What do I have?</label>
   <div class="panel panel-default">
+    <div class="panel-header">
+      <label for="add_barcode" class="control-label">Add a barcode</label>
+      <div class="input-group">
+        <input name='add_barcode' class="form-control" type='text' placeholder='Scan a barcode' />
+        <span class="input-group-btn">
+          <%= button_tag(class: "btn btn-default") do %>
+             <span class="glyphicon glyphicon-arrow-down"></span>
+          <% end %>
+        </span>
+      </div>
+
+    </div>
     <div class="panel-body">
       <!-- % if !@assets.empty? % -->
       <table class="table table-condensed">
@@ -26,15 +38,6 @@
       <%# end % -- #%>
     </div>
     <div class="panel-footer">
-      <label for="add_barcode" class="control-label">Add a barcode</label>
-      <div class="input-group">
-        <input name='add_barcode' class="form-control" type='text' placeholder='Scan a barcode' />
-        <span class="input-group-btn">
-          <%= button_tag(class: "btn btn-default") do %>
-             <span class="glyphicon glyphicon-arrow-up"></span>
-          <% end %>
-        </span>
-      </div>
     </div>
   </div>
   <% end %>

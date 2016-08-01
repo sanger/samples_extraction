@@ -110,6 +110,7 @@ class Step < ActiveRecord::Base
       classify_assets.each do |asset, r|
         r.execute(self, asset_group, asset, created_assets, nil)
       end
+      asset_group.update_attributes(:assets => [])
     end
 
     #activity.asset_group.update_attributes(:assets => activity.asset_group.assets - assets)
