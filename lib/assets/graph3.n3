@@ -29,12 +29,11 @@
   ?p :is :Full .
   ?q :has :Barcode2D .
   ?q :is :Empty .
-  ?r :is :Empty .
 } => {
   :step :stepTypeName """Transfer 1D to 2D tubes""" .
   :step :stepTemplate """transfer_tube_to_tube""" .
   :step :unselectAsset ?p .
-  :step :unselectAsset ?r .
+  :step :unselectAsset {?r :is :Empty.}.
   :step :removeFacts {
     ?p :is :Full .
     ?q :is :Empty .

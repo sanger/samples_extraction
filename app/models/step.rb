@@ -68,8 +68,20 @@ class Step < ActiveRecord::Base
     end
   end
 
-  def unselect_assets
-    activity.asset_group.unselect_assets_with_conditions(step_type.condition_groups)
+  def unselect_assets_from_antecedents
+    asset_group.unselect_assets_with_conditions(step_type.condition_groups)
+    if activity
+      activity.asset_group.unselect_assets_with_conditions(step_type.condition_groups)
+    end
+  end
+
+  def unselect_assets_from_consequents
+    asset_group.unselect_assets_with_conditions(step_type.action_subject_condition_groups)
+    asset_group.unselect_assets_with_conditions(step_type.action_object_condition_groups)
+    if activity
+      activity.asset_group.unselect_assets_with_conditions(step_type.action_subject_condition_groups)
+      activity.asset_group.unselect_assets_with_conditions(step_type.action_object_condition_groups)
+    end
   end
 
   def execute_actions
@@ -80,9 +92,11 @@ class Step < ActiveRecord::Base
         r.execute(self, asset_group, asset, created_assets, list_to_destroy)
       end
 
-      unselect_assets
+      unselect_assets_from_antecedents
 
       Fact.where(:id => list_to_destroy.flatten.compact.pluck(:id)).delete_all
+
+      unselect_assets_from_consequents
     end
   end
 
@@ -103,9 +117,10 @@ class Step < ActiveRecord::Base
 
   def finish_with(assets)
     ActiveRecord::Base.transaction do |t|
-      unselect_assets
+      unselect_assets_from_antecedents
       Fact.where(:to_remove_by => self.id).delete_all
       Fact.where(:to_add_by => self.id).update_all(:to_add_by => nil)
+      unselect_assets_from_consequents
       update_attributes(:in_progress? => false)
     end
   end

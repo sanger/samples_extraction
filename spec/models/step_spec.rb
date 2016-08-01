@@ -125,6 +125,33 @@ RSpec.describe Step, type: :model do
         expect(Operation.all.count).to eq(0)
       end
 
+      describe 'with overlapping assets' do
+        setup do
+          @tubes_and_racks = 7.times.map do
+            FactoryGirl.create(:asset, { :facts => [
+              FactoryGirl.create(:fact, :predicate => 'is', :object => 'Rack'),
+              FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube')
+              ]})
+          end
+          @asset_group.assets << @tubes_and_racks
+        end
+
+        it 'creates assets also for the overlapped assets' do
+          previous_num = @asset_group.assets.count
+          @step = create_step
+
+          @asset_group.reload
+          assets_created = Asset.with_fact('is', 'NewTube')
+          expect(previous_num).not_to eq(@asset_group.assets.count)
+          expect(assets_created.length).to eq(previous_num)
+          expect(assets_created.length+previous_num).to eq(@asset_group.assets.count)
+
+          expect(Operation.all.count).to eq(assets_created.count)
+        end
+      end
+
+
+
     end
 
     describe 'with unselectAsset action type' do
@@ -145,6 +172,32 @@ RSpec.describe Step, type: :model do
         assert_equal false, @tubes.any?{|tube| @asset_group.assets.include?(tube)}
         expect(Operation.all.count).to eq(@tubes.length)
       end
+
+      describe 'with overlapping assets' do
+        setup do
+          @tubes_and_racks = 7.times.map do
+            FactoryGirl.create(:asset, { :facts => [
+              FactoryGirl.create(:fact, :predicate => 'is', :object => 'Rack'),
+              FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube')
+              ]})
+          end
+          @asset_group.assets << @tubes_and_racks
+        end
+
+        it 'unselects the overlapped assets' do
+          @cg1.update_attributes(:keep_selected => false)
+
+          @asset_group.assets.reload
+          assert_equal true, [@tubes, @tubes_and_racks].flatten.all?{|tube| @asset_group.assets.include?(tube)}
+
+          @step = create_step
+
+          assert_equal false, [@tubes, @tubes_and_racks].flatten.all?{|tube| @asset_group.assets.include?(tube)}
+          expect(Operation.all.count).to eq([@tubes, @tubes_and_racks].flatten.length)
+        end
+      end
+
+
     end
 
     describe 'with addFacts action_type' do
@@ -243,6 +296,37 @@ RSpec.describe Step, type: :model do
             end
             expect(Operation.all.count).to eq(@racks.length*@tubes.length)
           end
+
+          describe 'with overlapping assets' do
+            setup do
+              @tubes_and_racks = 7.times.map do
+                FactoryGirl.create(:asset, { :facts => [
+                  FactoryGirl.create(:fact, :predicate => 'is', :object => 'Rack'),
+                  FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube')
+                  ]})
+              end
+              @asset_group.assets << @tubes_and_racks
+            end
+
+            it 'connects overlapped assets with themselves as consequence of the condition' do
+              @asset_group.assets.reload
+
+              @step = create_step
+
+              @tubes.each(&:reload)
+              @racks.each(&:reload)
+              @tubes_and_racks.each(&:reload)
+
+              [@tubes, @tubes_and_racks].flatten.each do |tube|
+                [@racks,  @tubes_and_racks].flatten.each do |rack|
+                  assert_equal true, tube.has_fact?(Struct::FakeFact.new(@action.predicate,
+                    rack.relation_id))
+                end
+              end
+              expect(Operation.all.count).to eq((@racks.length+@tubes_and_racks.length)*(@tubes.length+@tubes_and_racks.length))
+            end
+          end
+
         end
       end
 

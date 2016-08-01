@@ -104,6 +104,23 @@ RSpec.describe SupportN3 do
         a = ConditionGroup.find_by_name('a')
         assert_equal a, Action.first.subject_condition_group
       end
+
+      it '{?a :is :Tube . }=>{ :step :unselectAsset {?b :is :Tube.}.}.' do
+        validates_rule_with({
+          ConditionGroup => [
+            {:name => 'a',:step_type => @step_type, :cardinality => nil,
+            :keep_selected => true},
+            {:name => 'b',:step_type => nil, :cardinality => nil,
+            :keep_selected => false}],
+          Condition => [{:predicate => 'is', :object => 'Tube'},
+            {:predicate => 'is', :object => 'Tube'}],
+          Action => [{:action_type => 'unselectAsset',
+                     :predicate => 'is', :object => 'Tube',
+                     :object_condition_group => nil,
+                     :step_type_id => @step_type.id}
+                    ]})
+        assert_equal Action.first.subject_condition_group, ConditionGroup.last
+      end
     end
 
     describe "with rules that create a relation between two matches" do
