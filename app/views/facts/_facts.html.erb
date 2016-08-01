@@ -3,7 +3,7 @@
   <!-- img src="/assets/tube.svg" style="width: 50px; float:left;" / -->
   <% type = facts.select{|f| f.predicate == 'a'} %>
   <% if type.length > 0 %>
-    <div class='svg'><%= svg type[0].object %></div>
+    <div class='svg'><%#= svg type[0].object %></div>
   <% end %>
   <% facts.each do |fact| %>
     <%= render :partial => 'facts/fact', :locals => { :fact => fact} %>

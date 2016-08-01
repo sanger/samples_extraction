@@ -32,6 +32,8 @@ module SupportN3
 
   def self.activity_type(quads)
     name = quads.select{|quad| fragment(quad[1]) == 'activityTypeName'}.flatten[2].to_s
+    return ActivityType.find_by({ :name => name, :superceded_by_id => nil })
+    name = quads.select{|quad| fragment(quad[1]) == 'activityTypeName'}.flatten[2].to_s
     unless name.empty?
       old_activity_type = ActivityType.find_by({ :name => name, :superceded_by_id => nil })
     end

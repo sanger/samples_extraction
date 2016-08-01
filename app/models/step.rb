@@ -69,7 +69,7 @@ class Step < ActiveRecord::Base
   end
 
   def unselect_assets
-    asset_group.unselect_assets_with_conditions(step_type.condition_groups)
+    activity.asset_group.unselect_assets_with_conditions(step_type.condition_groups)
   end
 
   def execute_actions
