@@ -1,9 +1,6 @@
 require 'rails_helper'
 require 'support_n3'
 RSpec.describe SupportN3 do
-  setup do
-    @step_type = FactoryGirl.create :step_type
-  end
 
   def validates_parsed(obj)
     obj.each do |class_instance, instances_list|
@@ -16,10 +13,18 @@ RSpec.describe SupportN3 do
     end
   end
 
-  def validates_rule_with(parsed_obj)
-    rule=RSpec.current_example.metadata[:description]
+  def validate_all_rules(rules, parsed_obj)
+    SupportN3.parse_string(rules, {}, nil)
+    validates_parsed(parsed_obj)
+  end
+
+  def validates_rule(rule, parsed_obj)
     SupportN3.parse_string(rule, {}, @step_type)
     validates_parsed(parsed_obj)
+  end
+
+  def validates_rule_with(parsed_obj)
+    validates_rule(RSpec.current_example.metadata[:description], parsed_obj)
   end
 
   it 'parses correct N3 files' do
@@ -27,6 +32,10 @@ RSpec.describe SupportN3 do
   end
 
   describe "parses individual rules generating the right content" do
+    setup do
+      @step_type = FactoryGirl.create :step_type
+    end
+
     describe "with rules that remove facts" do
       it '{?x :a :Tube .} => { :step :removeFacts {?x :has :RNA .}.}.' do
         validates_rule_with({
@@ -149,5 +158,98 @@ RSpec.describe SupportN3 do
           assert_equal q, af.object_condition_group
       end
     end
+  end
+
+  describe 'while parsing several rules' do
+    it 'updates the step type created with the supplied name' do
+      validate_all_rules('
+        {?p :is :M .}=>{:step :addFacts {?p :is :G.}. :step :stepTypeName """A"""}.
+        {?p :is :G .}=>{:step :addFacts {?p :is :M.}.}.',{
+          ConditionGroup => [
+            {:name => 'p',
+            :cardinality => nil, :keep_selected => true},
+            {:name => 'p',
+              :cardinality => nil, :keep_selected => true}
+              ],
+          StepType => [{:name => 'A'}, {}],
+          Condition => [{:predicate => 'is', :object=> 'M'},
+            {:predicate => 'is', :object => 'G'}],
+          Action => [{:action_type => 'addFacts',
+                      :predicate => 'is',
+                      :object => 'G'},
+                     {:action_type => 'addFacts',
+                      :predicate => 'is',
+                      :object => 'M'}]
+          })
+      expect(ConditionGroup.first.step_type).to eq(StepType.first)
+      expect(ConditionGroup.last.step_type).to eq(StepType.last)
+    end
+
+    it 'applies cardinality to the right condition group of the right step' do
+      validate_all_rules('
+        {?p :is :M . ?p :maxCardinality """1""".}=>{:step :createAsset {?q :is :M.}.}.
+        {?p :is :G . ?p :maxCardinality """2""".}=>{:step :createAsset {?q :is :G.}.}.',{
+          ConditionGroup => [
+            {:name => 'p',
+            :cardinality => 1, :keep_selected => true},
+            {:name => 'q',
+            :cardinality => nil, :keep_selected => true},
+            {:name => 'p',
+              :cardinality => 2, :keep_selected => true},
+            {:name => 'q',
+            :cardinality => nil, :keep_selected => true}
+              ],
+          Condition => [{:predicate => 'is', :object=> 'M'},
+            {:predicate => 'is', :object => 'G'}],
+          Action => [{:action_type => 'createAsset',
+                      :predicate => 'is',
+                      :object => 'M'},
+                     {:action_type => 'createAsset',
+                      :predicate => 'is',
+                      :object => 'G'}]
+          })
+      expect(StepType.all.count).to eq(2)
+      expect(StepType.first.condition_groups.count).to eq(1)
+      expect(StepType.last.condition_groups.count).to eq(1)
+
+      expect(StepType.first.actions.first.subject_condition_group.cardinality).to eq(nil)
+      expect(StepType.first.condition_groups.first.cardinality).to eq(1)
+      expect(StepType.last.actions.first.subject_condition_group.cardinality).to eq(nil)
+      expect(StepType.last.condition_groups.first.cardinality).to eq(2)
+    end
+
+    it 'applies unselectAsset to the right condition group of the right step' do
+      validate_all_rules('
+        {?p :is :M .}=>{:step :createAsset {?q :is :M.}. :step :unselectAsset ?q .}.
+        {?p :is :G .}=>{:step :createAsset {?q :is :G.}. :step :unselectAsset ?p .}.',{
+          ConditionGroup => [
+            {:name => 'p',
+            :cardinality => nil, :keep_selected => true},
+            {:name => 'q',
+            :cardinality => nil, :keep_selected => false},
+            {:name => 'p',
+              :cardinality => nil, :keep_selected => false},
+            {:name => 'q',
+            :cardinality => nil, :keep_selected => true}
+              ],
+          Condition => [{:predicate => 'is', :object=> 'M'},
+            {:predicate => 'is', :object => 'G'}],
+          Action => [{:action_type => 'createAsset',
+                      :predicate => 'is',
+                      :object => 'M'},
+                     {:action_type => 'createAsset',
+                      :predicate => 'is',
+                      :object => 'G'}]
+          })
+      expect(StepType.all.count).to eq(2)
+      expect(StepType.first.condition_groups.count).to eq(1)
+      expect(StepType.last.condition_groups.count).to eq(1)
+
+      expect(StepType.first.condition_groups.first.keep_selected).to eq(true)
+      expect(StepType.first.actions.first.subject_condition_group.keep_selected).to eq(false)
+      expect(StepType.last.condition_groups.first.keep_selected).to eq(false)
+      expect(StepType.last.actions.first.subject_condition_group.keep_selected).to eq(true)
+    end
+
   end
 end
