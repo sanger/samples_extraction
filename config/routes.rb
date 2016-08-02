@@ -35,6 +35,9 @@ Rails.application.routes.draw do
   get 'activities/:id/steps_finished' => 'activities#steps_finished'
   get 'activities/:id/steps_finished_with_operations/:step_id' => 'activities#steps_finished_with_operations'
 
+
+  get 'reracking/steps_finished' => 'reracking#steps_finished'
+
   if (ENV["RAILS_ENV"]==:debug)
     mount Peek::Railtie => '/peek'
   end

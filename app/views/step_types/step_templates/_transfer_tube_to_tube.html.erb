@@ -1,32 +1,10 @@
 <%= bootstrap_form_for @activity, action: 'update', class: 'step-template-form' do |f| %>
-
-<div >
-<label for="source" class="control-label">Scan a source</label>
-<div class="input-group">
-  <input autocomplete="off" name='step_params[barcode][0]' class="form-control" type='text' placeholder='Scan a source' />
-</div>
-
-<label for="target" class="control-label">Scan a destination</label>
-<div class="input-group">
-  <input autocomplete="off" name='step_params[barcode][1]' class="form-control" type='text' placeholder='Scan a destination' />
-</div>
-
-
-
   <input type="hidden" name="step_type" value="<%= step_type.id %>" />
   <input type="hidden" name="user_barcode" value="" />
   <input type="hidden" name='step_params[state][in_progress]' value='true' />
 
-  <button class="button btn btn-default">Transfer</button>
-  <a id="next" class="button btn btn-default">Next</a>
+
+<div data-psd-component-class="SourceToDestination" data-psd-component-parameters='{"template": "templates/source_to_destination", "names": <%= step_type.condition_groups.map(&:name) %>, "identifiers": <%= step_type.condition_groups.map(&:id) %>, "pairingName": "step_params[pairings]"}'></div>
+
 <% end %>
 
-<script type="text/javascript">
-(function() {
-  $('#next').on('click', function() {
-    $('.step-template-view form').submit();
-    });
-  }());
-
-</script>
-</div>

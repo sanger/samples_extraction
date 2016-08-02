@@ -8,10 +8,10 @@ class ActivitiesController < ApplicationController
   before_action :set_user, only: [:update]
 
   before_action :set_uploaded_files, only: [:update]
-  before_action :perform_previous_step_type, only: [:update]
-
+  before_action :set_params_for_step_in_progress, only: [:update]
 
   def update
+    perform_previous_step_type
     @activity.finish unless params[:finish].nil?
     @step_types = @activity.step_types_for(@assets)
     @steps = @activity.previous_steps
@@ -143,16 +143,25 @@ class ActivitiesController < ApplicationController
     end
   end
 
-  def params_for_step_in_progress
+  def set_params_for_step_in_progress
     if params[:step_params]
-      if params[:step_params][:barcode]
-        params[:step_params][:assets] = params[:step_params][:barcode].values.map do |b|
-          Asset.find_by_barcode!(b)
+      if params[:step_params][:pairings]
+        step_type = @activity.step_types.find_by_id!(params[:step_type])
+        @pairings = params[:step_params][:pairings].values.map do |obj|
+          Pairing.new(obj, step_type)
+        end
+        unless @pairings.all?(&:valid?)
+          flash[:danger] = @pairings.map(&:error_messages).join('\n')
+          redirect_to :back
+        end
+
+        @in_progress_params = @pairings.map do |pairing|
+          {
+          :assets => pairing.assets,
+          :state => params[:step_params][:state]
+          }
         end
       end
-      return params[:step_params]
-    else
-      {}
     end
   end
 
@@ -161,7 +170,7 @@ class ActivitiesController < ApplicationController
       valid_step_types = @activity.step_types_for(@assets)
       step_type_to_do = @activity.step_types.find_by_id!(params[:step_type])
       if valid_step_types.include?(step_type_to_do)
-        @step_performed = @activity.create_step(step_type_to_do, @user, params_for_step_in_progress)
+        @step_performed = @activity.step(step_type_to_do, @user, @in_progress_params)
         @upload_ids.each do |upload_id|
           @step_performed.uploads << Upload.find_by_id!(upload_id)
         end

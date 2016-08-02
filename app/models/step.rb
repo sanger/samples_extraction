@@ -6,6 +6,8 @@ class Step < ActiveRecord::Base
   has_many :uploads
   has_many :operations
 
+  scope :in_progress, ->() { where(:in_progress? => true)}
+
   after_create :execute_actions, :unless => :in_progress?
 
   before_save :assets_compatible_with_step_type, :unless => :in_progress?
@@ -24,7 +26,7 @@ class Step < ActiveRecord::Base
     }) }
 
   def assets_compatible_with_step_type
-    throw :abort unless step_type.compatible_with?(asset_group.assets)
+    throw :abort unless step_type.compatible_with?(asset_group.assets) || (asset_group.assets.count == 0)
   end
 
   # Identifies which asset acting as subject is compatible with which rule.
@@ -85,6 +87,7 @@ class Step < ActiveRecord::Base
   end
 
   def execute_actions
+    return progress_with(asset_group.assets) if in_progress?
     ActiveRecord::Base.transaction do |t|
       created_assets = {}
       list_to_destroy = []
@@ -100,7 +103,8 @@ class Step < ActiveRecord::Base
     end
   end
 
-  def progress_with(assets)
+  def progress_with(step_params)
+    assets = step_params[:assets]
     ActiveRecord::Base.transaction do |t|
       update_attributes(:in_progress? => true)
 
@@ -113,10 +117,10 @@ class Step < ActiveRecord::Base
       asset_group.update_attributes(:assets => [])
     end
 
-    #activity.asset_group.update_attributes(:assets => activity.asset_group.assets - assets)
+    finish if step_params[:state][:done]
   end
 
-  def finish_with(assets)
+  def finish
     ActiveRecord::Base.transaction do |t|
       unselect_assets_from_antecedents
       Fact.where(:to_remove_by => self.id).delete_all
