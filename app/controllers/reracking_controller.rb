@@ -1,8 +1,20 @@
-class RerackingController < ActivitiesController
+class RerackingController < ApplicationController
 
   before_action :set_instrument
+  before_action :set_activity_type
 
 
+  before_action :set_activity, :only => [:update, :show]
+
+  def set_activity_type
+    @activity_type = ActivityType.find_by_name('Re-Racking')
+  end
+
+  def set_activity
+    @activity = Activity.find_by_id(params[:id])
+    @asset_group = @activity.asset_group
+    @assets = @asset_group.assets
+  end
 
   def set_instrument
     @instrument = Instrument.first
@@ -10,20 +22,31 @@ class RerackingController < ActivitiesController
   end
 
   def index
+    @activity = Reracking.new
+  end
+
+  def update
+  end
+
+  def show
+    respond_to do |format|
+      format.html { render :update }
+    end
   end
 
   def create
     @asset_group = AssetGroup.create
-    @activity_type = ActivityType.find_by_name('Reracking') || ActivityType.first
-    @activity = @activity_type.activities.create(
-      :instrument => @instrument,
+    @assets = @asset_group.assets
+
+    @activity = Reracking.new(
       :activity_type => @activity_type,
       :asset_group => @asset_group,
+      :instrument => @instrument,
+      :kit => @kit
       )
-
     respond_to do |format|
       if @activity.save
-        format.html
+        format.html { redirect_to @activity, notice: 'Activity was successfully created.' }
       else
         format.html { render :new }
         format.json { render json: @activity.errors, status: :unprocessable_entity }

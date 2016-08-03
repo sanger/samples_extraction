@@ -92,4 +92,5 @@ User.create!(:barcode => 1, :username => 'test', :fullname => 'Testing user')
 require 'support_n3'
 SupportN3.parse_file("lib/assets/graph3.n3")
 SupportN3.parse_file("lib/assets/graph2.n3")
+SupportN3.parse_file("lib/assets/reracking.n3")
 

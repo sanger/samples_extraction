@@ -135,7 +135,7 @@ module SupportN3
 
     def activity_type
       name = @quads.select{|quad| fragment(quad[1]) == 'activityTypeName'}.flatten[2].to_s
-      return ActivityType.find_by({ :name => name, :superceded_by_id => nil })
+      return ActivityType.find_or_create_by!(:name => name)
     end
 
     def config_step_type

@@ -1,0 +1,2 @@
+class Reracking < Activity
+end

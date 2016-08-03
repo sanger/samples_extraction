@@ -1,0 +1,20 @@
+:activity :activityTypeName """Re-Racking""" .
+
+{
+  ?p :a :TubeRack.
+  ?q :maxCardinality """1""".
+  ?q :maxCardinality """1""".
+} => {
+  :step :stepTypeName """Re-Racking""".
+  :step :stepTemplate """upload_file_step""".
+  :step :createAsset {
+    ?q :a :TubeRack .
+  }.
+  :step :createAsset {
+    ?r :a :Rerack .
+    ?r :source ?p .
+    ?r :target ?q .
+  }.
+  :step :unselectAsset ?r .
+  :step :addFacts { ?p :rerackTo ?q .}.
+}.

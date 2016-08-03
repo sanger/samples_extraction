@@ -11,6 +11,12 @@ Rails.application.routes.draw do
     resources :asset_groups
   end
 
+  resources :reracking do
+    resources :uploads
+    resources :asset_groups
+  end
+
+
   resources :assets, :path => 'labware' do
     collection do
       get 'search'

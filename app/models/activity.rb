@@ -2,8 +2,6 @@ require 'date'
 
 class Activity < ActiveRecord::Base
   validates :activity_type, :presence => true
-  validates :instrument, :presence => true
-  validates :kit, :presence => true
   validates :asset_group, :presence => true
   belongs_to :activity_type
   belongs_to :instrument

@@ -10,6 +10,8 @@ class ActivitiesController < ApplicationController
   before_action :set_uploaded_files, only: [:update]
   before_action :set_params_for_step_in_progress, only: [:update]
 
+  before_action :set_activity_type, only: [:create_without_kit]
+
   def update
     perform_previous_step_type
     @activity.finish unless params[:finish].nil?
@@ -34,6 +36,25 @@ class ActivitiesController < ApplicationController
   end
 
   def index
+  end
+
+  def create_without_kit
+    @asset_group = AssetGroup.create
+    @activity = @activity_type.activities.create(
+      :instrument =>nil,
+      :activity_type => @activity_type,
+      :asset_group => @asset_group,
+      :kit => nil)
+
+    respond_to do |format|
+      if @activity.save
+        format.html { redirect_to @activity, notice: 'Activity was successfully created.' }
+        format.json { render :show, status: :created, location: @activity }
+      else
+        format.html { render :new }
+        format.json { render json: @activity.errors, status: :unprocessable_entity }
+      end
+    end
   end
 
   def create
@@ -114,10 +135,18 @@ class ActivitiesController < ApplicationController
       redirect_to :back
     end
 
+    def set_activity_type
+      @activity_type = ActivityType.find_by_id(params[:activity_type_id])
+    rescue ActiveRecord::RecordNotFound => e
+      flash[:danger] = 'Activity Type not found'
+      redirect_to :back
+    end
+
     def set_instrument
       @instrument = Instrument.find_by_barcode!(params[:instrument_barcode])
     rescue RecordNotFound => e
-
+      flash[:danger] = 'Instrument not found'
+      redirect_to :back
     end
 
     # Use callbacks to share common setup or constraints between actions.

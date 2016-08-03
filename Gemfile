@@ -44,6 +44,9 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 # Use Unicorn as the app server
 # gem 'unicorn'
 
+# Add simple support for print-my barcode)
+gem 'pmb-client', '0.1.0', :github => 'sanger/pmb-client'
+
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
