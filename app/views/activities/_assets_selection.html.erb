@@ -1,5 +1,7 @@
 <div class="form-group">
+  <!-- %= bootstrap_form_for [@activity, @asset_group], action: 'update', remote: true, html: { :autocomplete => 'off', :"data-psd-asset-group-form" => "1"} do |f| % -->
   <%= bootstrap_form_for [@activity, @asset_group], action: 'update', remote: true, html: { :autocomplete => 'off', :"data-psd-asset-group-form" => "1"} do |f| %>
+
   <input type="hidden" name="delete_barcode" value="" />
   <label class="control-label">What do I have?</label>
   <div class="panel panel-default">
@@ -15,7 +17,22 @@
       </div>
 
     </div>
-    <div class="panel-body">
+    <div class="panel-body ">
+      <a data-toggle="collapse" href="#collapseAssets">
+      <div class="row">
+      <% @assets_grouped.each do |fact_group, assets| %>
+        <div class="col-xs-2">
+          <div class="col-xs-1">
+            <%= render :partial => 'facts/facts', :locals => {:facts =>fact_group, :show_facts => true, :show_image => true} %>
+            <!-- %= svg_for_facts(fact_group) % -->
+          </div> <div class="col-xs-1">&times;<%= assets.count %></div>
+        </div>
+      <% end %>
+      </div>
+        </a>
+    </div>
+    <hr />
+    <div class="panel-body collapse in" id="collapseAssets">
       <!-- % if !@assets.empty? % -->
       <table class="table table-condensed">
         <thead><th>Barcode</th><th>Facts</th><th><span class='pull-right'></span></th></thead>
@@ -24,7 +41,7 @@
             <tr>
               <td><%= asset.barcode %></td>
               <td>
-                <%= render :partial => 'facts/facts', :locals => { :facts => asset.facts } %>
+                <%= render :partial => 'facts/facts', :locals => { :facts => asset.facts, :show_image => true, :show_facts => true } %>
               </td>
               <td>
                 <button class="btn btn-default delete-button" data-psd-asset-group-delete-barcode="<%= asset.barcode %>">Delete</button>

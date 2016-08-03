@@ -14,6 +14,8 @@ class Activity < ActiveRecord::Base
 
   belongs_to :asset_group
 
+  has_many :users, :through => :steps
+
   scope :for_assets, ->(assets) { joins(:asset_group => :assets).where(:asset_group => {
     :asset_groups_assets=> {:asset_id => assets }
     })
@@ -21,6 +23,10 @@ class Activity < ActiveRecord::Base
 
   scope :in_progress, ->() { where('completed_at is null')}
   scope :finished, ->() { where('completed_at is not null')}
+
+  def last_user
+    users.last
+  end
 
   def finish
     update_attributes(:completed_at => DateTime.now)

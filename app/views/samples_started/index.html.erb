@@ -19,13 +19,13 @@
           <% else %>
             <table class='table table-condensed'>
               <thead>
-                <th>Activity id</th><th>Barcode</th><th>Facts</th><th>Completed?</th>
+                <th>Activity id</th><th>Instrument</th><th>Asset</th><th>Facts</th><th>Completed?</th><th>Last user</th>
               </thead>
               <tbody>
                 <% activity_type.activities.each do |activity| %>
                   <% if activity.asset_group.nil? || activity.asset_group.assets.empty? %>
                     <tr><td><%= bootstrap_link_to 'Visit', activity %> <%= activity.id %></td>
-                      <td></td><td></td><td><%= activity.completed_at || 'In progress' %></td>
+                      <td></td><td></td><td></td><td><%= activity.completed_at || 'In progress' %></td><td></td>
                     </tr>
                   <% else %>
                     <% activity.asset_group.assets.each_with_index do |asset, index| %>
@@ -34,10 +34,13 @@
                           <% if index==0 %>
                             <%= bootstrap_link_to 'Visit', activity %> <%= activity.id %>
                           <% end %>
-                        </td><td><%= asset.barcode %></td>
+                        </td>
+                        <td><% if index==0 %><%= activity.instrument.name %> <%= activity.instrument.barcode %><% end %></td>
+                        <td><%= asset.barcode %></td>
                         <td>
                           <%= render :partial => 'facts/facts', :locals => { :facts => asset.facts} %>
                         </td><td><%= activity.completed_at || 'In progress' %></td>
+                        <td><%= (activity.last_user ? activity.last_user.username : 'None') %></td>
                       </tr>
                     <% end %>
                   <% end %>

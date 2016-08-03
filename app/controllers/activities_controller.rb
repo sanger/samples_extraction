@@ -163,6 +163,7 @@ class ActivitiesController < ApplicationController
 
   def select_assets
     @assets = @activity.asset_group.assets.includes(:facts)
+    @assets_grouped = assets_by_fact_group
   end
 
   def set_uploaded_files
@@ -205,6 +206,15 @@ class ActivitiesController < ApplicationController
         end
         @upload_ids=[]
         @assets.reload
+      end
+    end
+  end
+
+  def assets_by_fact_group
+    obj_type = Struct.new(:predicate,:object)
+    @assets.group_by do |a|
+      a.facts.map(&:as_json).map do |f|
+        obj_type.new(f["predicate"], f["object"])
       end
     end
   end

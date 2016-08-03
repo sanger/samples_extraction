@@ -14,6 +14,7 @@ class RerackingController < ApplicationController
     @activity = Activity.find_by_id(params[:id])
     @asset_group = @activity.asset_group
     @assets = @asset_group.assets
+    @assets_grouped=[]
   end
 
   def set_instrument

@@ -43,7 +43,20 @@
   };
 
   proto.getCheckFacts = function() {
-    return this.factsStore.filter(function(fact) { return fact.actionType==='checkFacts'});
+    var checkFacts = [];
+    if (this.getCardinality()!==null) {
+      checkFacts.push({
+        actionType: 'checkFacts',
+        predicate: 'maxCardinality',
+        literal: "\"\"\""+this.getCardinality()+"\"\"\""
+      });
+    }
+    return checkFacts;
+  };
+
+
+  proto.getCardinality = function() {
+    return $("[data-psd-condition-group-cardinality]", this.node).text();
   };
 
   proto.getActionFacts = function() {
@@ -110,11 +123,11 @@
   };
 
   proto.onChangeSelectionCheck = function(e, data) {
-    this.selectAsset = true;
+    this.selectAsset = (data==="open");
   };
 
   proto.isSelected = function() {
-    return true;
+    return this.selectAsset;
   };
 
   proto.attachHandlers = function() {

@@ -16,7 +16,7 @@
       <tr>
         <td><%= asset.barcode %></td>
         <td>
-          <%= render :partial => 'facts/facts', :locals => {:facts => asset.facts} %>
+          <%= render :partial => 'facts/facts', :locals => {:facts => asset.facts, :show_image => true, :show_facts => true} %>
         </td>
         <td><%= bootstrap_link_to 'Show', asset %></td>
         <td><%= bootstrap_link_to 'Edit', edit_asset_path(asset) %></td>

@@ -3,7 +3,6 @@ class CreateInstruments < ActiveRecord::Migration
     create_table :instruments do |t|
       t.string :barcode
       t.string :name
-
       t.timestamps null: false
     end
   end

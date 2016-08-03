@@ -14,4 +14,8 @@ module ApplicationHelper
     end
   end
 
+  def svg_for_facts(facts)
+    svg(facts.select{|f| f.predicate == 'a'}.pluck(:object).first)
+  end
+
 end

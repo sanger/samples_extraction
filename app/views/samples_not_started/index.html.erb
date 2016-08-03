@@ -19,7 +19,7 @@
                 <th>Barcode</th><th>Facts</th>
               </thead>
               <tbody>
-                <% Asset.all.select{|asset| asset.asset_groups.empty?}.each do |asset| %>
+                <% Asset.includes(:facts).with_fact('is','NotStarted').select{|a| activity_type.compatible_with?(a)}.each do |asset| %>
                   <tr>
                     <td><%= asset.barcode %>
                     </td><td></td>
