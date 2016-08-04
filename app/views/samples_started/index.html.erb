@@ -5,16 +5,18 @@
 <div id="samples_started">
 <ul class="nav nav-tabs">
   <% @activity_types.each_with_index do |activity_type, index| %>
-    <li role="presentation" class="<%= 'active' if index==0%>">
-      <a href="#at-<%= activity_type.id %>" aria-controls="at-<%= activity_type.id %>" role="tab" data-toggle="tab"><%= activity_type.name %></a>
+    <li role="presentation" class="<%= 'active' if index==0 %>">
+      <a data-activity-type-id="<%= activity_type.id %>" href="#at-<%= activity_type.id %>" aria-controls="at-<%= activity_type.id %>" role="tab" data-toggle="tab"><%= activity_type.name %></a>
     </li>
   <% end %>
 </ul>
   <div class="tab-content">
-    <% @activity_types.each_with_index do |activity_type, index| %>
+    <% @activities_for_activity_types.each_with_index do |obj, index| %>
+      <% activity_type = obj[:activity_type] %>
+      <% activities = obj[:activities] %>
       <div role="tabpanel" class="tab-pane  <%= 'active' if index==0%>" id="at-<%= activity_type.id %>">
         <div class="panel-body">
-          <% if activity_type.activities.empty? %>
+          <% if activities.nil? || activities.empty? %>
             This activity type has no activities yet.
           <% else %>
             <table class='table table-condensed'>
@@ -22,7 +24,7 @@
                 <th>Activity id</th><th>Instrument</th><th>Asset</th><th>Facts</th><th>Completed?</th><th>Last user</th>
               </thead>
               <tbody>
-                <% activity_type.activities.each do |activity| %>
+                <% activities.each do |activity| %>
                   <% if activity.asset_group.nil? || activity.asset_group.assets.empty? %>
                     <tr><td><%= bootstrap_link_to 'Visit', activity %> <%= activity.id %></td>
                       <td></td><td></td><td></td><td><%= activity.completed_at || 'In progress' %></td><td></td>
@@ -50,6 +52,10 @@
           <% end %>
         </div>
         <div class="panel-footer">
+          <% if activities %>
+            <%= will_paginate activities, renderer: BootstrapPagination::Rails,
+               :params => { :activity_type_id => activity_type.id } %>
+          <% end %>
         </div>
       </div>
     <% end %>
@@ -59,9 +65,10 @@
 
 <script type='text/javascript'>
 (function() {
-  $('#samples_started .nav a').click(function (e) {
-    e.preventDefault()
-    $(this).tab('show')
-  })
+  $('#samples_started .nav li a').each(function(pos, node) {
+    if ($(node).data('activity-type-id')===<%= @activity_type_selected && @activity_type_selected.id %>) {
+      $(node).tab('show');
+    }
+  });
 }());
 </script>
