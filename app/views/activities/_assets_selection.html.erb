@@ -18,22 +18,42 @@
 
     </div>
     <div class="panel-body ">
-      <a data-toggle="collapse" href="#collapseAssets">
+      <div data-toggle="collapse" href="#collapseAssets">
       <div class="row">
       <% @assets_grouped.each do |fact_group, assets| %>
-        <div class="col-xs-2">
-          <div class="col-xs-1">
-            <%= render :partial => 'facts/facts', :locals => {:facts =>fact_group, :show_facts => true, :show_image => true} %>
-            <!-- %= svg_for_facts(fact_group) % -->
-          </div> <div class="col-xs-1">&times;<%= assets.count %></div>
+        <div class="col-xs-4 ">
+          <% if @step_types.length > 0 %>
+            <div class="col-xs-12 condition-group-label">
+              <ul class="list-unstyled">
+                <% fake_asset = Struct.new(:facts).new(fact_group) %>
+                <% @step_types.each do |step_type| %>
+                  <% cgs=step_type.condition_groups.select do |c| %>
+                    <% c.compatible_with?(fake_asset) %>
+                  <% end %>
+                  <% if cgs %>
+                    <li><i><%= cgs.map(&:name).join(',') if cgs %></i> in <b><%= step_type.name %></b></li>
+                  <% end %>
+                <% end %>
+
+              </ul>
+            </div>
+          <% end %>
+          <div class="col-xs-12">
+            <div class="col-xs-6">
+              <%= render :partial => 'facts/facts', :locals => {:facts =>fact_group, :show_facts => true, :show_image => true} %>
+            </div>
+            <div class="col-xs-6">
+              <span class="h4">&times;<%= assets.count %></span>
+            </div>
+          </div>
         </div>
       <% end %>
       </div>
-        </a>
+        </div>
     </div>
     <hr />
     <div class="panel-body collapse in" id="collapseAssets">
-      <!-- % if !@assets.empty? % -->
+      <% unless @assets.empty? %>
       <table class="table table-condensed">
         <thead><th>Barcode</th><th>Facts</th><th><span class='pull-right'></span></th></thead>
         <tbody data-psd-asset-group-content="1">
@@ -50,9 +70,9 @@
           <% end %>
         </tbody>
       </table>
-      <%#-- % else % >
+      <% else %>
         <div class="empty-description"><span>This activity has no assets selected yet.</span></div>
-      <%# end % -- #%>
+      <% end %>
     </div>
     <div class="panel-footer">
     </div>

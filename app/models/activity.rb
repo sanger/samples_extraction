@@ -21,6 +21,9 @@ class Activity < ActiveRecord::Base
     })
   }
 
+  class StepWithoutInputs < StandardError
+  end
+
   scope :in_progress, ->() { where('completed_at is null')}
   scope :finished, ->() { where('completed_at is not null')}
 
@@ -53,8 +56,8 @@ class Activity < ActiveRecord::Base
   end
 
   def step(step_type, user, step_params)
-    step = steps.in_progress.first
-    if step.nil? && step_params.nil?
+    step = steps.in_progress.for_step_type(step_type).first
+    if step.nil? && step_params.nil? && step_type.step_template.nil?
       return steps.create!(:step_type => step_type, :asset_group_id => asset_group.id, :user_id => user.id)
     end
     if step_params
@@ -67,7 +70,11 @@ class Activity < ActiveRecord::Base
         step.progress_with(params)
       end
     else
-      step.finish
+      if step
+        step.finish
+      else
+        raise StepWithoutInputs
+      end
     end
   end
 

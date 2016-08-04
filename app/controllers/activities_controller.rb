@@ -1,6 +1,7 @@
 class ActivitiesController < ApplicationController
   before_action :set_activity, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
   before_action :select_assets, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
+  before_action :select_assets_grouped, nly: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
 
   before_action :set_kit, only: [:create]
   before_action :set_instrument, only: [:create]
@@ -14,6 +15,9 @@ class ActivitiesController < ApplicationController
 
   def update
     perform_previous_step_type
+    select_assets
+    select_assets_grouped
+
     @activity.finish unless params[:finish].nil?
     @step_types = @activity.step_types_for(@assets)
     @steps = @activity.previous_steps
@@ -163,6 +167,10 @@ class ActivitiesController < ApplicationController
 
   def select_assets
     @assets = @activity.asset_group.assets.includes(:facts)
+
+  end
+
+  def select_assets_grouped
     @assets_grouped = assets_by_fact_group
   end
 
@@ -180,6 +188,7 @@ class ActivitiesController < ApplicationController
         @pairings = params[:step_params][:pairings].values.map do |obj|
           Pairing.new(obj, step_type)
         end
+        #debugger
         unless @pairings.all?(&:valid?)
           flash[:danger] = @pairings.map(&:error_messages).join('\n')
           redirect_to :back
@@ -208,9 +217,12 @@ class ActivitiesController < ApplicationController
         @assets.reload
       end
     end
+  rescue Activity::StepWithoutInputs
+    flash[:danger] = 'We could not create a new step because we do not have inputs for it'
   end
 
   def assets_by_fact_group
+    return [] unless @assets
     obj_type = Struct.new(:predicate,:object)
     @assets.group_by do |a|
       a.facts.map(&:as_json).map do |f|

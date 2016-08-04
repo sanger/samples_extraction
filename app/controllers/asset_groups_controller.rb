@@ -7,6 +7,7 @@ class AssetGroupsController < ActionController::Base
 
     @assets = @asset_group.assets
     @assets_grouped = assets_by_fact_group
+    @step_types = @activity.step_types_for(@assets)
 
     respond_to do |format|
       format.html { render :partial => 'activities/assets_selection' }

@@ -25,6 +25,8 @@ class Step < ActiveRecord::Base
     :asset_groups_assets=> {:asset_id => assets }
     }) }
 
+  scope :for_step_type, ->(step_type) { where(:step_type => step_type)}
+
   def assets_compatible_with_step_type
     throw :abort unless step_type.compatible_with?(asset_group.assets) || (asset_group.assets.count == 0)
   end

@@ -2,6 +2,8 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+@import 'bootstrap';
+
 #step_types_active .panel-header {
   position: relative;
   padding-top: 1em;
@@ -22,4 +24,28 @@ body.logged-off ul.step-selection input {
 
 .with-bottom-margin {
   margin-bottom: 1em;
+}
+
+
+.condition-group-label {
+  @extend .alert-info;
+
+  border-style: solid;
+  border-radius: 7px;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  border-width: 2px;
+  margin-bottom: 0.5em;
+}
+
+.condition-group {
+  border-style: dashed;
+  border-width: 1px;
+  border-color: #bbb;
+  padding-top: 1em;
+  padding-bottom: 1em;
+  margin-left: 0.5em;
+  border-radius: 6px;
+  margin-left: 1.5em;
+  margin-top: 1em;
 }
