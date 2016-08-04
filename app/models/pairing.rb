@@ -40,12 +40,12 @@ class Pairing
   def error_messages
     msgs = []
     msgs.push('Some barcodes were not found') unless all_assets_exist?
-    msgs.push('Step requires more inputs') unless all_conditions_exist?
-    msgs.push('Some assets are from a different type') unless group_compatible?
+    msgs.push('Step requires more types of inputs to work') unless all_conditions_exist?
+    msgs.push('Some assets are from a type different from the required') unless group_compatible?
     msgs.push('Assets are not passing the conditions for the step ') unless step_type_compatible?
-    msgs.push('Step requires a different set of conditons') unless step_type_compatible?
+    msgs.push('Step requires a different set of conditions') unless step_type_compatible?
 
-    msgs.join('.\n')
+    msgs.join('. ')
   end
 
   def valid?

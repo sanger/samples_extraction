@@ -225,7 +225,9 @@ class ActivitiesController < ApplicationController
     return [] unless @assets
     obj_type = Struct.new(:predicate,:object)
     @assets.group_by do |a|
-      a.facts.map(&:as_json).map do |f|
+      a.facts.sort do |f1,f2|
+        f1.predicate <=> f2.predicate && f1.object <=> f2.object
+      end.map(&:as_json).map do |f|
         obj_type.new(f["predicate"], f["object"])
       end
     end

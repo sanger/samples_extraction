@@ -14,8 +14,30 @@ class Asset < ActiveRecord::Base
     joins(:facts).where(:facts => {:predicate => predicate, :object => object})
   }
 
+
   scope :with_field, ->(predicate, object) {
     where(predicate => object)
+  }
+
+  scope :for_activity_type, ->(activity_type) {
+    joins(:activities).where(:activities => { :activity_type_id => activity_type.id}).order("activities.id")
+  }
+
+  scope :not_started, ->() {
+    with_fact('is','NotStarted')
+  }
+
+  scope :started, ->() {
+    with_fact('is','Started')
+  }
+
+  scope :compatible_with_activity_type, ->(activity_type) {
+    joins(:facts).
+    joins("inner join conditions on conditions.predicate=facts.predicate and conditions.object=facts.object").
+    joins("inner join condition_groups on condition_groups.id=condition_group_id").
+    joins("inner join step_types on step_types.id=condition_groups.step_type_id").
+    joins("inner join activity_type_step_types on activity_type_step_types.step_type_id=step_types.id").
+    where("activity_type_step_types.activity_type_id = ?", activity_type)
   }
 
   def relation_id

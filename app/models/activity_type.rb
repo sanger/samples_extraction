@@ -10,6 +10,7 @@ class ActivityType < ActiveRecord::Base
 
   include Deprecatable
 
+
   def after_deprecate
     self.reload
     main_instance = self.superceded_by

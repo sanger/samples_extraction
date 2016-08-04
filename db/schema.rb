@@ -152,10 +152,10 @@ ActiveRecord::Schema.define(version: 20160723210242) do
   end
 
   create_table "kits", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "barcode"
+    t.string   "barcode",                 null: false
     t.integer  "max_num_reactions"
     t.integer  "num_reactions_performed"
-    t.integer  "kit_type_id"
+    t.integer  "kit_type_id",             null: false
     t.datetime "created_at",              null: false
     t.datetime "updated_at",              null: false
     t.index ["kit_type_id"], name: "index_kits_on_kit_type_id", using: :btree

@@ -11,12 +11,12 @@
   <% end %>
 </ul>
   <div class="tab-content">
-    <% @activities_for_activity_types.each_with_index do |obj, index| %>
+    <% @assets_for_activity_types.each_with_index do |obj, index| %>
       <% activity_type = obj[:activity_type] %>
-      <% activities = obj[:activities] %>
+      <% assets = obj[:assets] %>
       <div role="tabpanel" class="tab-pane  <%= 'active' if index==0%>" id="at-<%= activity_type.id %>">
         <div class="panel-body">
-          <% if activities.nil? || activities.empty? %>
+          <% if assets.nil? || assets.empty? %>
             This activity type has no activities yet.
           <% else %>
             <table class='table table-condensed'>
@@ -24,27 +24,19 @@
                 <th>Activity id</th><th>Instrument</th><th>Asset</th><th>Facts</th><th>Completed?</th><th>Last user</th>
               </thead>
               <tbody>
-                <% activities.each do |activity| %>
-                  <% if activity.asset_group.nil? || activity.asset_group.assets.empty? %>
-                    <tr><td><%= bootstrap_link_to 'Visit', activity %> <%= activity.id %></td>
-                      <td></td><td></td><td></td><td><%= activity.completed_at || 'In progress' %></td><td></td>
+                <% assets.each do |asset| %>
+                  <% asset.activities.for_activity_type(activity_type).each do |activity| %>
+                    <tr>
+                      <td>
+                        <%= bootstrap_link_to 'Visit', activity %> <%= activity.id %>
+                      </td>
+                      <td><% if index==0 %><%= activity.instrument.name %> <%= activity.instrument.barcode %><% end %></td>
+                      <td><%= asset.barcode %></td>
+                      <td>
+                        <%= render :partial => 'facts/facts', :locals => { :facts => asset.facts} %>
+                      </td><td><%= activity.completed_at || 'In progress' %></td>
+                      <td><%= (activity.last_user ? activity.last_user.username : 'None') %></td>
                     </tr>
-                  <% else %>
-                    <% activity.asset_group.assets.each_with_index do |asset, index| %>
-                      <tr>
-                        <td>
-                          <% if index==0 %>
-                            <%= bootstrap_link_to 'Visit', activity %> <%= activity.id %>
-                          <% end %>
-                        </td>
-                        <td><% if index==0 %><%= activity.instrument.name %> <%= activity.instrument.barcode %><% end %></td>
-                        <td><%= asset.barcode %></td>
-                        <td>
-                          <%= render :partial => 'facts/facts', :locals => { :facts => asset.facts} %>
-                        </td><td><%= activity.completed_at || 'In progress' %></td>
-                        <td><%= (activity.last_user ? activity.last_user.username : 'None') %></td>
-                      </tr>
-                    <% end %>
                   <% end %>
                 <% end %>
               </tbody>
@@ -52,8 +44,8 @@
           <% end %>
         </div>
         <div class="panel-footer">
-          <% if activities %>
-            <%= will_paginate activities, renderer: BootstrapPagination::Rails,
+          <% if assets %>
+            <%= will_paginate assets, renderer: BootstrapPagination::Rails,
                :params => { :activity_type_id => activity_type.id } %>
           <% end %>
         </div>

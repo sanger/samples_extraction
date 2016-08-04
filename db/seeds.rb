@@ -77,7 +77,6 @@ asset_group = AssetGroup.create!
   asset = Asset.create!
   asset.facts << Fact.create({ :predicate => 'a', :object => 'Tube'})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
-  asset.facts << Fact.create({ :predicate => 'is', :object => 'Full'})
   asset.facts << Fact.create({ :predicate => 'has', :object => 'DNA'})
   asset_group.assets << asset
 end

@@ -21,6 +21,10 @@ class Activity < ActiveRecord::Base
     })
   }
 
+  scope :for_activity_type, ->(activity_type) {
+    where(:activity_type => activity_type)
+  }
+
   class StepWithoutInputs < StandardError
   end
 

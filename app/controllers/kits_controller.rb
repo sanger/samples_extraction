@@ -26,7 +26,6 @@ class KitsController < ApplicationController
   # POST /kits.json
   def create
     @kit = Kit.new(kit_params)
-
     respond_to do |format|
       if @kit.save
         format.html { redirect_to @kit, notice: 'Kit was successfully created.' }
