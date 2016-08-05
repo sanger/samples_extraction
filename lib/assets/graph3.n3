@@ -8,6 +8,7 @@
   :step :addFacts {
     ?p :has :Barcode1D .
     ?p :is :Full .
+    ?p :is :Started .
   } .
   :step :removeFacts {
     ?p :is :NotStarted .
@@ -25,22 +26,23 @@
   :step :selectAsset ?q .
 }.
 
-{ ?p :has :Barcode1D .
-  ?p :is :Full .
-  ?q :has :Barcode2D .
-  ?q :is :Empty .
+{ ?TubeWithBarcode1D :has :Barcode1D .
+  ?TubeWithBarcode1D :is :Full .
+  ?TubeWithBarcode2D :has :Barcode2D .
+  ?TubeWithBarcode2D :is :Empty .
 } => {
   :step :stepTypeName """Transfer 1D to 2D tubes""" .
   :step :stepTemplate """transfer_tube_to_tube""" .
-  :step :unselectAsset ?p .
+  :step :unselectAsset ?TubeWithBarcode1D .
+  :step :unselectAsset {?r :is :Empty.}.
   :step :removeFacts {
-    ?p :is :Full .
-    ?q :is :Empty .
+    ?TubeWithBarcode1D :is :Full .
+    ?TubeWithBarcode2D :is :Empty .
   } .
   :step :addFacts {
-    ?p :is :Empty .
-    ?q :is :Full .
-    ?p :transferTo ?q .
+    ?TubeWithBarcode1D :is :Empty .
+    ?TubeWithBarcode2D :is :Full .
+    ?TubeWithBarcode1D :transferTo ?TubeWithBarcode2D .
   } .
 } .
 

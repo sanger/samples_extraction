@@ -6,6 +6,8 @@ class Step < ActiveRecord::Base
   has_many :uploads
   has_many :operations
 
+  scope :in_progress, ->() { where(:in_progress? => true)}
+
   after_create :execute_actions, :unless => :in_progress?
 
   before_save :assets_compatible_with_step_type, :unless => :in_progress?
@@ -23,8 +25,10 @@ class Step < ActiveRecord::Base
     :asset_groups_assets=> {:asset_id => assets }
     }) }
 
+  scope :for_step_type, ->(step_type) { where(:step_type => step_type)}
+
   def assets_compatible_with_step_type
-    throw :abort unless step_type.compatible_with?(asset_group.assets)
+    throw :abort unless step_type.compatible_with?(asset_group.assets) || (asset_group.assets.count == 0)
   end
 
   # Identifies which asset acting as subject is compatible with which rule.
@@ -68,11 +72,24 @@ class Step < ActiveRecord::Base
     end
   end
 
-  def unselect_assets
+  def unselect_assets_from_antecedents
     asset_group.unselect_assets_with_conditions(step_type.condition_groups)
+    if activity
+      activity.asset_group.unselect_assets_with_conditions(step_type.condition_groups)
+    end
+  end
+
+  def unselect_assets_from_consequents
+    asset_group.unselect_assets_with_conditions(step_type.action_subject_condition_groups)
+    asset_group.unselect_assets_with_conditions(step_type.action_object_condition_groups)
+    if activity
+      activity.asset_group.unselect_assets_with_conditions(step_type.action_subject_condition_groups)
+      activity.asset_group.unselect_assets_with_conditions(step_type.action_object_condition_groups)
+    end
   end
 
   def execute_actions
+    return progress_with(asset_group.assets) if in_progress?
     ActiveRecord::Base.transaction do |t|
       created_assets = {}
       list_to_destroy = []
@@ -80,13 +97,16 @@ class Step < ActiveRecord::Base
         r.execute(self, asset_group, asset, created_assets, list_to_destroy)
       end
 
-      unselect_assets
+      unselect_assets_from_antecedents
 
       Fact.where(:id => list_to_destroy.flatten.compact.pluck(:id)).delete_all
+
+      unselect_assets_from_consequents
     end
   end
 
-  def progress_with(assets)
+  def progress_with(step_params)
+    assets = step_params[:assets]
     ActiveRecord::Base.transaction do |t|
       update_attributes(:in_progress? => true)
 
@@ -96,16 +116,18 @@ class Step < ActiveRecord::Base
       classify_assets.each do |asset, r|
         r.execute(self, asset_group, asset, created_assets, nil)
       end
+      asset_group.update_attributes(:assets => [])
     end
 
-    #activity.asset_group.update_attributes(:assets => activity.asset_group.assets - assets)
+    finish if step_params[:state][:done]
   end
 
-  def finish_with(assets)
+  def finish
     ActiveRecord::Base.transaction do |t|
-      unselect_assets
+      unselect_assets_from_antecedents
       Fact.where(:to_remove_by => self.id).delete_all
       Fact.where(:to_add_by => self.id).update_all(:to_add_by => nil)
+      unselect_assets_from_consequents
       update_attributes(:in_progress? => false)
     end
   end

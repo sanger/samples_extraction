@@ -17,7 +17,7 @@
   <% end %>
 </ul>
 
-<div class="pull-left step-template-view">
+<div class="step-template-view">
   <div class="tab-content">
   <% step_types.select{|s| s.step_template }.each_with_index do |step_type, index| %>
     <% unless step_type.step_template.nil? || step_type.step_template.empty? %>

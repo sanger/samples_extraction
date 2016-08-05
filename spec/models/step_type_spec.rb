@@ -163,7 +163,22 @@ RSpec.describe StepType, type: :model do
           assert_equal false, @step_type.compatible_with?([@assets, @racks].flatten)
         end
 
+        describe 'with assets that overlap between condition groups' do
+          it 'is compatible with overlapped assets' do
+            @tubes_and_racks = 7.times.map do
+              FactoryGirl.create(:asset, { :facts => [
+                FactoryGirl.create(:fact, :predicate => 'is', :object => 'Rack'),
+                FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube'),
+                FactoryGirl.create(:fact, :predicate => 'is', :object => 'Full')
+                ]})
+            end
+            assert_equal true, @step_type.compatible_with?([@assets, @racks, @tubes_and_racks].flatten)
+          end
+
+        end
+
       end
+
     end
   end
 end

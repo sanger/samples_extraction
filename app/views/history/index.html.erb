@@ -3,3 +3,4 @@
 <h1>History <small>All</small></h1>
 <% steps = @steps %>
 <%= render :partial => 'steps/steps', :locals => {:steps => @steps} %>
+<%= will_paginate @steps, renderer: BootstrapPagination::Rails %>

@@ -1,28 +1,32 @@
 <p id="notice"><%= notice %></p>
 
-<h1>Samples not started</h1>
+<h1>Samples Not started</h1>
 
 <div id="samples_started">
 <ul class="nav nav-tabs">
   <% @activity_types.each_with_index do |activity_type, index| %>
-    <li role="presentation" class="<%= 'active' if index==0%>">
-      <a href="#at-<%= activity_type.id %>" aria-controls="at-<%= activity_type.id %>" role="tab" data-toggle="tab"><%= activity_type.name %></a>
+    <li role="presentation" class="<%= 'active' if index==0 %>">
+      <a data-activity-type-id="<%= activity_type.id %>" href="#at-<%= activity_type.id %>" aria-controls="at-<%= activity_type.id %>" role="tab" data-toggle="tab"><%= activity_type.name %></a>
     </li>
   <% end %>
 </ul>
   <div class="tab-content">
-    <% @activity_types.each_with_index do |activity_type, index| %>
+    <% @assets_for_activity_types.each_with_index do |obj, index| %>
+      <% activity_type = obj[:activity_type] %>
+      <% assets = obj[:assets] %>
       <div role="tabpanel" class="tab-pane  <%= 'active' if index==0%>" id="at-<%= activity_type.id %>">
         <div class="panel-body">
+          <% if assets.nil? || assets.empty? %>
+            This activity type has no activities yet.
+          <% else %>
             <table class='table table-condensed'>
               <thead>
-                <th>Barcode</th><th>Facts</th>
+                <th>Asset</th><th>Facts</th>
               </thead>
               <tbody>
-                <% Asset.all.select{|asset| asset.asset_groups.empty?}.each do |asset| %>
+                <% assets.each do |asset| %>
                   <tr>
-                    <td><%= asset.barcode %>
-                    </td><td></td>
+                    <td><%= asset.barcode %></td>
                     <td>
                       <%= render :partial => 'facts/facts', :locals => { :facts => asset.facts} %>
                     </td>
@@ -30,17 +34,26 @@
                 <% end %>
               </tbody>
             </table>
+          <% end %>
+        </div>
+        <div class="panel-footer">
+          <% if assets %>
+            <%= will_paginate assets, renderer: BootstrapPagination::Rails,
+               :params => { :activity_type_id => activity_type.id } %>
+          <% end %>
         </div>
       </div>
     <% end %>
   </div>
 </div>
 
+
 <script type='text/javascript'>
 (function() {
-  $('#samples_started .nav a').click(function (e) {
-    e.preventDefault()
-    $(this).tab('show')
-  })
+  $('#samples_started .nav li a').each(function(pos, node) {
+    if ($(node).data('activity-type-id')===<%= @activity_type_selected && @activity_type_selected.id %>) {
+      $(node).tab('show');
+    }
+  });
 }());
 </script>

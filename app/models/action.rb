@@ -55,7 +55,7 @@ class Action < ActiveRecord::Base
     if action_type == 'createAsset'
       unless created_assets[subject_condition_group.id]
         num_create = asset_group.assets.count
-        if subject_condition_group.cardinality
+        if (subject_condition_group.cardinality) && (subject_condition_group.cardinality!=0)
           num_create = [asset_group.assets.count, subject_condition_group.cardinality].min
         end
         assets = num_create.times.map{|i| Asset.create!}

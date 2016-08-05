@@ -1,11 +1,15 @@
 class ActivityType < ActiveRecord::Base
   has_many :activities
   has_many :kit_types
+  has_many :condition_groups, :through => :step_types
   has_many :activity_type_step_types
   has_many :step_types, :through => :activity_type_step_types
   has_and_belongs_to_many :instruments
 
+  has_many :conditions, :through => :condition_groups
+
   include Deprecatable
+
 
   def after_deprecate
     self.reload
@@ -18,5 +22,9 @@ class ActivityType < ActiveRecord::Base
         activity.update_attributes!(:activity_type => main_instance)
       end
     end
+  end
+
+  def compatible_with?(assets)
+    condition_groups.any?{|c| c.compatible_with?(assets)}
   end
 end

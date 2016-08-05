@@ -5,45 +5,48 @@
 <div id="samples_started">
 <ul class="nav nav-tabs">
   <% @activity_types.each_with_index do |activity_type, index| %>
-    <li role="presentation" class="<%= 'active' if index==0%>">
-      <a href="#at-<%= activity_type.id %>" aria-controls="at-<%= activity_type.id %>" role="tab" data-toggle="tab"><%= activity_type.name %></a>
+    <li role="presentation" class="<%= 'active' if index==0 %>">
+      <a data-activity-type-id="<%= activity_type.id %>" href="#at-<%= activity_type.id %>" aria-controls="at-<%= activity_type.id %>" role="tab" data-toggle="tab"><%= activity_type.name %></a>
     </li>
   <% end %>
 </ul>
   <div class="tab-content">
-    <% @activity_types.each_with_index do |activity_type, index| %>
+    <% @assets_for_activity_types.each_with_index do |obj, index| %>
+      <% activity_type = obj[:activity_type] %>
+      <% assets = obj[:assets] %>
       <div role="tabpanel" class="tab-pane  <%= 'active' if index==0%>" id="at-<%= activity_type.id %>">
         <div class="panel-body">
-          <% if activity_type.activities.empty? %>
+          <% if assets.nil? || assets.empty? %>
             This activity type has no activities yet.
           <% else %>
             <table class='table table-condensed'>
               <thead>
-                <th>Activity id</th><th>Barcode</th><th>Facts</th><th>Completed?</th>
+                <th>Activity id</th><th>Instrument</th><th>Asset</th><th>Facts</th><th>Completed?</th><th>Last user</th>
               </thead>
               <tbody>
-                <% activity_type.activities.each do |activity| %>
-                  <% if activity.asset_group.nil? || activity.asset_group.assets.empty? %>
-                    <tr><td><%= bootstrap_link_to 'Visit', activity %> <%= activity.id %></td>
-                      <td></td><td></td><td><%= activity.completed_at || 'In progress' %></td>
+                <% assets.each do |asset| %>
+                  <% asset.activities.for_activity_type(activity_type).each do |activity| %>
+                    <tr>
+                      <td>
+                        <%= bootstrap_link_to 'Visit', activity %> <%= activity.id %>
+                      </td>
+                      <td><% if index==0 %><%= activity.instrument.name %> <%= activity.instrument.barcode %><% end %></td>
+                      <td><%= asset.barcode %></td>
+                      <td>
+                        <%= render :partial => 'facts/facts', :locals => { :facts => asset.facts} %>
+                      </td><td><%= activity.completed_at || 'In progress' %></td>
+                      <td><%= (activity.last_user ? activity.last_user.username : 'None') %></td>
                     </tr>
-                  <% else %>
-                    <% activity.asset_group.assets.each_with_index do |asset, index| %>
-                      <tr>
-                        <td>
-                          <% if index==0 %>
-                            <%= bootstrap_link_to 'Visit', activity %> <%= activity.id %>
-                          <% end %>
-                        </td><td><%= asset.barcode %></td>
-                        <td>
-                          <%= render :partial => 'facts/facts', :locals => { :facts => asset.facts} %>
-                        </td><td><%= activity.completed_at || 'In progress' %></td>
-                      </tr>
-                    <% end %>
                   <% end %>
                 <% end %>
               </tbody>
             </table>
+          <% end %>
+        </div>
+        <div class="panel-footer">
+          <% if assets %>
+            <%= will_paginate assets, renderer: BootstrapPagination::Rails,
+               :params => { :activity_type_id => activity_type.id } %>
           <% end %>
         </div>
       </div>
@@ -51,11 +54,13 @@
   </div>
 </div>
 
+
 <script type='text/javascript'>
 (function() {
-  $('#samples_started .nav a').click(function (e) {
-    e.preventDefault()
-    $(this).tab('show')
-  })
+  $('#samples_started .nav li a').each(function(pos, node) {
+    if ($(node).data('activity-type-id')===<%= @activity_type_selected && @activity_type_selected.id %>) {
+      $(node).tab('show');
+    }
+  });
 }());
 </script>

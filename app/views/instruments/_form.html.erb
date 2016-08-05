@@ -11,10 +11,36 @@
     </div>
   <% end %>
 
+  <% readonly = params[:action] == 'show' %>
   <div class="field">
-    <%= f.text_field :barcode %>
+    <%= f.text_field :barcode, :readonly => readonly %>
   </div>
-  <div class="actions">
-    <%= f.submit %>
+  <div class="field">
+    <%= f.text_field :name, :readonly => readonly %>
   </div>
+
+  <div class="container activity-step-types row">
+    <div class="row">
+      <div class="col-md-12">
+    <%= f.label :activity_types %>
+      </div>
+    </div>
+    <% options = {} %>
+    <% options = options.merge({:disabled => ActivityType.all.map(&:id)}) if readonly %>
+      <%= collection_check_boxes(:instrument, :activity_type_ids, ActivityType.all, :id, :name, options) do |b| %>
+        <div class="checkbox row ">
+          <%= b.label :class => "checkbox-inline #{'active' if @instrument.activity_types.include?(b.object)}" do %>
+            <%= b.check_box %>
+            <%= b.text %>
+          <% end %>
+        <%= bootstrap_link_to 'Show', activity_type_path(b.object, :format=> :html) %>
+        </div>
+      <% end %>
+    </div>
+
+  <% unless readonly %>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+  <% end %>
 <% end %>

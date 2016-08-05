@@ -70,6 +70,7 @@ class InstrumentsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def instrument_params
-      params.require(:instrument).permit(:barcode)
+      params.require(:instrument).permit(:barcode, :name, { :activity_type_ids => [] })
     end
+
 end

@@ -1,10 +1,11 @@
 (function($, undefined) {
 
   function AssetGroup(node) {
+    this.container = node.parent();
     this.form = node;
     this.identifier = $(node).attr("data-psd-asset-group-form");
     this.content = $('[data-psd-asset-group-content]', node);
-    this.template = JST['templates/asset_group'];
+    //this.template = JST['templates/asset_group'];
     this.attachHandlers(node);
   };
 
@@ -19,8 +20,13 @@
   };
 
   proto.render = function(json) {
-    this.content.html(this.template(json));
-    this.attachDeleteButtons(this.content);
+    this.container.html(json);
+    this.form = $('form', this.container);
+    this.attachHandlers(this.form);
+    this.reloadStepTypes();
+    this.reloadSteps();
+    //this.content.html(json);
+    //this.attachDeleteButtons(this.content);
   };
 
   proto.attachDeleteButtons = function(node) {
@@ -81,7 +87,7 @@
       });
     });
 
-    $(document).on('keydown', 'input[name=add_barcode]', $.proxy(function(e) {
+    $('input[name=add_barcode]', node).on('keydown', $.proxy(function(e) {
       if (e.keyCode === 9) {
         // Default behaviour of Tabulator is to change to the next input before keyup event; we
         // customized this behaviour to perform a submit Rails-way instead

@@ -10,6 +10,9 @@ class StepType < ActiveRecord::Base
   has_many :condition_groups
   has_many :actions
 
+  has_many :action_subject_condition_groups, :through => :actions, :source => :subject_condition_group
+  has_many :action_object_condition_groups, :through => :actions, :source => :object_condition_group
+
   include Deprecatable
 
   scope :with_template, ->() { where('step_template is not null')}
@@ -101,7 +104,7 @@ class StepType < ActiveRecord::Base
 
   def every_asset_has_at_least_one_condition_group?(classification)
     (classification.values.all? do |condition_group|
-      ([condition_group].flatten.length==1)
+      ([condition_group].flatten.length>=1)
     end)
   end
 

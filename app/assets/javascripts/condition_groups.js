@@ -112,6 +112,13 @@
       this.conditionGroups.push(data.conditionGroup);
     };
 
+    proto.destroyConditionGroup = function(e, data) {
+      var pos = this.conditionGroups.indexOf(data.conditionGroup);
+      if (pos > -1) {
+        this.conditionGroups.splice(pos, 1);
+      }
+    };
+
     proto.updateConditionGroupName = function(e, data) {
       $(this.conditionGroups).each(function(pos, conditionGroup) {
         conditionGroup.updateName(data.nameOld, data.nameNew);
@@ -126,6 +133,7 @@
         this.addGroup(this.generateAssetName(), {}, this.assetFactsTemplate())
       }, this));
       $(this.node).on('registered.condition-group', $.proxy(this.storeConditionGroup, this));
+      $(this.node).on('destroyed.condition-group', $.proxy(this.destroyConditionGroup, this));
       $(this.node).on('changed-name.condition-group', $.proxy(this.updateConditionGroupName, this));
 
       $('[data-psd-condition-groups-save]').on('click', $.proxy(this.storeN3, this));

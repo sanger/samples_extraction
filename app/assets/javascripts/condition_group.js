@@ -151,7 +151,12 @@
     return this.selectAsset;
   };
 
+  proto.destroy = function() {
+    $(this.node).trigger('destroyed.condition-group', { conditionGroup: this});
+  };
+
   proto.attachHandlers = function() {
+    $('[data-condition-group-remove="1"]', this.node).on('click', $.proxy(this.destroy, this));
     $(this.node).on('fact.fact_reader', $.proxy(this.listenFactsHandler, this));
     $(this.node).on('updated-text.editable-text', $.proxy(this.listenEditableHandler, this));
     $(this.node).on('deleted_node.delete_icon', $.proxy(this.onDeletedFactIcon, this));

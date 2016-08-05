@@ -2,3 +2,10 @@
 
 <h1>Re-Racking</h1>
 
+<%= bootstrap_form_for(@activity,  :url => {:action => 'create'}, :html => { :autocomplete => 'off'}) do |f| %>
+  <div class="hidden">
+    <%= f.text_field(:instrument_barcode, :value => @instrument.barcode, :readonly => true) %>
+    <%= f.text_field(:kit_barcode, :value => @kit.barcode, :placeholder => 'Scan a kit barcode') %>
+  </div>
+  <%= f.submit("Start reracking") %>
+<% end %>

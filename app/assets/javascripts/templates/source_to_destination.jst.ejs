@@ -1,0 +1,45 @@
+<div class="row">
+  <div class="col-md-3">
+    <% for (var i=0; i<names.length; i++) { %>
+    <div class="row col-md-12 with-bottom-margin">
+      <label for="source" class="control-label">Scan a <%= names[i] %></label>
+      <div class="">
+        <input autocomplete="off" name='<%= identifiers[i] %>' class="form-control" type='text' placeholder='Scan a <%= names[i] %>' />
+      </div>
+    </div>
+    <% } %>
+    <div class="row">
+      <div class="col-md-12 with-bottom-margin">
+        <button class="button btn btn-default reset-button">Reset</button>
+        <button class="button btn btn-default send-button">Transfer</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <button id="next" class="button btn btn-default">Got to Next Step</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-9">
+    <div class="row col-md-12">
+      <table class="table table-condensed">
+        <thead>
+          <tr>
+            <% for (var i=0; i<names.length; i++) { %>
+              <th><%= names[i] %></th>
+            <% } %>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (var i=0; i<pairings.length; i++)  { %>
+            <tr>
+              <% for (var j=0; j<identifiers.length; j++) { %>
+                <td><%= pairings[i][identifiers[j]] %></td>
+              <% } %>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

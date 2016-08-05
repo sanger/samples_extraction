@@ -30,6 +30,7 @@
 //= require editable_text
 //= require fact_searcher
 //= require loading_icon
+//= require source_to_destination
 //= require button_switch
 //= require fact_reader
 //= require user_status
