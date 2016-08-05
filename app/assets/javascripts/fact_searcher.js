@@ -281,6 +281,8 @@
     $(this.node).trigger('text.fact_searcher', this.input.val());
   };
 
-  $(document).trigger('registerComponent.builder', {'FactSearcher': FactSearcher});
+  $(document).on('ready', function() {
+    $(document).trigger('registerComponent.builder', {'FactSearcher': FactSearcher});
+  });
 
 }(jQuery))

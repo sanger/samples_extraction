@@ -70,11 +70,14 @@ group :debug do
 end
 
 group :test do
+  gem 'poltergeist'
   gem 'shoulda'
   gem 'factory_girl'
   gem 'rspec-rails'
   gem 'shoulda-matchers'
   gem 'rails-controller-testing'
+  gem 'cucumber-rails', :require => false
+  gem 'database_cleaner'
 end
 
 group :development do
