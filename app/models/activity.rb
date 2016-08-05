@@ -61,7 +61,7 @@ class Activity < ActiveRecord::Base
 
   def step(step_type, user, step_params)
     step = steps.in_progress.for_step_type(step_type).first
-    if step.nil? && step_params.nil? && step_type.step_template.nil?
+    if step.nil? && step_params.nil? && (step_type.step_template.nil? || step_type.step_template.empty?)
       return steps.create!(:step_type => step_type, :asset_group_id => asset_group.id, :user_id => user.id)
     end
     if step_params
