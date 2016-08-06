@@ -56,13 +56,18 @@ end
 # See https://github.com/cucumber/cucumber-rails/blob/master/features/choose_javascript_database_strategy.feature
 Cucumber::Rails::Database.javascript_strategy = :truncation
 
-require 'capybara/poltergeist'
-Capybara.save_and_open_page_path = 'tmp/capybara'
-Capybara.default_max_wait_time = 5
-Capybara.javascript_driver = :poltergeist
-options = {js_errors: false}
-Capybara.register_driver :poltergeist do |app|
-  Capybara::Poltergeist::Driver.new(app, options)
+if ENV["RAILS_ENV"]=='selenium'
+  Capybara.default_driver = :selenium
+    require 'factory_girl_rails'
+else
+  require 'capybara/poltergeist'
+  Capybara.save_and_open_page_path = 'tmp/capybara'
+  Capybara.default_max_wait_time = 5
+  Capybara.javascript_driver = :poltergeist
+  options = {js_errors: false}
+  Capybara.register_driver :poltergeist do |app|
+    Capybara::Poltergeist::Driver.new(app, options)
+  end
 end
 
 

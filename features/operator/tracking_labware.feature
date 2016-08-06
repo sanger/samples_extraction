@@ -39,3 +39,12 @@ Given the laboratory has the following instruments:
 When I create an activity with instrument "My Instrument" and kit "1"
 Then I should have created an empty activity for "Tubes to rack"
 
+And when I scan these barcodes into the selection basket:
+|Barcode |
+| 1      |
+| 2      |
+
+Then I should see these barcodes in the selection basket:
+| Barcode |
+| 1       |
+| 2       |

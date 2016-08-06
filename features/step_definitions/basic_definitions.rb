@@ -85,14 +85,18 @@ Then(/^I should have created an empty activity for "([^"]*)"$/) do |arg1|
   expect(activities.first.asset_group.assets.count).to eq(0)
 end
 
-When(/^I scan these barcodes in the basket:$/) do |table|
+When(/^when I scan these barcodes into the selection basket:$/) do |table|
   table.hashes.each do |barcode_info|
-    fill_in("input[name=add_barcode]", :with => barcode_info["Barcode"])
-    find(:css, ".panel-header button").click
+    fill_in('Scan a barcode', :with => barcode_info["Barcode"]+"\n")
+    find("form.edit_asset_group button.barcode-send").click
   end
 end
 
-Then(/^I should see these barcodes in the basket:$/) do |table|
+Then(/^I should see these barcodes in the selection basket:$/) do |table|
+  within('form.edit_asset_group') do
+    table.hashes.each do |barcode|
+      page.should have_content(barcode["Barcode"])
+    end
+  end
   # table is a Cucumber::MultilineArgument::DataTable
-  pending # Write code here that turns the phrase above into concrete actions
 end
