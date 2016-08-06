@@ -4,13 +4,8 @@ In order to keep track of the actual status of the laboratory assets
 An operator
 Should be able to know past, present and future of any asset while working with it
 
-Scenario: Perform a step within the system
+Background:
 
-Given I am an operator called "Bob"
-When I use the browser to enter in the application
-Then I should see the Instruments page
-
-Scenario: Create a new activity with some assets
 Given I have to process these tubes that are on my table:
 |  Barcode | Facts                   |
 |  1       | is:NotStarted, a:Tube   |
@@ -22,8 +17,20 @@ Given we use these activity types:
 | Reracking     |
 
 Given we use these step types:
-| Name           | Activity types |
-| Upload layout  | Tubes to rack |
+| Name                   | Activity types |
+| Upload layout          | Tubes to rack  |
+| Change purpose of tube | Tubes to rack  |
+
+Given the step type "Change purpose of tube" has this configuration in N3:
+"""
+{
+  ?p :a :Tube .
+  ?p :is :NotStarted.
+} => {
+  :step :removeFacts {?p :is :NotStarted.}.
+  :step :addFacts {?p :is :Started.}.
+}.
+"""
 
 Given I have the following kits in house
 | Barcode | Kit type                           | Activity type |
@@ -36,10 +43,19 @@ Given the laboratory has the following instruments:
 | Barcode | Name          | Activity types           |
 | 1       | My instrument | Tubes to rack, Reracking |
 
+
+Scenario: Access to the system as an operator
+
+Given I am an operator called "Bob"
+When I use the browser to enter in the application
+Then I should see the Instruments page
+
+Scenario: Create a new activity with some assets
+
 When I create an activity with instrument "My Instrument" and kit "1"
 Then I should have created an empty activity for "Tubes to rack"
 
-And when I scan these barcodes into the selection basket:
+When I scan these barcodes into the selection basket:
 |Barcode |
 | 1      |
 | 2      |
@@ -48,3 +64,20 @@ Then I should see these barcodes in the selection basket:
 | Barcode |
 | 1       |
 | 2       |
+
+Scenario: Process a group of barcodes from the selection basket
+
+When I create an activity with instrument "My Instrument" and kit "1"
+And I scan these barcodes into the selection basket:
+|Barcode |
+| 1      |
+| 2      |
+
+Then I should see these barcodes in the selection basket:
+| Barcode |
+| 1       |
+| 2       |
+
+And I should see these steps available:
+| Step                    |
+| Change purpose of tube  |
