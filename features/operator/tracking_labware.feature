@@ -96,7 +96,4 @@ Then I should not have performed the step "Change purpose of tube"
 When I log in as "Bob"
 Then I am logged in as "Bob"
 And I perform the step "Change purpose of tube"
-Then I should have performed the step "Change purpose of tube" with the following barcodes:
-| Barcode |
-| 1       |
-| 2       |
+Then I should have performed the step "Change purpose of tube" with the user "Bob"

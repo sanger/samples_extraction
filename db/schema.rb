@@ -244,6 +244,7 @@ ActiveRecord::Schema.define(version: 20160723210242) do
     t.string   "barcode"
     t.string   "username"
     t.string   "fullname"
+    t.string   "token"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

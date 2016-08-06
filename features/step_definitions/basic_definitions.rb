@@ -113,14 +113,25 @@ Then(/^I should not have performed the step "([^"]*)"$/) do |step_name|
   end
 end
 
+Then(/^I should have performed the step "([^"]*)" with the user "([^"]*)"$/) do |step_name, username|
+  # table is a Cucumber::MultilineArgument::DataTable
+  within("#steps_finished .panel") do
+    page.should have_content(step_name)
+    page.should have_content(username)
+  end
+end
+
+When(/^I open the operations list$/) do
+  find("#steps_finished").click
+end
+
 Then(/^I should have performed the step "([^"]*)" with the following barcodes:$/) do |step_name, table|
   # table is a Cucumber::MultilineArgument::DataTable
   within("#steps_finished .panel") do
     page.should have_content(step_name)
-    table.hashes.each do |barcode|
-      page.should have_content(barcode["Barcode"])
+    table.hashes.each do |h|
+      page.should have_content(h["Barcode"])
     end
   end
 end
-
 

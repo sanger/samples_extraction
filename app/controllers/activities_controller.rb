@@ -13,6 +13,12 @@ class ActivitiesController < ApplicationController
 
   before_action :set_activity_type, only: [:create_without_kit]
 
+  #before_filter :session_authenticate, only: [:update, :create]
+
+  def session_authenticate
+    raise ActionController::InvalidAuthenticityToken unless session[:session_id]
+  end
+
   def update
     perform_previous_step_type
     select_assets
@@ -126,10 +132,11 @@ class ActivitiesController < ApplicationController
   private
 
     def set_user
-      @user = User.find_by_barcode!(params[:user_barcode])
-    rescue ActiveRecord::RecordNotFound => e
-      flash[:danger] = 'User not found'
-      redirect_to :back
+      @user = @current_user
+      if @user.nil?
+        flash[:danger] = 'User not found'
+        redirect_to :back
+      end
     end
 
     def set_kit

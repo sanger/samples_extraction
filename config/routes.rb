@@ -3,7 +3,9 @@ require 'sass'
 require 'bootstrap-sass'
 
 Rails.application.routes.draw do
+  resources :user_sessions
   resources :users
+
   resources :step_types
   resources :steps
   resources :activities do

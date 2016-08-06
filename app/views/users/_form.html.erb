@@ -10,7 +10,7 @@
       </ul>
     </div>
     <% end %>
-  <% readonly = params[:action] == 'show' %>    
+  <% readonly = params[:action] == 'show' %>
   <div class="field">
     <%= f.text_field :barcode, :readonly => readonly %>
   </div>
@@ -22,7 +22,7 @@
   <div class="field">
     <%= f.text_field :fullname, :readonly => readonly %>
   </div>
-  
+
 
   <div class="actions">
     <%= f.submit %>

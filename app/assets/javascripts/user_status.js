@@ -2,15 +2,15 @@
    var COOKIE_NAME = 'psd-samples-extraction-login';
 
     function UserStatus(node, params) {
-	this.node = $(node);
-	this.userServiceUrl = params.userServiceUrl;
+    	this.node = $(node);
+    	this.userServiceUrl = params.userServiceUrl;
      this.usernameNode = $(params.usernameSelector, this.node);
      this.fullNameNode = $(params.fullNameSelector, this.node);
      this.controlLoggedOut = $(params.logoutSelector, this.node);
      this.controlLoggedIn = $(params.loginSelector, this.node);
-	this.changeLoginNode = $(params.changeLoginSelector, this.node);
+	   this.changeLoginNode = $(params.changeLoginSelector, this.node);
 
-	this.logoutButton = $('.logout', this.controlLoggedIn);
+	   this.logoutButton = $('.logout', this.controlLoggedIn);
 
      this.attachHandlers();
      this.initialize(params);
@@ -19,7 +19,7 @@
     var proto = UserStatus.prototype;
 
     proto.initialize = function(params) {
-      this.updateLogin(this.getCookie());
+      this.updateLogin(params.sessionInfo);
     };
 
    proto.login = function(data) {
@@ -40,14 +40,19 @@
    };
 
    proto.setBarcode = function(barcode) {
-     $('input[name=user_barcode]').val(barcode);
+     this.barcode = barcode;
+     //$('input[name=user_barcode]').val(barcode);
+   };
+
+   proto.getBarcode = function() {
+    return this.barcode;
    };
 
    proto.updateLogin = function(data) {
      if (typeof data!=='undefined') {
-       this.setBarcode(data.barcode);
        this.setUsername(data.username);
        this.setFullName(data.fullname);
+       this.setBarcode(data.barcode);
      }
 
      var showStatus = ((typeof data!=='undefined') && (typeof data.username !== 'undefined'));
@@ -58,14 +63,22 @@
    };
 
    proto.logout = function(e) {
-    e.preventDefault();
-     this.val = this.getCookie();
-     $(document.body).toggleClass('logged-in', false);
-     var data = {};
-     this.updateLogin(data);
-     this.setCookie(data);
+    if (typeof e !== 'undefined'){
+      e.preventDefault();
+    }
 
-     $(this.node).trigger('logout.user_status', data);
+
+    $.ajax({method: 'delete', cache: false, url: this.userServiceUrl+'/'+this.getBarcode(),
+      dataType: 'json', success: $.proxy(function() {
+        this.resetBarcodeInput();
+        this.val = this.getCookie();
+        $(document.body).toggleClass('logged-in', false);
+        var data = {};
+        this.updateLogin(data);
+        this.setCookie(data);
+        $(this.node).trigger('logout.user_status', data);
+      }, this)}).
+        fail($.proxy(this.onUserServiceFail, this));
    }
 
     proto.getCookie = function() {
@@ -81,27 +94,36 @@
    };
 
     proto.isLogged = function() {
-	return ((typeof this.getCookie()!== 'undefined') && (typeof this.getCookie().username !== 'undefined'))
+	   return ((typeof this.getCookie()!== 'undefined') && (typeof this.getCookie().username !== 'undefined'))
    };
 
     proto.readUserBarcode = function(e, data) {
-	e.stopPropagation();
-	$(this.node).trigger('load_start.loading_spinner', {});
-	$.get({url: this.userServiceUrl+'/'+data.barcode+'.json', dataType: 'json', success: $.proxy(this.onUserServiceSuccess, this)}).fail($.proxy(this.onUserServiceFail, this));
+    	e.stopPropagation();
+    	$(this.node).trigger('load_start.loading_spinner', {});
+    	$.ajax({method: 'post', cache: false, url: this.userServiceUrl,
+        data:{user_session: data}, dataType: 'json',
+        success: $.proxy(this.onUserServiceSuccess, this)}).
+      fail($.proxy(this.onUserServiceFail, this));
     };
 
+    proto.resetBarcodeInput = function() {
+      $('input[name=userBarcode]').val('');
+    };
     proto.onUserServiceSuccess = function(response) {
-	$(this.node).trigger('load_stop.loading_spinner', {});
-	//$('.dropdown-toggle', this.node).dropdown('toggle');
-	if (response && (typeof response.barcode !== 'undefined')) {
-	    this.login(response);
-	} else {
-	    this.node.trigger('msg.display_error', {msg: 'User barcode not valid'});
-	}
+      this.resetBarcodeInput();
+    	$(this.node).trigger('load_stop.loading_spinner', {});
+    	//$('.dropdown-toggle', this.node).dropdown('toggle');
+    	if (response && (typeof response.username !== 'undefined')) {
+    	    this.login(response);
+    	} else {
+    	    this.node.trigger('msg.display_error', {msg: 'User barcode not valid'});
+    	}
     };
 
     proto.onUserServiceFail = function() {
-	this.node.trigger('msg.display_error', {msg: 'Cannot connect with user service'});
+      this.resetBarcodeInput();
+	    this.node.trigger('msg.display_error', {msg: 'Cannot connect with user service'});
+      $(this.node).trigger('load_stop.loading_spinner', {});
     };
 
 

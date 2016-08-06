@@ -1,6 +1,8 @@
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :edit, :update, :destroy]
 
+  before_action :set_user_by_barcode, only: [:login, :logout]
+
   # GET /users
   # GET /users.json
   def index
@@ -15,6 +17,11 @@ class UsersController < ApplicationController
   # GET /users/new
   def new
     @user = User.new
+  end
+
+  def find_by_barcode
+    @user = User.find_by(:barcode => user_params[:barcode])
+    render @user
   end
 
   # GET /users/1/edit

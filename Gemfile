@@ -12,6 +12,8 @@ gem 'sprockets-rails'
 
 gem 'js_cookie_rails'
 
+gem 'micro_token'
+
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails'
