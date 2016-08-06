@@ -6,6 +6,8 @@ Should be able to know past, present and future of any asset while working with 
 
 Background:
 
+Given I am an operator called "Bob"
+
 Given I have to process these tubes that are on my table:
 |  Barcode | Facts                   |
 |  1       | is:NotStarted, a:Tube   |
@@ -46,9 +48,14 @@ Given the laboratory has the following instruments:
 
 Scenario: Access to the system as an operator
 
-Given I am an operator called "Bob"
 When I use the browser to enter in the application
 Then I should see the Instruments page
+
+When I log in as an unknown user
+Then I am not logged in
+
+When I log in as "Bob"
+Then I am logged in as "Bob"
 
 Scenario: Create a new activity with some assets
 
@@ -81,3 +88,15 @@ Then I should see these barcodes in the selection basket:
 And I should see these steps available:
 | Step                    |
 | Change purpose of tube  |
+
+When I am not logged in
+And I perform the step "Change purpose of tube"
+Then I should not have performed the step "Change purpose of tube"
+
+When I log in as "Bob"
+Then I am logged in as "Bob"
+And I perform the step "Change purpose of tube"
+Then I should have performed the step "Change purpose of tube" with the following barcodes:
+| Barcode |
+| 1       |
+| 2       |

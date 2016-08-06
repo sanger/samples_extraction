@@ -1,12 +1,3 @@
-Given(/^I am an operator called "([^"]*)"$/) do |name|
-  unless User.find_by(:fullname => name)
-    FactoryGirl.create :user_with_barcode, {
-      :username => name,
-      :fullname => name
-    }
-  end
-end
-
 When(/^I use the browser to enter in the application$/) do
   visit '/'
 end
@@ -111,3 +102,25 @@ Then(/^I should see these steps available:$/) do |table|
     page.should have_content(step_type["Step"])
   end
 end
+
+When(/^I perform the step "([^"]*)"$/) do |step_name|
+    click_on(step_name)
+end
+
+Then(/^I should not have performed the step "([^"]*)"$/) do |step_name|
+  within("#steps_finished .panel") do
+    page.should have_no_content(step_name)
+  end
+end
+
+Then(/^I should have performed the step "([^"]*)" with the following barcodes:$/) do |step_name, table|
+  # table is a Cucumber::MultilineArgument::DataTable
+  within("#steps_finished .panel") do
+    page.should have_content(step_name)
+    table.hashes.each do |barcode|
+      page.should have_content(barcode["Barcode"])
+    end
+  end
+end
+
+
