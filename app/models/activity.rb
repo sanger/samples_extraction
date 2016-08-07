@@ -59,6 +59,10 @@ class Activity < ActiveRecord::Base
     step_types.includes(:condition_groups => :conditions).select{|step_type| step_type.compatible_with?(assets, required_assets)}
   end
 
+  def step_types_active
+    step_types_for(asset_group.assets)
+  end
+
   def step(step_type, user, step_params)
     step = steps.in_progress.for_step_type(step_type).first
     if step.nil? && step_params.nil? && (step_type.step_template.nil? || step_type.step_template.empty?)
@@ -80,6 +84,7 @@ class Activity < ActiveRecord::Base
         raise StepWithoutInputs
       end
     end
+    step
   end
 
 end

@@ -12,6 +12,8 @@ gem 'sprockets-rails'
 
 gem 'js_cookie_rails'
 
+gem 'micro_token'
+
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails'
@@ -51,7 +53,7 @@ gem 'pmb-client', '0.1.0', :github => 'sanger/pmb-client'
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
-group :development, :test do
+group :development, :test, :selenium do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
   gem 'factory_girl_rails'
@@ -69,13 +71,24 @@ group :debug do
 
 end
 
-group :test do
+group :test, :selenium do
   gem 'shoulda'
   gem 'factory_girl'
   gem 'rspec-rails'
   gem 'shoulda-matchers'
   gem 'rails-controller-testing'
+  gem 'cucumber-rails', :require => false
+  gem 'database_cleaner'
 end
+
+group :selenium do
+  gem 'selenium-webdriver'
+end
+
+group :test do
+  gem 'poltergeist'
+end
+
 
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> in views

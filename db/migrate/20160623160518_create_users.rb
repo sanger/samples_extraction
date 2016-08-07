@@ -6,7 +6,7 @@ class CreateUsers < ActiveRecord::Migration
       t.string :barcode
       t.string :username
       t.string :fullname
-      
+      t.string :token
 
       t.timestamps null: false
     end

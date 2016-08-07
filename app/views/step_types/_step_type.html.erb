@@ -6,10 +6,7 @@
           <%= step_type.name %>
         </a>
       <% else %>
-      <%= bootstrap_form_for @activity, action: 'update' do |f| %>
-          <input type="hidden" name="user_barcode" value="" />
-          <input type="hidden" name="step_type" value="<%= step_type.id %>" />
-          <!-- %= render :partial => 'barcode_reader' % -->
+      <%= bootstrap_form_for [@activity, step_type, Step.new], action: 'create' do |f| %>
           <%= f.submit step_type.name, :class => 'btn btn-primary' %>
         <% end %>
       <% end %>

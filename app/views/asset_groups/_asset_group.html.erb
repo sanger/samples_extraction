@@ -1,16 +1,15 @@
 <div class="form-group">
-  <!-- %= bootstrap_form_for [@activity, @asset_group], action: 'update', remote: true, html: { :autocomplete => 'off', :"data-psd-asset-group-form" => "1"} do |f| % -->
   <%= bootstrap_form_for [@activity, @asset_group], action: 'update', remote: true, html: { :autocomplete => 'off', :"data-psd-asset-group-form" => "1"} do |f| %>
 
-  <input type="hidden" name="delete_barcode" value="" />
+  <input type="hidden" name="asset_group[delete_barcode]" id="asset_group_delete_barcode" value="" />
   <label class="control-label">What do I have?</label>
   <div class="panel panel-default">
     <div class="panel-header">
-      <label for="add_barcode" class="control-label">Add a barcode</label>
+      <label for="asset_group_add_barcode" class="control-label">Add a barcode</label>
       <div class="input-group">
-        <input name='add_barcode' class="form-control" type='text' placeholder='Scan a barcode' />
+        <input name='asset_group[add_barcode]' id="asset_group_add_barcode" class="form-control" type='text' placeholder='Scan a barcode' />
         <span class="input-group-btn">
-          <%= button_tag(class: "btn btn-default barcode-send") do %>
+          <%= button_tag(class: "btn btn-default barcode-send", title: "Send barcode") do %>
              <span class="glyphicon glyphicon-arrow-down"></span>
           <% end %>
         </span>

@@ -1,7 +1,7 @@
 class ActivitiesController < ApplicationController
   before_action :set_activity, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
   before_action :select_assets, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
-  before_action :select_assets_grouped, nly: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
+  before_action :select_assets_grouped, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
 
   before_action :set_kit, only: [:create]
   before_action :set_instrument, only: [:create]
@@ -9,9 +9,15 @@ class ActivitiesController < ApplicationController
   before_action :set_user, only: [:update]
 
   before_action :set_uploaded_files, only: [:update]
-  before_action :set_params_for_step_in_progress, only: [:update]
+  #before_action :set_params_for_step_in_progress, only: [:update]
 
   before_action :set_activity_type, only: [:create_without_kit]
+
+  #before_filter :session_authenticate, only: [:update, :create]
+
+  def session_authenticate
+    raise ActionController::InvalidAuthenticityToken unless session[:session_id]
+  end
 
   def update
     perform_previous_step_type
@@ -30,6 +36,7 @@ class ActivitiesController < ApplicationController
 
 
   def show
+    @assets = @activity.asset_group.assets
     @step_types = @activity.step_types_for(@assets)
     @steps = @activity.previous_steps
 
@@ -41,6 +48,36 @@ class ActivitiesController < ApplicationController
 
   def index
   end
+
+
+  def finished
+    @in_steps_finished = true
+    @steps = @activity.previous_steps
+
+    respond_to do |format|
+      format.html {
+        render 'steps/_finished', :locals => {
+          :steps => @steps,
+          :activity => @activity,
+        }, :layout => false
+      }
+    end
+  end
+
+  def finished_with_operations
+    @steps = @activity.previous_steps
+
+    respond_to do |format|
+      format.html {
+        render 'steps/_finished', :locals => {
+          :steps => @steps,
+          :activity => @activity,
+          :selected_step_id => params[:step_id]
+        }, :layout => false
+      }
+    end
+  end
+
 
   def create_without_kit
     @asset_group = AssetGroup.create
@@ -81,55 +118,14 @@ class ActivitiesController < ApplicationController
     end
   end
 
-
-  def step_types_active
-    @step_types = @activity.step_types_for(@assets)
-
-    respond_to do |format|
-      format.html {
-        render 'steps/_active', :locals => {
-          :step_types => @step_types,
-          :activity => @activity
-        }, :layout => false
-      }
-    end
-  end
-
-  def steps_finished
-    @in_steps_finished = true
-    @steps = @activity.previous_steps
-
-    respond_to do |format|
-      format.html {
-        render 'steps/_finished', :locals => {
-          :steps => @steps,
-          :activity => @activity,
-        }, :layout => false
-      }
-    end
-  end
-
-  def steps_finished_with_operations
-    @steps = @activity.previous_steps
-
-    respond_to do |format|
-      format.html {
-        render 'steps/_finished', :locals => {
-          :steps => @steps,
-          :activity => @activity,
-          :selected_step_id => params[:step_id]
-        }, :layout => false
-      }
-    end
-  end
-
   private
 
     def set_user
-      @user = User.find_by_barcode!(params[:user_barcode])
-    rescue ActiveRecord::RecordNotFound => e
-      flash[:danger] = 'User not found'
-      redirect_to :back
+      @user = @current_user
+      if @user.nil?
+        flash[:danger] = 'User not found'
+        redirect_to :back
+      end
     end
 
     def set_kit
@@ -181,45 +177,6 @@ class ActivitiesController < ApplicationController
     end
   end
 
-  def set_params_for_step_in_progress
-    if params[:step_params]
-      if params[:step_params][:pairings]
-        step_type = @activity.step_types.find_by_id!(params[:step_type])
-        @pairings = params[:step_params][:pairings].values.map do |obj|
-          Pairing.new(obj, step_type)
-        end
-        #debugger
-        unless @pairings.all?(&:valid?)
-          flash[:danger] = @pairings.map(&:error_messages).join('\n')
-          redirect_to :back
-        end
-
-        @in_progress_params = @pairings.map do |pairing|
-          {
-          :assets => pairing.assets,
-          :state => params[:step_params][:state]
-          }
-        end
-      end
-    end
-  end
-
-  def perform_previous_step_type
-    if params[:step_type]
-      valid_step_types = @activity.step_types_for(@assets)
-      step_type_to_do = @activity.step_types.find_by_id!(params[:step_type])
-      if valid_step_types.include?(step_type_to_do)
-        @step_performed = @activity.step(step_type_to_do, @user, @in_progress_params)
-        @upload_ids.each do |upload_id|
-          @step_performed.uploads << Upload.find_by_id!(upload_id)
-        end
-        @upload_ids=[]
-        @assets.reload
-      end
-    end
-  rescue Activity::StepWithoutInputs
-    flash[:danger] = 'We could not create a new step because we do not have inputs for it'
-  end
 
   def assets_by_fact_group
     return [] unless @assets

@@ -10,7 +10,7 @@ class Step < ActiveRecord::Base
 
   after_create :execute_actions, :unless => :in_progress?
 
-  before_save :assets_compatible_with_step_type, :unless => :in_progress?
+  before_create :assets_compatible_with_step_type, :unless => :in_progress?
 
   class RelationCardinality < StandardError
   end
@@ -106,8 +106,8 @@ class Step < ActiveRecord::Base
   end
 
   def progress_with(step_params)
-    assets = step_params[:assets]
     ActiveRecord::Base.transaction do |t|
+      assets = step_params[:assets]
       update_attributes(:in_progress? => true)
 
       asset_group.assets << assets
@@ -117,9 +117,8 @@ class Step < ActiveRecord::Base
         r.execute(self, asset_group, asset, created_assets, nil)
       end
       asset_group.update_attributes(:assets => [])
+      finish if step_params[:state]=='done'
     end
-
-    finish if step_params[:state][:done]
   end
 
   def finish

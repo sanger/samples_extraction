@@ -1,10 +1,25 @@
 class StepTypesController < ApplicationController
   before_action :set_step_type, only: [:show, :edit, :update, :destroy]
+  before_action :set_activity, only: [:active]
+
+  before_filter :nested_step_types, only: [:index]
+
+  def nested_step_types
+    if step_type_params[:activity_id]
+      @activity = Activity.find(step_type_params[:activity_id])
+      @step_types = @activity.step_types_active
+    else
+      @step_types = StepType.all
+    end
+  end
 
   # GET /step_types
   # GET /step_types.json
   def index
-    @step_types = StepType.all
+    #@step_types = StepType.all
+    respond_to do |format|
+      format.html { render 'active', :layout => false } if @activity
+    end
   end
 
   # GET /step_types/1
@@ -19,6 +34,20 @@ class StepTypesController < ApplicationController
 
   # GET /step_types/1/edit
   def edit
+  end
+
+  def active
+    @assets = @activity.asset_group.assets
+    @step_types = @activity.step_types_for(@assets)
+
+    respond_to do |format|
+      format.html {
+        render 'steps/_active', :locals => {
+          :step_types => @step_types,
+          :activity => @activity
+        }, :layout => false
+      }
+    end
   end
 
   # POST /step_types
@@ -67,8 +96,14 @@ class StepTypesController < ApplicationController
       @step_type = StepType.find(params[:id])
     end
 
+    def set_activity
+      @activity = Activity.find(params[:activity_id])
+    end
+
     # Never trust parameters from the scary internet, only allow the white list through.
     def step_type_params
-      params.require(:step_type).permit(:name, :n3_definition, :step_template)
+      params.permit(:activity_id, :id, :name, :n3_definition, :step_template)
     end
+
+
 end

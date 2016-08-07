@@ -1,3 +1,4 @@
 language: ruby
 before_script:
+  - "export SECRET_KEY_BASE=`bundle exec rake secret`"
   - "bundle exec rake db:create RAILS_ENV=test"
