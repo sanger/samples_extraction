@@ -6,7 +6,7 @@ Given(/^I am an operator called "([^"]*)"$/) do |name|
 end
 
 Then(/^I am not logged in$/) do
-  page.should have_content("Not logged")
+  expect(page.has_content?("Not logged")).to eq(true)
 end
 
 
@@ -26,7 +26,7 @@ When(/^I log in as "([^"]*)"$/) do |name|
 end
 
 Then(/^I am logged in as "([^"]*)"$/) do |arg1|
-  expect(page.has_content?("Logged as Bob")).to eq(true)
+  expect(page.has_content?("Logged")).to eq(true)
 end
 
 
