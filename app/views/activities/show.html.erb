@@ -9,10 +9,7 @@
 <% end %>
 
 <% if @assets && !@activity.finished? %>
-  <%= render :partial =>'steps/active', :locals => {
-    :step_types => @step_types,
-    :activity => @activity }
-    %>
+  <%= render :template => 'step_types/active' %>
 <% end %>
 
 <% if @activity.finished? %>
@@ -20,10 +17,10 @@
   This activity was finished at <%= @activity.completed_at %>
 </div>
 <% else %>
-  <%= render :partial => 'assets_selection' %>
+  <%= render :template => 'asset_groups/show' %>
 <% end %>
 
-  <%= render :partial =>'steps/finished', :locals => {:steps => @steps} %>
+  <%= render :template =>'steps/finished' %>
 
   <% unless @activity.finished? %>
     <%= bootstrap_form_for @activity, action: 'update' do |f| %>

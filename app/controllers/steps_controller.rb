@@ -1,10 +1,26 @@
 class StepsController < ApplicationController
   before_action :set_step, only: [:show, :edit, :update, :destroy]
+  before_action :set_activity, only: [:create]
+
+  before_filter :nested_steps, only: [:index]
+
+  def nested_steps
+    if step_params[:activity_id]
+      @activity = Activity.find(step_params[:activity_id])
+      @steps = @activity.steps
+    else
+      @steps = Step.all
+    end
+  end
+
 
   # GET /steps
   # GET /steps.json
   def index
-    @steps = Step.all
+    #@steps = Step.all
+    respond_to do |format|
+      format.html { render 'finished', :layout => false } if @activity
+    end
   end
 
   # GET /steps/1
@@ -21,14 +37,64 @@ class StepsController < ApplicationController
   def edit
   end
 
-  # POST /steps
-  # POST /steps.json
+
+
+  def set_params_for_step_in_progress
+    if params[:step_params]
+      if params[:step_params][:pairings]
+        step_type = @activity.step_types.find_by_id!(params[:step_type])
+        @pairings = params[:step_params][:pairings].values.map do |obj|
+          Pairing.new(obj, step_type)
+        end
+        #debugger
+        unless @pairings.all?(&:valid?)
+          flash[:danger] = @pairings.map(&:error_messages).join('\n')
+          redirect_to :back
+        end
+
+        @in_progress_params = @pairings.map do |pairing|
+          {
+          :assets => pairing.assets,
+          :state => params[:step_params][:state]
+          }
+        end
+      end
+    end
+  end
+
+  def perform_step
+    if params[:step_type]
+      valid_step_types = @activity.step_types_for(@assets)
+      step_type_to_do = @activity.step_types.find_by_id!(params[:step_type])
+      if valid_step_types.include?(step_type_to_do)
+        @step_performed = @activity.step(step_type_to_do, @user, @in_progress_params)
+        @upload_ids.each do |upload_id|
+          @step_performed.uploads << Upload.find_by_id!(upload_id)
+        end
+        @upload_ids=[]
+        @assets.reload
+      end
+    end
+  rescue Activity::StepWithoutInputs
+    flash[:danger] = 'We could not create a new step because we do not have inputs for it'
+  end
+
+
+  # POST /activity/:activity_id/step_type/:step_type_id/create
   def create
-    @step = Step.new(step_params)
+    valid_step_types = @activity.step_types_for(@assets)
+    step_type_to_do = @activity.step_types.find_by_id!(@step_type.id)
+    if valid_step_types.include?(step_type_to_do)
+      @step = @activity.step(step_type_to_do, @current_user, @in_progress_params)
+      #@upload_ids.each do |upload_id|
+      #  @step_performed.uploads << Upload.find_by_id!(upload_id)
+      #end
+      #@upload_ids=[]
+    end
 
     respond_to do |format|
       if @step.save
-        format.html { redirect_to @step, notice: 'Step was successfully created.' }
+        format.html { redirect_to @activity, notice: 'Step was successfully created.' }
         format.json { render :show, status: :created, location: @step }
       else
         format.html { render :new }
@@ -69,6 +135,17 @@ class StepsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def step_params
-      params.fetch(:step, {})
+      params.permit(:activity_id, :id)
+      #params.fetch(:step, {})
     end
+
+    # Use callbacks to share common setup or constraints between actions.
+    def set_activity
+      @activity = Activity.find(params[:activity_id])
+      @asset_group = @activity.asset_group
+      @assets = @asset_group.assets
+      @step_type = StepType.find(params[:step_type_id])
+    end
+
+
 end

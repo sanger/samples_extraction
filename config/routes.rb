@@ -11,13 +11,18 @@ Rails.application.routes.draw do
   resources :activities do
     resources :uploads
     resources :asset_groups
+    resources :step_types do
+      resources :steps do
+      end
+    end
+    resources :steps do
+    end
   end
 
   resources :reracking do
     resources :uploads
     resources :asset_groups
   end
-
 
   resources :assets, :path => 'labware' do
     collection do
@@ -39,12 +44,12 @@ Rails.application.routes.draw do
 
 
 
-  get 'activities/:id/step_types_active' => 'activities#step_types_active'
-  get 'activities/:id/steps_finished' => 'activities#steps_finished'
-  get 'activities/:id/steps_finished_with_operations/:step_id' => 'activities#steps_finished_with_operations'
+  #get 'activities/:id/step_types_active' => 'activities#step_types_active'
+  #get 'activities/:id/steps_finished' => 'activities#steps_finished'
+  #get 'activities/:id/steps_finished_with_operations/:step_id' => 'activities#steps_finished_with_operations'
 
 
-  get 'reracking/steps_finished' => 'reracking#steps_finished'
+  #get 'reracking/steps_finished' => 'reracking#steps_finished'
 
   if (ENV["RAILS_ENV"]==:debug)
     mount Peek::Railtie => '/peek'

@@ -33,14 +33,14 @@
     $('[data-psd-asset-group-delete-barcode]', node).on('click', $.proxy(function(e) {
       if (!((e.screenX==0) && (e.screenY==0))) {
         // Yes, I know...
-        $('input[name=delete_barcode]', this.form).val($(e.target).attr('data-psd-asset-group-delete-barcode'));
+        $('input#asset_group_delete_barcode', this.form).val($(e.target).attr('data-psd-asset-group-delete-barcode'));
       }
     }, this));
   };
 
   proto.cleanInput = function() {
-    $('input[name=add_barcode]', this.form).val('');
-    $('input[name=delete_barcode]', this.form).val('');
+    $('input#asset_group_add_barcode', this.form).val('');
+    $('input#asset_group_delete_barcode', this.form).val('');
   };
 
   proto.reloadStepTypes = function() {
@@ -87,7 +87,7 @@
       });
     });
 
-    $('input[name=add_barcode]', node).on('keydown', $.proxy(function(e) {
+    $('input#asset_group_add_barcode', node).on('keydown', $.proxy(function(e) {
       if (e.keyCode === 9) {
         // Default behaviour of Tabulator is to change to the next input before keyup event; we
         // customized this behaviour to perform a submit Rails-way instead

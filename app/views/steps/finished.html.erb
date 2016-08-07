@@ -1,0 +1,14 @@
+<div class="form-group" id="steps_finished" data-psd-steps-update-url="<%= activity_path(@activity)+'/steps' %>" data-psd-steps-update-complete-url="<%= activity_path(@activity)+'/steps_finished_with_operations' %>">
+  <label class="control-label">What happened before?</label>
+  <%= render :partial => 'steps/steps', :locals => {:steps => @steps} %>
+</div>
+
+<%# if current_page?(controller: 'activity', action: 'update') %>
+
+<!-- script type="text/javascript">
+  $("tr[data-target]").on('click', function(e) {
+    $("#steps_finished").load($("#steps_finished").data("psd-steps-update-complete-url")+'/'+$(e.currentTarget).data('psd-step-id'));
+  });
+</script -->
+<%# end %>
+
