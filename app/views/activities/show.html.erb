@@ -19,8 +19,9 @@
 <% else %>
   <%= render :template => 'asset_groups/show' %>
 <% end %>
-
+  <div id="steps_finished">
   <%= render :template =>'steps/finished' %>
+  </div>
 
   <% unless @activity.finished? %>
     <%= bootstrap_form_for @activity, action: 'update' do |f| %>

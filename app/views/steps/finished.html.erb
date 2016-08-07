@@ -1,4 +1,4 @@
-<div class="form-group" id="steps_finished" data-psd-steps-update-url="<%= activity_path(@activity)+'/steps' %>" data-psd-steps-update-complete-url="<%= activity_path(@activity)+'/steps_finished_with_operations' %>">
+<div class="form-group" data-psd-steps-update-url="<%= activity_path(@activity)+'/steps' %>" data-psd-steps-update-complete-url="<%= activity_path(@activity)+'/steps_finished_with_operations' %>">
   <label class="control-label">What happened before?</label>
   <%= render :partial => 'steps/steps', :locals => {:steps => @steps} %>
 </div>

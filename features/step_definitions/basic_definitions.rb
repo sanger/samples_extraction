@@ -79,14 +79,18 @@ end
 When(/^I scan these barcodes into the selection basket:$/) do |table|
   table.hashes.each do |barcode_info|
     fill_in('Scan a barcode', :with => barcode_info["Barcode"]+"\n")
-    find("form.edit_asset_group button.barcode-send").click
+    click_on('Send barcode')
+    #find("form.edit_asset_group button.barcode-send").click
   end
 end
 
 Then(/^I should see these barcodes in the selection basket:$/) do |table|
   within('form.edit_asset_group') do
     table.hashes.each do |barcode|
-      page.should have_content(barcode["Barcode"])
+      if (page.has_content?("tr"))
+        page.should have_content(barcode["Barcode"])
+      end
+      #page.should have_content(barcode["Barcode"])
     end
   end
   # table is a Cucumber::MultilineArgument::DataTable
@@ -104,7 +108,7 @@ Then(/^I should see these steps available:$/) do |table|
 end
 
 When(/^I perform the step "([^"]*)"$/) do |step_name|
-    click_on(step_name)
+  find("form.new_step").click
 end
 
 Then(/^I should not have performed the step "([^"]*)"$/) do |step_name|
