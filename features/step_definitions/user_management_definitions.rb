@@ -26,7 +26,7 @@ When(/^I log in as "([^"]*)"$/) do |name|
 end
 
 Then(/^I am logged in as "([^"]*)"$/) do |arg1|
-  expect(page.has_content?("Logged")).to eq(true)
+  expect(page).to have_content("Logged")
 end
 
 
