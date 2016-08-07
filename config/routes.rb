@@ -42,6 +42,9 @@ Rails.application.routes.draw do
   resources :history
   resources :reracking
 
+  # Trying to make fonts work out in poltergeist
+  get '/fonts/bootstrap/:name', to: redirect('/assets/bootstrap/%{name}')
+
 
 
   #get 'activities/:id/step_types_active' => 'activities#step_types_active'

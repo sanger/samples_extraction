@@ -28,7 +28,7 @@ class Step < ActiveRecord::Base
   scope :for_step_type, ->(step_type) { where(:step_type => step_type)}
 
   def assets_compatible_with_step_type
-    throw :abort unless step_type.compatible_with?(activity.asset_group.assets) || (activity.asset_group.assets.count == 0)
+    throw :abort unless step_type.compatible_with?(asset_group.assets) || (asset_group.assets.count == 0)
   end
 
   # Identifies which asset acting as subject is compatible with which rule.
