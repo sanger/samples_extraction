@@ -39,26 +39,22 @@ class StepsController < ApplicationController
 
 
 
-  def set_params_for_step_in_progress
-    if params[:step_params]
-      if params[:step_params][:pairings]
-        step_type = @activity.step_types.find_by_id!(params[:step_type])
-        @pairings = params[:step_params][:pairings].values.map do |obj|
-          Pairing.new(obj, step_type)
-        end
-        #debugger
-        unless @pairings.all?(&:valid?)
-          flash[:danger] = @pairings.map(&:error_messages).join('\n')
-          redirect_to :back
-        end
+  def params_for_step_in_progress
+    return nil unless params[:step] && params[:step][:pairings]
+    @pairings = create_step_params[:pairings].values.map do |obj|
+      Pairing.new(obj, @step_type)
+    end
 
-        @in_progress_params = @pairings.map do |pairing|
-          {
-          :assets => pairing.assets,
-          :state => params[:step_params][:state]
-          }
-        end
-      end
+    unless @pairings.all?(&:valid?)
+      flash[:danger] = @pairings.map(&:error_messages).join('\n')
+      redirect_to :back
+    end
+
+    @pairings.map do |pairing|
+      {
+      :assets => pairing.assets,
+      :state => create_step_params[:state]
+      }
     end
   end
 
@@ -67,7 +63,7 @@ class StepsController < ApplicationController
       valid_step_types = @activity.step_types_for(@assets)
       step_type_to_do = @activity.step_types.find_by_id!(params[:step_type])
       if valid_step_types.include?(step_type_to_do)
-        @step_performed = @activity.step(step_type_to_do, @user, @in_progress_params)
+        @step_performed = @activity.step(step_type_to_do, @user, params_for_step_in_progress)
         @upload_ids.each do |upload_id|
           @step_performed.uploads << Upload.find_by_id!(upload_id)
         end
@@ -85,7 +81,7 @@ class StepsController < ApplicationController
     valid_step_types = @activity.step_types_for(@assets)
     step_type_to_do = @activity.step_types.find_by_id!(@step_type.id)
     if valid_step_types.include?(step_type_to_do)
-      @step = @activity.step(step_type_to_do, @current_user, @in_progress_params)
+      @step = @activity.step(step_type_to_do, @current_user, params_for_step_in_progress)
       #@upload_ids.each do |upload_id|
       #  @step_performed.uploads << Upload.find_by_id!(upload_id)
       #end
@@ -135,8 +131,12 @@ class StepsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def step_params
-      params.permit(:activity_id, :id)
+      params.permit(:activity_id, :step_type_id, :id)
       #params.fetch(:step, {})
+    end
+
+    def create_step_params
+      params.require(:step).permit!
     end
 
     # Use callbacks to share common setup or constraints between actions.

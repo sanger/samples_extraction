@@ -1,1 +1,4 @@
-<div class="fact"><span class="label label-default"><%= fact.predicate %>:<%= fact.object %></span></div>
+<div class="fact"><span class="label label-default
+  <%= fact.to_add_by ? 'to_add' : '' if fact.respond_to?(:to_add_by) %>
+  <%= fact.to_remove_by ? 'to_remove' : '' if fact.respond_to?(:to_remove_by)%>
+  "><%= fact.predicate %>:<%= fact.object %></span></div>

@@ -19,12 +19,17 @@
 
   };
 
+  proto.focusToAddBarcode = function() {
+    $('input#asset_group_add_barcode', this.form).focus();
+  };
+
   proto.render = function(json) {
     this.container.html(json);
     this.form = $('form', this.container);
     this.attachHandlers(this.form);
     this.reloadStepTypes();
     this.reloadSteps();
+    this.focusToAddBarcode();
     //this.content.html(json);
     //this.attachDeleteButtons(this.content);
   };

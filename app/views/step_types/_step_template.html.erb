@@ -4,7 +4,7 @@
       :locals => { :step_type => step_type, :index => index } %>
 </div>
 <%= bootstrap_form_for [@activity, step_type, Step.new], action: 'create', class: 'step-template-form' do |f| %>
-  <input type="hidden" name='step_params[state][done]' value='true' />
+  <input type="hidden" name='step[state]' value='done' />
 
   <% if @upload_ids %>
     <input type="hidden" name="upload_ids" value="<%= @upload_ids %>" />

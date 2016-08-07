@@ -19,13 +19,17 @@
     var proto = UserStatus.prototype;
 
     proto.initialize = function(params) {
-      this.updateLogin(params.sessionInfo);
+      if (params.sessionInfo) {
+        this.updateLogin(params.sessionInfo);
+      } else {
+        this.setCookie({});
+      }
     };
 
    proto.login = function(data) {
-     if (this.isLogged()) {
+     /*if (this.isLogged()) {
        this.logout();
-        }
+        }*/
      this.updateLogin(data);
        this.setCookie(data);
      $(this.node).trigger('login.user_status', data);
@@ -62,13 +66,17 @@
      $(document.body).toggleClass('logged-in', showStatus);
    };
 
+   proto.logoutUrl = function() {
+    return this.userServiceUrl+'/'+this.getBarcode()
+   };
+
    proto.logout = function(e) {
     if (typeof e !== 'undefined'){
       e.preventDefault();
     }
 
 
-    $.ajax({method: 'delete', cache: false, url: this.userServiceUrl+'/'+this.getBarcode(),
+    $.ajax({method: 'delete', cache: false, url: this.logoutUrl(),
       dataType: 'json', success: $.proxy(function() {
         this.resetBarcodeInput();
         this.val = this.getCookie();

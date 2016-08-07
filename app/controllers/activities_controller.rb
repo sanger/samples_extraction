@@ -9,7 +9,7 @@ class ActivitiesController < ApplicationController
   before_action :set_user, only: [:update]
 
   before_action :set_uploaded_files, only: [:update]
-  before_action :set_params_for_step_in_progress, only: [:update]
+  #before_action :set_params_for_step_in_progress, only: [:update]
 
   before_action :set_activity_type, only: [:create_without_kit]
 
