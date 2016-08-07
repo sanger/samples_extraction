@@ -25,8 +25,9 @@ When(/^I log in as "([^"]*)"$/) do |name|
   step(%Q{I log in with barcode "#{barcode}"})
 end
 
-Then(/^I am logged in as "([^"]*)"$/) do |arg1|
-  expect(page).to have_content("Logged")
+Then(/^I am logged in as "([^"]*)"$/) do |name|
+  expect(page).to have_css("body.logged-in")
+  expect(page).to have_content("Logged as "+name)
 end
 
 
