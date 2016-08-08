@@ -245,8 +245,9 @@ ActiveRecord::Schema.define(version: 20160723210242) do
     t.string   "username"
     t.string   "fullname"
     t.string   "token"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string   "role",       default: "operator"
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
   end
 
   add_foreign_key "actions", "step_types"

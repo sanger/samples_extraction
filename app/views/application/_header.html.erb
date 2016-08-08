@@ -72,26 +72,29 @@
       <ul class="nav navbar-nav">
         <%
         [
-          { :section => { :name => 'samples', :options => [
+          { :section => { :name => 'samples', css_class: 'anonymous-allowed', :options => [
             ['view_started', samples_started_index_path],
             ['view_not_started', samples_not_started_index_path]] } },
-          { :section => { :name => 'kit_types', :options => [
+          { :section => { :name => 'kit_types', css_class: 'administrator-allowed', :options => [
             ['new', new_kit_type_path],
             ['show', kit_types_path]] } },
-          { :section => { :name => 'kits', :options => [
+          { :section => { :name => 'kits', css_class: 'administrator-allowed', :options => [
             ['new',  new_kit_path],
             ['show', kits_path]] } },
-          { :section => { :name => 'instruments', :options => [
+          { :section => { :name => 'instruments', css_class: 'operator-allowed', :options => [
             ['new', new_instrument_path],
             ['show', instruments_path]] } },
-          { :section => { :name => 'activity_types', :options => [
+          { :section => { :name => 'activity_types', css_class: 'administrator-allowed', :options => [
             ['new', new_activity_type_path],
             ['show', activity_types_path]] } },
-          { :section => { :name => 'step_types', :options => [
+          { :section => { :name => 'step_types', css_class: 'administrator-allowed', :options => [
             ['new', new_step_type_path],
             ['show', step_types_path]] } },
-          { :section => { :name => 'history', :path => history_index_path}},
-          { :section => { :name => 'reracking', :path => reracking_index_path}}
+          { :section => { :name => 'history', css_class: 'anonymous-allowed', :path => history_index_path}},
+          { :section => { :name => 'admin', css_class: 'administrator-allowed', :options => [
+            ['show users',  users_path],
+            ['show labware', assets_path]] } },
+          { :section => { :name => 'reracking', css_class: 'operator-allowed', :path => reracking_index_path}}
         ].each do |obj| %>
           <%= render :partial => 'menu_section', :locals => obj %>
           <% end %>

@@ -46,17 +46,6 @@ Given the laboratory has the following instruments:
 | 1       | My instrument | Tubes to rack, Reracking |
 
 
-Scenario: Access to the system as an operator
-
-When I use the browser to enter in the application
-Then I should see the Instruments page
-
-When I log in as an unknown user
-Then I am not logged in
-
-When I log in as "Bob"
-Then I am logged in as "Bob"
-
 Scenario: Create a new activity with some assets
 
 When I create an activity with instrument "My Instrument" and kit "1"

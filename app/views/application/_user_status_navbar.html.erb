@@ -1,5 +1,5 @@
 <span data-psd-component-class="LoadingIcon" data-psd-component-parameters='{"containerIconClass" : "icon-login-refresh", "hideNodeSelector" : ".icon-login"}'>
-<div class="form-group user-status" data-psd-component-class="UserStatus" data-psd-component-parameters='{"usernameSelector" : ".username", "fullNameSelector": ".fullname", "logoutSelector": ".logged-out", "loginSelector": ".logged-in", "changeLoginSelector": ".change-login", "userServiceUrl": "<%= user_sessions_path %>", "sessionInfo": <%= @current_user ? @current_user.session_info.to_json : '{}'%>}'>
+<div class="form-group user-status" data-psd-component-class="UserStatus" data-psd-component-parameters='{"usernameSelector" : ".username", "fullNameSelector": ".fullname", "logoutSelector": ".logged-out", "loginSelector": ".logged-in", "changeLoginSelector": ".change-login", "roleSelector":".role", "userServiceUrl": "<%= user_sessions_path %>", "sessionInfo": <%= @current_user ? @current_user.session_info.to_json : '{}'%>}'>
 <div class="logged-out">
   <div href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
     <div class="login-button" style="">
@@ -53,6 +53,10 @@
           <div class="col-lg-8">
             <p class="text-left"><strong class="fullname"></strong></p>
           </div>
+          <div class="col-lg-8">
+            <p class="text-left"><i class="role"></i></p>
+          </div>
+
         </div>
       </div>
     </li>

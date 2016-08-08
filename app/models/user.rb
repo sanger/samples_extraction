@@ -11,7 +11,7 @@ class User < ActiveRecord::Base
   end
 
   def session_info
-    {:username => username, :fullname => fullname, :barcode => barcode}
+    {:username => username, :fullname => fullname, :barcode => barcode, :role => role}
   end
 
 end

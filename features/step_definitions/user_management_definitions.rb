@@ -26,8 +26,34 @@ When(/^I log in as "([^"]*)"$/) do |name|
 end
 
 Then(/^I am logged in as "([^"]*)"$/) do |name|
+  expect(page).to have_content("Logged as "+name)
   expect(page).to have_css("body.logged-in")
   expect(page).to have_content("Logged as "+name)
 end
 
 
+Given(/^I have the following users:$/) do |table|
+  table.hashes.each do |user|
+    FactoryGirl.create :user_with_barcode, {
+      :username => user["User"],
+      :fullname => user["User"],
+      :role => user["Role"]
+    }
+  end
+end
+
+Then(/^I should not be able to access the functionality needed for an operator$/) do
+  expect(page).not_to have_css('body.operator-role')
+end
+
+Then(/^I should not be able to access the functionality needed for an administrator$/) do
+  expect(page).not_to have_css('body.administrator-role')
+end
+
+Then(/^I should be able to access the functionality needed for an operator$/) do
+  expect(page).to have_css('body.operator-role')
+end
+
+Then(/^I should be able to access the functionality needed for an administrator$/) do
+  expect(page).to have_css('body.administrator-role')
+end
