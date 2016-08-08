@@ -25,6 +25,7 @@ class Action < ActiveRecord::Base
           {
             :predicate => predicate,
             :object => asset.relation_id,
+            :object_asset_id => asset.id,
             :literal => false
           }
         end
@@ -33,6 +34,7 @@ class Action < ActiveRecord::Base
           {
           :predicate => predicate,
           :object => asset.relation_id,
+          :object_asset_id => asset.id,
           :literal => false
           }
         end

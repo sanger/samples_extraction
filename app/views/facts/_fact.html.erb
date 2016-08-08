@@ -1,4 +1,20 @@
-<div class="fact administrator-allowed"><span class="label label-default
+<div class="fact administrator-allowed">
+  <span class="label label-default
   <%= fact.to_add_by ? 'to_add' : '' if fact.respond_to?(:to_add_by) %>
   <%= fact.to_remove_by ? 'to_remove' : '' if fact.respond_to?(:to_remove_by)%>
-  "><%= fact.predicate %>:<%= fact.object %></span></div>
+  ">
+  <% if fact.respond_to?(:to_add_by) && fact.to_add_by %>
+    <span class="glyphicon glyphicon-pencil">&nbsp;</span>
+  <% end %>
+  <% if fact.respond_to?(:to_remove_by) && fact.to_remove_by %>
+    <span class="glyphicon glyphicon-erase">&nbsp;</span>
+  <% end %>
+
+  <span class="predicate"><%= fact.predicate %></span>:<span class="object">
+  <% if fact.respond_to?(:object_asset_id) && fact.object_asset_id %>
+    <a class="object-reference" href='<%= asset_path(fact.object_asset_id) %>'><%= Asset.find(fact.object_asset_id).barcode %></a>
+  <% else %>
+    <%= fact.object %>
+  <% end %>
+  </span>
+</span></div>

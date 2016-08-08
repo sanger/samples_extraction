@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160723210242) do
+ActiveRecord::Schema.define(version: 20160808152447) do
 
   create_table "actions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "action_type",                null: false
@@ -89,6 +89,17 @@ ActiveRecord::Schema.define(version: 20160723210242) do
     t.index ["step_id"], name: "index_asset_groups_steps_on_step_id", using: :btree
   end
 
+  create_table "asset_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "subject_asset_id"
+    t.integer  "predicate_id"
+    t.integer  "object_asset_id"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+    t.index ["object_asset_id"], name: "index_asset_relations_on_object_asset_id", using: :btree
+    t.index ["predicate_id"], name: "index_asset_relations_on_predicate_id", using: :btree
+    t.index ["subject_asset_id"], name: "index_asset_relations_on_subject_asset_id", using: :btree
+  end
+
   create_table "assets", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "uuid"
     t.string   "barcode"
@@ -125,14 +136,16 @@ ActiveRecord::Schema.define(version: 20160723210242) do
 
   create_table "facts", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "asset_id"
-    t.string   "predicate",                   null: false
+    t.string   "predicate",                      null: false
     t.string   "object"
-    t.boolean  "literal",      default: true, null: false
+    t.boolean  "literal",         default: true, null: false
+    t.integer  "object_asset_id"
     t.integer  "to_add_by"
     t.integer  "to_remove_by"
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
     t.index ["asset_id"], name: "index_facts_on_asset_id", using: :btree
+    t.index ["object_asset_id"], name: "index_facts_on_object_asset_id", using: :btree
   end
 
   create_table "instruments", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -201,6 +214,12 @@ ActiveRecord::Schema.define(version: 20160723210242) do
     t.index ["step_id"], name: "index_operations_on_step_id", using: :btree
   end
 
+  create_table "predicates", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "step_types", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
     t.string   "step_template"
@@ -263,6 +282,7 @@ ActiveRecord::Schema.define(version: 20160723210242) do
   add_foreign_key "asset_groups_assets", "assets"
   add_foreign_key "asset_groups_steps", "asset_groups"
   add_foreign_key "asset_groups_steps", "steps"
+  add_foreign_key "asset_relations", "predicates"
   add_foreign_key "assets_facts", "assets"
   add_foreign_key "assets_facts", "facts"
   add_foreign_key "condition_groups", "step_types"

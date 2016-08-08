@@ -5,6 +5,7 @@ class CreateFacts < ActiveRecord::Migration
       t.string :predicate, :null => false
       t.string :object, :null => true
       t.boolean :literal, :default => true, :null => false
+      t.integer :object_asset_id, :default => nil, index: true, foreign_key: true
       t.integer :to_add_by, :default => nil, :null => true
       t.integer :to_remove_by, :default => nil, :null => true
       t.timestamps null: false
