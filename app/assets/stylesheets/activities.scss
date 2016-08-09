@@ -35,8 +35,26 @@ body.logged-off ul.step-selection input {
   padding-top: 0.5em;
   padding-bottom: 0.5em;
   border-width: 2px;
-  margin-bottom: 0.5em;
-  margin-left: 1em;
+  /*margin-bottom: 0.5em;*/
+  /* margin-left: 1em;*/
+
+  height: 8em;
+  overflow: hidden;
+}
+
+.condition-group-label .type-name {padding-left: 2em;}
+
+.condition-group-label:hover {
+  height: auto;
+  z-index:10;
+  position:absolute;
+  cursor:context-menu;
+}
+
+.condition-group-container {
+  padding-left: 1em !important;
+  padding-top: 1em !important;
+  /* padding-right: 1em; */
 }
 
 .not-matched .condition-group-label { @extend .alert-danger; }

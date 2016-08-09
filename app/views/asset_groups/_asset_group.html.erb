@@ -16,6 +16,7 @@
       </div>
 
     </div>
+    <% unless @asset_group.assets.empty? %>
     <div class="panel-body <%= 'not-matched' if @step_types.empty? %>">
       <div>
         <% if @step_types.empty? %>
@@ -46,6 +47,7 @@
         </div>
       </div>
     </div>
+    <% end %>
     <hr />
     <div class="panel-body collapse in" id="collapseAssets">
       <% unless @assets.empty? %>
