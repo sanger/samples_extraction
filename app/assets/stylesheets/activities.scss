@@ -28,7 +28,7 @@ body.logged-off ul.step-selection input {
 
 
 .condition-group-label {
-  @extend .alert-info;
+  @extend .alert-success;
 
   border-style: solid;
   border-radius: 7px;
@@ -36,7 +36,13 @@ body.logged-off ul.step-selection input {
   padding-bottom: 0.5em;
   border-width: 2px;
   margin-bottom: 0.5em;
+  margin-left: 1em;
 }
+
+.not-matched .condition-group-label { @extend .alert-danger; }
+.not-matched .condition-group-label.matched-group { @extend .alert-warning; }
+
+.not-matched .nav.nav-pills {margin-bottom: 0.5em; margin-left: 0.5em;}
 
 .condition-group {
   border-style: dashed;
@@ -48,6 +54,13 @@ body.logged-off ul.step-selection input {
   border-radius: 6px;
   margin-left: 1.5em;
   margin-top: 1em;
+}
+
+.row-eq-height {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display:         flex;
 }
 
 

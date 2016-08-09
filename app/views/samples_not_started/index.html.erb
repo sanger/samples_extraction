@@ -2,7 +2,7 @@
 
 <h1>Samples Not started</h1>
 
-<div id="samples_started">
+<div id="samples_not_started">
 <ul class="nav nav-tabs">
   <% @activity_types.each_with_index do |activity_type, index| %>
     <li role="presentation" class="<%= 'active' if index==0 %>">
@@ -48,12 +48,3 @@
 </div>
 
 
-<script type='text/javascript'>
-(function() {
-  $('#samples_started .nav li a').each(function(pos, node) {
-    if ($(node).data('activity-type-id')===<%= @activity_type_selected && @activity_type_selected.id %>) {
-      $(node).tab('show');
-    }
-  });
-}());
-</script>

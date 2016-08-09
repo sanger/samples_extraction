@@ -24,7 +24,7 @@
   </div>
 
   <% unless @activity.finished? %>
-    <%= bootstrap_form_for @activity, action: 'update' do |f| %>
+    <%= bootstrap_form_for @activity, action: 'update', :html => {:class => 'administrator-allowed'} do |f| %>
       <input type="hidden" name="user_barcode" value="" />
       <button name="finish" class='btn btn-danger'>Finish activity?</button>
     <% end %>

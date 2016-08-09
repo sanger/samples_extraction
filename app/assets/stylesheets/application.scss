@@ -316,20 +316,21 @@ form.search-form .input-group-btn { display:flex; }
 }
 
 div.fact span.to_add { };
-div.fact .object-reference { color: #fabada; background-color: #777777;}
+div.fact .object-reference { color: #eee; background-color: #777777; text-decoration: underline;}
 div.fact span.to_remove { color:silver; text-decoration: line-through;};
 
 .navbar-login i.role { text-transform: capitalize;}
 
-ul.nav > li {display: none;}
-body .anonymous-allowed { display: block !important;}
+nav.navbar ul.nav > li {display: none;}
+body .anonymous-allowed { display: inline-block !important;}
 body .operator-allowed { display: none;}
 body .administrator-allowed { display: none;}
-body.operator-role .operator-allowed {display:block !important;}
-body.administrator-role .administrator-allowed {display:block !important;}
-body.administrator-role .operator-allowed {display:block !important;}
+body.operator-role .operator-allowed {display:inline-block !important;}
+body.administrator-role .administrator-allowed {display:inline-block !important;}
+body.administrator-role .operator-allowed {display:inline-block !important;}
 
 
 form.edit_asset_group .barcode-adding-control { @extend .operator-allowed; }
 body .btn { @extend .operator-allowed; }
 body nav .btn { @extend .anonymous-allowed; }
+

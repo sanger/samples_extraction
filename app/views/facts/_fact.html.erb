@@ -5,8 +5,7 @@
   ">
   <% if fact.respond_to?(:to_add_by) && fact.to_add_by %>
     <span class="glyphicon glyphicon-pencil">&nbsp;</span>
-  <% end %>
-  <% if fact.respond_to?(:to_remove_by) && fact.to_remove_by %>
+  <% elsif fact.respond_to?(:to_remove_by) && fact.to_remove_by %>
     <span class="glyphicon glyphicon-erase">&nbsp;</span>
   <% end %>
 

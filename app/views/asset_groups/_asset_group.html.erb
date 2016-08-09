@@ -16,39 +16,39 @@
       </div>
 
     </div>
-    <div class="panel-body ">
-      <div data-toggle="collapse" href="#collapseAssets">
-      <div class="row">
-      <% @assets_grouped.each do |fact_group, assets| %>
-        <div class="col-xs-4 ">
-          <% if @step_types.length > 0 %>
-            <div class="col-xs-12 condition-group-label">
-              <ul class="list-unstyled">
-                <% fake_asset = Struct.new(:facts).new(fact_group) %>
-                <% @step_types.each do |step_type| %>
+    <div class="panel-body <%= 'not-matched' if @step_types.empty? %>">
+      <div>
+        <% if @step_types.empty? %>
+          <h4>No compatible steps were found</h4>
+        <% end %>
+        <div class="row">
+          <ul class="nav nav-pills">
+          <% @step_types = @asset_group.activity.step_types if @step_types.empty? %>
+          <% unless @step_types.length == 1 %>
+            <% @step_types.each do |step_type| %>
+              <li role="presentation" class="">
+                <a href="#at-<%= step_type.id %>" aria-controls="at-<%= step_type.id %>" role="tab" data-toggle="tab"><%= step_type.name %></a>
+              </li>
+            <% end %>
+          <% end %>
+          </ul>
+          <div class="<%= 'tab-content' unless @step_types.length == 1%>">
+            <% @step_types.each do |step_type| %>
+              <div role="tabpanel" class="tab-pane"
+                  id="at-<%= step_type.id %>">
+                <% @assets_grouped.each do |fact_group, assets| %>
+                  <% fake_asset = Struct.new(:facts).new(fact_group) %>
                   <% cgs=step_type.condition_groups.select do |c| %>
                     <% c.compatible_with?(fake_asset) %>
                   <% end %>
-                  <% if cgs %>
-                    <li><i><%= cgs.map(&:name).join(',') if cgs %></i> in <b><%= step_type.name %></b></li>
-                  <% end %>
+                  <%= render :partial => 'asset_groups/asset_type', :locals => {
+                      :fact_group => fact_group, :assets => assets, :cgs => cgs } %>
                 <% end %>
-
-              </ul>
-            </div>
-          <% end %>
-          <div class="col-xs-12">
-            <div class="col-xs-6">
-              <%= render :partial => 'facts/facts', :locals => {:facts =>fact_group, :show_facts => true, :show_image => true} %>
-            </div>
-            <div class="col-xs-6">
-              <span class="h4">&times;<%= assets.count %></span>
-            </div>
+              </div>
+            <% end %>
           </div>
         </div>
-      <% end %>
       </div>
-        </div>
     </div>
     <hr />
     <div class="panel-body collapse in" id="collapseAssets">

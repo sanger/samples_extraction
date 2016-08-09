@@ -1,5 +1,5 @@
 <span class="facts-list ">
-  <span class="<%= facts.map{|f| [f.predicate,f.object].join('-')}.join(' ')%>">
+  <span class="<%= facts.select{|f| f.to_remove_by.nil?}.map{|f| [f.predicate,f.object].join('-')}.join(' ')%>">
 
   <% type = facts.select{|f| f.predicate == 'a'} %>
     <% if type.length > 0 %>
