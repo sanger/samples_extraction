@@ -36,11 +36,7 @@
             <% @step_types.each do |step_type| %>
               <div role="tabpanel" class="tab-pane"
                   id="at-<%= step_type.id %>">
-                <% @assets_grouped.each do |fact_group, assets| %>
-                  <% fake_asset = Struct.new(:facts).new(fact_group) %>
-                  <% cgs=step_type.condition_groups.select do |c| %>
-                    <% c.compatible_with?(fake_asset) %>
-                  <% end %>
+                <% asset_types_for(@assets_grouped, step_type) do |fact_group, assets, cgs| %>
                   <%= render :partial => 'asset_groups/asset_type', :locals => {
                       :fact_group => fact_group, :assets => assets, :cgs => cgs } %>
                 <% end %>

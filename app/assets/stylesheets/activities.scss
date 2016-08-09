@@ -41,6 +41,7 @@ body.logged-off ul.step-selection input {
 
 .not-matched .condition-group-label { @extend .alert-danger; }
 .not-matched .condition-group-label.matched-group { @extend .alert-warning; }
+.not-matched .condition-group-label.matched-group.empty-group { @extend .alert-info; }
 
 .not-matched .nav.nav-pills {margin-bottom: 0.5em; margin-left: 0.5em;}
 

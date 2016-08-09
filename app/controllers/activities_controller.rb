@@ -188,7 +188,6 @@ class ActivitiesController < ApplicationController
         if f["object_asset_id"]
           obj="?"
         end
-        #obj_type.new(f["predicate"], obj, f["literal"], f["to_add_by"], f["to_remove_by"])
         obj_type.new(f["predicate"], obj, f["to_add_by"], f["to_remove_by"])
       end
     end
