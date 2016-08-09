@@ -182,7 +182,16 @@ class ActivitiesController < ApplicationController
     obj_type = Struct.new(:predicate,:object, :to_add_by, :to_remove_by)
     @assets.group_by do |a|
       a.facts.sort do |f1,f2|
-        f1.predicate <=> f2.predicate && f1.object <=> f2.object
+        # Canonical sort of facts
+        if f1.predicate == f2.predicate
+          obj1 = f1.object
+          obj1 =  '?' unless f1["object_asset_id"].nil?
+          obj2 = f1.object
+          obj2 =  '?' unless f2["object_asset_id"].nil?
+          (obj1 <=> obj2)
+        else
+          f1.predicate <=> f2.predicate
+        end
       end.map(&:as_json).map do |f|
         obj = f["object"]
         if f["object_asset_id"]
