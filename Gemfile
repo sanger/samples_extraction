@@ -5,7 +5,7 @@ gem 'tzinfo-data'
 
 gem 'ejs'
 gem 'dropzonejs-rails'
-
+gem 'rest-client'
 gem 'rails-assets-tether', '>= 1.1.0'
 gem 'bootstrap_form'
 gem 'sprockets-rails'
