@@ -225,8 +225,9 @@ ActiveRecord::Schema.define(version: 20160808152447) do
     t.string   "step_template"
     t.binary   "n3_definition",    limit: 65535
     t.integer  "superceded_by_id"
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
+    t.boolean  "for_reasoning",                  default: false, null: false
+    t.datetime "created_at",                                     null: false
+    t.datetime "updated_at",                                     null: false
     t.index ["superceded_by_id"], name: "index_step_types_on_superceded_by_id", using: :btree
   end
 

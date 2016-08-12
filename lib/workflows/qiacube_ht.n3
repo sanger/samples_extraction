@@ -2,6 +2,7 @@
 
 { ?p :a :Plate .
   ?p :is :NotStarted .
+  ?p :maxCardinality """1""" .
 } => {
   :step :stepTypeName """Create stamped plate""" .
   :step :addFacts {
@@ -18,6 +19,7 @@
 } .
 
 { ?p :a :StampedPlate .
+  ?p :maxCardinality """1""" .
 } => {
   :step :stepTypeName """Create Biorobot plate""" .
   :step :addFacts {
@@ -30,6 +32,7 @@
 } .
 
 { ?p :a :BiorobotPlate .
+  ?p :maxCardinality """1""" .
 } => {
   :step :stepTypeName """Create Stock plate""" .
   :step :addFacts {
@@ -42,6 +45,7 @@
 } .
 
 { ?p :a :StockPlate .
+  ?p :maxCardinality """1""" .
 } => {
   :step :stepTypeName """Perform QC""" .
   :step :addFacts { ?p :has :QCPerformed .} .

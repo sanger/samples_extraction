@@ -8,6 +8,7 @@
   :step :addFacts {
     ?p :has :Started .
     ?p :inRack ?q .
+    ?p :inPosition :locationInColumnOrder .
     ?q :contains ?p .
   } .
   :step :removeFacts {

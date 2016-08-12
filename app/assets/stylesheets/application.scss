@@ -293,6 +293,8 @@ header, .blurheader {
   .has-blood,.has-Blood {
     fill: red;
   }
+
+  .a1_dna .A1 { @extend .has-dna; }
 }
 
 

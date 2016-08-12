@@ -97,10 +97,10 @@ class Activity < ActiveRecord::Base
   def reasoning!
     unless reasoning_step_types_for(asset_group.assets).empty?
       asset_group.assets.each do |asset|
-        asset.reasoning! do |asset|
-          reasoning_step_types_for([asset]).each do |step_type|
+        asset.reasoning! do |assets|
+          reasoning_step_types_for(assets).each do |step_type|
             group = AssetGroup.create!
-            group.assets << asset
+            group.assets << assets
             steps.create!({
               :step_type => step_type,
               :asset_group_id => group.id,

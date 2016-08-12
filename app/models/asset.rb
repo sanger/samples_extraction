@@ -87,16 +87,22 @@ class Asset < ActiveRecord::Base
     obj
   end
 
+  def facts_for_reasoning
+    [facts, Fact.as_object(asset)].flatten
+  end
+
   def reasoning!(&block)
     num_iterations = 0
-    current_facts = facts.clone
+    current_facts = facts_for_reasoning
+    assets = current_facts.pluck(:asset)
     done = false
     while !done do
+
       previous_facts = current_facts.clone
 
-      yield asset
+      yield assets
 
-      current_facts = asset.facts
+      current_facts = facts_for_reasoning
 
       if ((current_facts == previous_facts) || (num_iterations >10))
         done = true
