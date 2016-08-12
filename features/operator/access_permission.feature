@@ -8,9 +8,9 @@ And not modify any other configuration.
 Background:
 
 Given I have the following users:
-| User    | Role     |
-| Alice   | admin    |
-| Bob     | operator |
+| User    | Role             |
+| Alice   | administrator    |
+| Bob     | operator         |
 
 Scenario: Access to the system functionalities depending on the role of the user
 
@@ -27,7 +27,7 @@ Then I am logged in as "Bob"
 And I should be able to access the functionality needed for an operator
 And I should not be able to access the functionality needed for an administrator
 
-When I log in as "Alice"
+When I log out
+And I log in as "Alice"
 Then I am logged in as "Alice"
-And I should be able to access the functionality needed for an operator
 And I should be able to access the functionality needed for an administrator

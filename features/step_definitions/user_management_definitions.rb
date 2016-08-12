@@ -1,7 +1,8 @@
 Given(/^I am an operator called "([^"]*)"$/) do |name|
   FactoryGirl.create :user_with_barcode, {
       :username => name,
-      :fullname => name
+      :fullname => name,
+      :role => 'operator'
   }
 end
 
@@ -11,10 +12,18 @@ end
 
 
 When(/^I log in with barcode "(\d+)"$/) do |user_barcode|
-  find('.logged-out .login-button').click
+  n=find('.logged-out')
+  n.click
   fill_in('Scan a user barcode', :with => user_barcode)
   click_on('Login')
 end
+
+When(/^I log out$/) do
+  n=find('.logged-in .change-login-status-button')
+  n.click
+  click_on('Logout')
+end
+
 
 When(/^I log in as an unknown user$/) do
   step(%Q{I log in with barcode "99"})

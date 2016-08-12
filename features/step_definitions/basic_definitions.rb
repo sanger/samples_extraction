@@ -33,7 +33,6 @@ Given(/^I have the following kits in house$/) do |table|
 end
 
 When(/^I create an activity with instrument "([^"]*)" and kit "(\d+)"$/) do |instrument_name, kit_barcode|
-  visit(instruments_path)
   click_on('Use')
   fill_in 'Kit barcode', with: kit_barcode
   click_on('Create')
