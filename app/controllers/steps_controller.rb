@@ -40,7 +40,8 @@ class StepsController < ApplicationController
 
 
   def params_for_step_in_progress
-    return nil unless params[:step] && params[:step][:pairings]
+    return nil if !params[:step]
+    return [{:state => 'done', :assets => [@asset_group.assets] }] unless params[:step][:pairings]
     @pairings = create_step_params[:pairings].values.map do |obj|
       Pairing.new(obj, @step_type)
     end
@@ -63,11 +64,8 @@ class StepsController < ApplicationController
       valid_step_types = @activity.step_types_for(@assets)
       step_type_to_do = @activity.step_types.find_by_id!(params[:step_type])
       if valid_step_types.include?(step_type_to_do)
+        apply_parsers(@asset_group.assets)
         @step_performed = @activity.step(step_type_to_do, @user, params_for_step_in_progress)
-        @upload_ids.each do |upload_id|
-          @step_performed.uploads << Upload.find_by_id!(upload_id)
-        end
-        @upload_ids=[]
         @assets.reload
       end
     end
@@ -81,11 +79,9 @@ class StepsController < ApplicationController
     valid_step_types = @activity.step_types_for(@assets)
     step_type_to_do = @activity.step_types.find_by_id!(@step_type.id)
     if valid_step_types.include?(step_type_to_do)
+      store_uploads
       @step = @activity.step(step_type_to_do, @current_user, params_for_step_in_progress)
-      #@upload_ids.each do |upload_id|
-      #  @step_performed.uploads << Upload.find_by_id!(upload_id)
-      #end
-      #@upload_ids=[]
+      @activity.reasoning!
     end
 
     respond_to do |format|
@@ -102,6 +98,7 @@ class StepsController < ApplicationController
   # PATCH/PUT /steps/1
   # PATCH/PUT /steps/1.json
   def update
+    store_uploads
     respond_to do |format|
       if @step.update(step_params)
         format.html { redirect_to @step, notice: 'Step was successfully updated.' }
@@ -147,5 +144,15 @@ class StepsController < ApplicationController
       @step_type = StepType.find(params[:step_type_id])
     end
 
+
+    def store_uploads
+      if params[:file]
+        @upload = Upload.create!(:data => params[:file].read,
+          :filename => params[:file].original_filename,
+          :activity => @activity,
+          :step => @step,
+          :content_type => params[:content_type])
+      end
+    end
 
 end

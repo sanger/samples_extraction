@@ -9,7 +9,6 @@ Rails.application.routes.draw do
   resources :step_types
   resources :steps
   resources :activities do
-    resources :uploads
     resources :asset_groups
     resources :step_types do
       resources :steps do
@@ -20,7 +19,6 @@ Rails.application.routes.draw do
   end
 
   resources :reracking do
-    resources :uploads
     resources :asset_groups
   end
 
@@ -30,7 +28,6 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :steps
   resources :activity_types
   resources :kit_types
   resources :kits

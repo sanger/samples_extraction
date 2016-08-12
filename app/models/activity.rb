@@ -65,7 +65,8 @@ class Activity < ActiveRecord::Base
 
   def step(step_type, user, step_params)
     step = steps.in_progress.for_step_type(step_type).first
-    if step.nil? && step_params.nil? && (step_type.step_template.nil? || step_type.step_template.empty?)
+    if step.nil? && step_params.nil?
+      # && (step_type.step_template.nil? || step_type.step_template.empty?)
       return steps.create!(:step_type => step_type, :asset_group_id => asset_group.id, :user_id => user.id)
     end
     if step_params
@@ -85,6 +86,29 @@ class Activity < ActiveRecord::Base
       end
     end
     step
+  end
+
+  def reasoning_step_types_for(assets)
+    step_types.for_reasoning.select do |s|
+      s.compatible_with?(assets)
+    end
+  end
+
+  def reasoning!
+    unless reasoning_step_types_for(asset_group.assets).empty?
+      asset_group.assets.each do |asset|
+        asset.reasoning! do |asset|
+          reasoning_step_types_for([asset]).each do |step_type|
+            group = AssetGroup.create!
+            group.assets << asset
+            steps.create!({
+              :step_type => step_type,
+              :asset_group_id => group.id,
+              :user_id => user.id})
+          end
+        end
+      end
+    end
   end
 
 end

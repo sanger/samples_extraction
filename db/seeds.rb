@@ -93,4 +93,11 @@ require 'support_n3'
 SupportN3.parse_file("lib/assets/graph3.n3")
 SupportN3.parse_file("lib/assets/graph2.n3")
 SupportN3.parse_file("lib/assets/reracking.n3")
+SupportN3.parse_file("lib/workflows/biorobot_investigator.n3")
+SupportN3.parse_file("lib/workflows/qiacube_ht.n3")
+SupportN3.parse_file("lib/workflows/qiasymphony.n3")
 
+activity_type = ActivityType.find_by_name('QIASymphony')
+instrument.activity_types
+kit_type = KitType.create(:activity_type => activity_type, :name => 'QIASymphony')
+kit = Kit.create( {:kit_type => kit_type, :barcode => 7777})

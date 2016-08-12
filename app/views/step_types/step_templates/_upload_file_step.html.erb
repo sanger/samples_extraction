@@ -1,4 +1,9 @@
-<div id="actions" class="row file-upload" data-uploader-config='{"url": "<%= activity_uploads_path(@activity.id) %>","identifier": "step-type-id-<%= step_type.id %>"}'>
+<div data-psd-component-class="UploadFile">
+<%= bootstrap_form_for [@activity, step_type, Step.new], action: 'create', class: 'step-template-form' do |f| %>
+  <input type="hidden" name='step[state]' value='done' />
+<div id="actions" class="row file-upload" >
+  <%= hidden_field_tag 'upload_ids' %>
+
   <div class="alert alert-danger alert-dismissible" style="display:none;" role="alert">
     <span class='msg'></span>
   </div>
@@ -38,4 +43,7 @@
       </button>
     </div>
   </div>
+</div>
+
+<% end %>
 </div>

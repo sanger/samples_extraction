@@ -54,6 +54,9 @@ class Action < ActiveRecord::Base
     if action_type == 'selectAsset'
       asset_group.assets << asset
     end
+    if action_type == 'updateService'
+      asset.update_attributes(:mark_to_update => true)
+    end
     if action_type == 'createAsset'
       unless created_assets[subject_condition_group.id]
         num_create = asset_group.assets.count

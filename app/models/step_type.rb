@@ -17,6 +17,8 @@ class StepType < ActiveRecord::Base
 
   scope :with_template, ->() { where('step_template is not null')}
 
+  scope :for_reasoning, ->{} { where(:for_reasoning => true)}
+
   def fact_css_classes
     {
       'addFacts' => 'glyphicon glyphicon-pencil',

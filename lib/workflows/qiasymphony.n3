@@ -1,0 +1,58 @@
+:activity :activityTypeName """QIASymphony""" .
+
+{
+  ?p :a :Tube .
+  ?p :is :NotStarted .
+} => {
+  :step :stepTypeName """Create a Rack for QIASymphony""" .
+  :step :addFacts {
+    ?p :has :Started .
+    ?p :inRack ?q .
+    ?q :contains ?p .
+  } .
+  :step :removeFacts {
+    ?p :is :NotStarted .
+  } .
+  :step :unselectAsset ?p .
+  :step :selectAsset ?q .
+  :step :createAsset {
+    ?q :a :TubeRack .
+    ?q :is :SymphonyCreated .
+    ?q :maxCardinality """1""" .
+  }.
+} .
+
+{
+    ?q :a :TubeRack .
+    ?q :is :SymphonyCreated .
+    ?q :maxCardinality """1""" .
+}=> {
+  :step :stepTypeName """Upload Symphony XML file""" .
+  :step :stepTemplate """upload_file_step""" .
+  :step :description """This step will create a new rack by using the xml provided and the list of tubes in the group, racking them in column order""" .
+  :step :addFacts {?q :is :SymphonyLoaded .}.
+}.
+
+{
+  :step :for :reasoning .
+  ?rack :a :TubeRack .
+  ?rack :is :SymphonyLoaded .
+  ?tube :is :Tube .
+  ?tube :inRack ?rack .
+  ?tube :inPlace ?position .
+  ?rack Symphony:RackPosition ?cell .
+  ?cell Symphony:PositionName ?position .
+  ?cell Symphony:SampleId ?sampleId .
+  ?cell Symphony:TotalVolumeInUl ?volume .
+} => {
+  :step :addFacts { ?tube :sampleId ?sampleId . } .
+  :step :addFacts { ?tube :totalVolumeInUl ?volume .} .
+  :step :destroyAsset ?cell .
+} .
+
+{
+  ?p :a :TubeRack .
+  ?p :is :SymphonyLoaded .
+} => {
+  :step :stepTypeName """QC for Symphony Rack""" .
+} .
