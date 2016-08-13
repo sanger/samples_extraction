@@ -117,8 +117,12 @@ module SupportN3
         condition_group.update_attributes(:cardinality => fragment(v))
       else
         # or we add the new condition
+        object_condition_group_id = nil
+        if condition_group_for(v)
+          object_condition_group_id = condition_group_for(v).id
+        end
         Condition.create({ :predicate => fragment(p), :object => fragment(v),
-        :condition_group_id => condition_group.id})
+        :condition_group_id => condition_group.id, :object_condition_group_id => object_condition_group_id})
       end
     end
 

@@ -101,8 +101,10 @@ Given(/^the step type "([^"]*)" has this configuration in N3:$/) do |step_type_n
 end
 
 Then(/^I should see these steps available:$/) do |table|
-  table.hashes.each do |step_type|
-    page.should have_content(step_type["Step"])
+  within("#step_types_active .panel") do
+    table.hashes.each do |step_type|
+      page.should have_content(step_type["Step"])
+    end
   end
 end
 

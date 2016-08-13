@@ -45,12 +45,11 @@ Given the laboratory has the following instruments:
 | Barcode | Name          | Activity types           |
 | 1       | My instrument | Tubes to rack, Reracking |
 
+Given I use the browser to enter in the application
+And I log in as "Bob"
 
 Scenario: Create a new activity with some assets
-When I use the browser to enter in the application
-Then I should see the Instruments page
-And I log in as "Bob"
-And I create an activity with instrument "My Instrument" and kit "1"
+When I create an activity with instrument "My Instrument" and kit "1"
 Then I should have created an empty activity for "Tubes to rack"
 
 When I scan these barcodes into the selection basket:

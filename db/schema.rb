@@ -127,23 +127,27 @@ ActiveRecord::Schema.define(version: 20160808152447) do
 
   create_table "conditions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "condition_group_id"
-    t.string   "predicate",          null: false
+    t.string   "predicate",                 null: false
     t.string   "object"
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
+    t.integer  "object_condition_group_id"
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
     t.index ["condition_group_id"], name: "index_conditions_on_condition_group_id", using: :btree
+    t.index ["object_condition_group_id"], name: "index_conditions_on_object_condition_group_id", using: :btree
   end
 
   create_table "facts", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "asset_id"
-    t.string   "predicate",                   null: false
+    t.string   "predicate",                      null: false
     t.string   "object"
-    t.boolean  "literal",      default: true, null: false
+    t.boolean  "literal",         default: true, null: false
+    t.integer  "object_asset_id"
     t.integer  "to_add_by"
     t.integer  "to_remove_by"
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
     t.index ["asset_id"], name: "index_facts_on_asset_id", using: :btree
+    t.index ["object_asset_id"], name: "index_facts_on_object_asset_id", using: :btree
   end
 
   create_table "instruments", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -223,8 +227,9 @@ ActiveRecord::Schema.define(version: 20160808152447) do
     t.string   "step_template"
     t.binary   "n3_definition",    limit: 65535
     t.integer  "superceded_by_id"
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
+    t.boolean  "for_reasoning",                  default: false, null: false
+    t.datetime "created_at",                                     null: false
+    t.datetime "updated_at",                                     null: false
     t.index ["superceded_by_id"], name: "index_step_types_on_superceded_by_id", using: :btree
   end
 
@@ -262,8 +267,9 @@ ActiveRecord::Schema.define(version: 20160808152447) do
     t.string   "username"
     t.string   "fullname"
     t.string   "token"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string   "role",       default: "operator"
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
   end
 
   add_foreign_key "actions", "step_types"
