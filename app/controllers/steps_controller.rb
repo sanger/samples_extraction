@@ -86,6 +86,7 @@ class StepsController < ApplicationController
 
     respond_to do |format|
       if @step.save
+        #format.html { render @activity}
         format.html { redirect_to @activity, notice: 'Step was successfully created.' }
         format.json { render :show, status: :created, location: @step }
       else
