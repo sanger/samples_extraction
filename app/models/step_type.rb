@@ -84,16 +84,13 @@ class StepType < ActiveRecord::Base
   end
 
   def condition_group_classification_for(assets)
-    @related_assets = []
-    h = Hash[assets.map{|asset| [asset, condition_groups_for(asset)]}]
-    @related_assets.each do |a|
+    related_assets = []
+    h = Hash[assets.map{|asset| [asset, condition_groups_for(asset, related_assets)]}]
+    related_assets.each do |a|
       h[a]= condition_groups_for(a)
     end
     h
   end
-
-  attr_reader :related_assets
-  attr_writer :related_assets
 
   def every_condition_group_satisfies_cardinality(classification)
     # http://stackoverflow.com/questions/10989259/swapping-keys-and-values-in-a-hash
@@ -135,9 +132,9 @@ class StepType < ActiveRecord::Base
     return false
   end
 
-  def condition_groups_for(asset)
+  def condition_groups_for(asset, related_assets = [])
     condition_groups.select do |condition_group|
-      condition_group.conditions_compatible_with?(asset)
+      condition_group.conditions_compatible_with?(asset, related_assets)
     end
   end
 

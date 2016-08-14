@@ -102,9 +102,8 @@ end
 
 Then(/^I should see these steps available:$/) do |table|
   within(".content_step_types") do
-    page.should have_no_content('No actions can be performed')
     table.hashes.each do |step_type|
-      page.should have_content(step_type["Step"])
+      expect(page.has_button?(step_type["Step"])).to eq(true)
     end
   end
 end

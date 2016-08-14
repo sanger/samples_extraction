@@ -12,7 +12,7 @@ end
 
 
 When(/^I log in with barcode "(\d+)"$/) do |user_barcode|
-  n=find('.logged-out')
+  n=find('.logged-out div.btn')
   n.click
   fill_in('Scan a user barcode', :with => user_barcode)
   click_on('Login')
