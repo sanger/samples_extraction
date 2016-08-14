@@ -16,9 +16,10 @@ class StepTypesController < ApplicationController
   # GET /step_types
   # GET /step_types.json
   def index
-    #@step_types = StepType.all
+    @step_types = StepType.all unless @activity
     respond_to do |format|
       format.html { render 'active', :layout => false } if @activity
+      format.html { render 'index' }
     end
   end
 

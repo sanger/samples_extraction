@@ -28,15 +28,40 @@ body.logged-off ul.step-selection input {
 
 
 .condition-group-label {
-  @extend .alert-info;
+  @extend .alert-success;
 
   border-style: solid;
   border-radius: 7px;
   padding-top: 0.5em;
   padding-bottom: 0.5em;
   border-width: 2px;
-  margin-bottom: 0.5em;
+  /*margin-bottom: 0.5em;*/
+  /* margin-left: 1em;*/
+
+  height: 8em;
+  overflow: hidden;
 }
+
+.condition-group-label .type-name {padding-left: 2em;}
+
+.condition-group-label:hover {
+  height: auto;
+  z-index:10;
+  /*position:absolute;*/
+  cursor:context-menu;
+}
+
+.condition-group-container {
+  padding-left: 1em !important;
+  padding-top: 1em !important;
+  /* padding-right: 1em; */
+}
+
+.not-matched .condition-group-label { @extend .alert-danger; }
+.not-matched .condition-group-label.matched-group { @extend .alert-warning; }
+.not-matched .condition-group-label.matched-group.empty-group { @extend .alert-info; }
+
+.not-matched .nav.nav-pills {margin-bottom: 0.5em; margin-left: 0.5em;}
 
 .condition-group {
   border-style: dashed;
@@ -49,3 +74,12 @@ body.logged-off ul.step-selection input {
   margin-left: 1.5em;
   margin-top: 1em;
 }
+
+.row-eq-height {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display:         flex;
+}
+
+

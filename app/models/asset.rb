@@ -87,6 +87,30 @@ class Asset < ActiveRecord::Base
     obj
   end
 
+  def facts_for_reasoning
+    [facts, Fact.as_object(asset)].flatten
+  end
+
+  def reasoning!(&block)
+    num_iterations = 0
+    current_facts = facts_for_reasoning
+    assets = current_facts.pluck(:asset)
+    done = false
+    while !done do
+
+      previous_facts = current_facts.clone
+
+      yield assets
+
+      current_facts = facts_for_reasoning
+
+      if ((current_facts == previous_facts) || (num_iterations >10))
+        done = true
+      end
+      num_iterations += 1
+    end
+    raise 'Too many iterations while reasoning...' if num_iterations > 10
+  end
 
   def generate_uuid
     update_attributes(:uuid => SecureRandom.uuid) if uuid.nil?
@@ -95,4 +119,5 @@ class Asset < ActiveRecord::Base
   def generate_barcode
     update_attributes(:barcode => Asset.count+1) if barcode.nil?
   end
+
 end

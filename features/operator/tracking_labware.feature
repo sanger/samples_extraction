@@ -45,20 +45,10 @@ Given the laboratory has the following instruments:
 | Barcode | Name          | Activity types           |
 | 1       | My instrument | Tubes to rack, Reracking |
 
-
-Scenario: Access to the system as an operator
-
-When I use the browser to enter in the application
-Then I should see the Instruments page
-
-When I log in as an unknown user
-Then I am not logged in
-
-When I log in as "Bob"
-Then I am logged in as "Bob"
+Given I use the browser to enter in the application
+And I log in as "Bob"
 
 Scenario: Create a new activity with some assets
-
 When I create an activity with instrument "My Instrument" and kit "1"
 Then I should have created an empty activity for "Tubes to rack"
 
@@ -72,8 +62,8 @@ Then I should see these barcodes in the selection basket:
 | 1       |
 | 2       |
 
-Scenario: Process a group of barcodes from the selection basket
 
+Scenario: Process a group of barcodes from the selection basket
 When I create an activity with instrument "My Instrument" and kit "1"
 And I scan these barcodes into the selection basket:
 |Barcode |
@@ -89,7 +79,8 @@ And I should see these steps available:
 | Step                    |
 | Change purpose of tube  |
 
-When I am not logged in
+When I log out
+And I am not logged in
 And I perform the step "Change purpose of tube"
 Then I should not have performed the step "Change purpose of tube"
 

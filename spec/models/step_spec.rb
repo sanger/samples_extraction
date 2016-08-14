@@ -13,6 +13,7 @@ RSpec.describe Step, type: :model do
   describe '#execute_actions' do
     setup do
       @step_type = FactoryGirl.create :step_type
+
       @cg1 = FactoryGirl.create(:condition_group,{:name => 'p'})
       @cg1.conditions << FactoryGirl.create(:condition,{
         :predicate => 'is', :object => 'Tube'})
@@ -40,6 +41,34 @@ RSpec.describe Step, type: :model do
           @step = create_step
           }.to raise_error(ActiveRecord::RecordNotSaved)
       end
+    end
+
+    describe 'with related assets in conditions' do
+      setup do
+        @cg2.conditions << FactoryGirl.create(:condition, {
+          :predicate => 'contains', :object_condition_group_id => @cg1.id})
+
+        @action = FactoryGirl.create(:action, {:action_type => 'addFacts',
+          :predicate => 'is', :object => 'TubeRack', :subject_condition_group => @cg2})
+        @step_type.actions << @action
+
+        @racks.each_with_index do |r, i|
+          r.facts << FactoryGirl.create(:fact, :predicate => 'contains', :object_asset_id => @tubes[i].id)
+        end
+      end
+
+      it 'executes the step when the related condition is met' do
+        previous_num = @asset_group.assets.count
+        @step = create_step
+
+        @racks.each(&:reload)
+
+        @racks.each do |rack|
+          assert_equal true, rack.has_fact?(@action)
+        end
+        expect(Operation.all.count).to eq(@racks.count)
+      end
+
     end
 
     describe 'with createAsset action type' do

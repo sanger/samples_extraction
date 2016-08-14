@@ -58,7 +58,11 @@
 <script type='text/javascript'>
 (function() {
   $('#samples_started .nav li a').each(function(pos, node) {
-    if ($(node).data('activity-type-id')===<%= @activity_type_selected && @activity_type_selected.id %>) {
+    var value = false;
+    <% if defined?(@activity_type_selected) %>
+      value =<%= (@activity_type_selected && @activity_type_selected.id).to_json %>;
+    <% end %>
+    if ($(node).data('activity-type-id')===value) {
       $(node).tab('show');
     }
   });

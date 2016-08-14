@@ -9,6 +9,7 @@
      this.controlLoggedOut = $(params.logoutSelector, this.node);
      this.controlLoggedIn = $(params.loginSelector, this.node);
 	   this.changeLoginNode = $(params.changeLoginSelector, this.node);
+     this.roleNode = $(params.roleSelector, this.node);
 
 	   this.logoutButton = $('.logout', this.controlLoggedIn);
 
@@ -48,6 +49,20 @@
      //$('input[name=user_barcode]').val(barcode);
    };
 
+   proto.setRole = function(role) {
+    if (typeof this.role !== 'undefined') {
+      $(document.body).removeClass(this.role+'-role');
+      $(this.roleNode).html('');
+    }
+
+    if (typeof role ==='undefined') {
+      return;
+    }
+    this.role=role;
+    $(this.roleNode).html(this.role);
+    $(document.body).addClass(this.role+'-role');
+   }
+
    proto.getBarcode = function() {
     return this.barcode;
    };
@@ -57,6 +72,7 @@
        this.setUsername(data.username);
        this.setFullName(data.fullname);
        this.setBarcode(data.barcode);
+       this.setRole(data.role);
      }
 
      var showStatus = ((typeof data!=='undefined') && (typeof data.username !== 'undefined'));

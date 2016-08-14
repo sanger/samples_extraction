@@ -33,7 +33,6 @@ Given(/^I have the following kits in house$/) do |table|
 end
 
 When(/^I create an activity with instrument "([^"]*)" and kit "(\d+)"$/) do |instrument_name, kit_barcode|
-  visit(instruments_path)
   click_on('Use')
   fill_in 'Kit barcode', with: kit_barcode
   click_on('Create')
@@ -102,8 +101,10 @@ Given(/^the step type "([^"]*)" has this configuration in N3:$/) do |step_type_n
 end
 
 Then(/^I should see these steps available:$/) do |table|
-  table.hashes.each do |step_type|
-    page.should have_content(step_type["Step"])
+  within(".content_step_types") do
+    table.hashes.each do |step_type|
+      expect(page.has_button?(step_type["Step"])).to eq(true)
+    end
   end
 end
 

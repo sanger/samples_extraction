@@ -175,6 +175,33 @@ RSpec.describe SupportN3 do
           assert_equal q, af.object_condition_group
       end
     end
+
+    describe 'with rules that match for relations between variables' do
+      it '{?q :is :Tube . ?q :has :DNA. ?p :is :Rack . ?p :contains ?q . } => {:step :addFacts { ?p :has :DNA . }}.' do
+        validates_rule_with({
+          ConditionGroup => [
+            {:name => 'q', :step_type => @step_type, :cardinality => nil,
+              :keep_selected => true},
+            {:name => 'p', :step_type => @step_type, :cardinality => nil,
+              :keep_selected => true}
+          ],
+          Condition => [
+            {:predicate => 'is', :object => 'Tube'},
+            {:predicate => 'has', :object => 'DNA'},
+            {:predicate => 'is', :object => 'Rack'},
+            {:predicate => 'contains', :object => 'q'}
+          ],
+          Action => [
+            { :action_type => 'addFacts', :predicate => 'has', :object => 'DNA' }
+          ]
+        })
+        p = ConditionGroup.find_by_name('p')
+        q = ConditionGroup.find_by_name('q')
+        expect(p.conditions.select do |c|
+          c.predicate == 'contains'
+        end.first.object_condition_group_id).to eq(q.id)
+      end
+    end
   end
 
   describe 'while parsing several rules' do

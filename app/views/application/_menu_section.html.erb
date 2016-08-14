@@ -1,4 +1,4 @@
-<li class="dropdown <%= [section[:name]].include?(controller_name) ? 'underlined' : '' %>">
+<li class="dropdown <%= section[:css_class] %> <%= [section[:name]].include?(controller_name) ? 'underlined' : '' %>">
   <a
     <% if section[:path] %>
       href="<%= section[:path] %>"

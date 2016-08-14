@@ -176,9 +176,53 @@ RSpec.describe StepType, type: :model do
           end
 
         end
-
       end
+    end
 
+    describe 'matching related assets' do
+      setup do
+        @cg2 = FactoryGirl.create(:condition_group, {})
+        @cg2.conditions << FactoryGirl.create(:condition, {
+          :predicate => 'is', :object => 'Rack'})
+
+        @step_type.condition_groups << @cg2
+
+        @cg1.conditions << FactoryGirl.create(:condition, {
+          :predicate => 'inRack', :object => 'q',
+          :object_condition_group_id => @cg2.id})
+
+          @racks = 5.times.map{|i| FactoryGirl.create :asset, {:facts => [
+            FactoryGirl.create(:fact, :predicate => 'is', :object => 'Rack')
+          ]}}
+
+          @bad_racks = 5.times.map{|i| FactoryGirl.create :asset, {:facts => [
+            FactoryGirl.create(:fact, :predicate => 'is', :object => 'Rack')
+          ]}}
+
+          @assets = 5.times.map{|i| FactoryGirl.create :asset, {:facts => [
+            FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube'),
+            FactoryGirl.create(:fact, :predicate => 'is', :object => 'Full'),
+            FactoryGirl.create(:fact, :predicate => 'inRack', :object_asset_id => @racks[i].id)
+          ]}}
+      end
+      it 'is compatible with condition groups that have relations with elements included in the asset group' do
+        assert_equal true, @step_type.compatible_with?([@assets, @racks].flatten)
+      end
+      it 'is not compatible when the relation is not matching the conditions required' do
+        @bad_racks = 5.times.map{|i| FactoryGirl.create :asset, {:facts => [
+          FactoryGirl.create(:fact, :predicate => 'is', :object => 'BadRack')
+        ]}}
+
+        @assets = 5.times.map{|i| FactoryGirl.create :asset, {:facts => [
+          FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube'),
+          FactoryGirl.create(:fact, :predicate => 'is', :object => 'Full'),
+          FactoryGirl.create(:fact, :predicate => 'inRack', :object_asset_id => @bad_racks[i].id)
+        ]}}
+        assert_equal false, @step_type.compatible_with?([@assets, @bad_racks].flatten)
+      end
+      it 'is compatible with condition groups that have relations with elements outside the asset group' do
+        assert_equal true, @step_type.compatible_with?(@assets)
+      end
     end
   end
 end

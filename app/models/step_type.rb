@@ -17,6 +17,8 @@ class StepType < ActiveRecord::Base
 
   scope :with_template, ->() { where('step_template is not null')}
 
+  scope :for_reasoning, ->() { where(:for_reasoning => true)}
+
   def fact_css_classes
     {
       'addFacts' => 'glyphicon glyphicon-pencil',
@@ -82,7 +84,12 @@ class StepType < ActiveRecord::Base
   end
 
   def condition_group_classification_for(assets)
-    Hash[assets.map{|asset| [asset, condition_groups_for(asset)]}]
+    related_assets = []
+    h = Hash[assets.map{|asset| [asset, condition_groups_for(asset, related_assets)]}]
+    related_assets.each do |a|
+      h[a]= condition_groups_for(a)
+    end
+    h
   end
 
   def every_condition_group_satisfies_cardinality(classification)
@@ -117,15 +124,17 @@ class StepType < ActiveRecord::Base
     assets = Array(assets)
     # Every asset has at least one condition group satisfied
     classification = condition_group_classification_for(assets)
-    every_condition_group_satisfies_cardinality(classification) &&
+    compatible = every_condition_group_satisfies_cardinality(classification) &&
     every_condition_group_has_at_least_one_asset?(classification) &&
       every_asset_has_at_least_one_condition_group?(classification) &&
       every_required_asset_is_in_classification?(classification, required_assets)
+    return true if compatible
+    return false
   end
 
-  def condition_groups_for(asset)
+  def condition_groups_for(asset, related_assets = [])
     condition_groups.select do |condition_group|
-      condition_group.conditions_compatible_with?(asset)
+      condition_group.conditions_compatible_with?(asset, related_assets)
     end
   end
 

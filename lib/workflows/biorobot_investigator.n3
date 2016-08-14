@@ -1,0 +1,30 @@
+:activityType :activityTypeName """QIAamp Investigator BioRobot""" .
+{
+  ?p :a :Plate .
+  ?p :a :LysedPlate .
+} => {
+  :step :stepTypeName """ Creates destination plate """ .
+  :step :addFacts {?p :transferTo ?q .}  .
+  :step :createAsset {
+    ?q :a :Plate .
+    ?q :a :DestinationPlate .
+  } .
+} .
+
+{
+  ?p :a :Tube .
+} => {
+  :step :stepTypeName """ Creates destination plate """ .
+  :step :addFacts {?p :inRack ?q .}  .
+  :step :createAsset {
+    ?q :a :Plate .
+    ?q :a :DestinationPlate .
+  } .
+} .
+
+
+{ ?p :a :DestinationPlate .
+} => {
+  :step :stepTypeName """Perform QC""" .
+  :step :addFacts { ?p :has :QCPerformed .} .
+} .

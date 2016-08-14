@@ -102,6 +102,8 @@ class Step < ActiveRecord::Base
       Fact.where(:id => list_to_destroy.flatten.compact.pluck(:id)).delete_all
 
       unselect_assets_from_consequents
+
+      update_service
     end
   end
 
@@ -127,8 +129,32 @@ class Step < ActiveRecord::Base
       Fact.where(:to_remove_by => self.id).delete_all
       Fact.where(:to_add_by => self.id).update_all(:to_add_by => nil)
       unselect_assets_from_consequents
+
+      update_service
+
       update_attributes(:in_progress? => false)
     end
   end
 
+  def service_update_hash(asset, depth=0)
+    raise 'Too many recursion levels' if (depth > 5)
+    [asset.facts.literals.map do |f|
+      {
+        predicate_to_property(f.predicate) => f.object
+      }
+    end,
+    asset.facts.not_literals.map do |f|
+      {
+        predicate_to_property(f.predicate) => service_update_hash(f.object_asset_id, depth+1)
+      }
+    end].flatten.merge
+  end
+
+  def update_service
+    #ActiveRecord::Base.transaction do |t|
+    #  activity.asset_group.assets.marked_to_update.with_update_transformation.map do |a|
+    #    service_update_hash(a)
+    #  end
+    #end
+  end
 end
