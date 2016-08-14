@@ -25,7 +25,7 @@
               </thead>
               <tbody>
                 <% assets.each do |asset| %>
-                  <% asset.activities.for_activity_type(activity_type).each do |activity| %>
+                  <% asset.activities_started.for_activity_type(activity_type).each do |activity| %>
                     <tr>
                       <td>
                         <%= bootstrap_link_to 'Visit', activity %> <%= activity.id %>

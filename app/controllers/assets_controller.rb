@@ -6,7 +6,7 @@ class AssetsController < ApplicationController
   # GET /assets
   # GET /assets.json
   def index
-    @assets = Asset.all.includes(:facts)
+    @assets = Asset.all.includes(:facts).paginate(:page => params[:page], :per_page => 5)
   end
 
   def search

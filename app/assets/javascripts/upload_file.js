@@ -73,6 +73,7 @@
   proto.onSuccess = function(data, json, xhr) {
     $('.total-progress', this.node).hide();
     this.input.submit();
+    setTimeout(function() {window.location.reload();}, 2000)
     //this.nextStepElement.submit();
   };
 
