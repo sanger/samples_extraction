@@ -3,7 +3,7 @@
 <h1>Re-Racking</h1>
 
 <% if @assets && !@activity.finished? %>
-  <%= render :partial =>'steps/active', :locals => {
+  <%= render :template =>'step_types/active', :locals => {
     :step_types => @step_types,
     :activity => @activity }
     %>
@@ -14,7 +14,8 @@
   This activity was finished at <%= @activity.completed_at %>
 </div>
 <% else %>
-  <%= render :partial => 'activities/assets_selection' %>
+  <% @step_types = [] if @step_types.nil? %>
+  <%= render :partial => 'asset_groups/asset_group' %>
 <% end %>
 
 <%= bootstrap_link_to 'Back', :back %>

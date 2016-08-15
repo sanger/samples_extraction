@@ -2,9 +2,12 @@
 {
   ?p :a :Plate .
   ?p :a :LysedPlate .
+  ?p :is :NotStarted .
 } => {
   :step :stepTypeName """ Creates destination plate """ .
   :step :addFacts {?p :transferTo ?q .}  .
+  :step :addFacts {?p :is :Started .}  .
+  :step :removeFacts {?p :is :NotStarted .}.
   :step :createAsset {
     ?q :a :Plate .
     ?q :a :DestinationPlate .

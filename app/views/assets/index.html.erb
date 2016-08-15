@@ -1,6 +1,6 @@
 <p id="notice"><%= notice %></p>
 
-<h1>Listing Assets</h1>
+<h1>Assets <small>Index</small></h1>
 
 <table class="table table-bordered">
   <thead>
@@ -20,12 +20,12 @@
         </td>
         <td><%= bootstrap_link_to 'Show', asset %></td>
         <td><%= bootstrap_link_to 'Edit', edit_asset_path(asset) %></td>
-        <td><%= bootstrap_link_to 'Destroy', asset, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>
 </table>
 
+<%= will_paginate @assets, renderer: BootstrapPagination::Rails %>
 <br>
 
 <%= bootstrap_link_to 'New Asset', new_asset_path %>

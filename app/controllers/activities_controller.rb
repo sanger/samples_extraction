@@ -198,7 +198,7 @@ class ActivitiesController < ApplicationController
           obj="?"
         end
         obj_type.new(f["predicate"], obj, f["to_add_by"], f["to_remove_by"])
-      end
+      end.uniq
     end
   end
 

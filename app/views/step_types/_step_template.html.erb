@@ -3,7 +3,8 @@
 <%= render :partial => 'step_types/step_templates/' + step_type.step_template,
       :locals => { :step_type => step_type, :index => index } %>
 </div>
-<%= bootstrap_form_for [@activity, step_type, Step.new], action: 'create', class: 'step-template-form' do |f| %>
+<%= form_for [@activity, step_type, Step.new], action: 'create', class: 'step-template-form' do |f| %>
+  <input type="button" name="button" style="display:none;"/>
   <input type="hidden" name='step[state]' value='done' />
 
   <% if @upload_ids %>

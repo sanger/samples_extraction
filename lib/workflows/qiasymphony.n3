@@ -6,7 +6,7 @@
 } => {
   :step :stepTypeName """Create a Rack for QIASymphony""" .
   :step :addFacts {
-    ?p :has :Started .
+    ?p :is :Started .
     ?p :inRack ?q .
     ?p :inPosition :locationInColumnOrder .
     ?q :contains ?p .

@@ -75,7 +75,7 @@ class Action < ActiveRecord::Base
 
       facts = generate_facts(created_assets, asset_group, step)
       created_assets[subject_condition_group.id].each do |created_asset|
-        created_asset.facts << facts.map(&:dup)
+        created_asset.add_facts(facts.map(&:dup))
       end
     end
     if action_type == 'addFacts'
@@ -83,7 +83,7 @@ class Action < ActiveRecord::Base
       raise Step::UnknownConditionGroup, msg if assets.compact.length==0
       facts = generate_facts(created_assets, asset_group, step)
       assets.each do |asset|
-        asset.facts << facts
+        asset.add_facts(facts)
       end
     end
     if action_type == 'removeFacts'
