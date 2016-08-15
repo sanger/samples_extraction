@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rdf-n3'
 gem 'tzinfo-data'
-
+gem 'puma'
 gem 'ejs'
 gem 'dropzonejs-rails'
 gem 'rest-client'
