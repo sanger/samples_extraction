@@ -3,11 +3,13 @@
   ?p :a :Plate .
   ?p :a :LysedPlate .
   ?p :is :NotStarted .
+  ?p :maxCardinality """1""".
 } => {
-  :step :stepTypeName """ Creates destination plate """ .
+  :step :stepTypeName """ Creates destination plate from plate""" .
   :step :addFacts {?p :transferTo ?q .}  .
   :step :addFacts {?p :is :Started .}  .
   :step :removeFacts {?p :is :NotStarted .}.
+  :step :unselectAsset ?p .
   :step :createAsset {
     ?q :a :Plate .
     ?q :a :DestinationPlate .
@@ -18,17 +20,19 @@
   ?p :a :Tube .
   ?p :is :NotStarted .
 } => {
-  :step :stepTypeName """ Creates destination plate """ .
+  :step :stepTypeName """ Creates destination plate from tube """ .
   :step :addFacts {?p :inRack ?q .}  .
+  :step :unselectAsset ?p .
   :step :createAsset {
     ?q :a :Plate .
     ?q :a :DestinationPlate .
+    ?q :maxCardinality """1""" .
   } .
 } .
 
 
 { ?p :a :DestinationPlate .
 } => {
-  :step :stepTypeName """Perform QC""" .
+  :step :stepTypeName """Perform QC on Destination""" .
   :step :addFacts { ?p :has :QCPerformed .} .
 } .

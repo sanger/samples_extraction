@@ -102,12 +102,21 @@ instrument.activity_types
 kit_type = KitType.create(:activity_type => activity_type, :name => 'QIASymphony')
 kit = Kit.create( {:kit_type => kit_type, :barcode => 7777})
 
+50.times do |pos|
+  asset = Asset.create!(:barcode => 700 + pos)
+  asset.facts << Fact.create({ :predicate => 'a', :object => 'Tube'})
+  asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
+  asset.facts << Fact.create({ :predicate => 'has', :object => 'DNA'})
+  asset_group.assets << asset
+end
+
+
 activity_type = ActivityType.find_by_name('QIAamp Investigator BioRobot')
 instrument.activity_types
 kit_type = KitType.create(:activity_type => activity_type, :name => 'QIAamp Investigator BioRobot')
 kit = Kit.create( {:kit_type => kit_type, :barcode => 8888})
 
-10.times do |pos|
+50.times do |pos|
   asset = Asset.create!(:barcode => 800 + pos)
   asset.facts << Fact.create({ :predicate => 'a', :object => 'Plate'})
   asset.facts << Fact.create({ :predicate => 'a', :object => 'LysedPlate'})
@@ -115,8 +124,8 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 8888})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
 end
 
-10.times do |pos|
-  asset = Asset.create!(:barcode => 810 + pos)
+50.times do |pos|
+  asset = Asset.create!(:barcode => 850 + pos)
   asset.facts << Fact.create({ :predicate => 'a', :object => 'Tube'})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
 end
@@ -126,7 +135,7 @@ instrument.activity_types
 kit_type = KitType.create(:activity_type => activity_type, :name => 'QIAamp 96 DNA QIAcube HT')
 kit = Kit.create( {:kit_type => kit_type, :barcode => 9999})
 
-10.times do |pos|
+50.times do |pos|
   asset = Asset.create!(:barcode => 900 + pos)
   asset.facts << Fact.create({ :predicate => 'a', :object => 'Plate'})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})

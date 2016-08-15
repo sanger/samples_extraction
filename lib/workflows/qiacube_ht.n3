@@ -12,6 +12,7 @@
   :step :removeFacts {
     ?p :is :NotStarted .
   } .
+  :step :unselectAsset ?p .
   :step :createAsset {
     ?q :a :Plate .
     ?q :a :StampedPlate .
@@ -25,6 +26,7 @@
   :step :addFacts {
     ?p :transferTo ?q .
   } .
+  :step :unselectAsset ?p .
   :step :createAsset {
     ?q :a :Plate .
     ?q :a :BiorobotPlate .
@@ -38,6 +40,7 @@
   :step :addFacts {
     ?p :transferTo ?q .
   } .
+  :step :unselectAsset ?p .
   :step :createAsset {
     ?q :a :Plate .
     ?q :a :StockPlate .
@@ -47,6 +50,6 @@
 { ?p :a :StockPlate .
   ?p :maxCardinality """1""" .
 } => {
-  :step :stepTypeName """Perform QC""" .
+  :step :stepTypeName """Perform QC on Stock""" .
   :step :addFacts { ?p :has :QCPerformed .} .
 } .
