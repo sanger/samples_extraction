@@ -91,7 +91,7 @@ class Step < ActiveRecord::Base
   def execute_actions
     return progress_with(asset_group.assets) if in_progress?
     original_assets = AssetGroup.create!
-    original_assets.assets << activity.asset_group.assets
+    original_assets.assets << activity.asset_group.assets if activity
 
     ActiveRecord::Base.transaction do |t|
       created_assets = {}
@@ -104,13 +104,13 @@ class Step < ActiveRecord::Base
 
       Fact.where(:id => list_to_destroy.flatten.compact.pluck(:id)).delete_all
 
-      update_assets_started
+      update_assets_started if activity
 
       unselect_assets_from_consequents
 
       update_service
     end
-    update_attributes(:asset_group => original_assets)
+    update_attributes(:asset_group => original_assets) if activity
   end
 
   def update_assets_started
