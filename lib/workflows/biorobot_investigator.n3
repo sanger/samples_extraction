@@ -16,6 +16,7 @@
 
 {
   ?p :a :Tube .
+  ?p :is :NotStarted .
 } => {
   :step :stepTypeName """ Creates destination plate """ .
   :step :addFacts {?p :inRack ?q .}  .
