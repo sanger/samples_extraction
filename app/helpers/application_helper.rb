@@ -6,8 +6,8 @@ module ApplicationHelper
   end
 
   def svg(name)
-    #file_path = "#{Rails.root}/app/assets/images/#{name}.svg"
-    file_path = Dir.glob("#{Rails.root}/app/assets/images/#{name}.svg", File::FNM_CASEFOLD).first
+    file_path = "#{Rails.root}/app/assets/images/#{name}.svg"
+    #file_path = Dir.glob("#{Rails.root}/app/assets/images/#{name}.svg", File::FNM_CASEFOLD).first
     if File.exists?(file_path)
       File.read(file_path).html_safe
     else
