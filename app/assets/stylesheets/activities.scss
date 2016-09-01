@@ -44,13 +44,16 @@ body.logged-off ul.step-selection input {
 
 .condition-group-label .type-name {padding-left: 2em;}
 
-.condition-group-label:hover {
+/* .condition-group-label:hover {*/
+.condition-group-label {
   height: auto;
   z-index:10;
   /*position:absolute;*/
   cursor:context-menu;
 }
 
+
+.condition-group-label .row { margin-left: 0px; }
 .condition-group-container {
   padding-left: 1em !important;
   padding-top: 1em !important;

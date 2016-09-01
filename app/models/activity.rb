@@ -25,6 +25,7 @@ class Activity < ActiveRecord::Base
     where(:activity_type => activity_type)
   }
 
+
   class StepWithoutInputs < StandardError
   end
 
@@ -95,20 +96,22 @@ class Activity < ActiveRecord::Base
   end
 
   def reasoning!
-    unless reasoning_step_types_for(asset_group.assets).empty?
-      asset_group.assets.each do |asset|
-        asset.reasoning! do |assets|
-          reasoning_step_types_for(assets).each do |step_type|
-            group = AssetGroup.create!
-            group.assets << assets
-            steps.create!({
-              :step_type => step_type,
-              :asset_group_id => group.id,
-              :user_id => user.id})
-          end
-        end
-      end
-    end
+    #PrintBarcodesJob.perform_later(last_step)
+    PushDataJob.perform_later
+    # unless reasoning_step_types_for(asset_group.assets).empty?
+    #   asset_group.assets.each do |asset|
+    #     asset.reasoning! do |assets|
+    #       reasoning_step_types_for(assets).each do |step_type|
+    #         group = AssetGroup.create!
+    #         group.assets << assets
+    #         steps.create!({
+    #           :step_type => step_type,
+    #           :asset_group_id => group.id,
+    #           :user_id => user.id})
+    #       end
+    #     end
+    #   end
+    # end
   end
 
 end

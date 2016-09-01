@@ -3,6 +3,7 @@ require 'sass'
 require 'bootstrap-sass'
 
 Rails.application.routes.draw do
+  resources :printers
   resources :user_sessions
   resources :users
 

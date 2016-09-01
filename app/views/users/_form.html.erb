@@ -24,10 +24,19 @@
   </div>
 
   <div class="field">
-    <%= f.select :role do %>
-      <%= options_for_select([['Operator', 'operator'],['Administrator', 'administrator']]) %>
-    <% end %>
+    <%= f.select :role, options_for_select([['Operator', 'operator'],['Administrator', 'administrator']], user.role), {}, :disabled => readonly  %>
   </div>
+
+  <div class="field">
+    <%= f.select :tube_printer_id, options_for_select(Printer.for_tube.map{|a| [a.name, a.id]}, user.tube_printer.id), {},
+    :disabled => readonly %>
+  </div>
+
+  <div class="field">
+    <%= f.select :plate_printer_id, options_for_select(Printer.for_plate.map{|a| [a.name, a.id]}, user.plate_printer.id), {},
+    :disabled => readonly %>
+  </div>
+
 
   <div class="actions">
     <%= f.submit %>

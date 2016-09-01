@@ -19,4 +19,15 @@ module ApplicationHelper
     svg(facts.select{|f| f.predicate == 'a'}.pluck(:object).first)
   end
 
+  def show_alert(data)
+    @alerts = [] unless @alerts
+    @alerts.push(data)
+  end
+
+  def trigger_alerts
+    triggers = @alerts.map do |a|
+      "<script type='text/javascript'>$(document).trigger('msg.display_error', #{a.to_json});</script>"
+    end.join('\n').html_safe if @alerts
+  end
+
 end

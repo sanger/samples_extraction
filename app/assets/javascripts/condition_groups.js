@@ -59,7 +59,7 @@
     };
 
     proto.checkFactToN3 = function(group, fact) {
-      return ["?"+group.getName(), ":"+fact.predicate, fact.object? ":"+fact.object : fact.literal].join("\t ")+" .\n"
+      return ["?"+group.getName(), ":"+fact.predicate, fact.object? ":"+fact.object : fact.literal].join("\t ")+" .";
     };
 
     proto.actionFactToN3 = function(group, fact) {
@@ -71,26 +71,26 @@
     };
 
     proto.stepTypeToN3 = function() {
-      return ":step\t :stepTypeName \"\"\""+this.getStepTypeName()+"\"\"\" .";
+      return ":step\t :stepTypeName \"\"\""+this.getStepTypeName()+"\"\"\" .\n";
     };
 
     proto.renderRuleN3 = function(n3Checks, n3Actions, n3Selects) {
-      return "{"+n3Checks+"} => {"+this.stepTypeToN3() + n3Selects + n3Actions+"} .\n";
+      return "{\n\t"+n3Checks+"\n} => {\n\t"+this.stepTypeToN3() +  n3Selects + "\t"+ n3Actions+"} .\n";
     };
 
     proto.toN3 = function(e) {
 
       var checksN3 = $.map(this.conditionGroups, $.proxy(function(group) {
         return $.map(group.getCheckFacts(), $.proxy(this.checkFactToN3, this, group));
-      }, this)).join('\n');
+      }, this)).join('\n\t');
 
       var actionsN3 = $.map(this.conditionGroups, $.proxy(function(group) {
         return $.map(group.getActionFacts(), $.proxy(this.actionFactToN3, this, group));
-      }, this)).join('\n');
+      }, this)).join('\t');
 
       var selectsN3 = $.map(this.conditionGroups, $.proxy(function(group) {
         if (!group.isSelected()) {
-          return ":step\t :unselectAsset\t ?" + group.name+".\n";
+          return "\t:step\t :unselectAsset\t ?" + group.name+".\n";
         } else {
           return "";
         }
@@ -98,7 +98,7 @@
 
       var n3 = this.renderRuleN3(checksN3, actionsN3, selectsN3);
 
-      $(this.node).trigger('msg.display_error', {msg: n3});
+      //$(this.node).trigger('msg.display_error', {msg: n3});
 
       return n3;
     };
@@ -125,6 +125,25 @@
       });
     };
 
+    proto.showEditor = function() {
+      var editor = ace.edit("editor");
+      editor.setTheme("ace/theme/monokai");
+      editor.getSession().setMode("ace/mode/text");
+      editor.setValue(this.toN3());
+    };
+
+    proto.getEditorContent = function() {
+      var editor = ace.edit("editor");
+      //editor.setTheme("ace/theme/monokai");
+      //editor.getSession().setMode("ace/mode/text");
+      return editor.getValue();
+    };
+
+
+    proto.hideEditor = function() {
+      //$('#editorContainer').hide();
+    };
+
     proto.attachHandlers = function() {
       $(this.button).on('click', $.proxy(function() {
         this.addGroup(this.generateGroupName(), {});
@@ -138,8 +157,13 @@
 
       $('[data-psd-condition-groups-save]').on('click', $.proxy(this.storeN3, this));
       $('.show-n3').on('click', $.proxy(function(e) {
+        //e.stopPropagation();
         e.preventDefault();
-        alert(this.toN3());
+        this.showEditor();
+        //return false;
+      }, this));
+      $('.update-n3').on('click', $.proxy(function(e) {
+        $('input#step_type_n3_definition').val(this.getEditorContent());
       }, this));
     };
 

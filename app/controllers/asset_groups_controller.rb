@@ -43,16 +43,33 @@ class AssetGroupsController < ActionController::Base
     end
 
   def perform_barcode_removal
-    if params_update_asset_group[:delete_barcode]
+    unless params_update_asset_group[:delete_barcode].empty?
       @asset_group.unselect_barcodes([params_update_asset_group[:delete_barcode]])
     end
   end
 
   def perform_barcode_addition
-    if params_update_asset_group[:add_barcode]
+    unless params_update_asset_group[:add_barcode].empty?
       barcodes = [params_update_asset_group[:add_barcode]]
-      if !@asset_group.select_barcodes(barcodes)
-        #flash[:danger] = "Could not find barcodes #{barcodes}"
+      barcodes_str = "'"+barcodes.join(',')+"'";
+      begin
+        if @asset_group.select_barcodes(barcodes)
+          show_alert({:type => 'info',
+            :msg => "Barcode #{barcodes_str} added"})
+        else
+          show_alert({:type => 'warning',
+            :msg => "Cannot select #{barcodes_str}"})
+          #flash[:danger] = "Could not find barcodes #{barcodes}"
+        end
+      rescue Net::ReadTimeout => e
+        show_alert({:type => 'danger',
+          :msg => "Cannot connect with Sequencescape for reading barcode #{barcodes_str}"})
+      rescue Sequencescape::Api::ResourceNotFound => e
+        show_alert({:type => 'warning',
+          :msg => "Cannot find barcode #{barcodes_str} in Sequencescape"})
+      rescue StandardError => e
+        show_alert({:type => 'danger',
+          :msg => "Cannot connect with Sequencescape"})
       end
     end
   end

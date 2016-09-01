@@ -6,7 +6,7 @@ class ApplicationController < ActionController::Base
 
   rescue_from ActiveRecord::RecordNotFound, :with => :record_not_found
 
-  before_filter :set_current_user
+  before_action :set_current_user
 
   def record_not_found
     redirect_to :action => 'index'

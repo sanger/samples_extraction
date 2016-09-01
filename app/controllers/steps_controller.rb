@@ -2,7 +2,7 @@ class StepsController < ApplicationController
   before_action :set_step, only: [:show, :edit, :update, :destroy]
   before_action :set_activity, only: [:create]
 
-  before_filter :nested_steps, only: [:index]
+  before_action :nested_steps, only: [:index]
 
   def nested_steps
     if step_params[:activity_id]
@@ -48,7 +48,7 @@ class StepsController < ApplicationController
 
     unless @pairings.all?(&:valid?)
       flash[:danger] = @pairings.map(&:error_messages).join('\n')
-      redirect_to :back
+      redirect_back
     end
 
     @pairings.map do |pairing|
@@ -59,20 +59,17 @@ class StepsController < ApplicationController
     end
   end
 
-  def perform_step
-    if params[:step_type]
-      valid_step_types = @activity.step_types_for(@assets)
-      step_type_to_do = @activity.step_types.find_by_id!(params[:step_type])
-      if valid_step_types.include?(step_type_to_do)
-        apply_parsers(@asset_group.assets)
-        @step_performed = @activity.step(step_type_to_do, @user, params_for_step_in_progress)
-        @assets.reload
-      end
-    end
-  rescue Activity::StepWithoutInputs
-    flash[:danger] = 'We could not create a new step because we do not have inputs for it'
+
+  def params_for_printing
+    params.require(:step).permit(:tube_printer_id, :plate_printer_id)
   end
 
+  def printer_config
+    {
+      'Tube' => Printer.find(params_for_printing[:tube_printer_id]).name,
+      'Plate' => Printer.find(params_for_printing[:plate_printer_id]).name,
+    }
+  end
 
   # POST /activity/:activity_id/step_type/:step_type_id/create
   def create
@@ -81,6 +78,9 @@ class StepsController < ApplicationController
     if valid_step_types.include?(step_type_to_do)
       store_uploads
       @step = @activity.step(step_type_to_do, @current_user, params_for_step_in_progress)
+      if @step.created_asset_group
+        @step.created_asset_group.print(printer_config)
+      end
       @activity.reasoning!
     end
 
@@ -88,7 +88,9 @@ class StepsController < ApplicationController
       if @step.save
         #format.html { render @activity}
         format.html { redirect_to @activity, notice: 'Step was successfully created.' }
+        #format.html { respond_with @activity }
         format.json { render :show, status: :created, location: @step }
+        #return
       else
         format.html { render :new }
         format.json { render json: @step.errors, status: :unprocessable_entity }
@@ -155,5 +157,11 @@ class StepsController < ApplicationController
           :content_type => params[:content_type])
       end
     end
+
+  def show_alert(data)
+    @alerts = [] unless @alerts
+    @alerts.push(data)
+  end
+
 
 end

@@ -34,6 +34,7 @@
 //= require button_switch
 //= require fact_reader
 //= require user_status
+//= require ace-rails-ap
 //= require_tree ./templates
 //= require_tree .
 //    require_asset "peek"

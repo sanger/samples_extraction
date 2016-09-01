@@ -20,7 +20,6 @@ class ActivitiesController < ApplicationController
   end
 
   def update
-    perform_previous_step_type
     select_assets
     select_assets_grouped
 
@@ -146,7 +145,7 @@ class ActivitiesController < ApplicationController
       @instrument = Instrument.find_by_barcode!(params[:instrument_barcode])
     rescue RecordNotFound => e
       flash[:danger] = 'Instrument not found'
-      redirect_to :back
+      redirect_back
     end
 
     # Use callbacks to share common setup or constraints between actions.

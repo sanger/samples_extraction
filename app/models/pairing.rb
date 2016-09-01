@@ -2,19 +2,25 @@ class Pairing
   attr_reader :group, :step_type
   def initialize(params, step_type)
     @step_type = step_type
-    @group = params.map do |c_id, barcode|
-      { :asset => Asset.find_by_barcode(barcode),
+    @group = group_list(params)
+  end
+
+  def group_list(params)
+    list = []
+    params.each_pair do |c_id, barcode|
+      list << { :asset => Asset.find_by_barcode(barcode),
         :condition_group => ConditionGroup.find_by_id(c_id)
       }
     end
+    list
   end
 
   def assets
-    @group.pluck(:asset)
+    @group.map{|g| g[:asset]}
   end
 
   def condition_groups
-    @group.pluck(:condition_group)
+    @group.map{|g| g[:condition_group]}
   end
 
   def required_condition_groups_compatible?
@@ -26,11 +32,11 @@ class Pairing
   end
 
   def all_assets_exist?
-    @group.pluck(:asset).all?
+    @group.map{|g| g[:asset]}.all?
   end
 
   def all_conditions_exist?
-    @group.pluck(:condition_group).all?
+    @group.map{|g| g[:condition_group]}.all?
   end
 
   def step_type_compatible?
@@ -45,7 +51,7 @@ class Pairing
     msgs.push('Assets are not passing the conditions for the step ') unless step_type_compatible?
     msgs.push('Step requires a different set of conditions') unless step_type_compatible?
 
-    msgs.join('. ')
+    msgs.compact.join('. ')
   end
 
   def valid?
