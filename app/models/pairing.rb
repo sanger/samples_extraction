@@ -45,7 +45,7 @@ class Pairing
     msgs.push('Assets are not passing the conditions for the step ') unless step_type_compatible?
     msgs.push('Step requires a different set of conditions') unless step_type_compatible?
 
-    msgs.join('. ')
+    msgs.compact.join('. ')
   end
 
   def valid?

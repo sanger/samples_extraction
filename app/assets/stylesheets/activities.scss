@@ -44,7 +44,8 @@ body.logged-off ul.step-selection input {
 
 .condition-group-label .type-name {padding-left: 2em;}
 
-.condition-group-label:hover {
+/* .condition-group-label:hover {*/
+.condition-group-label {
   height: auto;
   z-index:10;
   /*position:absolute;*/

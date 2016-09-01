@@ -2,7 +2,8 @@ require 'test_helper'
 
 class KitsControllerTest < ActionController::TestCase
   setup do
-    @kit = FactoryGirl.create :kit
+    @kit_type = FactoryGirl.create :kit_type
+    @kit = FactoryGirl.create :kit, { :kit_type => @kit_type }
   end
 
   test "should get index" do

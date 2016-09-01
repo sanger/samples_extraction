@@ -55,7 +55,7 @@ class ActivitiesControllerTest < ActionController::TestCase
         @asset_group = FactoryGirl.create :asset_group
 
         @asset.asset_groups << @asset_group
-        @activity = FactoryGirl.create :activity, :activity_type => @activity_type
+        @activity = FactoryGirl.create :activity, :activity_type => @activity_type, :asset_group => @asset_group
 
         @activity_type.activities << @activity
 
