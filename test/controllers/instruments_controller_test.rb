@@ -18,30 +18,30 @@ class InstrumentsControllerTest < ActionController::TestCase
 
   test "should create instrument" do
     assert_difference('Instrument.count') do
-      post :create, instrument: @instrument.attributes
+      post :create, params: { instrument: @instrument.attributes}
     end
 
     assert_redirected_to instrument_path(assigns(:instrument))
   end
 
   test "should show instrument" do
-    get :show, id: @instrument
+    get :show, params: { id: @instrument}
     assert_response :success
   end
 
   test "should get edit" do
-    get :edit, id: @instrument
+    get :edit, params: { id: @instrument}
     assert_response :success
   end
 
   test "should update instrument" do
-    patch :update, id: @instrument, instrument: @instrument.attributes
+    patch :update, params: { id: @instrument, instrument: @instrument.attributes}
     assert_redirected_to instrument_path(assigns(:instrument))
   end
 
   test "should destroy instrument" do
     assert_difference('Instrument.count', -1) do
-      delete :destroy, id: @instrument
+      delete :destroy, params: { id: @instrument}
     end
 
     assert_redirected_to instruments_path

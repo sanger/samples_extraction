@@ -2,7 +2,7 @@ class StepTypesController < ApplicationController
   before_action :set_step_type, only: [:show, :edit, :update, :destroy]
   before_action :set_activity, only: [:active]
 
-  before_filter :nested_step_types, only: [:index]
+  before_action :nested_step_types, only: [:index]
 
   def nested_step_types
     if step_type_params[:activity_id]

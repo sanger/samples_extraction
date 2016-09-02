@@ -19,30 +19,30 @@ class KitsControllerTest < ActionController::TestCase
 
   test "should create kit" do
     assert_difference('Kit.count') do
-      post :create, kit: @kit.attributes
+      post :create, params: { kit: @kit.attributes}
     end
 
     assert_redirected_to kit_path(assigns(:kit))
   end
 
   test "should show kit" do
-    get :show, id: @kit
+    get :show, params: { id: @kit}
     assert_response :success
   end
 
   test "should get edit" do
-    get :edit, id: @kit
+    get :edit, params: { id: @kit}
     assert_response :success
   end
 
   test "should update kit" do
-    patch :update, id: @kit, kit: @kit.attributes
+    patch :update, params: { id: @kit, kit: @kit.attributes}
     assert_redirected_to kit_path(assigns(:kit))
   end
 
   test "should destroy kit" do
     assert_difference('Kit.count', -1) do
-      delete :destroy, id: @kit
+      delete :destroy, params: { id: @kit}
     end
 
     assert_redirected_to kits_path

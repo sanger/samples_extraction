@@ -2,7 +2,7 @@ class StepsController < ApplicationController
   before_action :set_step, only: [:show, :edit, :update, :destroy]
   before_action :set_activity, only: [:create]
 
-  before_filter :nested_steps, only: [:index]
+  before_action :nested_steps, only: [:index]
 
   def nested_steps
     if step_params[:activity_id]
@@ -48,7 +48,7 @@ class StepsController < ApplicationController
 
     unless @pairings.all?(&:valid?)
       flash[:danger] = @pairings.map(&:error_messages).join('\n')
-      redirect_to :back
+      redirect_back
     end
 
     @pairings.map do |pairing|
@@ -65,7 +65,7 @@ class StepsController < ApplicationController
       step_type_to_do = @activity.step_types.find_by_id!(params[:step_type])
       if valid_step_types.include?(step_type_to_do)
         apply_parsers(@asset_group.assets)
-        @step_performed = @activity.step(step_type_to_do, @user, params_for_step_in_progress)
+        @step_performed = @activity.step(step_type_to_do, @current_user, params_for_step_in_progress)
         @assets.reload
       end
     end
