@@ -7,6 +7,7 @@
     this.content = $('[data-psd-asset-group-content]', node);
     //this.template = JST['templates/asset_group'];
     this.attachHandlers(node);
+    this.actualTimestamp = null;
   };
 
   var proto = AssetGroup.prototype;
@@ -101,10 +102,9 @@
       }
     }, this));
 
-    $(node).on('ajax:success', $.proxy(function(e, json) {
+    $(node).on('ajax:success', $.proxy(function(e, json, r) {
       this.render(json);
-      this.cleanInput();
-    }, this)).on('ajax:error', $.proxy(function(msg) {
+    }, this)).on('ajax:send', $.proxy(function(r) {
       this.cleanInput();
     }, this)).on('ajax:complete', $.proxy(function() {
       if (!this.loadInProgress) {

@@ -2,11 +2,17 @@ class Pairing
   attr_reader :group, :step_type
   def initialize(params, step_type)
     @step_type = step_type
-    @group = params.map do |c_id, barcode|
-      { :asset => Asset.find_by_barcode(barcode),
+    @group = group_list(params)
+  end
+
+  def group_list(params)
+    list = []
+    params.each_pair do |c_id, barcode|
+      list << { :asset => Asset.find_by_barcode(barcode),
         :condition_group => ConditionGroup.find_by_id(c_id)
       }
     end
+    list
   end
 
   def assets

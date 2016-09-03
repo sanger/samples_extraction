@@ -59,20 +59,6 @@ class StepsController < ApplicationController
     end
   end
 
-  def perform_step
-    if params[:step_type]
-      valid_step_types = @activity.step_types_for(@assets)
-      step_type_to_do = @activity.step_types.find_by_id!(params[:step_type])
-      if valid_step_types.include?(step_type_to_do)
-        apply_parsers(@asset_group.assets)
-        @step_performed = @activity.step(step_type_to_do, @current_user, params_for_step_in_progress)
-        @assets.reload
-      end
-    end
-  rescue Activity::StepWithoutInputs
-    flash[:danger] = 'We could not create a new step because we do not have inputs for it'
-  end
-
 
   # POST /activity/:activity_id/step_type/:step_type_id/create
   def create
