@@ -21,9 +21,8 @@ class Step < ActiveRecord::Base
   class UnknownConditionGroup < StandardError
   end
 
-  scope :for_assets, ->(assets) { joins(:asset_group => :assets).where(:asset_group => {
-    :asset_groups_assets=> {:asset_id => assets }
-    }) }
+  scope :for_assets, ->(assets) { joins(:asset_group => :assets).where(:asset_groups_assets =>  {:asset_id => assets })}
+
 
   scope :for_step_type, ->(step_type) { where(:step_type => step_type)}
 

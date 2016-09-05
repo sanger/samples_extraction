@@ -147,6 +147,6 @@ class Asset < ActiveRecord::Base
       class_name = facts.with_predicate('purpose').first.object
       instance = SequencescapeClient.create(class_name, attrs_for_sequencescape)
     end
-    update_attributes(:uuid => instance["uuid"], :barcode => instance["barcode"]["ean13"])
+    update_attributes(:uuid => instance.uuid, :barcode => instance.barcode.ean13)
   end
 end
