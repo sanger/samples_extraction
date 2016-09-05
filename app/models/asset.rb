@@ -1,3 +1,5 @@
+require 'sequencescape_client'
+
 class Asset < ActiveRecord::Base
   has_many :facts
   has_and_belongs_to_many :asset_groups
@@ -59,7 +61,7 @@ class Asset < ActiveRecord::Base
 
   def self.assets_for_queries(queries)
     queries.map do |query|
-      if Asset.has_attribute?(query.predicate)
+      if Asset.first.has_attribute?(query.predicate)
         Asset.with_field(query.predicate, query.object)
       else
         Asset.with_fact(query.predicate, query.object)
@@ -129,4 +131,22 @@ class Asset < ActiveRecord::Base
     update_attributes(:barcode => Asset.count+1) if barcode.nil?
   end
 
+  def attrs_for_sequencescape
+    return {}
+    facts.reduce({}) do |memo, fact|
+      memo[fact.predicate] = fact.object
+      memo
+    end
+  end
+
+  def update_sequencescape
+    instance=SequencescapeClient.find_by_uuid(uuid)
+    if instance
+      instance = SequencescapeClient.update(instance, attrs_for_sequencescape)
+    else
+      class_name = facts.with_predicate('purpose').first.object
+      instance = SequencescapeClient.create(class_name, attrs_for_sequencescape)
+    end
+    update_attributes(:uuid => instance["uuid"], :barcode => instance["barcode"]["ean13"])
+  end
 end

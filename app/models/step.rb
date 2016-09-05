@@ -102,7 +102,7 @@ class Step < ActiveRecord::Base
 
       unselect_assets_from_antecedents
 
-      Fact.where(:id => list_to_destroy.flatten.compact.pluck(:id)).delete_all
+      Fact.where(:id => list_to_destroy.flatten.compact.map(&:id)).delete_all
 
       update_assets_started if activity
 

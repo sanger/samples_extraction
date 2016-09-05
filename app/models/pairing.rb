@@ -16,11 +16,11 @@ class Pairing
   end
 
   def assets
-    @group.pluck(:asset)
+    @group.map{|g| g[:asset]}
   end
 
   def condition_groups
-    @group.pluck(:condition_group)
+    @group.map{|g| g[:condition_group]}
   end
 
   def required_condition_groups_compatible?
@@ -32,11 +32,11 @@ class Pairing
   end
 
   def all_assets_exist?
-    @group.pluck(:asset).all?
+    @group.map{|g| g[:asset]}.all?
   end
 
   def all_conditions_exist?
-    @group.pluck(:condition_group).all?
+    @group.map{|g| g[:condition_group]}.all?
   end
 
   def step_type_compatible?

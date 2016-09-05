@@ -82,6 +82,19 @@ module SequencescapeClient
 
   end
 
+  module EndpointReadActions
+    module ClassMethods
+      def read
+        attrs = SequencescapeClient.new.get(self, nil,  nil)
+        new(attrs) unless attrs.nil?
+      end
+    end
+    def self.included(base)
+      base.send(:extend, ClassMethods)
+    end
+  end
+
+
   module EndpointCreateActions
     module ClassMethods
       def creation_params(params)
@@ -110,46 +123,88 @@ module SequencescapeClient
     end
   end
 
-  class PlateCreation < Endpoint
-    endpoint_name 'plate_creations'
-    include EndpointCreateActions
-
-    def initialize(params)
-      binding.pry
-    end
-  end
-
-  class PlateCreation < Endpoint
+  class PlatePurposes < Endpoint
     endpoint_name 'plate_purposes'
-    include EndpointCreateActions
+    include EndpointReadActions
+    attr_reader :purposes
 
     def initialize(params)
-      binding.pry
+      @purposes = params
+    end
+
+    def plate_creator_for(purpose_name)
+      purpose_uuid = @purposes["plate_purposes"].select{|p| p["name"]===purpose_name}.first["uuid"]
+      Class.new(Plate) do
+        endpoint_name(purpose_uuid+"/plates")
+      end
     end
   end
-
 
   class Plate < Endpoint
-    endpoint_name 'plates'
-
+    attr_reader :plate
     include EndpointCreateActions
 
-    attr_reader :barcode
-    attr_reader :location
+    include EndpointReadActions
 
-    def self.find_by_barcode(barcode)
-      return nil if barcode.blank?
-      attrs = SequencescapeClient.new.get(self, barcode)
-      new(attrs) unless attrs.nil?
+    def initialize(plate_params)
+      @plate = plate_params
     end
 
-    def initialize(params)
-      @barcode = params['barcode']
-      @location = Location.new(params['location'])
+    def instance
+      @plate["plate"]
     end
   end
 
+
+  #include Sequencescape::Api::Rails::ApplicationController
+
+  def self.api_connection_options
+    {
+      :namespace     => 'SamplesExtraction',
+      :url           => 'http://localhost:3000/api/1/',
+      :authorisation => 'development'
+    }
+  end
+
+  def self.api
+    @api ||= Sequencescape::Api.new(self.api_connection_options)
+  end
+
+  def self.find_by_uuid(uuid)
+    #return api.plate.find(uuid)
+
+    k=Class.new(Plate) do
+      endpoint_name(uuid)
+    end
+    k.read.instance
+  rescue RestClient::NotFound
+    return nil
+  end
+
+  def self.update(instance, attrs)
+  end
+
+  def self.create(purpose_name, attrs)
+    api.plate_creation.create!({
+       :user => 'b55f7a90-54c6-11e6-9ffd-44fb42fffe72',
+       :parent => nil,
+       :child_purpose => '8a4da160-54c6-11e6-b689-44fb42fffe72'
+     })
+    #plate_creator = PlatePurposes.read.plate_creator_for(purpose_name)
+    #plate_creator.create(attrs).instance
+  end
 end
 
+#plate = SequencescapeClient.create("Stock Plate", {})
+#plate = SequencescapeClient.find_by_uuid(plate["uuid"])
+plate = SequencescapeClient.find_by_uuid("111")
 
-SequencescapeClient::PlateCreation.create({:plate_creation =>{:user => 'b55f7a90-54c6-11e6-9ffd-44fb42fffe72', :parent => nil, :child_purpose => "8a4da160-54c6-11e6-b689-44fb42fffe72"}}.to_json)
+#SequencescapeClient::PlateCreation.create(
+#  {
+#     :plate_creation =>{
+#       :user => 'b55f7a90-54c6-11e6-9ffd-44fb42fffe72',
+#       :parent => nil,
+#       :child_purpose => '8a4da160-54c6-11e6-b689-44fb42fffe72'
+#     }
+#   }.to_json
+# )

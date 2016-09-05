@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160808152447) do
+ActiveRecord::Schema.define(version: 20160903164344) do
 
   create_table "actions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "action_type",                null: false
@@ -93,8 +93,8 @@ ActiveRecord::Schema.define(version: 20160808152447) do
     t.integer  "subject_asset_id"
     t.integer  "predicate_id"
     t.integer  "object_asset_id"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.index ["object_asset_id"], name: "index_asset_relations_on_object_asset_id", using: :btree
     t.index ["predicate_id"], name: "index_asset_relations_on_predicate_id", using: :btree
     t.index ["subject_asset_id"], name: "index_asset_relations_on_subject_asset_id", using: :btree
@@ -134,6 +134,21 @@ ActiveRecord::Schema.define(version: 20160808152447) do
     t.datetime "updated_at",                null: false
     t.index ["condition_group_id"], name: "index_conditions_on_condition_group_id", using: :btree
     t.index ["object_condition_group_id"], name: "index_conditions_on_object_condition_group_id", using: :btree
+  end
+
+  create_table "delayed_jobs", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "priority",                 default: 0, null: false
+    t.integer  "attempts",                 default: 0, null: false
+    t.text     "handler",    limit: 65535,             null: false
+    t.text     "last_error", limit: 65535
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string   "locked_by"
+    t.string   "queue"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.index ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
   end
 
   create_table "facts", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -209,8 +224,8 @@ ActiveRecord::Schema.define(version: 20160808152447) do
     t.integer  "asset_id"
     t.string   "predicate"
     t.string   "object"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.index ["action_id"], name: "index_operations_on_action_id", using: :btree
     t.index ["asset_id"], name: "index_operations_on_asset_id", using: :btree
     t.index ["step_id"], name: "index_operations_on_step_id", using: :btree
@@ -218,8 +233,8 @@ ActiveRecord::Schema.define(version: 20160808152447) do
 
   create_table "predicates", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "step_types", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -254,8 +269,8 @@ ActiveRecord::Schema.define(version: 20160808152447) do
     t.binary   "data",         limit: 16777215
     t.string   "filename"
     t.string   "content_type"
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.index ["activity_id"], name: "index_uploads_on_activity_id", using: :btree
     t.index ["step_id"], name: "index_uploads_on_step_id", using: :btree
   end

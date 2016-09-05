@@ -14,6 +14,15 @@ gem 'js_cookie_rails'
 
 gem 'micro_token'
 
+gem 'delayed_job'
+gem 'delayed_job_active_record'
+
+gem 'sequencescape-client-api',
+  # Should be switched back to sanger + production for deployment
+  :github  => 'sanger/sequencescape-client-api',
+  :branch  => 'rails_4',
+  :require => 'sequencescape'
+
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails'

@@ -1,4 +1,4 @@
-class CreatePredicates < ActiveRecord::Migration[5.0]
+class CreatePredicates < ActiveRecord::Migration
   def change
     create_table :predicates do |t|
       t.string :name
