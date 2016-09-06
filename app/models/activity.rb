@@ -95,6 +95,7 @@ class Activity < ActiveRecord::Base
   end
 
   def reasoning!
+    #PrintBarcodesJob.perform_later(last_step)
     PushDataJob.perform_later
     # unless reasoning_step_types_for(asset_group.assets).empty?
     #   asset_group.assets.each do |asset|

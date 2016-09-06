@@ -59,6 +59,7 @@ GEM
     atomic (1.1.99)
     autoprefixer-rails (6.4.1)
       execjs
+    barby (0.6.4)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
     bootstrap-sass (3.3.7)
@@ -338,6 +339,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  barby
   bootstrap-sass
   bootstrap_form
   bullet

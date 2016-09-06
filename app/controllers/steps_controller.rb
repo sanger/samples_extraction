@@ -60,6 +60,10 @@ class StepsController < ApplicationController
   end
 
 
+  def printer_config
+    {'Tube' => 'd304bc', 'Plate' => 'd304bc'}
+  end
+
   # POST /activity/:activity_id/step_type/:step_type_id/create
   def create
     valid_step_types = @activity.step_types_for(@assets)
@@ -67,6 +71,7 @@ class StepsController < ApplicationController
     if valid_step_types.include?(step_type_to_do)
       store_uploads
       @step = @activity.step(step_type_to_do, @current_user, params_for_step_in_progress)
+      @step.created_asset_group.print(printer_config) if @step.created_asset_group
       @activity.reasoning!
     end
 

@@ -3,6 +3,9 @@ class AssetGroup < ActiveRecord::Base
   has_many :steps
   has_one :activity
 
+  include Printables::Group
+
+
   def select_barcodes(barcodes)
     barcodes.each do |barcode|
       if assets.select{|a| a.barcode == barcode}.empty?

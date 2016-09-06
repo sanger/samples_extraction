@@ -14,6 +14,8 @@ gem 'js_cookie_rails'
 
 gem 'micro_token'
 
+gem 'barby'
+
 gem 'delayed_job'
 gem 'delayed_job_active_record'
 

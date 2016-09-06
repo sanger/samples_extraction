@@ -6,6 +6,8 @@ class Step < ActiveRecord::Base
   has_many :uploads
   has_many :operations
 
+  belongs_to :created_asset_group, :class_name => 'AssetGroup', :foreign_key => 'created_asset_group_id'
+
   scope :in_progress, ->() { where(:in_progress? => true)}
 
   after_create :execute_actions, :unless => :in_progress?
@@ -87,6 +89,15 @@ class Step < ActiveRecord::Base
     end
   end
 
+  def save_created_assets(created_assets)
+    list_of_assets = created_assets.values.uniq
+    if list_of_assets.length > 0
+      created_asset_group = AssetGroup.create
+      created_asset_group.assets << list_of_assets
+      update_attributes(:created_asset_group => created_asset_group)
+    end
+  end
+
   def execute_actions
     return progress_with(asset_group.assets) if in_progress?
     original_assets = AssetGroup.create!
@@ -98,6 +109,8 @@ class Step < ActiveRecord::Base
       classify_assets.each do |asset, r|
         r.execute(self, asset_group, asset, created_assets, list_to_destroy)
       end
+
+      save_created_assets(created_assets)
 
       unselect_assets_from_antecedents
 
@@ -130,6 +143,8 @@ class Step < ActiveRecord::Base
       classify_assets.each do |asset, r|
         r.execute(self, asset_group, asset, created_assets, nil)
       end
+      save_created_assets(created_assets)
+
       asset_group.update_attributes(:assets => [])
       finish if step_params[:state]=='done'
     end

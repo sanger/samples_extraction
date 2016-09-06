@@ -1,4 +1,5 @@
 require 'sequencescape_client'
+require 'barcode'
 
 class Asset < ActiveRecord::Base
   has_many :facts
@@ -22,6 +23,10 @@ class Asset < ActiveRecord::Base
 
   scope :with_field, ->(predicate, object) {
     where(predicate => object)
+  }
+
+  scope :with_predicate, ->(predicate) {
+    joins(:fact).where(:facts => {:predicate => predicate})
   }
 
   scope :for_activity_type, ->(activity_type) {
@@ -128,19 +133,37 @@ class Asset < ActiveRecord::Base
   end
 
   def generate_barcode
-    update_attributes(:barcode => Asset.count+1) if barcode.nil?
+    #update_attributes(:barcode => Asset.count+1) if barcode.nil?
+    update_attributes(:barcode => Barcode.calculate_barcode(Rails.application.config.barcode_prefix,Asset.count+1)) if barcode.nil?
   end
 
   def attrs_for_sequencescape
-    return {}
     facts.reduce({}) do |memo, fact|
       memo[fact.predicate] = fact.object
       memo
     end
   end
 
+  def printable_object
+    return {:label => {
+      :barcode => barcode,
+      :top_line => Barcode.barcode_to_human(barcode),
+      :bottom_line => descriptive_text }
+    }
+  end
+
+  def descriptive_text
+    purposes_facts = facts.with_predicate('purpose')
+    if purposes_facts.count > 0
+      return purposes_facts.first.object
+    end
+    return ''
+  end
+
+  include Printables::Instance
+
   def update_sequencescape
-    instance=SequencescapeClient.find_by_uuid(uuid)
+    instance = SequencescapeClient.find_by_uuid(uuid)
     if instance
       instance = SequencescapeClient.update(instance, attrs_for_sequencescape)
     else

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160903164344) do
+ActiveRecord::Schema.define(version: 20160906104116) do
 
   create_table "actions", force: :cascade do |t|
     t.string   "action_type",                limit: 255, null: false
@@ -234,6 +234,13 @@ ActiveRecord::Schema.define(version: 20160903164344) do
     t.datetime "updated_at",                   null: false
   end
 
+  create_table "label_templates", force: :cascade do |t|
+    t.string   "name",        limit: 255, null: false
+    t.integer  "external_id", limit: 4,   null: false
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+  end
+
   create_table "operations", force: :cascade do |t|
     t.integer  "action_id",  limit: 4
     t.integer  "step_id",    limit: 4
@@ -267,18 +274,20 @@ ActiveRecord::Schema.define(version: 20160903164344) do
   add_index "step_types", ["superceded_by_id"], name: "index_step_types_on_superceded_by_id", using: :btree
 
   create_table "steps", force: :cascade do |t|
-    t.integer  "step_type_id",    limit: 4
-    t.integer  "user_id",         limit: 4
+    t.integer  "step_type_id",           limit: 4
+    t.integer  "user_id",                limit: 4
     t.date     "completion_date"
-    t.integer  "activity_id",     limit: 4
-    t.integer  "asset_group_id",  limit: 4
-    t.boolean  "in_progress?",              default: false
+    t.integer  "activity_id",            limit: 4
+    t.integer  "asset_group_id",         limit: 4
+    t.integer  "created_asset_group_id", limit: 4
+    t.boolean  "in_progress?",                     default: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   add_index "steps", ["activity_id"], name: "index_steps_on_activity_id", using: :btree
   add_index "steps", ["asset_group_id"], name: "index_steps_on_asset_group_id", using: :btree
+  add_index "steps", ["created_asset_group_id"], name: "index_steps_on_created_asset_group_id", using: :btree
   add_index "steps", ["step_type_id"], name: "index_steps_on_step_type_id", using: :btree
   add_index "steps", ["user_id"], name: "index_steps_on_user_id", using: :btree
 
