@@ -3,5 +3,15 @@ class Fact < ActiveRecord::Base
 
   scope :with_predicate, ->(predicate) { where(:predicate => predicate)}
 
+  scope :with_namespace, ->(namespace) { where("predicate LIKE :namespace", namespace: "#{namespace}\#%")}
+
+  scope :for_sequencescape, ->() { with_namespace('SS') }
+
   #has_many :asset, :through => :asset_fact
+
+  def object_value
+    literal? ? object : Asset.find(object_asset_id)
+  end
+
 end
+

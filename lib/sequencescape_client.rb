@@ -2,6 +2,8 @@
 #Please refer to the LICENSE and README files for information on licensing and authorship of this file.
 #Copyright (C) 2007-2011 Genome Research Ltd.
 require 'pry'
+require 'sequencescape-api'
+require 'sequencescape'
 
 class SequencescapeClient
   @purposes=nil
@@ -14,25 +16,37 @@ class SequencescapeClient
     }
   end
 
-  def self.api
-    @api ||= Sequencescape::Api.new(self.api_connection_options)
+  def self.client
+    @client ||= Sequencescape::Api.new(self.api_connection_options)
   end
 
   def self.find_by_uuid(uuid)
-    api.plate.find(uuid)
+    client.plate.find(uuid)
   rescue Sequencescape::Api::ResourceNotFound => exception
     return nil
   end
 
-  def self.update(instance, attrs)
+  def self.update_wells(instance, attrs)
+    binding.pry
+    instance.wells.each do |well|
+      attrs.to_a.select do |well_attr|
+        well_attr.all? do |k,v|
+          well.send(k) === v if well.respond_to?(k)
+        end
+      end.first.tap do |well_attr|
+        binding.pry
+        well.update_attributes!(well_attr)
+      end
+    end
   end
 
   def self.purpose_by_name(name)
-    api.plate_purpose.all.select{|p| p.name===name}.first
+    client.plate_purpose.all.select{|p| p.name===name}.first
   end
 
-  def self.create(purpose_name, attrs)
-    purpose_by_name(purpose_name).plates.create!(attrs)
+  def self.create_plate(purpose_name, attrs)
+    purpose = purpose_by_name(purpose_name) || purpose_by_name('Stock Plate')
+    purpose.plates.create!(attrs)
   end
 end
 

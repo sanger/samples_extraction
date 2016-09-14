@@ -1,5 +1,7 @@
 module Printables::Instance
   def print(printer_config)
+    return true
+
     facts.with_predicate('a').each do |f|
       printer_name = printer_config[f.object].first
       PMB::PrintJob.new(

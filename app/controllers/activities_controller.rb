@@ -20,7 +20,6 @@ class ActivitiesController < ApplicationController
   end
 
   def update
-    perform_previous_step_type
     select_assets
     select_assets_grouped
 
