@@ -9,7 +9,7 @@ class AssetGroup < ActiveRecord::Base
   def select_barcodes(barcodes)
     barcodes.each do |barcode|
       if assets.select{|a| a.barcode == barcode}.empty?
-        asset = Asset.find_by_barcode(barcode)
+        asset = Asset.find_or_import_asset_with_barcode(barcode)
         return false if asset.nil?
         assets << asset
       end

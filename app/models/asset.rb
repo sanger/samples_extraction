@@ -195,12 +195,16 @@ class Asset < ActiveRecord::Base
 
   include Printables::Instance
 
+  def self.find_or_import_asset_with_barcode(barcode)
+    SequencescapeClient.find_by_barcode(barcode)
+  end
+
   def update_sequencescape
     instance = SequencescapeClient.find_by_uuid(uuid)
     unless instance
       instance = SequencescapeClient.create_plate(class_name, attrs_for_sequencescape) if class_name
     end
-    #SequencescapeClient.update_wells(instance, attrs_for_sequencescape["wells"])
+    SequencescapeClient.update_asset_attributes(instance, attrs_for_sequencescape)
 
     update_attributes(:uuid => instance.uuid, :barcode => instance.barcode.ean13)
   end

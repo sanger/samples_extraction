@@ -26,15 +26,19 @@ class SequencescapeClient
     return nil
   end
 
-  def self.update_wells(instance, attrs)
+  def self.update_asset_attributes(instance, attrs)
     binding.pry
+    instance.update_asset_attributes(attrs)
+    #instance.wells.zip(attrs.to_a).
+  end
+
+  def self.update_wells(instance, attrs)
     instance.wells.each do |well|
       attrs.to_a.select do |well_attr|
         well_attr.all? do |k,v|
           well.send(k) === v if well.respond_to?(k)
         end
       end.first.tap do |well_attr|
-        binding.pry
         well.update_attributes!(well_attr)
       end
     end
@@ -45,8 +49,21 @@ class SequencescapeClient
   end
 
   def self.create_plate(purpose_name, attrs)
+    attrs = {}
     purpose = purpose_by_name(purpose_name) || purpose_by_name('Stock Plate')
     purpose.plates.create!(attrs)
+  end
+
+  def self.find_by_barcode(barcode)
+    asset = Asset.find_by_barcode(barcode)
+    unless asset
+      uuid = "a06fad30-54c6-11e6-b689-44fb42fffe72"
+      remote_asset = client.search.find(uuid).first(:barcode => barcode)
+      asset = Asset.create(:barcode => barcode)
+      asset.facts << Fact.create(:predicate => 'a', :object => remote_asset.class.to_s.gsub(/Sequencescape::/,''))
+      asset.facts << Fact.create(:predicate => 'is', :object => 'NotStarted')
+    end
+    asset
   end
 end
 
