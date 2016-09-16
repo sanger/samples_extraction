@@ -27,8 +27,7 @@ class SequencescapeClient
   end
 
   def self.update_asset_attributes(instance, attrs)
-    binding.pry
-    instance.update_asset_attributes(attrs)
+    instance.extraction_attributes.create!(:attributes_update => attrs, :created_by => 'test')
     #instance.wells.zip(attrs.to_a).
   end
 
@@ -54,14 +53,18 @@ class SequencescapeClient
     purpose.plates.create!(attrs)
   end
 
+  def self.tag_asset_with_remote_asset(asset, remote_asset)
+    asset.facts << Fact.create(:predicate => 'a', :object => remote_asset.class.to_s.gsub(/Sequencescape::/,''))
+    asset.facts << Fact.create(:predicate => 'is', :object => 'NotStarted')
+  end
+
   def self.find_by_barcode(barcode)
     asset = Asset.find_by_barcode(barcode)
     unless asset
       uuid = "a06fad30-54c6-11e6-b689-44fb42fffe72"
       remote_asset = client.search.find(uuid).first(:barcode => barcode)
       asset = Asset.create(:barcode => barcode)
-      asset.facts << Fact.create(:predicate => 'a', :object => remote_asset.class.to_s.gsub(/Sequencescape::/,''))
-      asset.facts << Fact.create(:predicate => 'is', :object => 'NotStarted')
+      tag_asset_with_remote_asset(asset, remote_asset)
     end
     asset
   end
