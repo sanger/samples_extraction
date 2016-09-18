@@ -6,8 +6,10 @@
   <%= f.text_field :activity_type, :value => @activity.activity_type.name,:readonly => true %>
   <%= f.text_field :instrument, :value => @activity.instrument.barcode,:readonly => true %>
   <%= f.text_field :kit, :value => @activity.kit.barcode,:readonly => true %>
+  <!-- %= f.text_field :tube_printer, :value => @current_user.tube_printer_name,:readonly => true %>
+  < % = f.text_field :plate_printer, :value => @current_user.plate_printer_name,:readonly => true % -->
 <% end %>
-
+<%= render :partial => 'printers_selection' %>
 <% if @assets && !@activity.finished? %>
   <%= render :template => 'step_types/active' %>
 <% end %>
@@ -19,6 +21,10 @@
 <% else %>
   <%= render :template => 'asset_groups/show' %>
 <% end %>
+<% if @assets && !@activity.finished? %>
+  <%= render :template => 'step_types/active' %>
+<% end %>
+
   <div id="steps_finished">
   <%= render :template =>'steps/finished' %>
   </div>

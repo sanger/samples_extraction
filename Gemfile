@@ -9,6 +9,8 @@ gem 'rest-client'
 gem 'rails-assets-tether', '>= 1.1.0'
 gem 'bootstrap_form'
 gem 'sprockets-rails'
+gem 'ace-rails-ap'
+
 
 gem 'js_cookie_rails'
 
@@ -20,10 +22,11 @@ gem 'delayed_job'
 gem 'delayed_job_active_record'
 
 gem 'sequencescape-client-api',
+  :path => '/Users/emr/projects/sequencescape-client-api'
   # Should be switched back to sanger + production for deployment
-  :github  => 'emrojo/sequencescape-client-api',
-  :branch  => 'asset-attribute-update',
-  :require => 'sequencescape'
+  #:github  => 'emrojo/sequencescape-client-api',
+  #:branch  => 'asset-attribute-update',
+  #:require => 'sequencescape'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'

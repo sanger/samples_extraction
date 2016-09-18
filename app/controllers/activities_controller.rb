@@ -123,7 +123,7 @@ class ActivitiesController < ApplicationController
       @user = @current_user
       if @user.nil?
         flash[:danger] = 'User not found'
-        redirect_back
+        redirect_to :back
       end
     end
 
@@ -131,14 +131,14 @@ class ActivitiesController < ApplicationController
       @kit = Kit.find_by_barcode!(params[:kit_barcode])
     rescue ActiveRecord::RecordNotFound => e
       flash[:danger] = 'Kit not found'
-      redirect_back
+      redirect_to :back
     end
 
     def set_activity_type
       @activity_type = ActivityType.find_by_id(params[:activity_type_id])
     rescue ActiveRecord::RecordNotFound => e
       flash[:danger] = 'Activity Type not found'
-      redirect_back
+      redirect_to :back
     end
 
     def set_instrument

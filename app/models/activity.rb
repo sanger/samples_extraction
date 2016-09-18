@@ -25,6 +25,7 @@ class Activity < ActiveRecord::Base
     where(:activity_type => activity_type)
   }
 
+
   class StepWithoutInputs < StandardError
   end
 

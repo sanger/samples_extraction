@@ -6,6 +6,11 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
+tube_printer = Printer.create!(:name => 'e367bc', :printer_type => 'Tube', :default_printer => true)
+tube_printer = Printer.create!(:name => 'e368bc', :printer_type => 'Tube', :default_printer => false)
+plate_printer = Printer.create!(:name => 'd304bc', :printer_type => 'Plate', :default_printer => true)
+plate_printer = Printer.create!(:name => 'd305bc', :printer_type => 'Plate', :default_printer => false)
+
 asset=Asset.create!(:barcode => '1')
 asset.facts << [
   ['a', 'Tube'],

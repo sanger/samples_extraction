@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160906104116) do
+ActiveRecord::Schema.define(version: 20160918121032) do
 
   create_table "actions", force: :cascade do |t|
     t.string   "action_type",                limit: 255, null: false
@@ -166,14 +166,15 @@ ActiveRecord::Schema.define(version: 20160906104116) do
 
   create_table "facts", force: :cascade do |t|
     t.integer  "asset_id",        limit: 4
-    t.string   "predicate",       limit: 255,                null: false
+    t.string   "predicate",       limit: 255,                 null: false
     t.string   "object",          limit: 255
-    t.boolean  "literal",                     default: true, null: false
+    t.boolean  "literal",                     default: true,  null: false
     t.integer  "object_asset_id", limit: 4
     t.integer  "to_add_by",       limit: 4
     t.integer  "to_remove_by",    limit: 4
-    t.datetime "created_at",                                 null: false
-    t.datetime "updated_at",                                 null: false
+    t.boolean  "up_to_date",                  default: false, null: false
+    t.datetime "created_at",                                  null: false
+    t.datetime "updated_at",                                  null: false
   end
 
   add_index "facts", ["asset_id"], name: "index_facts_on_asset_id", using: :btree
@@ -261,6 +262,14 @@ ActiveRecord::Schema.define(version: 20160906104116) do
     t.datetime "updated_at"
   end
 
+  create_table "printers", force: :cascade do |t|
+    t.string   "name",            limit: 255, null: false
+    t.string   "printer_type",    limit: 255, null: false
+    t.boolean  "default_printer",             null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+  end
+
   create_table "step_types", force: :cascade do |t|
     t.string   "name",             limit: 255
     t.string   "step_template",    limit: 255
@@ -305,16 +314,21 @@ ActiveRecord::Schema.define(version: 20160906104116) do
   add_index "uploads", ["step_id"], name: "index_uploads_on_step_id", using: :btree
 
   create_table "users", force: :cascade do |t|
-    t.string   "login",      limit: 255
-    t.string   "password",   limit: 255
-    t.string   "barcode",    limit: 255
-    t.string   "username",   limit: 255
-    t.string   "fullname",   limit: 255
-    t.string   "token",      limit: 255
-    t.string   "role",       limit: 255, default: "operator"
-    t.datetime "created_at",                                  null: false
-    t.datetime "updated_at",                                  null: false
+    t.string   "login",            limit: 255
+    t.string   "password",         limit: 255
+    t.string   "barcode",          limit: 255
+    t.string   "username",         limit: 255
+    t.string   "fullname",         limit: 255
+    t.string   "token",            limit: 255
+    t.string   "role",             limit: 255, default: "operator"
+    t.integer  "tube_printer_id",  limit: 4
+    t.integer  "plate_printer_id", limit: 4
+    t.datetime "created_at",                                        null: false
+    t.datetime "updated_at",                                        null: false
   end
+
+  add_index "users", ["plate_printer_id"], name: "index_users_on_plate_printer_id", using: :btree
+  add_index "users", ["tube_printer_id"], name: "index_users_on_tube_printer_id", using: :btree
 
   add_foreign_key "actions", "step_types"
   add_foreign_key "activities", "activity_types"

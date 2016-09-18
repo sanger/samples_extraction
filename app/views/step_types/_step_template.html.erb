@@ -4,9 +4,11 @@
       :locals => { :step_type => step_type, :index => index } %>
 </div>
 <%= form_for [@activity, step_type, Step.new], action: 'create', class: 'step-template-form' do |f| %>
+  <%= f.hidden_field :tube_printer_id, :value => @current_user.tube_printer_id %>
+  <%= f.hidden_field :plate_printer_id, :value => @current_user.plate_printer_id %>
+
   <input type="button" name="button" style="display:none;"/>
   <input type="hidden" name='step[state]' value='done' />
-
   <% if @upload_ids %>
     <input type="hidden" name="upload_ids" value="<%= @upload_ids %>" />
   <% end %>

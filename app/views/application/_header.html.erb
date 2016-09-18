@@ -75,21 +75,11 @@
           { :section => { :name => 'samples', css_class: 'anonymous-allowed', :options => [
             ['view_started', samples_started_index_path],
             ['view_not_started', samples_not_started_index_path]] } },
-          { :section => { :name => 'kit_types', css_class: 'administrator-allowed', :options => [
-            ['new', new_kit_type_path],
-            ['show', kit_types_path]] } },
-          { :section => { :name => 'kits', css_class: 'administrator-allowed', :options => [
-            ['new',  new_kit_path],
-            ['show', kits_path]] } },
-          { :section => { :name => 'instruments', css_class: 'operator-allowed', :options => [
-            ['new', new_instrument_path],
-            ['show', instruments_path]] } },
-          { :section => { :name => 'activity_types', css_class: 'administrator-allowed', :options => [
-            ['new', new_activity_type_path],
-            ['show', activity_types_path]] } },
-          { :section => { :name => 'step_types', css_class: 'administrator-allowed', :options => [
-            ['new', new_step_type_path],
-            ['show', step_types_path]] } },
+          { :section => { :name => 'kit_types', css_class: 'administrator-allowed', :path => kit_types_path } },
+          { :section => { :name => 'kits', css_class: 'administrator-allowed', :path => kits_path } },
+          { :section => { :name => 'instruments', css_class: 'operator-allowed', :path => instruments_path } },
+          { :section => { :name => 'activity_types', css_class: 'administrator-allowed', :path => activity_types_path } },
+          { :section => { :name => 'step_types', css_class: 'administrator-allowed', :path => step_types_path } },
           { :section => { :name => 'history', css_class: 'anonymous-allowed', :path => history_index_path}},
           { :section => { :name => 'admin', css_class: 'administrator-allowed', :options => [
             ['show users',  users_path],

@@ -60,8 +60,15 @@ class StepsController < ApplicationController
   end
 
 
+  def params_for_printing
+    params.require(:step).permit(:tube_printer_id, :plate_printer_id)
+  end
+
   def printer_config
-    {'Tube' => 'd304bc', 'Plate' => 'd304bc'}
+    {
+      'Tube' => Printer.find(params_for_printing[:tube_printer_id]).name,
+      'Plate' => Printer.find(params_for_printing[:plate_printer_id]).name,
+    }
   end
 
   # POST /activity/:activity_id/step_type/:step_type_id/create
@@ -71,7 +78,9 @@ class StepsController < ApplicationController
     if valid_step_types.include?(step_type_to_do)
       store_uploads
       @step = @activity.step(step_type_to_do, @current_user, params_for_step_in_progress)
-      @step.created_asset_group.print(printer_config) if @step.created_asset_group
+      if @step.created_asset_group
+        @step.created_asset_group.print(printer_config)
+      end
       @activity.reasoning!
     end
 
@@ -148,5 +157,11 @@ class StepsController < ApplicationController
           :content_type => params[:content_type])
       end
     end
+
+  def show_alert(data)
+    @alerts = [] unless @alerts
+    @alerts.push(data)
+  end
+
 
 end

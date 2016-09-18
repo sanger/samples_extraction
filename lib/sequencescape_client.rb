@@ -11,8 +11,9 @@ class SequencescapeClient
   def self.api_connection_options
     {
       :namespace     => 'SamplesExtraction',
-      :url           => 'http://localhost:3000/api/1/',
-      :authorisation => 'development'
+      :url           => Rails.configuration.ss_uri,
+      :authorisation => 'development',
+      :read_timeout  => 5
     }
   end
 
@@ -26,21 +27,8 @@ class SequencescapeClient
     return nil
   end
 
-  def self.update_asset_attributes(instance, attrs)
+  def self.update_extraction_attributes(instance, attrs)
     instance.extraction_attributes.create!(:attributes_update => attrs, :created_by => 'test')
-    #instance.wells.zip(attrs.to_a).
-  end
-
-  def self.update_wells(instance, attrs)
-    instance.wells.each do |well|
-      attrs.to_a.select do |well_attr|
-        well_attr.all? do |k,v|
-          well.send(k) === v if well.respond_to?(k)
-        end
-      end.first.tap do |well_attr|
-        well.update_attributes!(well_attr)
-      end
-    end
   end
 
   def self.purpose_by_name(name)
@@ -53,33 +41,29 @@ class SequencescapeClient
     purpose.plates.create!(attrs)
   end
 
-  def self.tag_asset_with_remote_asset(asset, remote_asset)
+  def self.annotate_asset_with_remote_asset(asset, remote_asset)
     asset.facts << Fact.create(:predicate => 'a', :object => remote_asset.class.to_s.gsub(/Sequencescape::/,''))
     asset.facts << Fact.create(:predicate => 'is', :object => 'NotStarted')
+  end
+
+  def self.get_searcher_by_barcode
+    @@searcher ||= client.search.all.select{|s| s.name == Rails.configuration.searcher_name_by_barcode}.first
+  end
+
+  def self.get_remote_asset(barcode)
+    get_searcher_by_barcode.first(:barcode => barcode)
   end
 
   def self.find_by_barcode(barcode)
     asset = Asset.find_by_barcode(barcode)
     unless asset
-      uuid = "a06fad30-54c6-11e6-b689-44fb42fffe72"
-      remote_asset = client.search.find(uuid).first(:barcode => barcode)
-      asset = Asset.create(:barcode => barcode)
-      tag_asset_with_remote_asset(asset, remote_asset)
+      remote_asset = get_remote_asset(barcode)
+      if remote_asset
+        asset = Asset.create(:barcode => barcode)
+        annotate_asset_with_remote_asset(asset, remote_asset)
+      end
     end
     asset
   end
 end
 
-#plate = SequencescapeClient.create("Stock Plate", {})
-#plate = SequencescapeClient.find_by_uuid(plate["uuid"])
-#plate = SequencescapeClient.find_by_uuid("111")
-
-#SequencescapeClient::PlateCreation.create(
-#  {
-#     :plate_creation =>{
-#       :user => 'b55f7a90-54c6-11e6-9ffd-44fb42fffe72',
-#       :parent => nil,
-#       :child_purpose => '8a4da160-54c6-11e6-b689-44fb42fffe72'
-#     }
-#   }.to_json
-# )

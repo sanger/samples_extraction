@@ -6,6 +6,9 @@
   }
   var proto = DisplayError.prototype;
     proto.showMsg = function(e, msg) {
+    if (typeof msg.type === 'undefined') {
+      msg.type='warning';
+    }
     this.node.html(this.template(msg));
   };
 
