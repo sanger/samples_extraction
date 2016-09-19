@@ -39,7 +39,7 @@ RSpec.describe Step, type: :model do
         @cg1.update_attributes(:cardinality => 1)
         expect{
           @step = create_step
-          }.to raise_error(ActiveRecord::RecordNotSaved)
+          }.to raise_error(StandardError)
       end
     end
 
