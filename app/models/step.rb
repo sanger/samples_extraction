@@ -94,7 +94,7 @@ class Step < ActiveRecord::Base
     if list_of_assets.length > 0
       created_asset_group = AssetGroup.create
       created_asset_group.assets << list_of_assets
-      activity.asset_group.assets << list_of_assets
+      activity.asset_group.assets << list_of_assets if activity
       update_attributes(:created_asset_group => created_asset_group)
     end
   end

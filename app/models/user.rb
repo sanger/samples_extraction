@@ -4,7 +4,7 @@ class User < ActiveRecord::Base
   belongs_to :tube_printer, :class_name => 'Printer', :foreign_key => 'tube_printer_id'
   belongs_to :plate_printer, :class_name => 'Printer', :foreign_key => 'plate_printer_id'
 
-  before_save :set_default_printers
+  after_initialize :set_default_printers
 
   def set_default_printers
     update_attributes(
@@ -16,11 +16,11 @@ class User < ActiveRecord::Base
   end
 
   def tube_printer_name
-    tube_printer.name
+    tube_printer.name if tube_printer
   end
 
   def plate_printer_name
-    plate_printer.name
+    plate_printer.name if plate_printer
   end
 
   def generate_token
