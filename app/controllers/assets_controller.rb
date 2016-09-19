@@ -14,6 +14,9 @@ class AssetsController < ApplicationController
     @activities = @assets.map(&:activities)
     @steps = Step.for_assets(@assets)
 
+    # For printing
+    @asset_group = AssetGroup.create!
+    @asset_group.assets << @assets
 
     respond_to do |format|
       format.html { render :search, layout: false }

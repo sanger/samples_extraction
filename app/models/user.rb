@@ -37,4 +37,13 @@ class User < ActiveRecord::Base
       :tube_printer_name => tube_printer_name, :plate_printer_name => plate_printer_name}
   end
 
+  def printer_config
+    {
+      'Tube' => tube_printer_name,
+      'Plate' => plate_printer_name,
+      'TubeRack' => plate_printer_name
+    }
+  end
+
+
 end

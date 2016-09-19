@@ -1,5 +1,5 @@
-class AssetGroupsController < ActionController::Base
-  before_action :set_asset_group, only: [:show, :update]
+class AssetGroupsController < ApplicationController
+  before_action :set_asset_group, only: [:show, :update, :print]
   before_action :set_activity, only: [:show, :update]
   before_action :update_barcodes, only: [:update]
 
@@ -13,6 +13,12 @@ class AssetGroupsController < ActionController::Base
       format.html { render @asset_group }
       format.json { render :update, status: :created, location: [@activity, @asset_group] }
     end
+  end
+
+  def print
+    @asset_group.print(@current_user.printer_config)
+
+    redirect_to :back
   end
 
   private
@@ -46,6 +52,11 @@ class AssetGroupsController < ActionController::Base
     unless params_update_asset_group[:delete_barcode].empty?
       @asset_group.unselect_barcodes([params_update_asset_group[:delete_barcode]])
     end
+  end
+
+  def show_alert(data)
+    @alerts = [] unless @alerts
+    @alerts.push(data)
   end
 
   def perform_barcode_addition

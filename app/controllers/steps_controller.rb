@@ -41,6 +41,7 @@ class StepsController < ApplicationController
 
   def params_for_step_in_progress
     return nil if !params[:step]
+    return nil if params[:step][:state]=='in_progress' && !params[:step][:pairings]
     return [{:state => 'done', :assets => [@asset_group.assets] }] unless params[:step][:pairings]
     @pairings = create_step_params[:pairings].values.map do |obj|
       Pairing.new(obj, @step_type)
