@@ -9,10 +9,10 @@ class User < ActiveRecord::Base
   def set_default_printers
     update_attributes(
       :tube_printer => Printer.for_tube.for_default.first,
-    )  unless tube_printer
+    )  if tube_printer.nil?
     update_attributes(
       :plate_printer => Printer.for_plate.for_default.first,
-    )  unless plate_printer
+    )  if plate_printer.nil?
   end
 
   def tube_printer_name
