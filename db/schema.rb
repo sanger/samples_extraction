@@ -237,7 +237,7 @@ ActiveRecord::Schema.define(version: 20160918121032) do
 
   create_table "label_templates", force: :cascade do |t|
     t.string   "name",          limit: 255, null: false
-    t.string   "template_type", limit: 255, null: false
+    t.string   "template_type", limit: 255
     t.integer  "external_id",   limit: 4,   null: false
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
@@ -264,11 +264,11 @@ ActiveRecord::Schema.define(version: 20160918121032) do
   end
 
   create_table "printers", force: :cascade do |t|
-    t.string   "name",            limit: 255, null: false
-    t.string   "printer_type",    limit: 255, null: false
-    t.boolean  "default_printer",             null: false
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.string   "name",            limit: 255,                 null: false
+    t.string   "printer_type",    limit: 255
+    t.boolean  "default_printer",             default: false, null: false
+    t.datetime "created_at",                                  null: false
+    t.datetime "updated_at",                                  null: false
   end
 
   create_table "step_types", force: :cascade do |t|

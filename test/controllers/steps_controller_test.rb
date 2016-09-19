@@ -10,6 +10,8 @@ class StepsControllerTest < ActionController::TestCase
       @user = FactoryGirl.create :user
       @user.generate_token
 
+      session[:token] = @user.token
+
       @asset = FactoryGirl.create :asset, :barcode => '1111'
       @asset_group = FactoryGirl.create :asset_group
       @activity_type = FactoryGirl.create :activity_type
@@ -22,14 +24,17 @@ class StepsControllerTest < ActionController::TestCase
 
       count = Step.all.count
 
-      post :create, params: { :activity_id => @activity.id, :step_type_id => @step_type.id }, session: { :token => @user.token}
+      post :create,  { :activity_id => @activity.id, :step_type_id => @step_type.id },
+        session: { :token => @user.token}
       assert_equal Step.all.count, count + 1
     end
 
     context "POST /activities/:activity/step_types/:step_type/steps" do
       should "create a new step with status 'done' when no parameters are provided" do
         c = Step.all.count
-        post :create, :params => { :activity_id => @activity.id, :step_type_id => @step_type.id }, session: { :token => @user.token}
+
+        post :create, { :activity_id => @activity.id, :step_type_id => @step_type.id}
+        Step.all.reload
         assert_equal Step.all.count, c+1
         assert_equal false, Step.last.in_progress?
       end
@@ -59,10 +64,8 @@ class StepsControllerTest < ActionController::TestCase
           pairings[index][cgq.id] = pair[1]
         end
 
-
-
         c = Step.all.count
-        post :create, :params => {:activity_id => @activity.id, :step_type_id => @step_type.id, :step => {:pairings => pairings, :state => 'in_progress'}}, session: { :token => @user.token}
+        post :create, {:activity_id => @activity.id, :step_type_id => @step_type.id, :step => {:pairings => pairings, :state => 'in_progress'}}, session: { :token => @user.token}
         assert_equal Step.all.count, c+1
         assert_equal true, Step.last.in_progress?
       end

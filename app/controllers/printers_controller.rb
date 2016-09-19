@@ -69,6 +69,6 @@ class PrintersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def printer_params
-      params.fetch(:printer, {})
+      params.require(:printer).permit(:name)
     end
 end

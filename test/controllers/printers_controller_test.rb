@@ -2,7 +2,7 @@ require 'test_helper'
 
 class PrintersControllerTest < ActionController::TestCase
   setup do
-    @printer = printers(:one)
+    @printer = FactoryGirl.create :printer, {:name => 'one'}
   end
 
   test "should get index" do
@@ -18,7 +18,7 @@ class PrintersControllerTest < ActionController::TestCase
 
   test "should create printer" do
     assert_difference('Printer.count') do
-      post :create, printer: {  }
+      post :create,  { printer: @printer.attributes }
     end
 
     assert_redirected_to printer_path(assigns(:printer))
@@ -35,7 +35,7 @@ class PrintersControllerTest < ActionController::TestCase
   end
 
   test "should update printer" do
-    patch :update, id: @printer, printer: {  }
+    patch :update,   { id: @printer, printer: @printer.attributes }
     assert_redirected_to printer_path(assigns(:printer))
   end
 
