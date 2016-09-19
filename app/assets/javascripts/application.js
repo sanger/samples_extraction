@@ -34,6 +34,7 @@
 //= require button_switch
 //= require fact_reader
 //= require user_status
+//= require tube_into_rack
 //= require ace-rails-ap
 //= require_tree ./templates
 //= require_tree .

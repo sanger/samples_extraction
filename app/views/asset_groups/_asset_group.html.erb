@@ -27,6 +27,7 @@
         <% end %>
         <div class="row">
           <ul class="nav nav-pills">
+          <% @invalid_step_types = @step_types %>
           <% @invalid_step_types = @asset_group.activity.step_types if @step_types.empty? %>
           <% unless @invalid_step_types.length == 1 %>
             <% @invalid_step_types.each do |step_type| %>

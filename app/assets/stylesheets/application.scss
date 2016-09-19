@@ -271,7 +271,7 @@ header, .blurheader {
 
 .facts-list svg { width: 50px; height: 50px; float:left; }
 
-.facts-list {
+svg {
   .is-empty,.is-Empty             { fill: #f5f5f5 !important; background-color: #f5f5f5 !important; }
   .is-full,.is-Full              { fill: #5bb75b; background-color: #5bb75b; }
   .resource-not-data { fill: #49afcd; background-color: #49afcd; }
@@ -294,6 +294,12 @@ header, .blurheader {
     fill: red;
   }
 
+  .editing { fill: white; }
+  .editing.edited { fill: white;}
+  .edited {fill: gray;}
+  .empty-edited {fill: black;}
+
+  ellipse:hover { fill: orange !important;}
   .a1_dna .A1 { @extend .has-dna; }
 }
 

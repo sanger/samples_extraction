@@ -70,12 +70,29 @@
       return $("div.step_type_name input", this.node).val();
     };
 
+    proto.getStepTemplate = function() {
+      return $("#step_type_step_template").val()
+    };
+
+
     proto.stepTypeToN3 = function() {
       return ":step\t :stepTypeName \"\"\""+this.getStepTypeName()+"\"\"\" .\n";
     };
 
+    proto.stepTemplateToN3 = function() {
+      if (this.getStepTemplate().length >0) {
+        return "\t:step\t :stepTemplate \"\"\""+this.getStepTemplate()+"\"\"\" .\n";
+      } else {
+        return "";
+      }
+    };
+
+    proto.stepTypeConfigToN3 = function() {
+      return this.stepTypeToN3() + this.stepTemplateToN3();
+    };
+
     proto.renderRuleN3 = function(n3Checks, n3Actions, n3Selects) {
-      return "{\n\t"+n3Checks+"\n} => {\n\t"+this.stepTypeToN3() +  n3Selects + "\t"+ n3Actions+"} .\n";
+      return "{\n\t"+n3Checks+"\n} => {\n\t"+this.stepTypeConfigToN3() +  n3Selects + "\t"+ n3Actions+"} .\n";
     };
 
     proto.toN3 = function(e) {
