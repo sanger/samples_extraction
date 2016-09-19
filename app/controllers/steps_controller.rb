@@ -48,7 +48,7 @@ class StepsController < ApplicationController
 
     unless @pairings.all?(&:valid?)
       flash[:danger] = @pairings.map(&:error_messages).join('\n')
-      redirect_back
+      #redirect_to :back
     end
 
     @pairings.map do |pairing|

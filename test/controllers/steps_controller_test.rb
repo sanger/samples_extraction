@@ -40,14 +40,18 @@ class StepsControllerTest < ActionController::TestCase
       end
 
       should "create a new step with status 'in progress' when pairing parameters are provided" do
-        rule = "{?p :is :Tube . ?q :is :Tube.} => {?p :transfer ?q.}."
+        rule = "{?p :is :Tube . ?q :is :Tube2.} => { :step :addFacts { ?p :transfer ?q.}.}."
         SupportN3.parse_string(rule, {}, @step_type)
         assets = []
         10.times.each do |i|
           asset = FactoryGirl.create :asset, {:facts =>[
             FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube')]}
+          asset2 = FactoryGirl.create :asset, {:facts =>[
+            FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube2')]}
           assets << asset
+          assets << asset2
         end
+
         @asset_group.assets = assets
         barcodes_pairs = assets.map(&:barcode).each_slice(2).to_a
 
@@ -65,9 +69,14 @@ class StepsControllerTest < ActionController::TestCase
         end
 
         c = Step.all.count
+
         post :create, {:activity_id => @activity.id, :step_type_id => @step_type.id, :step => {:pairings => pairings, :state => 'in_progress'}}, session: { :token => @user.token}
         assert_equal Step.all.count, c+1
         assert_equal true, Step.last.in_progress?
+        post :create, {:activity_id => @activity.id, :step_type_id => @step_type.id}
+        assert_equal Step.all.count, c+1
+        assert_equal false, Step.last.in_progress?
+        assert_equal 10, assets.map{|a| a.facts.with_predicate('transfer')}.flatten.uniq.count
       end
     end
 
