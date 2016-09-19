@@ -9,6 +9,13 @@ Rails.application.routes.draw do
 
   resources :step_types
   resources :steps
+  resources :asset_groups do
+    member do
+      get 'print'
+    end
+
+  end
+
   resources :activities do
     resources :asset_groups
     resources :step_types do

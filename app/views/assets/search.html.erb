@@ -41,3 +41,9 @@
 <h4> Steps </h4>
 
 <%= render :partial => 'steps/steps', :locals => {:steps => @steps } %>
+
+<% if @asset_group %>
+  <%= bootstrap_link_to 'Print Labels', print_asset_group_path(@asset_group) %>
+<% end %>
+
+
