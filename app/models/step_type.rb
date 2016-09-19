@@ -31,7 +31,14 @@ class StepType < ActiveRecord::Base
   end
 
   def all_step_templates
+    #Dir["app/views/step_types/step_templates/*"].concat([''])
     ['', 'transfer_tube_to_tube', 'upload_file_step']
+    Dir["app/views/step_types/step_templates/*"].map do |s|
+      name = File.basename(s)
+      name.gsub!(/^_/, '')
+      name.gsub!(/\.html\.erb$/, '')
+      name
+    end.concat([''])
   end
 
   def condition_groups_init
