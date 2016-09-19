@@ -68,6 +68,7 @@ class StepsController < ApplicationController
     {
       'Tube' => Printer.find(params_for_printing[:tube_printer_id]).name,
       'Plate' => Printer.find(params_for_printing[:plate_printer_id]).name,
+      'TubeRack' => Printer.find(params_for_printing[:plate_printer_id]).name,
     }
   end
 

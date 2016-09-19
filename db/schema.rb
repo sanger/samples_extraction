@@ -236,10 +236,11 @@ ActiveRecord::Schema.define(version: 20160918121032) do
   end
 
   create_table "label_templates", force: :cascade do |t|
-    t.string   "name",        limit: 255, null: false
-    t.integer  "external_id", limit: 4,   null: false
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
+    t.string   "name",          limit: 255, null: false
+    t.string   "template_type", limit: 255, null: false
+    t.integer  "external_id",   limit: 4,   null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
   end
 
   create_table "operations", force: :cascade do |t|
