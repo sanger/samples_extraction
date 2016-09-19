@@ -1,21 +1,21 @@
 <div data-psd-component-class="TubeIntoRack">
   <div class="row">
-    <div class="form-group" data-psd-component-class="BarcodeReader">
-      <label for="tube_barcocde" class="input">Barcode</label>
-      <input id="tube_barcocde" class="form-control" name="tube_barcode" type="text" autocomplete="off" />
+    <div class="col-md-6 col-xs-12">
+      <%= svg 'TubeRack' %>
+    </div>
+    <div class="col-md-6 col-xs-12">
+      <div class="form-group" data-psd-component-class="BarcodeReader">
+        <label for="tube_barcocde" class="input">Barcode</label>
+        <input id="tube_barcocde" class="form-control" name="tube_barcode" type="text" autocomplete="off" />
+      </div>
+      <%= bootstrap_form_for [@activity, step_type, Step.new], action: 'create', class: 'step-template-form' do |f| %>
+        <input type="hidden" name='step[state]' value='done' />
+        <%= f.submit %>
+      <% end %>
     </div>
   </div>
   <div class="row">
-    <%= svg 'TubeRack' %>
-  </div>
-  <div class="row">
-    <%= bootstrap_form_for [@activity, step_type, Step.new], action: 'create', class: 'step-template-form' do |f| %>
-      <input type="hidden" name='step[state]' value='done' />
-      <%= f.submit %>
-    <% end %>
-  </div>
-  <div class="row">
-    <table class="table">
+    <table class="table col-md-12">
       <thead>
         <th>Location</th><th>Barcode</th>
       </thead>
