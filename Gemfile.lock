@@ -1,18 +1,20 @@
 GIT
-  remote: git://github.com/sanger/pmb-client.git
-  revision: 016f151a3bde84448ed64e528259c3511282dcdb
-  specs:
-    pmb-client (0.1.0)
-      json_api_client (~> 1.1)
-
-PATH
-  remote: /Users/emr/projects/sequencescape-client-api
+  remote: git://github.com/emrojo/sequencescape-client-api.git
+  revision: c63fab4af608df8217568a47d63d28d92f79aa15
+  branch: asset-attribute-update
   specs:
     sequencescape-client-api (0.2.2)
       activemodel (~> 4)
       activesupport (~> 4)
       i18n
       yajl-ruby (~> 1.1.0)
+
+GIT
+  remote: git://github.com/sanger/pmb-client.git
+  revision: 016f151a3bde84448ed64e528259c3511282dcdb
+  specs:
+    pmb-client (0.1.0)
+      json_api_client (~> 1.1)
 
 GEM
   remote: https://rubygems.org/
