@@ -3,7 +3,7 @@ module Printables::Group
     printer_config.each_pair.map do |type, printer|
       [printer, assets.with_fact('a', type), type]
     end.each do |printer_name, assets, type|
-      return
+      return if Rails.configuration.printing_disabled
 
       PMB::PrintJob.new(
         printer_name: printer_name,
