@@ -159,6 +159,8 @@ GEM
       addressable (~> 2.2)
       faraday (~> 0.9)
       faraday_middleware (~> 0.9)
+    launchy (2.4.3)
+      addressable (~> 2.3)
     libv8 (3.16.14.15)
     link_header (0.0.8)
     loofah (2.0.3)
@@ -358,6 +360,7 @@ DEPENDENCIES
   jbuilder (~> 2.0)
   jquery-rails
   js_cookie_rails
+  launchy
   micro_token
   mysql2 (>= 0.3.13, < 0.5)
   peek

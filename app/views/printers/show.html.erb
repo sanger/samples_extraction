@@ -1,4 +1,6 @@
 <p id="notice"><%= notice %></p>
 
-<%= link_to 'Edit', edit_printer_path(@printer) %> |
-<%= link_to 'Back', printers_path %>
+<%= render 'form' %>
+
+<%= bootstrap_link_to 'Edit', edit_printer_path(@printer) %>
+<%= bootstrap_link_to 'Back', printers_path %>

@@ -1,4 +1,4 @@
-<%= form_for(@printer) do |f| %>
+<%= bootstrap_form_for(@printer) do |f| %>
   <% if @printer.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@printer.errors.count, "error") %> prohibited this printer from being saved:</h2>
@@ -10,6 +10,21 @@
       </ul>
     </div>
   <% end %>
+
+  <% readonly = params[:action] == 'show' %>
+
+  <div class="field">
+    <%= f.text_field :name, :readonly => readonly %>
+  </div>
+
+  <div class="field">
+    <%= f.text_field :printer_type, :readonly => readonly %>
+  </div>
+
+  <div class="field">
+    <%= f.check_box :default_printer, :readonly => readonly %>
+  </div>
+
 
   <div class="actions">
     <%= f.submit %>

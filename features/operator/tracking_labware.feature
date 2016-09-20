@@ -23,11 +23,25 @@ Given we use these step types:
 | Upload layout          | Tubes to rack  |
 | Change purpose of tube | Tubes to rack  |
 
+Given the step type "Upload layout" has this configuration in N3:
+"""
+{
+  ?p :a :Tube .
+  ?p :is :Started .
+  ?q :maxCardinality """0""".
+  ?p :maxCardinality """0""".
+} => {
+  :step :addFacts { ?p :layout ?q .}.
+  :step :createAsset { ?q :is :Layout .}.
+} .
+"""
+
 Given the step type "Change purpose of tube" has this configuration in N3:
 """
 {
   ?p :a :Tube .
   ?p :is :NotStarted.
+  ?p :maxCardinality """0""".
 } => {
   :step :removeFacts {?p :is :NotStarted.}.
   :step :addFacts {?p :is :Started.}.

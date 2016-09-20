@@ -103,6 +103,7 @@ end
 
 group :test do
   gem 'poltergeist'
+  gem 'launchy'
 end
 
 

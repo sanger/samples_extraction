@@ -101,7 +101,7 @@ Given(/^the step type "([^"]*)" has this configuration in N3:$/) do |step_type_n
 end
 
 Then(/^I should see these steps available:$/) do |table|
-  within(".first-step-types .content_step_types") do
+  within(".firststeptype .content_step_types") do
     table.hashes.each do |step_type|
       expect(page.has_button?(step_type["Step"])).to eq(true)
     end
@@ -109,7 +109,7 @@ Then(/^I should see these steps available:$/) do |table|
 end
 
 When(/^I perform the step "([^"]*)"$/) do |step_name|
-  find("form.new_step").click
+  find(".firststeptype form.new_step").click
 end
 
 Then(/^I should not have performed the step "([^"]*)"$/) do |step_name|
