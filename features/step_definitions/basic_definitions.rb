@@ -101,7 +101,7 @@ Given(/^the step type "([^"]*)" has this configuration in N3:$/) do |step_type_n
 end
 
 Then(/^I should see these steps available:$/) do |table|
-  within(".content_step_types:first-of-type") do
+  within(".first-step-types .content_step_types") do
     table.hashes.each do |step_type|
       expect(page.has_button?(step_type["Step"])).to eq(true)
     end

@@ -11,7 +11,7 @@
 <% end %>
 <%= render :partial => 'printers_selection' %>
 <% if @assets && !@activity.finished? %>
-  <%= render :template => 'step_types/active' %>
+  <div class="first-step-types"><%= render :template => 'step_types/active' %></div>
 <% end %>
 
 <% if @activity.finished? %>
@@ -22,7 +22,7 @@
   <%= render :template => 'asset_groups/show' %>
 <% end %>
 <% if @assets && !@activity.finished? %>
-  <%= render :template => 'step_types/active' %>
+  <div class="last-step-types"><%= render :template => 'step_types/active' %></div>
 <% end %>
 
   <div id="steps_finished">
