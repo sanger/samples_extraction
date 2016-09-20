@@ -3,7 +3,7 @@ module Printables::Instance
 
     facts.with_predicate('a').each do |f|
       printer_name = printer_config[f.object].first
-      return
+      return if Rails.configuration.printing_disabled
 
       PMB::PrintJob.new(
         printer_name:printer_name,
