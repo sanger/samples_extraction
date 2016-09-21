@@ -178,11 +178,12 @@ class StepsController < ApplicationController
     if create_step_params[:data_params]
       data_action = create_step_params[:data_action]
       data_params = create_step_params[:data_params]
+
       ActiveRecord::Base.transaction do
         @assets.each do |asset|
           asset.send(data_action, JSON.parse(data_params))
         end
-      end
+      end if (data_action)
     end
   end
 

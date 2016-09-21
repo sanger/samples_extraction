@@ -151,4 +151,5 @@ class StepType < ActiveRecord::Base
   def actions_for(assets)
     #condition_group_classification_for(assets)
   end
+
 end

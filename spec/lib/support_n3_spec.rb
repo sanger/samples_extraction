@@ -201,6 +201,53 @@ RSpec.describe SupportN3 do
           c.predicate == 'contains'
         end.first.object_condition_group_id).to eq(q.id)
       end
+
+      it '{ ' \
+            '?a :is :A . ' \
+            '?a :transfer ?b . ' \
+            '?b :is :B . ' \
+            '?b :transfer ?c . ' \
+            '?c :is :C . ' \
+            '?c :transfer ?d . ' \
+            '?d :is :D . ' \
+            '?d :transfer ?a . ' \
+          '} => {' \
+            ':step :addFacts { ?a :is :Processed .}. ' \
+            ':step :addFacts { ?b :is :Processed .}. ' \
+            ':step :addFacts { ?c :is :Processed .}. ' \
+            ':step :addFacts { ?d :is :Processed .}. ' \
+          '} .' do
+        validates_rule_with({
+          ConditionGroup => [
+            {:name => 'a', :step_type => @step_type, :cardinality => nil,
+              :keep_selected => true},
+            {:name => 'b', :step_type => @step_type, :cardinality => nil,
+              :keep_selected => true},
+            {:name => 'c', :step_type => @step_type, :cardinality => nil,
+              :keep_selected => true},
+            {:name => 'd', :step_type => @step_type, :cardinality => nil,
+              :keep_selected => true}
+          ],
+          Action => [
+            { :action_type => 'addFacts', :predicate => 'is', :object => 'Processed' },
+            { :action_type => 'addFacts', :predicate => 'is', :object => 'Processed' },
+            { :action_type => 'addFacts', :predicate => 'is', :object => 'Processed' },
+            { :action_type => 'addFacts', :predicate => 'is', :object => 'Processed' }
+          ]
+        })
+
+        a = ConditionGroup.find_by_name('a')
+        b = ConditionGroup.find_by_name('b')
+        c = ConditionGroup.find_by_name('c')
+        d = ConditionGroup.find_by_name('d')
+
+        [a,b,c,d].zip([b,c,d,a]).each do |p,q|
+          expect(p.conditions.select do |c|
+            c.predicate == 'transfer'
+          end.first.object_condition_group_id).to eq(q.id)
+        end
+      end
+
     end
   end
 

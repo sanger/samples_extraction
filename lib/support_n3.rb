@@ -117,12 +117,8 @@ module SupportN3
         condition_group.update_attributes(:cardinality => fragment(v))
       else
         # or we add the new condition
-        object_condition_group_id = nil
-        if condition_group_for(v)
-          object_condition_group_id = condition_group_for(v).id
-        end
         Condition.create({ :predicate => fragment(p), :object => fragment(v),
-        :condition_group_id => condition_group.id, :object_condition_group_id => object_condition_group_id})
+        :condition_group_id => condition_group.id, :object_condition_group => condition_group_for(v)})
       end
     end
 
@@ -133,7 +129,11 @@ module SupportN3
         condition_group = find_or_create_condition_group_for(k,
           {:step_type => @step_type,
           :keep_selected => check_keep_selected_asset(k)})
-        update_condition_group(condition_group, p, v)
+      end
+      conditions.each do |k,p,v,g|
+        # After reading all condition groups we will be able to recognize
+        # the condition groups of the objects in the triple
+        update_condition_group(condition_group_for(k), p, v)
       end
     end
 

@@ -24,7 +24,7 @@ class StepsControllerTest < ActionController::TestCase
 
       count = Step.all.count
 
-      post :create,  { :activity_id => @activity.id, :step_type_id => @step_type.id },
+      post :create,  { :activity_id => @activity.id, :step_type_id => @step_type.id, :step => { :data_params => "{}"} },
         session: { :token => @user.token}
       assert_equal Step.all.count, count + 1
     end
@@ -33,10 +33,65 @@ class StepsControllerTest < ActionController::TestCase
       should "create a new step with status 'done' when no parameters are provided" do
         c = Step.all.count
 
-        post :create, { :activity_id => @activity.id, :step_type_id => @step_type.id}
+        post :create, { :activity_id => @activity.id, :step_type_id => @step_type.id, :step => { :data_params => "{}"}}
         Step.all.reload
         assert_equal Step.all.count, c+1
         assert_equal false, Step.last.in_progress?
+      end
+
+      should "execute a rule with different relations in between" do
+        rule = '{ ' \
+                  '?a :is :A . ' \
+                  '?a :transfer ?b . ' \
+                  '?b :is :B . ' \
+                  '?b :transfer ?c . ' \
+                  '?c :is :C . ' \
+                  '?c :transfer ?d . ' \
+                  '?d :is :D . ' \
+                  '?d :transfer ?a . ' \
+                '} => {' \
+                  ':step :addFacts { ?a :is :Processed .}. ' \
+                  ':step :addFacts { ?b :is :Processed .}. ' \
+                  ':step :addFacts { ?c :is :Processed .}. ' \
+                  ':step :addFacts { ?d :is :Processed .}. ' \
+                '} .'
+
+        skip('this rule is unsupported as condition_group.compatible_with? does not support loops while following relations')
+        SupportN3.parse_string(rule, {}, @step_type)
+        assets = []
+        assets.push(FactoryGirl.create :asset, {:facts =>[
+          FactoryGirl.create(:fact, :predicate => 'is', :object => 'A')
+        ]})
+        assets.push(FactoryGirl.create :asset, {:facts =>[
+          FactoryGirl.create(:fact, :predicate => 'is', :object => 'B')
+        ]})
+        assets.push(FactoryGirl.create :asset, {:facts =>[
+          FactoryGirl.create(:fact, :predicate => 'is', :object => 'C')
+        ]})
+        assets.push(FactoryGirl.create :asset, {:facts =>[
+          FactoryGirl.create(:fact, :predicate => 'is', :object => 'D')
+        ]})
+
+        assets[0].facts << FactoryGirl.create(:fact, :predicate => 'transfer', :object_asset => assets[1])
+        assets[1].facts << FactoryGirl.create(:fact, :predicate => 'transfer', :object_asset => assets[2])
+        assets[2].facts << FactoryGirl.create(:fact, :predicate => 'transfer', :object_asset => assets[3])
+        assets[3].facts << FactoryGirl.create(:fact, :predicate => 'transfer', :object_asset => assets[0])
+
+        @asset_group.update_attributes(:assets => assets)
+        @activity.update_attributes(:asset_group => @asset_group)
+
+        binding.pry
+
+        post :create, { :activity_id => @activity.id, :step_type_id => @step_type.id, :step => { :data_params => "{}"}}
+        Step.all.reload
+        assert_equal Step.all.count, c+1
+        assert_equal false, Step.last.in_progress?
+
+        assert_equal true, assets.all? do |asset|
+          asset.facts.reload
+          (asset.facts.with_fact('is', 'processed').count == 1)
+        end
+
       end
 
       should "create a new step with status 'in progress' when pairing parameters are provided" do
@@ -73,7 +128,7 @@ class StepsControllerTest < ActionController::TestCase
         post :create, {:activity_id => @activity.id, :step_type_id => @step_type.id, :step => {:pairings => pairings, :state => 'in_progress'}}, session: { :token => @user.token}
         assert_equal Step.all.count, c+1
         assert_equal true, Step.last.in_progress?
-        post :create, {:activity_id => @activity.id, :step_type_id => @step_type.id}
+        post :create, {:activity_id => @activity.id, :step_type_id => @step_type.id, :step => {:state => 'in_progress', :data_params => "{}"}}
         assert_equal Step.all.count, c+1
         assert_equal false, Step.last.in_progress?
         assert_equal 10, assets.map{|a| a.facts.with_predicate('transfer')}.flatten.uniq.count
@@ -81,7 +136,5 @@ class StepsControllerTest < ActionController::TestCase
     end
 
   end
-
-
 
 end

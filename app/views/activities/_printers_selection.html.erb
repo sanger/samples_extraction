@@ -1,8 +1,9 @@
-<div class="form-group">
+<div class="row">
+<div class="form-group col-xs-6">
   <%= label_tag :tube_printer_select, 'Tube Printer' %>
   <%= select_tag :tube_printer_select, options_for_select(Printer.for_tube.map{|a| [a.name, a.id]}, @current_user && @current_user.tube_printer ? @current_user.tube_printer.id : nil), :class => 'form-control' %>
 </div>
-<div class="form-group">
+<div class="form-group col-xs-6">
   <%= label_tag :plate_printer_select, 'Plate Printer' %>
   <%= select_tag :plate_printer_select, options_for_select(Printer.for_plate.map{|a| [a.name, a.id]}, @current_user && @current_user.plate_printer ? @current_user.plate_printer.id : nil), :class => 'form-control' %>
 </div>
@@ -16,3 +17,4 @@
   }, this));
 }());
 </script>
+</div>
