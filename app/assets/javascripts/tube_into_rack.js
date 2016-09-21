@@ -7,8 +7,16 @@
 
     this.barcodeInput = $('input[name=tube_barcode]', this.node);
     this.attachHandlers();
+
+    this.initializeParams(params);
   };
   var proto = TubeIntoRack.prototype;
+
+  proto.initializeParams = function(params) {
+    for (var key in params) {
+      this.setCell(key, params[key]);
+    }
+  };
 
   proto.nextLocation = function() {
     this.locationPos += 1;
@@ -36,6 +44,18 @@
 
     this.renderTable();
 
+  };
+
+
+  proto.setCell = function(location, barcode) {
+    var oldLocation = this.locationPos;
+    this.locationPos = this.locationToPos(location);
+    this.editNextCell(barcode);
+    this.locationPos = oldLocation;
+  };
+
+  proto.locationToPos = function(location) {
+    ((location[0].charCodeAt() - 'A'.charCodeAt()) * this.maxRow)+parseInt(location[1], 10);
   };
 
   proto.editNextCell = function(barcode) {
@@ -81,7 +101,8 @@
   };
 
   proto.prepareRackContent = function() {
-    $('form input[dataParams]', this.node).val(JSON.stringify(this.racking));
+    $('#step_data_action', this.node).val("racking");
+    $('#step_data_params', this.node).val(JSON.stringify(this.racking));
   };
 
   $(document).on('ready', function() {

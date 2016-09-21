@@ -64,7 +64,29 @@ class Activity < ActiveRecord::Base
     step_types_for(asset_group.assets)
   end
 
-  def step(step_type, user, step_params)
+  def set_data_params
+    if create_step_params[:data_params]
+      @data_action = create_step_params[:data_action]
+      @data_params = create_step_params[:data_params]
+    end
+  end
+
+  def apply_data_params(data_action, data_params)
+    out_value=true
+    data_params
+    ActiveRecord::Base.transaction do
+      begin
+        @assets.each do |asset|
+          asset.send(data_action, JSON.parse(data_params))
+        end
+      rescue StandardError => e
+        out_value = false
+      end
+    end
+    out_value
+  end
+
+  def step(step_type, user, step_params, create_step_params)
     step = steps.in_progress.for_step_type(step_type).first
     if step.nil? && step_params.nil?
       # && (step_type.step_template.nil? || step_type.step_template.empty?)

@@ -1,8 +1,13 @@
+require 'pry'
+
 class StepsController < ApplicationController
   before_action :set_step, only: [:show, :edit, :update, :destroy]
   before_action :set_activity, only: [:create]
 
+  before_action :set_data_params, only: [:create]
   before_action :nested_steps, only: [:index]
+
+
 
   def nested_steps
     if step_params[:activity_id]
@@ -79,7 +84,8 @@ class StepsController < ApplicationController
     step_type_to_do = @activity.step_types.find_by_id!(@step_type.id)
     if valid_step_types.include?(step_type_to_do)
       store_uploads
-      @step = @activity.step(step_type_to_do, @current_user, params_for_step_in_progress)
+
+      @step = @activity.step(step_type_to_do, @current_user, params_for_step_in_progress, create_step_params)
       if @step.created_asset_group
         @step.created_asset_group.print(printer_config)
       end
@@ -99,6 +105,8 @@ class StepsController < ApplicationController
       end
     end
   end
+
+
 
   # PATCH/PUT /steps/1
   # PATCH/PUT /steps/1.json
@@ -160,9 +168,22 @@ class StepsController < ApplicationController
       end
     end
 
+
   def show_alert(data)
     @alerts = [] unless @alerts
     @alerts.push(data)
+  end
+
+  def set_data_params
+    if create_step_params[:data_params]
+      data_action = create_step_params[:data_action]
+      data_params = create_step_params[:data_params]
+      ActiveRecord::Base.transaction do
+        @assets.each do |asset|
+          asset.send(data_action, JSON.parse(data_params))
+        end
+      end
+    end
   end
 
 

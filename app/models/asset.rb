@@ -20,6 +20,7 @@ class Asset < ActiveRecord::Base
     joins(:facts).where(:facts => {:predicate => predicate, :object => object})
   }
 
+  include Lab::Actions
 
   scope :with_field, ->(predicate, object) {
     where(predicate => object)
@@ -87,6 +88,18 @@ class Asset < ActiveRecord::Base
     end
   end
 
+  def object_value(fact)
+    if fact.object
+      object = fact.object
+    else
+      if fact.object_asset
+        object = fact.object_asset.barcode
+      else
+        object=nil
+      end
+    end
+  end
+
   def condition_groups_init
     obj = {}
     obj[barcode] = { :template => 'templates/asset_facts'}
@@ -96,7 +109,7 @@ class Asset < ActiveRecord::Base
             :name => uuid,
             :actionType => 'createAsset',
             :predicate => fact.predicate,
-            :object => fact.object
+            :object => object_value(fact)
           }
         end
 
