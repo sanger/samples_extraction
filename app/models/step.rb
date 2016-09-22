@@ -101,6 +101,7 @@ class Step < ActiveRecord::Base
 
   def execute_actions
     return progress_with(asset_group.assets) if in_progress?
+
     original_assets = AssetGroup.create!
     original_assets.assets << activity.asset_group.assets if activity
 
@@ -163,6 +164,8 @@ class Step < ActiveRecord::Base
       update_attributes(:in_progress? => false)
     end
   end
+
+  include Lab::Actions
 
   def service_update_hash(asset, depth=0)
     raise 'Too many recursion levels' if (depth > 5)

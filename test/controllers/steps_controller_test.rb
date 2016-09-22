@@ -24,7 +24,8 @@ class StepsControllerTest < ActionController::TestCase
 
       count = Step.all.count
 
-      post :create,  { :activity_id => @activity.id, :step_type_id => @step_type.id, :step => { :data_params => "{}"} },
+      post :create,  { :activity_id => @activity.id, :step_type_id => @step_type.id,
+        :step => {:state => 'done' }},
         session: { :token => @user.token}
       assert_equal Step.all.count, count + 1
     end
@@ -33,7 +34,8 @@ class StepsControllerTest < ActionController::TestCase
       should "create a new step with status 'done' when no parameters are provided" do
         c = Step.all.count
 
-        post :create, { :activity_id => @activity.id, :step_type_id => @step_type.id, :step => { :data_params => "{}"}}
+        post :create, { :activity_id => @activity.id, :step_type_id => @step_type.id,
+          :step => { :state => 'done'}}
         Step.all.reload
         assert_equal Step.all.count, c+1
         assert_equal false, Step.last.in_progress?
@@ -125,10 +127,22 @@ class StepsControllerTest < ActionController::TestCase
 
         c = Step.all.count
 
-        post :create, {:activity_id => @activity.id, :step_type_id => @step_type.id, :step => {:pairings => pairings, :state => 'in_progress'}}, session: { :token => @user.token}
+        post :create, {:activity_id => @activity.id, :step_type_id => @step_type.id,
+          :step => {
+            :data_params => pairings.to_json,
+            :data_action => 'linking',
+            :data_action_type => 'progress_step',
+            :state => 'in_progress'}}, session: { :token => @user.token}
+        assert_equal 10, assets.map{|a| a.facts.with_predicate('transfer')}.flatten.uniq.count
         assert_equal Step.all.count, c+1
         assert_equal true, Step.last.in_progress?
-        post :create, {:activity_id => @activity.id, :step_type_id => @step_type.id, :step => {:state => 'in_progress', :data_params => "{}"}}
+        post :create, {:activity_id => @activity.id, :step_type_id => @step_type.id,
+          :step => {
+            :state => 'in_progress',
+            :data_params => "{}",
+            :data_action => 'linking',
+            :data_action_type => 'progress_step'
+            }}
         assert_equal Step.all.count, c+1
         assert_equal false, Step.last.in_progress?
         assert_equal 10, assets.map{|a| a.facts.with_predicate('transfer')}.flatten.uniq.count
