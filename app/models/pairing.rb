@@ -7,36 +7,43 @@ class Pairing
 
   def group_list(params)
     list = []
-    params.each_pair do |c_id, barcode|
-      list << { :asset => Asset.find_by_barcode(barcode),
-        :condition_group => ConditionGroup.find_by_id(c_id)
-      }
+    params.each do |elem|
+      l = []
+      elem.each_pair do |c_id, barcode|
+        l << {
+          :asset => Asset.find_by_barcode(barcode),
+          :condition_group => ConditionGroup.find_by_id(c_id)
+        }
+      end
+      list << l
     end
     list
   end
 
   def assets
-    @group.map{|g| g[:asset]}
+    @group.flatten.map{|g| g[:asset]}
   end
 
   def condition_groups
-    @group.map{|g| g[:condition_group]}
+    @group.flatten.map{|g| g[:condition_group]}
   end
 
   def required_condition_groups_compatible?
-    ((@step_type.condition_groups - condition_groups).length == 0)
+    @group.all? do |p1, p2|
+      ((@step_type.condition_groups - [p1[:condition_group], p2[:condition_group]]).length == 0)
+    end
   end
 
   def group_compatible?
-    @group.all?{|obj| obj[:condition_group].compatible_with?(obj[:asset])}
+    @group.flatten.all?{|obj| obj[:condition_group].compatible_with?(obj[:asset])}
   end
 
   def all_assets_exist?
-    @group.map{|g| g[:asset]}.all?
+    @group.flatten.map{|g| g[:asset]}.all?
   end
 
   def all_conditions_exist?
-    @group.map{|g| g[:condition_group]}.all?
+    @group.flatten.map{|g| g[:condition_group]}.all?
   end
 
   def step_type_compatible?
@@ -52,6 +59,12 @@ class Pairing
     msgs.push('Step requires a different set of conditions') unless step_type_compatible?
 
     msgs.compact.join('. ')
+  end
+
+  def each_pair_assets
+    @group.each do |p1, p2|
+      yield [p1[:asset], p2[:asset]]
+    end
   end
 
   def valid?

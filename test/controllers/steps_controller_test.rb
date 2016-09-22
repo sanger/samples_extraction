@@ -112,7 +112,7 @@ class StepsControllerTest < ActionController::TestCase
         @asset_group.assets = assets
         barcodes_pairs = assets.map(&:barcode).each_slice(2).to_a
 
-        pairings = {}
+        pairings = []
 
 
         @step_type.reload
@@ -120,16 +120,17 @@ class StepsControllerTest < ActionController::TestCase
         cgp = @step_type.condition_groups.first
         cgq = @step_type.condition_groups.last
         barcodes_pairs.each_with_index do |pair, index|
-          pairings[index]={}
-          pairings[index][cgp.id] = pair[0]
-          pairings[index][cgq.id] = pair[1]
+          pairings.push({
+            cgp.id => pair[0],
+            cgq.id => pair[1]
+            })
         end
 
         c = Step.all.count
 
         post :create, {:activity_id => @activity.id, :step_type_id => @step_type.id,
           :step => {
-            :data_params => pairings.to_json,
+            :data_params => {:pairings => pairings}.to_json,
             :data_action => 'linking',
             :data_action_type => 'progress_step',
             :state => 'in_progress'}}, session: { :token => @user.token}

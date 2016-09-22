@@ -1,4 +1,4 @@
-<div data-psd-component-class="TubeIntoRack" data-psd-component-params="<%= @data_params %>">
+<div data-psd-component-class="TubeIntoRack" data-psd-component-parameters="<%= session[:data_params] %>">
   <div class="row">
     <div class="col-md-6 col-xs-12">
       <%= svg 'TubeRack' %>
@@ -10,7 +10,8 @@
       </div>
       <%= bootstrap_form_for [@activity, step_type, Step.new], action: 'create', class: 'step-template-form' do |f| %>
       <input type="hidden" name="step[data_action]" value="racking" id="step_data_action" />
-        <input type="hidden" name="step[data_params]" id="step_data_params" />
+        <input type="hidden" name="step[data_params]" id="step_data_params"
+          value="<%= session[:data_params] %>" />
         <input type="hidden" name='step[state]' value='done' />
         <input type="hidden" name='step[data_action_type]' value='before_step' />
         <%= f.submit %>

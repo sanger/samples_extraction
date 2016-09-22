@@ -41,38 +41,6 @@ class StepsController < ApplicationController
   def edit
   end
 
-
-
-  def blacreate_step_params
-    return params.require(:step).permit(:state, :data_params, :data_action, :data_action_type)
-
-    return nil if !params[:step]
-    return nil if params[:step][:state]=='in_progress' && !params[:step][:pairings]
-    return [{:state => 'done', :assets => [@asset_group.assets] }] unless params[:step][:pairings]
-
-
-    @pairings = create_step_params[:data_params][:pairings].values.map do |obj|
-      Pairing.new(obj, @step_type)
-    end
-
-    unless @pairings.all?(&:valid?)
-      flash[:danger] = @pairings.map(&:error_messages).join('\n')
-      #redirect_to :back
-    end
-
-    {
-      :data_params => @pairings.map do |pairing|
-          {
-          :assets => pairing.assets,
-          :state => 'in_progress'
-          }
-        end,
-      :data_action => 'pairings',
-      :data_action_type => 'progress',
-      :state => 'in_progress'
-    }
-  end
-
   def params_for_printing
     params.require(:step).permit(:tube_printer_id, :plate_printer_id)
   end
@@ -91,8 +59,16 @@ class StepsController < ApplicationController
     step_type_to_do = @activity.step_types.find_by_id!(@step_type.id)
     if valid_step_types.include?(step_type_to_do)
       store_uploads
+      begin
+        @step = @activity.step(step_type_to_do, @current_user, create_step_params)
+      rescue Lab::Actions::InvalidDataParams => e
+        flash[:danger] = e.message
+        session[:data_params] = create_step_params[:data_params]
+        redirect_to :back
+        return
+      end
 
-      @step = @activity.step(step_type_to_do, @current_user, create_step_params)
+
       if @step.created_asset_group
         @step.created_asset_group.print(printer_config)
       end
@@ -180,19 +156,5 @@ class StepsController < ApplicationController
       @alerts = [] unless @alerts
       @alerts.push(data)
     end
-
-    #def set_data_params
-    #  if create_step_params[:data_params]
-    #    @data_action = create_step_params[:data_action]
-    #    @data_params = JSON.parse(create_step_params[:data_params])
-
-    #    ActiveRecord::Base.transaction do
-    #      @assets.each do |asset|
-    #        asset.send(data_action, JSON.parse(data_params))
-    #      end
-    #    end if (data_action)
-    #  end
-    #end
-
 
 end

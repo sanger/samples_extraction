@@ -1,7 +1,9 @@
 (function() {
   function TubeIntoRack(node, params) {
     this.node = $(node);
-    this.params = params || {maxColumn: 12, maxRow: 8};
+    this.params = params
+    this.maxRow = params.maxRow || 8;
+    this.maxColumn = params.maxColumn || 12;
     this.locationPos = 0;
     this.racking = {};
 
@@ -13,8 +15,11 @@
   var proto = TubeIntoRack.prototype;
 
   proto.initializeParams = function(params) {
-    for (var key in params) {
-      this.setCell(key, params[key]);
+    if (typeof params.racking !== undefined) {
+      for (var key in params.racking) {
+        this.setCell(key, params.racking[key]);
+      }
+      this.renderTable();
     }
   };
 
@@ -25,7 +30,7 @@
 
   proto.locationName = function(locationPos) {
     var firstCharcode = "A".charCodeAt(0);
-    var length = this.params.maxRow;
+    var length = this.maxRow;
     var desc_letter = String.fromCharCode(((locationPos-1)%length) + firstCharcode);
     var desc_number = Math.floor((locationPos-1)/length) +1
     return (desc_letter+(desc_number));
@@ -55,16 +60,16 @@
   };
 
   proto.locationToPos = function(location) {
-    ((location[0].charCodeAt() - 'A'.charCodeAt()) * this.maxRow)+parseInt(location[1], 10);
+    return ((parseInt(location[1], 10)-1)* this.maxRow)+ (location[0].charCodeAt() - 'A'.charCodeAt());
   };
 
   proto.editNextCell = function(barcode) {
-    if (this.locationPos >= (this.params.maxColumn * this.params.maxRow)) {
+    if (this.locationPos >= (this.maxColumn * this.maxRow)) {
       return;
     }
     var location = this.nextLocation();
     this.racking[location] = barcode;
-    var cell = $("."+location);
+    var cell = $("."+location, this.node);
     if (barcode.length !== 0) {
       //cell.removeClass('empty-edited');
       cell.addClass('edited');
@@ -72,7 +77,7 @@
       cell.addClass('empty-edited');
     }*/
     cell.removeClass('editing');
-    var nextCell = $('.'+this.locationName(this.locationPos+1));
+    var nextCell = $('.'+this.locationName(this.locationPos+1), this.node);
     nextCell.addClass('editing');
 
 
@@ -86,13 +91,13 @@
   };
 
   proto.modifyCell = function(locationPos) {
-    $('ellipse').removeClass('editing');
-    $('table tbody tr').removeClass('info');
+    $('ellipse', this.node).removeClass('editing');
+    $('table tbody tr', this.node).removeClass('info');
     this.locationPos = locationPos - 1;
     var locationName = this.locationName(locationPos);
     this.barcodeInput.val(this.racking[locationName]);
-    $('table tbody tr.'+locationName).addClass('info');
-    $('.'+this.locationName(locationPos)).addClass('editing');
+    $('table tbody tr.'+locationName, this.node).addClass('info');
+    $('.'+this.locationName(locationPos), this.node).addClass('editing');
   };
 
   proto.attachHandlers = function() {
@@ -102,7 +107,7 @@
 
   proto.prepareRackContent = function() {
     $('#step_data_action', this.node).val("racking");
-    $('#step_data_params', this.node).val(JSON.stringify(this.racking));
+    $('#step_data_params', this.node).val(JSON.stringify({racking: this.racking}));
   };
 
   $(document).on('ready', function() {

@@ -64,25 +64,9 @@ class Activity < ActiveRecord::Base
     step_types_for(asset_group.assets)
   end
 
-
-  def apply_data_params(data_action, data_params)
-    out_value=true
-    data_params
-    ActiveRecord::Base.transaction do
-      begin
-        @assets.each do |asset|
-          asset.send(data_action, JSON.parse(data_params))
-        end
-      rescue StandardError => e
-        out_value = false
-      end
-    end
-    out_value
-  end
-
-  def perform_step_actions_for(id, obj, step_params)
+  def perform_step_actions_for(id, obj, step_type, step_params)
     if step_params[:data_action_type] == id
-      obj.send(step_params[:data_action], step_params[:data_params])
+      value = obj.send(step_params[:data_action], step_type, JSON.parse(step_params[:data_params]))
     end
   end
 
@@ -101,7 +85,7 @@ class Activity < ActiveRecord::Base
   include Lab::Actions
 
   def step(step_type, user, step_params)
-    perform_step_actions_for('before_step', self, step_params)
+    perform_step_actions_for('before_step', self, step_type, step_params)
 
     step = steps.in_progress.for_step_type(step_type).first
     if (step.nil? && params_for_create_and_complete_the_step?(step_params))
@@ -114,12 +98,11 @@ class Activity < ActiveRecord::Base
         step = steps.create!(:step_type => step_type, :asset_group_id => group.id,
           :user_id => user.id, :in_progress? => true)
       end
-      perform_step_actions_for('progress_step', step, step_params)
+      perform_step_actions_for('progress_step', step, step_type, step_params)
     else
       if step && params_for_finish_step?(step_params)
         step.finish
       else
-        binding.pry
         raise StepWithoutInputs
       end
     end
@@ -133,22 +116,7 @@ class Activity < ActiveRecord::Base
   end
 
   def reasoning!
-    #PrintBarcodesJob.perform_later(last_step)
     PushDataJob.perform_later
-    # unless reasoning_step_types_for(asset_group.assets).empty?
-    #   asset_group.assets.each do |asset|
-    #     asset.reasoning! do |assets|
-    #       reasoning_step_types_for(assets).each do |step_type|
-    #         group = AssetGroup.create!
-    #         group.assets << assets
-    #         steps.create!({
-    #           :step_type => step_type,
-    #           :asset_group_id => group.id,
-    #           :user_id => user.id})
-    #       end
-    #     end
-    #   end
-    # end
   end
 
 end
