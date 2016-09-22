@@ -11,6 +11,7 @@ class ActivitiesControllerTest < ActionController::TestCase
       @kit_type = FactoryGirl.create :kit_type, :activity_type => @activity_type
       @kit = FactoryGirl.create :kit, {:kit_type => @kit_type}
       @instrument = FactoryGirl.create :instrument
+      @instrument.activity_types << @activity_type
     end
 
     should "create a new activity of the activity type of the kit" do

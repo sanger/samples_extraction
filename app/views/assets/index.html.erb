@@ -2,6 +2,10 @@
 
 <h1>Assets <small>Index</small></h1>
 
+<%= bootstrap_link_to 'New Asset', new_asset_path %>
+<br />
+<br />
+
 <table class="table table-bordered">
   <thead>
     <tr>
@@ -28,4 +32,4 @@
 <%= will_paginate @assets, renderer: BootstrapPagination::Rails %>
 <br>
 
-<%= bootstrap_link_to 'New Asset', new_asset_path %>
+

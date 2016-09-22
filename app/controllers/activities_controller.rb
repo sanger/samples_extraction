@@ -143,6 +143,10 @@ class ActivitiesController < ApplicationController
 
     def set_instrument
       @instrument = Instrument.find_by_barcode!(params[:instrument_barcode])
+      unless @instrument.compatible_with_kit?(@kit)
+        flash[:danger] = "Instrument not compatible with kit type '#{@kit.kit_type.name}'"
+        redirect_to :back
+      end
     rescue RecordNotFound => e
       flash[:danger] = 'Instrument not found'
       redirect_back

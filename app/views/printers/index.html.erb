@@ -1,6 +1,10 @@
 <p id="notice"><%= notice %></p>
 
-<h1>Printers</h1>
+<h1>Printers <small>Index</small></h1>
+
+<%= bootstrap_link_to 'New Printer', new_printer_path %>
+
+<br /><br />
 
 <table class="table table-bordered">
   <thead>
@@ -30,4 +34,3 @@
 
 <br>
 
-<%= bootstrap_link_to 'New Printer', new_printer_path %>

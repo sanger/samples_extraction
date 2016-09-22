@@ -18,7 +18,8 @@
     <%= f.number_field :max_num_reactions, :readonly => readonly %>
   </div>
   <div class="field">
-    <%= f.select :kit_type_id, options_for_select(@kit_types.map{|a| [a.name, a.id]}), {},
+    <%= f.select :kit_type_id, options_for_select(@kit_types.map{|a| [a.name, a.id]},
+      :selected => @kit.kit_type ? @kit.kit_type.id : nil), {},
     :disabled => readonly %>
   </div>
   <% unless readonly %>

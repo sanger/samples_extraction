@@ -18,7 +18,8 @@
   </div>
 
   <div class="field">
-    <%= f.text_field :printer_type, :readonly => readonly %>
+    <%= f.select :printer_type, options_for_select([['Tube', 'Tube'], ['Plate', 'Plate']],
+    :selected => @printer.printer_type), :readonly => readonly %>
   </div>
 
   <div class="field">
