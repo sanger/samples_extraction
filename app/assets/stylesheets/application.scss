@@ -294,12 +294,13 @@ svg {
     fill: red;
   }
 
-  .editing { fill: white; }
-  .editing.edited { fill: white;}
+  ellipse.error { stroke: red !important;}
+  .editing { fill: lightblue; }
+  .editing.edited { fill: lightblue;}
   .edited {fill: gray;}
   .empty-edited {fill: black;}
 
-  ellipse:hover { fill: orange !important;}
+  ellipse:hover { fill: white !important;}
   .a1_dna .A1 { @extend .has-dna; }
 }
 

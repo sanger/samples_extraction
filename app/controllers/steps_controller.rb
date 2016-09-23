@@ -63,7 +63,10 @@ class StepsController < ApplicationController
         @step = @activity.step(step_type_to_do, @current_user, create_step_params)
       rescue Lab::Actions::InvalidDataParams => e
         flash[:danger] = e.message
-        session[:data_params] = create_step_params[:data_params]
+        session[:data_params] = JSON.parse(create_step_params[:data_params]).merge({
+          :error_params => e.error_params
+          }).to_json
+        #session[:error_params] = e.error_params
         redirect_to :back
         return
       end

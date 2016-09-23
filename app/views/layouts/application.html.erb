@@ -20,14 +20,14 @@
 
   <% unless flash[:notice].blank? %>
     <div class="alert alert-info">
-      <%= flash[:notice] %>
+      <%= flash[:notice].html_safe %>
     </div>
     <% end %>
 
 
   <% unless flash[:danger].blank? %>
     <div class="alert alert-danger">
-      <%= flash[:danger] %>
+      <%= flash[:danger].html_safe %>
     </div>
   <% end %>
 

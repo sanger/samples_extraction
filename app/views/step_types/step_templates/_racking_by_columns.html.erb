@@ -5,13 +5,17 @@
     </div>
     <div class="col-md-6 col-xs-12">
       <div class="form-group" data-psd-component-class="BarcodeReader">
-        <label for="tube_barcocde" class="input">Barcode</label>
+        <label for="tube_barcocde" class="input">Barcode at position <span class="location-description"></span></label>
         <input id="tube_barcocde" class="form-control" name="tube_barcode" type="text" autocomplete="off" />
+      </div>
+      <div class="form-group">
+        <button class="btn btn-default reset-button">Reset</button>
       </div>
       <%= bootstrap_form_for [@activity, step_type, Step.new], action: 'create', class: 'step-template-form' do |f| %>
       <input type="hidden" name="step[data_action]" value="racking" id="step_data_action" />
         <input type="hidden" name="step[data_params]" id="step_data_params"
           value="<%= session[:data_params] %>" />
+
         <input type="hidden" name='step[state]' value='done' />
         <input type="hidden" name='step[data_action_type]' value='before_step' />
         <%= f.submit %>

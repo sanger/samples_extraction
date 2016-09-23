@@ -180,10 +180,18 @@ class ActivitiesController < ApplicationController
     end
   end
 
+  def clean_fact_group(groups)
+    h = {}
+    groups.each do |group, assets|
+      h[group] = assets.uniq
+    end
+    h
+  end
+
   def assets_by_fact_group
     return [] unless @assets
     obj_type = Struct.new(:predicate,:object, :to_add_by, :to_remove_by)
-    @assets.group_by do |a|
+    groups = @assets.group_by do |a|
       a.facts.sort do |f1,f2|
         # Canonical sort of facts
         if f1.predicate == f2.predicate
@@ -203,6 +211,7 @@ class ActivitiesController < ApplicationController
         obj_type.new(f["predicate"], obj, f["to_add_by"], f["to_remove_by"])
       end.uniq
     end
+    clean_fact_group(groups)
   end
 
 

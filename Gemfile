@@ -11,6 +11,8 @@ gem 'bootstrap_form'
 gem 'sprockets-rails'
 gem 'ace-rails-ap'
 
+gem 'activerecord-session_store'
+
 
 gem 'js_cookie_rails'
 
