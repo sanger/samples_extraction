@@ -41,11 +41,6 @@ class SequencescapeClient
     purpose.plates.create!(attrs)
   end
 
-  def self.annotate_asset_with_remote_asset(asset, remote_asset)
-    asset.facts << Fact.create(:predicate => 'a', :object => remote_asset.class.to_s.gsub(/Sequencescape::/,''))
-    asset.facts << Fact.create(:predicate => 'is', :object => 'NotStarted')
-  end
-
   def self.get_searcher_by_barcode
     @@searcher ||= client.search.all.select{|s| s.name == Rails.configuration.searcher_name_by_barcode}.first
   end
@@ -54,16 +49,5 @@ class SequencescapeClient
     get_searcher_by_barcode.first(:barcode => barcode)
   end
 
-  def self.find_by_barcode(barcode)
-    asset = Asset.find_by_barcode(barcode)
-    unless asset
-      remote_asset = get_remote_asset(barcode)
-      if remote_asset
-        asset = Asset.create(:barcode => barcode)
-        annotate_asset_with_remote_asset(asset, remote_asset)
-      end
-    end
-    asset
-  end
 end
 

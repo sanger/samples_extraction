@@ -28,7 +28,7 @@
       this.input.val('');
     };
 
-    $(document).on('ready', function() {
+    $(document).ready(function() {
 	$(document).trigger('registerComponent.builder', {'BarcodeReader': BarcodeReader});
     });
 }(jQuery));

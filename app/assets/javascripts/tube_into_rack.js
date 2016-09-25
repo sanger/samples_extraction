@@ -161,7 +161,7 @@
     $('#step_data_params', this.node).val(JSON.stringify({racking: this.racking}));
   };
 
-  $(document).on('ready', function() {
+  $(document).ready(function() {
     $(document).trigger('registerComponent.builder', {'TubeIntoRack': TubeIntoRack});
   });
 

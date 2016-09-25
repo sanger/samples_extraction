@@ -36,7 +36,7 @@
     $(this.node).on('click', $.proxy(this.switchContent, this));
   };
 
-  $(document).on('ready', function() {
+  $(document).ready(function() {
     $(document).trigger('registerComponent.builder', {'ButtonSwitch': ButtonSwitch });
   });
 }(jQuery));

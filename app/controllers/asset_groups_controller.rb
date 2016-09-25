@@ -80,7 +80,7 @@ class AssetGroupsController < ApplicationController
           :msg => "Cannot find barcode #{barcodes_str} in Sequencescape"})
       rescue StandardError => e
         show_alert({:type => 'danger',
-          :msg => "Cannot connect with Sequencescape"})
+          :msg => "Cannot connect with Sequencescape: Message: #{e.message}"})
       end
     end
   end

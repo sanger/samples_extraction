@@ -97,7 +97,7 @@
     this.attachEditor();
   };
 
-  $(document).on('ready', function() {
+  $(document).ready(function() {
     $(document).trigger('registerComponent.builder', {'EditableText': EditableText});
   });
 

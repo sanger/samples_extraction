@@ -75,6 +75,7 @@ class Action < ActiveRecord::Base
 
       facts = generate_facts(created_assets, asset_group, step)
       created_assets[subject_condition_group.id].each do |created_asset|
+        created_asset.generate_barcode
         created_asset.add_facts(facts.map(&:dup))
       end
     end

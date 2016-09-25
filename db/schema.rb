@@ -189,7 +189,6 @@ ActiveRecord::Schema.define(version: 20160923094944) do
 
   create_table "kit_types", force: :cascade do |t|
     t.string   "name",             limit: 255
-    t.string   "target_type",      limit: 255
     t.integer  "activity_type_id", limit: 4
     t.datetime "created_at",                   null: false
     t.datetime "updated_at",                   null: false

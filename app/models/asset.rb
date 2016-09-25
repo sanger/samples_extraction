@@ -2,12 +2,17 @@ require 'sequencescape_client'
 require 'barcode'
 
 class Asset < ActiveRecord::Base
+  include Lab::Actions
+  include Printables::Instance
+  extend Asset::Import
+  include Asset::Export
+
   has_many :facts
   has_and_belongs_to_many :asset_groups
   has_many :steps, :through => :asset_groups
 
   before_save :generate_uuid
-  before_save :generate_barcode
+  #before_save :generate_barcode
 
   has_many :operations
 
@@ -20,7 +25,6 @@ class Asset < ActiveRecord::Base
     joins(:facts).where(:facts => {:predicate => predicate, :object => object})
   }
 
-  include Lab::Actions
 
   scope :with_field, ->(predicate, object) {
     where(predicate => object)
@@ -146,7 +150,6 @@ class Asset < ActiveRecord::Base
   end
 
   def generate_barcode
-    #update_attributes(:barcode => Asset.count+1) if barcode.nil?
     update_attributes(:barcode => Barcode.calculate_barcode(Rails.application.config.barcode_prefix,Asset.count+1)) if barcode.nil?
   end
 
@@ -206,19 +209,13 @@ class Asset < ActiveRecord::Base
     return ''
   end
 
-  include Printables::Instance
-
-  def self.find_or_import_asset_with_barcode(barcode)
-    SequencescapeClient.find_by_barcode(barcode)
-  end
-
-  def update_sequencescape
-    instance = SequencescapeClient.find_by_uuid(uuid)
-    unless instance
-      instance = SequencescapeClient.create_plate(class_name, attrs_for_sequencescape) if class_name
+  def class_type
+    names = facts.with_predicate('a')
+    if names.count > 0
+      return names.first.object
     end
-    SequencescapeClient.update_extraction_attributes(instance, attrs_for_sequencescape)
-    facts.each {|f| f.update_attributes!(:up_to_date => true)}
-    update_attributes(:uuid => instance.uuid, :barcode => instance.barcode.ean13)
+    return 'Unknown'
   end
+
+
 end

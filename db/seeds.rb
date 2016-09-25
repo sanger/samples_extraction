@@ -12,6 +12,12 @@ tube_printer = Printer.create!(:name => 'e368bc', :printer_type => 'Tube', :defa
 plate_printer = Printer.create!(:name => 'd304bc', :printer_type => 'Plate', :default_printer => true)
 plate_printer = Printer.create!(:name => 'd305bc', :printer_type => 'Plate', :default_printer => false)
 
+
+samples = []
+50.times do
+  samples.push(Asset.create(:barcode => nil))
+end
+
 asset=Asset.create!(:barcode => '1')
 asset.facts << [
   ['a', 'Tube'],
@@ -53,42 +59,15 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 2222})
 
 
 asset_group = AssetGroup.create!
-# asset = Asset.create!
-# asset.facts << Fact.create({ :predicate => 'a', :object => 'Rack'})
-# asset.facts << Fact.create({ :predicate => 'A1', :object => 'DNA'})
-# asset.facts << Fact.create({ :predicate => 'A2', :object => 'DNA'})
-# asset.facts << Fact.create({ :predicate => 'A3', :object => 'DNA'})
-# asset.facts << Fact.create({ :predicate => 'A4', :object => 'DNA'})
-# asset.facts << Fact.create({ :predicate => 'B1', :object => 'DNA'})
-# asset.facts << Fact.create({ :predicate => 'D6', :object => 'RNA'})
-# asset_group.assets << asset
-# asset = Asset.create!
-# asset.facts << Fact.create({ :predicate => 'a', :object => '24_Rack'})
-# asset_group.assets << asset
-# asset = Asset.create!
-# asset.facts << Fact.create({ :predicate => 'a', :object => '96_gel'})
-# asset_group.assets << asset
-# asset = Asset.create!
-# asset.facts << Fact.create({ :predicate => 'a', :object => '96_plate'})
-# asset_group.assets << asset
-# asset = Asset.create!
-# asset.facts << Fact.create({ :predicate => 'a', :object => 'filter_paper'})
-# asset_group.assets << asset
-
-# asset = Asset.create!
-# asset.facts << Fact.create({ :predicate => 'a', :object => 'spin_column'})
-# asset_group.assets << asset
 
 100.times do |pos|
   asset = Asset.create!
+  asset.generate_barcode
   asset.facts << Fact.create({ :predicate => 'a', :object => 'Tube'})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
   asset.facts << Fact.create({ :predicate => 'has', :object => 'DNA'})
   asset_group.assets << asset
 end
-
-
-
 
 activity_type.activities.create!(:asset_group => asset_group, :kit => kit, :instrument => instrument)
 
@@ -113,6 +92,9 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 7777})
   asset.facts << Fact.create({ :predicate => 'a', :object => 'Tube'})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
   asset.facts << Fact.create({ :predicate => 'has', :object => 'DNA'})
+
+  asset.facts << Fact.create({ :predicate => 'sanger_sample_id', :object => "Sample_#{pos}"})
+
   asset_group.assets << asset
 end
 
@@ -134,6 +116,9 @@ end
   asset = Asset.create!(:barcode => 850 + pos)
   asset.facts << Fact.create({ :predicate => 'a', :object => 'Tube'})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
+
+  asset.facts << Fact.create({ :predicate => 'sanger_sample_id', :object => "Sample_#{pos}"})
+
 end
 
 activity_type = ActivityType.find_by_name('QIAamp 96 DNA QIAcube HT')

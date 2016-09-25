@@ -43,6 +43,7 @@
     ?TubeWithBarcode1D :is :Empty .
     ?TubeWithBarcode2D :is :Full .
     ?TubeWithBarcode1D :transferTo ?TubeWithBarcode2D .
+    ?TubeWithBarcode2D :transferedFrom ?TubeWithBarcode1D .
   } .
 } .
 

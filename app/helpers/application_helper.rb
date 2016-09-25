@@ -5,7 +5,32 @@ module ApplicationHelper
     link_to(name, options, modified_options)
   end
 
+  def data_rack_display(facts)
+    return '' unless facts.first.class == Fact
+    f = facts.select{|f| f.predicate == 'aliquotType'}.first
+    if f
+      return {:aliquot => {
+        :cssClass => f.object,
+        :url => asset_path(f.asset)
+        }}.to_json
+    end
+
+    facts.select{|f| f.predicate == 'contains'}.map do |fact|
+      [fact.object_asset, fact.object_asset.facts]
+    end.reduce({}) do |memo, list|
+      asset, facts = list[0],list[1]
+      f = facts.select{|f| f.predicate == 'location'}.first
+      location = f.object
+      f2 = facts.select{|f| f.predicate == 'aliquotType'}.first
+      aliquotType = f2 ? f2.object : nil
+      memo[location] = {:cssClass => aliquotType, :url => asset_path(asset)} unless location.nil?
+      memo
+    end.to_json
+  end
+
   def svg(name)
+    name = 'TubeRack' if name == 'Plate'
+    name = 'Tube' if name == 'SampleTube'
     file_path = "#{Rails.root}/app/assets/images/#{name}.svg"
     #file_path = Dir.glob("#{Rails.root}/app/assets/images/#{name}.svg", File::FNM_CASEFOLD).first
     if File.exists?(file_path)

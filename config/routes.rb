@@ -47,6 +47,10 @@ Rails.application.routes.draw do
   resources :history
   resources :reracking
 
+
+  #get '/labware/:uuid', to: 'labware#show', constraints: {:uuid => /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/}
+  #get '/labware/:id', to: 'labware#show_by_internal_id', constraints: {:id => /\d*/}
+
   # Trying to make fonts work out in poltergeist
   get '/fonts/bootstrap/:name', to: redirect('/assets/bootstrap/%{name}')
 

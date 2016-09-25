@@ -270,8 +270,10 @@ header, .blurheader {
 /* images */
 
 .facts-list svg { width: 50px; height: 50px; float:left; }
+.facts-list svg.enlarge { width: 300px; height: 300px;}
 
 svg {
+
   .is-empty,.is-Empty             { fill: #f5f5f5 !important; background-color: #f5f5f5 !important; }
   .is-full,.is-Full              { fill: #5bb75b; background-color: #5bb75b; }
   .resource-not-data { fill: #49afcd; background-color: #49afcd; }
@@ -285,12 +287,12 @@ svg {
   .is-very-good,.is-VeryGood { fill: hsl(120, 100%, 20%); background-color: hsl(120, 100%, 20%); }
   .is-excellent,.is-Excellent { fill: hsl(120, 100%, 10%); background-color: hsl(120, 100%, 10%); }
 
-  .has-dna,.has-DNA   { fill: hsl(120, 45%, 58%);  background-color: hsl(120, 45%, 58%); }
-  .has-dnap,.has-DNAP { fill: hsl(120, 34%, 25%);  background-color: hsl(120, 34%, 25%); }
-  .has-rna,.has-RNA   { fill: hsl(3, 60%, 46%);    background-color: hsl(3, 60%, 46%); }
-  .has-rna_p,.has-RNAP { fill: hsl(3, 60%, 25%);    background-color: hsl(3, 60%, 25%); }
-  .has-na_p,has-NAP  { fill: hsl(194, 59%, 45%);  background-color: hsl(194, 59%, 45%); }
-  .has-blood,.has-Blood {
+  .has-dna,.has-DNA,.dna   { fill: hsl(120, 45%, 58%);  background-color: hsl(120, 45%, 58%); }
+  .has-dnap,.has-DNAP,.dnap { fill: hsl(120, 34%, 25%);  background-color: hsl(120, 34%, 25%); }
+  .has-rna,.has-RNA,.rna   { fill: hsl(3, 60%, 46%);    background-color: hsl(3, 60%, 46%); }
+  .has-rna_p,.has-RNAP,.rnap { fill: hsl(3, 60%, 25%);    background-color: hsl(3, 60%, 25%); }
+  .has-na_p,has-NAP,.nap  { fill: hsl(194, 59%, 45%);  background-color: hsl(194, 59%, 45%); }
+  .has-blood,.has-Blood,.blood {
     fill: red;
   }
 
@@ -343,3 +345,5 @@ form.edit_asset_group .barcode-adding-control { @extend .operator-allowed; }
 body .btn { @extend .operator-allowed; }
 body nav .btn { @extend .anonymous-allowed; }
 
+.asset .panel-heading {display: none;}
+.asset small {display: none;}
