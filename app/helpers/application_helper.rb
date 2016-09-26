@@ -36,7 +36,7 @@ module ApplicationHelper
     if File.exists?(file_path)
       File.read(file_path).html_safe
     else
-      '(not found)'
+      "('#{name.downcase}.svg' not found)"
     end
   end
 

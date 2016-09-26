@@ -130,7 +130,7 @@ class Step < ActiveRecord::Base
   def update_assets_started
     activity.asset_group.assets.not_started.each do |asset|
       asset.facts << Fact.create(:predicate => 'is', :object => 'Started')
-      asset.facts.where(:predicate => 'is', :object => 'NotStarted').destroy
+      asset.facts.where(:predicate => 'is', :object => 'NotStarted').each(&:destroy)
     end
   end
 

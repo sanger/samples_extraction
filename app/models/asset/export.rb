@@ -5,9 +5,22 @@ module Asset::Export
     unless instance
       instance = SequencescapeClient.create_plate(class_name, attrs_for_sequencescape) if class_name
     end
-    SequencescapeClient.update_extraction_attributes(instance, attrs_for_sequencescape)
+    SequencescapeClient.update_extraction_attributes(instance, attributes_to_update)
     facts.each {|f| f.update_attributes!(:up_to_date => true)}
     update_attributes(:uuid => instance.uuid, :barcode => instance.barcode.ean13)
   end
 
+
+  def attributes_to_update
+    {
+      :wells => facts.with_predicate('contains').map(&:object_asset).map do |well|
+        well.facts.reduce({}) do |memo, fact|
+          if (['location', 'aliquotType', 'sanger_sample_id', 'sanger_sample_name'].include?(fact.predicate))
+            memo[fact.predicate] = fact.object
+          end
+          memo
+        end
+      end
+    }
+  end
 end

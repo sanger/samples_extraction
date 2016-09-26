@@ -4,7 +4,7 @@ module Lab::Actions
     attr_accessor :error_params
 
     def initialize(message = nil, error_params = nil)
-      super(html_error_message(message))
+      super(html_error_message([message].flatten))
       @error_params = error_params
     end
 
@@ -26,13 +26,22 @@ module Lab::Actions
           error_locations.push(location)
           error_messages.push("Barcode #{barcode} scanned at #{location} is not in the database")
         end
-        Fact.new(:predicate => location, :object_asset => asset) if asset
+        [location, asset] if asset
       end
     end
     if error_messages.empty?
       ActiveRecord::Base.transaction do |t|
-        asset_group.assets.each do |rack|
-          rack.facts << list.compact
+        asset_group.assets.with_fact('a', 'TubeRack').each do |rack|
+          rack.facts.with_predicate('contains').each do |f|
+            f.object_asset.facts.with_predicate('parent').each(&:destroy)
+            f.destroy
+          end
+          list.each do |l|
+            location, tube = l[0], l[1]
+            tube.facts << Fact.create(:predicate => 'location', :object => location)
+            tube.facts << Fact.create(:predicate => 'parent', :object_asset => rack)
+            rack.facts << Fact.create(:predicate => 'contains', :object_asset => tube)
+          end
         end
       end
     else
