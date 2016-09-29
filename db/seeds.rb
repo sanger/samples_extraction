@@ -20,7 +20,7 @@ end
 
 asset=Asset.create!(:barcode => '1')
 asset.facts << [
-  ['a', 'Tube'],
+  ['a', 'SampleTube'],
   ['aliquotType', 'RNA']
 ].map do |a,b|
   Fact.create({ :predicate => a, :object => b})
@@ -28,7 +28,7 @@ end
 
 asset2=Asset.create!(:barcode => '2')
 asset2.facts << [
-  ['a', 'Tube'],
+  ['a', 'SampleTube'],
   ['aliquotType', 'DNAP']
 ].map do |a,b|
   Fact.create({ :predicate => a, :object => b})
@@ -36,7 +36,7 @@ end
 
 asset2=Asset.create!(:barcode => '3')
 asset2.facts << [
-  ['a', 'Tube'],
+  ['a', 'SampleTube'],
   ['aliquotType', 'Blood']
 ].map do |a,b|
   Fact.create({ :predicate => a, :object => b})
@@ -63,7 +63,7 @@ asset_group = AssetGroup.create!
 100.times do |pos|
   asset = Asset.create!
   asset.generate_barcode
-  asset.facts << Fact.create({ :predicate => 'a', :object => 'Tube'})
+  asset.facts << Fact.create({ :predicate => 'a', :object => 'SampleTube'})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
   asset.facts << Fact.create({ :predicate => 'aliquotType', :object => 'DNA'})
   asset_group.assets << asset
@@ -90,7 +90,7 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 7777})
 
 50.times do |pos|
   asset = Asset.create!(:barcode => 700 + pos)
-  asset.facts << Fact.create({ :predicate => 'a', :object => 'Tube'})
+  asset.facts << Fact.create({ :predicate => 'a', :object => 'SampleTube'})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
   asset.facts << Fact.create({ :predicate => 'aliquotType', :object => 'DNA'})
 
@@ -115,7 +115,7 @@ end
 
 50.times do |pos|
   asset = Asset.create!(:barcode => 850 + pos)
-  asset.facts << Fact.create({ :predicate => 'a', :object => 'Tube'})
+  asset.facts << Fact.create({ :predicate => 'a', :object => 'SampleTube'})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
 
   asset.facts << Fact.create({ :predicate => 'sanger_sample_id', :object => "Sample_#{pos}"})

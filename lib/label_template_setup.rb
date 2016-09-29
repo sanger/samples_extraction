@@ -25,7 +25,7 @@ class LabelTemplateSetup
     def register_template(template_name,template_type)
       puts "Loading #{template_name}"
       type_id = label_type_id_for(template_type)
-      templates << LabelTemplateSetup.new(template_name,yield(template_name,type_id))
+      templates << LabelTemplateSetup.new(template_name,template_type, yield(template_name,type_id))
     end
 
     def find_or_register_each_template!
@@ -37,10 +37,11 @@ class LabelTemplateSetup
   end
   extend ClassMethods
 
-  attr_reader :name, :hash
+  attr_reader :name, :hash, :template_type
 
-  def initialize(name,hash)
+  def initialize(name,template_type, hash)
     @name = name
+    @template_type = template_type
     @hash = hash
   end
 
@@ -59,7 +60,7 @@ class LabelTemplateSetup
 
   def local_template
     return @local if @local
-    @local = LabelTemplate.find_by(name:name)||LabelTemplate.new(name:name)
+    @local = LabelTemplate.find_by(name:name)||LabelTemplate.new(name:name, template_type:@template_type)
   end
 
   def find_or_create_by_name!
