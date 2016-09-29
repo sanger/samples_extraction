@@ -19,8 +19,8 @@ module ApplicationHelper
     end
 
     facts.select{|f| f.predicate == 'contains'}.map do |fact|
-      [fact.object_asset, fact.object_asset.facts]
-    end.reduce({}) do |memo, list|
+      [fact.object_asset, fact.object_asset.facts] if fact.object_asset
+    end.compact.reduce({}) do |memo, list|
       asset, facts = list[0],list[1]
       f = facts.select{|f| f.predicate == 'location'}.first
       unless f.nil?

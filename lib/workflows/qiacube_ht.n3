@@ -38,6 +38,7 @@
 
 { ?p :a :BiorobotPlate .
   ?p :maxCardinality """1""" .
+  ?q :maxCardinality """1""" .
 } => {
   :step :stepTypeName """Create Stock plate""" .
   :step :addFacts {

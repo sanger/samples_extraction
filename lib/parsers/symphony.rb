@@ -54,7 +54,7 @@ module Parsers
           if tube
             tube.facts << rack_position_facts
             tube.facts << predicated_with(rack_position_facts, 'Symphony:TotalVolumeInUl').map do |f|
-              f2 = f.clone
+              f2 = f.dup
               f2.predicate = 'measured_volume'
               f2
             end

@@ -21,7 +21,7 @@ module Lab::Actions
     error_locations = []
     list = params["racking"].map do |location, barcode|
       unless barcode.empty?
-        asset = Asset.find_by_barcode(barcode)
+        asset = Asset.find_or_import_asset_with_barcode(barcode)
         unless asset
           error_locations.push(location)
           error_messages.push("Barcode #{barcode} scanned at #{location} is not in the database")
