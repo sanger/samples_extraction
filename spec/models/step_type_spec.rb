@@ -139,6 +139,13 @@ RSpec.describe StepType, type: :model do
           ]}}
         end
 
+        it 'is compatible with both condition groups when cardinality was set for one of them' do
+          racks = @racks.slice(0,3)
+          @cg2.cardinality = 3
+
+          assert_equal true, @step_type.compatible_with?([@assets, racks].flatten)
+        end
+
         it 'is compatible if all the condition groups are matched by the assets' do
           assert_equal true, @step_type.compatible_with?([@assets, @racks].flatten)
           @assets.first.facts << FactoryGirl.create(:fact, {:predicate => 'a', :object => 'b'})

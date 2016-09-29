@@ -287,14 +287,15 @@ svg {
   .is-very-good,.is-VeryGood { fill: hsl(120, 100%, 20%); background-color: hsl(120, 100%, 20%); }
   .is-excellent,.is-Excellent { fill: hsl(120, 100%, 10%); background-color: hsl(120, 100%, 10%); }
 
-  .has-dna,.has-DNA,.dna   { fill: hsl(120, 45%, 58%);  background-color: hsl(120, 45%, 58%); }
-  .has-dnap,.has-DNAP,.dnap { fill: hsl(120, 34%, 25%);  background-color: hsl(120, 34%, 25%); }
-  .has-rna,.has-RNA,.rna   { fill: hsl(3, 60%, 46%);    background-color: hsl(3, 60%, 46%); }
-  .has-rna_p,.has-RNAP,.rnap { fill: hsl(3, 60%, 25%);    background-color: hsl(3, 60%, 25%); }
-  .has-na_p,has-NAP,.nap  { fill: hsl(194, 59%, 45%);  background-color: hsl(194, 59%, 45%); }
-  .has-blood,.has-Blood,.blood {
+  .has-dna,.has-DNA,.dna,.DNA   { fill: hsl(120, 45%, 58%);  background-color: hsl(120, 45%, 58%); }
+  .has-dnap,.has-DNAP,.dnap,.DNAP { fill: hsl(120, 34%, 25%);  background-color: hsl(120, 34%, 25%); }
+  .has-rna,.has-RNA,.rna,.RNA   { fill: hsl(3, 60%, 46%);    background-color: hsl(3, 60%, 46%); }
+  .has-rna_p,.has-RNAP,.rnap,.RNAP { fill: hsl(3, 60%, 25%);    background-color: hsl(3, 60%, 25%); }
+  .has-na_p,has-NAP,.nap,.NAP  { fill: hsl(194, 59%, 45%);  background-color: hsl(194, 59%, 45%); }
+  .has-blood,.has-Blood,.blood,.BLOOD {
     fill: red;
   }
+  .unknown-aliquot { fill: lightblue;}
 
   ellipse.error { stroke: red !important;}
   .editing { fill: lightblue; }

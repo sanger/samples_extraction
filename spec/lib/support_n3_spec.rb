@@ -125,6 +125,23 @@ RSpec.describe SupportN3 do
 
     describe "with rules that create a relation between two matches" do
 
+      it '{?p :is :Tube . ?q :maxCardinality """1""".} => {:step :createAsset {?q :a :Plate.}.}.' do
+        validates_rule_with({
+          ConditionGroup => [{:name => 'p',:step_type => @step_type,
+            :cardinality => nil, :keep_selected => true},
+            {:name => 'q', :step_type => nil,
+              :cardinality => 1, :keep_selected => true}],
+          Condition => [{:predicate => 'is', :object=> 'Tube'}],
+          Action => [{:action_type => 'createAsset',
+                      :predicate => 'a',
+                      :step_type_id => @step_type.id,
+                      :object => 'Plate'}]
+          })
+        p= ConditionGroup.find_by_name('p')
+        q= ConditionGroup.find_by_name('q')
+        assert_equal q, Action.first.subject_condition_group
+      end
+
       it '{?p :is :Tube . ?q :is :TubeRack.} => {:step :addFacts {?p :transferTo ?q.}.}.' do
         validates_rule_with({
           ConditionGroup => [{:name => 'p',:step_type => @step_type,

@@ -5,12 +5,15 @@ module ApplicationHelper
     link_to(name, options, modified_options)
   end
 
+  UNKNOW_ALIQUOT_TYPE = 'unknown-aliquot'
+
   def data_rack_display(facts)
+
     return '' unless facts.first.class == Fact
     f = facts.select{|f| f.predicate == 'aliquotType'}.first
     if f
       return {:aliquot => {
-        :cssClass => f.object,
+        :cssClass => f.object || UNKNOW_ALIQUOT_TYPE,
         :url => asset_path(f.asset)
         }}.to_json
     end
@@ -20,10 +23,12 @@ module ApplicationHelper
     end.reduce({}) do |memo, list|
       asset, facts = list[0],list[1]
       f = facts.select{|f| f.predicate == 'location'}.first
-      location = f.object
-      f2 = facts.select{|f| f.predicate == 'aliquotType'}.first
-      aliquotType = f2 ? f2.object : nil
-      memo[location] = {:cssClass => aliquotType, :url => asset_path(asset)} unless location.nil?
+      unless f.nil?
+        location = f.object
+        f2 = facts.select{|f| f.predicate == 'aliquotType'}.first
+        aliquotType = f2 ? f2.object : nil
+        memo[location] = {:cssClass => aliquotType || UNKNOW_ALIQUOT_TYPE, :url => asset_path(asset)} unless location.nil?
+      end
       memo
     end.to_json
   end

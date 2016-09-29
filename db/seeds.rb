@@ -21,7 +21,7 @@ end
 asset=Asset.create!(:barcode => '1')
 asset.facts << [
   ['a', 'Tube'],
-  ['has', 'RNA']
+  ['aliquotType', 'RNA']
 ].map do |a,b|
   Fact.create({ :predicate => a, :object => b})
 end
@@ -29,7 +29,7 @@ end
 asset2=Asset.create!(:barcode => '2')
 asset2.facts << [
   ['a', 'Tube'],
-  ['has', 'DNAP']
+  ['aliquotType', 'DNAP']
 ].map do |a,b|
   Fact.create({ :predicate => a, :object => b})
 end
@@ -37,7 +37,7 @@ end
 asset2=Asset.create!(:barcode => '3')
 asset2.facts << [
   ['a', 'Tube'],
-  ['has', 'Blood']
+  ['aliquotType', 'Blood']
 ].map do |a,b|
   Fact.create({ :predicate => a, :object => b})
 end
@@ -65,7 +65,7 @@ asset_group = AssetGroup.create!
   asset.generate_barcode
   asset.facts << Fact.create({ :predicate => 'a', :object => 'Tube'})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
-  asset.facts << Fact.create({ :predicate => 'has', :object => 'DNA'})
+  asset.facts << Fact.create({ :predicate => 'aliquotType', :object => 'DNA'})
   asset_group.assets << asset
 end
 
@@ -84,7 +84,7 @@ SupportN3.parse_file("lib/workflows/qiacube_ht.n3")
 SupportN3.parse_file("lib/workflows/qiasymphony.n3")
 
 activity_type = ActivityType.find_by_name('QIASymphony')
-instrument.activity_types
+instrument.activity_types << activity_type
 kit_type = KitType.create(:activity_type => activity_type, :name => 'QIASymphony')
 kit = Kit.create( {:kit_type => kit_type, :barcode => 7777})
 
@@ -92,7 +92,7 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 7777})
   asset = Asset.create!(:barcode => 700 + pos)
   asset.facts << Fact.create({ :predicate => 'a', :object => 'Tube'})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
-  asset.facts << Fact.create({ :predicate => 'has', :object => 'DNA'})
+  asset.facts << Fact.create({ :predicate => 'aliquotType', :object => 'DNA'})
 
   asset.facts << Fact.create({ :predicate => 'sanger_sample_id', :object => "Sample_#{pos}"})
 
@@ -101,7 +101,7 @@ end
 
 
 activity_type = ActivityType.find_by_name('QIAamp Investigator BioRobot')
-instrument.activity_types
+instrument.activity_types << activity_type
 kit_type = KitType.create(:activity_type => activity_type, :name => 'QIAamp Investigator BioRobot')
 kit = Kit.create( {:kit_type => kit_type, :barcode => 8888})
 
@@ -123,7 +123,7 @@ end
 end
 
 activity_type = ActivityType.find_by_name('QIAamp 96 DNA QIAcube HT')
-instrument.activity_types
+instrument.activity_types << activity_type
 kit_type = KitType.create(:activity_type => activity_type, :name => 'QIAamp 96 DNA QIAcube HT')
 kit = Kit.create( {:kit_type => kit_type, :barcode => 9999})
 

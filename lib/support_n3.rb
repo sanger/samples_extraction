@@ -130,10 +130,19 @@ module SupportN3
           {:step_type => @step_type,
           :keep_selected => check_keep_selected_asset(k)})
       end
+      cgr = []
       conditions.each do |k,p,v,g|
         # After reading all condition groups we will be able to recognize
         # the condition groups of the objects in the triple
         update_condition_group(condition_group_for(k), p, v)
+        cgr.push(condition_group_for(k))
+      end
+
+      # Remove reference to step type for condition groups without conditions
+      cgr.each do |cg|
+        if cg.conditions.count == 0
+          cg.update_attributes(:step_type => nil)
+        end
       end
     end
 
