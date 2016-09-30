@@ -94,7 +94,7 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 7777})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
   asset.facts << Fact.create({ :predicate => 'aliquotType', :object => 'DNA'})
 
-  asset.facts << Fact.create({ :predicate => 'sanger_sample_id', :object => "Sample_#{pos}"})
+  asset.facts << Fact.create({ :predicate => 'sanger_sample_id', :object => "1STDY#{(pos % 4)+1}"})
 
   asset_group.assets << asset
 end
@@ -118,7 +118,7 @@ end
   asset.facts << Fact.create({ :predicate => 'a', :object => 'SampleTube'})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
 
-  asset.facts << Fact.create({ :predicate => 'sanger_sample_id', :object => "Sample_#{pos}"})
+  asset.facts << Fact.create({ :predicate => 'sanger_sample_id', :object => "1STDY#{(pos % 4)+1}"})
 
 end
 

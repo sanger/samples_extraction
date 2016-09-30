@@ -4,6 +4,21 @@ class AssetGroupsController < ApplicationController
   before_action :update_barcodes, only: [:update]
 
 
+  def show
+
+    @assets = @asset_group.assets
+
+    @assets_grouped = assets_by_fact_group
+
+    @step_types = @activity.step_types_active
+
+    respond_to do |format|
+      format.html { render @asset_group }
+      format.json { render :show, status: :created, location: [@activity, @asset_group] }
+    end
+  end
+
+
   def update
     @assets = @asset_group.assets
     @assets_grouped = assets_by_fact_group
@@ -39,12 +54,14 @@ class AssetGroupsController < ApplicationController
 
 
     def set_activity
+
       # I need the activity to be able to know the step_types compatible to show.
       @activity = Activity.find(params_asset_group[:activity_id])
     end
 
     # Use callbacks to share common setup or constraints between actions.
     def set_asset_group
+
       @asset_group = AssetGroup.find(params_asset_group[:id])
     end
 

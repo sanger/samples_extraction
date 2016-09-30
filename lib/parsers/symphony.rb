@@ -22,7 +22,7 @@ module Parsers
             )
         end
         asset = Asset.new
-        asset.facts << facts
+        asset.add_facts(facts)
         asset
       end
     end
@@ -52,12 +52,12 @@ module Parsers
         if posName
           tube = tubes.select{|tube| tube.facts.with_fact('location', posName).count!=0}.first
           if tube
-            tube.facts << rack_position_facts
-            tube.facts << predicated_with(rack_position_facts, 'Symphony:TotalVolumeInUl').map do |f|
+            tube.add_facts(rack_position_facts)
+            tube.add_facts(predicated_with(rack_position_facts, 'Symphony:TotalVolumeInUl').map do |f|
               f2 = f.dup
               f2.predicate = 'measured_volume'
               f2
-            end
+            end)
           end
         end
       end

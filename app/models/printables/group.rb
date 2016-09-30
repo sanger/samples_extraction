@@ -1,8 +1,6 @@
 module Printables::Group
   def print(printer_config)
-
     return if Rails.configuration.printing_disabled
-
     assets.each do |asset|
       f = asset.facts.with_predicate('a').first
       printer_name = printer_config[Printer.printer_type_for(f.object)]

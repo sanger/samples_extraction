@@ -45,9 +45,9 @@ module Lab::Actions
         racks.each do |rack|
           list.each do |l|
             location, tube = l[0], l[1]
-            tube.facts << Fact.create(:predicate => 'location', :object => location)
-            tube.facts << Fact.create(:predicate => 'parent', :object_asset => rack)
-            rack.facts << Fact.create(:predicate => 'contains', :object_asset => tube)
+            tube.add_facts(Fact.create(:predicate => 'location', :object => location))
+            tube.add_facts(Fact.create(:predicate => 'parent', :object_asset => rack))
+            rack.add_facts(Fact.create(:predicate => 'contains', :object_asset => tube))
           end
         end
       end

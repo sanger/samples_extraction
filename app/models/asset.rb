@@ -56,6 +56,7 @@ class Asset < ActiveRecord::Base
   }
 
   def add_facts(list)
+    list = [list].flatten
     list.each do |fact|
       facts << fact unless has_fact?(fact)
     end
@@ -66,7 +67,13 @@ class Asset < ActiveRecord::Base
   end
 
   def has_fact?(fact)
-    facts.any?{|f| (fact.predicate == f.predicate) && (fact.object == f.object)}
+    facts.any? do |f|
+      if f.object.nil?
+        ((fact.predicate == f.predicate) && (fact.object_asset == f.object_asset))
+      else
+        ((fact.predicate == f.predicate) && (fact.object == f.object))
+      end
+    end
   end
 
   def self.assets_for_queries(queries)
