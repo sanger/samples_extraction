@@ -1,6 +1,6 @@
 require './lib/label_template_setup'
 
-LabelTemplateSetup.register_template('SMPE - Tube','Tube') do |name, type_id|
+LabelTemplateSetup.register_template('SMPE - Tube example 2','Tube') do |name, type_id|
   {
     name: name,
     label_type_id: type_id, # Plate
@@ -13,7 +13,12 @@ LabelTemplateSetup.register_template('SMPE - Tube','Tube') do |name, type_id|
   {"x_origin" => "0240", "y_origin" => "0165", "field_name" => "round_label_top_line", "horizontal_magnification" => "05", "vertical_magnification" => "1", "font" => "G", "space_adjustment" => "00", "rotational_angles" => "00"},
   {"x_origin" => "0220", "y_origin" => "0193", "field_name" => "round_label_bottom_line", "horizontal_magnification" => "05", "vertical_magnification" => "1", "font" => "G", "space_adjustment" => "00", "rotational_angles" => "00"}
       ],
-      barcodes_attributes:[{"barcode_type":"9","one_module_width":"02","height":"0070","x_origin":"0300","y_origin":"0000","field_name":"barcode"}]
+      barcodes_attributes:[
+        #{"barcode_type":"9","one_module_width":"02","height":"0070","x_origin":"0300","y_origin":"0000","field_name":"barcode"}
+        {"x_origin" => "0043", "y_origin" => "0100", "field_name" => "barcode", "barcode_type" => "5", "one_module_width" => "01",
+          "height" => "0100", "rotational_angle" => nil, "one_cell_width" => nil, "type_of_check_digit" => "2", "bar_height" => nil,
+          "no_of_columns" => nil}
+      ]
     }]
   }
 end
