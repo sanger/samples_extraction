@@ -108,7 +108,6 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 8888})
   asset = Asset.create!(:barcode => 800 + pos)
   asset.facts << Fact.create({ :predicate => 'a', :object => 'Plate'})
   asset.facts << Fact.create({ :predicate => 'a', :object => 'LysedPlate'})
-  asset.facts << Fact.create({ :predicate => 'a', :object => 'TubeRack'})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
   asset.update_compatible_activity_type
 end

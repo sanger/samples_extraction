@@ -54,6 +54,7 @@ module Asset::Import
       if remote_asset
         asset = build_asset_from_remote_asset(barcode, remote_asset)
       end
+      asset.update_compatible_activity_type
     end
     asset
   end
