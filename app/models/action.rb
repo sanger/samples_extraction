@@ -52,7 +52,7 @@ class Action < ActiveRecord::Base
       assets = created_assets[subject_condition_group.id]
     end
     if action_type == 'selectAsset'
-      asset_group.assets << asset
+      asset_group.add_assets(asset)
     end
     if action_type == 'updateService'
       asset.update_attributes(:mark_to_update => true)
@@ -69,7 +69,7 @@ class Action < ActiveRecord::Base
         # itself, because of that, before creating the assets we check
         # if they were already created by a previous action
         created_assets[subject_condition_group.id] = assets
-        asset_group.assets << assets
+        asset_group.add_assets(assets)
       end
       assets = created_assets[subject_condition_group.id]
 

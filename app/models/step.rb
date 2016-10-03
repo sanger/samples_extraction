@@ -93,8 +93,8 @@ class Step < ActiveRecord::Base
     list_of_assets = created_assets.values.uniq
     if list_of_assets.length > 0
       created_asset_group = AssetGroup.create
-      created_asset_group.assets << list_of_assets
-      activity.asset_group.assets << list_of_assets if activity
+      created_asset_group.add_assets(list_of_assets)
+      activity.asset_group.add_assets(list_of_assets) if activity
       update_attributes(:created_asset_group => created_asset_group)
     end
   end
@@ -103,11 +103,12 @@ class Step < ActiveRecord::Base
     return progress_with(asset_group.assets) if in_progress?
 
     original_assets = AssetGroup.create!
-    original_assets.assets << activity.asset_group.assets if activity
+    original_assets.add_assets(activity.asset_group.assets) if activity
 
     ActiveRecord::Base.transaction do |t|
       created_assets = {}
       list_to_destroy = []
+
       classify_assets.each do |asset, r|
         r.execute(self, asset_group, asset, created_assets, list_to_destroy)
       end
@@ -118,10 +119,9 @@ class Step < ActiveRecord::Base
 
       Fact.where(:id => list_to_destroy.flatten.compact.map(&:id)).delete_all
 
-      update_assets_started if activity
+      #update_assets_started if activity
 
       unselect_assets_from_consequents
-
       update_service
     end
     update_attributes(:asset_group => original_assets) if activity
@@ -129,7 +129,7 @@ class Step < ActiveRecord::Base
 
   def update_assets_started
     activity.asset_group.assets.not_started.each do |asset|
-      asset.facts << Fact.create(:predicate => 'is', :object => 'Started')
+      asset.add_facts(Fact.create(:predicate => 'is', :object => 'Started'))
       asset.facts.where(:predicate => 'is', :object => 'NotStarted').each(&:destroy)
     end
   end
@@ -139,7 +139,7 @@ class Step < ActiveRecord::Base
       assets = step_params[:assets]
       update_attributes(:in_progress? => true)
 
-      asset_group.assets << assets
+      asset_group.add_assets(assets)
 
       created_assets = {}
       classify_assets.each do |asset, r|

@@ -18,7 +18,7 @@ class Asset < ActiveRecord::Base
 
 #:class_name => 'Action', :foreign_key => 'subject_condition_group_id'
   #has_many :activities_started, -> {joins(:steps)}, :class_name => 'Activity'
-  has_many :activities_started, :through => :steps, :source => :activity, :class_name => 'Activity'
+  has_many :activities_started, -> { uniq }, :through => :steps, :source => :activity, :class_name => 'Activity'
   has_many :activities, :through => :asset_groups
 
   scope :with_fact, ->(predicate, object) {

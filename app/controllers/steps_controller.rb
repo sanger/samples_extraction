@@ -71,7 +71,6 @@ class StepsController < ApplicationController
         return
       end
 
-
       if @step.created_asset_group
         @step.created_asset_group.print(printer_config)
       end

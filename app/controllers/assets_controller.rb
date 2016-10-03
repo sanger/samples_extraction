@@ -17,7 +17,7 @@ class AssetsController < ApplicationController
 
     # For printing
     @asset_group = AssetGroup.create!
-    @asset_group.assets << @assets
+    @asset_group.add_assets(@assets)
 
     respond_to do |format|
       format.html { render :search, layout: false }

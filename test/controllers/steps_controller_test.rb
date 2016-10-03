@@ -82,8 +82,6 @@ class StepsControllerTest < ActionController::TestCase
         @asset_group.update_attributes(:assets => assets)
         @activity.update_attributes(:asset_group => @asset_group)
 
-        binding.pry
-
         post :create, { :activity_id => @activity.id, :step_type_id => @step_type.id, :step => { :data_params => "{}"}}
         Step.all.reload
         assert_equal Step.all.count, c+1
