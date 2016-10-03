@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160923094944) do
+ActiveRecord::Schema.define(version: 20161003115051) do
 
   create_table "actions", force: :cascade do |t|
     t.string   "action_type",                limit: 255, null: false
@@ -42,6 +42,16 @@ ActiveRecord::Schema.define(version: 20160923094944) do
   add_index "activities", ["asset_group_id"], name: "index_activities_on_asset_group_id", using: :btree
   add_index "activities", ["instrument_id"], name: "index_activities_on_instrument_id", using: :btree
   add_index "activities", ["kit_id"], name: "index_activities_on_kit_id", using: :btree
+
+  create_table "activity_type_compatibilities", force: :cascade do |t|
+    t.integer  "asset_id",         limit: 4
+    t.integer  "activity_type_id", limit: 4
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
+
+  add_index "activity_type_compatibilities", ["activity_type_id"], name: "index_activity_type_compatibilities_on_activity_type_id", using: :btree
+  add_index "activity_type_compatibilities", ["asset_id"], name: "index_activity_type_compatibilities_on_asset_id", using: :btree
 
   create_table "activity_type_step_types", force: :cascade do |t|
     t.integer  "activity_type_id", limit: 4
@@ -345,6 +355,8 @@ ActiveRecord::Schema.define(version: 20160923094944) do
   add_foreign_key "activities", "asset_groups"
   add_foreign_key "activities", "instruments"
   add_foreign_key "activities", "kits"
+  add_foreign_key "activity_type_compatibilities", "activity_types"
+  add_foreign_key "activity_type_compatibilities", "assets"
   add_foreign_key "activity_type_step_types", "activity_types"
   add_foreign_key "activity_type_step_types", "step_types"
   add_foreign_key "activity_types_instruments", "activity_types"

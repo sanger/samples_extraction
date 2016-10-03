@@ -6,17 +6,22 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
+require 'support_n3'
+SupportN3.parse_file("lib/assets/graph.n3")
+SupportN3.parse_file("lib/assets/graph3.n3")
+SupportN3.parse_file("lib/assets/graph2.n3")
+SupportN3.parse_file("lib/assets/reracking.n3")
+SupportN3.parse_file("lib/workflows/biorobot_investigator.n3")
+SupportN3.parse_file("lib/workflows/qiacube_ht.n3")
+SupportN3.parse_file("lib/workflows/qiasymphony.n3")
+
+
 tube_printer = Printer.create!(:name => 'e367bc', :printer_type => 'Tube', :default_printer => true)
 plate_printer = Printer.create!(:name => 'ippbc', :printer_type => 'Plate', :default_printer => false)
 tube_printer = Printer.create!(:name => 'e368bc', :printer_type => 'Tube', :default_printer => false)
 plate_printer = Printer.create!(:name => 'd304bc', :printer_type => 'Plate', :default_printer => true)
 plate_printer = Printer.create!(:name => 'd305bc', :printer_type => 'Plate', :default_printer => false)
 
-
-samples = []
-50.times do
-  samples.push(Asset.create(:barcode => nil))
-end
 
 asset=Asset.create!(:barcode => '1')
 asset.facts << [
@@ -44,7 +49,7 @@ end
 
 
 
-activity_type = ActivityType.create(:name => 'Testing activity type')
+activity_type = ActivityType.find_by_name('Testing activity type')
 
 
 instrument = Instrument.create(:barcode => '1111', :name => 'An instrument')
@@ -53,7 +58,7 @@ instrument.activity_types << activity_type
 kit_type = KitType.create(:activity_type => activity_type, :name => 'Testing kit type')
 kit = Kit.create( {:kit_type => kit_type, :barcode => 1111})
 
-activity_type2 = ActivityType.create(:name => 'Testing activity type 2')
+activity_type2 = ActivityType.find_by_name('Testing activity type 2')
 kit_type = KitType.create(:activity_type => activity_type2, :name => 'Testing kit type 2')
 kit = Kit.create( {:kit_type => kit_type, :barcode => 2222})
 
@@ -67,6 +72,7 @@ asset_group = AssetGroup.create!
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
   asset.facts << Fact.create({ :predicate => 'aliquotType', :object => 'DNA'})
   asset_group.assets << asset
+  asset.update_compatible_activity_type
 end
 
 activity_type.activities.create!(:asset_group => asset_group, :kit => kit, :instrument => instrument)
@@ -74,14 +80,6 @@ activity_type.activities.create!(:asset_group => asset_group, :kit => kit, :inst
 User.create!(:barcode => 1, :username => 'test', :fullname => 'Testing user')
 User.create!(:barcode => 2, :username => 'admin', :fullname => 'Admin', :role => 'administrator')
 
-require 'support_n3'
-SupportN3.parse_file("lib/assets/graph.n3")
-SupportN3.parse_file("lib/assets/graph3.n3")
-SupportN3.parse_file("lib/assets/graph2.n3")
-SupportN3.parse_file("lib/assets/reracking.n3")
-SupportN3.parse_file("lib/workflows/biorobot_investigator.n3")
-SupportN3.parse_file("lib/workflows/qiacube_ht.n3")
-SupportN3.parse_file("lib/workflows/qiasymphony.n3")
 
 activity_type = ActivityType.find_by_name('QIASymphony')
 instrument.activity_types << activity_type
@@ -97,6 +95,7 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 7777})
   asset.facts << Fact.create({ :predicate => 'sanger_sample_id', :object => "1STDY#{(pos % 4)+1}"})
 
   asset_group.assets << asset
+  asset.update_compatible_activity_type
 end
 
 
@@ -111,6 +110,7 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 8888})
   asset.facts << Fact.create({ :predicate => 'a', :object => 'LysedPlate'})
   asset.facts << Fact.create({ :predicate => 'a', :object => 'TubeRack'})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
+  asset.update_compatible_activity_type
 end
 
 50.times do |pos|
@@ -119,7 +119,7 @@ end
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
 
   asset.facts << Fact.create({ :predicate => 'sanger_sample_id', :object => "1STDY#{(pos % 4)+1}"})
-
+  asset.update_compatible_activity_type
 end
 
 activity_type = ActivityType.find_by_name('QIAamp 96 DNA QIAcube HT')
@@ -131,5 +131,6 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 9999})
   asset = Asset.create!(:barcode => 900 + pos)
   asset.facts << Fact.create({ :predicate => 'a', :object => 'Plate'})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
+  asset.update_compatible_activity_type
 end
 

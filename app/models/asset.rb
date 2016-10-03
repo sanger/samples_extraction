@@ -1,6 +1,9 @@
 require 'sequencescape_client'
 require 'barcode'
 
+
+require 'pry'
+
 class Asset < ActiveRecord::Base
   include Lab::Actions
   include Printables::Instance
@@ -14,7 +17,17 @@ class Asset < ActiveRecord::Base
   before_save :generate_uuid
   #before_save :generate_barcode
 
+
+  def update_compatible_activity_type
+    ActivityType.visible.all.each do |at|
+      activity_types << at if at.compatible_with?(self)
+    end
+  end
+
   has_many :operations
+
+  has_many :activity_type_compatibilities
+  has_many :activity_types, :through => :activity_type_compatibilities
 
 #:class_name => 'Action', :foreign_key => 'subject_condition_group_id'
   #has_many :activities_started, -> {joins(:steps)}, :class_name => 'Activity'
@@ -46,7 +59,7 @@ class Asset < ActiveRecord::Base
     with_fact('is','Started')
   }
 
-  scope :compatible_with_activity_type, ->(activity_type) {
+  scope :compatible2_with_activity_type, ->(activity_type) {
     joins(:facts).
     joins("right outer join conditions on conditions.predicate=facts.predicate and conditions.object=facts.object").
     joins("inner join condition_groups on condition_groups.id=condition_group_id").
@@ -54,6 +67,32 @@ class Asset < ActiveRecord::Base
     joins("inner join activity_type_step_types on activity_type_step_types.step_type_id=step_types.id").
     where("activity_type_step_types.activity_type_id = ?", activity_type)
   }
+
+  scope :compatible_with_activity_type, ->(activity_type) {
+    st = activity_type.step_types.select do |st|
+      st.condition_groups.select{|cg| cg.conditions.any?{|c| c.predicate == 'is' && c.object == 'NotStarted'}}
+    end.first
+    st_checks = [st.id, st.condition_groups.map(&:id)]
+
+    joins(:facts).
+    joins("right outer join conditions on conditions.predicate=facts.predicate and conditions.object=facts.object").
+    joins("inner join condition_groups on condition_groups.id=condition_group_id").
+    joins("inner join step_types on step_types.id=condition_groups.step_type_id").
+    joins("inner join activity_type_step_types on activity_type_step_types.step_type_id=step_types.id").
+    where("activity_type_step_types.activity_type_id = ? and activity_type_step_types.step_type_id = ? and condition_groups.id in (?)", activity_type, st_checks[0], st_checks[1])
+  }
+
+
+  #def self.assets_compatible_with_activity_type(assets, activity_type)
+  # scope :assets_compatible_with_activity_type, ->(assets, activity_type) {
+  #   select do |asset|
+  #     activity_type.step_types.any? do |s|
+  #       s.condition_groups.all? do |cg|
+  #         cg.compatible_with?(asset)
+  #       end
+  #     end
+  #   end
+  # }
 
   def add_facts(list)
     list = [list].flatten

@@ -1,6 +1,6 @@
 class SamplesStartedController < ApplicationController
   def index
-    @activity_types = ActivityType.all.visible
+    @activity_types = ActivityType.all.visible.sort{|a,b| a.name <=> b.name}.uniq
 
     @assets_for_activity_types = @activity_types.map do |activity_type|
       {
