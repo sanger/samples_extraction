@@ -36,13 +36,8 @@ module ApplicationHelper
   def svg(name)
     name = 'TubeRack' if name == 'Plate'
     name = 'Tube' if name == 'SampleTube'
-    file_path = "#{Rails.root}/app/assets/images/#{name}.svg"
-    #file_path = Dir.glob("#{Rails.root}/app/assets/images/#{name}.svg", File::FNM_CASEFOLD).first
-    if File.exists?(file_path)
-      File.read(file_path).html_safe
-    else
-      "('#{name.downcase}.svg' not found)"
-    end
+
+    Rails.application.assets["#{name.downcase}"].to_s.html_safe || "('#{name.downcase}.svg' not found)"
   end
 
   def svg_for_facts(facts)
