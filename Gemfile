@@ -10,6 +10,7 @@ gem 'rails-assets-tether', '>= 1.1.0'
 gem 'bootstrap_form'
 gem 'sprockets-rails'
 gem 'ace-rails-ap'
+gem 'daemons'
 
 gem 'activerecord-session_store'
 
