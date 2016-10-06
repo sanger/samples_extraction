@@ -1,0 +1,16 @@
+<div>
+  <% debugger %>
+      <%= bootstrap_form_for [@activity, step_type, Step.new], action: 'create', class: 'step-template-form' do |f| %>
+  <%= f.hidden_field :tube_printer_id, :value => @current_user.tube_printer_id %>
+  <%= f.hidden_field :plate_printer_id, :value => @current_user.plate_printer_id %>
+
+      <input type="hidden" name="step[data_action]" value="racking" id="step_data_action" />
+        <input type="hidden" name="step[data_params]" id="step_data_params"
+          value="<%= session[:data_params] %>" />
+
+        <input type="hidden" name='step[state]' value='done' />
+        <input type="hidden" name='step[data_action_type]' value='before_step' />
+        <%= f.submit %>
+      <% end %>
+
+</div>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Rack Type="Object" Class ="Rack">
+ <SerializeVersion Type="Int">2</SerializeVersion>
+ <!-- RackId Type="String">dna29mar2016b</RackId -->
+ <!-- RackLabware Type="String">SAR#72.694 T2.0 ScrewSkirt</RackLabware -->
+ <!-- CreationTimestamp Type="DateTime">20160329 16:49:32.151</CreationTimestamp -->
+ <!-- RackUsageType Type="String">Eluate</RackUsageType -->
+ <!-- CSVConverted Type="Bool">0</CSVConverted -->
+ <!-- RackLockType Type="String">NoLock</RackLockType -->
+
+ <% @asset.facts.with_predicate('contains').map(&:object_asset).each do |o| %>
+  <RackPosition Type="Object" Class ="RackPosition">
+    <SampleId Type="String"><%= o.first_value_for('sanger_sample_id') %></SampleId>
+    <PositionName Type="String"><%= o.position_name_for_symphony %></PositionName>
+    <PositionIndex Type="UInt"><%= o.position_index_for_symphony %></PositionIndex>
+    <!-- Labware Type="String">SarTube2mlSCSkirted</Labware -->
+    <!-- TotalVolumeInUl Type="Int">85</TotalVolumeInUl -->
+    <InternalControlName Type="String"></InternalControlName>
+    <!-- State Type="String">unclear</State -->
+    <SampleType Type="String">Sample</SampleType>
+  </RackPosition>
+ <% end %>
+
+ <ModificationRecord Type="Object" Class ="ModificationRecord">
+  <!-- Timestamp Type="DateTime">20160329 16:49:32.151</Timestamp -->
+  <!-- BatchID Type="UInt">2000192</BatchID -->
+  <!-- Instrument Type="String">qssp14354</Instrument -->
+  <!-- Comment Type="String">eluate transfer</Comment -->
+  <!-- InstrumentType Type="String">SamplePreparation</InstrumentType -->
+ </ModificationRecord>
+</Rack>
+
+<!-- QIAsymphony_CHECKSUM lzkGu3OuaWhv13LtuXJBzZeVt07qGBiW6kA1dYGy+Os=-->

@@ -19,7 +19,9 @@
   This activity was finished at <%= @activity.completed_at %>
 </div>
 <% else %>
+  <div id="asset-group-container">
   <%= render :template => 'asset_groups/show' %>
+  </div>
 <% end %>
 <% if @assets && !@activity.finished? %>
   <div class="laststeptype"><%= render :template => 'step_types/active' %></div>

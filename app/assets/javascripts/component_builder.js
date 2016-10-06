@@ -62,6 +62,8 @@
     $(document).on('execute.builder', builderProcess);
     //$(document).on('ajax:complete', builderProcess);
 
+    window.onunload = function(){};
+
   };
 
   var componentBuilder = new ComponentBuilder();

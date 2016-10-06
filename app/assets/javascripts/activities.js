@@ -1,9 +1,10 @@
 (function($, undefined) {
 
   function AssetGroup(node) {
-    this.container = node.parent();
+    var node = $(node);
+    this.container = $('#asset-group-container');//node.parent();
     this.form = node;
-    this.identifier = $(node).attr("data-psd-asset-group-form");
+    //this.identifier = $(node).attr("data-psd-asset-group-form");
     this.content = $('[data-psd-asset-group-content]', node);
     //this.template = JST['templates/asset_group'];
     this.attachHandlers(node);
@@ -118,6 +119,7 @@
   };
 
   $(document).ready(function() {
-    new AssetGroup($('[data-psd-asset-group-form]'));
+    //new AssetGroup($('[data-psd-asset-group-form]'));
+    $(document).trigger('registerComponent.builder', {'AssetGroup': AssetGroup});
   });
 }(jQuery));

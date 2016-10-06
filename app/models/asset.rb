@@ -255,6 +255,20 @@ class Asset < ActiveRecord::Base
     return ''
   end
 
+  def first_value_for(predicate)
+    facts.with_predicate(predicate).first.object
+  end
+
+  def position_name_for_symphony
+    str = first_value_for('location')
+    [str[0], str[1..-1]].join(':')
+  end
+
+  def position_index_for_symphony
+    str = first_value_for('location')
+    (str[1..-1] * 12) + (str[0].ord - 'A'.ord)
+  end
+
   def class_type
     names = facts.with_predicate('a')
     if names.count > 0

@@ -1,7 +1,7 @@
 
 <%= trigger_alerts %>
 
-<div class="form-group">
+<div class="form-group" data-psd-component-class="AssetGroup" data-psd-component-parameters="{}">
   <%= bootstrap_form_for [@activity, @asset_group], action: 'update', remote: true, html: { :autocomplete => 'off', :"data-psd-asset-group-form" => "1"} do |f| %>
 
   <input type="hidden" name="asset_group[delete_barcode]" id="asset_group_delete_barcode" value="" />
