@@ -14,8 +14,10 @@
   This activity was finished at <%= @activity.completed_at %>
 </div>
 <% else %>
+<div id="asset-group-container">
   <% @step_types = [] if @step_types.nil? %>
   <%= render :partial => 'asset_groups/asset_group' %>
+</div>
 <% end %>
 
 <%= bootstrap_link_to 'Back', :back %>
