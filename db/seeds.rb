@@ -16,6 +16,13 @@ SupportN3.parse_file("lib/workflows/qiacube_ht.n3")
 SupportN3.parse_file("lib/workflows/qiasymphony.n3")
 
 
+TEST_SAMPLES = ['4086STDY6316833', '4086STDY6316834', '4086STDY6316835','4086STDY6316836','4086STDY6316837']
+
+
+def test_sample_id(i)
+  TEST_SAMPLES[i % TEST_SAMPLES.length]
+end
+
 tube_printer = Printer.create!(:name => 'e367bc', :printer_type => 'Tube', :default_printer => true)
 plate_printer = Printer.create!(:name => 'ippbc', :printer_type => 'Plate', :default_printer => false)
 tube_printer = Printer.create!(:name => 'e368bc', :printer_type => 'Tube', :default_printer => false)
@@ -93,7 +100,7 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 7777})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
   asset.facts << Fact.create({ :predicate => 'aliquotType', :object => 'DNA'})
 
-  asset.facts << Fact.create({ :predicate => 'sanger_sample_id', :object => "1STDY#{(pos % 4)+1}"})
+  asset.facts << Fact.create({ :predicate => 'sanger_sample_id', :object => test_sample_id(pos)})
 
   asset_group.assets << asset
   asset.update_compatible_activity_type
@@ -118,7 +125,7 @@ end
   asset.facts << Fact.create({ :predicate => 'a', :object => 'SampleTube'})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
 
-  asset.facts << Fact.create({ :predicate => 'sanger_sample_id', :object => "1STDY#{(pos % 4)+1}"})
+  asset.facts << Fact.create({ :predicate => 'sanger_sample_id', :object => test_sample_id(pos)})
   asset.update_compatible_activity_type
 end
 
