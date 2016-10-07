@@ -7,12 +7,12 @@ class ConditionGroup < ActiveRecord::Base
   has_many :object_actions, :class_name => 'Action', :foreign_key => 'object_condition_group_id'
 
 
-  def compatible_with?(assets, related_assets = [])
+  def compatible_with?(assets, related_assets = [], checked_condition_groups=[])
     if cardinality
       return false if assets.kind_of?(Array) && (assets.length > cardinality)
     end
     #return false if cardinality && (assets.length != cardinality)
-    conditions.all?{|condition| condition.compatible_with?(assets, related_assets)}
+    conditions.all?{|condition| condition.compatible_with?(assets, related_assets, checked_condition_groups)}
   end
 
   def conditions_compatible_with?(assets, related_assets = [])

@@ -42,6 +42,7 @@ class StepsControllerTest < ActionController::TestCase
       end
 
       should "execute a rule with different relations in between" do
+        c = Step.all.count
         rule = '{ ' \
                   '?a :is :A . ' \
                   '?a :transfer ?b . ' \
@@ -56,9 +57,10 @@ class StepsControllerTest < ActionController::TestCase
                   ':step :addFacts { ?b :is :Processed .}. ' \
                   ':step :addFacts { ?c :is :Processed .}. ' \
                   ':step :addFacts { ?d :is :Processed .}. ' \
+                  ':step :addFacts { ?a :transitiveRelation ?d .}. ' \
                 '} .'
 
-        skip('this rule is unsupported as condition_group.compatible_with? does not support loops while following relations')
+       # skip('this rule is unsupported as condition_group.compatible_with? does not support loops while following relations')
         SupportN3.parse_string(rule, {}, @step_type)
         assets = []
         assets.push(FactoryGirl.create :asset, {:facts =>[
@@ -92,6 +94,11 @@ class StepsControllerTest < ActionController::TestCase
           (asset.facts.with_fact('is', 'processed').count == 1)
         end
 
+
+	asset_a = assets.select{|a| a.has_literal?('is','A')}.first
+        relation = asset_a.facts.with_predicate('transitiveRelation').first
+	candidate_asset_d = relation.object_asset
+	assert_equal true, candidate_asset_d.has_literal?('is','D')
       end
 
       should "create a new step with status 'in progress' when pairing parameters are provided" do

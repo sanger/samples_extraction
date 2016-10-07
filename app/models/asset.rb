@@ -104,6 +104,10 @@ class Asset < ActiveRecord::Base
   def relation_id
     uuid
   end
+ 
+  def has_literal?(predicate, object)
+    facts.any?{|f| f.predicate == predicate && f.object == object}
+  end
 
   def has_fact?(fact)
     facts.any? do |f|
