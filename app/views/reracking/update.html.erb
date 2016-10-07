@@ -2,6 +2,8 @@
 
 <h1>Re-Racking</h1>
 
+<%= render :partial => 'activities/printers_selection' %>
+
 <% if @assets && !@activity.finished? %>
   <%= render :template =>'step_types/active', :locals => {
     :step_types => @step_types,

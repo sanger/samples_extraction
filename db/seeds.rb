@@ -21,6 +21,7 @@ plate_printer = Printer.create!(:name => 'ippbc', :printer_type => 'Plate', :def
 tube_printer = Printer.create!(:name => 'e368bc', :printer_type => 'Tube', :default_printer => false)
 plate_printer = Printer.create!(:name => 'd304bc', :printer_type => 'Plate', :default_printer => true)
 plate_printer = Printer.create!(:name => 'd305bc', :printer_type => 'Plate', :default_printer => false)
+plate_printer = Printer.create!(:name => 'f225bc', :printer_type => 'Plate', :default_printer => false)
 
 
 asset=Asset.create!(:barcode => '1')

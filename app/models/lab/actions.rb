@@ -32,6 +32,9 @@ module Lab::Actions
     if asset_group.assets.with_fact('a', 'TubeRack').empty?
       error_messages.push("No TubeRacks found to perform the racking process")
     end
+    unless step_type.compatible_with?(list.map{|l,a| a}.concat(asset_group.assets).sort.uniq)
+      error_messages.push("Some of the assets provided have an incompatible type with the racking step defined")
+    end
     if error_messages.empty?
 
       ActiveRecord::Base.transaction do |t|
