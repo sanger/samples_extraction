@@ -231,5 +231,22 @@ RSpec.describe StepType, type: :model do
         assert_equal true, @step_type.compatible_with?(@assets)
       end
     end
+    describe 'matching with wildcard condition groups' do
+      setup do
+        @cg2 = FactoryGirl.create(:condition_group, {})
+        @cg1.conditions << FactoryGirl.create(:condition, {
+		:predicate => 'position',
+		:object_condition_group_id => @cg2.id})
+      end
+      it 'is compatible for any literal when met the other conditions' do
+
+        @assets = 5.times.map{|i| FactoryGirl.create :asset, {:facts => [
+          FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube'),
+          FactoryGirl.create(:fact, :predicate => 'is', :object => 'Full'),
+          FactoryGirl.create(:fact, :predicate => 'position', :object => i)
+        ]}}
+        assert_equal true, @step_type.compatible_with?([@assets].flatten)
+      end
+    end
   end
 end
