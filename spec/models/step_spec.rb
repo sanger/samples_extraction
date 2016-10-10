@@ -69,6 +69,75 @@ RSpec.describe Step, type: :model do
         expect(Operation.all.count).to eq(@racks.count)
       end
 
+      describe 'with wildcards' do
+        setup do
+          @wildcard = FactoryGirl.create :condition_group
+          condition = FactoryGirl.create :condition, {:predicate => 'position',
+            :object_condition_group => @wildcard}
+          @cg2.conditions << condition
+        end
+
+        describe 'when the conditions is not met' do
+          it 'does not execute the rule when the wildcard condition is not met' do
+            previous_num = @asset_group.assets.count
+
+            expect{
+              @step = create_step
+            }.to raise_error(StandardError)
+
+            @racks.each(&:reload)
+
+            @racks.each do |rack|
+              assert_equal false, rack.has_fact?(@action)
+            end
+            expect(Operation.all.count).to eq(0)
+          end
+
+        end
+
+        describe 'when the wildcard conditions are met' do
+          setup do
+            @racks.each_with_index do |rack, idx|
+              rack.facts << FactoryGirl.create(:fact, {
+                :predicate => 'position',
+                :object => idx.to_s
+              })
+            end
+          end
+
+          it 'executes wildcard condition groups when the condition is met' do
+            previous_num = @asset_group.assets.count
+            @step = create_step
+
+            @racks.each(&:reload)
+
+            @racks.each do |rack|
+              assert_equal true, rack.has_fact?(@action)
+            end
+            expect(Operation.all.count).to eq(@racks.count)
+          end
+
+          it 'executes the wildcard using the value of the condition group evaluated' do
+            previous_num = @asset_group.assets.count
+
+            @action = FactoryGirl.create(:action, {:action_type => 'addFacts',
+              :predicate => 'value', :object_condition_group => @wildcard,
+              :subject_condition_group => @cg2
+            })
+            @step_type.actions << @action
+
+            @step = create_step
+
+            @racks.each(&:reload)
+
+            @racks.each do |rack|
+              assert_equal true, rack.has_fact?(@action)
+            end
+            expect(Operation.all.count).to eq(@racks.count)
+
+          end
+        end
+      end
     end
 
     describe 'with createAsset action type' do
