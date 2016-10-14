@@ -8,15 +8,15 @@ class ConditionGroup < ActiveRecord::Base
 
   def is_wildcard?
     conditions.empty?
-  end 
+  end
 
-  def compatible_with?(assets, related_assets = [], checked_condition_groups=[])
+  def compatible_with?(assets, related_assets = [], checked_condition_groups=[], wildcard_values={})
     return true if is_wildcard?
     if cardinality
       return false if assets.kind_of?(Array) && (assets.length > cardinality)
     end
     #return false if cardinality && (assets.length != cardinality)
-    conditions.all?{|condition| condition.compatible_with?(assets, related_assets, checked_condition_groups)}
+    conditions.all?{|condition| condition.compatible_with?(assets, related_assets, checked_condition_groups, wildcard_values)}
   end
 
   def conditions_compatible_with?(assets, related_assets = [])

@@ -238,7 +238,7 @@ RSpec.describe StepType, type: :model do
 		:predicate => 'position',
 		:object_condition_group_id => @cg2.id})
       end
-      it 'is compatible for any literal when met the other conditions' do
+      it 'is compatible with any literal when met the other conditions' do
 
         @assets = 5.times.map{|i| FactoryGirl.create :asset, {:facts => [
           FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube'),

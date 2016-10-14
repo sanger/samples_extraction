@@ -99,8 +99,6 @@ class AssetsController < ApplicationController
 
     # Use callbacks to share common setup or constraints between actions.
     def set_asset
-      #binding.pry
-      #@asset = Asset.find(params[:id]) || Asset.find_by_uuid(params[:id])
       @asset = Asset.find(params[:id])
     end
 

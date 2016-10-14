@@ -104,7 +104,7 @@ class Asset < ActiveRecord::Base
   def relation_id
     uuid
   end
- 
+
   def has_literal?(predicate, object)
     facts.any?{|f| f.predicate == predicate && f.object == object}
   end
@@ -199,8 +199,8 @@ class Asset < ActiveRecord::Base
     update_attributes(:uuid => SecureRandom.uuid) if uuid.nil?
   end
 
-  def generate_barcode
-    update_attributes(:barcode => Barcode.calculate_barcode(Rails.application.config.barcode_prefix,Asset.count+1)) if barcode.nil?
+  def generate_barcode(i)
+    update_attributes(:barcode => Barcode.calculate_barcode(Rails.application.config.barcode_prefix,Asset.count+i)) if barcode.nil?
   end
 
   def attrs_for_sequencescape(traversed_list = [])

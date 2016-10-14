@@ -14,20 +14,34 @@ class Action < ActiveRecord::Base
       data = [{:predicate => predicate, :object => object}]
     else
       if created_assets[object_condition_group.id].nil?
-        # If it is not a created object condition group, then it is
-        # a condition group from the left side of the rule. It can
-        # have N elements, so we'll create the fact for each one.
-        # This also means that 'asset' belongs to a condition group
-        # with cardinality = 1
-        data = asset_group.assets.select do |asset|
-          object_condition_group.compatible_with?(asset)
-        end.map do |asset|
-          {
-            :predicate => predicate,
-            :object => asset.relation_id,
-            :object_asset_id => asset.id,
-            :literal => false
-          }
+        if object_condition_group.is_wildcard?
+          # A wildcard value might be an asset as well, not just values
+          # we need to add support to them
+          data = step.wildcard_values.map do |v|
+            {
+              :predicate => predicate,
+              :object => v,
+              :object_asset_id => nil,
+              :literal => true
+            }
+          end
+        else
+          # If it is not a created object condition group, and it's not a wildcard,
+          # then it is
+          # a condition group from the left side of the rule. It can
+          # have N elements, so we'll create the fact for each one.
+          # This also means that 'asset' belongs to a condition group
+          # with cardinality = 1
+          data = asset_group.assets.select do |asset|
+            object_condition_group.compatible_with?(asset)
+          end.map do |asset|
+            {
+              :predicate => predicate,
+              :object => asset.relation_id,
+              :object_asset_id => asset.id,
+              :literal => false
+            }
+          end
         end
       else
         data = created_assets[object_condition_group.id].map do |asset|
@@ -46,7 +60,7 @@ class Action < ActiveRecord::Base
     end
   end
 
-  def execute(step, asset_group, asset, created_assets, marked_facts_to_destroy=nil)
+  def execute(step, asset_group, asset, created_assets, marked_facts_to_destroy=nil, wildcard_values={})
     assets = [asset]
     if subject_condition_group.conditions.empty?
       assets = created_assets[subject_condition_group.id]
@@ -74,8 +88,8 @@ class Action < ActiveRecord::Base
       assets = created_assets[subject_condition_group.id]
 
       facts = generate_facts(created_assets, asset_group, step)
-      created_assets[subject_condition_group.id].each do |created_asset|
-        created_asset.generate_barcode
+      created_assets[subject_condition_group.id].each_with_index do |created_asset, i|
+        created_asset.generate_barcode(i)
         created_asset.add_facts(facts.map(&:dup))
       end
     end

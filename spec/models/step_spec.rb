@@ -130,8 +130,8 @@ RSpec.describe Step, type: :model do
 
             @racks.each(&:reload)
 
-            @racks.each do |rack|
-              assert_equal true, rack.has_fact?(@action)
+            @racks.each_with_index do |rack, pos|
+              assert_equal true, rack.has_literal?('value', pos.to_s)
             end
             expect(Operation.all.count).to eq(@racks.count)
 

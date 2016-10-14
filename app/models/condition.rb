@@ -21,7 +21,7 @@ class Condition < ActiveRecord::Base
     return true
   end
 
-  def check_related_condition_group(cg, fact, related_assets = [], checked_condition_groups=[])
+  def check_related_condition_group(cg, fact, related_assets = [], checked_condition_groups=[], wildcard_values={})
     related_asset = Asset.find(fact.object_asset_id)
 
     # This condition does not support evaluating relations like:
@@ -34,18 +34,18 @@ class Condition < ActiveRecord::Base
       compatible = (fact.predicate == predicate)
     else
       checked_condition_groups << cg
-      compatible = ((fact.predicate == predicate) && cg.compatible_with?(related_asset, related_assets, checked_condition_groups))
+      compatible = ((fact.predicate == predicate) && cg.compatible_with?(related_asset, related_assets, checked_condition_groups, wildcard_values))
     end
     related_assets.push(related_asset) if compatible
     compatible
   end
 
   def is_wildcard_condition?
-    return object_condition_group && object_condition_group.is_wildcard? 
+    return object_condition_group && object_condition_group.is_wildcard?
   end
 
-  def compatible_with?(asset, related_assets = [], checked_condition_groups=[])
-    return check_wildcard_condition(asset) if is_wildcard_condition?
+  def compatible_with?(asset, related_assets = [], checked_condition_groups=[], wildcard_values = {})
+    return check_wildcard_condition(asset, wildcard_values) if is_wildcard_condition?
     asset.facts.any? do |fact|
       # Either objects are equal, or both of them are relations to something. We
       # do not check the relations values, because we consider them as wildcards
@@ -53,8 +53,8 @@ class Condition < ActiveRecord::Base
         ((fact.predicate == predicate) && (fact.object == object))
       else
         cg = ConditionGroup.find(object_condition_group_id)
-        check_related_condition_group(cg, fact, related_assets, 
-  	  checked_condition_groups)
+        check_related_condition_group(cg, fact, related_assets,
+  	  checked_condition_groups, wildcard_values)
       end
     end
   end

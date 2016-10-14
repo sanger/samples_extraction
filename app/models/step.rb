@@ -28,8 +28,12 @@ class Step < ActiveRecord::Base
 
   scope :for_step_type, ->(step_type) { where(:step_type => step_type)}
 
+  attr_accessor :wildcard_values
+
   def assets_compatible_with_step_type
-    raise StandardError unless step_type.compatible_with?(asset_group.assets) || (asset_group.assets.count == 0)
+    checked_condition_groups=[], @wildcard_values = {}
+    compatible = step_type.compatible_with?(asset_group.assets, nil, checked_condition_groups, wildcard_values)
+    raise StandardError unless compatible || (asset_group.assets.count == 0)
   end
 
   # Identifies which asset acting as subject is compatible with which rule.

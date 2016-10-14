@@ -75,7 +75,7 @@ asset_group = AssetGroup.create!
 
 100.times do |pos|
   asset = Asset.create!
-  asset.generate_barcode
+  asset.generate_barcode(pos)
   asset.facts << Fact.create({ :predicate => 'a', :object => 'SampleTube'})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
   asset.facts << Fact.create({ :predicate => 'aliquotType', :object => 'DNA'})
