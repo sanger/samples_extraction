@@ -61,7 +61,11 @@ class StepType < ActiveRecord::Base
     end
     agroups = actions.reduce(cgroups) do |memo, action|
       name = action.subject_condition_group.name || "a#{action.subject_condition_group.id}"
-      memo[name]={:facts => []} unless memo[name]
+      memo[name]={
+        :facts => [],
+        :cardinality => action.subject_condition_group.cardinality,
+        :keepSelected => action.subject_condition_group.keep_selected
+      } unless memo[name]
       memo[name][:facts].push({
           :cssClasses => fact_css_classes[action.action_type],
           :name => name,
