@@ -10,15 +10,22 @@ class Condition < ActiveRecord::Base
     # values and check compatibility with other definitions of the same
     # wildcard.
     facts = asset.facts.with_predicate(predicate)
-    return false if facts.count == 0
+    return false if facts.count==0
+
     actual_values = facts.map(&:object_value)
-    if wildcard_values[cg.id].nil?
-      wildcard_values[cg.id] = actual_values
+
+    store_wildcard_values(wildcard_values, cg, asset, actual_values)
+
+    return !wildcard_values[cg.id][asset.id].empty?
+  end
+
+  def store_wildcard_values(wildcard_values, cg, asset, actual_values)
+    wildcard_values[cg.id] = {} unless wildcard_values[cg.id]
+    if wildcard_values[cg.id][asset.id]
+      wildcard_values[cg.id][asset.id] &= actual_values
     else
-      wildcard_values[cg.id] &= actual_values
-      return false if wildcard_values[cg.id].empty?
+      wildcard_values[cg.id][asset.id] = actual_values
     end
-    return true
   end
 
   def check_related_condition_group(cg, fact, related_assets = [], checked_condition_groups=[], wildcard_values={})

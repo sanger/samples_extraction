@@ -96,7 +96,7 @@ class StepType < ActiveRecord::Base
 
   def condition_group_classification_for(assets, checked_condition_groups=[], wildcard_values={})
     related_assets = []
-    h = Hash[assets.map{|asset| [asset, condition_groups_for(asset, related_assets, checked_condition_groups, wildcard_values)]}]
+    h = Hash[assets.map{|asset| [asset, condition_groups_for(asset, related_assets, [], wildcard_values)]}]
     related_assets.each do |a|
       h[a]= condition_groups_for(a, [], checked_condition_groups, wildcard_values)
     end
@@ -145,7 +145,7 @@ class StepType < ActiveRecord::Base
 
   def condition_groups_for(asset, related_assets = [], checked_condition_groups=[], wildcard_values={})
     condition_groups.select do |condition_group|
-      condition_group.compatible_with?(asset, related_assets, checked_condition_groups, wildcard_values)
+      condition_group.compatible_with?([asset].flatten, related_assets, checked_condition_groups, wildcard_values)
       #condition_group.conditions_compatible_with?(asset, related_assets)
     end
   end
