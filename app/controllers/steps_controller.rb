@@ -55,39 +55,44 @@ class StepsController < ApplicationController
 
   # POST /activity/:activity_id/step_type/:step_type_id/create
   def create
-    valid_step_types = @activity.step_types_for(@assets)
-    step_type_to_do = @activity.step_types.find_by_id!(@step_type.id)
-    if valid_step_types.include?(step_type_to_do)
-      store_uploads
-      begin
-        @step = @activity.step(step_type_to_do, @current_user, create_step_params)
-        session[:data_params] = {}
-      rescue Lab::Actions::InvalidDataParams => e
-        flash[:danger] = e.message
-        session[:data_params] = JSON.parse(create_step_params[:data_params]).merge({
-          :error_params => e.error_params
-          }).to_json
-        #session[:error_params] = e.error_params
-        redirect_to :back
-        return
-      end
+    begin
 
-      if @step.created_asset_group
-        @step.created_asset_group.print(printer_config)
+      valid_step_types = @activity.step_types_for(@assets)
+      step_type_to_do = @activity.step_types.find_by_id!(@step_type.id)
+      if valid_step_types.include?(step_type_to_do)
+        store_uploads
+          @step = @activity.step(step_type_to_do, @current_user, create_step_params)
+          session[:data_params] = {}
+
+        if @step.created_asset_group
+          @step.created_asset_group.print(printer_config)
+        end
+        @activity.reasoning!
       end
-      @activity.reasoning!
+    rescue Lab::Actions::InvalidDataParams => e
+      flash[:danger] = e.message
+      session[:data_params] = JSON.parse(create_step_params[:data_params]).merge({
+        :error_params => e.error_params
+        }).to_json
+      error_params = e.error_params
     end
 
     respond_to do |format|
-      if @step.save
+      if @step && @step.save
         #format.html { render @activity}
         format.html { redirect_to @activity, notice: 'Step was successfully created.' }
         #format.html { respond_with @activity }
         format.json { render :show, status: :created, location: @step }
         #return
       else
+        if @step.nil?
+          @step = Step.new
+          errors = error_params
+        else
+          errors = @step.errors
+        end
         format.html { render :new }
-        format.json { render json: @step.errors, status: :unprocessable_entity }
+        format.json { render json: errors, status: :unprocessable_entity }
       end
     end
   end

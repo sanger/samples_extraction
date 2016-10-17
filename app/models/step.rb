@@ -43,7 +43,7 @@ class Step < ActiveRecord::Base
       if r.subject_condition_group.nil?
         raise RelationSubject, 'A subject condition group needs to be specified to apply the rule'
       end
-      if (r.object_condition_group)
+      if (r.object_condition_group) && (!r.object_condition_group.is_wildcard?)
         unless [r.subject_condition_group, r.object_condition_group].any?{|c| c.cardinality == 1}
           # Because a condition group can refer to an unknown number of assets,
           # when a rule relates 2 condition groups (?p :transfers ?q) we cannot

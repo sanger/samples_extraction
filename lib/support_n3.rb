@@ -122,6 +122,10 @@ module SupportN3
       end
     end
 
+    def is_wildcard?(v)
+      (v.to_s.include?('_'))
+    end
+
     def build_condition_groups
       # Left side of the rule
       conditions.each do |k,p,v,g|
@@ -132,6 +136,12 @@ module SupportN3
       end
       cgr = []
       conditions.each do |k,p,v,g|
+        if is_wildcard?(v)
+          vcgroup = find_or_create_condition_group_for(v,
+          {:step_type => @step_type,
+          :keep_selected => check_keep_selected_asset(v)})
+          cgr.push(condition_group_for(v))
+        end
         # After reading all condition groups we will be able to recognize
         # the condition groups of the objects in the triple
         update_condition_group(condition_group_for(k), p, v)

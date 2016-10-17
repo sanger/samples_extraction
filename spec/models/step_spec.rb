@@ -137,6 +137,44 @@ RSpec.describe Step, type: :model do
             expect(Operation.all.count).to eq(2*@racks.count)
           end
 
+          it 'moves the value of a wildcard using a relation between two cgroups' do
+            @cg1.conditions << FactoryGirl.create(:condition, {:predicate => 'location',
+            :object_condition_group => @wildcard})
+            @cg2.conditions << FactoryGirl.create(:condition, {:predicate => 'relates',
+            :object_condition_group => @cg1})
+            @action = FactoryGirl.create(:action, {:action_type => 'addFacts',
+              :predicate => 'location', :object_condition_group => @wildcard,
+              :subject_condition_group => @cg2
+            })
+
+            @step_type.actions << @action
+
+            @tubes.each_with_index do |tube, idx|
+              tube.facts << FactoryGirl.create(:fact, {
+                :predicate => 'location',
+                :object => idx.to_s
+              })
+            end
+
+            @racks.each_with_index do |rack, idx|
+              rack.facts << FactoryGirl.create(:fact, {
+                :predicate => 'relates',
+                :object_asset => @tubes[idx]
+              })
+            end
+            @step = create_step
+
+            @racks.each(&:reload)
+            @tubes.each(&:reload)
+
+            @racks.each do |rack|
+              assert_equal rack.facts.with_predicate('location').count, 1
+              assert_equal rack.facts.with_predicate('location').first.object,
+                rack.facts.with_predicate('relates').first.object_asset.facts.with_predicate('location').first.object
+
+            end
+          end
+
           it 'uses the value of the condition group to relate different groups' do
             # ?x :t ?pos . ?y :v ?pos . => ?x :relates ?y .
             previous_num = @asset_group.assets.count

@@ -64,7 +64,8 @@ class StepsControllerTest < ActionController::TestCase
         SupportN3.parse_string(rule, {}, @step_type)
         assets = []
         assets.push(FactoryGirl.create :asset, {:facts =>[
-          FactoryGirl.create(:fact, :predicate => 'is', :object => 'A')
+          FactoryGirl.create(:fact, :predicate => 'is', :object => 'A'),
+          FactoryGirl.create(:fact, :predicate => 'position', :object => '7')
         ]})
         assets.push(FactoryGirl.create :asset, {:facts =>[
           FactoryGirl.create(:fact, :predicate => 'is', :object => 'B')
@@ -94,22 +95,24 @@ class StepsControllerTest < ActionController::TestCase
           (asset.facts.with_fact('is', 'processed').count == 1)
         end
 
-
-	asset_a = assets.select{|a| a.has_literal?('is','A')}.first
-        relation = asset_a.facts.with_predicate('transitiveRelation').first
-	candidate_asset_d = relation.object_asset
-	assert_equal true, candidate_asset_d.has_literal?('is','D')
+        assets.each(&:reload)
+        relation = assets[0].facts.with_predicate('transitiveRelation').first
+	      candidate_asset_d = relation.object_asset
+	      assert_equal true, candidate_asset_d.has_literal?('is','D')
       end
 
       should "create a new step with status 'in progress' when pairing parameters are provided" do
+        skip 'not supported'
         rule = "{?p :is :Tube . ?q :is :Tube2.} => { :step :addFacts { ?p :transfer ?q.}.}."
         SupportN3.parse_string(rule, {}, @step_type)
         assets = []
         10.times.each do |i|
           asset = FactoryGirl.create :asset, {:facts =>[
             FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube')]}
+          asset.generate_barcode(i)
           asset2 = FactoryGirl.create :asset, {:facts =>[
             FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube2')]}
+          asset2.generate_barcode(10+i)
           assets << asset
           assets << asset2
         end

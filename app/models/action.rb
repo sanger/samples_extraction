@@ -10,7 +10,7 @@ class Action < ActiveRecord::Base
 
   def wildcard_facts(asset, step)
     if object_condition_group.is_wildcard?
-      values = step.wildcard_values[object_condition_group.id][asset.id]
+      values = step.wildcard_values[object_condition_group.id][asset.id] || []
       values.map do |value|
           {
               :predicate => predicate,
@@ -39,8 +39,9 @@ class Action < ActiveRecord::Base
             # compatible and if they share a common range of values of
             # values for any of the wildcard values defined
             object_condition_group.compatible_with?(related_asset) &&
-            step.wildcard_values.all? do |cg_id, data|
-              (!(data[asset.id] & data[related_asset.id]).empty?)
+            step.wildcard_values && step.wildcard_values.all? do |cg_id, data|
+              (data[asset.id] && data[related_asset.id]) &&
+                (!(data[asset.id] & data[related_asset.id]).empty?)
             end
           end.map do |related_asset|
             {

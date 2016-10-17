@@ -271,13 +271,15 @@ RSpec.describe SupportN3 do
   describe 'while using wildcards instead of condition groups' do
     it 'identifies correctly the wildcard' do
       validate_all_rules('
-	{ ?a :location ?l . ?b :location ?l . } 
-	=> 
-	{:step :addFacts { ?a :repeatedLocation ?l .}}.',{
-      ConditionGroup =>[{:name => 'a'}, {:name => 'b'}, {:name => 'l'}],
+	{ ?a :location ?_l . ?b :location ?_l . }
+	=>
+	{:step :addFacts { ?a :repeatedLocation ?_l .}}.',{
+      ConditionGroup =>[{:name => 'a'}, {:name => 'b'}, {:name => '_l'}],
       Condition => [{:predicate => 'location'}, {:predicate => 'location'}],
       Action => [{:action_type => 'addFacts', :predicate => 'repeatedLocation'}]	})
-      l = ConditionGroup.find_by_name('l')
+      l = ConditionGroup.find_by_name('_l')
+      a = ConditionGroup.find_by_name('a')
+      expect(a.conditions.first.object_condition_group).to eq(l)
       expect(Action.first.object_condition_group).to eq(l)
       expect(l.conditions.count).to eq(0)
     end

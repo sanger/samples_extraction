@@ -17,7 +17,7 @@ class StepTypesControllerTest < ActionDispatch::IntegrationTest
 
   test "should create step_type" do
     assert_difference('StepType.count') do
-      post step_types_url,  { step_type: {  } }
+      post step_types_path,  { step_type: {:name => 'Test'} }
     end
 
     assert_redirected_to step_type_url(StepType.last)

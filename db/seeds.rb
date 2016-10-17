@@ -141,3 +141,11 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 9999})
   asset.update_compatible_activity_type
 end
 
+100.times do |pos|
+  asset = Asset.create!(:barcode => 1000 + pos)
+  asset.facts << Fact.create()
+  96.times do |pos2|
+    asset.facts << Fact.create({ :predicate => 'b'+pos2.to_s, :object => pos2.to_s})
+  end
+  asset.update_compatible_activity_type
+end

@@ -71,7 +71,7 @@ class StepTypesController < ApplicationController
   # PATCH/PUT /step_types/1.json
   def update
     respond_to do |format|
-      if @step_type.update(step_type_params_for_update)
+      if @step_type.update(step_type_params)
         format.html { redirect_to @step_type, notice: 'Step type was successfully updated.' }
         format.json { render :show, status: :ok, location: @step_type }
       else
@@ -103,10 +103,6 @@ class StepTypesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def step_type_params
-      params.require(:step_type).permit(:activity_id, :id, :name, :n3_definition, :step_template)
-    end
-
-    def step_type_params_for_update
       params.require(:step_type).permit(:n3_definition,:name, :step_template)
     end
 
