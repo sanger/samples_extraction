@@ -64,8 +64,8 @@ class Pairing
 
   def each_pair_assets
     @group.each do |list|
-      asset_to_do = list.map{|n| n[:asset]}
-      yield asset_to_do
+      asset_to_do = list.map{|n| n[:asset]}.compact
+      yield asset_to_do if asset_to_do
     end
   end
 
