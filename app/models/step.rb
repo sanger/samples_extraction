@@ -6,6 +6,8 @@ class Step < ActiveRecord::Base
   has_many :uploads
   has_many :operations
 
+  belongs_to :created_asset_group, :class_name => 'AssetGroup', :foreign_key => 'created_asset_group_id'
+
   scope :in_progress, ->() { where(:in_progress? => true)}
 
   after_create :execute_actions, :unless => :in_progress?
@@ -21,14 +23,17 @@ class Step < ActiveRecord::Base
   class UnknownConditionGroup < StandardError
   end
 
-  scope :for_assets, ->(assets) { joins(:asset_group => :assets).where(:asset_group => {
-    :asset_groups_assets=> {:asset_id => assets }
-    }) }
+  scope :for_assets, ->(assets) { joins(:asset_group => :assets).where(:asset_groups_assets =>  {:asset_id => assets })}
+
 
   scope :for_step_type, ->(step_type) { where(:step_type => step_type)}
 
+  attr_accessor :wildcard_values
+
   def assets_compatible_with_step_type
-    throw :abort unless step_type.compatible_with?(asset_group.assets) || (asset_group.assets.count == 0)
+    checked_condition_groups=[], @wildcard_values = {}
+    compatible = step_type.compatible_with?(asset_group.assets, nil, checked_condition_groups, wildcard_values)
+    raise StandardError unless compatible || (asset_group.assets.count == 0)
   end
 
   # Identifies which asset acting as subject is compatible with which rule.
@@ -38,7 +43,7 @@ class Step < ActiveRecord::Base
       if r.subject_condition_group.nil?
         raise RelationSubject, 'A subject condition group needs to be specified to apply the rule'
       end
-      if (r.object_condition_group)
+      if (r.object_condition_group) && (!r.object_condition_group.is_wildcard?)
         unless [r.subject_condition_group, r.object_condition_group].any?{|c| c.cardinality == 1}
           # Because a condition group can refer to an unknown number of assets,
           # when a rule relates 2 condition groups (?p :transfers ?q) we cannot
@@ -88,26 +93,43 @@ class Step < ActiveRecord::Base
     end
   end
 
+  def save_created_assets(created_assets)
+    list_of_assets = created_assets.values.uniq
+    if list_of_assets.length > 0
+      created_asset_group = AssetGroup.create
+      created_asset_group.add_assets(list_of_assets)
+      activity.asset_group.add_assets(list_of_assets) if activity
+      update_attributes(:created_asset_group => created_asset_group)
+    end
+  end
+
   def execute_actions
     return progress_with(asset_group.assets) if in_progress?
+
     original_assets = AssetGroup.create!
-    original_assets.assets << activity.asset_group.assets if activity
+    if ((activity) && (activity.asset_group.assets.count >= 0))
+      original_assets.add_assets(activity.asset_group.assets)
+    else
+      original_assets.add_assets(asset_group.assets)
+    end
 
     ActiveRecord::Base.transaction do |t|
       created_assets = {}
       list_to_destroy = []
+
       classify_assets.each do |asset, r|
-        r.execute(self, asset_group, asset, created_assets, list_to_destroy)
+        r.execute(self, asset_group, original_assets.assets, asset, created_assets, list_to_destroy)
       end
+
+      save_created_assets(created_assets)
 
       unselect_assets_from_antecedents
 
-      Fact.where(:id => list_to_destroy.flatten.compact.pluck(:id)).delete_all
+      Fact.where(:id => list_to_destroy.flatten.compact.map(&:id)).delete_all
 
-      update_assets_started if activity
+      #update_assets_started if activity
 
       unselect_assets_from_consequents
-
       update_service
     end
     update_attributes(:asset_group => original_assets) if activity
@@ -115,22 +137,25 @@ class Step < ActiveRecord::Base
 
   def update_assets_started
     activity.asset_group.assets.not_started.each do |asset|
-      asset.facts << Fact.create(:predicate => 'is', :object => 'Started')
-      asset.facts.where(:predicate => 'is', :object => 'NotStarted').destroy
+      asset.add_facts(Fact.create(:predicate => 'is', :object => 'Started'))
+      asset.facts.where(:predicate => 'is', :object => 'NotStarted').each(&:destroy)
     end
   end
 
   def progress_with(step_params)
+    original_assets = activity.asset_group.assets
     ActiveRecord::Base.transaction do |t|
       assets = step_params[:assets]
       update_attributes(:in_progress? => true)
 
-      asset_group.assets << assets
+      asset_group.add_assets(assets)
 
       created_assets = {}
       classify_assets.each do |asset, r|
-        r.execute(self, asset_group, asset, created_assets, nil)
+        r.execute(self, asset_group, original_assets, asset, created_assets, nil)
       end
+      save_created_assets(created_assets)
+
       asset_group.update_attributes(:assets => [])
       finish if step_params[:state]=='done'
     end
@@ -148,6 +173,8 @@ class Step < ActiveRecord::Base
       update_attributes(:in_progress? => false)
     end
   end
+
+  include Lab::Actions
 
   def service_update_hash(asset, depth=0)
     raise 'Too many recursion levels' if (depth > 5)

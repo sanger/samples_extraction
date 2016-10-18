@@ -8,7 +8,7 @@
     this.names = params.names;
     this.identifiers = params.identifiers;
     this.pairings = [];
-    this.pairingName = params.pairingName || 'transfer';
+    this.dataParamsNode = $(params.paramsNodeQuery) || '#data_params';
 
     this.firstRender();
 
@@ -75,15 +75,10 @@
     var containerTable = this.table.parent();
     containerTable.html($('table', allRender));
     this.table = $('table', containerTable);
-    //this.node.html(this.template({pairings: this.pairings }));
   };
 
   proto.send = function() {
-    $(this.pairings).each($.proxy(function(pos, pairing) {
-      for (var key in pairing) {
-        this.buildHidden(this.pairingName, pos, key, pairing[key]);
-      }
-    }, this));
+    this.dataParamsNode.val(JSON.stringify({pairings: this.pairings}));
     this.node.trigger('rails.submit');
   };
 
@@ -143,7 +138,7 @@
 
   };
 
-  $(document).on('ready', function() {
+  $(document).ready(function() {
     $(document).trigger('registerComponent.builder', {'SourceToDestination': SourceToDestination});
   });
 }());

@@ -1,17 +1,41 @@
 class AssetGroup < ActiveRecord::Base
-  has_and_belongs_to_many :assets
+  has_and_belongs_to_many :assets, ->() {uniq}
   has_many :steps
   has_one :activity
+
+  include Printables::Group
+
+  def add_assets(list)
+    list = [list].flatten
+    list.each do |asset|
+      assets << asset unless has_asset?(asset)
+    end
+  end
+
+  def has_asset?(asset)
+    assets.include?(asset)
+  end
 
   def select_barcodes(barcodes)
     barcodes.each do |barcode|
       if assets.select{|a| a.barcode == barcode}.empty?
-        asset = Asset.find_by_barcode(barcode)
+        asset = Asset.find_or_import_asset_with_barcode(barcode)
         return false if asset.nil?
-        assets << asset
+        add_assets(asset)
       end
     end
     return true
+  end
+
+  def add_facts(step, facts)
+    ActiveRecord::Base.transaction do |t|
+      assets.each do |asset|
+        facts.each do |fact|
+          operation = Operation.create!(:action => self, :step => step,
+            :asset=> asset, :predicate => fact.predicate, :object => fact.object)
+        end
+      end
+    end
   end
 
   def unselect_barcodes(barcodes)

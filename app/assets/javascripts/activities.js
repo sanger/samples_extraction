@@ -1,12 +1,14 @@
 (function($, undefined) {
 
   function AssetGroup(node) {
-    this.container = node.parent();
+    var node = $(node);
+    this.container = $('#asset-group-container');//node.parent();
     this.form = node;
-    this.identifier = $(node).attr("data-psd-asset-group-form");
+    //this.identifier = $(node).attr("data-psd-asset-group-form");
     this.content = $('[data-psd-asset-group-content]', node);
     //this.template = JST['templates/asset_group'];
     this.attachHandlers(node);
+    this.actualTimestamp = null;
   };
 
   var proto = AssetGroup.prototype;
@@ -36,10 +38,10 @@
 
   proto.attachDeleteButtons = function(node) {
     $('[data-psd-asset-group-delete-barcode]', node).on('click', $.proxy(function(e) {
-      if (!((e.screenX==0) && (e.screenY==0))) {
+      //if (!((e.screenX==0) && (e.screenY==0))) {
         // Yes, I know...
         $('input#asset_group_delete_barcode', this.form).val($(e.target).attr('data-psd-asset-group-delete-barcode'));
-      }
+      //}
     }, this));
   };
 
@@ -55,8 +57,8 @@
       node: node
     });*/
 
-    var url = $('#step_types_active').data('psd-step-types-update-url');
-    $('#step_types_active').load(url, $.proxy(function() {
+    var url = $('.step_types_active').data('psd-step-types-update-url');
+    $('.step_types_active').load(url, $.proxy(function() {
       $(this.form).trigger("execute.builder");
     }, this));
 
@@ -82,7 +84,7 @@
 
     $(this.form).on('submit.rails', function() {
       var node;
-      node = $("#step_types_active .panel-body .content_step_types");
+      node = $(".step_types_active .panel-body .content_step_types");
       node.trigger("load_start.loading_spinner", {
         node: node
       });
@@ -101,10 +103,9 @@
       }
     }, this));
 
-    $(node).on('ajax:success', $.proxy(function(e, json) {
+    $(node).on('ajax:success', $.proxy(function(e, json, r) {
       this.render(json);
-      this.cleanInput();
-    }, this)).on('ajax:error', $.proxy(function(msg) {
+    }, this)).on('ajax:send', $.proxy(function(r) {
       this.cleanInput();
     }, this)).on('ajax:complete', $.proxy(function() {
       if (!this.loadInProgress) {
@@ -118,6 +119,7 @@
   };
 
   $(document).ready(function() {
-    new AssetGroup($('[data-psd-asset-group-form]'));
+    //new AssetGroup($('[data-psd-asset-group-form]'));
+    $(document).trigger('registerComponent.builder', {'AssetGroup': AssetGroup});
   });
 }(jQuery));

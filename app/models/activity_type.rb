@@ -8,6 +8,9 @@ class ActivityType < ActiveRecord::Base
 
   has_many :conditions, :through => :condition_groups
 
+  has_many :activity_type_compatibilities
+  has_many :assets, :through => :activity_type_compatibilities
+
   include Deprecatable
 
 

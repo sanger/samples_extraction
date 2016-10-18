@@ -46,7 +46,7 @@
     var builderProcess = $.proxy(componentBuilder.builderProcess, componentBuilder);
 
     // This should be enough but...
-    $(document).on('ready', function() {
+    $(document).ready(function() {
       $(window).load(function() {
         builderProcess();
       });
@@ -61,6 +61,8 @@
     // ... and just in case
     $(document).on('execute.builder', builderProcess);
     //$(document).on('ajax:complete', builderProcess);
+
+    window.onunload = function(){};
 
   };
 

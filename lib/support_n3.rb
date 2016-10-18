@@ -117,13 +117,13 @@ module SupportN3
         condition_group.update_attributes(:cardinality => fragment(v))
       else
         # or we add the new condition
-        object_condition_group_id = nil
-        if condition_group_for(v)
-          object_condition_group_id = condition_group_for(v).id
-        end
         Condition.create({ :predicate => fragment(p), :object => fragment(v),
-        :condition_group_id => condition_group.id, :object_condition_group_id => object_condition_group_id})
+        :condition_group_id => condition_group.id, :object_condition_group => condition_group_for(v)})
       end
+    end
+
+    def is_wildcard?(v)
+      (v.to_s.include?('_'))
     end
 
     def build_condition_groups
@@ -133,7 +133,26 @@ module SupportN3
         condition_group = find_or_create_condition_group_for(k,
           {:step_type => @step_type,
           :keep_selected => check_keep_selected_asset(k)})
-        update_condition_group(condition_group, p, v)
+      end
+      cgr = []
+      conditions.each do |k,p,v,g|
+        if is_wildcard?(v)
+          vcgroup = find_or_create_condition_group_for(v,
+          {:step_type => @step_type,
+          :keep_selected => check_keep_selected_asset(v)})
+          cgr.push(condition_group_for(v))
+        end
+        # After reading all condition groups we will be able to recognize
+        # the condition groups of the objects in the triple
+        update_condition_group(condition_group_for(k), p, v)
+        cgr.push(condition_group_for(k))
+      end
+
+      # Remove reference to step type for condition groups without conditions
+      cgr.each do |cg|
+        if cg.conditions.count == 0
+          cg.update_attributes(:step_type => nil)
+        end
       end
     end
 

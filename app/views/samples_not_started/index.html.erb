@@ -48,3 +48,16 @@
 </div>
 
 
+<script type='text/javascript'>
+(function() {
+  $('#samples_not_started .nav li a').each(function(pos, node) {
+    var value = false;
+    <% if defined?(@activity_type_selected) %>
+      value =<%= (@activity_type_selected && @activity_type_selected.id).to_json %>;
+    <% end %>
+    if ($(node).data('activity-type-id')===value) {
+      $(node).tab('show');
+    }
+  });
+}());
+</script>

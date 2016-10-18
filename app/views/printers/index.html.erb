@@ -1,0 +1,36 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Printers <small>Index</small></h1>
+
+<%= bootstrap_link_to 'New Printer', new_printer_path %>
+
+<br /><br />
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+      <th>Printer Type</th>
+      <th>Default Printer</ht>
+      <th colspan="2"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @printers.each do |printer| %>
+      <tr>
+        <td><%= printer.id %></td>
+        <td><%= printer.name %></td>
+        <td><%= printer.printer_type %></td>
+        <td><%= printer.default_printer %></td>
+
+        <td><%= bootstrap_link_to 'Show', printer %></td>
+        <td><%= bootstrap_link_to 'Edit', edit_printer_path(printer) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+

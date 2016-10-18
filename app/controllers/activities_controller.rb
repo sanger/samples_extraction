@@ -20,7 +20,6 @@ class ActivitiesController < ApplicationController
   end
 
   def update
-    perform_previous_step_type
     select_assets
     select_assets_grouped
 
@@ -144,9 +143,13 @@ class ActivitiesController < ApplicationController
 
     def set_instrument
       @instrument = Instrument.find_by_barcode!(params[:instrument_barcode])
+      unless @instrument.compatible_with_kit?(@kit)
+        flash[:danger] = "Instrument not compatible with kit type '#{@kit.kit_type.name}'"
+        redirect_to :back
+      end
     rescue RecordNotFound => e
       flash[:danger] = 'Instrument not found'
-      redirect_to :back
+      redirect_back
     end
 
     # Use callbacks to share common setup or constraints between actions.
@@ -177,10 +180,18 @@ class ActivitiesController < ApplicationController
     end
   end
 
+  def clean_fact_group(groups)
+    h = {}
+    groups.each do |group, assets|
+      h[group] = assets.uniq
+    end
+    h
+  end
+
   def assets_by_fact_group
     return [] unless @assets
-    obj_type = Struct.new(:predicate,:object, :to_add_by, :to_remove_by)
-    @assets.group_by do |a|
+    obj_type = Struct.new(:predicate,:object, :to_add_by, :to_remove_by, :object_asset_id)
+    groups = @assets.group_by do |a|
       a.facts.sort do |f1,f2|
         # Canonical sort of facts
         if f1.predicate == f2.predicate
@@ -197,9 +208,10 @@ class ActivitiesController < ApplicationController
         if f["object_asset_id"]
           obj="?"
         end
-        obj_type.new(f["predicate"], obj, f["to_add_by"], f["to_remove_by"])
+        obj_type.new(f["predicate"], obj, f["to_add_by"], f["to_remove_by"], nil)
       end.uniq
     end
+    clean_fact_group(groups)
   end
 
 

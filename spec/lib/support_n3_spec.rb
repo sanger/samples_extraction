@@ -125,6 +125,23 @@ RSpec.describe SupportN3 do
 
     describe "with rules that create a relation between two matches" do
 
+      it '{?p :is :Tube . ?q :maxCardinality """1""".} => {:step :createAsset {?q :a :Plate.}.}.' do
+        validates_rule_with({
+          ConditionGroup => [{:name => 'p',:step_type => @step_type,
+            :cardinality => nil, :keep_selected => true},
+            {:name => 'q', :step_type => nil,
+              :cardinality => 1, :keep_selected => true}],
+          Condition => [{:predicate => 'is', :object=> 'Tube'}],
+          Action => [{:action_type => 'createAsset',
+                      :predicate => 'a',
+                      :step_type_id => @step_type.id,
+                      :object => 'Plate'}]
+          })
+        p= ConditionGroup.find_by_name('p')
+        q= ConditionGroup.find_by_name('q')
+        assert_equal q, Action.first.subject_condition_group
+      end
+
       it '{?p :is :Tube . ?q :is :TubeRack.} => {:step :addFacts {?p :transferTo ?q.}.}.' do
         validates_rule_with({
           ConditionGroup => [{:name => 'p',:step_type => @step_type,
@@ -201,6 +218,70 @@ RSpec.describe SupportN3 do
           c.predicate == 'contains'
         end.first.object_condition_group_id).to eq(q.id)
       end
+
+      it '{ ' \
+            '?a :is :A . ' \
+            '?a :transfer ?b . ' \
+            '?b :is :B . ' \
+            '?b :transfer ?c . ' \
+            '?c :is :C . ' \
+            '?c :transfer ?d . ' \
+            '?d :is :D . ' \
+            '?d :transfer ?a . ' \
+          '} => {' \
+            ':step :addFacts { ?a :is :Processed .}. ' \
+            ':step :addFacts { ?b :is :Processed .}. ' \
+            ':step :addFacts { ?c :is :Processed .}. ' \
+            ':step :addFacts { ?d :is :Processed .}. ' \
+          '} .' do
+        validates_rule_with({
+          ConditionGroup => [
+            {:name => 'a', :step_type => @step_type, :cardinality => nil,
+              :keep_selected => true},
+            {:name => 'b', :step_type => @step_type, :cardinality => nil,
+              :keep_selected => true},
+            {:name => 'c', :step_type => @step_type, :cardinality => nil,
+              :keep_selected => true},
+            {:name => 'd', :step_type => @step_type, :cardinality => nil,
+              :keep_selected => true}
+          ],
+          Action => [
+            { :action_type => 'addFacts', :predicate => 'is', :object => 'Processed' },
+            { :action_type => 'addFacts', :predicate => 'is', :object => 'Processed' },
+            { :action_type => 'addFacts', :predicate => 'is', :object => 'Processed' },
+            { :action_type => 'addFacts', :predicate => 'is', :object => 'Processed' }
+          ]
+        })
+
+        a = ConditionGroup.find_by_name('a')
+        b = ConditionGroup.find_by_name('b')
+        c = ConditionGroup.find_by_name('c')
+        d = ConditionGroup.find_by_name('d')
+
+        [a,b,c,d].zip([b,c,d,a]).each do |p,q|
+          expect(p.conditions.select do |c|
+            c.predicate == 'transfer'
+          end.first.object_condition_group_id).to eq(q.id)
+        end
+      end
+
+    end
+  end
+
+  describe 'while using wildcards instead of condition groups' do
+    it 'identifies correctly the wildcard' do
+      validate_all_rules('
+	{ ?a :location ?_l . ?b :location ?_l . }
+	=>
+	{:step :addFacts { ?a :repeatedLocation ?_l .}}.',{
+      ConditionGroup =>[{:name => 'a'}, {:name => 'b'}, {:name => '_l'}],
+      Condition => [{:predicate => 'location'}, {:predicate => 'location'}],
+      Action => [{:action_type => 'addFacts', :predicate => 'repeatedLocation'}]	})
+      l = ConditionGroup.find_by_name('_l')
+      a = ConditionGroup.find_by_name('a')
+      expect(a.conditions.first.object_condition_group).to eq(l)
+      expect(Action.first.object_condition_group).to eq(l)
+      expect(l.conditions.count).to eq(0)
     end
   end
 

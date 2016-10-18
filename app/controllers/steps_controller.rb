@@ -1,8 +1,12 @@
+require 'pry'
+
 class StepsController < ApplicationController
   before_action :set_step, only: [:show, :edit, :update, :destroy]
   before_action :set_activity, only: [:create]
 
-  before_filter :nested_steps, only: [:index]
+  before_action :nested_steps, only: [:index]
+
+
 
   def nested_steps
     if step_params[:activity_id]
@@ -17,6 +21,8 @@ class StepsController < ApplicationController
   # GET /steps
   # GET /steps.json
   def index
+    redirect_to activities_path
+    return
     #@steps = Step.all
     respond_to do |format|
       format.html { render 'finished', :layout => false } if @activity
@@ -37,64 +43,63 @@ class StepsController < ApplicationController
   def edit
   end
 
-
-
-  def params_for_step_in_progress
-    return nil if !params[:step]
-    return [{:state => 'done', :assets => [@asset_group.assets] }] unless params[:step][:pairings]
-    @pairings = create_step_params[:pairings].values.map do |obj|
-      Pairing.new(obj, @step_type)
-    end
-
-    unless @pairings.all?(&:valid?)
-      flash[:danger] = @pairings.map(&:error_messages).join('\n')
-      redirect_to :back
-    end
-
-    @pairings.map do |pairing|
-      {
-      :assets => pairing.assets,
-      :state => create_step_params[:state]
-      }
-    end
+  def params_for_printing
+    params.require(:step).permit(:tube_printer_id, :plate_printer_id)
   end
 
-  def perform_step
-    if params[:step_type]
-      valid_step_types = @activity.step_types_for(@assets)
-      step_type_to_do = @activity.step_types.find_by_id!(params[:step_type])
-      if valid_step_types.include?(step_type_to_do)
-        apply_parsers(@asset_group.assets)
-        @step_performed = @activity.step(step_type_to_do, @user, params_for_step_in_progress)
-        @assets.reload
-      end
-    end
-  rescue Activity::StepWithoutInputs
-    flash[:danger] = 'We could not create a new step because we do not have inputs for it'
+  def printer_config
+    {
+      'Tube' => Printer.find(params_for_printing[:tube_printer_id]).name,
+      'Plate' => Printer.find(params_for_printing[:plate_printer_id]).name,
+      'TubeRack' => Printer.find(params_for_printing[:plate_printer_id]).name,
+    }
   end
-
 
   # POST /activity/:activity_id/step_type/:step_type_id/create
   def create
-    valid_step_types = @activity.step_types_for(@assets)
-    step_type_to_do = @activity.step_types.find_by_id!(@step_type.id)
-    if valid_step_types.include?(step_type_to_do)
-      store_uploads
-      @step = @activity.step(step_type_to_do, @current_user, params_for_step_in_progress)
-      @activity.reasoning!
+    begin
+
+      valid_step_types = @activity.step_types_for(@assets)
+      step_type_to_do = @activity.step_types.find_by_id!(@step_type.id)
+      if valid_step_types.include?(step_type_to_do)
+        store_uploads
+          @step = @activity.step(step_type_to_do, @current_user, create_step_params)
+          session[:data_params] = {}
+
+        if @step.created_asset_group
+          @step.created_asset_group.print(printer_config)
+        end
+        @activity.reasoning!
+      end
+    rescue Lab::Actions::InvalidDataParams => e
+      flash[:danger] = e.message
+      session[:data_params] = JSON.parse(create_step_params[:data_params]).merge({
+        :error_params => e.error_params
+        }).to_json
+      error_params = e.error_params
     end
 
     respond_to do |format|
-      if @step.save
+      if @step && @step.save
         #format.html { render @activity}
         format.html { redirect_to @activity, notice: 'Step was successfully created.' }
+        #format.html { respond_with @activity }
         format.json { render :show, status: :created, location: @step }
+        #return
       else
+        if @step.nil?
+          @step = Step.new
+          errors = error_params
+        else
+          errors = @step.errors
+        end
         format.html { render :new }
-        format.json { render json: @step.errors, status: :unprocessable_entity }
+        format.json { render json: errors, status: :unprocessable_entity }
       end
     end
   end
+
+
 
   # PATCH/PUT /steps/1
   # PATCH/PUT /steps/1.json
@@ -134,7 +139,7 @@ class StepsController < ApplicationController
     end
 
     def create_step_params
-      params.require(:step).permit!
+       params.require(:step).permit(:state, :data_params, :data_action, :data_action_type)
     end
 
     # Use callbacks to share common setup or constraints between actions.
@@ -154,6 +159,12 @@ class StepsController < ApplicationController
           :step => @step,
           :content_type => params[:content_type])
       end
+    end
+
+
+    def show_alert(data)
+      @alerts = [] unless @alerts
+      @alerts.push(data)
     end
 
 end

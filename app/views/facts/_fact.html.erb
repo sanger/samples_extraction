@@ -11,7 +11,9 @@
 
   <span class="predicate"><%= fact.predicate %></span>:<span class="object">
   <% if fact.respond_to?(:object_asset_id) && fact.object_asset_id %>
-    <a class="object-reference" href='<%= asset_path(fact.object_asset_id) %>'><%= Asset.find(fact.object_asset_id).barcode %></a>
+    <a class="object-reference" href='<%= asset_path(fact.object_asset_id) %>'>
+       <%= fact.object_asset.class_type %> <%= fact.object_asset.barcode.blank? ? '#' : Asset.find(fact.object_asset_id).barcode %>
+    </a>
   <% else %>
     <%= fact.object %>
   <% end %>

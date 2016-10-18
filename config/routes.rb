@@ -3,11 +3,19 @@ require 'sass'
 require 'bootstrap-sass'
 
 Rails.application.routes.draw do
+  resources :printers
   resources :user_sessions
   resources :users
 
   resources :step_types
   resources :steps
+  resources :asset_groups do
+    member do
+      get 'print'
+    end
+
+  end
+
   resources :activities do
     resources :asset_groups
     resources :step_types do
@@ -38,6 +46,10 @@ Rails.application.routes.draw do
   resources :samples_not_started
   resources :history
   resources :reracking
+
+
+  #get '/labware/:uuid', to: 'labware#show', constraints: {:uuid => /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/}
+  #get '/labware/:id', to: 'labware#show_by_internal_id', constraints: {:id => /\d*/}
 
   # Trying to make fonts work out in poltergeist
   get '/fonts/bootstrap/:name', to: redirect('/assets/bootstrap/%{name}')

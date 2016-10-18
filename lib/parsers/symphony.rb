@@ -1,3 +1,4 @@
+require 'pry'
 module Parsers
   class Symphony
     attr_reader :doc
@@ -20,8 +21,8 @@ module Parsers
             :object => value
             )
         end
-        asset = Asset.create!
-        asset.facts << facts
+        asset = Asset.new
+        asset.add_facts(facts)
         asset
       end
     end
@@ -39,25 +40,28 @@ module Parsers
       (('A'..'F').find_index(location[0]) * 12) + (location[1].to_i - 1)
     end
 
+    def predicated_with(facts, predicate)
+      facts.select{|f| f.predicate == predicate}
+    end
+
     def connect_tubes!(rack)
+      tubes = predicated_with(rack.facts,'contains').map{|f| f.object_asset}
       to_assets.each do |position_asset|
         rack_position_facts = position_asset.facts
-        posName = rack_position_facts.select{|f| f.predicate == 'Symphony:PositionName'}
-        unless posName.empty? || posName.empty?
-          tubes = rack.facts.select{|f| f.predicate == 'contains'}.map{|f| Asset.find(f.object_asset_id)}
-          pos = posName.first.object
-          well = tubes[location_to_index(pos)]
-          well.facts << rack_position_facts if well
+        posName = predicated_with(rack_position_facts, 'Symphony:PositionName').first.object
+        if posName
+          tube = tubes.select{|tube| tube.facts.with_fact('location', posName).count!=0}.first
+          if tube
+            tube.add_facts(rack_position_facts)
+            tube.add_facts(predicated_with(rack_position_facts, 'Symphony:TotalVolumeInUl').map do |f|
+              f2 = f.dup
+              f2.predicate = 'measured_volume'
+              f2
+            end)
+          end
         end
       end
     end
 
   end
 end
-
-
-#a=Asset.first
-#a.facts << Fact.create(:predicate => "")
-#a=Asset.first
-#parser = Parsers::Symphony.new("/Users/emr/RackFile_dna29mar2016b.xml")
-#a.facts << parser.to_facts

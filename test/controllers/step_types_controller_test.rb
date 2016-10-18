@@ -2,7 +2,7 @@ require 'test_helper'
 
 class StepTypesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @step_type = step_types(:one)
+    @step_type = FactoryGirl.create :step_type
   end
 
   test "should get index" do
@@ -17,7 +17,7 @@ class StepTypesControllerTest < ActionDispatch::IntegrationTest
 
   test "should create step_type" do
     assert_difference('StepType.count') do
-      post step_types_url, params: { step_type: {  } }
+      post step_types_path,  { step_type: {:name => 'Test'} }
     end
 
     assert_redirected_to step_type_url(StepType.last)
@@ -34,7 +34,7 @@ class StepTypesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update step_type" do
-    patch step_type_url(@step_type), params: { step_type: {  } }
+    patch step_type_url(@step_type),  { step_type: @step_type.attributes }
     assert_redirected_to step_type_url(@step_type)
   end
 

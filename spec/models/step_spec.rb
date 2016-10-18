@@ -39,7 +39,7 @@ RSpec.describe Step, type: :model do
         @cg1.update_attributes(:cardinality => 1)
         expect{
           @step = create_step
-          }.to raise_error(ActiveRecord::RecordNotSaved)
+          }.to raise_error(StandardError)
       end
     end
 
@@ -69,6 +69,159 @@ RSpec.describe Step, type: :model do
         expect(Operation.all.count).to eq(@racks.count)
       end
 
+      describe 'with wildcards' do
+        setup do
+          @wildcard = FactoryGirl.create :condition_group
+          condition = FactoryGirl.create :condition, {:predicate => 'position',
+            :object_condition_group => @wildcard}
+          @cg2.conditions << condition
+        end
+
+        describe 'when the conditions is not met' do
+          it 'does not execute the rule when the wildcard condition is not met' do
+            previous_num = @asset_group.assets.count
+
+            expect{
+              @step = create_step
+            }.to raise_error(StandardError)
+
+            @racks.each(&:reload)
+
+            @racks.each do |rack|
+              assert_equal false, rack.has_fact?(@action)
+            end
+            expect(Operation.all.count).to eq(0)
+          end
+
+        end
+
+        describe 'when the wildcard conditions are met' do
+          setup do
+            @racks.each_with_index do |rack, idx|
+              rack.facts << FactoryGirl.create(:fact, {
+                :predicate => 'position',
+                :object => idx.to_s
+              })
+            end
+          end
+
+          it 'executes wildcard condition groups' do
+            previous_num = @asset_group.assets.count
+
+            @step = create_step
+
+            @racks.each(&:reload)
+
+            @racks.each do |rack|
+              assert_equal true, rack.has_fact?(@action)
+            end
+            expect(Operation.all.count).to eq(@racks.count)
+          end
+
+          it 'uses the value of the condition group evaluated for the same cg' do
+            previous_num = @asset_group.assets.count
+
+            @action = FactoryGirl.create(:action, {:action_type => 'addFacts',
+              :predicate => 'value', :object_condition_group => @wildcard,
+              :subject_condition_group => @cg2
+            })
+            @step_type.actions << @action
+
+            @step = create_step
+
+            @racks.each(&:reload)
+
+            @racks.each_with_index do |rack, pos|
+              assert_equal true, rack.has_literal?('value', pos.to_s)
+            end
+            expect(Operation.all.count).to eq(2*@racks.count)
+          end
+
+          it 'moves the value of a wildcard using a relation between two cgroups' do
+            @cg1.conditions << FactoryGirl.create(:condition, {:predicate => 'location',
+            :object_condition_group => @wildcard})
+            @cg2.conditions << FactoryGirl.create(:condition, {:predicate => 'relates',
+            :object_condition_group => @cg1})
+            @action = FactoryGirl.create(:action, {:action_type => 'addFacts',
+              :predicate => 'location', :object_condition_group => @wildcard,
+              :subject_condition_group => @cg2
+            })
+
+            @step_type.actions << @action
+
+            @tubes.each_with_index do |tube, idx|
+              tube.facts << FactoryGirl.create(:fact, {
+                :predicate => 'location',
+                :object => idx.to_s
+              })
+            end
+
+            @racks.each_with_index do |rack, idx|
+              rack.facts << FactoryGirl.create(:fact, {
+                :predicate => 'relates',
+                :object_asset => @tubes[idx]
+              })
+            end
+            @step = create_step
+
+            @racks.each(&:reload)
+            @tubes.each(&:reload)
+
+            @racks.each do |rack|
+              assert_equal rack.facts.with_predicate('location').count, 1
+              assert_equal rack.facts.with_predicate('location').first.object,
+                rack.facts.with_predicate('relates').first.object_asset.facts.with_predicate('location').first.object
+
+            end
+          end
+
+          it 'uses the value of the condition group to relate different groups' do
+            # ?x :t ?pos . ?y :v ?pos . => ?x :relates ?y .
+            previous_num = @asset_group.assets.count
+            @cg1.conditions << FactoryGirl.create(:condition, {:predicate => 'location',
+            :object_condition_group => @wildcard})
+            @cg2.conditions << FactoryGirl.create(:condition, {:predicate => 'location',
+            :object_condition_group => @wildcard})
+            @action = FactoryGirl.create(:action, {:action_type => 'addFacts',
+              :predicate => 'relates', :object_condition_group => @cg1,
+              :subject_condition_group => @cg2
+            })
+            @step_type.actions << @action
+
+            @tubes.each_with_index do |tube, idx|
+              tube.facts << FactoryGirl.create(:fact, {
+                :predicate => 'location',
+                :object => idx.to_s
+              })
+            end
+
+            @racks.each_with_index do |rack, idx|
+              rack.facts << FactoryGirl.create(:fact, {
+                :predicate => 'location',
+                :object => idx.to_s
+              })
+            end
+
+            @step = create_step
+
+            @racks.each(&:reload)
+            @tubes.each(&:reload)
+
+            @tubes.each_with_index do |tube, pos|
+              assert_equal true, tube.facts.with_predicate('relates').count==0
+            end
+            @racks.each_with_index do |rack, pos|
+              assert_equal true, rack.facts.with_predicate('relates').count!=0
+            end
+            @racks.zip(@tubes).each do |list|
+              rack,tube = list[0],list[1]
+              assert_equal tube, rack.facts.with_predicate('relates').first.object_asset
+            end
+
+          end
+
+        end
+      end
     end
 
     describe 'with createAsset action type' do

@@ -10,6 +10,8 @@
      this.controlLoggedIn = $(params.loginSelector, this.node);
 	   this.changeLoginNode = $(params.changeLoginSelector, this.node);
      this.roleNode = $(params.roleSelector, this.node);
+     this.tubePrinterNode = $(params.tubePrinterSelector, this.node);
+     this.platePrinterNode = $(params.platePrinterSelector, this.node);
 
 	   this.logoutButton = $('.logout', this.controlLoggedIn);
 
@@ -63,6 +65,23 @@
     $(document.body).addClass(this.role+'-role');
    }
 
+   proto.setTubePrinter = function(tubePrinter) {
+    var idx = $('#tube_printer_select option').filter(function () {
+      return $(this).html() == tubePrinter;
+    }).val();
+    $('#tube_printer_select').val(idx);
+    $(this.tubePrinterNode).html(tubePrinter);
+   };
+
+   proto.setPlatePrinter = function(platePrinter) {
+    var idx = $('#plate_printer_select option').filter(function () {
+      return $(this).html() == platePrinter;
+    }).val();
+    $('#plate_printer_select').val(idx);
+    $(this.platePrinterNode).html(platePrinter);
+   };
+
+
    proto.getBarcode = function() {
     return this.barcode;
    };
@@ -73,6 +92,8 @@
        this.setFullName(data.fullname);
        this.setBarcode(data.barcode);
        this.setRole(data.role);
+       this.setTubePrinter(data.tube_printer_name);
+       this.setPlatePrinter(data.plate_printer_name);
      }
 
      var showStatus = ((typeof data!=='undefined') && (typeof data.username !== 'undefined'));

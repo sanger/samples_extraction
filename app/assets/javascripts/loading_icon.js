@@ -30,7 +30,7 @@
     $(this.container).hide();
       $(this.icon).removeClass(this.loadingClass);
       if (data.node) {
-	  $(data.node).show();	  
+	  $(data.node).show();
       }
 	if (this.hideNode) {
 	    this.hideNode.show();
@@ -43,7 +43,7 @@
     $(this.node).on('load_stop.loading_spinner', $.proxy(this.onStopLoad, this));
   };
 
-  $(document).on('ready', function() {
+  $(document).ready(function() {
     $(document).trigger('registerComponent.builder', {'LoadingIcon': LoadingIcon});
   });
 

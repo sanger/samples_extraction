@@ -31,7 +31,14 @@ class StepType < ActiveRecord::Base
   end
 
   def all_step_templates
+    #Dir["app/views/step_types/step_templates/*"].concat([''])
     ['', 'transfer_tube_to_tube', 'upload_file_step']
+    Dir["app/views/step_types/step_templates/*"].map do |s|
+      name = File.basename(s)
+      name.gsub!(/^_/, '')
+      name.gsub!(/\.html\.erb$/, '')
+      name
+    end.concat([''])
   end
 
   def condition_groups_init
@@ -54,7 +61,11 @@ class StepType < ActiveRecord::Base
     end
     agroups = actions.reduce(cgroups) do |memo, action|
       name = action.subject_condition_group.name || "a#{action.subject_condition_group.id}"
-      memo[name]={:facts => []} unless memo[name]
+      memo[name]={
+        :facts => [],
+        :cardinality => action.subject_condition_group.cardinality,
+        :keepSelected => action.subject_condition_group.keep_selected
+      } unless memo[name]
       memo[name][:facts].push({
           :cssClasses => fact_css_classes[action.action_type],
           :name => name,
@@ -83,11 +94,11 @@ class StepType < ActiveRecord::Base
     end
   end
 
-  def condition_group_classification_for(assets)
+  def condition_group_classification_for(assets, checked_condition_groups=[], wildcard_values={})
     related_assets = []
-    h = Hash[assets.map{|asset| [asset, condition_groups_for(asset, related_assets)]}]
+    h = Hash[assets.map{|asset| [asset, condition_groups_for(asset, related_assets, [], wildcard_values)]}]
     related_assets.each do |a|
-      h[a]= condition_groups_for(a)
+      h[a]= condition_groups_for(a, [], checked_condition_groups, wildcard_values)
     end
     h
   end
@@ -120,10 +131,10 @@ class StepType < ActiveRecord::Base
     required_assets.all?{|asset| !classification[asset].empty?}
   end
 
-  def compatible_with?(assets, required_assets=nil)
-    assets = Array(assets)
+  def compatible_with?(assets, required_assets=nil, checked_condition_groups=[], wildcard_values={})
+    assets = Array(assets).flatten
     # Every asset has at least one condition group satisfied
-    classification = condition_group_classification_for(assets)
+    classification = condition_group_classification_for(assets, checked_condition_groups, wildcard_values)
     compatible = every_condition_group_satisfies_cardinality(classification) &&
     every_condition_group_has_at_least_one_asset?(classification) &&
       every_asset_has_at_least_one_condition_group?(classification) &&
@@ -132,9 +143,10 @@ class StepType < ActiveRecord::Base
     return false
   end
 
-  def condition_groups_for(asset, related_assets = [])
+  def condition_groups_for(asset, related_assets = [], checked_condition_groups=[], wildcard_values={})
     condition_groups.select do |condition_group|
-      condition_group.conditions_compatible_with?(asset, related_assets)
+      condition_group.compatible_with?([asset].flatten, related_assets, checked_condition_groups, wildcard_values)
+      #condition_group.conditions_compatible_with?(asset, related_assets)
     end
   end
 
@@ -144,4 +156,5 @@ class StepType < ActiveRecord::Base
   def actions_for(assets)
     #condition_group_classification_for(assets)
   end
+
 end

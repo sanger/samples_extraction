@@ -1,4 +1,7 @@
-<div class="form-group">
+
+<%= trigger_alerts %>
+
+<div class="form-group" data-psd-component-class="AssetGroup" data-psd-component-parameters="{}">
   <%= bootstrap_form_for [@activity, @asset_group], action: 'update', remote: true, html: { :autocomplete => 'off', :"data-psd-asset-group-form" => "1"} do |f| %>
 
   <input type="hidden" name="asset_group[delete_barcode]" id="asset_group_delete_barcode" value="" />
@@ -24,17 +27,18 @@
         <% end %>
         <div class="row">
           <ul class="nav nav-pills">
-          <% @step_types = @asset_group.activity.step_types if @step_types.empty? %>
-          <% unless @step_types.length == 1 %>
-            <% @step_types.each do |step_type| %>
+          <% @invalid_step_types = @step_types %>
+          <% @invalid_step_types = @asset_group.activity.step_types if @step_types.empty? %>
+          <% unless @invalid_step_types.length == 1 %>
+            <% @invalid_step_types.each do |step_type| %>
               <li role="presentation" class="">
                 <a href="#at-<%= step_type.id %>" aria-controls="at-<%= step_type.id %>" role="tab" data-toggle="tab"><%= step_type.name %></a>
               </li>
             <% end %>
           <% end %>
           </ul>
-          <div class="<%= 'tab-content' unless @step_types.length == 1%>">
-            <% @step_types.each do |step_type| %>
+          <div class="<%= 'tab-content' unless @invalid_step_types.length == 1%>">
+            <% @invalid_step_types.each do |step_type| %>
               <div role="tabpanel" class="tab-pane"
                   id="at-<%= step_type.id %>">
                 <% asset_types_for(@assets_grouped, step_type) do |fact_group, assets, cgs| %>

@@ -1,4 +1,4 @@
-class AssetToFactsCounterCache < ActiveRecord::Migration[5.0]
+class AssetToFactsCounterCache < ActiveRecord::Migration
   def change
     add_column :assets, :facts_count, :integer
   end

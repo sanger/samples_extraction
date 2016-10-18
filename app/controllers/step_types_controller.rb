@@ -2,11 +2,11 @@ class StepTypesController < ApplicationController
   before_action :set_step_type, only: [:show, :edit, :update, :destroy]
   before_action :set_activity, only: [:active]
 
-  before_filter :nested_step_types, only: [:index]
+  before_action :nested_step_types, only: [:index]
 
   def nested_step_types
-    if step_type_params[:activity_id]
-      @activity = Activity.find(step_type_params[:activity_id])
+    if params[:activity_id]
+      @activity = Activity.find(params[:activity_id])
       @step_types = @activity.step_types_active
     else
       @step_types = StepType.all
@@ -103,7 +103,7 @@ class StepTypesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def step_type_params
-      params.permit(:activity_id, :id, :name, :n3_definition, :step_template)
+      params.require(:step_type).permit(:n3_definition,:name, :step_template)
     end
 
 

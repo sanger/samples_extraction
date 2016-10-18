@@ -1,3 +1,4 @@
+require 'pry'
 class AssetsController < ApplicationController
   before_action :prepare_asset_params, only: [:create, :update]
   before_action :set_asset, only: [:show, :edit, :update, :destroy]
@@ -14,6 +15,9 @@ class AssetsController < ApplicationController
     @activities = @assets.map(&:activities)
     @steps = Step.for_assets(@assets)
 
+    # For printing
+    @asset_group = AssetGroup.create!
+    @asset_group.add_assets(@assets)
 
     respond_to do |format|
       format.html { render :search, layout: false }
@@ -22,8 +26,17 @@ class AssetsController < ApplicationController
 
   # GET /assets/1
   # GET /assets/1.json
-  def show
+  def show_by_internal_id
+    @asset = Asset.find!(params[:id])
+    redirect_to asset_path(@asset.uuid, :format => nil)
   end
+
+  # GET /assets/1
+  # GET /assets/1.json
+  def show
+    #@asset = Asset.find_by_uuid!(params[:uuid])
+  end
+
 
   # GET /assets/new
   def new
@@ -75,7 +88,15 @@ class AssetsController < ApplicationController
     end
   end
 
+    def print
+      respond_to do |format|
+        format.html { redirect_to @asset, notice: 'Asset was printed.' }
+      end
+    end
+
   private
+
+
     # Use callbacks to share common setup or constraints between actions.
     def set_asset
       @asset = Asset.find(params[:id])

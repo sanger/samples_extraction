@@ -1,37 +1,48 @@
 :activityType :activityTypeName """QIAamp Investigator BioRobot""" .
 {
   ?p :a :Plate .
-  ?p :a :LysedPlate .
   ?p :is :NotStarted .
   ?p :maxCardinality """1""".
 } => {
   :step :stepTypeName """ Creates destination plate from plate""" .
   :step :addFacts {?p :transferTo ?q .}  .
+  :step :addFacts {?q :transferredFrom ?p .}  .
   :step :addFacts {?p :is :Started .}  .
   :step :removeFacts {?p :is :NotStarted .}.
   :step :unselectAsset ?p .
   :step :createAsset {
     ?q :a :Plate .
-    ?q :a :DestinationPlate .
+    ?q :purpose :DestinationPlate .
   } .
 } .
 
 {
-  ?p :a :Tube .
+  ?p :a :SampleTube .
   ?p :is :NotStarted .
 } => {
-  :step :stepTypeName """ Creates destination plate from tube """ .
-  :step :addFacts {?p :inRack ?q .}  .
-  :step :unselectAsset ?p .
+  :step :stepTypeName """ Creates destination rack from tube """ .
   :step :createAsset {
-    ?q :a :Plate .
-    ?q :a :DestinationPlate .
+    ?q :a :TubeRack .
+    ?q :purpose :DestinationPlate .
     ?q :maxCardinality """1""" .
   } .
 } .
 
+{
+  ?p :a :SampleTube .
+  ?p :is :NotStarted .
+  ?q :a :TubeRack .
+  ?q :purpose :DestinationPlate .
+} => {
+  :step :stepTypeName """ Put tubes into Destination rack """ .
+  :step :stepTemplate """racking_by_columns""" .
+  :step :unselectAsset ?p .
+  :step :removeFacts {?p :is :NotStarted .}.
+  :step :addFacts {?p :is :Started .}.
+} .
 
-{ ?p :a :DestinationPlate .
+
+{ ?p :purpose :DestinationPlate .
 } => {
   :step :stepTypeName """Perform QC on Destination""" .
   :step :addFacts { ?p :has :QCPerformed .} .

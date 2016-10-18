@@ -146,7 +146,7 @@
     $(".start", this.node).on('click', $.proxy(this.onClickStart, this));
   };
 
-  $(document).on('ready', function() {
+  $(document).ready(function() {
     $(document).trigger('registerComponent.builder', {'UploadFile': UploadFile});
   });
 

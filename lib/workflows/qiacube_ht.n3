@@ -8,6 +8,7 @@
   :step :addFacts {
     ?p :is :Started .
     ?p :transferTo ?q .
+    ?q :transferredFrom ?p .
   } .
   :step :removeFacts {
     ?p :is :NotStarted .
@@ -21,10 +22,12 @@
 
 { ?p :a :StampedPlate .
   ?p :maxCardinality """1""" .
+  ?q :maxCardinality """1""" .
 } => {
   :step :stepTypeName """Create Biorobot plate""" .
   :step :addFacts {
     ?p :transferTo ?q .
+    ?q :transferredFrom ?p .
   } .
   :step :unselectAsset ?p .
   :step :createAsset {
@@ -35,10 +38,12 @@
 
 { ?p :a :BiorobotPlate .
   ?p :maxCardinality """1""" .
+  ?q :maxCardinality """1""" .
 } => {
   :step :stepTypeName """Create Stock plate""" .
   :step :addFacts {
     ?p :transferTo ?q .
+    ?q :transferredFrom ?p .
   } .
   :step :unselectAsset ?p .
   :step :createAsset {

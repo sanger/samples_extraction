@@ -5,9 +5,9 @@
   <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
   <%= csrf_meta_tags %>
-
+  <meta name="turbolinks-cache-control" content="no-cache">
 </head>
-<body>
+<body data-no-turbolink="true">
 
   <% if (ENV["RAILS_ENV"] == :debug) %>
      <%= render 'peek/bar' %>
@@ -16,22 +16,31 @@
 
 <div style="width: 100%; display:table;">
 <div class="main-view table-cell">
-    <div data-psd-component-class="DisplayError"></div>
+  <div data-psd-component-class="DisplayError"></div>
+
   <% unless flash[:notice].blank? %>
     <div class="alert alert-info">
-      <%= flash[:notice] %>
+      <%= flash[:notice].html_safe %>
     </div>
     <% end %>
 
 
   <% unless flash[:danger].blank? %>
     <div class="alert alert-danger">
-      <%= flash[:danger] %>
+      <%= flash[:danger].html_safe %>
     </div>
   <% end %>
 
   <%= yield %>
 
+<input type="hidden" id="refresh" value="no">
+<script type="text/javascript">
+$(document).ready(function(e) {
+    var $input = $('#refresh');
+
+    $input.val() == 'yes' ? location.reload(true) : $input.val('yes');
+});
+</script>
 
 </div>
 </div>

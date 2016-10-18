@@ -1,0 +1,113 @@
+:activityType :activityTypeName """QIAcube""" .
+
+{ ?p :a :SampleTube .
+  ?p :is :NotStarted .
+  ?p :maxCardinality """12""" .
+} => {
+  :step :stepTypeName """Create DNA and NA+P tubes from Sample Tubes""" .
+  :step :createAsset {
+    ?q :a :Tube .
+    ?q :aliquotType :DNA .
+  }.
+  :step :createAsset {
+    ?r :a :Tube .
+    ?r :aliquotType :NAP .
+  }.
+} .
+
+{ ?p :a :SampleTube .
+  ?p :is :NotStarted .
+  ?p :maxCardinality """12""" .
+  ?q :a :Tube .
+  ?q :aliquotType :DNA .
+  ?q :maxCardinality """12""" .
+  ?r :a :Tube .
+  ?r :aliquotType :NAP .
+  ?r :maxCardinality """12""" .
+} => {
+  :step :stepTypeName """Extract DNA and NA+P""" .
+  :step :stepTemplate """transfer_tube_to_tube""" .
+  :step :addFacts {
+    ?p :transferTo ?q.
+    ?q :transferredFrom ?p .
+    ?p :transferTo ?r.
+    ?r :transferredFrom ?p .
+  } .
+  :step :unselectAsset ?p .
+} .
+
+
+
+{ ?q :aliquotType :DNA .
+  ?r :aliquotType :NAP .
+} => {
+  :step :stepTypeName """Select just DNA tubes""" .
+  :step :unselectAsset ?r .
+} .
+
+{ ?q :aliquotType :DNA .
+  ?r :aliquotType :NAP .
+} => {
+  :step :stepTypeName """Select just NA+P tubes""" .
+  :step :unselectAsset ?q .
+} .
+
+{ ?q :a :Tube .
+  ?q :aliquotType :DNA .
+  ?p :maxCardinality """1""" .
+} => {
+  :step :stepTypeName """Print DNA rack barcode""" .
+  :step :createAsset {
+    ?p :a :TubeRack .
+    ?p :aliquotType :DNA .
+  }
+} .
+
+{ ?q :a :Tube .
+  ?q :aliquotType :RNA .
+  ?p :maxCardinality """1""" .
+} => {
+  :step :stepTypeName """Print RNA rack barcode""" .
+  :step :createAsset {
+    ?p :a :TubeRack .
+    ?p :aliquotType :RNA .
+  }
+} .
+
+{ ?q :a :Tube .
+  ?q :aliquotType :RNA .
+  ?p :a :TubeRack .
+  ?p :aliquotType :RNA .
+  ?p :maxCardinality """1""".
+} => {
+  :step :stepTypeName """Put tubes into RNA rack""" .
+  :step :stepTemplate """racking_by_columns""" .
+  :step :unselectAsset ?q .
+} .
+
+
+{ ?q :a :Tube .
+  ?q :aliquotType :DNA .
+  ?p :a :TubeRack .
+  ?p :aliquotType :DNA .
+  ?p :maxCardinality """1""".
+} => {
+  :step :stepTypeName """Put tubes into DNA rack""" .
+  :step :stepTemplate """racking_by_columns""" .
+  :step :unselectAsset ?q .
+} .
+
+
+{ ?q :a :Tube .
+  ?q :aliquotType :NAP .
+} => {
+  :step :stepTypeName """Extract RNA""" .
+  :step :createAsset {
+    ?r :a :Tube .
+    ?r :aliquotType :RNA .
+  } .
+  :step :createAsset {
+    ?s :a :Tube .
+    ?s :aliquotType :NA .
+  } .
+} .

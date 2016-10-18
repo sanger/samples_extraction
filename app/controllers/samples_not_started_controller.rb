@@ -1,13 +1,16 @@
 class SamplesNotStartedController < ApplicationController
   def index
-    @activity_types = ActivityType.all.visible
+    @activity_types = ActivityType.all.visible.sort{|a,b| a.name <=> b.name}.uniq
 
     @assets_for_activity_types = @activity_types.map do |activity_type|
       {
         :activity_type => activity_type,
-        :assets => Asset.not_started.compatible_with_activity_type(activity_type).paginate(pagination_params_for_activity_type(activity_type))
+        :assets => activity_type.assets.not_started.paginate(pagination_params_for_activity_type(activity_type))
+        #:assets => assets_paginated
+        #:assets => Asset.not_started.compatible_with_activity_type(activity_type).paginate(pagination_params_for_activity_type(activity_type))
       }
     end
+
     @activity_type_selected = ActivityType.find_by_id(samples_started_params[:activity_type_id])
   end
 

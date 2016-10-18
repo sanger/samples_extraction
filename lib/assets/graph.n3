@@ -1,23 +1,12 @@
-{ ?p :is :ReceptionTube .
-  ?p :is :Tube .
+:activity :activityTypeName """Racking""" .
 
-  ?q :is :EmptyTube .
-  ?q :is :Empty .
+{ ?p :a :SampleTube .
+  ?q :a :TubeRack .
 } => {
-  :step :stepTypeName """From Reception tube to Received tube""" .
-  :step :stepTypeClassName """TransferTubeToTube""" .
+  :step :stepTypeName """Racking by column order""" .
+  :step :stepTemplate """racking_by_columns""" .
   :step :addFacts {
-    ?p :is :EmptyTube .
-    ?q :is :ReceivedTube .
+    ?q :pushTo :Sequencescape .
   } .
-  :step :deleteFacts {
-    ?p :is :ReceptionTube .
-    ?q :is :EmptyTube .
-    ?q :is :Empty .
-  } .
+  :step :unselectAsset ?p .
 } .
-
-{?p :is :ReceivedTube .} => { :step :addFacts { ?p :is :ReceptionTube .} . } .
-
-{ ?p :is :ReceptionTube .
-} => { :step :addFacts { ?p :is :Tube} .}.

@@ -1,8 +1,11 @@
 <%= bootstrap_form_for [@activity, step_type, Step.new], action: 'create', class: 'step-template-form' do |f| %>
   <input type="hidden" name='step[state]' value='in_progress' />
+  <input type="hidden" name='step[data_action]' value='linking' />
+  <input type="hidden" name='step[data_action_type]' value='progress_step' />
+  <input type="hidden" name='step[data_params]' value="{}" id="step_data_params" />
 
 
-<div data-psd-component-class="SourceToDestination" data-psd-component-parameters='{"template": "templates/source_to_destination", "names": <%= step_type.condition_groups.map(&:name) %>, "identifiers": <%= step_type.condition_groups.map(&:id) %>, "pairingName": "step[pairings]"}'></div>
+<div data-psd-component-class="SourceToDestination" data-psd-component-parameters='{"template": "templates/source_to_destination", "names": <%= step_type.condition_groups.map(&:name) %>, "identifiers": <%= step_type.condition_groups.map(&:id) %>, "paramsNodeQuery": "#step_data_params"}'></div>
 
 <% end %>
 

@@ -2,35 +2,49 @@ class Pairing
   attr_reader :group, :step_type
   def initialize(params, step_type)
     @step_type = step_type
-    @group = params.map do |c_id, barcode|
-      { :asset => Asset.find_by_barcode(barcode),
-        :condition_group => ConditionGroup.find_by_id(c_id)
-      }
+    @group = group_list(params)
+  end
+
+  def group_list(params)
+    list = []
+    params.each do |elem|
+      l = []
+      elem.each_pair do |c_id, barcode|
+        l << {
+          :asset => Asset.find_by_barcode(barcode),
+          :condition_group => ConditionGroup.find_by_id(c_id)
+        }
+      end
+      list << l
     end
+    list
   end
 
   def assets
-    @group.pluck(:asset)
+    @group.flatten.map{|g| g[:asset]}
   end
 
   def condition_groups
-    @group.pluck(:condition_group)
+    @group.flatten.map{|g| g[:condition_group]}
   end
 
   def required_condition_groups_compatible?
-    ((@step_type.condition_groups - condition_groups).length == 0)
+    @group.all? do |list|
+      cond_groups = list.map{|n| n[:condition_group]}
+      ((@step_type.condition_groups - cond_groups).length == 0)
+    end
   end
 
   def group_compatible?
-    @group.all?{|obj| obj[:condition_group].compatible_with?(obj[:asset])}
+    @group.flatten.all?{|obj| obj[:condition_group].compatible_with?(obj[:asset])}
   end
 
   def all_assets_exist?
-    @group.pluck(:asset).all?
+    @group.flatten.map{|g| g[:asset]}.all?
   end
 
   def all_conditions_exist?
-    @group.pluck(:condition_group).all?
+    @group.flatten.map{|g| g[:condition_group]}.all?
   end
 
   def step_type_compatible?
@@ -45,7 +59,14 @@ class Pairing
     msgs.push('Assets are not passing the conditions for the step ') unless step_type_compatible?
     msgs.push('Step requires a different set of conditions') unless step_type_compatible?
 
-    msgs.join('. ')
+    msgs.compact.join('. ')
+  end
+
+  def each_pair_assets
+    @group.each do |list|
+      asset_to_do = list.map{|n| n[:asset]}.compact
+      yield asset_to_do if asset_to_do
+    end
   end
 
   def valid?

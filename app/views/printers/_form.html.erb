@@ -1,0 +1,33 @@
+<%= bootstrap_form_for(@printer) do |f| %>
+  <% if @printer.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@printer.errors.count, "error") %> prohibited this printer from being saved:</h2>
+
+      <ul>
+      <% @printer.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% readonly = params[:action] == 'show' %>
+
+  <div class="field">
+    <%= f.text_field :name, :readonly => readonly %>
+  </div>
+
+  <div class="field">
+    <%= f.select :printer_type, options_for_select([['Tube', 'Tube'], ['Plate', 'Plate']],
+    :selected => @printer.printer_type), :readonly => readonly %>
+  </div>
+
+  <div class="field">
+    <%= f.check_box :default_printer, :readonly => readonly %>
+  </div>
+
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

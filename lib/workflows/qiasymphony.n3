@@ -1,26 +1,34 @@
 :activity :activityTypeName """QIASymphony""" .
 
 {
-  ?p :a :Tube .
+  ?p :a :SampleTube .
   ?p :is :NotStarted .
+  ?q :maxCardinality """1""" .
 } => {
   :step :stepTypeName """Create a Rack for QIASymphony""" .
   :step :addFacts {
     ?p :is :Started .
-    ?p :inRack ?q .
-    ?p :inPosition :locationInColumnOrder .
-    ?q :contains ?p .
   } .
   :step :removeFacts {
     ?p :is :NotStarted .
   } .
-  :step :unselectAsset ?p .
-  :step :selectAsset ?q .
   :step :createAsset {
     ?q :a :TubeRack .
     ?q :is :SymphonyCreated .
-    ?q :maxCardinality """1""" .
   }.
+} .
+
+{
+  ?p :a :SampleTube .
+  ?p :is :Started .
+  ?q :a :TubeRack .
+  ?q :is :SymphonyCreated .
+  ?q :maxCardinality """1""" .
+} => {
+  :step :addFacts { ?p :is :Started .}.
+  :step :stepTypeName """Put tubes into rack for QIASymphony""" .
+  :step :stepTemplate """racking_by_columns""" .
+  :step :unselectAsset ?p .
 } .
 
 {
@@ -32,28 +40,26 @@
   :step :stepTemplate """upload_file_step""" .
   :step :description """This step will create a new rack by using the xml provided and the list of tubes in the group, racking them in column order""" .
   :step :addFacts {?q :is :SymphonyLoaded .}.
+  :step :removeFacts {?q :is :SymphonyCreated .}.
 }.
 
 {
-  :step :for :reasoning .
-  ?rack :a :TubeRack .
-  ?rack :is :SymphonyLoaded .
-  ?tube :is :Tube .
-  ?tube :inRack ?rack .
-  ?tube :inPlace ?position .
-  ?rack Symphony:RackPosition ?cell .
-  ?cell Symphony:PositionName ?position .
-  ?cell Symphony:SampleId ?sampleId .
-  ?cell Symphony:TotalVolumeInUl ?volume .
-} => {
-  :step :addFacts { ?tube :sampleId ?sampleId . } .
-  :step :addFacts { ?tube :totalVolumeInUl ?volume .} .
-  :step :destroyAsset ?cell .
-} .
+    ?q :a :TubeRack .
+    ?q :is :SymphonyLoaded .
+    ?q :maxCardinality """1""" .
+}=> {
+  :step :stepTypeName """Re-upload Symphony XML file""" .
+  :step :stepTemplate """upload_file_step""" .
+  :step :description """This step will create a new rack by using the xml provided and the list of tubes in the group, racking them in column order""" .
+  :step :addFacts {?q :is :SymphonyLoaded .}.
+}.
 
 {
-  ?p :a :TubeRack .
-  ?p :is :SymphonyLoaded .
-} => {
-  :step :stepTypeName """QC for Symphony Rack""" .
-} .
+    ?q :a :TubeRack .
+    ?q :is :SymphonyLoaded .
+    ?q :maxCardinality """1""" .
+}=> {
+  :step :stepTypeName """Push changes to Sequencescape""" .
+  :step :addFacts {?q :pushTo :Sequencescape .}.
+}.
+

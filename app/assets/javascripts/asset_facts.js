@@ -137,7 +137,7 @@
     $(this.node).on('value.button_switch', $.proxy(this.onChangeSelectionCheck, this))
   };
 
-  $(document).on('ready', function() {
+  $(document).ready(function() {
     $(document).trigger('registerComponent.builder', {'AssetFacts': AssetFacts});
   });
 

@@ -30,10 +30,13 @@
 //= require editable_text
 //= require fact_searcher
 //= require loading_icon
+//= require rack_well_display
 //= require source_to_destination
 //= require button_switch
 //= require fact_reader
 //= require user_status
+//= require tube_into_rack
+//= require ace-rails-ap
 //= require_tree ./templates
 //= require_tree .
 //    require_asset "peek"

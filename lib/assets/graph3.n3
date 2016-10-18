@@ -43,6 +43,7 @@
     ?TubeWithBarcode1D :is :Empty .
     ?TubeWithBarcode2D :is :Full .
     ?TubeWithBarcode1D :transferTo ?TubeWithBarcode2D .
+    ?TubeWithBarcode2D :transferedFrom ?TubeWithBarcode1D .
   } .
 } .
 
@@ -57,26 +58,40 @@
   } .
   ?step :createAsset {
     ?q :a :TubeRack .
+    ?q :pushTo :Sequencescape .
+    ?q :purpose """Stock Plate""" .
     ?q :maxCardinality """1""" .
   } .
 } .
 
-{ ?p :is :Tube2D .
+{ ?p  :has :Barcode2D .
+?p :is :Full .
   ?p :maxCardinality """384""" .
 } => { :step :stepTypeName """Put tubes in 384 rack""" .
-      ?step :addFacts { ?p :inRack :q} .
-      ?step :createAsset {
-        :q :a :TubeRack .
-      } .
+  ?step :addFacts {
+    ?p :inRack ?q .
+  } .
+  ?step :createAsset {
+    ?q :a :TubeRack .
+    ?q :pushTo :Sequencescape .
+    ?q :purpose """Stock Plate""" .
+    ?q :maxCardinality """1""" .
+  } .
 } .
 
-{ ?p :is :Tube2D .
+{ ?p :has :Barcode2D .
+?p :is :Full .
   ?p :maxCardinality """2""" .
 } => { :step :stepTypeName """Put tubes in 2 rack""" .
-      ?step :addFacts { ?p :inRack :q} .
-      ?step :createAsset {
-        :q :a :TubeRack .
-      } .
+  ?step :addFacts {
+    ?p :inRack ?q .
+  } .
+  ?step :createAsset {
+    ?q :a :TubeRack .
+    ?q :pushTo :Sequencescape .
+    ?q :purpose """Stock Plate""" .
+    ?q :maxCardinality """1""" .
+  } .
 } .
 
 { ?p :a :TubeRack .

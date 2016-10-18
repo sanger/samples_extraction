@@ -18,30 +18,30 @@ class ActivityTypesControllerTest < ActionController::TestCase
 
   test "should create activity_type" do
     assert_difference('ActivityType.count') do
-      post :create, activity_type: @activity_type.attributes
+      post :create,  { activity_type: @activity_type.attributes}
     end
 
     assert_redirected_to activity_type_path(assigns(:activity_type))
   end
 
   test "should show activity_type" do
-    get :show, id: @activity_type
+    get :show,  { id: @activity_type }
     assert_response :success
   end
 
   test "should get edit" do
-    get :edit, id: @activity_type
+    get :edit,  { id: @activity_type }
     assert_response :success
   end
 
   test "should update activity_type" do
-    patch :update, id: @activity_type, activity_type: @activity_type.attributes
+    patch :update,  { id: @activity_type, activity_type: @activity_type.attributes}
     assert_redirected_to activity_type_path(assigns(:activity_type))
   end
 
   test "should destroy activity_type" do
     assert_difference('ActivityType.count', -1) do
-      delete :destroy, id: @activity_type
+      delete :destroy,  { id: @activity_type}
     end
 
     assert_redirected_to activity_types_path

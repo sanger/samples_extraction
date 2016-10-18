@@ -10,13 +10,8 @@
     var proto = BarcodeReader.prototype;
 
   proto.readInput = function(e) {
-    if (e.keyCode === 9) {
-	   this.send(e);
-	   this.input.val('');
-    }
-    if (e.keyCode == 13) {
-	   this.send(e);
-	   this.input.val('');
+    if ((e.keyCode === 9) || (e.keyCode == 13)) {
+      this.send(e);
     }
   };
 
@@ -28,11 +23,12 @@
 
     proto.send = function(e) {
       e.preventDefault();
-	var data = {barcode: this.input.val()};
-        $(this.node).trigger('barcode.barcode_reader', data);
-
+	  var data = {barcode: this.input.val()};
+      $(this.node).trigger('barcode.barcode_reader', data);
+      this.input.val('');
     };
-    $(document).on('ready', function() {
+
+    $(document).ready(function() {
 	$(document).trigger('registerComponent.builder', {'BarcodeReader': BarcodeReader});
     });
 }(jQuery));

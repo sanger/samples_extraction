@@ -139,6 +139,13 @@ RSpec.describe StepType, type: :model do
           ]}}
         end
 
+        it 'is compatible with both condition groups when cardinality was set for one of them' do
+          racks = @racks.slice(0,3)
+          @cg2.cardinality = 3
+
+          assert_equal true, @step_type.compatible_with?([@assets, racks].flatten)
+        end
+
         it 'is compatible if all the condition groups are matched by the assets' do
           assert_equal true, @step_type.compatible_with?([@assets, @racks].flatten)
           @assets.first.facts << FactoryGirl.create(:fact, {:predicate => 'a', :object => 'b'})
@@ -222,6 +229,23 @@ RSpec.describe StepType, type: :model do
       end
       it 'is compatible with condition groups that have relations with elements outside the asset group' do
         assert_equal true, @step_type.compatible_with?(@assets)
+      end
+    end
+    describe 'matching with wildcard condition groups' do
+      setup do
+        @cg2 = FactoryGirl.create(:condition_group, {})
+        @cg1.conditions << FactoryGirl.create(:condition, {
+		:predicate => 'position',
+		:object_condition_group_id => @cg2.id})
+      end
+      it 'is compatible with any literal when met the other conditions' do
+
+        @assets = 5.times.map{|i| FactoryGirl.create :asset, {:facts => [
+          FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube'),
+          FactoryGirl.create(:fact, :predicate => 'is', :object => 'Full'),
+          FactoryGirl.create(:fact, :predicate => 'position', :object => i)
+        ]}}
+        assert_equal true, @step_type.compatible_with?([@assets].flatten)
       end
     end
   end

@@ -6,13 +6,22 @@ class ConditionGroup < ActiveRecord::Base
   has_many :subject_actions, :class_name => 'Action', :foreign_key => 'subject_condition_group_id'
   has_many :object_actions, :class_name => 'Action', :foreign_key => 'object_condition_group_id'
 
+  def is_wildcard?
+    conditions.empty?
+  end
 
-  def compatible_with?(assets, related_assets = [])
-    if cardinality
+  def compatible_with?(assets, related_assets = [], checked_condition_groups=[], wildcard_values={})
+    assets = [assets].flatten
+    return true if is_wildcard?
+    if ((cardinality) && (cardinality > 0))
       return false if assets.kind_of?(Array) && (assets.length > cardinality)
     end
     #return false if cardinality && (assets.length != cardinality)
-    conditions.all?{|condition| condition.compatible_with?(assets, related_assets)}
+    assets.all? do |asset|
+      conditions.all? do |condition|
+        condition.compatible_with?(asset, related_assets, checked_condition_groups, wildcard_values)
+      end
+    end
   end
 
   def conditions_compatible_with?(assets, related_assets = [])

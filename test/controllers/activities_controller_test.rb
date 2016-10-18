@@ -11,11 +11,13 @@ class ActivitiesControllerTest < ActionController::TestCase
       @kit_type = FactoryGirl.create :kit_type, :activity_type => @activity_type
       @kit = FactoryGirl.create :kit, {:kit_type => @kit_type}
       @instrument = FactoryGirl.create :instrument
+      @instrument.activity_types << @activity_type
     end
 
     should "create a new activity of the activity type of the kit" do
       count = @kit.kit_type.activity_type.activities.count
-      post :create, :kit => @kit, :instrument => @instrument
+      post :create,  { :kit_barcode => @kit.barcode, :instrument_barcode => @instrument.barcode}
+      @kit.kit_type.activity_type.activities.reload
       assert_equal @kit.kit_type.activity_type.activities.count, count + 1
       assert_equal @activity_type.activities.count, count + 1
     end
@@ -55,12 +57,12 @@ class ActivitiesControllerTest < ActionController::TestCase
         @asset_group = FactoryGirl.create :asset_group
 
         @asset.asset_groups << @asset_group
-        @activity = FactoryGirl.create :activity, :activity_type => @activity_type
+        @activity = FactoryGirl.create :activity, :activity_type => @activity_type, :asset_group => @asset_group
 
         @activity_type.activities << @activity
 
         @step = FactoryGirl.create :step, {
-          :step_type_id => @step_type2.id,
+          :step_type_id => @step_type.id,
           :activity_id => @activity.id,
           :asset_group_id => @asset_group.id
         }
@@ -75,7 +77,7 @@ class ActivitiesControllerTest < ActionController::TestCase
       end
 
       should "identify the steps done" do
-        assert_equal @activity.steps_for([@asset]), [@step]
+        assert_equal @activity.steps_for(@asset_group.assets), [@step]
       end
     end
 

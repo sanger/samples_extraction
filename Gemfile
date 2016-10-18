@@ -9,10 +9,27 @@ gem 'rest-client'
 gem 'rails-assets-tether', '>= 1.1.0'
 gem 'bootstrap_form'
 gem 'sprockets-rails'
+gem 'ace-rails-ap'
+gem 'daemons'
+
+gem 'activerecord-session_store'
+
 
 gem 'js_cookie_rails'
 
 gem 'micro_token'
+
+gem 'barby'
+
+gem 'delayed_job'
+gem 'delayed_job_active_record'
+
+gem 'sequencescape-client-api',
+  #:path => '/Users/emr/projects/sequencescape-client-api'
+  # Should be switched back to sanger + production for deployment
+  :github  => 'emrojo/sequencescape-client-api',
+  :branch  => 'asset-attribute-update',
+  :require => 'sequencescape'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
@@ -38,6 +55,7 @@ gem 'coffee-rails', '~> 4.1.0'
 gem 'jquery-rails'
 # Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks
 gem 'turbolinks'
+
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.0'
 # bundle exec rake doc:rails generates the API under doc/api.
@@ -89,6 +107,7 @@ end
 
 group :test do
   gem 'poltergeist'
+  gem 'launchy'
 end
 
 
