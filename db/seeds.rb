@@ -14,6 +14,7 @@ SupportN3.parse_file("lib/assets/reracking.n3")
 SupportN3.parse_file("lib/workflows/biorobot_investigator.n3")
 SupportN3.parse_file("lib/workflows/qiacube_ht.n3")
 SupportN3.parse_file("lib/workflows/qiasymphony.n3")
+SupportN3.parse_file("lib/workflows/qiacube.n3")
 
 
 TEST_SAMPLES = ['4086STDY6316833', '4086STDY6316834', '4086STDY6316835','4086STDY6316836','4086STDY6316837']
@@ -89,6 +90,12 @@ User.create!(:barcode => 1, :username => 'test', :fullname => 'Testing user')
 User.create!(:barcode => 2, :username => 'admin', :fullname => 'Admin', :role => 'administrator')
 
 
+activity_type = ActivityType.find_by_name('QIACube')
+instrument.activity_types << activity_type
+kit_type = KitType.create(:activity_type => activity_type, :name => 'QIACube')
+kit = Kit.create( {:kit_type => kit_type, :barcode => 6666})
+
+
 activity_type = ActivityType.find_by_name('QIASymphony')
 instrument.activity_types << activity_type
 kit_type = KitType.create(:activity_type => activity_type, :name => 'QIASymphony')
@@ -141,11 +148,11 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 9999})
   asset.update_compatible_activity_type
 end
 
-100.times do |pos|
-  asset = Asset.create!(:barcode => 1000 + pos)
-  asset.facts << Fact.create()
-  96.times do |pos2|
-    asset.facts << Fact.create({ :predicate => 'b'+pos2.to_s, :object => pos2.to_s})
-  end
-  asset.update_compatible_activity_type
-end
+# 100.times do |pos|
+#   asset = Asset.create!(:barcode => 1000 + pos)
+#   asset.facts << Fact.create()
+#   96.times do |pos2|
+#     asset.facts << Fact.create({ :predicate => 'b'+pos2.to_s, :object => pos2.to_s})
+#   end
+#   asset.update_compatible_activity_type
+# end

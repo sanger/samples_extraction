@@ -9,8 +9,14 @@ class Condition < ActiveRecord::Base
     # If the condition group is a wildcard, we'll cache all the possible
     # values and check compatibility with other definitions of the same
     # wildcard.
-    facts = asset.facts.with_predicate(predicate)
+    if asset.facts.kind_of? Array
+      facts = asset.facts.select{|f| f.predicate == predicate}
+    else
+      facts = asset.facts.with_predicate(predicate)
+    end
     return false if facts.count==0
+
+    return false unless facts.first.respond_to?(:object_value)
 
     actual_values = facts.map(&:object_value)
 

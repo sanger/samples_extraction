@@ -38,11 +38,14 @@ class Action < ActiveRecord::Base
             # They are compatible if the object condition group is
             # compatible and if they share a common range of values of
             # values for any of the wildcard values defined
-            object_condition_group.compatible_with?(related_asset) &&
-            step.wildcard_values && step.wildcard_values.all? do |cg_id, data|
-              (data[asset.id] && data[related_asset.id]) &&
-                (!(data[asset.id] & data[related_asset.id]).empty?)
+            checked_wildcards = true
+            if step.wildcard_values
+              checked_wildcards = step.wildcard_values.all? do |cg_id, data|
+                (data[asset.id] && data[related_asset.id]) &&
+                  (!(data[asset.id] & data[related_asset.id]).empty?)
+              end
             end
+            object_condition_group.compatible_with?(related_asset) && checked_wildcards
           end.map do |related_asset|
             {
               :predicate => predicate,
@@ -72,7 +75,7 @@ class Action < ActiveRecord::Base
 
 
 
-  def execute(step, asset_group, asset, created_assets, marked_facts_to_destroy=nil)
+  def execute(step, asset_group, original_assets, asset, created_assets, marked_facts_to_destroy=nil)
     assets = [asset]
     facts = nil
     if subject_condition_group.conditions.empty?
@@ -86,9 +89,9 @@ class Action < ActiveRecord::Base
     end
     if action_type == 'createAsset'
       unless created_assets[subject_condition_group.id]
-        num_create = asset_group.assets.count
+        num_create = original_assets.count
         if (subject_condition_group.cardinality) && (subject_condition_group.cardinality!=0)
-          num_create = [asset_group.assets.count, subject_condition_group.cardinality].min
+          num_create = [original_assets.count, subject_condition_group.cardinality].min
         end
         assets = num_create.times.map{|i| Asset.create!}
 

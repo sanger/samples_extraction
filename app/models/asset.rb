@@ -163,6 +163,8 @@ class Asset < ActiveRecord::Base
             :name => uuid,
             :actionType => 'createAsset',
             :predicate => fact.predicate,
+            :object_reference => fact.object_asset_id,
+            :object_label => fact.object_label,
             :object => object_value(fact)
           }
         end
@@ -273,12 +275,14 @@ class Asset < ActiveRecord::Base
     (str[1..-1] * 12) + (str[0].ord - 'A'.ord)
   end
 
+  def asset_description
+    names = facts.with_predicate('a').map(&:object).join(' ')
+    types = facts.with_predicate('aliquotType').map(&:object).join(' ')
+    return names + ' ' + types
+  end
+
   def class_type
-    names = facts.with_predicate('a')
-    if names.count > 0
-      return names.first.object
-    end
-    return 'Unknown'
+    facts.with_predicate('a').first.object
   end
 
 

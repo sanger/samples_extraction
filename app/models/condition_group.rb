@@ -13,7 +13,7 @@ class ConditionGroup < ActiveRecord::Base
   def compatible_with?(assets, related_assets = [], checked_condition_groups=[], wildcard_values={})
     assets = [assets].flatten
     return true if is_wildcard?
-    if cardinality
+    if ((cardinality) && (cardinality > 0))
       return false if assets.kind_of?(Array) && (assets.length > cardinality)
     end
     #return false if cardinality && (assets.length != cardinality)

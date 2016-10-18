@@ -21,6 +21,8 @@ class StepsController < ApplicationController
   # GET /steps
   # GET /steps.json
   def index
+    redirect_to activities_path
+    return
     #@steps = Step.all
     respond_to do |format|
       format.html { render 'finished', :layout => false } if @activity

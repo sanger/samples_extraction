@@ -29,8 +29,9 @@ class Pairing
   end
 
   def required_condition_groups_compatible?
-    @group.all? do |p1, p2|
-      ((@step_type.condition_groups - [p1[:condition_group], p2[:condition_group]]).length == 0)
+    @group.all? do |list|
+      cond_groups = list.map{|n| n[:condition_group]}
+      ((@step_type.condition_groups - cond_groups).length == 0)
     end
   end
 
@@ -62,8 +63,9 @@ class Pairing
   end
 
   def each_pair_assets
-    @group.each do |p1, p2|
-      yield [p1[:asset], p2[:asset]]
+    @group.each do |list|
+      asset_to_do = list.map{|n| n[:asset]}
+      yield asset_to_do
     end
   end
 

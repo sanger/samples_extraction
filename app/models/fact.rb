@@ -16,5 +16,10 @@ class Fact < ActiveRecord::Base
     literal? ? object : Asset.find(object_asset_id)
   end
 
+  def object_label
+    return object unless object_asset
+    "#{object_asset.asset_description} #{object_asset.barcode.blank? ? '#' : Asset.find(object_asset_id).barcode}"
+  end
+
 end
 

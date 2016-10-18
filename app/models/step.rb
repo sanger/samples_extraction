@@ -107,14 +107,18 @@ class Step < ActiveRecord::Base
     return progress_with(asset_group.assets) if in_progress?
 
     original_assets = AssetGroup.create!
-    original_assets.add_assets(activity.asset_group.assets) if activity
+    if ((activity) && (activity.asset_group.assets.count >= 0))
+      original_assets.add_assets(activity.asset_group.assets)
+    else
+      original_assets.add_assets(asset_group.assets)
+    end
 
     ActiveRecord::Base.transaction do |t|
       created_assets = {}
       list_to_destroy = []
 
       classify_assets.each do |asset, r|
-        r.execute(self, asset_group, asset, created_assets, list_to_destroy)
+        r.execute(self, asset_group, original_assets.assets, asset, created_assets, list_to_destroy)
       end
 
       save_created_assets(created_assets)
@@ -139,6 +143,7 @@ class Step < ActiveRecord::Base
   end
 
   def progress_with(step_params)
+    original_assets = activity.asset_group.assets
     ActiveRecord::Base.transaction do |t|
       assets = step_params[:assets]
       update_attributes(:in_progress? => true)
@@ -147,7 +152,7 @@ class Step < ActiveRecord::Base
 
       created_assets = {}
       classify_assets.each do |asset, r|
-        r.execute(self, asset_group, asset, created_assets, nil)
+        r.execute(self, asset_group, original_assets, asset, created_assets, nil)
       end
       save_created_assets(created_assets)
 

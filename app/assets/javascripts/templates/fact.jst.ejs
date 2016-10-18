@@ -5,7 +5,23 @@
   >
   <span class="label label-default">
     <span class=" <%= cssClasses %>"></span>&nbsp;
-    <span class="editable-fact" data-psd-component-class="EditableText" data-psd-editable-text-regexp="[A-Za-z][A-Za-z0-9]*:[A-Za-z][A-Za-z0-9]*"><%= (typeof predicateLabel!=='undefined') ? predicateLabel : predicate %>:<span class="object"><%= (typeof objectLabel !=='undefined') ? objectLabel : object %></span></span>
+    <span class="editable-fact" data-psd-component-class="EditableText" data-psd-editable-text-regexp="[A-Za-z][A-Za-z0-9]*:[A-Za-z][A-Za-z0-9]*"><%= (typeof predicateLabel!=='undefined') ? predicateLabel : predicate %>:
+
+    <% if (typeof object_reference!=='undefined') { %>
+      <a class="object-reference" href="/labware/<%= object_reference %>">
+    <% } %>
+    <span class="object">
+      <% if ((typeof object_label !=='undefined') && (object_label.length > 0)) { %>
+        <%= object_label %>
+      <%  } else { %>
+        <%= object %>
+      <% } %>
+      </span>
+    </span>
+    <% if (typeof object_reference !== 'undefined') { %>
+    </a>
+    <% } %>
+
     <span data-psd-delete-icon='true'>&times;</span>
   </span>
 </div>
