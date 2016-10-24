@@ -3,9 +3,8 @@
   function UploadFile(node, params) {
     this.node = $(node);
 
-    this.input = $('input[name=upload_ids]', this.node);
-
-    this.url = this.input[0].form.action;
+    this.form = $('form', this.node);
+    this.url = this.form.attr('action');
 
     this.node.addClass('custom-dropzone');
 
@@ -31,6 +30,7 @@
     this.myDropzone = new Dropzone(this.node[0], { // Make the whole body a dropzone
       url: this.url, // Set the url
       method: 'POST',
+      paramName: "step[file]",
       thumbnailWidth: 80,
       thumbnailHeight: 80,
       parallelUploads: 20,
@@ -72,8 +72,9 @@
 
   proto.onSuccess = function(data, json, xhr) {
     $('.total-progress', this.node).hide();
-    this.input.submit();
-    setTimeout(function() {window.location.reload();}, 2000)
+    //debugger;
+    //this.form.submit();
+    setTimeout(function() { window.location.reload();}, 1000);
     //this.nextStepElement.submit();
   };
 
@@ -112,17 +113,21 @@
 
   proto.onSend = function(file, xhr, data) {
     // Show the total progress bar when upload starts
-    data.append('step[state]', 'done')
+    //data.append('step[state]', 'done')
+    $('input', this.form).each($.proxy(function(e, input) {
+      data.append($(input).attr('name'), $(input).val());
+    }, this));
     $('.total-progress', this.node).show();
   };
 
-  proto.onError = function(file, xhr, data) {
-    this.alertShow(xhr.responseText);
+  proto.onError = function(file, errorMsg, data) {
+    this.alertShow(errorMsg);
     // Show the total progress bar when upload starts
     this.disableUploadButtons(false);
     $('.start', this.node).attr('disabled', true);
     this.myDropzone.removeFile(file);
     this.singleFileAdded = null;
+    setTimeout(function() { window.location.reload();}, 1000);
   };
 
   proto.onQueueComplete = function(progress) {
@@ -136,6 +141,9 @@
   };
 
   proto.attachHandlers = function() {
+    $('#next', this.node).on('click', function() {
+      $('form.new_step').submit();
+    });
     this.myDropzone.on("success", $.proxy(this.onSuccess, this));
     this.myDropzone.on("addedfile", $.proxy(this.onAddFile, this));
     this.myDropzone.on("removedfile", $.proxy(this.onRemoveFile, this));

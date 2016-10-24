@@ -66,7 +66,8 @@ class Activity < ActiveRecord::Base
 
   def perform_step_actions_for(id, obj, step_type, step_params)
     if step_params[:data_action_type] == id
-      value = obj.send(step_params[:data_action], step_type, JSON.parse(step_params[:data_params]))
+      params = step_params[:file] ? {:file => step_params[:file] } : JSON.parse(step_params[:data_params])
+      value = obj.send(step_params[:data_action], step_type, params)
     end
   end
 
@@ -75,7 +76,9 @@ class Activity < ActiveRecord::Base
   end
 
   def params_for_progress_with_step?(step_params)
-     (!step_params.nil? && (step_params[:data_params]!='{}'))
+    # || (step_params[:data_params]!='{}')))
+    (!step_params.nil? &&
+      ((step_params[:state]!='done' && step_params[:data_action_type]=='progress_step')))
   end
 
   def params_for_finish_step?(step_params)

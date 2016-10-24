@@ -1,10 +1,6 @@
 <span class="facts-list ">
   <span data-psd-component-class="RackWellDisplay" data-psd-component-parameters="<%= data_rack_display(facts) %>">
-
-  <% type = facts.select{|f| f.predicate == 'a'} %>
-    <% if type.length > 0 %>
-      <div class='svg '><%= svg type[0].object %></div>
-    <% end %>
+    <div class='svg '><%= svg Asset.class_type(facts) %></div>
     <div class="col-xs-6">
   <% facts.each do |fact| %>
     <%= render :partial => 'facts/fact', :locals => { :fact => fact} %>

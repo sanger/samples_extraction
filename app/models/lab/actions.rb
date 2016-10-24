@@ -1,3 +1,5 @@
+require 'parsers/csv_layout'
+
 module Lab::Actions
 
   class InvalidDataParams < StandardError
@@ -72,6 +74,32 @@ module Lab::Actions
     else
       raise InvalidDataParams, pairing.error_messages
     end
-
   end
+
+  def layout(step_type, params)
+    error_messages = []
+    parser = Parsers::CsvLayout.new(params[:file].read)
+
+    if activity.asset_group.assets.with_fact('a', 'TubeRack').empty?
+      error_messages.push("No TubeRacks found to perform the layout process")
+    end
+    if activity.asset_group.assets.with_fact('a', 'TubeRack').count > 1
+      error_messages.push("Too many TubeRacks found to perform the layout process")
+    end
+    raise InvalidDataParams.new(error_messages) if error_messages.count > 0
+
+    asset = activity.asset_group.assets.with_fact('a', 'TubeRack').first
+
+    if parser.valid?
+      ActiveRecord::Base.transaction do |t|
+        raise InvalidDataParams.new(parser.errors.map{|e| e[:msg]}) unless parser.add_facts_to(asset, self)
+
+        error_messages.push(asset.validate_rack_content)
+        raise InvalidDataParams.new(error_messages) if error_messages.flatten.compact.count > 0
+      end
+    else
+      raise InvalidDataParams.new(parser.errors.map{|e| e[:msg]})
+    end
+  end
+
 end

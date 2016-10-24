@@ -2,6 +2,7 @@ class Fact < ActiveRecord::Base
   belongs_to :asset, :counter_cache => true
   belongs_to :object_asset, :class_name => 'Asset'
 
+  scope :not_to_remove, ->() { where(:to_remove_by => nil) }
 
   scope :with_predicate, ->(predicate) { where(:predicate => predicate)}
 
@@ -11,6 +12,13 @@ class Fact < ActiveRecord::Base
 
   scope :for_sequencescape, ->() { with_namespace('SS') }
 
+  def set_to_remove_by(step)
+    update_attributes!(:to_remove_by => step)
+  end
+
+  def set_to_add_by(step)
+    update_attributes!(:to_add_by => step)
+  end
 
   def object_value
     literal? ? object : Asset.find(object_asset_id)
