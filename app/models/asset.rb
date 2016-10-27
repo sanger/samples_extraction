@@ -255,7 +255,7 @@ class Asset < ActiveRecord::Base
   def printable_object
     return {:label => {
       :barcode => barcode,
-      :top_line => Barcode.barcode_to_human(barcode),
+      :top_line => Barcode.barcode_to_human(barcode) || barcode,
       :bottom_line => class_name }
     }
   end
@@ -294,7 +294,8 @@ class Asset < ActiveRecord::Base
     return 'Plate' if class_types.include?('Plate')
     return 'Tube' if class_types.include?('Tube')
     return 'SampleTube' if class_types.include?('SampleTube')
-    return facts.with_predicate('a').first.object
+    return facts.with_predicate('a').first.object if facts.with_predicate('a').first
+    return ""
   end
 
   def class_type

@@ -4,6 +4,10 @@ module Parsers
   class CsvLayout
     attr_reader :csv_parser, :errors, :data, :parsed
 
+    def create_tubes?
+      false
+    end
+
     def initialize(str)
       @csv_parser = CSV.new(str)
       @errors = []
@@ -25,10 +29,23 @@ module Parsers
       location[0] + (location[1..location.length].to_i.to_s)
     end
 
+    def builder(barcode)
+      if create_tubes?
+        Asset.find_or_create_by(:barcode => barcode)
+      else
+        Asset.find_by_barcode(barcode)
+      end
+    end
+
+    def valid_location?(location)
+      !!location.match(/[A-H]\d\d/)
+    end
+
     def parse
       @data ||= @csv_parser.to_a.map do |line|
         location, barcode = line[0], line[1]
-        asset = Asset.find_by_barcode(barcode)
+        asset = builder(barcode)
+        @errors.push(:msg => "Invalid location") unless valid_location?(location)
         @errors.push(:msg => "Cannot find the barcode #{barcode}") if asset.nil?
         {
           :location => location_str(location),
@@ -70,6 +87,10 @@ module Parsers
           f.set_to_remove_by(step.id)
         end
         facts_to_add = @data.map do |obj|
+          [obj[:asset].facts.with_predicate(:location), obj[:asset].facts.with_predicate(:parent)].flatten.each do |f|
+            f.set_to_remove_by(step.id)
+          end
+
           obj[:asset].add_facts([
             Fact.create(:predicate => 'location', :object => obj[:location], :to_add_by => step.id),
             Fact.create(:predicate => 'parent', :object_asset => asset, :to_add_by => step.id)

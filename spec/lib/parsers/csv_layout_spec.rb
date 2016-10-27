@@ -16,6 +16,7 @@ RSpec.describe Parsers::CsvLayout do
     describe "with valid content" do
       it 'parses correctly' do
         @csv = Parsers::CsvLayout.new(@content)
+
         expect(@csv.parse).to eq(true)
         expect(@csv.valid?).to eq(true)
       end
@@ -54,6 +55,9 @@ RSpec.describe Parsers::CsvLayout do
         setup do
           @former_parent = FactoryGirl.create(:asset)
           @assets.each_with_index do |a, location_index|
+            @former_parent.add_facts(FactoryGirl.create(:fact, {
+              :predicate => 'contains', :object_asset => a
+              }))
             a.facts << [FactoryGirl.create(:fact, {
               :predicate => 'parent',
               :object_asset => @former_parent

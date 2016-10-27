@@ -1,4 +1,6 @@
 require 'parsers/csv_layout'
+require 'parsers/csv_layout_with_tube_creation'
+require 'parsers/csv_order'
 
 module Lab::Actions
 
@@ -76,9 +78,9 @@ module Lab::Actions
     end
   end
 
-  def layout(step_type, params)
+  def csv_parsing(step_type, params, class_type)
     error_messages = []
-    parser = Parsers::CsvLayout.new(params[:file].read)
+    parser = class_type.new(params[:file].read)
 
     if activity.asset_group.assets.with_fact('a', 'TubeRack').empty?
       error_messages.push("No TubeRacks found to perform the layout process")
@@ -100,6 +102,18 @@ module Lab::Actions
     else
       raise InvalidDataParams.new(parser.errors.map{|e| e[:msg]})
     end
+  end
+
+  def layout(step_type, params)
+    csv_parsing(step_type, params, Parsers::CsvLayout)
+  end
+
+  def layout_creating_tubes(step_type, params)
+    csv_parsing(step_type, params, Parsers::CsvLayoutWithTubeCreation)
+  end
+
+  def order_symphony(step_type, params)
+    csv_parsing(step_type, params, Parsers::CsvOrder)
   end
 
 end
