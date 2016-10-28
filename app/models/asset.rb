@@ -294,7 +294,7 @@ class Asset < ActiveRecord::Base
     return 'Plate' if class_types.include?('Plate')
     return 'Tube' if class_types.include?('Tube')
     return 'SampleTube' if class_types.include?('SampleTube')
-    return facts.with_predicate('a').first.object if facts.with_predicate('a').first
+    return facts.select{|f| f[:predicate] == 'a'}.first.object if facts.select{|f| f[:predicate] == 'a'}.first
     return ""
   end
 

@@ -15,20 +15,23 @@ module Parsers
     end
 
     def duplicated(sym)
+      return [] unless @data
       all_elems = @data.map{|obj| obj[sym]}
       all_elems.select do |element|
         all_elems.count(element) > 1
-      end.uniq
+      end.uniq.compact
     end
 
     def parse
-      @data ||= @csv_parser.to_a.zip(locations_by_column).map do |line|
-        barcode = line[0]
-        asset = Asset.find_by_barcode(barcode)
-        @errors.push(:msg => "Cannot find the barcode #{barcode}") if asset.nil?
-        {
-          :asset => asset
-        }
+      @data ||= @csv_parser.to_a.map do |line|
+        obj = {:asset => nil}
+        unless line.empty?
+          barcode = line[0]
+          asset = Asset.find_by_barcode(barcode)
+          @errors.push(:msg => "Cannot find the barcode #{barcode}") if asset.nil?
+          obj[:asset] = asset
+        end
+        obj
       end
 
       unless duplicated(:asset).empty?
@@ -54,6 +57,14 @@ module Parsers
       @data if valid?
     end
 
+    def locations_by_column
+      12.times.map do |col|
+        ('A'..'H').to_a.map do |l|
+          "#{l}#{col+1}"
+        end
+      end.flatten
+    end
+
     def add_facts_to(rack, step)
       if valid?
         rack_tubes_by_location = rack.facts.with_predicate('contains').map(&:object_asset).reduce({}) do |memo, tube|
@@ -63,10 +74,13 @@ module Parsers
         end
 
         locations_by_column.each_with_index do |location, index|
-          sample_tube = sample_tubes[index]
-          tube = rack_tubes_by_location[location]
-
-          sample_tube.add_facts(Fact.create(:predicate => 'transfer', :object_asset => tube))
+          if index < sample_tubes.length
+            sample_tube = sample_tubes[index][:asset]
+            if sample_tube
+              tube = rack_tubes_by_location[location]
+              sample_tube.add_facts(Fact.create(:predicate => 'transfer', :object_asset => tube))
+            end
+          end
         end
       end
     end

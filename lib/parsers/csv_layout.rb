@@ -31,10 +31,12 @@ module Parsers
 
     def builder(barcode)
       if create_tubes?
-        Asset.find_or_create_by(:barcode => barcode)
+        asset = Asset.create!(:barcode => barcode)
+        asset.add_facts(Fact.create(:predicate => 'a', :object => 'Tube'));
       else
-        Asset.find_by_barcode(barcode)
+        asset = Asset.find_by_barcode!(barcode)
       end
+      asset
     end
 
     def valid_location?(location)
@@ -87,8 +89,10 @@ module Parsers
           f.set_to_remove_by(step.id)
         end
         facts_to_add = @data.map do |obj|
-          [obj[:asset].facts.with_predicate(:location), obj[:asset].facts.with_predicate(:parent)].flatten.each do |f|
-            f.set_to_remove_by(step.id)
+          if obj[:asset].respond_to? :facts
+            [obj[:asset].facts.with_predicate(:location), obj[:asset].facts.with_predicate(:parent)].flatten.each do |f|
+              f.set_to_remove_by(step.id)
+            end
           end
 
           obj[:asset].add_facts([
