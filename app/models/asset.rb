@@ -95,9 +95,11 @@ class Asset < ActiveRecord::Base
   # }
 
   def add_facts(list)
-    list = [list].flatten
-    list.each do |fact|
-      facts << fact unless has_fact?(fact)
+    ActiveRecord::Base.transaction do |t|
+      list = [list].flatten
+      list.each do |fact|
+        facts << fact unless has_fact?(fact)
+      end
     end
   end
 
@@ -112,9 +114,14 @@ class Asset < ActiveRecord::Base
   def has_fact?(fact)
     facts.any? do |f|
       if f.object.nil?
-        ((fact.predicate == f.predicate) && (fact.object_asset == f.object_asset))
+        ((fact.predicate == f.predicate) && (fact.object_asset == f.object_asset) &&
+          (fact.to_add_by == f.to_add_by) && (fact.to_remove_by == f.to_remove_by))
       else
-        ((fact.predicate == f.predicate) && (fact.object == f.object))
+        other_conds=true
+        if fact.respond_to?(:to_add_by)
+          other_conds = (fact.to_add_by == f.to_add_by) && (fact.to_remove_by == f.to_remove_by)
+        end
+        ((fact.predicate == f.predicate) && (fact.object == f.object) && other_conds)
       end
     end
   end
@@ -248,7 +255,7 @@ class Asset < ActiveRecord::Base
   def printable_object
     return {:label => {
       :barcode => barcode,
-      :top_line => Barcode.barcode_to_human(barcode),
+      :top_line => Barcode.barcode_to_human(barcode) || barcode,
       :bottom_line => class_name }
     }
   end
@@ -281,9 +288,66 @@ class Asset < ActiveRecord::Base
     return names + ' ' + types
   end
 
+  def self.class_type(facts)
+    class_types = facts.select{|f| f[:predicate] == 'a'}.map(&:object)
+    return 'TubeRack' if class_types.include?('TubeRack')
+    return 'Plate' if class_types.include?('Plate')
+    return 'Tube' if class_types.include?('Tube')
+    return 'SampleTube' if class_types.include?('SampleTube')
+    return facts.select{|f| f[:predicate] == 'a'}.first.object if facts.select{|f| f[:predicate] == 'a'}.first
+    return ""
+  end
+
   def class_type
-    facts.with_predicate('a').first.object
+    Asset.class_type(facts)
   end
 
 
+  def contains_location?(location)
+    facts.with_predicate('contains').any? do |f|
+      f.object_asset.facts.with_predicate('location').map(&:object).include?(location)
+    end
+  end
+
+  def assets_at_location(location)
+    facts.with_predicate('contains').map(&:object_asset).select do |a|
+      a.facts.with_predicate('location').map(&:object).include?(location)
+    end
+  end
+
+  def remove_from_parent(parent)
+    facts.with_predicate('parent').select{|f| f.object_asset==parent}.each(&:destroy)
+    facts.with_predicate('location').each(&:destroy)
+  end
+
+
+  def duplicated_tubes_validation
+    contained_assets = facts.with_predicate('contains').map(&:object_asset)
+    duplicated = contained_assets.select do |element|
+      element.facts.with_predicate('location').count > 1
+    end.uniq
+    unless duplicated.empty?
+      return duplicated.map do |duplicate_tube|
+        "The tube #{duplicated_tube.barcode} is duplicated in the layout"
+      end
+    end
+    return []
+  end
+
+  def more_than_one_aliquot_type_validation
+    if facts.with_predicate('contains').map(&:object_asset).map do |well|
+      well.facts.with_predicate('aliquotType').map(&:object)
+      end.flatten.uniq.count > 1
+      return ['More than one aliquot type in the same rack']
+    end
+    return []
+  end
+
+
+  def validate_rack_content
+    errors=[]
+    errors.push(more_than_one_aliquot_type_validation)
+    #errors.push(duplicated_tubes_validation)
+    errors
+  end
 end

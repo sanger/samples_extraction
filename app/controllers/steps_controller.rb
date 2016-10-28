@@ -139,7 +139,8 @@ class StepsController < ApplicationController
     end
 
     def create_step_params
-       params.require(:step).permit(:state, :data_params, :data_action, :data_action_type)
+      params.require(:step).permit(:state, :data_params,
+        :data_action, :data_action_type, :file)
     end
 
     # Use callbacks to share common setup or constraints between actions.
@@ -152,6 +153,7 @@ class StepsController < ApplicationController
 
 
     def store_uploads
+      return
       if params[:file]
         @upload = Upload.create!(:data => params[:file].read,
           :filename => params[:file].original_filename,
