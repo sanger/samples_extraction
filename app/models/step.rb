@@ -164,8 +164,18 @@ class Step < ActiveRecord::Base
   def finish
     ActiveRecord::Base.transaction do |t|
       unselect_assets_from_antecedents
-      Fact.where(:to_remove_by => self.id).delete_all
-      Fact.where(:to_add_by => self.id).update_all(:to_add_by => nil)
+      facts_to_remove = Fact.where(:to_remove_by => self.id)
+      facts_to_remove.each do |fact|
+        operation = Operation.create!(:action_type => 'removeFacts', :step => self,
+            :asset=> fact.asset, :predicate => fact.predicate, :object => fact.object)
+      end
+      facts_to_remove.delete_all
+      facts_to_add = Fact.where(:to_add_by => self.id)
+      facts_to_add.each do |fact|
+        operation = Operation.create!(:action_type => 'addFacts', :step => self,
+            :asset=> fact.asset, :predicate => fact.predicate, :object => fact.object)
+      end
+      facts_to_add.update_all(:to_add_by => nil)
       unselect_assets_from_consequents
 
       update_service

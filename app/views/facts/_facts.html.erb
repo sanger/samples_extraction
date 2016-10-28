@@ -1,7 +1,7 @@
 <span class="facts-list ">
   <span data-psd-component-class="RackWellDisplay" data-psd-component-parameters="<%= data_rack_display(facts) %>">
     <div class='svg '><%= svg Asset.class_type(facts) %></div>
-    <div class="col-xs-6">
+    <div class="col-xs-10">
   <% facts.each do |fact| %>
     <%= render :partial => 'facts/fact', :locals => { :fact => fact} %>
   <% end %>
