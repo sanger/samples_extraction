@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161028122148) do
+ActiveRecord::Schema.define(version: 20161028134840) do
 
   create_table "actions", force: :cascade do |t|
     t.string   "action_type",                limit: 255, null: false
@@ -185,6 +185,7 @@ ActiveRecord::Schema.define(version: 20161028122148) do
     t.boolean  "up_to_date",                  default: false, null: false
     t.datetime "created_at",                                  null: false
     t.datetime "updated_at",                                  null: false
+    t.integer  "position",        limit: 4
   end
 
   add_index "facts", ["asset_id"], name: "index_facts_on_asset_id", using: :btree
@@ -299,6 +300,7 @@ ActiveRecord::Schema.define(version: 20161028122148) do
     t.boolean  "for_reasoning",                  default: false, null: false
     t.datetime "created_at",                                     null: false
     t.datetime "updated_at",                                     null: false
+    t.string   "connect_by",       limit: 255
   end
 
   add_index "step_types", ["superceded_by_id"], name: "index_step_types_on_superceded_by_id", using: :btree

@@ -34,7 +34,7 @@ class Action < ActiveRecord::Base
           # we need to add support to them
           data = wildcard_facts(asset, step)
         else
-          data = asset_group.assets.select do |related_asset|
+          data = asset_group.assets.each_with_index.map.select do |related_asset, idx|
             # They are compatible if the object condition group is
             # compatible and if they share a common range of values of
             # values for any of the wildcard values defined
@@ -46,8 +46,9 @@ class Action < ActiveRecord::Base
               end
             end
             object_condition_group.compatible_with?(related_asset) && checked_wildcards
-          end.map do |related_asset|
+          end.map do |related_asset, idx|
             {
+              :position => idx,
               :predicate => predicate,
               :object => related_asset.relation_id,
               :object_asset_id => related_asset.id,
@@ -57,8 +58,9 @@ class Action < ActiveRecord::Base
           end
         end
       else
-        data = created_assets[object_condition_group.id].map do |related_asset|
+        data = created_assets[object_condition_group.id].each_with_index.map do |related_asset, idx|
           {
+          :position => idx,
           :predicate => predicate,
           :object => related_asset.relation_id,
           :object_asset_id => related_asset.id,
@@ -69,7 +71,9 @@ class Action < ActiveRecord::Base
     end
     in_progress = step.in_progress? ? {:to_add_by => step.id} : {}
     data.map do |obj|
-      Fact.create(obj.merge(in_progress))
+      created_fact_obj = obj.merge(in_progress)
+      created_fact_obj= created_fact_obj.delete_if{|k,v| (k==:position) && (step.step_type.connect_by != 'position')}
+      Fact.new(created_fact_obj)
     end
   end
 
@@ -114,11 +118,11 @@ class Action < ActiveRecord::Base
       raise Step::UnknownConditionGroup, msg if assets.compact.length==0
       assets.each do |asset|
         facts = generate_facts(created_assets, asset_group, step, asset).map(&:dup)
-        asset.add_facts(facts)
+        asset.add_facts(facts, original_assets.find_index(asset))
       end
     end
     if action_type == 'removeFacts'
-      assets.each do |asset|
+      assets.each_with_index do |asset, idx|
         facts_to_remove = asset.facts.select do |f|
           (f.predicate == predicate) && (object.nil? || (f.object == object))
         end
@@ -132,7 +136,7 @@ class Action < ActiveRecord::Base
         end
         if marked_facts_to_destroy.nil?
           facts_to_remove.each do |fact|
-            fact.update_attributes(:to_remove_by => step.id)
+            fact.update_attributes(:to_remove_by => step.id, :position => idx)
           end
         else
           marked_facts_to_destroy.push(facts_to_remove)
