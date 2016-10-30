@@ -36,47 +36,6 @@ class Step < ActiveRecord::Base
     raise StandardError unless compatible || (asset_group.assets.count == 0)
   end
 
-  # Identifies which asset acting as subject is compatible with which rule.
-  def classify_assets
-    perform_list = []
-    step_type.actions.includes([:subject_condition_group, :object_condition_group]).each do |r|
-      if r.subject_condition_group.nil?
-        raise RelationSubject, 'A subject condition group needs to be specified to apply the rule'
-      end
-      if (r.object_condition_group) && (!r.object_condition_group.is_wildcard?)
-        unless [r.subject_condition_group, r.object_condition_group].any?{|c| c.cardinality == 1}
-          # Because a condition group can refer to an unknown number of assets,
-          # when a rule relates 2 condition groups (?p :transfers ?q) we cannot
-          # know how to connect their assets between each other unless at least
-          # one of the condition groups has maxCardinality set to 1
-          msg = ['In a relation between condition groups, one of them needs to have ',
-                'maxCardinality set to 1 to be able to infer how to connect its assets'].join('')
-          #raise RelationCardinality, msg
-        end
-      end
-      # If this condition group is referring to an element not matched (like
-      # a new created asset, for example) I cannot classify my assets with it
-      if (!step_type.condition_groups.include?(r.subject_condition_group))
-        perform_list.push([nil, r])
-      else
-        asset_group.assets.includes(:facts).each do |asset|
-          if r.subject_condition_group.compatible_with?(asset)
-            perform_list.push([asset, r])
-          end
-        end
-      end
-    end
-    perform_list.sort do |a,b|
-      if a[1].action_type=='createAsset'
-        -1
-      elsif b[1].action_type=='createAsset'
-        1
-      else
-        a[1].action_type <=> b[1].action_type
-      end
-    end
-  end
-
   def unselect_assets_from_antecedents
     asset_group.unselect_assets_with_conditions(step_type.condition_groups)
     if activity
@@ -115,10 +74,7 @@ class Step < ActiveRecord::Base
 
       step_execution = build_step_execution(:facts_to_destroy => [], :original_assets => original_assets.assets)
 
-      classify_assets.each do |asset, action|
-        step_execution.perform_action(action, asset, nil)
-      end
-      step_execution.save_created_assets
+      step_execution.run
 
       unselect_assets_from_antecedents
 
@@ -150,10 +106,7 @@ class Step < ActiveRecord::Base
       step_execution = build_step_execution(
         :original_assets => original_assets,
         :facts_to_destroy => nil)
-      classify_assets.each do |asset, action|
-        step_execution.perform_action(action, asset, nil)
-      end
-      step_execution.save_created_assets
+      step_execution.run
 
       asset_group.update_attributes(:assets => [])
       finish if step_params[:state]=='done'

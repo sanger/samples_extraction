@@ -5,19 +5,26 @@ module StepExecution::FactActions
     raise Step::UnknownConditionGroup, msg if changed_assets.compact.length==0
     @changed_facts = generate_facts
     changed_assets.each do |asset|
-      asset.add_facts(changed_facts.map(&:dup), original_assets.find_index(asset))
+      asset.add_facts(changed_facts.map(&:dup), position) do |fact|
+        create_operation(asset, fact)
+      end
     end
   end
 
   def remove_facts
     changed_assets.each_with_index do |asset, idx|
       @changed_facts = asset.facts.select do |f|
-        (f.predicate == action.predicate) && (action.object.nil? || (f.object == action.object))
+        ((f.predicate == action.predicate) &&
+        (((action.object.nil? || (f.object == action.object))) ||
+          (f.object_asset && action.object_condition_group.compatible_with?(f.object_asset))))
+      end.select do |f|
+        position.nil? ? true : (positions_for_asset[f.object_asset][action.object_condition_group]==position)
+      end.each do |fact|
+        create_operation(asset, fact)
       end
-
       if facts_to_destroy.nil?
         @changed_facts.each do |fact|
-          fact.update_attributes(:to_remove_by => step.id, :position => idx)
+          fact.update_attributes(:to_remove_by => step.id)
         end
       else
         facts_to_destroy.push(@changed_facts)
@@ -64,7 +71,7 @@ module StepExecution::FactActions
             action.object_condition_group.compatible_with?(related_asset) && checked_wildcards
           end.map do |related_asset, idx|
             {
-              :position => idx,
+              :position => positions_for_asset[related_asset][action.object_condition_group],
               :predicate => action.predicate,
               :object => related_asset.relation_id,
               :object_asset_id => related_asset.id,
@@ -76,7 +83,7 @@ module StepExecution::FactActions
       else
         data = created_assets[action.object_condition_group.id].each_with_index.map do |related_asset, idx|
           {
-          :position => idx,
+          :position => positions_for_asset[related_asset][action.object_condition_group],
           :predicate => action.predicate,
           :object => related_asset.relation_id,
           :object_asset_id => related_asset.id,

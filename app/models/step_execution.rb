@@ -24,6 +24,8 @@ class StepExecution
   attr_accessor :created_assets
   # List of facts that will be destroyed in a single DELETE sql
   attr_accessor :facts_to_destroy
+  # Hash with the positions for each asset by condition group
+  attr_accessor :positions_for_asset
 
   ACTION_TYPES = ['addFacts', 'removeFacts', 'createAsset', 'selectAsset', 'updateService']
 
@@ -37,6 +39,50 @@ class StepExecution
 
   def valid_action_type?
     ACTION_TYPES.include?(action.action_type)
+  end
+
+  # Identifies which asset acting as subject is compatible with which rule.
+  def classify_assets
+    perform_list = []
+
+    @positions_for_asset = step.step_type.position_for_assets_by_condition_group(asset_group.assets)
+
+    step.step_type.actions.includes([:subject_condition_group, :object_condition_group]).each do |r|
+      if r.subject_condition_group.nil?
+        raise RelationSubject, 'A subject condition group needs to be specified to apply the rule'
+      end
+      if (r.object_condition_group) && (!r.object_condition_group.is_wildcard?)
+        unless [r.subject_condition_group, r.object_condition_group].any?{|c| c.cardinality == 1}
+          # Because a condition group can refer to an unknown number of assets,
+          # when a rule relates 2 condition groups (?p :transfers ?q) we cannot
+          # know how to connect their assets between each other unless at least
+          # one of the condition groups has maxCardinality set to 1
+          msg = ['In a relation between condition groups, one of them needs to have ',
+                'maxCardinality set to 1 to be able to infer how to connect its assets'].join('')
+          #raise RelationCardinality, msg
+        end
+      end
+      # If this condition group is referring to an element not matched (like
+      # a new created asset, for example) I cannot classify my assets with it
+      if (!step.step_type.condition_groups.include?(r.subject_condition_group))
+        perform_list.push([nil, r])
+      else
+        asset_group.assets.includes(:facts).each do |asset|
+          if r.subject_condition_group.compatible_with?(asset)
+            perform_list.push([asset, r, positions_for_asset[asset][r.subject_condition_group]])
+          end
+        end
+      end
+    end
+    perform_list.sort do |a,b|
+      if a[1].action_type=='createAsset'
+        -1
+      elsif b[1].action_type=='createAsset'
+        1
+      else
+        a[1].action_type <=> b[1].action_type
+      end
+    end
   end
 
   def perform_action(action, asset, position)
@@ -53,7 +99,17 @@ class StepExecution
     if valid_action_type?
       send(action.action_type.underscore)
     end
-    store_operations
+  end
+
+  def run
+    classify_assets.each do |asset, action, position|
+      if step.step_type.connect_by=='position'
+        perform_action(action, asset, position)
+      else
+        perform_action(action, asset, nil)
+      end
+    end
+    save_created_assets
   end
 
 end

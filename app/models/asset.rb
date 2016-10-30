@@ -94,13 +94,14 @@ class Asset < ActiveRecord::Base
   #   end
   # }
 
-  def add_facts(list, position=nil)
+  def add_facts(list, position=nil, &block)
     ActiveRecord::Base.transaction do |t|
       list = [list].flatten
       list.each do |fact|
         unless has_fact?(fact)
           if ((fact.position.nil?) || (fact.position == position))
             facts << fact
+            yield fact if block_given?
           end
         end
       end

@@ -17,10 +17,13 @@ module StepExecution::AssetActions
     # Is the following line needed??
     @changed_assets= created_assets[action.subject_condition_group.id]
 
+    #debugger
     created_assets[action.subject_condition_group.id].each_with_index do |created_asset, i|
       created_asset.generate_barcode(i)
       @changed_facts = generate_facts.map(&:dup)
-      created_asset.add_facts(changed_facts)
+      created_asset.add_facts(changed_facts, i) do |fact|
+        create_operation(created_asset, fact)
+      end
     end
   end
 
