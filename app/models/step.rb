@@ -93,14 +93,12 @@ class Step < ActiveRecord::Base
     end
   end
 
-  def save_created_assets(created_assets)
-    list_of_assets = created_assets.values.uniq
-    if list_of_assets.length > 0
-      created_asset_group = AssetGroup.create
-      created_asset_group.add_assets(list_of_assets)
-      activity.asset_group.add_assets(list_of_assets) if activity
-      update_attributes(:created_asset_group => created_asset_group)
-    end
+  def build_step_execution(params)
+    StepExecution.new({
+      :step => self,
+      :asset_group => asset_group,
+      :created_assets => {}
+    }.merge(params))
   end
 
   def execute_actions
@@ -114,18 +112,17 @@ class Step < ActiveRecord::Base
     end
 
     ActiveRecord::Base.transaction do |t|
-      created_assets = {}
-      list_to_destroy = []
 
-      classify_assets.each do |asset, r|
-        r.execute(self, asset_group, original_assets.assets, asset, created_assets, list_to_destroy)
+      step_execution = build_step_execution(:facts_to_destroy => [], :original_assets => original_assets.assets)
+
+      classify_assets.each do |asset, action|
+        step_execution.perform_action(action, asset, nil)
       end
-
-      save_created_assets(created_assets)
+      step_execution.save_created_assets
 
       unselect_assets_from_antecedents
 
-      Fact.where(:id => list_to_destroy.flatten.compact.map(&:id)).delete_all
+      Fact.where(:id => step_execution.facts_to_destroy.flatten.compact.map(&:id)).delete_all
 
       #update_assets_started if activity
 
@@ -150,11 +147,13 @@ class Step < ActiveRecord::Base
 
       asset_group.add_assets(assets)
 
-      created_assets = {}
-      classify_assets.each do |asset, r|
-        r.execute(self, asset_group, original_assets, asset, created_assets, nil)
+      step_execution = build_step_execution(
+        :original_assets => original_assets,
+        :facts_to_destroy => nil)
+      classify_assets.each do |asset, action|
+        step_execution.perform_action(action, asset, nil)
       end
-      save_created_assets(created_assets)
+      step_execution.save_created_assets
 
       asset_group.update_attributes(:assets => [])
       finish if step_params[:state]=='done'
