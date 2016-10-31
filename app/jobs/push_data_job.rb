@@ -11,5 +11,18 @@ class PushDataJob < ApplicationJob
         f.destroy
       end
     end
+
+    # This should go in a step_type without user interaction
+    Asset.with_predicate('transfer').each do |asset|
+      asset.facts.with_predicate('transfer').each do |fact|
+        fact.object_asset.add_facts(asset.facts.with_predicate('aliquotType').map do |aliquot_fact|
+          Fact.new(:predicate => 'aliquotType', :object => aliquot_fact.object)
+        end)
+
+        fact.object_asset.add_facts(asset.facts.with_predicate('sanger_sample_id').map do |aliquot_fact|
+          Fact.new(:predicate => 'sanger_sample_id', :object => aliquot_fact.object)
+        end)
+      end
+    end
   end
 end

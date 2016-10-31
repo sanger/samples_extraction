@@ -44,7 +44,7 @@ class Asset < ActiveRecord::Base
   }
 
   scope :with_predicate, ->(predicate) {
-    joins(:fact).where(:facts => {:predicate => predicate})
+    joins(:facts).where(:facts => {:predicate => predicate})
   }
 
   scope :for_activity_type, ->(activity_type) {
@@ -270,8 +270,17 @@ class Asset < ActiveRecord::Base
     return {:label => {
       :barcode => barcode,
       :top_line => Barcode.barcode_to_human(barcode) || barcode,
-      :bottom_line => class_name }
+      :bottom_line => bottom_line }
     }
+  end
+
+  def position_value
+    val = facts.map(&:position).compact.first
+    val.nil? ? "" : "Pos: #{val.to_s}"
+  end
+
+  def bottom_line
+    "#{class_name} #{position_value}".chomp
   end
 
   def class_name
