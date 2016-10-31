@@ -18,7 +18,7 @@
 
     <%= operation.action_type %>
   </td>
-  <td class="col-md-3"><%= operation.asset.barcode %></td>
+  <td class="col-md-3"><%= operation.asset.barcode if operation.asset %></td>
   <td class="col-md-6">
     <%= render :partial => 'facts/fact', :locals => { :fact => operation} %>
     <!--div class="fact"><span class="label label-default"><%= operation.predicate %>:<%= operation.object %></span></div -->

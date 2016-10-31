@@ -18,7 +18,7 @@ module StepExecution::FactActions
         (((action.object.nil? || (f.object == action.object))) ||
           (f.object_asset && action.object_condition_group.compatible_with?(f.object_asset))))
       end.select do |f|
-        position.nil? ? true : (positions_for_asset[f.object_asset][action.object_condition_group]==position)
+        position.nil? ? true : (position_for_asset(f.object_asset, action.object_condition_group)==position)
       end.each do |fact|
         create_operation(asset, fact)
       end
@@ -46,6 +46,14 @@ module StepExecution::FactActions
     end
   end
 
+  def position_for_asset(asset, condition_group)
+    positions_for_asset[asset] = {} unless positions_for_asset[asset]
+    unless positions_for_asset[asset][condition_group]
+      positions_for_asset[asset][condition_group] = step.step_type.position_for_assets_by_condition_group([asset])
+    end
+    positions_for_asset[asset][condition_group]
+  end
+
   def generate_facts
     data = {}
     if action.object_condition_group.nil?
@@ -71,7 +79,7 @@ module StepExecution::FactActions
             action.object_condition_group.compatible_with?(related_asset) && checked_wildcards
           end.map do |related_asset, idx|
             {
-              :position => positions_for_asset[related_asset][action.object_condition_group],
+              :position => position_for_asset(related_asset, action.object_condition_group),
               :predicate => action.predicate,
               :object => related_asset.relation_id,
               :object_asset_id => related_asset.id,
@@ -83,7 +91,7 @@ module StepExecution::FactActions
       else
         data = created_assets[action.object_condition_group.id].each_with_index.map do |related_asset, idx|
           {
-          :position => positions_for_asset[related_asset][action.object_condition_group],
+          :position => idx, #position_for_asset(related_asset, action.object_condition_group),
           :predicate => action.predicate,
           :object => related_asset.relation_id,
           :object_asset_id => related_asset.id,

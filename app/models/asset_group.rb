@@ -27,17 +27,6 @@ class AssetGroup < ActiveRecord::Base
     return true
   end
 
-  def add_facts(step, facts)
-    ActiveRecord::Base.transaction do |t|
-      assets.each do |asset|
-        facts.each do |fact|
-          operation = Operation.create!(:action => self, :step => step,
-            :asset=> asset, :predicate => fact.predicate, :object => fact.object)
-        end
-      end
-    end
-  end
-
   def unselect_barcodes(barcodes)
     barcodes.each do |barcode|
       selection = assets.select{|a| a.barcode == barcode}
