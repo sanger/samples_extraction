@@ -34,7 +34,7 @@ module Parsers
         asset = Asset.create!(:barcode => barcode)
         asset.add_facts(Fact.create(:predicate => 'a', :object => 'Tube'));
       else
-        asset = Asset.find_by_barcode!(barcode)
+        asset = Asset.find_by_barcode(barcode)
       end
       asset
     end
@@ -65,7 +65,6 @@ module Parsers
           @errors.push(:msg => "The location #{location} is duplicated in the file")
         end
       end
-
 
       @parsed = true
       valid?

@@ -94,6 +94,18 @@ class StepType < ActiveRecord::Base
     end
   end
 
+  def position_for_assets_by_condition_group(assets)
+    all_cgroups = {}
+    Hash[condition_group_classification_for(assets).map do |asset, cgroups|
+      [asset, Hash[cgroups.map do |cgroup|
+        all_cgroups[cgroup] = 0 if all_cgroups[cgroup].nil?
+        position = all_cgroups[cgroup]
+        all_cgroups[cgroup] = all_cgroups[cgroup] + 1
+        [cgroup, position]
+      end]]
+    end]
+  end
+
   def condition_group_classification_for(assets, checked_condition_groups=[], wildcard_values={})
     related_assets = []
     h = Hash[assets.map{|asset| [asset, condition_groups_for(asset, related_assets, [], wildcard_values)]}]

@@ -23,9 +23,10 @@ module Parsers
     end
 
     def parse
-      @data ||= @csv_parser.to_a.map do |line|
+      list =  @csv_parser.to_a
+      @data ||= list.map do |line|
         obj = {:asset => nil}
-        unless line.empty?
+        unless line.nil? || line.empty?
           barcode = line[0]
           asset = Asset.find_by_barcode(barcode)
           @errors.push(:msg => "Cannot find the barcode #{barcode}") if asset.nil?
@@ -33,7 +34,6 @@ module Parsers
         end
         obj
       end
-
       unless duplicated(:asset).empty?
         duplicated(:asset).each do |asset|
           @errors.push(:msg => "The tube with barcode #{asset.barcode} is duplicated in the file")
@@ -78,7 +78,10 @@ module Parsers
             sample_tube = sample_tubes[index][:asset]
             if sample_tube
               tube = rack_tubes_by_location[location]
-              sample_tube.add_facts(Fact.create(:predicate => 'transfer', :object_asset => tube))
+              if tube
+                sample_tube.add_facts(Fact.create(:predicate => 'transfer', :object_asset => tube, :to_add_by => step.id))
+                tube.add_facts(Fact.create(:predicate => 'transferredFrom', :object_asset => sample_tube, :to_add_by => step.id))
+              end
             end
           end
         end

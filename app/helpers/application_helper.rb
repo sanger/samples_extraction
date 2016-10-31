@@ -9,17 +9,17 @@ module ApplicationHelper
 
   def data_rack_display(facts)
 
-    return '' unless facts.first.class == Fact
+    #return '' unless facts.first.class == Fact
     f = facts.select{|f| f.predicate == 'aliquotType'}.first
     if f
       return {:aliquot => {
         :cssClass => f.object || UNKNOW_ALIQUOT_TYPE,
-        :url => asset_path(f.asset)
+        :url => ((f.class==Fact) ? asset_path(f.asset) : '')
         }}.to_json
     end
 
     facts.select{|f| f.predicate == 'contains'}.map do |fact|
-      [fact.object_asset, fact.object_asset.facts] if fact.object_asset
+      [fact.object_asset, fact.object_asset.facts] if (fact.class == Fact)
     end.compact.reduce({}) do |memo, list|
       asset, facts = list[0],list[1]
       f = facts.select{|f| f.predicate == 'location'}.first
@@ -27,7 +27,7 @@ module ApplicationHelper
         location = f.object
         f2 = facts.select{|f| f.predicate == 'aliquotType'}.first
         aliquotType = f2 ? f2.object : nil
-        memo[location] = {:cssClass => aliquotType || UNKNOW_ALIQUOT_TYPE, :url => asset_path(asset)} unless location.nil?
+        memo[location] = {:title => "#{asset.short_description}", :cssClass => aliquotType || UNKNOW_ALIQUOT_TYPE, :url => asset_path(asset)} unless location.nil?
       end
       memo
     end.to_json

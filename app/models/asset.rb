@@ -94,13 +94,27 @@ class Asset < ActiveRecord::Base
   #   end
   # }
 
-  def add_facts(list)
+  def add_facts(list, position=nil, &block)
     ActiveRecord::Base.transaction do |t|
       list = [list].flatten
       list.each do |fact|
-        facts << fact unless has_fact?(fact)
+        unless has_fact?(fact)
+          if ((fact.position.nil?) || (fact.position == position))
+            facts << fact
+            yield fact if block_given?
+          end
+        end
       end
     end
+  end
+
+  def short_description
+    "#{aliquot_type} #{class_type} #{barcode.blank? ? '#' : barcode}".chomp
+  end
+
+  def aliquot_type
+    f = facts.with_predicate('aliquotType').first
+    f ? f.object : ""
   end
 
   def relation_id

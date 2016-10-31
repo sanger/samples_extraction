@@ -3,13 +3,13 @@
   function UploadFile(node, params) {
     this.node = $(node);
 
-    this.form = $('form', this.node);
+    this.form = $($('form', this.node)[0]);
     this.url = this.form.attr('action');
 
     this.node.addClass('custom-dropzone');
 
     this.fileUploadElement = $(".file-upload", this.node);
-    this.nextStepElement = $("form", this.node);
+    this.nextStepElement = $("form", this.node)[1];
 
     this.buildPreview();
     this.buildDropzone();
@@ -141,9 +141,9 @@
   };
 
   proto.attachHandlers = function() {
-    $('#next', this.node).on('click', function() {
+    /*$('#next', this.node).on('click', function() {
       $('form.new_step').submit();
-    });
+    });*/
     this.myDropzone.on("success", $.proxy(this.onSuccess, this));
     this.myDropzone.on("addedfile", $.proxy(this.onAddFile, this));
     this.myDropzone.on("removedfile", $.proxy(this.onRemoveFile, this));

@@ -18,6 +18,9 @@
     <%= f.text_field :name, :readonly => readonly %>
   </div>
   <div class="field">
+    <%= f.select :connect_by, options_for_select([['All', nil], ['By position', 'position']], step_type.connect_by), {}, :disabled => readonly %>
+  </div>
+  <div class="field">
     <%= f.select :step_template, options_for_select(step_type.all_step_templates.map do |a|
       if a.empty?
         ['None', nil]

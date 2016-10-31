@@ -90,6 +90,7 @@
     return this.factsStore.findIndex(function(storedFact) {
       return ((fact.predicate=== storedFact.predicate) &&
               (fact.object=== storedFact.object) &&
+              (fact.object_reference=== storedFact.object_reference) &&
               (fact.actionType === storedFact.actionType));
     });
   };

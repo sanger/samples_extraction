@@ -52,5 +52,17 @@
 
 <% end %>
 
-<button id="next" class="button btn btn-default">Got to Next Step</button>
+<%= form_for [@activity, step_type, Step.new], action: 'create', class: 'step-template-form' do |f| %>
+  <%= f.hidden_field :tube_printer_id, :value => @current_user.tube_printer_id %>
+  <%= f.hidden_field :plate_printer_id, :value => @current_user.plate_printer_id %>
+
+  <button id="next" class="button btn btn-default">Go to Next Step</button>
+  <input type="hidden" name='step[state]' value='done' />
+  <% if @upload_ids %>
+    <input type="hidden" name="upload_ids" value="<%= @upload_ids %>" />
+  <% end %>
+<% end %>
+
+
 </div>
+

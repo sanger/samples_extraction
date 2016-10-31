@@ -5,4 +5,9 @@ class Operation < ApplicationRecord
   belongs_to :activity
 
   scope :for_presenting, ->() { includes(:asset, :action) }
+
+  def action_type
+    return action.action_type if action
+    return attributes["action_type"]
+  end
 end

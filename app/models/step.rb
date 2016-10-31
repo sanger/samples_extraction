@@ -36,47 +36,6 @@ class Step < ActiveRecord::Base
     raise StandardError unless compatible || (asset_group.assets.count == 0)
   end
 
-  # Identifies which asset acting as subject is compatible with which rule.
-  def classify_assets
-    perform_list = []
-    step_type.actions.includes([:subject_condition_group, :object_condition_group]).each do |r|
-      if r.subject_condition_group.nil?
-        raise RelationSubject, 'A subject condition group needs to be specified to apply the rule'
-      end
-      if (r.object_condition_group) && (!r.object_condition_group.is_wildcard?)
-        unless [r.subject_condition_group, r.object_condition_group].any?{|c| c.cardinality == 1}
-          # Because a condition group can refer to an unknown number of assets,
-          # when a rule relates 2 condition groups (?p :transfers ?q) we cannot
-          # know how to connect their assets between each other unless at least
-          # one of the condition groups has maxCardinality set to 1
-          msg = ['In a relation between condition groups, one of them needs to have ',
-                'maxCardinality set to 1 to be able to infer how to connect its assets'].join('')
-          #raise RelationCardinality, msg
-        end
-      end
-      # If this condition group is referring to an element not matched (like
-      # a new created asset, for example) I cannot classify my assets with it
-      if (!step_type.condition_groups.include?(r.subject_condition_group))
-        perform_list.push([nil, r])
-      else
-        asset_group.assets.includes(:facts).each do |asset|
-          if r.subject_condition_group.compatible_with?(asset)
-            perform_list.push([asset, r])
-          end
-        end
-      end
-    end
-    perform_list.sort do |a,b|
-      if a[1].action_type=='createAsset'
-        -1
-      elsif b[1].action_type=='createAsset'
-        1
-      else
-        a[1].action_type <=> b[1].action_type
-      end
-    end
-  end
-
   def unselect_assets_from_antecedents
     asset_group.unselect_assets_with_conditions(step_type.condition_groups)
     if activity
@@ -93,14 +52,12 @@ class Step < ActiveRecord::Base
     end
   end
 
-  def save_created_assets(created_assets)
-    list_of_assets = created_assets.values.uniq
-    if list_of_assets.length > 0
-      created_asset_group = AssetGroup.create
-      created_asset_group.add_assets(list_of_assets)
-      activity.asset_group.add_assets(list_of_assets) if activity
-      update_attributes(:created_asset_group => created_asset_group)
-    end
+  def build_step_execution(params)
+    StepExecution.new({
+      :step => self,
+      :asset_group => asset_group,
+      :created_assets => {}
+    }.merge(params))
   end
 
   def execute_actions
@@ -114,18 +71,14 @@ class Step < ActiveRecord::Base
     end
 
     ActiveRecord::Base.transaction do |t|
-      created_assets = {}
-      list_to_destroy = []
 
-      classify_assets.each do |asset, r|
-        r.execute(self, asset_group, original_assets.assets, asset, created_assets, list_to_destroy)
-      end
+      step_execution = build_step_execution(:facts_to_destroy => [], :original_assets => original_assets.assets)
 
-      save_created_assets(created_assets)
+      step_execution.run
 
       unselect_assets_from_antecedents
 
-      Fact.where(:id => list_to_destroy.flatten.compact.map(&:id)).delete_all
+      Fact.where(:id => step_execution.facts_to_destroy.flatten.compact.map(&:id)).delete_all
 
       #update_assets_started if activity
 
@@ -150,11 +103,10 @@ class Step < ActiveRecord::Base
 
       asset_group.add_assets(assets)
 
-      created_assets = {}
-      classify_assets.each do |asset, r|
-        r.execute(self, asset_group, original_assets, asset, created_assets, nil)
-      end
-      save_created_assets(created_assets)
+      step_execution = build_step_execution(
+        :original_assets => original_assets,
+        :facts_to_destroy => nil)
+      step_execution.run
 
       asset_group.update_attributes(:assets => [])
       finish if step_params[:state]=='done'
@@ -164,8 +116,18 @@ class Step < ActiveRecord::Base
   def finish
     ActiveRecord::Base.transaction do |t|
       unselect_assets_from_antecedents
-      Fact.where(:to_remove_by => self.id).delete_all
-      Fact.where(:to_add_by => self.id).update_all(:to_add_by => nil)
+      facts_to_remove = Fact.where(:to_remove_by => self.id)
+      #facts_to_remove.each do |fact|
+      #  operation = Operation.create!(:action_type => 'removeFacts', :step => self,
+      #      :asset=> fact.asset, :predicate => fact.predicate, :object => fact.object)
+      #end
+      facts_to_remove.delete_all
+      facts_to_add = Fact.where(:to_add_by => self.id)
+      #facts_to_add.each do |fact|
+      #  operation = Operation.create!(:action_type => 'addFacts', :step => self,
+      #      :asset=> fact.asset, :predicate => fact.predicate, :object => fact.object)
+      #end
+      facts_to_add.update_all(:to_add_by => nil)
       unselect_assets_from_consequents
 
       update_service

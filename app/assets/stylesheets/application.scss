@@ -295,7 +295,7 @@ svg {
   .has-blood,.has-Blood,.blood,.BLOOD {
     fill: red;
   }
-  .unknown-aliquot { fill: lightblue;}
+  .unknown-aliquot { fill: gray;}
 
   ellipse.error { stroke: red !important;}
   .editing { fill: lightblue; }
@@ -304,6 +304,7 @@ svg {
   .empty-edited {fill: black;}
 
   ellipse:hover { fill: white !important;}
+  ellipse.active { fill: white !important;}
   .a1_dna .A1 { @extend .has-dna; }
 }
 
@@ -348,3 +349,5 @@ body nav .btn { @extend .anonymous-allowed; }
 
 .asset .panel-heading {display: none;}
 .asset small {display: none;}
+
+div.fact a.active.object-reference  {color:orange;}
