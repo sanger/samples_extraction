@@ -10,9 +10,12 @@ RSpec.describe Parsers::CsvOrder do
 
   describe "parses an order" do
     setup do
-      @content = File.open('test/data/order.csv')
-      @asset_sample = FactoryGirl.create(:asset, :barcode => '5180002041715')
+      @asset_samples = 96.times.map do |i|
+        FactoryGirl.create(:asset, :barcode => i+1)
+      end
+      @content = @asset_samples.map{|a| a.barcode}.join("\n")
       @rack = FactoryGirl.create(:asset)
+
       @assets_dst = 96.times.map do |i|
         asset = FactoryGirl.create(:asset, {
           :barcode => 'FR'+(11200002 + i).to_s
@@ -40,7 +43,7 @@ RSpec.describe Parsers::CsvOrder do
       end
 
       it 'recognise incorrect csv files' do
-        @csv = Parsers::CsvOrder.new('1,2,3,4,5')
+        @csv = Parsers::CsvOrder.new("1\n2\n3\n97\n")
         expect(@csv.valid?).to eq(false)
       end
     end
@@ -60,8 +63,11 @@ RSpec.describe Parsers::CsvOrder do
         @csv.add_facts_to(@rack, @step)
 
         @rack.facts.reload
-        expect(@asset_sample.facts.with_predicate('transfer').first.object_asset).to eq(@rack.facts.with_predicate('contains').first.object_asset)
-        expect(@rack.facts.with_predicate('contains').first.object_asset.facts.with_predicate('transferredFrom').first.object_asset).to eq(@asset_sample)
+        facts_for_rack = @rack.facts.with_predicate('contains')
+        @asset_samples.each_with_index do |asset_sample, idx|
+          expect(asset_sample.facts.with_predicate('transfer').first.object_asset).to eq(facts_for_rack[idx].object_asset)
+          expect(facts_for_rack[idx].object_asset.facts.with_predicate('transferredFrom').first.object_asset).to eq(asset_sample)
+        end
       end
 
     end

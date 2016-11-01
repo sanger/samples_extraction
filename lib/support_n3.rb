@@ -117,13 +117,17 @@ module SupportN3
         condition_group.update_attributes(:cardinality => fragment(v))
       else
         # or we add the new condition
+        object_condition_group = condition_group_for(v)
+        #if (!object_condition_group.nil? && object_condition_group.conditions.empty? && (fragment(v)[0] != '_'))
+        #  object_condition_group = nil
+        #end
         Condition.create({ :predicate => fragment(p), :object => fragment(v),
-        :condition_group_id => condition_group.id, :object_condition_group => condition_group_for(v)})
+        :condition_group_id => condition_group.id, :object_condition_group => object_condition_group})
       end
     end
 
     def is_wildcard?(v)
-      (v.to_s.include?('_'))
+      (fragment(v)[0]==('_'))
     end
 
     def build_condition_groups
@@ -164,14 +168,24 @@ module SupportN3
     def config_step_type
       names = actions.select{|quad| fragment(quad[1]) == 'stepTypeName'}.flatten
       if !names.empty?
+        @step_type = StepType.find_by(:name => names[2].to_s)
+        if @step_type
+          @step_type.destroy
+        end
         @step_type = StepType.find_or_create_by(:name => names[2].to_s)
       else
         @step_type = StepType.create(:name => "Rule from #{DateTime.now.to_s}")
       end
 
+      @step_type.update_attributes(:connect_by => connect_by) if connect_by
       @step_type.update_attributes(:step_template => step_template) if step_template
       @step_type.activity_types << activity_type if activity_type
       @step_type
+    end
+
+    def connect_by
+      value = actions.select{|quad| fragment(quad[1]) == 'connectBy'}.flatten[2]
+      fragment(value) unless value.nil?
     end
 
     def step_template

@@ -69,7 +69,6 @@ class Step < ActiveRecord::Base
     else
       original_assets.add_assets(asset_group.assets)
     end
-
     ActiveRecord::Base.transaction do |t|
 
       step_execution = build_step_execution(:facts_to_destroy => [], :original_assets => original_assets.assets)

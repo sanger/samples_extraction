@@ -18,7 +18,7 @@ module StepExecution::FactActions
         (((action.object.nil? || (f.object == action.object))) ||
           (f.object_asset && action.object_condition_group.compatible_with?(f.object_asset))))
       end.select do |f|
-        position.nil? ? true : (position_for_asset(f.object_asset, action.object_condition_group)==position)
+        (position.nil? || f.object_asset.nil?) ? true : (position_for_asset(f.object_asset, action.object_condition_group)==position)
       end.each do |fact|
         create_operation(asset, fact)
       end

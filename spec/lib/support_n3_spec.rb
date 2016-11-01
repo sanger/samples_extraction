@@ -245,6 +245,16 @@ RSpec.describe SupportN3 do
             {:name => 'd', :step_type => @step_type, :cardinality => nil,
               :keep_selected => true}
           ],
+          Condition => [
+            {:predicate => 'is', :object => 'A'},
+            {:predicate => 'transfer'},
+            {:predicate => 'is', :object => 'B'},
+            {:predicate => 'transfer'},
+            {:predicate => 'is', :object => 'C'},
+            {:predicate => 'transfer'},
+            {:predicate => 'is', :object => 'D'},
+            {:predicate => 'transfer'}
+          ],
           Action => [
             { :action_type => 'addFacts', :predicate => 'is', :object => 'Processed' },
             { :action_type => 'addFacts', :predicate => 'is', :object => 'Processed' },
@@ -257,6 +267,7 @@ RSpec.describe SupportN3 do
         b = ConditionGroup.find_by_name('b')
         c = ConditionGroup.find_by_name('c')
         d = ConditionGroup.find_by_name('d')
+
 
         [a,b,c,d].zip([b,c,d,a]).each do |p,q|
           expect(p.conditions.select do |c|
@@ -271,15 +282,25 @@ RSpec.describe SupportN3 do
   describe 'while using wildcards instead of condition groups' do
     it 'identifies correctly the wildcard' do
       validate_all_rules('
-	{ ?a :location ?_l . ?b :location ?_l . }
+	{ ?a :location ?_l . ?a :status :Done .  ?a :name """My name""". ?b :location ?_l . ?b :status :Done .}
 	=>
 	{:step :addFacts { ?a :repeatedLocation ?_l .}}.',{
       ConditionGroup =>[{:name => 'a'}, {:name => 'b'}, {:name => '_l'}],
-      Condition => [{:predicate => 'location'}, {:predicate => 'location'}],
+      Condition => [
+        {:predicate => 'location'},
+        {:predicate => 'status', :object => 'Done', :object_condition_group_id => nil},
+        {:predicate => 'name', :object_condition_group_id => nil},
+        {:predicate => 'location'},
+        {:predicate => 'status', :object => 'Done', :object_condition_group_id => nil}
+      ],
       Action => [{:action_type => 'addFacts', :predicate => 'repeatedLocation'}]	})
       l = ConditionGroup.find_by_name('_l')
       a = ConditionGroup.find_by_name('a')
+      b = ConditionGroup.find_by_name('b')
       expect(a.conditions.first.object_condition_group).to eq(l)
+      expect(b.conditions.first.object_condition_group).to eq(l)
+      expect(a.conditions[2].object_condition_group).to eq(nil)
+      expect(a.conditions[2].object).to eq("My name")
       expect(Action.first.object_condition_group).to eq(l)
       expect(l.conditions.count).to eq(0)
     end

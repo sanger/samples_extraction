@@ -78,6 +78,7 @@ module Parsers
 
     def add_facts_to(asset, step)
       if valid?
+        asset.add_facts(Fact.create(:predicate => 'layout', :object => 'Complete'))
         facts_to_remove = asset.facts.with_predicate('contains').map do |f|
           [
             f.object_asset.facts.with_predicate('parent'),

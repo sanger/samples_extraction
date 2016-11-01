@@ -5,12 +5,6 @@ class PushDataJob < ApplicationJob
     # Do something later
     Rails.logger.debug "#{self.class.name}: I'm performing my job with arguments: #{args.inspect}"
 
-    Asset.with_fact('pushTo', 'Sequencescape').each do |asset|
-      asset.update_sequencescape
-      asset.facts.select{|f| f.predicate == 'pushTo' && f.object == 'Sequencescape'}.each do |f|
-        f.destroy
-      end
-    end
 
     # This should go in a step_type without user interaction
     Asset.with_predicate('transfer').each do |asset|
@@ -20,9 +14,18 @@ class PushDataJob < ApplicationJob
         end)
 
         fact.object_asset.add_facts(asset.facts.with_predicate('sanger_sample_id').map do |aliquot_fact|
-          Fact.new(:predicate => 'sanger_sample_id', :object => aliquot_fact.object)
-        end)
+          [Fact.new(:predicate => 'sanger_sample_id', :object => aliquot_fact.object),
+          Fact.new(:predicate => 'sample_id', :object => aliquot_fact.object)]
+        end.flatten)
       end
     end
+
+    Asset.with_fact('pushTo', 'Sequencescape').each do |asset|
+      asset.update_sequencescape
+      asset.facts.select{|f| f.predicate == 'pushTo' && f.object == 'Sequencescape'}.each do |f|
+        f.destroy
+      end
+    end
+
   end
 end

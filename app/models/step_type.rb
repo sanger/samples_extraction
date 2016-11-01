@@ -5,13 +5,14 @@ class StepType < ActiveRecord::Base
   before_update :remove_previous_conditions
   after_save :create_next_conditions
 
-  has_many :activity_type_step_types
+  has_many :activity_type_step_types, dependent: :destroy
   has_many :activity_types, :through => :activity_type_step_types
-  has_many :condition_groups
-  has_many :actions
+  has_many :condition_groups, dependent: :destroy
+  has_many :actions, dependent: :destroy
 
   has_many :action_subject_condition_groups, :through => :actions, :source => :subject_condition_group
   has_many :action_object_condition_groups, :through => :actions, :source => :object_condition_group
+
 
   include Deprecatable
 

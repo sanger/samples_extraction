@@ -67,6 +67,7 @@ module Parsers
 
     def add_facts_to(rack, step)
       if valid?
+        rack.add_facts(Fact.create(:predicate => 'order', :object => 'Complete'))
         rack_tubes_by_location = rack.facts.with_predicate('contains').map(&:object_asset).reduce({}) do |memo, tube|
           location = tube.facts.with_predicate('location').first.object
           memo[location] = tube

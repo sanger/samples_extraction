@@ -3,63 +3,95 @@
 {
   ?p :a :SampleTube .
   ?p :is :NotStarted .
-  ?q :maxCardinality """1""" .
 } => {
-  :step :stepTypeName """Create a Rack for QIASymphony""" .
-  :step :addFacts {
-    ?p :is :Started .
-  } .
-  :step :removeFacts {
-    ?p :is :NotStarted .
-  } .
+  :step :stepTypeName """Create tubes with barcode 128""" .
+  :step :removeFacts {?p :is :NotStarted .}.
+  :step :addFacts {?p :is :Started .}.
   :step :createAsset {
-    ?q :a :TubeRack .
-    ?q :is :SymphonyCreated .
-  }.
+    ?q :a :Tube .
+    ?q :is :Empty .
+    ?q :barcodeType :Code128 .
+  } .
 } .
 
 {
   ?p :a :SampleTube .
   ?p :is :Started .
-  ?q :a :TubeRack .
-  ?q :is :SymphonyCreated .
-  ?q :maxCardinality """1""" .
+  ?q :a :Tube .
+  ?q :is :Empty .
+  ?q :barcodeType :Code128 .
 } => {
-  :step :addFacts { ?p :is :Started .}.
-  :step :stepTypeName """Put tubes into rack for QIASymphony""" .
-  :step :stepTemplate """racking_by_columns""" .
+  :step :connectBy """position""" .
+  :step :stepTypeName """Transfer from SampleTubes to Code128""" .
+  :step :removeFacts { ?q :is :Empty .}.
+  :step :addFacts {
+    ?p :transfer ?q .
+  }.
+  :step :addFacts {
+    ?q :transferredFrom ?p .
+  }.
+} .
+
+{
+  ?p :a :SampleTube .
+  ?q :a :Tube .
+  ?q :barcodeType :Code128 .
+  ?p :transfer ?q .
+} => {
+  :step :stepTypeName """Select only Code128 tubes""" .
   :step :unselectAsset ?p .
 } .
 
 {
+  ?p :a :Tube .
+  ?p :barcodeType :Code128 .
+  ?q :maxCardinality """1""" .
+} => {
+  :step :stepTypeName """Create a TubeRack""" .
+  :step :createAsset {
     ?q :a :TubeRack .
-    ?q :is :SymphonyCreated .
-    ?q :maxCardinality """1""" .
-}=> {
-  :step :stepTypeName """Upload Symphony XML file""" .
-  :step :stepTemplate """upload_file_step""" .
-  :step :description """This step will create a new rack by using the xml provided and the list of tubes in the group, racking them in column order""" .
-  :step :addFacts {?q :is :SymphonyLoaded .}.
-  :step :removeFacts {?q :is :SymphonyCreated .}.
-}.
+  }.
+} .
 
 {
-    ?q :a :TubeRack .
-    ?q :is :SymphonyLoaded .
-    ?q :maxCardinality """1""" .
-}=> {
-  :step :stepTypeName """Re-upload Symphony XML file""" .
-  :step :stepTemplate """upload_file_step""" .
-  :step :description """This step will create a new rack by using the xml provided and the list of tubes in the group, racking them in column order""" .
-  :step :addFacts {?q :is :SymphonyLoaded .}.
-}.
+  ?p :a :Tube .
+  ?p :barcodeType :Code128 .
+
+  ?q :a :TubeRack .
+  ?q :maxCardinality """1""" .
+} => {
+  :step :stepTypeName """Upload .csv layout for TubeRack""" .
+  :step :stepTemplate """rack_layout_creating_tubes""" .
+  :step :addFacts { ?q :layout :Complete . } .
+} .
 
 {
-    ?q :a :TubeRack .
-    ?q :is :SymphonyLoaded .
-    ?q :maxCardinality """1""" .
-}=> {
-  :step :stepTypeName """Push changes to Sequencescape""" .
-  :step :addFacts {?q :pushTo :Sequencescape .}.
-}.
+  ?p :a :Tube .
+  ?p :barcodeType :Code128 .
 
+  ?q :a :TubeRack .
+  ?q :maxCardinality """1""" .
+  ?q :layout :Complete .
+} => {
+  :step :stepTypeName """Select only the TubeRack""" .
+  :step :unselectAsset ?p .
+} .
+
+{
+  ?q :a :TubeRack .
+  ?q :maxCardinality """1""" .
+  ?q :layout :Complete .
+} => {
+  :step :stepTypeName """Upload .csv Order QiaSymphony file""" .
+  :step :stepTemplate """rack_order_symphony""" .
+  :step :addFacts { ?q :order :Complete. }.
+} .
+
+{
+  ?q :a :TubeRack .
+  ?q :maxCardinality """1""" .
+  ?q :order :Complete .
+} => {
+  :step :stepTypeName """Upload TubeRack to Sequencescape""" .
+  :step :addFacts { ?q :pushTo :Sequencescape. }.
+} .

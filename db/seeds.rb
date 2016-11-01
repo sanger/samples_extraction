@@ -90,11 +90,19 @@ User.create!(:barcode => 1, :username => 'test', :fullname => 'Testing user')
 User.create!(:barcode => 2, :username => 'admin', :fullname => 'Admin', :role => 'administrator')
 
 
-activity_type = ActivityType.find_by_name('QIACube')
+activity_type = ActivityType.find_by_name('AllPrep DNA/RNA/miRNA Universal')
 instrument.activity_types << activity_type
-kit_type = KitType.create(:activity_type => activity_type, :name => 'QIACube')
+kit_type = KitType.create(:activity_type => activity_type, :name => 'AllPrep DNA/RNA/miRNA Universal')
 kit = Kit.create( {:kit_type => kit_type, :barcode => 6666})
 
+100.times do |pos|
+  asset = Asset.create!(:barcode => 300 + pos)
+  asset.facts << Fact.create({ :predicate => 'a', :object => 'Tube'})
+  asset.facts << Fact.create({ :predicate => 'barcodeType', :object => 'Code2D'})
+
+  asset_group.assets << asset
+  asset.update_compatible_activity_type
+end
 
 activity_type = ActivityType.find_by_name('QIASymphony')
 instrument.activity_types << activity_type
@@ -147,6 +155,7 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 9999})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
   asset.update_compatible_activity_type
 end
+
 
 # 100.times do |pos|
 #   asset = Asset.create!(:barcode => 1000 + pos)
