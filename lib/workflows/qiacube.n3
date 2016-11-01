@@ -6,17 +6,26 @@
   ?q   :maxCardinality   """0""" .
   ?r   :maxCardinality   """0""" .
 } => {
-  :step  :stepTypeName """Create DNA and NA+P tubes from Sample Tubes""" .
+  ?p  :shortDescription """Sample tube""" .
+  ?q  :shortDescription """DNA tube""" .
+  ?r  :shortDescription """NA+P tube""" .
+  :step  :stepTypeName """Create DNA and NA+P tubes from Sample tubes""" .
   :step :connectBy """position""" .
-  :step  :createAsset  {?q   :a  :Tube .} .
-  :step  :createAsset  {?q   :aliquotType  :DNA .} .
-  :step  :createAsset  {?r   :a  :Tube .} .
-  :step  :createAsset  {?r   :aliquotType  :NAP .} .
+  :step  :createAsset  {
+    ?q   :a  :Tube .
+    ?q   :aliquotType  :DNA .
+    ?q   :is  :Empty .
+  } .
+  :step  :createAsset  {
+    ?r   :a  :Tube .
+    ?r   :aliquotType  :NAP .
+    ?r   :is :Empty .
+  } .
 } .
 
 {
   ?p   :a  :SampleTube .
-  ?p   :is   :NotStarted .
+  ?p   :is :NotStarted .
   ?p   :maxCardinality   """12""" .
   ?q   :a  :Tube .
   ?q   :aliquotType  :DNA .
@@ -25,13 +34,17 @@
   ?r   :aliquotType  :NAP .
   ?r   :maxCardinality   """12""" .
 } => {
-  :step  :stepTypeName """Extract DNA and NA+P""" .
+  :step  :stepTypeName """Extract DNA and NA+P from Sample tubes""" .
   :step  :stepTemplate """transfer_tube_to_tube""" .
   :step  :unselectAsset  ?p.
+  :step  :removeFacts {?q :is :Empty.}.
+  :step  :removeFacts {?r :is :Empty.}.
   :step  :addFacts   {?p   :transfer   :q .} .
   :step  :addFacts   {?p   :transfer   :r .} .
   :step  :addFacts   {?q   :transferredFrom  :p .} .
   :step  :addFacts   {?r   :transferredFrom  :p .} .
+  :step :addFacts {?p :is :Started.}.
+  :step :removeFacts {?p :is :NotStarted.}.
 } .
 
 {
@@ -45,12 +58,16 @@
   ?r   :aliquotType  :NAP .
   ?r   :maxCardinality   """12""" .
 } => {
-  :step  :stepTypeName """(BY POSITION) Extract DNA and NA+P""" .
+  :step  :stepTypeName """(BY POSITION) Extract DNA and NA+P from Sample tubes""" .
   :step :connectBy """position""" .
+  :step  :removeFacts {?q :is :Empty.}.
+  :step  :removeFacts {?r :is :Empty.}.
   :step  :addFacts   {?p   :transfer   :q .} .
   :step  :addFacts   {?p   :transfer   :r .} .
   :step  :addFacts   {?q   :transferredFrom  :p .} .
   :step  :addFacts   {?r   :transferredFrom  :p .} .
+  :step :addFacts {?p :is :Started.}.
+  :step :removeFacts {?p :is :NotStarted.}.
 } .
 
 
@@ -62,8 +79,7 @@
 } => {
   :step  :stepTypeName """Select just DNA tubes""" .
   :step  :unselectAsset  ?r.
-  } .
-
+} .
 
 {
   ?q   :aliquotType  :DNA .
@@ -81,9 +97,12 @@
   ?Condition1  :maxCardinality   """12""" .
   ?Asset2  :maxCardinality   """0""" .
 } => {
-  :step  :stepTypeName """Create DNA tube from sample tube""" .
-  :step  :createAsset  {?Asset2  :a  :Tube .} .
-  :step  :createAsset  {?Asset2  :aliquotType  :DNA .} .
+  :step  :stepTypeName """Create DNA tube from Sample tube""" .
+  :step  :createAsset  {
+    ?Asset2  :a  :Tube .
+    ?Asset2  :aliquotType  :DNA .
+    ?Asset2  :is :Empty .
+  } .
 } .
 
 {
@@ -92,9 +111,12 @@
   ?Condition1  :maxCardinality   """12""" .
   ?Asset2  :maxCardinality   """0""" .
 } => {
-  :step  :stepTypeName """Create RNA tube from sample tube""" .
-  :step  :createAsset  {?Asset2  :aliquotType  :RNA .} .
-  :step  :createAsset  {?Asset2  :a  :Tube .} .
+  :step  :stepTypeName """Create RNA tube from Sample tube""" .
+  :step  :createAsset  {
+    ?Asset2  :a  :Tube .
+    ?Asset2  :aliquotType  :RNA .
+    ?Asset2  :is :Empty .
+  } .
 } .
 
 {
@@ -117,11 +139,26 @@
 
 {
   ?DNAtube   :a  :Tube .
+  ?DNAtube   :aliquotType  :DNA .
   ?Tube2D    :a  :Tube .
+  ?Tube2D    :is :Empty .
   ?Tube2D    :barcodeType :Code2D .
 }=>{
   :step  :stepTypeName """Transfer to 2D tubes""" .
   :step  :stepTemplate """transfer_tube_to_tube""" .
   :step :addFacts {?DNAtube :transfer ?Tube2D.}.
   :step :addFacts {?Tube2D :transferredFrom ?DNAtube.}.
+  :step :removeFacts {?Tube2D :is :Empty.}.
 } .
+
+{
+  ?DNAtube   :a  :Tube .
+  ?DNAtube   :aliquotType  :DNA .
+  ?DNAtube   :transfer ?Tube2D .
+  ?Tube2D    :a  :Tube .
+  ?Tube2D    :barcodeType :Code2D .
+}=>{
+  :step  :stepTypeName """Select only 2D tubes""" .
+  :step :unselectAsset ?DNAtube .
+} .
+

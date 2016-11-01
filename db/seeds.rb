@@ -56,8 +56,6 @@ asset2.facts << [
   Fact.create({ :predicate => a, :object => b})
 end
 
-
-
 activity_type = ActivityType.find_by_name('Testing activity type')
 
 
@@ -83,6 +81,13 @@ asset_group = AssetGroup.create!
   asset_group.assets << asset
   asset.update_compatible_activity_type
 end
+
+50.times do |pos|
+  asset = Asset.create!(:barcode => 2000 + pos)
+  asset.facts << Fact.create({ :predicate => 'a', :object => 'SampleTube'})
+  asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
+end
+
 
 activity_type.activities.create!(:asset_group => asset_group, :kit => kit, :instrument => instrument)
 

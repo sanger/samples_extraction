@@ -77,6 +77,8 @@ class StepsController < ApplicationController
         :error_params => e.error_params
         }).to_json
       error_params = e.error_params
+      redirect_to @activity
+      return
     end
 
     respond_to do |format|
