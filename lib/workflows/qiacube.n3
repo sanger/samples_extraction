@@ -59,6 +59,7 @@
   ?r   :maxCardinality   """12""" .
 } => {
   :step  :stepTypeName """(BY POSITION) Extract DNA and NA+P from Sample tubes""" .
+  :step  :unselectAsset  ?p.
   :step :connectBy """position""" .
   :step  :removeFacts {?q :is :Empty.}.
   :step  :removeFacts {?r :is :Empty.}.
@@ -138,27 +139,144 @@
 } .
 
 {
+  ?p   :a  :Tube .
+  ?p   :aliquotType   :NAP .
+  ?p   :maxCardinality   """12""" .
+  ?q   :maxCardinality   """0""" .
+  ?r   :maxCardinality   """0""" .
+} => {
+  ?p  :shortDescription """NA+P tube""" .
+  ?q  :shortDescription """RNA tube""" .
+  ?r  :shortDescription """Disposal tube""" .
+  :step  :stepTypeName """Create RNA and disposal tubes from NA+P tubes""" .
+  :step :connectBy """position""" .
+  :step  :createAsset  {
+    ?q   :a  :Tube .
+    ?q   :aliquotType  :RNA .
+    ?q   :is  :Empty .
+  } .
+  :step  :createAsset  {
+    ?r   :a  :Tube .
+    ?r   :aliquotType  :NA .
+    ?r   :is :Empty .
+  } .
+} .
+
+{
+  ?p   :a  :Tube .
+  ?p   :aliquotType :NAP .
+  ?p   :maxCardinality   """12""" .
+  ?q   :a  :Tube .
+  ?q   :aliquotType  :RNA .
+  ?q   :is  :Empty .
+  ?q   :maxCardinality   """12""" .
+  ?r   :a  :Tube .
+  ?r   :aliquotType  :NA .
+  ?r   :is  :Empty .
+  ?r   :maxCardinality   """12""" .
+} => {
+  :step  :stepTypeName """(BY POSITION) Extract RNA""" .
+  :step :connectBy """position""" .
+  :step  :removeFacts {?q :is :Empty.}.
+  :step  :removeFacts {?r :is :Empty.}.
+  :step  :addFacts   {?p   :transfer   :q .} .
+  :step  :addFacts   {?p   :transfer   :r .} .
+  :step  :addFacts   {?q   :transferredFrom  :p .} .
+  :step  :addFacts   {?r   :transferredFrom  :p .} .
+} .
+
+{
+  ?p   :a  :Tube .
+  ?p   :aliquotType :NAP .
+  ?p   :maxCardinality   """12""" .
+  ?q   :a  :Tube .
+  ?q   :aliquotType  :RNA .
+  ?q   :is  :Empty .
+  ?q   :maxCardinality   """12""" .
+  ?r   :a  :Tube .
+  ?r   :aliquotType  :NA .
+  ?r   :is  :Empty .
+  ?r   :maxCardinality   """12""" .
+} => {
+  :step  :stepTypeName """Extract RNA""" .
+  :step  :stepTemplate """transfer_tube_to_tube""" .
+  :step  :removeFacts {?q :is :Empty.}.
+  :step  :removeFacts {?r :is :Empty.}.
+  :step  :addFacts   {?p   :transfer   :q .} .
+  :step  :addFacts   {?p   :transfer   :r .} .
+  :step  :addFacts   {?q   :transferredFrom  :p .} .
+  :step  :addFacts   {?r   :transferredFrom  :p .} .
+} .
+
+{
+  ?p   :a  :Tube .
+  ?p   :aliquotType :NAP .
+  ?q   :a  :Tube .
+  ?q   :aliquotType  :RNA .
+  ?r   :a  :Tube .
+  ?r   :aliquotType  :NA .
+  ?p :transfer ?q .
+}=>{
+  :step :stepTypeName """Select only RNA tubes""".
+  :step :unselectAsset ?p .
+  :step :unselectAsset ?r .
+}.
+
+
+{
   ?DNAtube   :a  :Tube .
   ?DNAtube   :aliquotType  :DNA .
   ?Tube2D    :a  :Tube .
   ?Tube2D    :is :Empty .
   ?Tube2D    :barcodeType :Code2D .
 }=>{
-  :step  :stepTypeName """Transfer to 2D tubes""" .
+  :step  :stepTypeName """Transfer DNA to 2D tubes""" .
   :step  :stepTemplate """transfer_tube_to_tube""" .
   :step :addFacts {?DNAtube :transfer ?Tube2D.}.
   :step :addFacts {?Tube2D :transferredFrom ?DNAtube.}.
+  :step :addFacts {?Tube2D :aliquotType :DNA.}.
   :step :removeFacts {?Tube2D :is :Empty.}.
 } .
 
 {
-  ?DNAtube   :a  :Tube .
-  ?DNAtube   :aliquotType  :DNA .
-  ?DNAtube   :transfer ?Tube2D .
+  ?RNAtube   :a  :Tube .
+  ?RNAtube   :aliquotType  :RNA .
+  ?Tube2D    :a  :Tube .
+  ?Tube2D    :is :Empty .
+  ?Tube2D    :barcodeType :Code2D .
+}=>{
+  :step  :stepTypeName """Transfer RNA to 2D tubes""" .
+  :step  :stepTemplate """transfer_tube_to_tube""" .
+  :step :addFacts {?RNAtube :transfer ?Tube2D.}.
+  :step :addFacts {?Tube2D :transferredFrom ?RNAtube.}.
+  :step :addFacts {?Tube2D :aliquotType :RNA.}.
+  :step :removeFacts {?Tube2D :is :Empty.}.
+} .
+
+{
+  ?tube   :a  :Tube .
+  ?tube   :transfer ?Tube2D .
   ?Tube2D    :a  :Tube .
   ?Tube2D    :barcodeType :Code2D .
 }=>{
   :step  :stepTypeName """Select only 2D tubes""" .
-  :step :unselectAsset ?DNAtube .
+  :step :unselectAsset ?tube .
 } .
 
+{
+  ?tube :a :Tube .
+  ?tube :barcodeType :Code2D .
+  ?tubeRack :maxCardinality """1""".
+}=>{
+  :step :stepTypeName """Create TubeRack for Tube2D""" .
+  :step :createAsset {?tubeRack :a :TubeRack.}.
+}.
+
+{
+  ?tube :a :Tube .
+  ?tube :barcodeType :Code2D .
+  ?tubeRack :a :TubeRack .
+}=>{
+  :step :stepTypeName """Put tubes into rack""" .
+  :step :stepTypeTemplate """racking_by_columns""" .
+}.

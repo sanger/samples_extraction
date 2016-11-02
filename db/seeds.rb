@@ -86,6 +86,7 @@ end
   asset = Asset.create!(:barcode => 2000 + pos)
   asset.facts << Fact.create({ :predicate => 'a', :object => 'SampleTube'})
   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
+  asset.facts << Fact.create({ :predicate => 'sanger_sample_id', :object => test_sample_id(pos)})
 end
 
 
@@ -104,6 +105,7 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 6666})
   asset = Asset.create!(:barcode => 300 + pos)
   asset.facts << Fact.create({ :predicate => 'a', :object => 'Tube'})
   asset.facts << Fact.create({ :predicate => 'barcodeType', :object => 'Code2D'})
+  asset.facts << Fact.create({ :predicate => 'is', :object => 'Empty'})
 
   asset_group.assets << asset
   asset.update_compatible_activity_type

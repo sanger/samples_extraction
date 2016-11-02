@@ -43,7 +43,9 @@ module SupportN3
       @c_groups = {}
       @c_groups_cardinalities={}
 
-      @step_type = step_type || config_step_type
+      @step_type = step_type || StepType.new
+      @step_type.assign_attributes(config_for_step_type)
+      @step_type.activity_types << activity_type if activity_type
     end
 
     def conditions
@@ -165,8 +167,20 @@ module SupportN3
       return ActivityType.find_or_create_by!(:name => name)
     end
 
+    def config_for_step_type
+      config = {}
+      config[:name] = name_for_step_type if name_for_step_type
+      config[:connect_by] = connect_by if connect_by
+      config[:step_template] = step_template if step_template
+      config
+    end
+
+    def name_for_step_type
+      value = actions.select{|quad| fragment(quad[1]) == 'stepTypeName'}.flatten[2]
+      fragment(value) unless value.nil?
+    end
+
     def config_step_type
-      names = actions.select{|quad| fragment(quad[1]) == 'stepTypeName'}.flatten
       if !names.empty?
         @step_type = StepType.find_by(:name => names[2].to_s)
         if @step_type
