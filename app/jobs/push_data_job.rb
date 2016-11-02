@@ -8,11 +8,8 @@ class PushDataJob < ApplicationJob
 
     # This should go in a step_type without user interaction
     Asset.with_predicate('transfer').each do |asset|
+      asset.add_facts([Fact.new(:predicate => 'is', :object => 'Used')])
       asset.facts.with_predicate('transfer').each do |fact|
-        fact.object_asset.add_facts(asset.facts.with_predicate('aliquotType').map do |aliquot_fact|
-          Fact.new(:predicate => 'aliquotType', :object => aliquot_fact.object)
-        end)
-
         fact.object_asset.add_facts(asset.facts.with_predicate('sanger_sample_id').map do |aliquot_fact|
           [Fact.new(:predicate => 'sanger_sample_id', :object => aliquot_fact.object),
           Fact.new(:predicate => 'sample_id', :object => aliquot_fact.object)]

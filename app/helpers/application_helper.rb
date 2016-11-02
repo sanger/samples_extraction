@@ -13,7 +13,9 @@ module ApplicationHelper
     f = facts.select{|f| f.predicate == 'aliquotType'}.first
     if f
       return {:aliquot => {
-        :cssClass => f.object || UNKNOW_ALIQUOT_TYPE,
+        :cssClass => [(f.object || UNKNOW_ALIQUOT_TYPE), facts.select{|f2| f2.predicate == 'is'}.map do |f_is|
+          [f_is.predicate, f_is.object].join('-')
+        end].compact.join(' '),
         :url => ((f.class==Fact) ? asset_path(f.asset) : '')
         }}.to_json
     end
