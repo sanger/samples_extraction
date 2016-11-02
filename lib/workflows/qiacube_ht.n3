@@ -7,7 +7,7 @@
   :step :stepTypeName """Create stamped plate""" .
   :step :addFacts {
     ?p :is :Started .
-    ?p :transferTo ?q .
+    ?p :transfer ?q .
     ?q :transferredFrom ?p .
   } .
   :step :removeFacts {
@@ -26,7 +26,7 @@
 } => {
   :step :stepTypeName """Create Biorobot plate""" .
   :step :addFacts {
-    ?p :transferTo ?q .
+    ?p :transfer ?q .
     ?q :transferredFrom ?p .
   } .
   :step :unselectAsset ?p .
@@ -42,7 +42,7 @@
 } => {
   :step :stepTypeName """Create Stock plate""" .
   :step :addFacts {
-    ?p :transferTo ?q .
+    ?p :transfer ?q .
     ?q :transferredFrom ?p .
   } .
   :step :unselectAsset ?p .
@@ -50,11 +50,4 @@
     ?q :a :Plate .
     ?q :a :StockPlate .
   } .
-} .
-
-{ ?p :a :StockPlate .
-  ?p :maxCardinality """1""" .
-} => {
-  :step :stepTypeName """Perform QC on Stock""" .
-  :step :addFacts { ?p :has :QCPerformed .} .
 } .

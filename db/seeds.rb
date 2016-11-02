@@ -10,11 +10,12 @@ require 'support_n3'
 SupportN3.parse_file("lib/assets/graph.n3")
 SupportN3.parse_file("lib/assets/graph3.n3")
 SupportN3.parse_file("lib/assets/graph2.n3")
-SupportN3.parse_file("lib/assets/reracking.n3")
 SupportN3.parse_file("lib/workflows/biorobot_investigator.n3")
 SupportN3.parse_file("lib/workflows/qiacube_ht.n3")
 SupportN3.parse_file("lib/workflows/qiasymphony.n3")
 SupportN3.parse_file("lib/workflows/qiacube.n3")
+SupportN3.parse_file("lib/workflows/reracking.n3")
+
 
 
 TEST_SAMPLES = ['4086STDY6316833', '4086STDY6316834', '4086STDY6316835','4086STDY6316836','4086STDY6316837']

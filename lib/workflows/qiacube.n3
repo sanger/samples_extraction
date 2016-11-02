@@ -280,3 +280,24 @@
   :step :stepTypeName """Put tubes into rack""" .
   :step :stepTypeTemplate """racking_by_columns""" .
 }.
+
+{
+  ?tube :a :Tube .
+  ?tube :barcodeType :Code2D .
+  ?tubeRack :a :TubeRack .
+  ?tubeRack :maxCardinality """1""".
+} => {
+  :step :stepTypeName """Upload .csv layout for Extracted TubeRack""" .
+  :step :stepTemplate """rack_layout_creating_tubes""" .
+  :step :addFacts { ?tubeRack :layout :Complete . } .
+} .
+
+{
+  ?q :a :TubeRack .
+  ?q :maxCardinality """1""" .
+  ?q :layout :Complete .
+} => {
+  :step :stepTypeName """Upload Extracted TubeRack to Sequencescape""" .
+  :step :addFacts { ?q :pushTo :Sequencescape. }.
+} .
+

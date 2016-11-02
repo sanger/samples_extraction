@@ -60,7 +60,7 @@
   ?q :a :TubeRack .
   ?q :maxCardinality """1""" .
 } => {
-  :step :stepTypeName """Upload .csv layout for TubeRack""" .
+  :step :stepTypeName """Upload .csv layout with empty 2D tubes for destination TubeRack""" .
   :step :stepTemplate """rack_layout_creating_tubes""" .
   :step :addFacts { ?q :layout :Complete . } .
 } .
@@ -82,7 +82,7 @@
   ?q :maxCardinality """1""" .
   ?q :layout :Complete .
 } => {
-  :step :stepTypeName """Upload .csv Order QiaSymphony file""" .
+  :step :stepTypeName """Upload .csv Order QIASymphony file""" .
   :step :stepTemplate """rack_order_symphony""" .
   :step :addFacts { ?q :order :Complete. }.
 } .
