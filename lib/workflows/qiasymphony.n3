@@ -16,6 +16,29 @@
 
 {
   ?p :a :SampleTube .
+  ?p :is :NotStarted .
+} => {
+  :step :connectBy """position""" .
+  :step :stepTypeName """(BY POSITION) Create Code128 tubes and transfer from SampleTubes""" .
+  :step :removeFacts {?p :is :NotStarted .}.
+  :step :addFacts {?p :is :Started .}.
+  :step :createAsset {
+    ?q :a :Tube .
+    ?q :is :Empty .
+    ?q :barcodeType :Code128 .
+  } .
+  :step :removeFacts { ?q :is :Empty .}.
+  :step :addFacts {
+    ?p :transfer ?q .
+  }.
+  :step :addFacts {
+    ?q :transferredFrom ?p .
+  }.
+} .
+
+
+{
+  ?p :a :SampleTube .
   ?p :is :Started .
   ?q :a :Tube .
   ?q :is :Empty .
