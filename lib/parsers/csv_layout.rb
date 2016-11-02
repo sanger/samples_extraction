@@ -31,8 +31,9 @@ module Parsers
 
     def builder(barcode)
       if create_tubes?
-        asset = Asset.create!(:barcode => barcode)
-        asset.add_facts(Fact.create(:predicate => 'a', :object => 'Tube'));
+        asset = Asset.find_by_barcode(barcode)
+        asset = Asset.create!(:barcode => barcode) unless asset
+        asset.add_facts([Fact.new(:predicate => 'a', :object => 'Tube')]);
       else
         asset = Asset.find_by_barcode(barcode)
       end
