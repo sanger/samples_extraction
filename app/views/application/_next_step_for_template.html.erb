@@ -2,7 +2,7 @@
   <%= f.hidden_field :tube_printer_id, :value => @current_user.tube_printer_id %>
   <%= f.hidden_field :plate_printer_id, :value => @current_user.plate_printer_id %>
 
-  <button id="next" class="button btn btn-default">Go to Next Step</button>
+  <button id="next" class="button btn btn-default">Finish with this Step</button>
   <input type="hidden" name='step[state]' value='done' />
   <% if @upload_ids %>
     <input type="hidden" name="upload_ids" value="<%= @upload_ids %>" />
