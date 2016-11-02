@@ -164,7 +164,7 @@ module SupportN3
 
     def activity_type
       name = @quads.select{|quad| fragment(quad[1]) == 'activityTypeName'}.flatten[2].to_s
-      return ActivityType.find_or_create_by!(:name => name)
+      return ActivityType.find_or_create_by!(:name => name) unless name.empty?
     end
 
     def config_for_step_type
