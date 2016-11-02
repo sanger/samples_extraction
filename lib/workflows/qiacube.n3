@@ -51,18 +51,20 @@
   ?p   :a  :SampleTube .
   ?p   :is   :NotStarted .
   ?p   :maxCardinality   """12""" .
-  ?q   :a  :Tube .
-  ?q   :aliquotType  :DNA .
   ?q   :maxCardinality   """12""" .
-  ?r   :a  :Tube .
-  ?r   :aliquotType  :NAP .
   ?r   :maxCardinality   """12""" .
 } => {
-  :step  :stepTypeName """(BY POSITION) Extract DNA and NA+P from Sample tubes""" .
+  :step  :stepTypeName """(BY POSITION) Create and Extract DNA and NA+P from Sample tubes""" .
+  :step  :createAsset  {
+    ?q   :a  :Tube .
+    ?q   :aliquotType  :DNA .
+  } .
+  :step  :createAsset  {
+    ?r   :a  :Tube .
+    ?r   :aliquotType  :NAP .
+  } .
   :step  :unselectAsset  ?p.
   :step :connectBy """position""" .
-  :step  :removeFacts {?q :is :Empty.}.
-  :step  :removeFacts {?r :is :Empty.}.
   :step  :addFacts   {?p   :transfer   :q .} .
   :step  :addFacts   {?p   :transfer   :r .} .
   :step  :addFacts   {?q   :transferredFrom  :p .} .
@@ -166,19 +168,19 @@
   ?p   :a  :Tube .
   ?p   :aliquotType :NAP .
   ?p   :maxCardinality   """12""" .
-  ?q   :a  :Tube .
-  ?q   :aliquotType  :RNA .
-  ?q   :is  :Empty .
   ?q   :maxCardinality   """12""" .
-  ?r   :a  :Tube .
-  ?r   :aliquotType  :NA .
-  ?r   :is  :Empty .
   ?r   :maxCardinality   """12""" .
 } => {
-  :step  :stepTypeName """(BY POSITION) Extract RNA""" .
+  :step  :stepTypeName """(BY POSITION) Create RNA and disposal tubes and Extract RNA""" .
   :step :connectBy """position""" .
-  :step  :removeFacts {?q :is :Empty.}.
-  :step  :removeFacts {?r :is :Empty.}.
+  :step  :createAsset  {
+    ?q   :a  :Tube .
+    ?q   :aliquotType  :RNA .
+  } .
+  :step  :createAsset  {
+    ?r   :a  :Tube .
+    ?r   :aliquotType  :NA .
+  } .
   :step  :addFacts   {?p   :transfer   :q .} .
   :step  :addFacts   {?p   :transfer   :r .} .
   :step  :addFacts   {?q   :transferredFrom  :p .} .

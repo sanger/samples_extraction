@@ -276,11 +276,11 @@ class Asset < ActiveRecord::Base
 
   def position_value
     val = facts.map(&:position).compact.first
-    val.nil? ? "" : "Pos: #{val.to_s}"
+    val.nil? ? "" : "_#{val.to_s}"
   end
 
   def bottom_line
-    "#{class_name} #{position_value}".chomp
+    ["#{class_name}", "#{aliquot}","#{position_value}"].join(' ').chomp
   end
 
   def class_name
@@ -290,6 +290,15 @@ class Asset < ActiveRecord::Base
     end
     return ''
   end
+
+  def aliquot
+    purposes_facts = facts.with_predicate('aliquotType')
+    if purposes_facts.count > 0
+      return purposes_facts.first.object
+    end
+    return ''
+  end
+
 
   def first_value_for(predicate)
     facts.with_predicate(predicate).first.object
