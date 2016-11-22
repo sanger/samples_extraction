@@ -22,6 +22,13 @@ class LabelTemplateSetup
       @templates ||= []
     end
 
+    def register_label_type(name, data)
+      ltype = PMB::LabelType.all.detect {|lt| lt.name == name }
+      if ltype.nil?
+        PMB::LabelType.new(data).save
+      end
+    end
+
     def register_template(template_name,template_type)
       puts "Loading #{template_name}"
       type_id = label_type_id_for(template_type)
