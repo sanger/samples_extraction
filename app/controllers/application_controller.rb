@@ -18,7 +18,7 @@ class ApplicationController < ActionController::Base
       @current_user = User.find_by(:token => session[:token])
       unless @current_user
         # If I am logged in a different host, I lose the session in this one
-        #session[:token]=nil
+        session[:token]=nil
       end
     end
   end
