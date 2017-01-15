@@ -3,6 +3,15 @@
 #Copyright (C) 2007-2011,2012,2013,2014,2015,2016 Genome Research Ltd.
 
 class Barcode
+
+  def self.CREATABLE_PREFIX
+    'F'
+  end
+
+  def self.is_creatable_barcode?(barcode)
+    barcode.starts_with?(self.CREATABLE_PREFIX)
+  end
+
   # Anything that has a barcode is considered barcodeable.
   module Barcodeable
     def self.included(base)

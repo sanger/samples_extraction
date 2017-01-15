@@ -2,6 +2,15 @@ When(/^I use the browser to enter in the application$/) do
   visit '/'
 end
 
+When(/^I go to the Instruments page$/) do
+  visit '/instruments'
+end
+
+
+Then(/^show me the page$/) do
+  save_and_open_page
+end
+
 Then(/^I should see the Instruments page$/) do
   page.should have_content("Instruments")
 end
@@ -33,9 +42,11 @@ Given(/^I have the following kits in house$/) do |table|
 end
 
 When(/^I create an activity with instrument "([^"]*)" and kit "(\d+)"$/) do |instrument_name, kit_barcode|
-  click_on('Use')
+  instrument = Instrument.find_by_name(instrument_name)
+  visit instrument_path(instrument)
   fill_in 'Kit barcode', with: kit_barcode
-  click_on('Create')
+
+  click_on('Create activity', :visible => false)
 end
 
 Given(/^we use these activity types:$/) do |table|

@@ -106,6 +106,7 @@ group :selenium do
 end
 
 group :test do
+  gem 'webmock'
   gem 'poltergeist'
   gem 'launchy'
 end

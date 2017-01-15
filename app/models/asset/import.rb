@@ -50,9 +50,18 @@ module Asset::Import
   def find_or_import_asset_with_barcode(barcode)
     asset = Asset.find_by_barcode(barcode)
     unless asset
+      if Barcode.is_creatable_barcode?(barcode)
+        asset = Asset.create!(:barcode => barcode)
+        asset.facts << Fact.create!(:predicate => 'a', :object => 'Tube')
+        asset.facts << Fact.create!(:predicate => 'barcodeType', :object => 'Code2D')
+        asset.facts << Fact.create!(:predicate => 'is', :object => 'Empty')
+      end
+    end
+    unless asset
       remote_asset = SequencescapeClient::get_remote_asset(barcode)
       if remote_asset
         asset = build_asset_from_remote_asset(barcode, remote_asset)
+        raise 'Asset not found' if asset.nil?
       end
       asset.update_compatible_activity_type
     end

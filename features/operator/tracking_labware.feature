@@ -6,7 +6,9 @@ Should be able to know past, present and future of any asset while working with 
 
 Background:
 
-Given I am an operator called "Bob"
+Given I have the following users:
+| User    | Role             |
+| Charles | operator         |
 
 Given I have to process these tubes that are on my table:
 |  Barcode | Facts                   |
@@ -60,10 +62,18 @@ Given the laboratory has the following instruments:
 | 1       | My instrument | Tubes to rack, Reracking |
 
 Given I use the browser to enter in the application
-And I log in as "Bob"
+Then I should see the Instruments page
+When I log in as an unknown user
+Then I am not logged in
+
+When I log in as "Charles"
+Then I am logged in as "Charles"
 
 Scenario: Create a new activity with some assets
-When I create an activity with instrument "My Instrument" and kit "1"
+When I go to the Instruments page
+And I am logged in as "Charles"
+When I go to the Instruments page
+And I create an activity with instrument "My Instrument" and kit "1"
 Then I should have created an empty activity for "Tubes to rack"
 
 When I scan these barcodes into the selection basket:
@@ -76,9 +86,10 @@ Then I should see these barcodes in the selection basket:
 | 1       |
 | 2       |
 
-
 Scenario: Process a group of barcodes from the selection basket
-When I create an activity with instrument "My Instrument" and kit "1"
+When I go to the Instruments page
+And I am logged in as "Charles"
+And I create an activity with instrument "My Instrument" and kit "1"
 And I scan these barcodes into the selection basket:
 |Barcode |
 | 1      |
@@ -93,12 +104,13 @@ And I should see these steps available:
 | Step                    |
 | Change purpose of tube  |
 
-When I log out
-And I am not logged in
-And I perform the step "Change purpose of tube"
-Then I should not have performed the step "Change purpose of tube"
+#When I log out
+#And I am not logged in
+#And I perform the step "Change purpose of tube"
+#Then I should not have performed the step "Change purpose of tube"
 
-When I log in as "Bob"
-Then I am logged in as "Bob"
+#When I log in as "Charles"
+#Then I am logged in as "Charles"
 And I perform the step "Change purpose of tube"
-Then I should have performed the step "Change purpose of tube" with the user "Bob"
+Then I should have performed the step "Change purpose of tube" with the user "Charles"
+

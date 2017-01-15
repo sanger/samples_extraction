@@ -5,6 +5,7 @@
   <%= bootstrap_form_for [@activity, @asset_group], action: 'update', remote: true, html: { :autocomplete => 'off', :"data-psd-asset-group-form" => "1"} do |f| %>
 
   <input type="hidden" name="asset_group[delete_barcode]" id="asset_group_delete_barcode" value="" />
+  <input type="hidden" name="asset_group[delete_all_barcodes]" id="asset_group_delete_all_barcodes" value="false" />
   <label class="control-label">What do I have?</label>
   <div class="panel panel-default">
     <div class="panel-header barcode-adding-control">
@@ -23,7 +24,7 @@
     <div class="panel-body <%= 'not-matched' if @step_types.empty? %>">
       <div>
         <% if @step_types.empty? %>
-          <h4>No compatible steps were found</h4>
+          <span class="no-compatible-steps-desc">No compatible steps were found. Click through the following list of available steps to check the requirements for each step</span>
         <% end %>
         <div class="row">
           <ul class="nav nav-pills">
@@ -56,7 +57,9 @@
     <div class="panel-body collapse in" id="collapseAssets">
       <% unless @assets.empty? %>
       <table class="table table-condensed">
-        <thead><th>Barcode</th><th>Facts</th><th><span class='pull-right'></span></th></thead>
+        <thead><th>Barcode</th><th>Facts</th><th>
+          <button class="btn btn-default delete-button" data-psd-asset-group-delete-all-barcodes="">Delete all</button>
+        </th></thead>
         <tbody data-psd-asset-group-content="1">
           <% @assets.distinct.each_with_index do |asset, i| %>
             <tr>

@@ -343,6 +343,7 @@ body.administrator-role .administrator-allowed {display:inline-block !important;
 body.administrator-role .operator-allowed {display:inline-block !important;}
 
 
+form.edit_asset_group .barcode-adding-control { width: 100%;}
 form.edit_asset_group .barcode-adding-control { @extend .operator-allowed; }
 body .btn { @extend .operator-allowed; }
 body nav .btn { @extend .anonymous-allowed; }
@@ -351,3 +352,9 @@ body nav .btn { @extend .anonymous-allowed; }
 .asset small {display: none;}
 
 div.fact a.active.object-reference  {color:orange;}
+
+.no-compatible-steps-desc {font-size:11pt;}
+
+#asset-group-container ul.nav-pills li.active a {background-color: #777777; color: #fff;}
+#asset-group-container ul.nav-pills a { color: #666;}
+
