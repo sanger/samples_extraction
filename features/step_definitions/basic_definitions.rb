@@ -120,7 +120,9 @@ Then(/^I should see these steps available:$/) do |table|
 end
 
 When(/^I perform the step "([^"]*)"$/) do |step_name|
-  find(".firststeptype form.new_step").click
+  all('.firststeptype .step_types_active ul.step-selection li').select do |node|
+    node['innerHTML'].include?(step_name)
+  end.first.click
 end
 
 Then(/^I should not have performed the step "([^"]*)"$/) do |step_name|
