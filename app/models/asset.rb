@@ -276,7 +276,7 @@ class Asset < ActiveRecord::Base
 
   def position_value
     val = facts.map(&:position).compact.first
-    val.nil? ? "" : "_#{val.to_s}"
+    val.nil? ? "" : "_#{(val.to_i+1).to_s}"
   end
 
   def bottom_line

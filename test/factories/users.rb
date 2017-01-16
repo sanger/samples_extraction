@@ -7,7 +7,4 @@ FactoryGirl.define do
     barcode  { FactoryGirl.generate :barcode }
   end
 
-  sequence :barcode do |n|
-    n
-  end
 end

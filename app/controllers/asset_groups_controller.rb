@@ -54,20 +54,21 @@ class AssetGroupsController < ApplicationController
 
 
     def set_activity
-
       # I need the activity to be able to know the step_types compatible to show.
       @activity = Activity.find(params_asset_group[:activity_id])
     end
 
     # Use callbacks to share common setup or constraints between actions.
     def set_asset_group
-
       @asset_group = AssetGroup.find(params_asset_group[:id])
     end
 
   def perform_barcode_removal
-    unless params_update_asset_group[:delete_barcode].empty?
-      @asset_group.unselect_barcodes([params_update_asset_group[:delete_barcode]])
+    unless params_update_asset_group[:delete_barcode].nil? || params_update_asset_group[:delete_barcode].empty?
+      @asset_group.unselect_barcodes([params_update_asset_group[:delete_barcode]].flatten)
+    end
+    if params_update_asset_group[:delete_all_barcodes] == 'true'
+      @asset_group.unselect_all_barcodes
     end
   end
 
@@ -77,8 +78,8 @@ class AssetGroupsController < ApplicationController
   end
 
   def perform_barcode_addition
-    unless params_update_asset_group[:add_barcode].empty?
-      barcodes = [params_update_asset_group[:add_barcode]]
+    unless params_update_asset_group[:add_barcode].nil? || params_update_asset_group[:add_barcode].empty?
+      barcodes = [params_update_asset_group[:add_barcode]].flatten
       barcodes_str = "'"+barcodes.join(',')+"'";
       begin
         if @asset_group.select_barcodes(barcodes)
@@ -103,11 +104,11 @@ class AssetGroupsController < ApplicationController
   end
 
   def params_update_asset_group
-    params.require(:asset_group).permit(:add_barcode, :delete_barcode)
+    params.require(:asset_group).permit(:add_barcode, :delete_barcode, :delete_all_barcodes)
   end
 
   def params_asset_group
-    params.permit(:activity_id, :id, :add_barcode, :delete_barcode)
+    params.permit(:activity_id, :id, :add_barcode, :delete_barcode, :delete_all_barcodes)
   end
 
 end

@@ -14,6 +14,17 @@ class ActivityType < ActiveRecord::Base
   include Deprecatable
 
 
+  before_update :parse_n3
+
+  attr_accessor :n3_definition
+
+  def parse_n3
+    unless n3_definition.nil?
+      SupportN3::parse_string(n3_definition, {})
+    end
+  end
+
+
   def after_deprecate
     self.reload
     main_instance = self.superceded_by
@@ -29,5 +40,9 @@ class ActivityType < ActiveRecord::Base
 
   def compatible_with?(assets)
     condition_groups.any?{|c| c.compatible_with?(assets)}
+  end
+
+  def to_n3
+    [":step :activityTypeName \"\"\"#{name}\"\"\"", step_types.map(&:to_n3)].flatten.join(" . \n")+" ."
   end
 end

@@ -10,18 +10,26 @@ Then(/^I am not logged in$/) do
   expect(page.has_content?("Not logged")).to eq(true)
 end
 
+Then(/^I am logged in$/) do
+  expect(page.has_content?("Not logged")).to eq(true)
+end
+
 
 When(/^I log in with barcode "(\d+)"$/) do |user_barcode|
+  user = User.find_by_barcode(user_barcode)
   n=find('.logged-out div.btn')
   n.click
   fill_in('Scan a user barcode', :with => user_barcode)
   click_on('Login')
+  #expect(page).not have_content('')
+  #step("I am logged in as \"#{user.username}\"")
 end
 
 When(/^I log out$/) do
   n=find('.logged-in .change-login-status-button')
   n.click
   click_on('Logout')
+  step("I am not logged in")
 end
 
 
@@ -30,8 +38,12 @@ When(/^I log in as an unknown user$/) do
 end
 
 When(/^I log in as "([^"]*)"$/) do |name|
-  barcode = User.find_by(:username => name).barcode
-  step(%Q{I log in with barcode "#{barcode}"})
+  user_barcode = User.find_by(:username => name).barcode
+  user = User.find_by_barcode(user_barcode)
+  n=find('.logged-out div.btn')
+  n.click
+  fill_in('Scan a user barcode', :with => user_barcode)
+  click_on('Login')
 end
 
 Then(/^I am logged in as "([^"]*)"$/) do |name|

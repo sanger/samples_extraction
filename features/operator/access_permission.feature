@@ -31,3 +31,6 @@ When I log out
 And I log in as "Alice"
 Then I am logged in as "Alice"
 And I should be able to access the functionality needed for an administrator
+
+And I log out
+And I log in as "Bob"

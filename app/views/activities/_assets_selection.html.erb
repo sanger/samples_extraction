@@ -56,7 +56,7 @@
     <div class="panel-body collapse in" id="collapseAssets">
       <% unless @assets.empty? %>
       <table class="table table-condensed">
-        <thead><th>Barcode</th><th>Facts</th><th><span class='pull-right'></span></th></thead>
+        <thead><th>Barcode</th><th>Facts</th><th><span class='pull-right'>Delete All</span></th></thead>
         <tbody data-psd-asset-group-content="1">
           <% @assets.distinct.each_with_index do |asset, i| %>
             <tr>

@@ -30,6 +30,7 @@ module Parsers
     end
 
     def builder(barcode)
+      barcode.strip!
       if create_tubes?
         asset = Asset.find_by_barcode(barcode)
         asset = Asset.create!(:barcode => barcode) unless asset

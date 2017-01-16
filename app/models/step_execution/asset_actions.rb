@@ -19,7 +19,11 @@ module StepExecution::AssetActions
 
     #debugger
     created_assets[action.subject_condition_group.id].each_with_index do |created_asset, i|
-      created_asset.generate_barcode(i)
+      if (created_asset.has_literal?('barcodeType', 'NoBarcode'))
+        created_asset.update_attributes(:barcode => nil)
+      else
+        created_asset.generate_barcode(i)
+      end
       @changed_facts = generate_facts.map(&:dup)
       created_asset.add_facts(changed_facts, i) do |fact|
         create_operation(created_asset, fact)

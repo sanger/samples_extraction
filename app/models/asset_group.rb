@@ -34,6 +34,10 @@ class AssetGroup < ActiveRecord::Base
     end
   end
 
+  def unselect_all_barcodes
+    assets.delete(assets)
+  end
+
   def unselect_assets_with_conditions(condition_groups)
     condition_groups.each do |condition_group|
       unless condition_group.keep_selected

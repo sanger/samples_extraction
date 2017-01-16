@@ -34,9 +34,46 @@
       <% end %>
     </div>
 
+
+<div class="modal fade" id="editorContainer" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Rule editor</h4>
+      </div>
+      <div class="modal-body">
+    <div id="editor" style="border: 1px solid #CCC; padding: 10px; border-radius: 5px; height: 30em;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <%= f.submit :class => 'btn btn-default update-n3' %>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
   <% unless readonly %>
     <div class="actions">
+      <button class='btn btn-default show-n3' data-toggle="modal" data-target="#editorContainer">Edit N3</button>      
       <%= f.submit %>
     </div>
   <% end %>
+  <input type="hidden" name="activity_type[n3_definition]" id="n3_definition" value="<%= @activity_type.to_n3 %>" %>
+<script type="text/javascript">
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.getSession().setMode("ace/mode/text");
+
+    $('button.show-n3').on('click', $.proxy(function(e) {
+      e.preventDefault();
+      editor.setValue($('input#n3_definition').val());
+    }, this))
+
+    $('.update-n3').on('click', $.proxy(function(e) {
+      $('input#n3_definition').val(editor.getValue());
+    }, this));
+
+</script>
+
 <% end %>
