@@ -145,22 +145,15 @@
   ?p   :aliquotType   :NAP .
   ?p   :maxCardinality   """12""" .
   ?q   :maxCardinality   """0""" .
-  ?r   :maxCardinality   """0""" .
 } => {
   ?p  :shortDescription """NA+P tube""" .
   ?q  :shortDescription """RNA tube""" .
-  ?r  :shortDescription """Disposal tube""" .
-  :step  :stepTypeName """Create RNA and disposal tubes from NA+P tubes""" .
+  :step  :stepTypeName """Create RNA tubes from NA+P tubes""" .
   :step :connectBy """position""" .
   :step  :createAsset  {
     ?q   :a  :Tube .
     ?q   :aliquotType  :RNA .
     ?q   :is  :Empty .
-  } .
-  :step  :createAsset  {
-    ?r   :a  :Tube .
-    ?r   :aliquotType  :NA .
-    ?r   :is :Empty .
   } .
 } .
 
@@ -169,7 +162,6 @@
   ?p   :aliquotType :NAP .
   ?p   :maxCardinality   """12""" .
   ?q   :maxCardinality   """12""" .
-  ?r   :maxCardinality   """12""" .
 } => {
   :step  :stepTypeName """(BY POSITION) Create RNA and disposal tubes and Extract RNA""" .
   :step :connectBy """position""" .
@@ -177,14 +169,8 @@
     ?q   :a  :Tube .
     ?q   :aliquotType  :RNA .
   } .
-  :step  :createAsset  {
-    ?r   :a  :Tube .
-    ?r   :aliquotType  :NA .
-  } .
   :step  :addFacts   {?p   :transfer   :q .} .
-  :step  :addFacts   {?p   :transfer   :r .} .
   :step  :addFacts   {?q   :transferredFrom  :p .} .
-  :step  :addFacts   {?r   :transferredFrom  :p .} .
 } .
 
 {
@@ -195,19 +181,13 @@
   ?q   :aliquotType  :RNA .
   ?q   :is  :Empty .
   ?q   :maxCardinality   """12""" .
-  ?r   :a  :Tube .
-  ?r   :aliquotType  :NA .
-  ?r   :is  :Empty .
-  ?r   :maxCardinality   """12""" .
 } => {
   :step  :stepTypeName """Extract RNA""" .
   :step  :stepTemplate """transfer_tube_to_tube""" .
   :step  :removeFacts {?q :is :Empty.}.
-  :step  :removeFacts {?r :is :Empty.}.
   :step  :addFacts   {?p   :transfer   :q .} .
   :step  :addFacts   {?p   :transfer   :r .} .
   :step  :addFacts   {?q   :transferredFrom  :p .} .
-  :step  :addFacts   {?r   :transferredFrom  :p .} .
 } .
 
 {
@@ -215,13 +195,9 @@
   ?p   :aliquotType :NAP .
   ?q   :a  :Tube .
   ?q   :aliquotType  :RNA .
-  ?r   :a  :Tube .
-  ?r   :aliquotType  :NA .
-  ?p :transfer ?q .
 }=>{
   :step :stepTypeName """Select only RNA tubes""".
   :step :unselectAsset ?p .
-  :step :unselectAsset ?r .
 }.
 
 

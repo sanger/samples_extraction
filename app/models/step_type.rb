@@ -170,4 +170,21 @@ class StepType < ActiveRecord::Base
     #condition_group_classification_for(assets)
   end
 
+  def to_n3
+    ["{",
+    condition_groups.map(&:conditions).flatten.map do |c|
+      obj = c.object
+      obj = "\"\"\"#{obj}\"\"\"" if obj
+      "\t?#{c.condition_group.name} :#{c.predicate} #{obj || '?'+c.object_condition_group.name} ."
+    end, "} => {",
+    actions.map do |a|
+      obj = a.object
+      obj = "\"\"\"#{obj}\"\"\"" if obj      
+      "\t:step :#{a.action_type} {?#{a.subject_condition_group.name} :#{a.predicate} #{obj || '?'+a.object_condition_group.name}. } ."
+    end, 
+    "\t:step :stepTypeName \"\"\"#{name}\"\"\" .",
+    connect_by ? "\t:step :connectBy \"\"\"#{connect_by}\"\"\" ." : nil,
+    "}"].flatten.compact.join("\n")
+  end
+
 end
