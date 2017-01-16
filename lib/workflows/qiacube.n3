@@ -95,6 +95,20 @@
   } .
 
 {
+  ?q   :aliquotType  :DNA .
+  ?q   :maxCardinality   """0""" .
+} => {
+  :step  :stepTypeName """HINT: Now you should add a 2D tube""" .
+} .
+
+{
+  ?r   :aliquotType  :NAP .
+  ?r   :maxCardinality   """0""" .
+} => {
+  :step  :stepTypeName """HINT: Now you should add a 2D tube""" .
+  } .  
+
+{
   ?Condition1  :a  :SampleTube .
   ?Condition1  :is   :NotStarted .
   ?Condition1  :maxCardinality   """12""" .
@@ -217,6 +231,21 @@
 } .
 
 {
+  ?DNAtube   :a  :Tube .
+  ?DNAtube   :aliquotType  :DNA .
+  ?Tube2D    :a  :Tube .
+  ?Tube2D    :is :Empty .
+  ?Tube2D    :barcodeType :Code2D .
+}=>{
+  :step  :stepTypeName """(BY POSITION) Transfer DNA to 2D tubes""" .
+  :step :connectBy """position""" .  
+  :step :addFacts {?DNAtube :transfer ?Tube2D.}.
+  :step :addFacts {?Tube2D :transferredFrom ?DNAtube.}.
+  :step :addFacts {?Tube2D :aliquotType :DNA.}.
+  :step :removeFacts {?Tube2D :is :Empty.}.
+} .
+
+{
   ?RNAtube   :a  :Tube .
   ?RNAtube   :aliquotType  :RNA .
   ?Tube2D    :a  :Tube .
@@ -225,6 +254,21 @@
 }=>{
   :step  :stepTypeName """Transfer RNA to 2D tubes""" .
   :step  :stepTemplate """transfer_tube_to_tube""" .
+  :step :addFacts {?RNAtube :transfer ?Tube2D.}.
+  :step :addFacts {?Tube2D :transferredFrom ?RNAtube.}.
+  :step :addFacts {?Tube2D :aliquotType :RNA.}.
+  :step :removeFacts {?Tube2D :is :Empty.}.
+} .
+
+{
+  ?RNAtube   :a  :Tube .
+  ?RNAtube   :aliquotType  :RNA .
+  ?Tube2D    :a  :Tube .
+  ?Tube2D    :is :Empty .
+  ?Tube2D    :barcodeType :Code2D .
+}=>{
+  :step  :stepTypeName """(BY POSITION) Transfer RNA to 2D tubes""" .
+  :step :connectBy """position""" .  
   :step :addFacts {?RNAtube :transfer ?Tube2D.}.
   :step :addFacts {?Tube2D :transferredFrom ?RNAtube.}.
   :step :addFacts {?Tube2D :aliquotType :RNA.}.
@@ -247,7 +291,12 @@
   ?tubeRack :maxCardinality """1""".
 }=>{
   :step :stepTypeName """Create TubeRack for Tube2D""" .
-  :step :createAsset {?tubeRack :a :TubeRack.}.
+  :step :createAsset {
+    ?tubeRack :a :TubeRack . 
+    ?tubeRack :barcodeType :NoBarcode .
+    ?tubeRack :createdFrom ?tube .
+  }.
+  :step :addFacts {?tube :creates ?tubeRack .}.
 }.
 
 {
