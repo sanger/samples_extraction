@@ -28,7 +28,7 @@
 //= require delete_icon
 //= require display_error
 //= require editable_text
-//= require fact_searcher
+//= require fact_searcher_lightweight
 //= require loading_icon
 //= require rack_well_display
 //= require source_to_destination

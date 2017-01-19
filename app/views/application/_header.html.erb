@@ -10,12 +10,15 @@
       </button>
        <a class="navbar-brand" href="/"><span style="">Samples Extraction</span></a>
     </div>
-    <form class="navbar-form navbar-right search-form" role="search"
+    <form data-psd-component-class="FactSearcherLightweight"
+          class="navbar-form navbar-right search-form" role="search"
           method='get' action='<%= search_assets_path %>'>
 
       <div class="input-group">
-        <div class="form-control searcher" data-psd-component-class="FactSearcher">
-        </div>
+        <!-- div class="form-control searcher" data-psd-component-class="FactSearcher">
+        </div -->
+        <input id="fact_searcher" name="fact_searcher" class="form-control searcher" type="text" autocomplete="off" />
+
         <div class="input-group-btn">
           <button type="submit" class="btn btn-default"><%= t('.search') %></button>
         </div>
@@ -30,39 +33,6 @@
     (function() {
       var form = $('.search-form');
 
-      $(document).ready(function() {
-        $(window).on('resize', function() {
-          $('.main-view').height($(window).height()-200);
-        });
-        $('.main-view').height($(window).height()-200);
-      });
-
-      form.on('submit', function(e) {
-        e.preventDefault();
-        $.get({
-          url: form.attr('action'),
-          data: form.serialize(),
-          success: function(html) {
-            var containerSearchBox = $("<div id='container-search-side-box' class='alert' style='display:none;width:400px;overflow-y:scroll;height:780px;'></div>");
-            var close = $("<button data-dismiss='alert'  class='close pull-right'>&times;</button>");
-            containerSearchBox.append(close);
-            var nodeSearch = $("<div></div>");
-            nodeSearch.html(html);
-            containerSearchBox.append(nodeSearch);
-            containerSearchBox.show();
-            containerSearchBox.css('display', 'table-cell');
-
-            $('.main-view').height($(window).height()-200);
-            $('.main-view').css('overflow', 'scroll');
-            containerSearchBox.css('overflow', 'scroll');
-            containerSearchBox.height($(window).height()-200);
-            containerSearchBox.on('resize', function() {
-              containerSearchBox.height($(window).height()-200);
-            });
-            containerSearchBox.insertAfter('.main-view');
-          }
-        });
-      });
     }());
     </script>
 
