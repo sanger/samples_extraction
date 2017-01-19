@@ -1,6 +1,6 @@
 (function($, undefined) {
 	function FactSearcherLightweight(node, params) {
-		this.node = $(node);
+    this.node = $(node);
 		this.params = params;
 
 		this.sidebarTemplate = JST['templates/sidebar_searchbox'];
