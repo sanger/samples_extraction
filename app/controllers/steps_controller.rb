@@ -69,7 +69,7 @@ class StepsController < ApplicationController
         if @step.created_asset_group
           @step.created_asset_group.print(printer_config)
         end
-        @activity.reasoning!
+        @activity.reasoning!(printer_config)
       end
     rescue Lab::Actions::InvalidDataParams => e
       flash[:danger] = e.message

@@ -3,6 +3,7 @@ class PushDataJob < ApplicationJob
 
   def perform(*args)
     # Do something later
+    printer_config = args
     Rails.logger.debug "#{self.class.name}: I'm performing my job with arguments: #{args.inspect}"
 
 
@@ -18,7 +19,7 @@ class PushDataJob < ApplicationJob
     end
 
     Asset.with_fact('pushTo', 'Sequencescape').each do |asset|
-      asset.update_sequencescape
+      asset.update_sequencescape(printer_config)
       asset.facts.select{|f| f.predicate == 'pushTo' && f.object == 'Sequencescape'}.each do |f|
         f.destroy
       end

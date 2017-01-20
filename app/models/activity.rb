@@ -56,6 +56,14 @@ class Activity < ActiveRecord::Base
     assets.includes(:steps).map(&:steps).concat(steps).flatten.compact.uniq
   end
 
+  def in_progress_step
+    assets = asset_group.assets
+    stypes = step_types.includes(:condition_groups => :conditions).select do |step_type|
+      step_type.compatible_with?(assets)
+    end    
+    stypes.detect{|stype| steps.in_progress.for_step_type(stype).count > 0}
+  end
+
   def step_types_for(assets, required_assets=nil)
     stypes = step_types.includes(:condition_groups => :conditions).select do |step_type|
       step_type.compatible_with?(assets, required_assets)
@@ -122,8 +130,8 @@ class Activity < ActiveRecord::Base
     end
   end
 
-  def reasoning!
-    PushDataJob.perform_later
+  def reasoning!(printer_config=nil)
+    PushDataJob.perform_later(printer_config)
   end
 
 end

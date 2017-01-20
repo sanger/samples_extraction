@@ -34,6 +34,7 @@
 //= require source_to_destination
 //= require button_switch
 //= require fact_reader
+//= require finish_step_button
 //= require user_status
 //= require tube_into_rack
 //= require ace-rails-ap
