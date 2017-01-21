@@ -267,6 +267,7 @@ class Asset < ActiveRecord::Base
   end
 
   def printable_object
+    return nil if barcode.nil?
     return {:label => {
       :barcode => barcode,
       :top_line => Barcode.barcode_to_human(barcode) || barcode,

@@ -234,34 +234,6 @@ header, .blurheader {
 }
 
 
-.searcher {
-   width: 15em !important;
-   padding: 4px;
-  .facts-searcher {
-    span.selection { background-color: lightblue;};
-    div.fact {
-      float: none;
-      margin-top: 2px;
-      margin-bottom: 2px;
-      display:inline-block;
-    };
-    div.fact + span {
-      display:none;
-    };
-    label {
-      position:relative;
-      z-index:10;
-    }
-    input {
-      opacity: 0;
-      position:absolute;
-      left:0;
-      top: 0;
-      width: 100%;
-    }
-  }
-};
-
 .well div.fact { display:inline; float:none;}
 
 .activity-step-types { padding-left: 2em;}
@@ -312,7 +284,24 @@ svg {
 /**
 * Navbar
 */
-/*form.search-form .input-group-btn { display:flex; }*/
+
+@media (max-width: 767px){
+  body nav .navbar-right .user-status { display:none;}
+  body nav .navbar-header .user-status { 
+    display:block; position:relative; float:right;
+    margin-top: 8px; margin-right: 0.5em;
+    .user-status-description-text { display:none;}
+    .dropdown-menu {left: auto; right: 0;}
+    div.form-group {margin-bottom: 0px;}
+  }
+
+}
+
+@media (min-width: 768px){
+  body nav .navbar-right .user-status { display:inline-block;}
+  body nav .navbar-header .user-status { display:none;}
+}
+
 
 @media (min-width: 768px)
 {

@@ -58,7 +58,7 @@
       <% unless @assets.empty? %>
       <table class="table table-condensed">
         <thead><th>Barcode</th><th>Facts</th><th>
-          <button class="btn btn-default delete-button" data-psd-asset-group-delete-all-barcodes="">Delete all</button>
+          <button class="btn btn-primary delete-button" data-psd-asset-group-delete-all-barcodes="">Delete all</button>
         </th></thead>
         <tbody data-psd-asset-group-content="1">
           <% @assets.distinct.each_with_index do |asset, i| %>
@@ -68,7 +68,7 @@
                 <%= render :partial => 'facts/facts', :locals => { :facts => asset.facts, :show_image => true, :show_facts => true } %>
               </td>
               <td>
-                <button class="btn btn-default delete-button" data-psd-asset-group-delete-barcode="<%= asset.barcode %>">Delete</button>
+                <button class="btn btn-primary delete-button" data-psd-asset-group-delete-barcode="<%= asset.barcode %>">Delete</button>
               </td>
             </tr>
           <% end %>

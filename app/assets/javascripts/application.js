@@ -28,12 +28,13 @@
 //= require delete_icon
 //= require display_error
 //= require editable_text
-//= require fact_searcher
+//= require fact_searcher_lightweight
 //= require loading_icon
 //= require rack_well_display
 //= require source_to_destination
 //= require button_switch
 //= require fact_reader
+//= require finish_step_button
 //= require user_status
 //= require tube_into_rack
 //= require ace-rails-ap

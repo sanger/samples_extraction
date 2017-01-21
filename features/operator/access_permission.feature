@@ -12,6 +12,11 @@ Given I have the following users:
 | Alice   | administrator    |
 | Bob     | operator         |
 
+Given I have the following printers:
+| Name      | Printer Type | Default |
+| printer1  | Tube         | true    |
+| printer2  | Plate        | true    |
+
 Scenario: Access to the system functionalities depending on the role of the user
 
 When I use the browser to enter in the application
@@ -33,4 +38,4 @@ Then I am logged in as "Alice"
 And I should be able to access the functionality needed for an administrator
 
 And I log out
-And I log in as "Bob"
+Then I am not logged in

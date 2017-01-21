@@ -131,25 +131,39 @@ Then(/^I should not have performed the step "([^"]*)"$/) do |step_name|
   end
 end
 
-Then(/^I should have performed the step "([^"]*)" with the user "([^"]*)"$/) do |step_name, username|
+Then(/^I should ?(not)? have performed the step "([^"]*)" with the user "([^"]*)"$/) do |not_action, step_name, username|
   # table is a Cucumber::MultilineArgument::DataTable
-  within("#steps_finished .panel") do
-    page.should have_content(step_name)
-    page.should have_content(username)
-  end
+  expect(all("#steps_finished .panel tr").any? do |elem|
+    elem.has_content?(step_name) && elem.has_content?(username)
+  end).to eq(not_action != 'not')
 end
 
 When(/^I open the operations list$/) do
   find("#steps_finished").click
 end
 
-Then(/^I should have performed the step "([^"]*)" with the following barcodes:$/) do |step_name, table|
+Then(/^I should ?(not)? have performed the step "([^"]*)" with the following barcodes:$/) do |not_action, step_name, table|
   # table is a Cucumber::MultilineArgument::DataTable
   within("#steps_finished .panel") do
-    page.should have_content(step_name)
+    expect(page.has_content?(step_name)).to eq(not_action!='not')
     table.hashes.each do |h|
-      page.should have_content(h["Barcode"])
+      expect(page.has_content?(h["Barcode"])).to eq(not_action!='not')
     end
   end
 end
 
+Then(/^I should see (\d+) elements? in the selection basket$/) do |num|
+  expect(all('form.edit_asset_group tbody tr').length.to_s).to eq(num)
+end
+
+Then(/^I should not see any steps available$/) do
+  expect(all(".firststeptype .content_step_types li").length).to eq(0)
+end
+
+When(/^I finish the activity$/) do
+  click_on('Finish activity?')
+end
+
+Then(/^the activity should be finished$/) do
+  expect(page.has_content?("This activity was finished")).to eq(true)
+end
