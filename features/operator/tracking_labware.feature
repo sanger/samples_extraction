@@ -104,10 +104,9 @@ Then I should see the Instruments page
 When I log in as an unknown user
 Then I am not logged in
 
+Scenario: Create a new activity with some assets
 When I log in as "Charles"
 Then I am logged in as "Charles"
-
-Scenario: Create a new activity with some assets
 When I go to the Instruments page
 And I am logged in as "Charles"
 When I go to the Instruments page
@@ -124,9 +123,14 @@ Then I should see these barcodes in the selection basket:
 | 1       |
 | 2       |
 
+Then I log out
+
 Scenario: Process a group of barcodes from the selection basket
 When I go to the Instruments page
-And I am logged in as "Charles"
+And I log in as "Charles"
+
+Then I am logged in as "Charles"
+
 And I create an activity with instrument "My Instrument" and kit "1"
 And I scan these barcodes into the selection basket:
 |Barcode |
