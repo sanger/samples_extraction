@@ -101,8 +101,6 @@ Given the laboratory has the following instruments:
 
 When I use the browser to enter in the application
 Then I should see the Instruments page
-When I log in as an unknown user
-Then I am not logged in
 
 Scenario: Create a new activity with some assets
 When I log in as "Charles"
