@@ -96,7 +96,7 @@
        this.setPlatePrinter(data.plate_printer_name);
      }
 
-     var showStatus = ((typeof data!=='undefined') && (typeof data.username !== 'undefined'));
+     var showStatus = ((typeof data!=='undefined') && (!!data.username));
      this.controlLoggedOut.toggle(!showStatus);
      this.controlLoggedIn.toggle(showStatus);
      $(document.body).toggleClass('logged-off', !showStatus);
@@ -111,7 +111,6 @@
     if (typeof e !== 'undefined'){
       e.preventDefault();
     }
-
 
     $.ajax({method: 'delete', cache: false, url: this.logoutUrl(),
       dataType: 'json', success: $.proxy(function() {
@@ -145,7 +144,8 @@
     proto.readUserBarcode = function(e, data) {
     	e.stopPropagation();
     	$(this.node).trigger('load_start.loading_spinner', {});
-    	$.ajax({method: 'post', cache: false, url: this.userServiceUrl,
+    	$.ajax({method: 'post', cache: false, 
+        url: this.userServiceUrl,
         data:{user_session: data}, dataType: 'json',
         success: $.proxy(this.onUserServiceSuccess, this)}).
       fail($.proxy(this.onUserServiceFail, this));
@@ -158,7 +158,7 @@
       this.resetBarcodeInput();
     	$(this.node).trigger('load_stop.loading_spinner', {});
     	//$('.dropdown-toggle', this.node).dropdown('toggle');
-    	if (response && (typeof response.username !== 'undefined')) {
+    	if (response && (!!response.username)) {
     	    this.login(response);
     	} else {
     	    this.node.trigger('msg.display_error', {msg: 'User barcode not valid'});
@@ -174,17 +174,17 @@
 
 
     proto.attachHandlers = function() {
+      $('#login-button').on('click', function(e) {e.preventDefault();});
      $(this.node).on('barcode.barcode_reader', $.proxy(this.readUserBarcode, this));
-	$(document).on('login.user_status', $.proxy(function(e, data) {
+	   $(document).on('login.user_status', $.proxy(function(e, data) {
 
                                                    this.updateLogin(data);
                                                  }, this));
 	$(document).on('logout.user_status', $.proxy(function() {
-
        this.updateLogin({});
      }, this));
 
-	$(this.logoutButton).on('click', $.proxy(this.logout, this));
+	   $(this.logoutButton).on('click', $.proxy(this.logout, this));
    };
 
    $(document).trigger('registerComponent.builder', {'UserStatus': UserStatus});

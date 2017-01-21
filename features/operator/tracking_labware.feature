@@ -8,7 +8,15 @@ Background:
 
 Given I have the following users:
 | User    | Role             |
+| Alice   | administrator    |
+| Bob     | operator         |
 | Charles | operator         |
+
+Given I have the following printers:
+| Name      | Printer Type | Default |
+| printer1  | Tube         | true    |
+| printer2  | Plate        | true    |
+
 
 Given I have to process these tubes that are on my table:
 |  Barcode | Facts                   |
@@ -22,23 +30,12 @@ Given we use these activity types:
 
 Given we use these step types:
 | Name                   | Activity types |
-| Upload layout          | Tubes to rack  |
-| Change purpose of tube | Tubes to rack  |
+| Start tube process     | Tubes to rack  |
+| Create a TubeRack      | Tubes to rack  |
+| Put tube in a TubeRack | Tubes to rack  |
+| Discard started tube   | Tubes to rack  |
 
-Given the step type "Upload layout" has this configuration in N3:
-"""
-{
-  ?p :a :Tube .
-  ?p :is :Started .
-  ?q :maxCardinality """0""".
-  ?p :maxCardinality """0""".
-} => {
-  :step :addFacts { ?p :layout ?q .}.
-  :step :createAsset { ?q :is :Layout .}.
-} .
-"""
-
-Given the step type "Change purpose of tube" has this configuration in N3:
+Given the step type "Start tube process" has this configuration in N3:
 """
 {
   ?p :a :Tube .
@@ -49,6 +46,47 @@ Given the step type "Change purpose of tube" has this configuration in N3:
   :step :addFacts {?p :is :Started.}.
 }.
 """
+
+Given the step type "Discard started tube" has this configuration in N3:
+"""
+{
+  ?p :a :Tube .
+  ?p :is :Started.
+  ?p :maxCardinality """0""".
+} => {
+  :step :removeFacts {?p :is :Started.}.
+  :step :addFacts {?p :is :Discarded.}.
+}.
+"""
+
+
+Given the step type "Create a TubeRack" has this configuration in N3:
+"""
+{
+  ?p :a :Tube .
+  ?p :is :Started .
+  ?q :maxCardinality """1""".
+  ?p :maxCardinality """0""".
+} => {
+  :step :createAsset { ?q :a :TubeRack .}.
+} .
+"""
+
+Given the step type "Put tube in a TubeRack" has this configuration in N3:
+"""
+{
+  ?p :a :Tube .
+  ?p :is :Started .
+  ?q :a :TubeRack .
+  ?q :maxCardinality """0""".
+  ?p :maxCardinality """0""".
+} => {
+  :step :addFacts { ?q :contains ?p .}.
+  :step :addFacts { ?p :inRack ?q . }.
+  :step :unselectAsset ?p .
+} .
+"""
+
 
 Given I have the following kits in house
 | Barcode | Kit type                           | Activity type |
@@ -61,7 +99,7 @@ Given the laboratory has the following instruments:
 | Barcode | Name          | Activity types           |
 | 1       | My instrument | Tubes to rack, Reracking |
 
-Given I use the browser to enter in the application
+When I use the browser to enter in the application
 Then I should see the Instruments page
 When I log in as an unknown user
 Then I am not logged in
@@ -102,15 +140,43 @@ Then I should see these barcodes in the selection basket:
 
 And I should see these steps available:
 | Step                    |
-| Change purpose of tube  |
+| Start tube process      |
 
-#When I log out
-#And I am not logged in
-#And I perform the step "Change purpose of tube"
-#Then I should not have performed the step "Change purpose of tube"
+When I log out
+And I am not logged in
+And I perform the step "Start tube process"
+Then I should not have performed the step "Start tube process"
 
-#When I log in as "Charles"
-#Then I am logged in as "Charles"
-And I perform the step "Change purpose of tube"
-Then I should have performed the step "Change purpose of tube" with the user "Charles"
+When I log in as "Charles"
+Then I am logged in as "Charles"
+And I perform the step "Start tube process"
+Then I should have performed the step "Start tube process" with the user "Charles"
+And I should see these barcodes in the selection basket:
+| Barcode |
+| 1       |
+| 2       |
 
+And I should see these steps available:
+| Step                    |
+| Create a TubeRack       |
+| Discard started tube    |
+
+When I log out
+And I log in as "Bob"
+And I perform the step "Create a TubeRack"
+Then I should not have performed the step "Create a TubeRack" with the user "Charles"
+And I should have performed the step "Create a TubeRack" with the user "Bob"
+And I should see 3 elements in the selection basket
+
+And I should see these steps available:
+| Step                    |
+| Put tube in a TubeRack  |
+
+When I perform the step "Put tube in a TubeRack"
+Then I should have performed the step "Put tube in a TubeRack" with the user "Bob"
+And I should see 1 element in the selection basket
+
+And I should not see any steps available
+
+When I finish the activity
+Then the activity should be finished

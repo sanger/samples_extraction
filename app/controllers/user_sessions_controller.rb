@@ -1,8 +1,12 @@
 class UserSessionsController < ApplicationController
 
   def create
-    @user = User.find_by!(:barcode => user_session_params[:barcode])
-    session[:token] = @user.generate_token
+    @user = User.find_by(:barcode => user_session_params[:barcode])
+    if @user
+      session[:token] = @user.generate_token
+    else
+      @user = User.new
+    end
   end
 
   def destroy

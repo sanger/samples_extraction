@@ -80,7 +80,6 @@ class StepsController < ApplicationController
       redirect_to @activity
       return
     end
-
     respond_to do |format|
       if @step && @step.save
         #format.html { render @activity}

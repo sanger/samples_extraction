@@ -1,12 +1,11 @@
-<span data-psd-component-class="LoadingIcon" data-psd-component-parameters='{"containerIconClass" : "icon-login-refresh", "hideNodeSelector" : ".icon-login"}'>
-<div class="form-group user-status" data-psd-component-class="UserStatus" data-psd-component-parameters='{"usernameSelector" : ".username", "fullNameSelector": ".fullname", "logoutSelector": ".logged-out", "loginSelector": ".logged-in", "changeLoginSelector": ".change-login", "roleSelector":".role", "tubePrinterSelector": ".tube-printer", "platePrinterSelector": ".plate-printer", "userServiceUrl": "<%= user_sessions_path %>", "sessionInfo": <%= @current_user ? @current_user.session_info.to_json : '{}'%>}'>
+<span data-psd-component-class="LoadingIcon" data-psd-component-parameters='{"containerIconClass" : "icon-login-refresh", "hideNodeSelector" : ".icon-login"}' class="user-status">
+<div class="form-group" data-psd-component-class="UserStatus" data-psd-component-parameters='{"usernameSelector" : ".username", "fullNameSelector": ".fullname", "logoutSelector": ".logged-out", "loginSelector": ".logged-in", "changeLoginSelector": ".change-login", "roleSelector":".role", "tubePrinterSelector": ".tube-printer", "platePrinterSelector": ".plate-printer", "userServiceUrl": "<%= user_sessions_path %>", "sessionInfo": <%= @current_user ? @current_user.session_info.to_json : '{}'%>}'>
 <div class="logged-out">
   <div href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
     <div class="login-button" style="">
       <span class="glyphicon glyphicon glyphicon-log-in icon-login" aria-hidden="true"></span>
       <span class="glyphicon glyphicon-refresh icon-login-refresh" style="display:none;"></span>
-
-      Not logged
+      <span class='user-status-description-text'>Not logged</span>
     </div>
   </div>
   <ul class="dropdown-menu" data-psd-component-class="BarcodeReader">
@@ -36,7 +35,7 @@
   <div href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
     <div class="change-login-status-button">
       <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-      Logged as <strong class="username"></strong>
+      <span class="user-status-description-text">Logged as <strong class="username"></strong></span>
     </div>
 
     <!-- span class="glyphicon glyphicon-chevron-down"></span -->
