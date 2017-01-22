@@ -82,8 +82,20 @@
     //$(this.form).trigger("execute.builder");
   };
 
+  proto.onAssetGroupChange = function() {
+    if (!this.loadInProgress) {
+      this.loadInProgress=true;
+
+      this.reloadStepTypes();
+      this.reloadSteps();
+      this.loadInProgress=false;
+    }
+  };
+
   proto.attachHandlers = function(node) {
     this.attachDeleteButtons(node);
+
+    
 
     $(this.form).on('submit.rails', function() {
       var node;
@@ -106,19 +118,14 @@
       }
     }, this));
 
+
+    $(node).on('asset_group.changed', $.proxy(this.onAssetGroupChange, this));
+
     $(node).on('ajax:success', $.proxy(function(e, json, r) {
       this.render(json);
     }, this)).on('ajax:send', $.proxy(function(r) {
       this.cleanInput();
-    }, this)).on('ajax:complete', $.proxy(function() {
-      if (!this.loadInProgress) {
-        this.loadInProgress=true;
-
-        this.reloadStepTypes();
-        this.reloadSteps();
-        this.loadInProgress=false;
-      }
-    }, this));
+    }, this)).on('ajax:complete', $.proxy(this.onAssetGroupChange, this));
   };
 
   $(document).ready(function() {

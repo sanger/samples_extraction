@@ -7,6 +7,8 @@ class Activity < ActiveRecord::Base
   belongs_to :instrument
   belongs_to :kit
 
+  belongs_to :active_step, :class_name => 'Step'
+
   has_many :steps
   has_many :step_types, :through => :activity_type
 
@@ -54,14 +56,6 @@ class Activity < ActiveRecord::Base
 
   def steps_for(assets)
     assets.includes(:steps).map(&:steps).concat(steps).flatten.compact.uniq
-  end
-
-  def in_progress_step
-    assets = asset_group.assets
-    stypes = step_types.includes(:condition_groups => :conditions).select do |step_type|
-      step_type.compatible_with?(assets)
-    end    
-    stypes.detect{|stype| steps.in_progress.for_step_type(stype).count > 0}
   end
 
   def step_types_for(assets, required_assets=nil)

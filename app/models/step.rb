@@ -70,7 +70,7 @@ class Step < ActiveRecord::Base
       original_assets.add_assets(asset_group.assets)
     end
     ActiveRecord::Base.transaction do |t|
-
+      activate!
       step_execution = build_step_execution(:facts_to_destroy => [], :original_assets => original_assets.assets)
 
       step_execution.run
@@ -83,6 +83,7 @@ class Step < ActiveRecord::Base
 
       unselect_assets_from_consequents
       update_service
+      deactivate
     end
     update_attributes(:asset_group => original_assets) if activity
   end
@@ -97,6 +98,7 @@ class Step < ActiveRecord::Base
   def progress_with(step_params)
     original_assets = activity.asset_group.assets
     ActiveRecord::Base.transaction do |t|
+      activate! unless active?
       assets = step_params[:assets]
       update_attributes(:in_progress? => true)
 
@@ -132,6 +134,7 @@ class Step < ActiveRecord::Base
       update_service
 
       update_attributes(:in_progress? => false)
+      deactivate
     end
   end
 
@@ -149,6 +152,24 @@ class Step < ActiveRecord::Base
         predicate_to_property(f.predicate) => service_update_hash(f.object_asset_id, depth+1)
       }
     end].flatten.merge
+  end
+
+  def activate!
+    unless activity.nil?
+      unless (active? || activity.active_step.nil?)
+        raise 'Another step is already active for this activity'
+      end
+      activity.update_attributes!(:active_step => self)
+    end
+  end
+
+  def active?
+    return false if activity.nil?
+    activity.active_step == self
+  end
+
+  def deactivate
+    activity.update_attributes!(:active_step => nil) unless activity.nil?
   end
 
   def update_service

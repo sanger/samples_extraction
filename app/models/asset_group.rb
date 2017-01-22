@@ -5,6 +5,10 @@ class AssetGroup < ActiveRecord::Base
 
   include Printables::Group
 
+  def last_update
+    [updated_at, assets.map(&:updated_at)].flatten.max
+  end
+
   def add_assets(list)
     list = [list].flatten
     list.each do |asset|
