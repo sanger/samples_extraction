@@ -14,13 +14,30 @@ Then(/^I am logged in$/) do
   expect(page.has_content?("Not logged")).to eq(false)
 end
 
+Then(/^I see the login button$/) do
+  expect(page).to have_css('.logged-out > div.btn')
+end
+
+Then(/^I see the login menu$/) do
+  expect(page).to have_css('.logged-out.open')
+end
+
+Then(/^I click on the login button$/) do
+  n=find('.logged-out > div.btn')
+  n.click  
+end
+
+Then(/^I scan the barcode "(\d+)" and click on "Login"$/) do |user_barcode|
+  find('.logged-out.open').fill_in('Scan a user barcode', :with => user_barcode)
+  find('.logged-out.open').click_on('Login')  
+end
 
 When(/^I log in with barcode "(\d+)"$/) do |user_barcode|
   user = User.find_by_barcode(user_barcode)
-  n=find('.logged-out div.btn')
-  n.click
-  fill_in('Scan a user barcode', :with => user_barcode)
-  click_on('Login')
+  step(%Q{I see the login button})
+  step(%Q{I click on the login button})
+  step(%Q{I see the login menu})
+  step(%Q{I scan the barcode "#{user_barcode}" and click on "Login"})
 end
 
 When(/^I log out$/) do
@@ -39,13 +56,10 @@ end
 When(/^I log in as "([^"]*)"$/) do |name|
   user_barcode = User.find_by(:username => name).barcode
   step(%Q{I log in with barcode "#{user_barcode}"})
-  step(%Q{I am logged in as "#{name}"})
 end
 
 Then(/^I am logged in as "([^"]*)"$/) do |name|
-  expect(page).to have_content("Logged as "+name)
-  expect(page).to have_css("body.logged-in")
-  expect(page).to have_content("Logged as "+name)
+  expect(page.has_content?("Logged as "+name)).to eq(true)
 end
 
 Given(/^I have the following printers:$/) do |table|

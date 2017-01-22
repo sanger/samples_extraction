@@ -165,7 +165,8 @@ And I should see these steps available:
 
 When I log out
 And I log in as "Bob"
-And I perform the step "Create a TubeRack"
+Then I am logged in as "Bob"
+When I perform the step "Create a TubeRack"
 Then I should not have performed the step "Create a TubeRack" with the user "Charles"
 And I should have performed the step "Create a TubeRack" with the user "Bob"
 And I should see 3 elements in the selection basket
