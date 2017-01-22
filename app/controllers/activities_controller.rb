@@ -1,4 +1,6 @@
 class ActivitiesController < ApplicationController
+  include ActionController::Live
+
   before_action :set_activity, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
   before_action :select_assets, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
   before_action :select_assets_grouped, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
@@ -17,6 +19,18 @@ class ActivitiesController < ApplicationController
 
   def session_authenticate
     raise ActionController::InvalidAuthenticityToken unless session[:session_id]
+  end
+
+  def real_time_updates
+    @activity = Activity.find(params[:activity_id])
+    @asset_group = @activity.asset_group
+    
+    response.headers['Content-Type'] = 'text/event-stream'
+    msg =  "event: asset_group\n"
+    msg += "data: #{@asset_group.last_update} \n\n"
+    response.stream.write msg
+  ensure
+    response.stream.close
   end
 
   def update
