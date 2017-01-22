@@ -155,18 +155,21 @@ class Step < ActiveRecord::Base
   end
 
   def activate!
-    unless (active? || activity.active_step.nil?)
-      raise 'Another step is already active for this activity'
+    unless activity.nil?
+      unless (active? || activity.active_step.nil?)
+        raise 'Another step is already active for this activity'
+      end
+      activity.update_attributes!(:active_step => self)
     end
-    activity.update_attributes!(:active_step => self)
   end
 
   def active?
+    return false if activity.nil?
     activity.active_step == self
   end
 
   def deactivate
-    activity.update_attributes!(:active_step => nil)
+    activity.update_attributes!(:active_step => nil) unless activity.nil?
   end
 
   def update_service
