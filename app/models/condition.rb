@@ -58,6 +58,7 @@ class Condition < ActiveRecord::Base
   end
 
   def compatible_with?(asset, related_assets = [], checked_condition_groups=[], wildcard_values = {})
+    return false if asset.nil?
     return check_wildcard_condition(asset, wildcard_values) if is_wildcard_condition?
     asset.facts.any? do |fact|
       # Either objects are equal, or both of them are relations to something. We

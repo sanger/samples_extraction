@@ -1,4 +1,7 @@
 <%= bootstrap_form_for [@activity, step_type, Step.new], action: 'create', class: 'step-template-form' do |f| %>
+  <%= f.hidden_field :tube_printer_id, :value => @current_user.tube_printer_id %>
+  <%= f.hidden_field :plate_printer_id, :value => @current_user.plate_printer_id %>
+
   <input type="hidden" name='step[state]' value='in_progress' />
   <input type="hidden" name='step[data_action]' value='linking' />
   <input type="hidden" name='step[data_action_type]' value='progress_step' />

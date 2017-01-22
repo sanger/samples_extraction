@@ -44,7 +44,8 @@ class StepsController < ApplicationController
   end
 
   def params_for_printing
-    params.require(:step).permit(:tube_printer_id, :plate_printer_id)
+    params.require(:step).permit(:tube_printer_id, :plate_printer_id, 
+      :state, :data_action, :data_action_type, :data_params)
   end
 
   def printer_config

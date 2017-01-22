@@ -7,7 +7,7 @@
             <a href="#step-type-id-<%= step_template_id %>-<%= step_type.id %>" class="btn btn-default" data-toggle="pill">
               <%= step_type.name %>
             </a>
-            <% unless @activity.in_progress_step.nil? %>
+            <% unless @activity.active_step.nil? %>
               <%= render :partial => 'next_step_for_template', :locals => {:step_type => step_type} %>
             <% end %>
           </li>
