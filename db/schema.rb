@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170122001651) do
+ActiveRecord::Schema.define(version: 20170122173205) do
 
   create_table "actions", force: :cascade do |t|
     t.string   "action_type",                limit: 255, null: false
@@ -314,9 +314,10 @@ ActiveRecord::Schema.define(version: 20170122001651) do
     t.integer  "activity_id",            limit: 4
     t.integer  "asset_group_id",         limit: 4
     t.integer  "created_asset_group_id", limit: 4
-    t.boolean  "in_progress?",                     default: false
+    t.boolean  "in_progress?",                       default: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "state",                  limit: 255
   end
 
   add_index "steps", ["activity_id"], name: "index_steps_on_activity_id", using: :btree

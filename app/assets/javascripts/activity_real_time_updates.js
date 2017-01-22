@@ -19,13 +19,17 @@
     }
   };
 
-  proto.onStepTypeUpdates = function(e) {
+  proto.onAssetsChanging = function(e) {
+    var list = JSON.parse(e.data);
 
+    $('tr[data-asset-uuid]').each($.proxy(function(pos, tr) {
+      if (list.indexOf($(tr).data('asset-uuid'))>=0) {
+        $(tr).trigger('load_start.loading_spinner');
+      } else {
+        $(tr).trigger('load_stop.loading_spinner');
+      }
+    }, this));
   };
-
-  proto.onStepsUpdates = function(e) {
-
-  };  
 
   proto.onActiveStepUpdates = function(e) {
 
@@ -34,8 +38,7 @@
   proto.attachHandlers = function() {
     var evtSource = new EventSource(this.urlUpdates, { withCredentials: true });
     evtSource.addEventListener("asset_group", $.proxy(this.onAssetGroupUpdates, this), false);
-    evtSource.addEventListener("step_types", $.proxy(this.onStepTypesUpdates, this), false);
-    evtSource.addEventListener("steps", $.proxy(this.onStepsUpdates, this), false);
+    evtSource.addEventListener("asset", $.proxy(this.onAssetsChanging, this), false);
     evtSource.addEventListener("active_step", $.proxy(this.onActiveStepUpdates, this), false);
   };
 

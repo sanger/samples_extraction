@@ -38,6 +38,9 @@ class Asset < ActiveRecord::Base
     joins(:facts).where(:facts => {:predicate => predicate, :object => object})
   }
 
+  scope :currently_changing, ->() {
+    joins(:asset_groups, :steps).where(:steps => {:state => 'running'})
+  }
 
   scope :with_field, ->(predicate, object) {
     where(predicate => object)

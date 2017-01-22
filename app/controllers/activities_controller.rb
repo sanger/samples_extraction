@@ -24,10 +24,15 @@ class ActivitiesController < ApplicationController
   def real_time_updates
     @activity = Activity.find(params[:activity_id])
     @asset_group = @activity.asset_group
+    @assets_changing = @asset_group.assets.currently_changing
     
     response.headers['Content-Type'] = 'text/event-stream'
     msg =  "event: asset_group\n"
     msg += "data: #{@asset_group.last_update} \n\n"
+
+    msg += "event: asset\n"
+    msg += "data: #{@assets_changing.pluck(:uuid)} \n\n"
+
     response.stream.write msg
   ensure
     response.stream.close
