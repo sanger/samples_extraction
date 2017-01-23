@@ -7,7 +7,12 @@ class Activity < ActiveRecord::Base
   belongs_to :instrument
   belongs_to :kit
 
-  belongs_to :active_step, :class_name => 'Step'
+  #belongs_to :active_step, :class_name => 'Step'
+
+  def active_step
+    return nil unless steps.in_progress
+    steps.in_progress.first
+  end
 
   has_many :steps
   has_many :step_types, :through => :activity_type
@@ -124,8 +129,10 @@ class Activity < ActiveRecord::Base
     end
   end
 
-  def reasoning!(printer_config=nil)
-    PushDataJob.perform_later(printer_config)
+  def reasoning!(printer_config=nil, user=nil)
+    BackgroundSteps::TransferSamples.delay.create(:asset_group => asset_group, :activity => self, :user => user)
+    BackgroundSteps::UpdateSequencescape.delay.create(:asset_group => asset_group, :activity => self, :printer_config => printer_config, :user => user)
+    #PushDataJob.perform_later(printer_config)
   end
 
 end

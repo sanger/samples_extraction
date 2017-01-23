@@ -109,7 +109,23 @@ class Asset < ActiveRecord::Base
         end
       end
     end
+    touch
   end
+
+  def add_operations(list, step)
+    list.each do |fact|
+      Operation.create!(:action_type => 'addFacts', :step => step,
+        :asset=> self, :predicate => fact.predicate, :object => fact.object)    
+    end
+  end
+
+  def remove_operations(list, step)
+    list.each do |fact|
+      Operation.create!(:action_type => 'removeFacts', :step => step,
+        :asset=> self, :predicate => fact.predicate, :object => fact.object)    
+    end
+  end
+
 
   def short_description
     "#{aliquot_type} #{class_type} #{barcode.blank? ? '#' : barcode}".chomp

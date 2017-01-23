@@ -49,9 +49,11 @@ module Lab::Actions
             f.destroy
           end
         end
+        racks = asset_group.assets.with_fact('a', 'TubeRack').uniq
         racks.each do |rack|
           list.each do |l|
             location, tube = l[0], l[1]
+            Fact.where(:predicate => 'contains', :object_asset => tube).each(&:destroy)
             tube.add_facts(Fact.create(:predicate => 'location', :object => location))
             tube.add_facts(Fact.create(:predicate => 'parent', :object_asset => rack))
             rack.add_facts(Fact.create(:predicate => 'contains', :object_asset => tube))

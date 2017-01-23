@@ -1,4 +1,5 @@
 class Step < ActiveRecord::Base
+
   belongs_to :activity
   belongs_to :step_type
   belongs_to :asset_group
@@ -82,7 +83,6 @@ class Step < ActiveRecord::Base
       #update_assets_started if activity
 
       unselect_assets_from_consequents
-      update_service
       deactivate
     end
     update_attributes(:asset_group => original_assets) if activity
@@ -118,12 +118,14 @@ class Step < ActiveRecord::Base
     ActiveRecord::Base.transaction do |t|
       unselect_assets_from_antecedents
       facts_to_remove = Fact.where(:to_remove_by => self.id)
+      facts_to_remove.map(&:asset).uniq.compact.each(&:touch)
       #facts_to_remove.each do |fact|
       #  operation = Operation.create!(:action_type => 'removeFacts', :step => self,
       #      :asset=> fact.asset, :predicate => fact.predicate, :object => fact.object)
       #end
       facts_to_remove.delete_all
       facts_to_add = Fact.where(:to_add_by => self.id)
+      facts_to_add.map(&:asset).uniq.compact.each(&:touch)
       #facts_to_add.each do |fact|
       #  operation = Operation.create!(:action_type => 'addFacts', :step => self,
       #      :asset=> fact.asset, :predicate => fact.predicate, :object => fact.object)
@@ -131,11 +133,11 @@ class Step < ActiveRecord::Base
       facts_to_add.update_all(:to_add_by => nil)
       unselect_assets_from_consequents
 
-      update_service
 
       update_attributes(:in_progress? => false)
       deactivate
     end
+    asset_group.assets.each(&:touch)
   end
 
   include Lab::Actions
@@ -155,12 +157,12 @@ class Step < ActiveRecord::Base
   end
 
   def activate!
-    unless activity.nil?
-      unless (active? || activity.active_step.nil?)
-        raise 'Another step is already active for this activity'
-      end
-      activity.update_attributes!(:active_step => self)
-    end
+    #unless activity.nil?
+    #  unless (active? || activity.active_step.nil?)
+    #    raise 'Another step is already active for this activity'
+    #  end
+    #  activity.update_attributes!(:active_step => self)
+    #end
   end
 
   def active?
@@ -169,14 +171,7 @@ class Step < ActiveRecord::Base
   end
 
   def deactivate
-    activity.update_attributes!(:active_step => nil) unless activity.nil?
+    #activity.update_attributes!(:active_step => nil) unless activity.nil?
   end
 
-  def update_service
-    #ActiveRecord::Base.transaction do |t|
-    #  activity.asset_group.assets.marked_to_update.with_update_transformation.map do |a|
-    #    service_update_hash(a)
-    #  end
-    #end
-  end
 end
