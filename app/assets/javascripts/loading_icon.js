@@ -16,21 +16,21 @@
   var proto = LoadingIcon.prototype;
 
     proto.onStartLoad = function(e, data) {
-	if (data.node) {
-	    $(data.node).hide();
-	}
-	if (this.hideNode) {
-	    this.hideNode.hide();
-	}
-    $(this.icon).addClass(this.loadingClass);
-    $(this.container).show();
-  };
+    	if (data && data.node) {
+    	    $(data.node).hide();
+    	}
+    	if (this.hideNode) {
+    	    this.hideNode.hide();
+    	}
+      $(this.icon).addClass(this.loadingClass);
+      $(this.container).show();
+    };
 
     proto.onStopLoad = function(e, data) {
-    $(this.container).hide();
+      $(this.container).hide();
       $(this.icon).removeClass(this.loadingClass);
-      if (data.node) {
-	  $(data.node).show();
+      if (data && data.node) {
+	      $(data.node).show();
       }
 	if (this.hideNode) {
 	    this.hideNode.show();

@@ -245,7 +245,7 @@ header, .blurheader {
 .facts-list svg.enlarge { width: 300px; height: 300px;}
 
 svg {
-  .is-used,.is-Used             { fill-opacity: 0.7 !important; background-color: #f5f5f5 !important; }
+  .is-used,.is-Used             { fill-opacity: 0.7 !important; background-color: #f5f5f5 !important;  }
   .is-empty,.is-Empty             { fill-opacity: 0.3 !important; background-color: #f5f5f5 !important; }
   .is-full,.is-Full              { fill: #5bb75b; background-color: #5bb75b; }
   .resource-not-data { fill: #49afcd; background-color: #49afcd; }
@@ -266,6 +266,7 @@ svg {
   .has-na_p,has-NAP,.nap,.NAP  { fill: hsl(194, 59%, 45%);  background-color: hsl(194, 59%, 45%); }
   .has-blood,.has-Blood,.blood,.BLOOD {
     fill: red;
+
   }
   .unknown-aliquot { fill: gray;}
 
@@ -347,3 +348,8 @@ div.fact a.active.object-reference  {color:orange;}
 #asset-group-container ul.nav-pills li.active a {background-color: #777777; color: #fff;}
 #asset-group-container ul.nav-pills a { color: #666;}
 
+
+svg { cursor: -webkit-zoom-in; }
+svg.enlarge { cursor: -webkit-zoom-out; }
+
+.facts-list svg.enlarge { height: 150px;}

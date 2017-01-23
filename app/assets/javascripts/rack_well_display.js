@@ -53,7 +53,7 @@
 
   proto.linkTo = function(url) {
     if ($('svg', this.node).hasClass('enlarge')) {
-      window.location.href = url;
+      //window.location.href = url;
     }
   };
 

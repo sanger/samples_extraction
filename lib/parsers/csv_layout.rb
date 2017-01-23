@@ -83,7 +83,7 @@ module Parsers
         asset.add_facts(Fact.create(:predicate => 'layout', :object => 'Complete'))
         facts_to_remove = asset.facts.with_predicate('contains').map do |f|
           [
-            f.object_asset.facts.with_predicate('parent'),
+            f.object_asset.facts.with_predicate('parent'), 
             f.object_asset.facts.with_predicate('location'),
             f
             ].flatten.compact
@@ -92,7 +92,11 @@ module Parsers
         end
         facts_to_add = @data.map do |obj|
           if obj[:asset].respond_to? :facts
-            [obj[:asset].facts.with_predicate(:location), obj[:asset].facts.with_predicate(:parent)].flatten.each do |f|
+            [
+              obj[:asset].facts.with_predicate(:location), 
+              obj[:asset].facts.with_predicate(:parent),
+              Fact.where(:predicate => 'contains', :object_asset => obj[:asset])
+            ].flatten.each do |f|
               f.set_to_remove_by(step.id)
             end
           end
