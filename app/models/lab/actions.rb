@@ -1,6 +1,7 @@
 require 'parsers/csv_layout'
 require 'parsers/csv_layout_with_tube_creation'
 require 'parsers/csv_order'
+require 'parsers/symphony'
 
 module Lab::Actions
 
@@ -20,46 +21,139 @@ module Lab::Actions
 
   end
 
-  def racking(step_type, params)
-    error_messages = []
-    error_locations = []
-    list = params["racking"].map do |location, barcode|
-      unless barcode.empty?
-        asset = Asset.find_or_import_asset_with_barcode(barcode)
-        unless asset
-          error_locations.push(location)
-          error_messages.push("Barcode #{barcode} scanned at #{location} is not in the database")
+  def unrack_tubes(tubes, step=nil)
+    return if tubes.empty?
+    facts_to_destroy = []
+    tubes_ids = tubes.map(&:id)
+    tubes.each do |tube|
+      facts_to_destroy.push(tube.facts.with_predicate('location'))
+      tube.facts.with_predicate('parent').each do |parent_fact|
+        previous_rack = parent_fact.object_asset
+        previous_rack.facts.with_predicate('contains').each do |contain_fact|
+          if tubes_ids.include?(contain_fact.object_asset_id)
+            facts_to_destroy.push(contain_fact)
+          end
         end
-        [location, asset] if asset
+        facts_to_destroy.push(parent_fact)
       end
-    end.compact
+    end
+    facts_to_destroy = facts_to_destroy.flatten.compact
+    if step
+      facts_to_destroy.each{|f| f.set_to_remove_by(step.id)}
+    else
+      facts_to_destroy.each(&:destroy)
+    end
+  end
+
+  def clean_rack(rack, step)
+    rack.facts.with_predicate('contains').each do |f|
+      f.set_to_remove_by(step.id)
+    end
+  end
+
+  def rack_tubes(rack, list_layout, step=nil)
+    ActiveRecord::Base.transaction do |t|
+      tubes = list_layout.map{|obj| obj[:asset]}
+      unrack_tubes(tubes, step)
+
+      clean_rack(rack, step)
+
+      facts_to_add = []
+
+      list_layout.each do |l|
+        location = l[:location]
+        tube = l[:asset]
+        if step
+          step_ref = step.id
+          tube.facts.with_predicate('location').each{|f| f.set_to_remove_by(step_ref)}
+        else
+          step_ref = nil
+          tube.facts.with_predicate('location').each(&:destroy)
+        end
+
+        tube.add_facts(Fact.create(:predicate => 'location', :object => location, :to_add_by => step_ref))
+        tube.add_facts(Fact.create(:predicate => 'parent', :object_asset => rack, :to_add_by => step_ref))
+        rack.add_facts(Fact.create(:predicate => 'contains', :object_asset => tube, :to_add_by => step_ref))
+      end
+    end
+  end
+
+  def params_to_list_layout(params)
+    params.map do |location, barcode|
+      asset = Asset.find_or_import_asset_with_barcode(barcode)
+      {
+        :location => location, 
+        :asset => asset,
+        :barcode => barcode
+      }
+    end
+  end
+
+  def get_duplicates(list)
+    list.reduce({}) do |memo, element|
+      memo[element] = 0 unless memo[element]
+      memo[element]+=1
+      memo
+    end.each_pair.select{|key, count| count > 1}
+  end
+
+  def check_duplicates(params, error_messages, error_locations)
+    duplicated_locations = get_duplicates(params.map{|location, barcode| location})
+    duplicated_assets = get_duplicates(params.map{|location, barcode| barcode})
+
+    duplicated_locations.each do |location, count|
+      error_locations.push(location)
+      error_messages.push("Location #{location} is appearing #{count} times")
+    end
+
+    duplicated_assets.each do |barcode, count|
+      #error_locations.push(barcode)
+      error_messages.push("Asset #{barcode} is appearing #{count} times")      
+    end
+  end  
+
+  def check_racking_barcodes(list_layout, error_messages, error_locations)
+    list_layout.each do |obj|
+      location = obj[:location]
+      asset = obj[:asset]
+      unless asset
+        error_locations.push(location)
+        error_messages.push("Barcode #{barcode} scanned at #{location} is not in the database")
+      end
+    end
+  end
+
+  def check_tuberacks(list_layout, error_messages, error_locations)
     if asset_group.assets.with_fact('a', 'TubeRack').empty?
       error_messages.push("No TubeRacks found to perform the racking process")
-    end
-    unless step_type.compatible_with?(list.map{|l,a| a}.concat(asset_group.assets).sort.uniq)
-      error_messages.push("Some of the assets provided have an incompatible type with the racking step defined")
-    end
-    if error_messages.empty?
+    end    
+  end
 
-      ActiveRecord::Base.transaction do |t|
-        racks = asset_group.assets.with_fact('a', 'TubeRack').uniq
-        racks.each do |rack|
-          rack.facts.with_predicate('contains').each do |f|
-            f.object_asset.facts.with_predicate('parent').each(&:destroy)
-            f.destroy
-          end
-        end
-        racks = asset_group.assets.with_fact('a', 'TubeRack').uniq
-        racks.each do |rack|
-          list.each do |l|
-            location, tube = l[0], l[1]
-            Fact.where(:predicate => 'contains', :object_asset => tube).each(&:destroy)
-            tube.add_facts(Fact.create(:predicate => 'location', :object => location))
-            tube.add_facts(Fact.create(:predicate => 'parent', :object_asset => rack))
-            rack.add_facts(Fact.create(:predicate => 'contains', :object_asset => tube))
-          end
-        end
-      end
+  def check_types_for_racking(list_layout, step_type, error_messages, error_locations)
+    unless step_type.compatible_with?(list_layout.map{|obj| obj[:asset]}.concat(asset_group.assets).sort.uniq)
+      error_messages.push("Some of the assets provided have an incompatible type with the racking step defined")
+    end    
+  end
+
+  def racking(step_type, params)
+    error_messages = []
+    error_locations = []    
+
+    check_duplicates(params["racking"], error_messages, error_locations)
+
+    unless error_messages.empty?
+      raise InvalidDataParams.new(error_messages, error_locations)
+    end
+
+    list_layout = params_to_list_layout(params["racking"])
+
+    check_racking_barcodes(list_layout, error_messages, error_locations)
+    check_tuberacks(list_layout, error_messages, error_locations)
+    check_types_for_racking(list_layout, step_type, error_messages, error_locations)
+
+    if error_messages.empty?
+      rack = asset_group.assets.with_fact('a', 'TubeRack').uniq.first
+      rack_tubes(rack, list_layout)
     else
       raise InvalidDataParams.new(error_messages, error_locations)
     end
@@ -96,7 +190,9 @@ module Lab::Actions
 
     if parser.valid?
       ActiveRecord::Base.transaction do |t|
-        raise InvalidDataParams.new(parser.errors.map{|e| e[:msg]}) unless parser.add_facts_to(asset, self)
+        unless rack_tubes(asset, parser.layout, self)# parser.add_facts_to(asset, self)
+          raise InvalidDataParams.new(parser.errors.map{|e| e[:msg]}) 
+        end
 
         error_messages.push(asset.validate_rack_content)
         raise InvalidDataParams.new(error_messages) if error_messages.flatten.compact.count > 0
@@ -114,8 +210,10 @@ module Lab::Actions
     csv_parsing(step_type, params, Parsers::CsvLayoutWithTubeCreation)
   end
 
-  def order_symphony(step_type, params)
-    csv_parsing(step_type, params, Parsers::CsvOrder)
+  def samples_symphony(step_type, params)
+    rack = activity.asset_group.assets.with_fact('a', 'TubeRack').first
+    msgs = Parsers::Symphony.parse(params[:file].read, rack)
+    raise InvalidDataParams.new(msgs) if msgs.length > 0
   end
 
 end

@@ -29,11 +29,12 @@
     text.split(' ').forEach($.proxy(function(param, pos) {
      var list = param.split(':');
      if (list.length == 1) {
-       if (param.match(/^\d\d*$/)) {
+       list = ['barcode', param];
+      /* if (param.match(/^\d\d*$/)) {
         list = ['barcode', param];
       } else {
         list = ['is', param];
-      }
+      }*/
     }
 
     this.addHiddenInput('p'+pos, list[0]);

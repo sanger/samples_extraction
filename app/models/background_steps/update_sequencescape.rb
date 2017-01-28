@@ -11,22 +11,26 @@ class BackgroundSteps::UpdateSequencescape < Step
       :step_type => StepType.find_or_create_by(:name => 'UpdateSequencescape'),
       :asset_group => AssetGroup.create!(:assets => asset_group.assets.with_fact('pushTo', 'Sequencescape'))
     })
-    background_job
+    background_job(printer_config)
   end
 
 
-  def background_job
-    return unless assets_compatible_with_step_type
-    asset_group.assets.each do |asset|
-      asset.update_sequencescape(printer_config)
-      removed_facts = asset.facts.select{|f| f.predicate == 'pushTo' && f.object == 'Sequencescape'}
-      asset.remove_operations(removed_facts, self)
-      removed_facts.select{|f| f.predicate == 'pushTo' && f.object == 'Sequencescape'}.each do |f|
-        f.destroy
+  def background_job(printer_config=nil)
+    if assets_compatible_with_step_type
+      asset_group.assets.each do |asset|
+        asset.update_sequencescape(printer_config)
+        removed_facts = asset.facts.select{|f| f.predicate == 'pushTo' && f.object == 'Sequencescape'}
+        asset.remove_operations(removed_facts, self)
+        removed_facts.select{|f| f.predicate == 'pushTo' && f.object == 'Sequencescape'}.each do |f|
+          f.destroy
+        end
       end
     end
-    asset_group.touch
     update_attributes!(:state => 'complete')
+    asset_group.touch
+  ensure
+    update_attributes!(:state => 'error') unless state == 'complete'
+    asset_group.touch
   end
 
   handle_asynchronously :background_job

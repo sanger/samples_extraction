@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FullPlateTrack Type="Object" Class ="FullPlateTrack">
+  <SampleTrack Type="Object" Class ="SampleTrack">
+   <SampleOutputVolume Type="CVolume">110.0</SampleOutputVolume>
+   <SampleCode Type="String">11111111</SampleCode>
+   <SamplePosition Type="String">1</SamplePosition>
+   <SampleOutputPos Type="String">A:1</SampleOutputPos>
+  </SampleTrack>
+</FullPlateTrack>
