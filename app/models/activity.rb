@@ -32,6 +32,8 @@ class Activity < ActiveRecord::Base
     where(:activity_type => activity_type)
   }
 
+  scope :for_user, ->(user) { joins(:steps).where({:steps => {:user_id => user.id}}).distinct }
+
 
   class StepWithoutInputs < StandardError
   end
