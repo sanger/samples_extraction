@@ -103,12 +103,10 @@ When I use the browser to enter in the application
 Then I should see the Instruments page
 
 Scenario: Create a new activity with some assets
-When I log in as "Charles"
+When I go to the Instruments page
+And I log in as "Charles"
 Then I am logged in as "Charles"
-When I go to the Instruments page
-And I am logged in as "Charles"
-When I go to the Instruments page
-And I create an activity with instrument "My Instrument" and kit "1"
+Then I create an activity with instrument "My Instrument" and kit "1"
 Then I should have created an empty activity for "Tubes to rack"
 
 When I scan these barcodes into the selection basket:
