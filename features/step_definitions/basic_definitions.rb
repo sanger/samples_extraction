@@ -133,9 +133,11 @@ end
 
 Then(/^I should ?(not)? have performed the step "([^"]*)" with the user "([^"]*)"$/) do |not_action, step_name, username|
   # table is a Cucumber::MultilineArgument::DataTable
-  expect(all("#steps_finished .panel tr").any? do |elem|
-    elem.has_content?(step_name) && elem.has_content?(username)
-  end).to eq(not_action != 'not')
+  expect(find("#steps_finished .panel tbody tr:first-child").has_content?(step_name) &&
+  find("#steps_finished .panel tbody tr:first-child").has_content?(username)).to eq(not_action != 'not')
+  #expect(find("#steps_finished .panel tr").any? do |elem|
+  #  elem.has_content?(step_name) && elem.has_content?(username)
+  #end).to eq(not_action != 'not')
 end
 
 When(/^I open the operations list$/) do
