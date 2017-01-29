@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170122173205) do
+ActiveRecord::Schema.define(version: 20170128170039) do
 
   create_table "actions", force: :cascade do |t|
     t.string   "action_type",                limit: 255, null: false
@@ -188,6 +188,7 @@ ActiveRecord::Schema.define(version: 20170122173205) do
     t.datetime "created_at",                                  null: false
     t.datetime "updated_at",                                  null: false
     t.integer  "position",        limit: 4
+    t.string   "ns_predicate",    limit: 255
   end
 
   add_index "facts", ["asset_id"], name: "index_facts_on_asset_id", using: :btree

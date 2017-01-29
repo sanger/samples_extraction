@@ -73,8 +73,8 @@
     node.trigger("load_stop.loading_spinner", {
       node: node
     });*/
-
-    var url = $('#steps_finished').data('psd-steps-update-url');
+    var url = $('#steps_finished > div').data('psd-steps-update-url');
+    //var url = null;
     $('#steps_finished').load(url, $.proxy(function() {
       $(this.form).trigger("execute.builder");
     }, this));

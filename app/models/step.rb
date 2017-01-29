@@ -31,6 +31,8 @@ class Step < ActiveRecord::Base
 
   attr_accessor :wildcard_values
 
+  attr_accessor :printer_config
+
   def assets_compatible_with_step_type
     checked_condition_groups=[], @wildcard_values = {}
     compatible = step_type.compatible_with?(asset_group.assets, nil, checked_condition_groups, wildcard_values)
@@ -62,8 +64,6 @@ class Step < ActiveRecord::Base
   end
 
   def execute_actions
-    return progress_with(asset_group.assets) if in_progress?
-
     original_assets = AssetGroup.create!
     if ((activity) && (activity.asset_group.assets.count >= 0))
       original_assets.add_assets(activity.asset_group.assets)
@@ -86,6 +86,7 @@ class Step < ActiveRecord::Base
       deactivate
     end
     update_attributes(:asset_group => original_assets) if activity
+    update_attributes(:state => 'complete')    
   end
 
   def update_assets_started
@@ -102,7 +103,7 @@ class Step < ActiveRecord::Base
       assets = step_params[:assets]
       update_attributes(:in_progress? => true)
 
-      asset_group.add_assets(assets)
+      asset_group.add_assets(assets) if assets
 
       step_execution = build_step_execution(
         :original_assets => original_assets,
@@ -135,6 +136,7 @@ class Step < ActiveRecord::Base
 
 
       update_attributes(:in_progress? => false)
+      update_attributes(:state => 'complete')
       deactivate
     end
     asset_group.assets.each(&:touch)

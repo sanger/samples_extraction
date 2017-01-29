@@ -33,7 +33,7 @@ class AssetGroup < ActiveRecord::Base
 
   def unselect_barcodes(barcodes)
     barcodes.each do |barcode|
-      selection = assets.select{|a| a.barcode == barcode}
+      selection = assets.select{|a| (a.barcode == barcode) || (a.uuid == barcode)}
       assets.delete(selection)
     end
   end

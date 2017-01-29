@@ -6,11 +6,13 @@ class Fact < ActiveRecord::Base
 
   scope :with_predicate, ->(predicate) { where(:predicate => predicate)}
 
+  scope :with_ns_predicate, ->(namespace) { where(:ns_predicate => namespace)}
+
   scope :with_fact, -> (predicate, object) { where(:predicate => predicate, :object => object)}
 
-  scope :with_namespace, ->(namespace) { where("predicate LIKE :namespace", namespace: "#{namespace}\#%")}
+  #scope :with_namespace, ->(namespace) { where("predicate LIKE :namespace", namespace: "#{namespace}\#%")}
 
-  scope :for_sequencescape, ->() { with_namespace('SS') }
+  #scope :for_sequencescape, ->() { with_namespace('SS') }
 
   def set_to_remove_by(step)
     update_attributes!(:to_remove_by => step)

@@ -49,6 +49,7 @@ module Asset::Import
 
   def find_or_import_asset_with_barcode(barcode)
     asset = Asset.find_by_barcode(barcode)
+    asset = Asset.find_by_uuid(barcode) unless asset
     unless asset
       if Barcode.is_creatable_barcode?(barcode)
         asset = Asset.create!(:barcode => barcode)

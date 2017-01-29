@@ -352,4 +352,7 @@ div.fact a.active.object-reference  {color:orange;}
 svg { cursor: -webkit-zoom-in; }
 svg.enlarge { cursor: -webkit-zoom-out; }
 
+.step_types_active svg ellipse { cursor: pointer;}
+.step_types_active svg { cursor: default;}
+
 .facts-list svg.enlarge { height: 150px;}

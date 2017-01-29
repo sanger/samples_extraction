@@ -75,7 +75,7 @@
                 <%= render :partial => 'facts/facts', :locals => { :facts => asset.facts, :show_image => true, :show_facts => true } %>
               </td>
               <td>
-                <button class="btn btn-primary delete-button" data-psd-asset-group-delete-barcode="<%= asset.barcode %>">Delete</button>
+                <button class="btn btn-primary delete-button" data-psd-asset-group-delete-barcode="<%= asset.barcode ? asset.barcode : asset.uuid %>">Delete</button>
               </td>
             </tr>
           <% end %>

@@ -32,6 +32,8 @@ class Activity < ActiveRecord::Base
     where(:activity_type => activity_type)
   }
 
+  scope :for_user, ->(user) { joins(:steps).where({:steps => {:user_id => user.id}}).distinct }
+
 
   class StepWithoutInputs < StandardError
   end
@@ -109,10 +111,16 @@ class Activity < ActiveRecord::Base
     if params_for_progress_with_step?(step_params)
       unless step
         group = AssetGroup.create!
+        if step_params[:assets]
+          group.assets << step_params[:assets]
+        else
+          group.assets << asset_group.assets
+        end
         step = steps.create!(:step_type => step_type, :asset_group_id => group.id,
-          :user_id => user.id, :in_progress? => true)
+          :user_id => user.id, :in_progress? => true, :state => 'in progress')
       end
       perform_step_actions_for('progress_step', step, step_type, step_params)
+      step.progress_with(step_params)
     else
       if step && params_for_finish_step?(step_params)
         step.finish

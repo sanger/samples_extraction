@@ -30,7 +30,6 @@ module Parsers
     end
 
     def builder(barcode)
-      barcode.strip!
       if create_tubes?
         asset = Asset.find_by_barcode(barcode)
         asset = Asset.create!(:barcode => barcode) unless asset
@@ -47,7 +46,7 @@ module Parsers
 
     def parse
       @data ||= @csv_parser.to_a.map do |line|
-        location, barcode = line[0], line[1]
+        location, barcode = line[0].strip, line[1].strip
         asset = builder(barcode)
         @errors.push(:msg => "Invalid location") unless valid_location?(location)
         @errors.push(:msg => "Cannot find the barcode #{barcode}") if asset.nil?
@@ -75,6 +74,10 @@ module Parsers
     def valid?
       parse unless @parsed
       @data && @errors.empty?
+    end
+
+    def layout
+      @data
     end
 
 
