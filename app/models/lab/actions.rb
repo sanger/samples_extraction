@@ -56,8 +56,6 @@ module Lab::Actions
       tubes = list_layout.map{|obj| obj[:asset]}
       unrack_tubes(tubes, step)
 
-      clean_rack(rack, step)
-
       facts_to_add = []
 
       list_layout.each do |l|
@@ -135,9 +133,34 @@ module Lab::Actions
     end    
   end
 
+  def check_collisions(rack, list_layout, error_messages, error_locations)
+    tubes_for_rack = rack.facts.with_predicate('contains').map(&:object_asset)
+    tubes_for_rack.each do |tube|
+      tube_location = tube.facts.with_predicate('location').first.object
+      list_layout.each do |obj|
+        if (tube_location == obj[:location])
+          if (obj[:asset] != tube)
+            error_messages.push(
+              "Tube #{obj[:asset].barcode} cannot be put at location #{obj[:location]} because the tube #{tube.barcode} is there"
+              )
+          end
+        end
+      end
+      unless (list_layout.map{|obj| obj[:asset]}.include?(tube))
+        # Remember that the tubes needs to be always in a rack. They cannot be interchanged 
+        # in between racks
+        error_messages.push(
+              "Missing tube!! Tube #{tube.barcode} should be present in the layout at location #{tube_location} but is missed from the rack."
+
+              )
+      end
+    end
+
+  end
+
   def racking(step_type, params)
     error_messages = []
-    error_locations = []    
+    error_locations = []
 
     check_duplicates(params["racking"], error_messages, error_locations)
 
@@ -146,13 +169,16 @@ module Lab::Actions
     end
 
     list_layout = params_to_list_layout(params["racking"])
+    rack = asset_group.assets.with_fact('a', 'TubeRack').uniq.first
+
+    check_collisions(rack, list_layout, error_messages, error_locations)
 
     check_racking_barcodes(list_layout, error_messages, error_locations)
     check_tuberacks(list_layout, error_messages, error_locations)
     check_types_for_racking(list_layout, step_type, error_messages, error_locations)
 
     if error_messages.empty?
-      rack = asset_group.assets.with_fact('a', 'TubeRack').uniq.first
+      
       rack_tubes(rack, list_layout)
     else
       raise InvalidDataParams.new(error_messages, error_locations)
@@ -176,6 +202,7 @@ module Lab::Actions
 
   def csv_parsing(step_type, params, class_type)
     error_messages = []
+    error_locations = []
     parser = class_type.new(params[:file].read)
 
     if activity.asset_group.assets.with_fact('a', 'TubeRack').empty?
@@ -187,6 +214,20 @@ module Lab::Actions
     raise InvalidDataParams.new(error_messages) if error_messages.count > 0
 
     asset = activity.asset_group.assets.with_fact('a', 'TubeRack').first
+
+    if parser.valid?
+      rack = asset
+      list_layout = parser.layout
+      check_collisions(rack, list_layout, error_messages, error_locations)
+
+      check_racking_barcodes(list_layout, error_messages, error_locations)
+      check_tuberacks(list_layout, error_messages, error_locations)
+      #check_types_for_racking(list_layout, step_type, error_messages, error_locations)
+    end
+
+    unless error_messages.empty?
+      raise InvalidDataParams.new(error_messages)
+    end
 
     if parser.valid?
       ActiveRecord::Base.transaction do |t|
