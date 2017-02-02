@@ -10,7 +10,7 @@ module Asset::Export
     old_barcode = barcode
     update_attributes(:uuid => instance.uuid, :barcode => instance.barcode.ean13)
     add_facts(Fact.create(:predicate => 'beforeBarcode', :object => old_barcode))
-    print(print_config)
+    delay.print(print_config)
   end
 
 
