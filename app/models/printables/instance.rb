@@ -6,7 +6,7 @@ module Printables::Instance
     label_template = LabelTemplate.for_type(f.object).first
     PMB::PrintJob.new(
       printer_name:printer_name,
-      label_template_id: label_template.first.external_id,
+      label_template_id: label_template.external_id,
       labels:{body:[printable_object]}
     ).save
   end
