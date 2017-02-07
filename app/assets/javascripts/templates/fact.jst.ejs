@@ -1,3 +1,4 @@
+<div data-psd-component-class="AddFactToSearchbox">
 <div class="fact" data-psd-component-class="DeleteIcon"
   data-psd-fact-action-type="<%= actionType %>"
   data-psd-fact-predicate="<%= predicate %>"
@@ -7,7 +8,7 @@
     <span class=" <%= cssClasses %>"></span>&nbsp;
     <span class="editable-fact" data-psd-component-class="EditableText" data-psd-editable-text-regexp="[A-Za-z][A-Za-z0-9]*:[A-Za-z][A-Za-z0-9]*"><%= (typeof predicateLabel!=='undefined') ? predicateLabel : predicate %>:
 
-    <% if (typeof object_reference!=='undefined') { %>
+    <% if ((typeof object_reference!=='undefined') && (object_reference !== null)) { %>
       <a class="object-reference" href="/labware/<%= object_reference %>">
     <% } %>
     <span class="object">
@@ -24,4 +25,5 @@
 
     <span data-psd-delete-icon='true'>&times;</span>
   </span>
+</div>
 </div>

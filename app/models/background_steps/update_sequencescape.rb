@@ -11,11 +11,11 @@ class BackgroundSteps::UpdateSequencescape < Step
       :step_type => StepType.find_or_create_by(:name => 'UpdateSequencescape'),
       :asset_group => AssetGroup.create!(:assets => asset_group.assets.with_fact('pushTo', 'Sequencescape'))
     })
-    background_job(printer_config)
+    background_job(printer_config, user)
   end
 
 
-  def background_job(printer_config=nil)
+  def background_job(printer_config=nil, user_nil)
     if assets_compatible_with_step_type
       asset_group.assets.each do |asset|
         asset.update_sequencescape(printer_config)

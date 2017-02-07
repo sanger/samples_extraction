@@ -14,7 +14,9 @@
   <% readonly = params[:action] == 'show' %>
   <div class="field ">
   <div class="col-xs-6" data-psd-component-class="RackWellDisplay" data-psd-component-parameters="<%= data_rack_display(@asset.facts) %>">
+    <div class="max-svg-size">
     <%= svg @asset.class_type %>
+    </div>
   </div>
   </div>
   <div class="field">

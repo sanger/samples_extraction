@@ -37,6 +37,7 @@
 //= require finish_step_button
 //= require user_status
 //= require activity_real_time_updates
+//= require add_fact_to_searchbox
 //= require tube_into_rack
 //= require ace-rails-ap
 //= require_tree ./templates

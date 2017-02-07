@@ -3,7 +3,7 @@
 <h1>My Activities <small>Index</small></h1>
 <br />
 <br />
-<% if @current_user %>
+<% if (@current_user && !@my_activities.empty?) %>
 <table class="table table-bordered">
   <thead>
     <tr>
@@ -27,7 +27,9 @@
   </tbody>
 </table>
 <% else %>
-No activities created for the current user
+<p>
+No activities belonging to the current user
+</p>
 <% end %>
 <br>
 

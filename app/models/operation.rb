@@ -10,4 +10,5 @@ class Operation < ApplicationRecord
     return action.action_type if action
     return attributes["action_type"]
   end
+
 end
