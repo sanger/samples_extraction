@@ -15,7 +15,7 @@ class BackgroundSteps::UpdateSequencescape < Step
   end
 
 
-  def background_job(printer_config=nil, user_nil)
+  def background_job(printer_config=nil, user=nil)
     if assets_compatible_with_step_type
       asset_group.assets.each do |asset|
         asset.update_sequencescape(printer_config)
