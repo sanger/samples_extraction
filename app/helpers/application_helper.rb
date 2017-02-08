@@ -20,19 +20,30 @@ module ApplicationHelper
         }}.to_json
     end
 
-    facts.select{|f| f.predicate == 'contains'}.map do |fact|
-      [fact.object_asset, fact.object_asset.facts] if (fact.class == Fact)
-    end.compact.reduce({}) do |memo, list|
-      asset, facts = list[0],list[1]
-      f = facts.select{|f| f.predicate == 'location'}.first
-      unless f.nil?
-        location = f.object
-        f2 = facts.select{|f| f.predicate == 'aliquotType'}.first
-        aliquotType = f2 ? f2.object : nil
-        memo[location] = {:title => "#{asset.short_description}", :cssClass => aliquotType || UNKNOW_ALIQUOT_TYPE, :url => asset_path(asset)} unless location.nil?
-      end
-      memo
-    end.to_json
+    unless facts.select{|f| f.predicate == 'contains'}.empty?
+      return facts.select{|f| f.predicate == 'contains'}.map do |fact|
+        [fact.object_asset, fact.object_asset.facts] if (fact.class == Fact)
+      end.compact.reduce({}) do |memo, list|
+        asset, facts = list[0],list[1]
+        f = facts.select{|f| f.predicate == 'location'}.first
+        unless f.nil?
+          location = f.object
+          f2 = facts.select{|f| f.predicate == 'aliquotType'}.first
+          aliquotType = f2 ? f2.object : nil
+          memo[location] = {:title => "#{asset.short_description}", :cssClass => aliquotType || UNKNOW_ALIQUOT_TYPE, :url => asset_path(asset)} unless location.nil?
+        end
+        memo
+      end.to_json
+    end
+
+    return {
+      :aliquot => {
+        :cssClass => facts.select{|f| f.predicate == 'is'}.map do |f|
+          "#{f.predicate}-#{f.object}"
+        end.join(' '),
+        :url => ''
+      }
+    }.to_json
   end
 
   def svg(name)

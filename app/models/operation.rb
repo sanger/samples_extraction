@@ -11,4 +11,16 @@ class Operation < ApplicationRecord
     return attributes["action_type"]
   end
 
+  def object_asset
+    if action.object_condition_group
+      Asset.find_by(:uuid => object)
+    else
+      nil
+    end
+  end
+
+  def object_asset_id
+    return nil unless object_asset
+    object_asset.id
+  end
 end

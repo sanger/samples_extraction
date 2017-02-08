@@ -76,6 +76,8 @@
       containerSearchBox.height($(window).height()-200);
     });
     containerSearchBox.insertAfter('.main-view');
+
+    this.node.trigger('execute.builder');
   };
 
   proto.search = function() {

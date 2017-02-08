@@ -27,7 +27,7 @@
           <%= render :partial => 'facts/facts', :locals => {:facts => asset.facts} %>
         </td>
         <td>
-          <% @activities[index].each do |a| %>
+          <% @activities[index].uniq.each do |a| %>
             <%= bootstrap_link_to a.activity_type.name+a.id.to_s, a %>
           <% end %>
         </td>
