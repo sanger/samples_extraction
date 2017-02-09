@@ -19,7 +19,7 @@
     <%= operation.action_type %>
   </td>
   <td class="col-md-3"><%= operation.asset.barcode if operation.asset %></td>
-  <td class="col-md-6">
+  <td class="col-md-6" data-psd-component-class="AddFactToSearchbox">
     <%= render :partial => 'facts/fact', :locals => { :fact => operation} %>
     <!--div class="fact"><span class="label label-default"><%= operation.predicate %>:<%= operation.object %></span></div -->
   </td>

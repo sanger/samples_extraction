@@ -110,6 +110,12 @@ class Barcode
     barcode*10+calculate_EAN13(barcode)
   end
 
+  def self.calculate_sanger_human_barcode(prefix, number)
+    return nil if number.nil?
+    prefix + number.to_s + Barcode.calculate_checksum(prefix, number)
+  end
+
+
   def self.calculate_checksum(prefix, number)
     string = prefix + number.to_s
     len  = string.length

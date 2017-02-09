@@ -22,7 +22,7 @@ module Parsers
       all_elems = @data.map{|obj| obj[sym]}
       all_elems.select do |element|
         all_elems.count(element) > 1
-      end.uniq
+      end.uniq.compact
     end
 
     def location_str(location)

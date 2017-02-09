@@ -14,6 +14,8 @@
   proto.attachHandlers = function() {
     $(this.node).on('submit', $.proxy(this.onSubmit, this));
 
+    $(document.body).on('fact_searcher.add_fact_to_searchbox', $.proxy(this.addFactToSearchbox, this));
+
     $(document).ready(function() {
       $(window).on('resize', function() {
         $('.main-view').height($(window).height()-200);
@@ -21,6 +23,15 @@
       $('.main-view').height($(window).height()-200);
     });
 
+  };
+
+  proto.addFactToSearchbox = function(e, data) {
+    var predicate = data.predicate;
+    var object = data.object;
+    if (this.input.val().length>0) {
+      this.input.val(this.input.val()+' ');
+    }
+    this.input.val(this.input.val()+predicate+':'+object);    
   };
 
   proto.prepareOutput = function() {
@@ -47,6 +58,8 @@
   };
 
   proto.displayInSideBar = function(html) {
+    this.input.val('');
+    
     var containerSearchBox = $(this.sidebarTemplate());
     var nodeSearch = $("<div></div>");
     nodeSearch.html(html);
@@ -63,6 +76,8 @@
       containerSearchBox.height($(window).height()-200);
     });
     containerSearchBox.insertAfter('.main-view');
+
+    this.node.trigger('execute.builder');
   };
 
   proto.search = function() {

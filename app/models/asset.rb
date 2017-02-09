@@ -112,6 +112,8 @@ class Asset < ActiveRecord::Base
     touch
   end
 
+
+
   def add_operations(list, step)
     list.each do |fact|
       Operation.create!(:action_type => 'addFacts', :step => step,

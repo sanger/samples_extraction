@@ -1,3 +1,6 @@
+require 'rails/test_help'
+require 'minitest/mock'
+
 When(/^I use the browser to enter in the application$/) do
   visit '/'
 end
@@ -13,6 +16,16 @@ end
 
 Then(/^I should see the Instruments page$/) do
   page.should have_content("Instruments")
+end
+
+Given(/^I have the following label templates:$/) do |table|
+  table.hashes.each do |label_template|
+    FactoryGirl.create(:label_template, 
+      name: label_template['Name'], 
+      template_type: label_template['Type'], 
+      external_id: label_template['External Id']
+    )
+  end  
 end
 
 Given(/^I have to process these tubes that are on my table:$/) do |table|
@@ -168,4 +181,50 @@ end
 
 Then(/^the activity should be finished$/) do
   expect(page.has_content?("This activity was finished")).to eq(true)
+end
+
+When(/^I want to print "([^"]*)" new barcodes starting from "([^"]*)" with template "([^"]*)" at printer "([^"]*)"$/) do |num_barcodes, barcode_start, template_name, printer_name|
+  template = LabelTemplate.find_by_name(template_name)
+  PMB::PrintJob = MiniTest::Mock.new
+  Rails.application.config.printing_disabled=false
+  class TestA
+    def save
+      true
+    end
+  end
+
+  class Asset
+    @@testing_barcode = nil
+    def self.init_testing_barcode(barcode_start)
+      @@testing_barcode = barcode_start.to_i 
+    end
+
+    def self.testing_barcode
+      @@testing_barcode
+    end
+
+    def generate_barcode(i)
+      update_attributes(:barcode => Barcode.calculate_barcode(Rails.application.config.barcode_prefix,Asset.testing_barcode+i)) if barcode.nil?
+    end
+  end
+
+  Asset.init_testing_barcode(barcode_start)
+
+  body = num_barcodes.to_i.times.map do |b|
+    {:label => { 
+      :barcode => Barcode.calculate_barcode(Rails.application.config.barcode_prefix,barcode_start.to_i+b).to_s,
+      :top_line => Barcode.calculate_sanger_human_barcode(Rails.application.config.barcode_prefix,barcode_start.to_i+b),
+      :bottom_line => '  '
+      }
+    }
+  end
+
+  PMB::PrintJob.expect(:new, TestA.new, [{:printer_name=>printer_name,
+   :label_template_id => template.external_id, :labels=>{:body=>body}}])
+end
+
+Then(/^I should have printed what I expected$/) do
+  Rails.application.config.printing_disabled=true
+  PMB::PrintJob.verify
+
 end

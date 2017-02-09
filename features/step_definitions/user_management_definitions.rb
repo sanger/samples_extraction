@@ -59,7 +59,12 @@ When(/^I log in as "([^"]*)"$/) do |name|
 end
 
 Then(/^I am logged in as "([^"]*)"$/) do |name|
-  expect(page.has_content?("Logged as "+name)).to eq(true)
+  result = page.has_content?("Logged as "+name)
+  unless result
+    sleep(5)
+    result = page.has_content?("Logged as "+name)
+  end
+  expect(result).to eq(true)
 end
 
 Given(/^I have the following printers:$/) do |table|
