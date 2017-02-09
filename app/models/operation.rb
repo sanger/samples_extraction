@@ -12,7 +12,7 @@ class Operation < ApplicationRecord
   end
 
   def object_asset
-    if action.object_condition_group
+    if action && action.object_condition_group
       Asset.find_by(:uuid => object)
     else
       nil

@@ -34,7 +34,10 @@ module StepExecution::FactActions
 
   def wildcard_facts
     if action.object_condition_group.is_wildcard?
-      values = step.wildcard_values[action.object_condition_group.id][asset.id] || []
+      values = []
+      if action && action.object_condition_group && asset
+        values = step.wildcard_values[action.object_condition_group.id][asset.id] || []
+      end
       values.map do |value|
           {
               :predicate => action.predicate,
