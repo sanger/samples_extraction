@@ -66,18 +66,14 @@ Given the laboratory has the following instruments:
 | Barcode | Name          | Activity types           |
 | 1       | My instrument | Printing barcodes            |
 
+Given I am a user with name "Bob" and role "Operator"
 
 Scenario: Printing a barcode
 When I use the browser to enter in the application
+And I go to the Instruments page
 Then I should see the Instruments page
 
-When I log in as an unknown user
-Then I am not logged in
-
-When I log in as "Bob"
-Then I am logged in as "Bob"
-
-And I create an activity with instrument "My Instrument" and kit "1"
+When I create an activity with instrument "My Instrument" and kit "1"
 
 When I scan these barcodes into the selection basket:
 |Barcode |

@@ -75,6 +75,7 @@ module StepExecution::FactActions
             checked_wildcards = true
             if step.wildcard_values
               checked_wildcards = step.wildcard_values.all? do |cg_id, data|
+                asset && related_asset &&
                 (data[asset.id] && data[related_asset.id]) &&
                   (!(data[asset.id] & data[related_asset.id]).empty?)
               end

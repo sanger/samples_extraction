@@ -3,7 +3,16 @@ class AssetGroup < ActiveRecord::Base
   has_many :steps
   has_one :activity
 
+  belongs_to :activity_owner, :class_name => 'Activity'
+  belongs_to :condition_group, :class_name => 'ConditionGroup'
+
   include Printables::Group
+
+
+  def condition_group_name
+    prefix = condition_group.nil? ? "Main" : condition_group.name
+    "#{prefix} #{id}"
+  end
 
   def last_update
     [updated_at, assets.map(&:updated_at)].flatten.max

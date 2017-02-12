@@ -6,6 +6,8 @@ class ConditionGroup < ActiveRecord::Base
   has_many :subject_actions, :class_name => 'Action', :foreign_key => 'subject_condition_group_id'
   has_many :object_actions, :class_name => 'Action', :foreign_key => 'object_condition_group_id'
 
+  has_many :asset_groups
+
   def is_wildcard?
     conditions.empty?
   end
