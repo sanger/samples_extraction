@@ -98,10 +98,6 @@ Then I should see these barcodes in the selection basket:
 
 And I perform the step "Create new tube with any aliquot"
 
-Then there should be 1 delayed jobs to be processed
-
-And all pending delayed jobs are processed
-
 Then I should have created an asset with the following facts:
 | Predicate   |  Object |
 | aliquotType |  NA     |
@@ -124,10 +120,6 @@ Then I should see these barcodes in the selection basket:
 | 1       |
 
 And I perform the step "Create new tube RNA"
-
-Then there should be 1 delayed jobs to be processed
-
-And all pending delayed jobs are processed
 
 Then I should have created an asset with the following facts:
 | Predicate   |  Object |

@@ -132,7 +132,7 @@ Then I should not have performed the step "Start tube process"
 Scenario: Process a group of barcodes from the selection basket
 
 When I perform the step "Start tube process"
-Then I should have performed the step "Start tube process" with the user "Charles"
+Then I should have performed the step "Start tube process"
 And I should see these barcodes in the selection basket:
 | Barcode |
 | 1       |
@@ -151,14 +151,6 @@ Then I should have created an asset with the following facts:
 And I should see these steps available:
 | Step                    |
 | Put tube in a TubeRack  |
-
-When I perform the step "Put tube in a TubeRack"
-Then I should see 2 elements in the selection basket
-Then I should have performed the step "Put tube in a TubeRack" with the user "Charles"
-Then show me the page
-And I should see 1 element in the selection basket
-
-And I should not see any steps available
 
 When I finish the activity
 Then the activity should be finished

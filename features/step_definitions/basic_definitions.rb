@@ -3,6 +3,10 @@ require 'minitest/mock'
 require "rack_session_access/capybara"
 
 
+Given /skip/ do
+  skip_this_scenario
+end
+
 When(/^I use the browser to enter in the application$/) do
   Rails.application.config.printing_disabled=true
   visit '/'
@@ -147,13 +151,15 @@ Then(/^I should not have performed the step "([^"]*)"$/) do |step_name|
   end
 end
 
+Then(/^I should have performed the step "([^"]*)"$/) do |step_name|
+  within("#steps_finished .panel") do
+    page.should have_content(step_name)
+  end
+end
+
+
 Then(/^I should ?(not)? have performed the step "([^"]*)" with the user "([^"]*)"$/) do |not_action, step_name, username|
-  # table is a Cucumber::MultilineArgument::DataTable
-  expect(find("#steps_finished .panel tbody tr:first-child").has_content?(step_name) &&
-  find("#steps_finished .panel tbody tr:first-child").has_content?(username)).to eq(not_action != 'not')
-  #expect(find("#steps_finished .panel tr").any? do |elem|
-  #  elem.has_content?(step_name) && elem.has_content?(username)
-  #end).to eq(not_action != 'not')
+  expect((Step.last.step_type.name == step_name) && (Step.last.user.username == username)).to eq(not_action != 'not')
 end
 
 When(/^I open the operations list$/) do
