@@ -11,6 +11,10 @@ class Activity < ActiveRecord::Base
 
   #belongs_to :active_step, :class_name => 'Step'
 
+  def other_owned_asset_groups
+    owned_asset_groups.where("asset_groups.id != #{asset_group.id}")
+  end
+
   def active_step
     return nil unless steps.in_progress
     steps.in_progress.first
@@ -142,6 +146,7 @@ class Activity < ActiveRecord::Base
   def reasoning!(printer_config=nil, user=nil)
     BackgroundSteps::TransferSamples.delay.create(:asset_group => asset_group, :activity => self, :user => user)
     BackgroundSteps::UpdateSequencescape.delay.create(:asset_group => asset_group, :activity => self, :printer_config => printer_config, :user => user)
+    BackgroundSteps::TransferTubesToTubeRackByPosition.delay.create(:asset_group => asset_group, :activity => self, :user => user)
     #PushDataJob.perform_later(printer_config)
   end
 
