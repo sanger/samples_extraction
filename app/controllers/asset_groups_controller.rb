@@ -3,9 +3,16 @@ class AssetGroupsController < ApplicationController
   before_action :set_activity, only: [:show, :update]
   before_action :update_barcodes, only: [:update]
 
+  before_filter :check_activity_asset_group
+
+  def check_activity_asset_group
+    if (@activity.asset_group != @asset_group)
+      @activity.update_attributes(:asset_group => @asset_group)
+      redirect_to @activity
+    end
+  end
 
   def show
-
     @assets = @asset_group.assets
 
     @assets_grouped = assets_by_fact_group

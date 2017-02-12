@@ -105,6 +105,7 @@ class ActivitiesController < ApplicationController
       :activity_type => @activity_type,
       :asset_group => @asset_group,
       :kit => nil)
+    @asset_group.update_attributes(:activity_owner => @activity)
 
     respond_to do |format|
       if @activity.save
@@ -125,6 +126,8 @@ class ActivitiesController < ApplicationController
       :activity_type => @activity_type,
       :asset_group => @asset_group,
       :kit => @kit)
+
+    @asset_group.update_attributes(:activity_owner => @activity)
 
     respond_to do |format|
       if @activity.save

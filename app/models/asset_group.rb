@@ -8,6 +8,12 @@ class AssetGroup < ActiveRecord::Base
 
   include Printables::Group
 
+
+  def condition_group_name
+    prefix = condition_group.nil? ? "Main" : condition_group.name
+    "#{prefix} #{id}"
+  end
+
   def last_update
     [updated_at, assets.map(&:updated_at)].flatten.max
   end
