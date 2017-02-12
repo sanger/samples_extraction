@@ -1,6 +1,6 @@
 require 'sequencescape_client'
 require 'barcode'
-
+require 'date'
 
 require 'pry'
 
@@ -146,6 +146,10 @@ class Asset < ActiveRecord::Base
     facts.any?{|f| f.predicate == predicate && f.object == object}
   end
 
+  def has_predicate?(predicate)
+    facts.any?{|f| f.predicate == predicate}
+  end  
+
   def has_fact?(fact)
     facts.any? do |f|
       if f.object.nil?
@@ -289,10 +293,24 @@ class Asset < ActiveRecord::Base
 
   def printable_object
     return nil if barcode.nil?
+    if (class_type=='Plate')
+      return {
+        :label => {
+          :barcode => barcode,
+          :top_left => DateTime.now.strftime('%d/%b/%y'),
+          :top_right => current_user || '',
+          :bottom_right => "#{class_name}",
+          :bottom_left => Barcode.barcode_to_human(barcode) || barcode,
+          :top_line => Barcode.barcode_to_human(barcode) || barcode,
+          :bottom_line => bottom_line 
+        }
+      } 
+    end
     return {:label => {
       :barcode => barcode,
       :top_line => Barcode.barcode_to_human(barcode) || barcode,
-      :bottom_line => bottom_line }
+      :bottom_line => bottom_line 
+      }
     }
   end
 

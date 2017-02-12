@@ -99,13 +99,11 @@ Given the laboratory has the following instruments:
 | Barcode | Name          | Activity types           |
 | 1       | My instrument | Tubes to rack, Reracking |
 
-When I use the browser to enter in the application
+
+When I am a user with name "Charles" and role "Operator"
+And I use the browser to enter in the application
 Then I should see the Instruments page
 
-Scenario: Create a new activity with some assets
-When I go to the Instruments page
-And I log in as "Charles"
-Then I am logged in as "Charles"
 Then I create an activity with instrument "My Instrument" and kit "1"
 Then I should have created an empty activity for "Tubes to rack"
 
@@ -119,37 +117,21 @@ Then I should see these barcodes in the selection basket:
 | 1       |
 | 2       |
 
-Then I log out
-
-Scenario: Process a group of barcodes from the selection basket
-When I go to the Instruments page
-And I log in as "Charles"
-
-Then I am logged in as "Charles"
-
-And I create an activity with instrument "My Instrument" and kit "1"
-And I scan these barcodes into the selection basket:
-|Barcode |
-| 1      |
-| 2      |
-
-Then I should see these barcodes in the selection basket:
-| Barcode |
-| 1       |
-| 2       |
-
 And I should see these steps available:
 | Step                    |
 | Start tube process      |
+
+
+Scenario: Process a group of barcodes from the selection basket
 
 When I log out
 And I am not logged in
 And I perform the step "Start tube process"
 Then I should not have performed the step "Start tube process"
 
-When I log in as "Charles"
-Then I am logged in as "Charles"
-And I perform the step "Start tube process"
+Scenario: Process a group of barcodes from the selection basket
+
+When I perform the step "Start tube process"
 Then I should have performed the step "Start tube process" with the user "Charles"
 And I should see these barcodes in the selection basket:
 | Barcode |
@@ -161,20 +143,19 @@ And I should see these steps available:
 | Create a TubeRack       |
 | Discard started tube    |
 
-When I log out
-And I log in as "Bob"
-Then I am logged in as "Bob"
 When I perform the step "Create a TubeRack"
-Then I should not have performed the step "Create a TubeRack" with the user "Charles"
-And I should have performed the step "Create a TubeRack" with the user "Bob"
-And I should see 3 elements in the selection basket
+Then I should have created an asset with the following facts:
+| Predicate   |  Object       |
+| a           |  TubeRack     |
 
 And I should see these steps available:
 | Step                    |
 | Put tube in a TubeRack  |
 
 When I perform the step "Put tube in a TubeRack"
-Then I should have performed the step "Put tube in a TubeRack" with the user "Bob"
+Then I should see 2 elements in the selection basket
+Then I should have performed the step "Put tube in a TubeRack" with the user "Charles"
+Then show me the page
 And I should see 1 element in the selection basket
 
 And I should not see any steps available

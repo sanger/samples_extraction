@@ -28,12 +28,20 @@ class BackgroundSteps::TransferSamples < Step
           Fact.new(:predicate => 'sample_id', :object => aliquot_fact.object)
         ]
         end.flatten
-        added_facts.concat(asset.facts.with_predicate('aliquotType').map do |aliquot_fact|
-          [Fact.new(:predicate => 'aliquotType', :object => aliquot_fact.object)
-        ]
-        end.flatten)
+        unless modified_asset.has_predicate?('aliquotType')
+          added_facts.concat(asset.facts.with_predicate('aliquotType').map do |aliquot_fact|
+
+            [Fact.new(:predicate => 'aliquotType', :object => aliquot_fact.object)
+          ]
+          end.flatten)
+        end
         added_facts.push(Fact.new(:predicate => 'transferredFrom', :object_asset => asset))
 
+        removed_facts = asset.facts.with_predicate('contains')
+        added_facts.concat(asset.facts.with_predicate('contains').map do |contain_fact|
+          [Fact.new(:predicate => 'contains', :object_asset => contain_fact.object_asset)]
+        end.flatten)
+        #removed_facts.each(&:destroy)
 
         modified_asset.add_facts(added_facts)
         modified_asset.add_operations(added_facts, self)

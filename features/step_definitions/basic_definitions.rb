@@ -1,7 +1,10 @@
 require 'rails/test_help'
 require 'minitest/mock'
+require "rack_session_access/capybara"
+
 
 When(/^I use the browser to enter in the application$/) do
+  Rails.application.config.printing_disabled=true
   visit '/'
 end
 
@@ -171,6 +174,19 @@ Then(/^I should see (\d+) elements? in the selection basket$/) do |num|
   expect(all('form.edit_asset_group tbody tr').length.to_s).to eq(num)
 end
 
+Then(/^I should see a "([^"]*)" in the selection basket$/) do |type|
+
+  result = page.find('form.edit_asset_group').has_content?(type)
+  unless result
+    sleep(5)
+    result = page.find('form.edit_asset_group').has_content?(type)
+  end
+  expect(result).to eq(true)
+
+  #expect(page.find('form.edit_asset_group tbody').has_content?(type)).to eq(true)
+  #expect(all('form.edit_asset_group tbody tr').length.to_s).to eq(num)
+end
+
 Then(/^I should not see any steps available$/) do
   expect(all(".firststeptype .content_step_types li").length).to eq(0)
 end
@@ -196,7 +212,7 @@ When(/^I want to print "([^"]*)" new barcodes starting from "([^"]*)" with templ
   class Asset
     @@testing_barcode = nil
     def self.init_testing_barcode(barcode_start)
-      @@testing_barcode = barcode_start.to_i 
+      @@testing_barcode = barcode_start.to_i
     end
 
     def self.testing_barcode
@@ -206,17 +222,24 @@ When(/^I want to print "([^"]*)" new barcodes starting from "([^"]*)" with templ
     def generate_barcode(i)
       update_attributes(:barcode => Barcode.calculate_barcode(Rails.application.config.barcode_prefix,Asset.testing_barcode+i)) if barcode.nil?
     end
+
+    def printable_object
+      Asset.printable_object
+    end
+
+    def self.printable_object
+      {
+        :label => {
+          :testing_param => @@testing_barcode
+        }
+      }
+    end
   end
 
   Asset.init_testing_barcode(barcode_start)
 
   body = num_barcodes.to_i.times.map do |b|
-    {:label => { 
-      :barcode => Barcode.calculate_barcode(Rails.application.config.barcode_prefix,barcode_start.to_i+b).to_s,
-      :top_line => Barcode.calculate_sanger_human_barcode(Rails.application.config.barcode_prefix,barcode_start.to_i+b),
-      :bottom_line => '  '
-      }
-    }
+    Asset.printable_object
   end
 
   PMB::PrintJob.expect(:new, TestA.new, [{:printer_name=>printer_name,
@@ -224,7 +247,12 @@ When(/^I want to print "([^"]*)" new barcodes starting from "([^"]*)" with templ
 end
 
 Then(/^I should have printed what I expected$/) do
-  Rails.application.config.printing_disabled=true
   PMB::PrintJob.verify
+end
 
+
+Then(/^I should ?(not)? have created an asset with the following facts:$/) do |not_action, table|
+  table.hashes.each do |h|
+    expect(Asset.last.has_literal?(h["Predicate"], h["Object"])).to eq(not_action!='not')
+  end
 end

@@ -21,9 +21,37 @@
   This activity was finished at <%= @activity.completed_at %>
 </div>
 <% else %>
-  <div id="asset-group-container">
-  <%= render :template => 'asset_groups/show' %>
+
+<div>
+
+<!-- Tab panes -->
+  <div class="tab-content asset-groups">
+      <label class="control-label">What do I have?</label>
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+      <li role="presentation" class="active"><a href="#asset-group-container" aria-controls="asset-group-container" role="tab" data-toggle="tab">Main</a></li>
+      <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Profile</a></li>
+      <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Messages</a></li>
+      <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab">Settings</a></li>
+    </ul>
+
+    <div role="tabpanel" class="tab-pane active"  id="asset-group-container">
+    <%= render :template => 'asset_groups/show' %>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="profile">
+      <%= render :template => 'asset_groups/show' %>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="messages">
+      <%= render :template => 'asset_groups/show' %>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="settings">
+      <%= render :template => 'asset_groups/show' %>
+    </div>
   </div>
+
+</div>
+
 <% end %>
 <% if @assets && !@activity.finished? %>
   <div class="laststeptype"><%= render :template => 'step_types/active' %></div>

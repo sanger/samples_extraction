@@ -6,6 +6,20 @@ Given(/^I am an operator called "([^"]*)"$/) do |name|
   }
 end
 
+Given(/^I am a user with name "([^"]*)" and role "([^"]*)"$/) do |name, role|
+  @user = User.find_by(:username => name)
+  unless @user
+    @user = FactoryGirl.create :user_with_barcode, {
+        :username => name,
+        :fullname => name,
+        :role => role
+    }
+  end
+  page.set_rack_session ({:token => @user.generate_token})
+  #post user_sessions_path, user_session: { barcode: @user.barcode }
+end
+
+
 Then(/^I am not logged in$/) do
   expect(page.has_content?("Not logged")).to eq(true)
 end

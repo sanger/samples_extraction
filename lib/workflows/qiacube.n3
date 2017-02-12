@@ -6,20 +6,22 @@
   ?q   :maxCardinality   """0""" .
   ?r   :maxCardinality   """0""" .
 } => {
-  ?p  :shortDescription """Sample tube""" .
-  ?q  :shortDescription """DNA tube""" .
-  ?r  :shortDescription """NA+P tube""" .
+  :step :addFacts {
+    ?p   :groupNamePrefix """"Sample tubes""" .
+  }.
   :step  :stepTypeName """Create DNA and NA+P tubes from Sample tubes""" .
   :step :connectBy """position""" .
   :step  :createAsset  {
     ?q   :a  :Tube .
     ?q   :aliquotType  :DNA .
     ?q   :is  :Empty .
+    ?q   :groupNamePrefix """"DNA tubes""" .    
   } .
   :step  :createAsset  {
     ?r   :a  :Tube .
     ?r   :aliquotType  :NAP .
     ?r   :is :Empty .
+    ?r   :groupNamePrefix """"NA+P tubes""" .    
   } .
 } .
 
@@ -160,8 +162,8 @@
   ?p   :maxCardinality   """12""" .
   ?q   :maxCardinality   """0""" .
 } => {
-  ?p  :shortDescription """NA+P tube""" .
-  ?q  :shortDescription """RNA tube""" .
+  ?p  :groupName """NA+P tube""" .
+  ?q  :groupName """RNA tube""" .
   :step  :stepTypeName """Create RNA tubes from NA+P tubes""" .
   :step :connectBy """position""" .
   :step  :createAsset  {
