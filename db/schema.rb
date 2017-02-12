@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170128170039) do
+ActiveRecord::Schema.define(version: 20170212120729) do
 
   create_table "actions", force: :cascade do |t|
     t.string   "action_type",                limit: 255, null: false
@@ -85,8 +85,10 @@ ActiveRecord::Schema.define(version: 20170128170039) do
   add_index "activity_types_instruments", ["instrument_id"], name: "index_activity_types_instruments_on_instrument_id", using: :btree
 
   create_table "asset_groups", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+    t.integer  "activity_owner_id",  limit: 4
+    t.integer  "condition_group_id", limit: 4
   end
 
   create_table "asset_groups_assets", force: :cascade do |t|

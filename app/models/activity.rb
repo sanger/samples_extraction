@@ -7,6 +7,8 @@ class Activity < ActiveRecord::Base
   belongs_to :instrument
   belongs_to :kit
 
+  has_many :owned_asset_groups, :class_name => 'AssetGroup', :foreign_key => 'activity_owner_id'
+
   #belongs_to :active_step, :class_name => 'Step'
 
   def active_step

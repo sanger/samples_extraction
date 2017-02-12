@@ -3,6 +3,9 @@ class AssetGroup < ActiveRecord::Base
   has_many :steps
   has_one :activity
 
+  belongs_to :activity_owner, :class_name => 'Activity'
+  belongs_to :condition_group, :class_name => 'ConditionGroup'
+
   include Printables::Group
 
   def last_update

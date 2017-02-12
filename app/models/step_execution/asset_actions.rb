@@ -6,6 +6,12 @@ module StepExecution::AssetActions
         num_create = [original_assets.count, action.subject_condition_group.cardinality].min
       end
       @changed_assets= num_create.times.map{|i| Asset.create!}
+      #unless action.subject_condition_group.name.nil?
+        AssetGroup.create(
+          :activity_owner => @step.activity, 
+          :assets => @changed_assets,
+          :condition_group => action.subject_condition_group)
+      #end
 
       # Each fact of a createAsset action is considered an action by
       # itself, because of that, before creating the assetswe check
