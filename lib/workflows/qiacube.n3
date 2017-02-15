@@ -50,29 +50,29 @@
 } .
 
 {
-  ?p   :a  :SampleTube .
-  ?p   :is   :NotStarted .
-  ?p   :maxCardinality   """12""" .
-  ?q   :maxCardinality   """12""" .
-  ?r   :maxCardinality   """12""" .
+  ?TSAMPLE   :a  :SampleTube .
+  ?TSAMPLE   :is   :NotStarted .
+  ?TSAMPLE   :maxCardinality   """12""" .
+  ?TDNA   :maxCardinality   """12""" .
+  ?TNAP   :maxCardinality   """12""" .
 } => {
   :step  :stepTypeName """(BY POSITION) Create and Extract DNA and NA+P from Sample tubes""" .
   :step  :createAsset  {
-    ?q   :a  :Tube .
-    ?q   :aliquotType  :DNA .
+    ?TDNA :a  :Tube .
+    ?TDNA :aliquotType  :DNA .
+    ?TDNA :transferredFrom  ?TSAMPLE .
   } .
   :step  :createAsset  {
-    ?r   :a  :Tube .
-    ?r   :aliquotType  :NAP .
+    ?TNAP   :a  :Tube .
+    ?TNAP   :aliquotType  :NAP .
+    ?TNAP   :transferredFrom  ?TSAMPLE .
   } .
-  :step  :unselectAsset  ?p.
+  :step  :unselectAsset   ?TSAMPLE.
   :step :connectBy """position""" .
-  :step  :addFacts   {?p   :transfer   :q .} .
-  :step  :addFacts   {?p   :transfer   :r .} .
-  :step  :addFacts   {?q   :transferredFrom  :p .} .
-  :step  :addFacts   {?r   :transferredFrom  :p .} .
-  :step :addFacts {?p :is :Started.}.
-  :step :removeFacts {?p :is :NotStarted.}.
+  :step  :addFacts   { ?TSAMPLE   :transfer   ?TDNA .} .
+  :step  :addFacts   { ?TSAMPLE   :transfer   ?TNAP .} .
+  :step  :addFacts   { ?TSAMPLE :is :Started. }.
+  :step :removeFacts { ?TSAMPLE :is :NotStarted.}.
 } .
 
 

@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe StepType, type: :model do
+
   describe '#compatible_with' do
     setup do
       @step_type=FactoryGirl.create :step_type

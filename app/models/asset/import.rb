@@ -31,9 +31,9 @@ module Asset::Import
       class_name = remote_asset.class.to_s.gsub(/Sequencescape::/,'')
       asset.add_facts(Fact.create(:predicate => 'a', :object => class_name))
 
-      if class_name == 'SampleTube'
-        asset.add_facts(Fact.create(:predicate => 'aliquotType', :object => 'nap'))
-      end
+      #if class_name == 'SampleTube'
+      #  asset.add_facts(Fact.create(:predicate => 'aliquotType', :object => 'nap'))
+      #end
 
       if remote_asset.try(:purpose, nil) && (class_name != 'SampleTube')
         asset.add_facts(Fact.create(:predicate => 'purpose',
