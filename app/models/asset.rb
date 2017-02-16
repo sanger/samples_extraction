@@ -193,7 +193,7 @@ class Asset < ActiveRecord::Base
       object = fact.object
     else
       if fact.object_asset
-        object = fact.object_asset.barcode
+        object = fact.object_asset.uuid
       else
         object=nil
       end

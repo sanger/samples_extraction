@@ -114,6 +114,7 @@ div.fact {
   span.label {
     font-size: 90%;
     font-weight: normal;
+    /*box-shadow: 3px 3px 5px grey;*/
     }
 }
 
@@ -243,6 +244,7 @@ header, .blurheader {
 
 .facts-list svg { width: 50px; height: 50px; float:left; }
 .facts-list svg.enlarge { width: 300px; height: 300px;}
+
 
 svg {
   .is-used,.is-Used             { fill-opacity: 0.7 !important; background-color: #f5f5f5 !important;  }

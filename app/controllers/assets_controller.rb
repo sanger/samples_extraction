@@ -120,9 +120,8 @@ class AssetsController < ApplicationController
 
     def prepare_asset_params
       @prepared_params = asset_params
-      
       @prepared_params[:facts] = JSON.parse(@prepared_params[:facts]).map do |obj|
-        if UUID_REGEXP.match(obj["object"])
+        if UUID_REGEXP.match(obj["object"].to_s)
           ref = Asset.find_by(:uuid => obj["object"])
           Fact.create(:predicate => obj["predicate"], :object_asset => ref)
         else

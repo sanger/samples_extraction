@@ -34,6 +34,7 @@ class BackgroundSteps::TransferTubesToTubeRackByPosition < Step
 
   def background_job
     ActiveRecord::Base.transaction do 
+      aliquot_types = []
       if assets_compatible_with_step_type
         rack = asset_group.assets.first.facts.with_predicate('transferToTubeRackByPosition').first.object_asset
         wells = rack.facts.with_predicate('contains').map(&:object_asset).sort_by do |elem|
@@ -41,8 +42,23 @@ class BackgroundSteps::TransferTubesToTubeRackByPosition < Step
           location_to_pos(location)
         end
         asset_group.assets.with_predicate('transferToTubeRackByPosition').zip(wells).each do |asset, well|
+          #asset.facts.with_predicate('aliquotType').each do |fact|
+          #  rack.add_facts([Fact.create(:predicate => 'aliquotType', :object => fact.object)])
+          #end
+          asset.facts.with_predicate('aliquotType').each do |f_aliquot|
+            aliquot_types.push(f_aliquot.object)
+          end
+
           asset.add_facts([Fact.create(:predicate => 'transfer', :object_asset => well)])
           well.add_facts([Fact.create(:predicate => 'transferredFrom', :object_asset => asset)])
+        end
+        if aliquot_types
+          if (aliquot_types.uniq.length) > 1 || aliquot_types.uniq.first == 'DNA'
+            purpose_name = 'Stock Plate'
+          else
+            purpose_name = 'RNA Stock Plate'
+          end
+          rack.add_facts([Fact.create(:predicate => 'purpose', :object => purpose_name)])
         end
       end
     end

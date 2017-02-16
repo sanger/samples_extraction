@@ -59,6 +59,7 @@ module StepExecution::FactActions
 
   def generate_facts
     data = {}
+    #debugger if action.predicate == 'transferToTubeRackByPosition'
     if action.object_condition_group.nil?
       data = [{:predicate => action.predicate, :object => action.object}]
     else
@@ -73,13 +74,15 @@ module StepExecution::FactActions
             # compatible and if they share a common range of values of
             # values for any of the wildcard values defined
             checked_wildcards = true
-            if step.wildcard_values
-              checked_wildcards = step.wildcard_values.all? do |cg_id, data|
+            if step.wildcard_values && asset
+              #debugger if action.predicate == 'transferToTubeRackByPosition'
+              checked_wildcards = step.wildcard_values.any? do |cg_id, data|
                 asset && related_asset &&
                 (data[asset.id] && data[related_asset.id]) &&
                   (!(data[asset.id] & data[related_asset.id]).empty?)
               end
             end
+            checked_wildcards = true if asset
             action.object_condition_group.compatible_with?(related_asset) && checked_wildcards
           end.map do |related_asset, idx|
             {
