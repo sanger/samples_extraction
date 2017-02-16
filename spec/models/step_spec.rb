@@ -175,7 +175,7 @@ RSpec.describe Step, type: :model do
             end
           end
 
-          it 'uses the value of the condition group to relate different groups' do
+          xit 'uses the value of the condition group to relate different groups' do
             # ?x :t ?pos . ?y :v ?pos . => ?x :relates ?y .
             previous_num = @asset_group.assets.count
             @cg1.conditions << FactoryGirl.create(:condition, {:predicate => 'location',
