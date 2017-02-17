@@ -144,9 +144,10 @@ class Activity < ActiveRecord::Base
   end
 
   def reasoning!(printer_config=nil, user=nil)
+    BackgroundSteps::TransferTubesToTubeRackByPosition.delay.create(:asset_group => asset_group, :activity => self, :user => user)
     BackgroundSteps::TransferSamples.delay.create(:asset_group => asset_group, :activity => self, :user => user)
     BackgroundSteps::UpdateSequencescape.delay.create(:asset_group => asset_group, :activity => self, :printer_config => printer_config, :user => user)
-    BackgroundSteps::TransferTubesToTubeRackByPosition.delay.create(:asset_group => asset_group, :activity => self, :user => user)
+
     #PushDataJob.perform_later(printer_config)
   end
 

@@ -193,7 +193,7 @@ class Asset < ActiveRecord::Base
       object = fact.object
     else
       if fact.object_asset
-        object = fact.object_asset.barcode
+        object = fact.object_asset.uuid
       else
         object=nil
       end
@@ -298,18 +298,18 @@ class Asset < ActiveRecord::Base
         :label => {
           :barcode => barcode,
           :top_left => DateTime.now.strftime('%d/%b/%y'),
-          :top_right => current_user || '',
-          :bottom_right => "#{class_name}",
+          :top_right => respond_to?(:current_user) ? current_user : 'unknown',
+          :bottom_right => info_line,
           :bottom_left => Barcode.barcode_to_human(barcode) || barcode,
-          :top_line => Barcode.barcode_to_human(barcode) || barcode,
-          :bottom_line => bottom_line 
+          #:top_line => Barcode.barcode_to_human(barcode) || barcode,
+          #:bottom_line => bottom_line 
         }
       } 
     end
     return {:label => {
       :barcode => barcode,
       :top_line => Barcode.barcode_to_human(barcode) || barcode,
-      :bottom_line => bottom_line 
+      :bottom_line => info_line 
       }
     }
   end
@@ -319,8 +319,8 @@ class Asset < ActiveRecord::Base
     val.nil? ? "" : "_#{(val.to_i+1).to_s}"
   end
 
-  def bottom_line
-    ["#{class_name}", "#{aliquot}","#{position_value}"].join(' ').chomp
+  def info_line
+    ["#{class_name}", "#{aliquot}","#{position_value}"].join(' ').strip
   end
 
   def class_name

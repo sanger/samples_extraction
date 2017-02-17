@@ -69,6 +69,8 @@ class AssetsController < ApplicationController
     respond_to do |format|
 
       if @asset.update(@prepared_params)
+        @asset.touch
+        
         format.html { redirect_to @asset, notice: 'Asset was successfully updated.' }
         format.json { render :show, status: :ok, location: @asset }
       else
@@ -114,10 +116,17 @@ class AssetsController < ApplicationController
       params.require(:asset).permit(:barcode, :facts)
     end
 
+    UUID_REGEXP = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+
     def prepare_asset_params
       @prepared_params = asset_params
       @prepared_params[:facts] = JSON.parse(@prepared_params[:facts]).map do |obj|
-        Fact.create(:predicate => obj["predicate"], :object => obj["object"])
+        if UUID_REGEXP.match(obj["object"].to_s)
+          ref = Asset.find_by(:uuid => obj["object"])
+          Fact.create(:predicate => obj["predicate"], :object_asset => ref)
+        else
+          Fact.create(:predicate => obj["predicate"], :object => obj["object"])
+        end
       end
     end
 end

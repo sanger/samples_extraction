@@ -10,6 +10,8 @@ module Asset::Export
     old_barcode = barcode
     update_attributes(:uuid => instance.uuid, :barcode => instance.barcode.ean13)
     add_facts(Fact.create(:predicate => 'beforeBarcode', :object => old_barcode))
+    facts.with_predicate('barcodeType').each(&:destroy)
+    add_facts(Fact.create(:predicate => 'barcodeType', :object => 'SequencescapePlate'))
     print(print_config)
   end
 

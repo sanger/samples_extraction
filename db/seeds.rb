@@ -73,22 +73,22 @@ kit = Kit.create( {:kit_type => kit_type, :barcode => 2222})
 
 asset_group = AssetGroup.create!
 
-100.times do |pos|
-  asset = Asset.create!
-  asset.generate_barcode(pos)
-  asset.facts << Fact.create({ :predicate => 'a', :object => 'SampleTube'})
-  asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
-  asset.facts << Fact.create({ :predicate => 'aliquotType', :object => 'DNA'})
-  asset_group.assets << asset
-  asset.update_compatible_activity_type
-end
+# 100.times do |pos|
+#   asset = Asset.create!
+#   asset.generate_barcode(pos)
+#   asset.facts << Fact.create({ :predicate => 'a', :object => 'SampleTube'})
+#   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
+#   asset.facts << Fact.create({ :predicate => 'aliquotType', :object => 'DNA'})
+#   asset_group.assets << asset
+#   asset.update_compatible_activity_type
+# end
 
-50.times do |pos|
-  asset = Asset.create!(:barcode => 2000 + pos)
-  asset.facts << Fact.create({ :predicate => 'a', :object => 'SampleTube'})
-  asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
-  asset.facts << Fact.create({ :predicate => 'sanger_sample_id', :object => test_sample_id(pos)})
-end
+# 50.times do |pos|
+#   asset = Asset.create!(:barcode => 2000 + pos)
+#   asset.facts << Fact.create({ :predicate => 'a', :object => 'SampleTube'})
+#   asset.facts << Fact.create({ :predicate => 'is', :object => 'NotStarted'})
+#   asset.facts << Fact.create({ :predicate => 'sanger_sample_id', :object => test_sample_id(pos)})
+# end
 
 
 activity_type.activities.create!(:asset_group => asset_group, :kit => kit, :instrument => instrument)

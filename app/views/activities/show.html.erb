@@ -31,7 +31,7 @@
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
       <% @activity.owned_asset_groups.each do |asset_group| %>
-      <li role="presentation" class="<%= 'active' if asset_group == @activity.asset_group %>"><a href="<%= activity_asset_group_path(@activity, asset_group)%>" aria-controls="<%= asset_group.condition_group_name %>" role="tab" ><%= asset_group.condition_group_name %></a></li>
+        <li role="presentation" class="<%= 'active' if asset_group == @activity.asset_group %>"><a href="<%= activity_asset_group_path(@activity, asset_group) unless asset_group == @activity.asset_group %>" aria-controls="<%= asset_group.condition_group_name %>" role="tab" ><%= asset_group.condition_group_name %></a></li>
       <% end %>
     </ul>
 
