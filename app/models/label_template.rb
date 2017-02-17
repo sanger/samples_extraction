@@ -10,6 +10,9 @@ class LabelTemplate < ActiveRecord::Base
 
     barcodetype = 'ean13' # This needs to be specified by fact
     templates = where(:template_type => type)
-    [templates.select{|t| t.name.include?(barcodetype)}].flatten.first || templates.first
+
+    templates_by_barcodetype = templates.select{|t| t.name.include?(barcodetype)}
+    return templates if templates_by_barcodetype.empty?
+    return templates_by_barcodetype
   end
 end
