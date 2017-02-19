@@ -44,7 +44,6 @@ class ActivitiesController < ApplicationController
   end
 
   def update
-    select_assets
     select_assets_grouped
 
     @activity.finish unless params[:finish].nil?
