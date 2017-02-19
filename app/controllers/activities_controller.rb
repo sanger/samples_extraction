@@ -2,7 +2,12 @@ class ActivitiesController < ApplicationController
   include ActionController::Live
 
   before_action :set_activity, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
-  before_action :select_assets, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
+  before_action :set_asset_group, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
+  before_action :set_assets, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
+
+  before_action :set_activity_type, only: [:create_without_kit]
+
+  
   before_action :select_assets_grouped, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
 
   before_action :set_kit, only: [:create]
@@ -13,7 +18,7 @@ class ActivitiesController < ApplicationController
   before_action :set_uploaded_files, only: [:update]
   #before_action :set_params_for_step_in_progress, only: [:update]
 
-  before_action :set_activity_type, only: [:create_without_kit]
+  
 
   #before_filter :session_authenticate, only: [:update, :create]
 
@@ -178,8 +183,15 @@ class ActivitiesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_activity
       @activity = Activity.find(params[:id])
+    end
+
+    def set_asset_group
       @asset_group = @activity.asset_group
     end
+
+  def set_assets
+    @assets = @asset_group.assets.includes(:facts)
+  end    
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def activity_params
@@ -187,10 +199,6 @@ class ActivitiesController < ApplicationController
     end
 
 
-  def select_assets
-    @assets = @activity.asset_group.assets.includes(:facts)
-
-  end
 
   def select_assets_grouped
     @assets_grouped = assets_by_fact_group

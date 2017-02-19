@@ -86,6 +86,7 @@ class StepExecution
   end
 
   def perform_action(action, asset, position)
+    #puts "action=#{action.action_type}, asset=#{asset.name}, position=#{position}"
     @asset = asset
     @position = position
     @action = action

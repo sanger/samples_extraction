@@ -7,7 +7,7 @@ def tube_barcode_definition(name, type_id, barcode_type)
     name: name,
     label_type_id: type_id, # Tube
     labels_attributes:[{
-      name: 'main_label',
+      name: 'label',
       bitmaps_attributes:[
         {"horizontal_magnification":"05","vertical_magnification":"05","font":"H","space_adjustment":"03","rotational_angles":"11",
       "x_origin":"0038","y_origin":"0210","field_name":"bottom_line"},

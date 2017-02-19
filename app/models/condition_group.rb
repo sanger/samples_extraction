@@ -26,6 +26,20 @@ class ConditionGroup < ActiveRecord::Base
     end
   end
 
+  def has_runtime_conditions?
+    runtime_conditions.count > 0
+  end
+
+  def runtime_conditions
+    conditions.select{|c| c.is_runtime_evaluable_condition?}    
+  end
+
+  def runtime_conditions_compatible_with?(asset, related_asset)
+    runtime_conditions.all? do |c|
+      c.runtime_compatible_with?(asset,related_asset)
+    end
+  end
+
   def conditions_compatible_with?(assets, related_assets = [])
     [assets].flatten.all? do |asset|
       conditions.all? do |condition|
