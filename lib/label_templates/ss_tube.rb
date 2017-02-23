@@ -5,7 +5,7 @@ require './lib/label_template_setup'
 def tube_barcode_definition(name, type_id, barcode_type)
   {
     name: name,
-    label_type_id: type_id, # Tube
+    label_type_id: type_id, 
     labels_attributes:[{
       name: 'label',
       bitmaps_attributes:[
@@ -21,10 +21,15 @@ def tube_barcode_definition(name, type_id, barcode_type)
       "x_origin":"0220","y_origin":"0193","field_name":"round_label_bottom_line"}
     ],
     barcodes_attributes:[
-        {"barcode_type": barcode_type,"one_module_width":"01","height":"0100","rotational_angle":nil,"one_cell_width":nil,"type_of_check_digit":"2",
+        {"barcode_type":"Q","one_module_width":"03","height":"0080","rotational_angle":"1","one_cell_width":"03",
+          "type_of_check_digit":nil,
+          "no_of_columns":nil,"bar_height":nil,"x_origin":"0300","y_origin":"0145","field_name":"barcode2d" },
+        {"barcode_type": barcode_type,"one_module_width":"01","height":"0100","rotational_angle":nil,
+          "one_cell_width":nil,"type_of_check_digit":"2",
           "no_of_columns":nil,"bar_height":nil,"x_origin":"0043","y_origin":"0100","field_name":"barcode"}
       ]   
-  }]
+    }
+  ]
   }
 end
 
