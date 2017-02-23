@@ -129,8 +129,9 @@ class StepType < ActiveRecord::Base
     end
   end
 
-  def every_condition_group_has_at_least_one_asset?(classification)
-    (classification.values.flatten.uniq.length == condition_groups.length)
+  def every_condition_group_has_at_least_one_asset?(classification, cgroups = nil)
+    cgroups = condition_groups if cgroups.nil?
+    (classification.values.flatten.uniq.length == cgroups.length)
   end
 
   def every_asset_has_at_least_one_condition_group?(classification)
@@ -168,6 +169,36 @@ class StepType < ActiveRecord::Base
 
   def actions_for(assets)
     #condition_group_classification_for(assets)
+  end
+
+  def explain(assets)
+
+  end
+
+  def classification_for(assets, cgroups)
+    assets.reduce({}) do |memo, asset|
+      memo[asset] = cgroups.select do |condition_group|
+        condition_group.compatible_with?([asset].flatten)
+      end
+      memo
+    end    
+  end
+
+  def check_dependency_compatibility_for(asset, condition_group, assets)
+    check_cgs = condition_groups.select do |cg| 
+      cg.conditions.select{|c| c.object_condition_group == condition_group}.count > 0 
+    end
+    return true if check_cgs.empty?
+    ancestors = assets.select{|a| a.facts.any?{|f| f.object_asset == asset}}.uniq
+    return true if ancestors.empty?
+
+    classification = classification_for(ancestors, check_cgs)
+
+    compatible = every_condition_group_satisfies_cardinality(classification) &&
+    every_condition_group_has_at_least_one_asset?(classification, check_cgs) &&
+      every_asset_has_at_least_one_condition_group?(classification)
+    return true if compatible
+    return false
   end
 
   def to_n3

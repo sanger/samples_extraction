@@ -36,15 +36,31 @@ module StepExecution::FactActions
     if action.object_condition_group.is_wildcard?
       values = []
       if action && action.object_condition_group && asset
-        values = step.wildcard_values[action.object_condition_group.id][asset.id] || []
+        values = step.wildcard_values[action.object_condition_group.id].values.reduce([]) do |memo, values|
+          my_value = step.wildcard_values[action.object_condition_group.id][asset.id] || []
+          result = my_value.empty? ? values : (values.to_set & my_value.to_set).to_a
+          memo.push(result).flatten.uniq
+        end
+        #values = step.wildcard_values[action.object_condition_group.id][asset.id] || []
       end
       values.map do |value|
-          {
-              :predicate => action.predicate,
-              :object => value,
-              :object_asset_id => nil,
-              :literal => true
-          }
+        if action.subject_condition_group.runtime_conditions_compatible_with?(asset, value)
+          if value.kind_of? Asset
+            {
+                :predicate => action.predicate,
+                :object => value.name,
+                :object_asset => value,
+                :literal => false
+            }          
+          else
+            {
+                :predicate => action.predicate,
+                :object => value,
+                :object_asset_id => nil,
+                :literal => true
+            }
+          end
+        end
       end
     end
   end
@@ -59,7 +75,8 @@ module StepExecution::FactActions
 
   def generate_facts
     data = {}
-    #debugger if action.predicate == 'transferToTubeRackByPosition'
+    #debugger if action.predicate == 'aliquotType'
+    #debugger if action.predicate == 'relation_r'
     if action.object_condition_group.nil?
       data = [{:predicate => action.predicate, :object => action.object}]
     else
@@ -74,16 +91,30 @@ module StepExecution::FactActions
             # compatible and if they share a common range of values of
             # values for any of the wildcard values defined
             checked_wildcards = true
-            if step.wildcard_values && asset
-              #debugger if action.predicate == 'transferToTubeRackByPosition'
+            if step.wildcard_values && !step.wildcard_values.empty? && asset
+              #puts step.wildcard_values
+              #debugger if action.predicate == 'transferredFrom'
               checked_wildcards = step.wildcard_values.any? do |cg_id, data|
                 asset && related_asset &&
                 (data[asset.id] && data[related_asset.id]) &&
                   (!(data[asset.id] & data[related_asset.id]).empty?)
               end
             end
-            checked_wildcards = true if asset
-            action.object_condition_group.compatible_with?(related_asset) && checked_wildcards
+            runtime_conditions = true
+            if asset
+              runtime_conditions = action.subject_condition_group.runtime_conditions_compatible_with?(asset, related_asset)
+            end
+
+            result = action.object_condition_group.compatible_with?(related_asset) && checked_wildcards && 
+              runtime_conditions 
+
+            dependency_compatibility = true
+            if asset && result
+              dependency_compatibility = step.step_type.check_dependency_compatibility_for(asset, action.subject_condition_group, asset_group.assets)
+            end
+
+            result && dependency_compatibility
+            
           end.map do |related_asset, idx|
             {
               :position => position_for_asset(related_asset, action.object_condition_group),
@@ -95,7 +126,7 @@ module StepExecution::FactActions
             }
           end
         end
-      else
+      else        
         data = created_assets[action.object_condition_group.id].each_with_index.map do |related_asset, idx|
           {
           :position => idx, #position_for_asset(related_asset, action.object_condition_group),
@@ -108,7 +139,7 @@ module StepExecution::FactActions
       end
     end
     in_progress = step.in_progress? ? {:to_add_by => step.id} : {}
-    data.map do |obj|
+    data.compact.map do |obj|
       created_fact_obj = obj.merge(in_progress)
       created_fact_obj= created_fact_obj.delete_if{|k,v| (k==:position) && (step.step_type.connect_by != 'position')}
       Fact.new(created_fact_obj)

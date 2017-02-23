@@ -13,6 +13,52 @@ module SupportN3
     end
   end
 
+  def self.fragment(k)
+    k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/,'')
+  end
+
+  def self.build_asset(name, create_assets=true, created_assets=[])
+    if create_assets
+      asset = Asset.find_or_create_by(:name => name)
+    else
+      asset = created_assets.select{|a| a.name == name}.first
+      unless asset
+        asset = Asset.create(:name => name)
+        created_assets.push(asset)
+      end
+    end
+    asset
+  end
+
+  def self.is_literal?(element, quads)
+    element.literal? || quads.select {|q| q[0] == element}.count == 0
+  end
+
+
+  def self.parse_facts(input, options = {}, create_assets=true)
+    options = {
+      validate: false,
+      canonicalize: false,
+    }.merge(options)
+
+    created_assets = [] unless create_assets
+
+    quads = RDF::N3::Reader.new(input, options).quads.clone
+    quads.map do |quad|
+      asset = build_asset(SupportN3::fragment(quad[0]), create_assets, created_assets)
+      if is_literal?(quad[2], quads)
+        asset.add_facts([Fact.create(
+          :predicate => SupportN3::fragment(quad[1]),
+          :object => SupportN3::fragment(quad[2]))])
+      else
+        related_asset = build_asset(SupportN3::fragment(quad[2]), create_assets, created_assets)
+        asset.add_facts([Fact.create(:predicate => SupportN3::fragment(quad[1]),
+          :object_asset => related_asset, :literal => false)])
+      end
+      asset
+    end.sort_by{|a| a.name }.uniq
+  end
+
   class RuleGraphAccessor
     attr_reader :quads
     attr_reader :graph_conditions

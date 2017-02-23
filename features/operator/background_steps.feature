@@ -96,6 +96,10 @@ Then I should see these barcodes in the selection basket:
 | Barcode |
 | 1       |
 
+Then I should see these steps available:
+| Step                    |
+| Create new tube with any aliquot       |
+
 And I perform the step "Create new tube with any aliquot"
 
 Then I should have created an asset with the following facts:

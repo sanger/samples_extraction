@@ -57,7 +57,27 @@ class Condition < ActiveRecord::Base
     return object_condition_group && object_condition_group.is_wildcard?
   end
 
+  def runtime_compatible_with?(asset, related_asset)
+    if (predicate == 'equalTo')
+      return asset == related_asset
+    end
+    if (predicate == 'notEqualTo')
+      return asset != related_asset
+    end
+    if (predicate == 'hasNotPredicate')
+      return asset.facts.with_predicate(object).count == 0
+    end
+    if (predicate == 'sum')
+      return asset.facts.with_predicate(object).count == 0
+    end    
+  end
+
+  def is_runtime_evaluable_condition?
+    (predicate == 'equalTo') || (predicate == 'notEqualTo') || (predicate == 'hasNotPredicate') || (predicate == 'sum')
+  end
+
   def compatible_with?(asset, related_assets = [], checked_condition_groups=[], wildcard_values = {})
+    return true if is_runtime_evaluable_condition?
     return false if asset.nil?
     return check_wildcard_condition(asset, wildcard_values) if is_wildcard_condition?
     asset.facts.any? do |fact|
