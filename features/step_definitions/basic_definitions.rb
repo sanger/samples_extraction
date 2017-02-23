@@ -198,6 +198,7 @@ Then(/^I should not see any steps available$/) do
 end
 
 When(/^I finish the activity$/) do
+  expect(page.has_content?("Finish activity?"))
   click_on('Finish activity?')
 end
 
