@@ -31,6 +31,28 @@ RSpec.describe SupportN3 do
     SupportN3.parse_file("lib/assets/graph3.n3")
   end
 
+  it "deprecates old activity_types" do
+    testing_name = 'testing_name'
+    @activity_type = FactoryGirl.create :activity_type, {:name => testing_name}
+    @activity_type.reload
+    expect(@activity_type.deprecated?).to eq(false)
+    SupportN3.parse_string(":activity :activityTypeName \"\"\"#{testing_name}\"\"\" .")
+    @activity_type.reload
+    expect(@activity_type.deprecated?).to eq(true)
+    expect(ActivityType.where(:name => testing_name).count).to eq(2)
+  end
+
+  it "deprecates old step_types" do
+    testing_name = 'testing_name'
+    @step_type = FactoryGirl.create :step_type, {:name => testing_name}
+    @step_type.reload
+    expect(@step_type.deprecated?).to eq(false)
+    SupportN3.parse_string("{} => {:step :stepTypeName \"\"\"#{testing_name}\"\"\" .}.")
+    @step_type.reload
+    expect(@step_type.deprecated?).to eq(true)
+    expect(StepType.where(:name => testing_name).count).to eq(2)
+  end  
+
   describe "parses individual rules generating the right content" do
     setup do
       @step_type = FactoryGirl.create :step_type
