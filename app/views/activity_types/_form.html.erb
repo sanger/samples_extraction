@@ -21,8 +21,8 @@
     <%= f.label :step_types %>
     </div>
     <% options = {} %>
-    <% options = options.merge({:disabled => StepType.all.map(&:id)}) if readonly %>
-      <%= collection_check_boxes(:activity_type, :step_type_ids, StepType.all, :id, :name, options) do |b| %>
+    <% options = options.merge({:disabled => StepType.visible.map(&:id)}) if readonly %>
+      <%= collection_check_boxes(:activity_type, :step_type_ids, StepType.visible, :id, :name, options) do |b| %>
         <div class="checkbox row ">
           <%= b.label :class => "checkbox-inline #{'active' if @activity_type.step_types.include?(b.object)}" do %>
             <%= b.check_box %>

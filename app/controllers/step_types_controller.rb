@@ -9,14 +9,14 @@ class StepTypesController < ApplicationController
       @activity = Activity.find(params[:activity_id])
       @step_types = @activity.step_types_active
     else
-      @step_types = StepType.all
+      @step_types = StepType.not_deprecated
     end
   end
 
   # GET /step_types
   # GET /step_types.json
   def index
-    @step_types = StepType.all unless @activity
+    @step_types = StepType.not_deprecated unless @activity
     respond_to do |format|
       format.html { render 'active', :layout => false } if @activity
       format.html { render 'index' }

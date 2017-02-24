@@ -5,6 +5,7 @@ module Deprecatable
       belongs_to :superceded_by, :class_name => 'ActivityType', :foreign_key => :superceded_by_id
 
       scope :visible, -> { where( :superceded_by_id => nil ) }
+      scope :not_deprecated, -> { where( :superceded_by_id => nil ) }
 
     end
   end
