@@ -69,7 +69,7 @@ class StepsController < ApplicationController
           session[:data_params] = {}
 
         if @step.created_asset_group
-          @step.created_asset_group.print(printer_config)
+          @step.created_asset_group.print(printer_config, @current_user.username)
         end
         @activity.reasoning!(printer_config, @current_user)
       end

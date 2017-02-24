@@ -38,7 +38,7 @@ class AssetGroupsController < ApplicationController
   end
 
   def print
-    @asset_group.print(@current_user.printer_config)
+    @asset_group.print(@current_user.printer_config, @current_user.username)
 
     redirect_to :back
   end

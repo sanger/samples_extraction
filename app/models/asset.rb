@@ -294,14 +294,14 @@ class Asset < ActiveRecord::Base
     (!facts.with_predicate(sym.to_s.singularize).empty? || super(sym, include_private))
   end
 
-  def printable_object
+  def printable_object(username = 'unknown')
     return nil if barcode.nil?
     if (class_type=='Plate')
       return {
         :label => {
           :barcode => barcode,
           :top_left => DateTime.now.strftime('%d/%b/%y'),
-          :top_right => respond_to?(:current_user) ? current_user : 'unknown',
+          :top_right => username,
           :bottom_right => info_line,
           :bottom_left => Barcode.barcode_to_human(barcode) || barcode,
           #:top_line => Barcode.barcode_to_human(barcode) || barcode,
