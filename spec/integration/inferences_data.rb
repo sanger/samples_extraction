@@ -339,6 +339,20 @@ def inferences_data
 :tubeRack :contains :tube3 .
 :tubeRack :layout "Complete" .
     }
+  },
+  {
+    :it => 'creates new assets from scratch',
+    :tags => { :last => true },
+    :rule => %Q{
+      {?p :maxCardinality "1" .} => {
+        :step :createAsset {?p :a :Tube . ?p :barcode "tube" .}
+        } .
+      },
+    :inputs => %Q{},
+    :outputs => %Q{
+      :tube :a :Tube .
+      :tube :barcode "tube" .
+    }
   }
 
 ]

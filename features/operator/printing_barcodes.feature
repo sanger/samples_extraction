@@ -1,4 +1,4 @@
-@javascript
+@javascript @printing
 Feature: Printing barcodes
 An operator
 Should be able to print barcodes in a background task

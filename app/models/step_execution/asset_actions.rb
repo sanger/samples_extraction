@@ -3,7 +3,7 @@ module StepExecution::AssetActions
     unless created_assets[action.subject_condition_group.id]
       num_create = original_assets.count
       if (action.subject_condition_group.cardinality) && (action.subject_condition_group.cardinality!=0)
-        num_create = [original_assets.count, action.subject_condition_group.cardinality].min
+        num_create = [[original_assets.count, action.subject_condition_group.cardinality].min, 1].max
       end
       @changed_assets= num_create.times.map{|i| Asset.create!}
       #unless action.subject_condition_group.name.nil?

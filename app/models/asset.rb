@@ -107,6 +107,9 @@ class Asset < ActiveRecord::Base
         unless has_fact?(fact)
           if ((fact.position.nil?) || (fact.position == position))
             facts << fact
+            if fact.predicate == 'barcode'
+              update_attributes(:barcode => fact.object)
+            end
             yield fact if block_given?
           end
         end

@@ -13,6 +13,7 @@ module Deprecatable
   end
 
   def deprecate_with(instance)
-    update_attributes!(:superceded_by_id => instance.id)
+    update_attributes!(:superceded_by => instance)
+    after_deprecate
   end
 end

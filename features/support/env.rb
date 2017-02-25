@@ -31,7 +31,7 @@ ActionController::Base.allow_rescue = false
 # Remove/comment out the lines below if your app doesn't have a database.
 # For some databases (like MongoDB and CouchDB) you may need to use :truncation instead.
 begin
-  DatabaseCleaner.strategy = :transaction
+  DatabaseCleaner.strategy = :truncation
 rescue NameError
   raise "You need to add database_cleaner to your Gemfile (in the :test group) if you wish to use it."
 end
@@ -62,7 +62,7 @@ if ENV["RAILS_ENV"]=='selenium'
 else
   require 'capybara/poltergeist'
   Capybara.save_and_open_page_path = 'tmp/capybara'
-  Capybara.default_max_wait_time = 5
+  Capybara.default_max_wait_time = 10
   Capybara.javascript_driver = :poltergeist
   options = {js_errors: false}
   Capybara.register_driver :poltergeist do |app|

@@ -76,7 +76,8 @@ module SupportN3
     end
 
     def self.parse_rules(quads, enforce_step_type=nil)
-      deprecate_class_by_name(ActivityType, activity_type_name(quads), activity_type(quads)) do
+      self.activity_type = nil
+      deprecate_class_by_name(ActivityType, activity_type_name(quads), activity_type(quads)) do |old_instances|
         RuleGraphAccessor.rules(quads).each do |k,p,v,g|
           accessor = RuleGraphAccessor.new(enforce_step_type, quads, k, v)
           accessor.execute
@@ -86,14 +87,16 @@ module SupportN3
 
     def self.deprecate_class_by_name(class_type, name, new_instance, &block)
       if name && !name.empty?
-        old_instance = class_type.find_by(:name => name)
-        old_instance = nil if old_instance == new_instance
+        old_instances = class_type.where(:name => name)
+        old_instances = nil if (old_instances.count > 1) && (old_instances.first == new_instance)
       end
 
       yield
 
-      if name && !name.empty? && old_instance
-        old_instance.deprecate_with(new_instance)
+      if name && !name.empty? && old_instances
+        old_instances.each do |old_instance|
+          old_instance.deprecate_with(new_instance) if old_instance != new_instance
+        end
       end
     end
 
@@ -106,9 +109,11 @@ module SupportN3
 
 
       @step_type = step_type || StepType.create(:name => name_for_step_type)
-      self.class.deprecate_class_by_name(StepType, name_for_step_type, @step_type) do 
+      self.class.deprecate_class_by_name(StepType, name_for_step_type, @step_type) do
         @step_type.assign_attributes(config_for_step_type)
-        @step_type.activity_types << activity_type if activity_type
+        if activity_type
+          @step_type.activity_types << activity_type unless @step_type.activity_types.include?(activity_type)
+        end
       end
     end
 
@@ -234,8 +239,12 @@ module SupportN3
       self.class.activity_type_name(@quads)
     end
 
+    def self.activity_type=(value)
+      @activity_type = value
+    end
+
     def self.activity_type(quads)
-      ActivityType.create(:name => activity_type_name(quads)) unless activity_type_name(quads).empty?
+      @activity_type ||= ActivityType.new(:name => activity_type_name(quads)) unless activity_type_name(quads).empty?
     end
 
     def activity_type
