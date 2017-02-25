@@ -294,14 +294,14 @@ class Asset < ActiveRecord::Base
     (!facts.with_predicate(sym.to_s.singularize).empty? || super(sym, include_private))
   end
 
-  def printable_object
+  def printable_object(username = 'unknown')
     return nil if barcode.nil?
     if (class_type=='Plate')
       return {
         :label => {
           :barcode => barcode,
           :top_left => DateTime.now.strftime('%d/%b/%y'),
-          :top_right => respond_to?(:current_user) ? current_user : 'unknown',
+          :top_right => username,
           :bottom_right => info_line,
           :bottom_left => Barcode.barcode_to_human(barcode) || barcode,
           #:top_line => Barcode.barcode_to_human(barcode) || barcode,
@@ -311,6 +311,7 @@ class Asset < ActiveRecord::Base
     end
     return {:label => {
       :barcode => barcode,
+      :barcode2d => barcode,      
       :top_line => Barcode.barcode_to_human(barcode) || barcode,
       :bottom_line => info_line 
       }
@@ -418,11 +419,22 @@ class Asset < ActiveRecord::Base
     return []
   end
 
+  def barcode_type
+    btypes = facts.with_predicate('barcodeType')
+    return 'ean13' if btypes.empty?
+    btypes.first.object.downcase
+  end
 
   def validate_rack_content
     errors=[]
     errors.push(more_than_one_aliquot_type_validation)
     #errors.push(duplicated_tubes_validation)
     errors
+  end
+
+  def to_n3
+    facts.map do |f|
+      ":#{uuid} :#{f.predicate} " + (f.object_asset.nil? ? "\"\"\"#{f.object}\"\"\"" : ":#{f.object_asset.uuid}") +" .\n"
+    end.join('')
   end
 end

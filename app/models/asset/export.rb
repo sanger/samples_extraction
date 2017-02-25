@@ -1,6 +1,6 @@
 module Asset::Export
 
-  def update_sequencescape(print_config)
+  def update_sequencescape(print_config, user)
     instance = SequencescapeClient.find_by_uuid(uuid)
     unless instance
       instance = SequencescapeClient.create_plate(class_name, {}) if class_name
@@ -12,7 +12,7 @@ module Asset::Export
     add_facts(Fact.create(:predicate => 'beforeBarcode', :object => old_barcode))
     facts.with_predicate('barcodeType').each(&:destroy)
     add_facts(Fact.create(:predicate => 'barcodeType', :object => 'SequencescapePlate'))
-    print(print_config)
+    print(print_config, user.username)
   end
 
 

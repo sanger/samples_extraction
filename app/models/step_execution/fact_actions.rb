@@ -77,6 +77,7 @@ module StepExecution::FactActions
     data = {}
     #debugger if action.predicate == 'aliquotType'
     #debugger if action.predicate == 'relation_r'
+
     if action.object_condition_group.nil?
       data = [{:predicate => action.predicate, :object => action.object}]
     else
@@ -92,12 +93,12 @@ module StepExecution::FactActions
             # values for any of the wildcard values defined
             checked_wildcards = true
             if step.wildcard_values && !step.wildcard_values.empty? && asset
-              #puts step.wildcard_values
-              #debugger if action.predicate == 'transferredFrom'
-              checked_wildcards = step.wildcard_values.any? do |cg_id, data|
-                asset && related_asset &&
-                (data[asset.id] && data[related_asset.id]) &&
+              checked_wildcards = step.wildcard_values.all? do |cg_id, data|
+                if asset && related_asset && (data[asset.id] && data[related_asset.id])
                   (!(data[asset.id] & data[related_asset.id]).empty?)
+                else
+                  true
+                end
               end
             end
             runtime_conditions = true

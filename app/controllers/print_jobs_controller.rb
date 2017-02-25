@@ -12,7 +12,7 @@ class PrintJobsController < ApplicationController
       def initialize(assets)
         @assets = assets
       end
-    end.new(@assets).print(printer_config)
+    end.new(@assets).print(printer_config, @current_user.username)
   end
 
   def set_assets

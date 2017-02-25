@@ -62,4 +62,8 @@ class AssetGroup < ActiveRecord::Base
     end
   end
 
+  def to_n3
+    assets.map(&:to_n3).join('')
+  end
+
 end

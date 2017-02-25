@@ -89,6 +89,11 @@ module SupportN3
       @c_groups = {}
       @c_groups_cardinalities={}
 
+      name = name_for_step_type
+      if name
+        StepType.where(:name => name).each{|st| st.update_attributes(:superceded_by_id => -1)}
+      end
+
       @step_type = step_type || StepType.new
       @step_type.assign_attributes(config_for_step_type)
       @step_type.activity_types << activity_type if activity_type

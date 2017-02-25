@@ -3,15 +3,15 @@ def inferences_data
   {
   :it => %Q{keeps elements the way they are when there is no changes},
   :rule => %Q{ { ?x :t ?_y .} => { :step :addFacts {?x :t ?_y .}. }. },
-  :inputs => %Q{ :a :t """1""" . },
-  :outputs => %Q{ :a :t """1""" .}
+  :inputs => %Q{ :a :t "1" . },
+  :outputs => %Q{ :a :t "1" .}
   },
 
   {
   :it => %Q{keeps elements the way they are when there is no changes},
   :rule => %Q{ { ?x :t ?_y .} => { :step :addFacts {?x :t ?_y .}. }. },
-  :inputs => %Q{ :a :t """1""" . :b :t """2""".},
-  :outputs => %Q{ :a :t """1""" . :b :t """2""".}
+  :inputs => %Q{ :a :t "1" . :b :t "2".},
+  :outputs => %Q{ :a :t "1" . :b :t "2".}
   },  
   
   {
@@ -294,6 +294,50 @@ def inferences_data
       :rack3 :is "Rack" , "TubeRack" , :Full ; :contains :tube3 ; :position "3" ; :relates :tube3 ; :location "3" .
       :rack4 :is "Rack" , "TubeRack" , :Full ; :contains :tube4 ; :position "4" ; :relates :tube4 ; :location "4" .
       :rack5 :is "Rack" , "TubeRack" , :Full ; :contains :tube5 ; :position "5" ; :relates :tube5 ; :location "5" .
+    }
+  },
+  {
+    :it => 'Bug 1: Not transferring tube contents to tube rack',
+    :rule => %Q{
+{
+  ?tube_rack :a "TubeRack" .
+  ?tube_rack :layout "Complete" .
+  ?tube :a "Tube" .
+  ?tube :sanger_sample_id ?_sample .
+} => {
+  :step :addFacts {?tube :transferToTubeRackByPosition ?tube_rack . } .
+  :step :stepTypeName "Transfer tube contents to Fluidx rack by column order" .
+}.      
+      },
+    :inputs => %Q{
+:tube :a "Tube" .
+:tube :aliquotType "RNA" .
+:tube :is "Used" .
+:tube :sanger_sample_id "2STDY9" .
+:tube :sample_id "2STDY9" .
+:tube :transferredFrom :tube0 .
+:tube :creates :tubeRack .
+:tubeRack :a "TubeRack" .
+:tubeRack :barcodeType "NoBarcode" .
+:tubeRack :createdFrom :tube .
+:tubeRack :contains :tube2 .
+:tubeRack :contains :tube3 .
+:tubeRack :layout "Complete" .    },
+    :outputs => %Q{
+:tube :transferToTubeRackByPosition :tubeRack .
+:tube :a "Tube" .
+:tube :aliquotType "RNA" .
+:tube :is "Used" .
+:tube :sanger_sample_id "2STDY9" .
+:tube :sample_id "2STDY9" .
+:tube :transferredFrom :tube0 .
+:tube :creates :tubeRack .
+:tubeRack :a "TubeRack" .
+:tubeRack :barcodeType "NoBarcode" .
+:tubeRack :createdFrom :tube .
+:tubeRack :contains :tube2 .
+:tubeRack :contains :tube3 .
+:tubeRack :layout "Complete" .
     }
   }
 

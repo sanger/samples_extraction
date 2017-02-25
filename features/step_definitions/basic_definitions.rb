@@ -230,7 +230,7 @@ When(/^I want to print "([^"]*)" new barcodes starting from "([^"]*)" with templ
       update_attributes(:barcode => Barcode.calculate_barcode(Rails.application.config.barcode_prefix,Asset.testing_barcode+i)) if barcode.nil?
     end
 
-    def printable_object
+    def printable_object(val='unknown')
       Asset.printable_object
     end
 
