@@ -105,7 +105,8 @@ RSpec.describe "Inference" do
 
     inferences_data.each do |data|
       if data[:it]
-        it data[:it] do
+        tags = data[:tags] ? data[:tags] : {}
+        it data[:it], tags do
           check_inference(data[:rule], data[:inputs], data[:outputs])
         end
       else

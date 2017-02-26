@@ -1,5 +1,5 @@
 module SupportN3
-  def self.parse_string(input, options = {}, step_type)
+  def self.parse_string(input, options = {}, step_type=nil)
     options = {
       validate: false,
       canonicalize: false,
@@ -76,9 +76,27 @@ module SupportN3
     end
 
     def self.parse_rules(quads, enforce_step_type=nil)
-      RuleGraphAccessor.rules(quads).each do |k,p,v,g|
-        accessor = RuleGraphAccessor.new(enforce_step_type, quads, k, v)
-        accessor.execute
+      self.activity_type = nil
+      deprecate_class_by_name(ActivityType, activity_type_name(quads), activity_type(quads)) do |old_instances|
+        RuleGraphAccessor.rules(quads).each do |k,p,v,g|
+          accessor = RuleGraphAccessor.new(enforce_step_type, quads, k, v)
+          accessor.execute
+        end
+      end
+    end
+
+    def self.deprecate_class_by_name(class_type, name, new_instance, &block)
+      if name && !name.empty?
+        old_instances = class_type.where(:name => name)
+        old_instances = nil if (old_instances.count > 1) && (old_instances.first == new_instance)
+      end
+
+      yield
+
+      if name && !name.empty? && old_instances
+        old_instances.each do |old_instance|
+          old_instance.deprecate_with(new_instance) if old_instance != new_instance
+        end
       end
     end
 
@@ -89,14 +107,14 @@ module SupportN3
       @c_groups = {}
       @c_groups_cardinalities={}
 
-      name = name_for_step_type
-      if name
-        StepType.where(:name => name).each{|st| st.update_attributes(:superceded_by_id => -1)}
-      end
 
-      @step_type = step_type || StepType.new
-      @step_type.assign_attributes(config_for_step_type)
-      @step_type.activity_types << activity_type if activity_type
+      @step_type = step_type || StepType.create(:name => name_for_step_type)
+      self.class.deprecate_class_by_name(StepType, name_for_step_type, @step_type) do
+        @step_type.assign_attributes(config_for_step_type)
+        if activity_type
+          @step_type.activity_types << activity_type unless @step_type.activity_types.include?(activity_type)
+        end
+      end
     end
 
     def conditions
@@ -213,9 +231,24 @@ module SupportN3
       end
     end
 
+    def self.activity_type_name(quads)
+      quads.select{|quad| fragment(quad[1]) == 'activityTypeName'}.flatten[2].to_s
+    end
+
+    def activity_type_name
+      self.class.activity_type_name(@quads)
+    end
+
+    def self.activity_type=(value)
+      @activity_type = value
+    end
+
+    def self.activity_type(quads)
+      @activity_type ||= ActivityType.new(:name => activity_type_name(quads)) unless activity_type_name(quads).empty?
+    end
+
     def activity_type
-      name = @quads.select{|quad| fragment(quad[1]) == 'activityTypeName'}.flatten[2].to_s
-      return ActivityType.find_or_create_by!(:name => name) unless name.empty?
+      self.class.activity_type(@quads)
     end
 
     def config_for_step_type
@@ -229,23 +262,6 @@ module SupportN3
     def name_for_step_type
       value = actions.select{|quad| fragment(quad[1]) == 'stepTypeName'}.flatten[2]
       fragment(value) unless value.nil?
-    end
-
-    def config_step_type
-      if !names.empty?
-        @step_type = StepType.find_by(:name => names[2].to_s)
-        if @step_type
-          @step_type.destroy
-        end
-        @step_type = StepType.find_or_create_by(:name => names[2].to_s)
-      else
-        @step_type = StepType.create(:name => "Rule from #{DateTime.now.to_s}")
-      end
-
-      @step_type.update_attributes(:connect_by => connect_by) if connect_by
-      @step_type.update_attributes(:step_template => step_template) if step_template
-      @step_type.activity_types << activity_type if activity_type
-      @step_type
     end
 
     def connect_by

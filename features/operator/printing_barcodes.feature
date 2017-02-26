@@ -1,4 +1,4 @@
-@javascript
+@javascript @printing
 Feature: Printing barcodes
 An operator
 Should be able to print barcodes in a background task
@@ -23,6 +23,8 @@ Given I have to process these tubes that are on my table:
 |  Barcode | Facts                   |
 |  1       | is:NotStarted, a:Tube   |
 |  2       | is:NotStarted, a:Tube   |
+|  3       | is:NotStarted, a:Plate  |
+|  4       | is:NotStarted, a:Plate  |
 
 Given we use these activity types:
 | Name          |
@@ -48,13 +50,12 @@ Given the step type "Create a tube" has this configuration in N3:
 Given the step type "Create a tube rack in SS" has this configuration in N3:
 """
 {
-  ?p :a :Tube .
+  ?p :a :Plate .
   ?p :is :NotStarted.
   ?p :maxCardinality """0""".
 } => {
   :step :removeFacts {?p :is :NotStarted.}.
-  :step :createAsset {?p :a :TubeRack.
-  }.
+  :step :addFacts {?p :pushTo :Sequencescape.}.
 }.
 """
 
@@ -87,4 +88,31 @@ Then I should see these barcodes in the selection basket:
 
 When I want to print "2" new barcodes starting from "33" with template "TubeTemplate" at printer "printer1"
 And I perform the step "Create a tube"
+Then I should have printed what I expected
+
+@sequencescape
+Scenario: Printing a Sequencescape barcode
+When I use the browser to enter in the application
+And I go to the Instruments page
+Then I should see the Instruments page
+
+When I create an activity with instrument "My Instrument" and kit "1"
+
+When I scan these barcodes into the selection basket:
+|Barcode |
+| 3      |
+
+Then I should see these barcodes in the selection basket:
+| Barcode |
+| 3       |
+
+And I should see these steps available:
+| Step                      |
+| Create a tube rack in SS  |
+
+When I want to export a plate to Sequencescape
+And I want to print "1" new barcodes starting from "33" with template "PlateTemplate" at printer "printer2"
+
+Then I perform the step "Create a tube rack in SS"
+
 Then I should have printed what I expected

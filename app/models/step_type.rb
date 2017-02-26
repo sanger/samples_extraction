@@ -20,6 +20,12 @@ class StepType < ActiveRecord::Base
 
   scope :for_reasoning, ->() { where(:for_reasoning => true)}
 
+  def after_deprecate
+    superceded_by.activity_types << activity_types
+    update_attributes!(:activity_types => [])
+  end
+
+
   def fact_css_classes
     {
       'addFacts' => 'glyphicon glyphicon-pencil',

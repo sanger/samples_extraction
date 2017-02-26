@@ -1,7 +1,11 @@
 require 'rails_helper'
+require 'spec_helper'
+require Rails.root.join "spec/concerns/deprecatable_spec.rb"
+
 
 RSpec.describe StepType, type: :model do
-
+  it_behaves_like "deprecatable"
+  
   describe '#compatible_with' do
     setup do
       @step_type=FactoryGirl.create :step_type

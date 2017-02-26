@@ -206,9 +206,38 @@ Then(/^the activity should be finished$/) do
   expect(page.has_content?("This activity was finished")).to eq(true)
 end
 
+When(/^I want to export a plate to Sequencescape$/) do
+  class MockBarcode
+    def ean13
+      'barcode'
+    end
+  end
+  class MockSequencescapePlateInstance
+    attr_accessor :uuid, :barcode
+
+    def initialize
+      @uuid = 'uuid'
+      @barcode = MockBarcode.new
+    end
+  end
+  class SequencescapeClient
+    def self.find_by_uuid(uuid)
+      MockSequencescapePlateInstance.new
+    end
+    def self.create_plate(name, opts)
+      MockSequencescapePlateInstance.new
+    end
+    def self.update_extraction_attributes(instance, attrs)
+      MockSequencescapePlateInstance.new
+    end
+  end
+
+end
+
 When(/^I want to print "([^"]*)" new barcodes starting from "([^"]*)" with template "([^"]*)" at printer "([^"]*)"$/) do |num_barcodes, barcode_start, template_name, printer_name|
   template = LabelTemplate.find_by_name(template_name)
   PMB::PrintJob = MiniTest::Mock.new
+  username = @user.username
   Rails.application.config.printing_disabled=false
   class TestA
     def save
@@ -218,8 +247,10 @@ When(/^I want to print "([^"]*)" new barcodes starting from "([^"]*)" with templ
 
   class Asset
     @@testing_barcode = nil
-    def self.init_testing_barcode(barcode_start)
+    @@username = nil
+    def self.init_testing(barcode_start, username)
       @@testing_barcode = barcode_start.to_i
+      @@username = username
     end
 
     def self.testing_barcode
@@ -230,23 +261,24 @@ When(/^I want to print "([^"]*)" new barcodes starting from "([^"]*)" with templ
       update_attributes(:barcode => Barcode.calculate_barcode(Rails.application.config.barcode_prefix,Asset.testing_barcode+i)) if barcode.nil?
     end
 
-    def printable_object(val='unknown')
-      Asset.printable_object
+    def printable_object(username='unknown')
+      Asset.printable_object(username)
     end
 
-    def self.printable_object
+    def self.printable_object(username)
       {
         :label => {
-          :testing_param => @@testing_barcode
+          :testing_param => @@testing_barcode,
+          :username => username
         }
       }
     end
   end
 
-  Asset.init_testing_barcode(barcode_start)
+  Asset.init_testing(barcode_start, username)
 
   body = num_barcodes.to_i.times.map do |b|
-    Asset.printable_object
+    Asset.printable_object(username)
   end
 
   PMB::PrintJob.expect(:new, TestA.new, [{:printer_name=>printer_name,
