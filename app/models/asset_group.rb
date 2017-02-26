@@ -66,4 +66,32 @@ class AssetGroup < ActiveRecord::Base
     assets.map(&:to_n3).join('')
   end
 
+  def clean_fact_group(groups)
+    h = {}
+    groups.each do |group, assets|
+      h[group] = assets.uniq
+    end
+    h
+  end
+
+  def assets_by_fact_group
+    return [] unless assets
+    obj_type = Struct.new(:predicate,:object, :to_add_by, :to_remove_by, :object_asset_id)
+    
+    groups = assets.group_by do |a|
+      a.facts.sort do |f1,f2|
+        # Canonical sort of facts
+        f1.canonical_comparison_for_sorting(f2)
+      end.map(&:as_json).map do |f|
+        obj = f["object"]
+        if f["object_asset_id"]
+          obj="?"
+        end
+        obj_type.new(f["predicate"], obj, f["to_add_by"], f["to_remove_by"], nil)
+      end.uniq
+    end
+
+    clean_fact_group(groups)
+  end
+
 end

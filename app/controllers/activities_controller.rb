@@ -200,7 +200,7 @@ class ActivitiesController < ApplicationController
 
 
   def select_assets_grouped
-    @assets_grouped = assets_by_fact_group
+    @assets_grouped = @asset_group.assets_by_fact_group
   end
 
   def set_uploaded_files
@@ -208,40 +208,6 @@ class ActivitiesController < ApplicationController
     if params[:upload_ids]
       @upload_ids = JSON.parse(params[:upload_ids])
     end
-  end
-
-  def clean_fact_group(groups)
-    h = {}
-    groups.each do |group, assets|
-      h[group] = assets.uniq
-    end
-    h
-  end
-
-  def assets_by_fact_group
-    return [] unless @assets
-    obj_type = Struct.new(:predicate,:object, :to_add_by, :to_remove_by, :object_asset_id)
-    groups = @assets.group_by do |a|
-      a.facts.sort do |f1,f2|
-        # Canonical sort of facts
-        if f1.predicate == f2.predicate
-          obj1 = f1.object
-          obj1 =  '?' unless f1["object_asset_id"].nil?
-          obj2 = f1.object
-          obj2 =  '?' unless f2["object_asset_id"].nil?
-          (obj1 <=> obj2)
-        else
-          f1.predicate <=> f2.predicate
-        end
-      end.map(&:as_json).map do |f|
-        obj = f["object"]
-        if f["object_asset_id"]
-          obj="?"
-        end
-        obj_type.new(f["predicate"], obj, f["to_add_by"], f["to_remove_by"], nil)
-      end.uniq
-    end
-    clean_fact_group(groups)
   end
 
 

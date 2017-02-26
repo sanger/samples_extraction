@@ -108,8 +108,9 @@ class StepsController < ApplicationController
   # PATCH/PUT /steps/1.json
   def update
     store_uploads
+
     respond_to do |format|
-      if @step.update(step_params)
+      if @step.update(create_step_params)
         format.html { redirect_to @step, notice: 'Step was successfully updated.' }
         format.json { render :show, status: :ok, location: @step }
       else
@@ -137,8 +138,11 @@ class StepsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def step_params
-      params.permit(:activity_id, :step_type_id, :id)
-      #params.fetch(:step, {})
+      params.permit(:activity_id, :step_type_id, :id, :state)
+    end
+
+    def params_for_update
+      params.require(:step).permit(:state)      
     end
 
     def create_step_params

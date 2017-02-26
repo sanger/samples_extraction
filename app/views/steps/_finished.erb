@@ -1,6 +1,6 @@
 <div class="form-group" id="steps_finished" data-psd-steps-update-url="<%= activity_path(@activity)+'/steps_finished' %>" data-psd-steps-update-complete-url="<%= activity_path(@activity)+'/steps_finished_with_operations' %>">
   <label class="control-label">What happened before?</label>
-  <%= render :partial => 'steps/steps', :locals => {:steps => steps} %>
+  <%= render :partial => 'steps/steps', :locals => {:steps => steps.reverse} %>
 </div>
 
 <% if current_page?(action: 'steps_finished') %>

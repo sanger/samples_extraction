@@ -1,5 +1,8 @@
 class Step < ActiveRecord::Base
 
+  include Steps::Cancellable
+  include Deprecatable
+
   belongs_to :activity
   belongs_to :step_type
   belongs_to :asset_group
@@ -11,7 +14,20 @@ class Step < ActiveRecord::Base
 
   scope :in_progress, ->() { where(:in_progress? => true)}
 
+  scope :cancelled, ->() {where(:state => 'cancel')}
+
+  after_create :deprecate_cancelled_steps
   after_create :execute_actions, :unless => :in_progress?
+
+  def deprecate_cancelled_steps
+    activity.steps.cancelled.each do |s|
+      s.deprecate_with(self)
+    end
+  end
+
+  def after_deprecate
+    update_attributes(:state => 'deprecated', :activity => nil)
+  end
 
   before_create :assets_compatible_with_step_type, :unless => :in_progress?
 
@@ -86,7 +102,7 @@ class Step < ActiveRecord::Base
       deactivate
     end
     update_attributes(:asset_group => original_assets) if activity
-    update_attributes(:state => 'complete')    
+    update_attributes(:state => 'complete')
   end
 
   def update_assets_started
@@ -171,6 +187,15 @@ class Step < ActiveRecord::Base
     return false if activity.nil?
     activity.active_step == self
   end
+
+  def complete?
+    (state == 'complete')
+  end
+
+  def cancelled?
+    (state == 'cancel')
+  end
+
 
   def deactivate
     #activity.update_attributes!(:active_step => nil) unless activity.nil?
