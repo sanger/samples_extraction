@@ -115,6 +115,7 @@ module SupportN3
           @step_type.activity_types << activity_type unless @step_type.activity_types.include?(activity_type)
         end
       end
+      @step_type.save
     end
 
     def conditions
