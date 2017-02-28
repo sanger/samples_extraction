@@ -298,15 +298,15 @@ def inferences_data
   },
   {
     :it => 'Bug 1: Not transferring tube contents to tube rack',
+    :tags => { :last => true },    
     :rule => %Q{
 {
-  ?tube_rack :a "TubeRack" .
-  ?tube_rack :layout "Complete" .
-  ?tube :a "Tube" .
+  ?tuberack :a :TubeRack .
+  ?tuberack :layout :Complete .
+  ?tube :a :Tube .
   ?tube :sanger_sample_id ?_sample .
 } => {
-  :step :addFacts {?tube :transferToTubeRackByPosition ?tube_rack . } .
-  :step :stepTypeName "Transfer tube contents to Fluidx rack by column order" .
+  :step :addFacts {?tube :transferToTubeRackByPosition ?tuberack . } .
 }.      
       },
     :inputs => %Q{
@@ -342,7 +342,6 @@ def inferences_data
   },
   {
     :it => 'creates new assets from scratch',
-    :tags => { :last => true },
     :rule => %Q{
       {?p :maxCardinality "1" .} => {
         :step :createAsset {?p :a :Tube . ?p :barcode "tube" .}
