@@ -10,7 +10,6 @@
     ?tube   :groupNamePrefix """"Sample tubes""" .
   }.
   :step  :stepTypeName """Create DNA and NA+P tubes from Sample tubes""" .
-  :step :connectBy """position""" .
   :step  :createAsset  {
     ?tube_dna   :a  :Tube .
     ?tube_dna   :aliquotType  :DNA .
@@ -59,6 +58,7 @@
   ?tube_nap   :maxCardinality   """12""" .
 } => {
   :step  :stepTypeName """(BY POSITION) Create and Extract DNA and NA+P from Sample tubes""" .
+  :step :connectBy """position""" .  
   :step  :createAsset  {
     ?tube_dna :a  :Tube .
     ?tube_dna :aliquotType  :DNA .
@@ -174,7 +174,6 @@
   ?nap_tube  :groupName """NA+P tube""" .
   ?rna_tube  :groupName """RNA tube""" .
   :step  :stepTypeName """Create RNA tubes from NA+P tubes""" .
-  :step :connectBy """position""" .
   :step  :createAsset  {
     ?rna_tube   :a  :Tube .
     ?rna_tube   :aliquotType  :RNA .

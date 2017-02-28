@@ -20,8 +20,10 @@ class Step < ActiveRecord::Base
   after_create :execute_actions, :unless => :in_progress?
 
   def deprecate_cancelled_steps
-    activity.steps.cancelled.each do |s|
-      s.deprecate_with(self)
+    if activity
+      activity.steps.cancelled.each do |s|
+        s.deprecate_with(self)
+      end
     end
   end
 
