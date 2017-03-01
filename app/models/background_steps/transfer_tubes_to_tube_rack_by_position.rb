@@ -53,10 +53,12 @@ class BackgroundSteps::TransferTubesToTubeRackByPosition < Step
           well.add_facts([Fact.create(:predicate => 'transferredFrom', :object_asset => asset)])
         end
         if aliquot_types
-          if (aliquot_types.uniq.length) > 1 || aliquot_types.uniq.first == 'DNA'
-            purpose_name = 'Stock Plate'
-          else
+          if (((aliquot_types.uniq.length) == 1) && (aliquot_types.uniq.first == 'DNA'))
+            purpose_name = 'DNA Stock Plate'
+          elsif (((aliquot_types.uniq.length) == 1) && (aliquot_types.uniq.first == 'RNA'))
             purpose_name = 'RNA Stock Plate'
+          else
+            purpose_name = 'Stock Plate'
           end
           rack.add_facts([Fact.create(:predicate => 'purpose', :object => purpose_name)])
         end
