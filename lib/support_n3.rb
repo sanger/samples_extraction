@@ -4,6 +4,7 @@ module SupportN3
       validate: false,
       canonicalize: false,
     }.merge(options)
+
     RuleGraphAccessor.parse_rules(RDF::N3::Reader.new(input, options).quads, step_type)
   end
 
@@ -93,7 +94,8 @@ module SupportN3
 
       yield
 
-      if name && !name.empty? && old_instances
+      if name && !name.empty? && old_instances && !new_instance.deprecated?
+        new_instance.save
         old_instances.each do |old_instance|
           old_instance.deprecate_with(new_instance) if old_instance != new_instance
         end
@@ -106,7 +108,6 @@ module SupportN3
       @graph_consequences = graph_consequences
       @c_groups = {}
       @c_groups_cardinalities={}
-
 
       @step_type = step_type || StepType.create(:name => name_for_step_type)
       self.class.deprecate_class_by_name(StepType, name_for_step_type, @step_type) do
@@ -256,6 +257,7 @@ module SupportN3
       config[:name] = name_for_step_type if name_for_step_type
       config[:connect_by] = connect_by if connect_by
       config[:step_template] = step_template if step_template
+      config[:n3_definition] = nil
       config
     end
 

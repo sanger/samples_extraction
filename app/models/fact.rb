@@ -31,5 +31,18 @@ class Fact < ActiveRecord::Base
     "#{object_asset.asset_description} #{object_asset.barcode.blank? ? '#' : Asset.find(object_asset_id).barcode}"
   end
 
+  def canonical_comparison_for_sorting(f2)
+    f1 = self
+    if f1.predicate == f2.predicate
+      obj1 = f1.object || '?'
+      obj1 =  '?' unless f1["object_asset_id"].nil?
+      obj2 = f1.object || '?'
+      obj2 =  '?' unless f2["object_asset_id"].nil?
+      (obj1 <=> obj2)
+    else
+      f1.predicate <=> f2.predicate
+    end
+  end
+
 end
 

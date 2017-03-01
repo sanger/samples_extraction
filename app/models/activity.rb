@@ -117,10 +117,12 @@ class Activity < ActiveRecord::Base
     if params_for_progress_with_step?(step_params)
       unless step
         group = AssetGroup.create!
-        if step_params[:assets]
-          group.assets << step_params[:assets]
-        else
-          group.assets << asset_group.assets
+        unless step_params[:data_action]=='linking'
+          if step_params[:assets]
+            group.assets << step_params[:assets]
+          else
+            group.assets << asset_group.assets
+          end
         end
         step = steps.create!(:step_type => step_type, :asset_group_id => group.id,
           :user_id => user.id, :in_progress? => true, :state => 'in progress')

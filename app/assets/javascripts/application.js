@@ -40,6 +40,7 @@
 //= require add_fact_to_searchbox
 //= require tube_into_rack
 //= require ace-rails-ap
+//= require step_cancellable
 //= require_tree ./templates
 //= require_tree .
 //    require_asset "peek"

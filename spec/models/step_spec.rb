@@ -1,6 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe Step, type: :model do
+
+  def build_instance
+    create_step
+  end
+
   Struct.new('FakeFact', :predicate, :object)
 
   def create_step

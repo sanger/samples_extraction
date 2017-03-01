@@ -26,10 +26,11 @@ class ActivityType < ActiveRecord::Base
   end
 
   def after_deprecate
-    superceded_by.kit_types << kit_types
-    superceded_by.kit_types.uniq!
-    superceded_by.instruments << instruments
-    superceded_by.instruments.uniq!
+    superceded_by.update_attributes(
+      activities: superceded_by.activities | activities,
+      kit_types:  superceded_by.kit_types | kit_types, 
+      instruments: superceded_by.instruments | instruments
+      )
     superceded_by.save!
   end
 

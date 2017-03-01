@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170212120729) do
+ActiveRecord::Schema.define(version: 20170226142235) do
 
   create_table "actions", force: :cascade do |t|
     t.string   "action_type",                limit: 255, null: false
@@ -259,14 +259,16 @@ ActiveRecord::Schema.define(version: 20170212120729) do
   end
 
   create_table "operations", force: :cascade do |t|
-    t.integer  "action_id",   limit: 4
-    t.integer  "step_id",     limit: 4
-    t.integer  "asset_id",    limit: 4
-    t.string   "predicate",   limit: 255
-    t.string   "object",      limit: 255
+    t.integer  "action_id",       limit: 4
+    t.integer  "step_id",         limit: 4
+    t.integer  "asset_id",        limit: 4
+    t.string   "predicate",       limit: 255
+    t.string   "object",          limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "action_type", limit: 255
+    t.string   "action_type",     limit: 255
+    t.integer  "object_asset_id", limit: 4
+    t.boolean  "cancelled?",                  default: false
   end
 
   add_index "operations", ["action_id"], name: "index_operations_on_action_id", using: :btree
@@ -321,6 +323,7 @@ ActiveRecord::Schema.define(version: 20170212120729) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "state",                  limit: 255
+    t.integer  "superceded_by_id",       limit: 4
   end
 
   add_index "steps", ["activity_id"], name: "index_steps_on_activity_id", using: :btree

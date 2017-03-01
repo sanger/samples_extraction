@@ -20,4 +20,7 @@ module ActivitiesHelper
       yield(conditions_to_facts, [], [remaining])
     end
   end
+
+
+
 end

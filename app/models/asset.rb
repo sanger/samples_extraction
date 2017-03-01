@@ -118,6 +118,18 @@ class Asset < ActiveRecord::Base
     touch unless new_record?
   end
 
+  def remove_facts(list, &block)
+    ActiveRecord::Base.transaction do |t|
+      list = [list].flatten
+      list.each do |fact|
+        if fact.object_asset
+          facts.where(predicate: fact.predicate, object_asset: fact.object_asset).each(&:destroy)
+        elsif fact.object
+          facts.where(predicate: fact.predicate, object: fact.object).each(&:destroy)
+        end
+      end
+    end
+  end
 
 
   def add_operations(list, step)
