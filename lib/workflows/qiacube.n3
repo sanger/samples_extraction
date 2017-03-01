@@ -193,9 +193,9 @@
   :step  :createAsset  {
     ?rna_tube   :a  :Tube .
     ?rna_tube   :aliquotType  :RNA .
+    ?rna_tube   :transferredFrom  ?nap_tube .
   } .
   :step  :addFacts   {?nap_tube   :transfer   ?rna_tube .} .
-  :step  :addFacts   {?rna_tube   :transferredFrom  ?nap_tube .} .
 } .
 
 {

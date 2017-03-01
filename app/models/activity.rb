@@ -74,7 +74,7 @@ class Activity < ActiveRecord::Base
   def step_types_for(assets, required_assets=nil)
     stypes = step_types.includes(:condition_groups => :conditions).select do |step_type|
       step_type.compatible_with?(assets, required_assets)
-    end
+    end.uniq
     stype = stypes.detect{|stype| steps.in_progress.for_step_type(stype).count > 0}
     stype.nil? ? stypes : [stype]
   end

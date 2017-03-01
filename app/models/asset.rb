@@ -311,7 +311,7 @@ class Asset < ActiveRecord::Base
 
   def printable_object(username = 'unknown')
     return nil if barcode.nil?
-    if (class_type=='Plate')
+    if ((class_type=='Plate')||(class_type=='TubeRack'))
       return {
         :label => {
           :barcode => barcode,
