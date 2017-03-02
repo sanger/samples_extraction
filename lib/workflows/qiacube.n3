@@ -41,10 +41,10 @@
   :step  :unselectAsset  ?tube .
   :step  :removeFacts {?tube_dna :is :Empty.}.
   :step  :removeFacts {?tube_nap :is :Empty.}.
-  :step  :addFacts   { ?tube   :transfer   :q .} .
-  :step  :addFacts   { ?tube   :transfer   :r .} .
-  :step  :addFacts   { ?tube_dna   :transferredFrom  :p .} .
-  :step  :addFacts   { ?tube_nap   :transferredFrom  :p .} .
+  :step  :addFacts   { ?tube   :transfer   ?tube_dna .} .
+  :step  :addFacts   { ?tube   :transfer   ?tube_nap .} .
+  :step  :addFacts   { ?tube_dna   :transferredFrom  ?tube .} .
+  :step  :addFacts   { ?tube_nap   :transferredFrom  ?tube .} .
   :step :addFacts {?tube :is :Started.}.
   :step :removeFacts {?tube :is :NotStarted.}.
 } .

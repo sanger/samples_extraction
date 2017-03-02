@@ -266,7 +266,18 @@ class Asset < ActiveRecord::Base
   end
 
   def generate_barcode(i)
-    update_attributes(:barcode => Barcode.calculate_barcode(Rails.application.config.barcode_prefix,Asset.count+i)) if barcode.nil?
+    save
+    if barcode.nil?
+      update_attributes(:barcode => Barcode.calculate_barcode(Rails.application.config.barcode_prefix,self.id))
+    end
+    # if barcode.nil?
+    #   generated_barcode = Barcode.calculate_barcode(Rails.application.config.barcode_prefix,Asset.count+i)
+    #   if find_by(:barcode =>generated_barcode).nil?
+    #     update_attributes(:barcode => generated_barcode) 
+    #   else
+        
+    #   end
+    # end
   end
 
   def attrs_for_sequencescape(traversed_list = [])
