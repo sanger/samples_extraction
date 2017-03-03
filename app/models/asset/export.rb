@@ -8,11 +8,12 @@ module Asset::Export
     SequencescapeClient.update_extraction_attributes(instance, attributes_to_update)
     facts.each {|f| f.update_attributes!(:up_to_date => true)}
     old_barcode = barcode
+    needs_print = old_barcode.nil? || old_barcode.empty?
     update_attributes(:uuid => instance.uuid, :barcode => instance.barcode.ean13)
     add_facts(Fact.create(:predicate => 'beforeBarcode', :object => old_barcode))
     facts.with_predicate('barcodeType').each(&:destroy)
     add_facts(Fact.create(:predicate => 'barcodeType', :object => 'SequencescapePlate'))
-    print(print_config, user.username)
+    print(print_config, user.username) if needs_print
   end
 
 
