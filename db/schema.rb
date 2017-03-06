@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170302135104) do
+ActiveRecord::Schema.define(version: 20170303142929) do
 
   create_table "actions", force: :cascade do |t|
     t.string   "action_type",                limit: 255, null: false
@@ -131,7 +131,7 @@ ActiveRecord::Schema.define(version: 20170302135104) do
     t.integer  "facts_count", limit: 4
   end
 
-  add_index "assets", ["barcode"], name: "index_assets_on_barcode", unique: true, using: :btree
+  add_index "assets", ["barcode"], name: "index_assets_on_barcode", using: :btree
 
   create_table "assets_facts", force: :cascade do |t|
     t.integer  "asset_id",   limit: 4

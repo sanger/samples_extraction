@@ -19,7 +19,7 @@ module Asset::Import
         local_well.add_facts(Fact.create(:predicate => 'a', :object => 'Well'))
         local_well.add_facts(Fact.create(:predicate => 'location', :object => well.location))
         local_well.add_facts(Fact.create(:predicate => 'parent', :object_asset => asset))
-        local_well.add_facts(Fact.create(:predicate => 'aliquotType', :object => 'nap'))
+        #local_well.add_facts(Fact.create(:predicate => 'aliquotType', :object => 'nap'))
         annotate_container(local_well, well)
       end
     end

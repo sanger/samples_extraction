@@ -20,11 +20,11 @@ class BackgroundSteps::UpdateSequencescape < Step
       if assets_compatible_with_step_type
         asset_group.assets.each do |asset|
           asset.update_sequencescape(printer_config, user)
-          removed_facts = asset.facts.select{|f| f.predicate == 'pushTo' && f.object == 'Sequencescape'}
-          asset.remove_operations(removed_facts, self)
-          removed_facts.select{|f| f.predicate == 'pushTo' && f.object == 'Sequencescape'}.each do |f|
-            f.destroy
-          end
+          #removed_facts = asset.facts.select{|f| f.predicate == 'pushTo' && f.object == 'Sequencescape'}
+          #asset.remove_operations(removed_facts, self)
+          #removed_facts.select{|f| f.predicate == 'pushTo' && f.object == 'Sequencescape'}.each do |f|
+          #  f.destroy
+          #end
         end
       end
     end
