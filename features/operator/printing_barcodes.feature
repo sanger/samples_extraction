@@ -88,7 +88,8 @@ Then I should see these barcodes in the selection basket:
 
 When I want to print "2" new barcodes starting from "33" with template "TubeTemplate" at printer "printer1"
 And I perform the step "Create a tube"
-Then I should have printed what I expected
+Then I should have performed the step "Create a tube"
+And I should have printed what I expected
 
 @sequencescape
 Scenario: Printing a Sequencescape barcode
@@ -115,4 +116,6 @@ And I want to print "1" new barcodes starting from "33" with template "PlateTemp
 
 Then I perform the step "Create a tube rack in SS"
 
-Then I should have printed what I expected
+Then I should have performed the step "Create a tube rack in SS"
+
+And I should have printed what I expected

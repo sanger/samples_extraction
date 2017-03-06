@@ -12,7 +12,7 @@ module Asset::Export
     add_facts(Fact.create(:predicate => 'beforeBarcode', :object => old_barcode))
     facts.with_predicate('barcodeType').each(&:destroy)
     add_facts(Fact.create(:predicate => 'barcodeType', :object => 'SequencescapePlate'))
-    print(print_config, user.username)
+    print(print_config, user.username) if old_barcode != barcode
   end
 
 

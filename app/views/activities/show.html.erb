@@ -6,7 +6,7 @@
 </div>
 <%= bootstrap_form_for @activity, action: 'show', :html => { :class => 'form-inline activity-desc' } do |f| %>
   <%= f.text_field :activity_type, :value => @activity.activity_type.name,:readonly => true %>
-  <%= f.text_field :instrument, :value => @activity.instrument.barcode,:readonly => true %>
+  <%= f.text_field :instrument, :value => @activity.instrument.name || @activity.instrument.barcode,:readonly => true %>
   <%= f.text_field :kit, :value => @activity.kit.barcode,:readonly => true %>
   <!-- %= f.text_field :tube_printer, :value => @current_user.tube_printer_name,:readonly => true %>
   < % = f.text_field :plate_printer, :value => @current_user.plate_printer_name,:readonly => true % -->
