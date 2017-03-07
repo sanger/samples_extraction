@@ -26,8 +26,8 @@
       </div>
     </div>
     <% options = {} %>
-    <% options = options.merge({:disabled => ActivityType.all.map(&:id)}) if readonly %>
-      <%= collection_check_boxes(:instrument, :activity_type_ids, ActivityType.all, :id, :name, options) do |b| %>
+    <% options = options.merge({:disabled => ActivityType.all.visible.map(&:id)}) if readonly %>
+      <%= collection_check_boxes(:instrument, :activity_type_ids, ActivityType.all.visible, :id, :name, options) do |b| %>
         <div class="checkbox row ">
           <%= b.label :class => "checkbox-inline #{'active' if @instrument.activity_types.include?(b.object)}" do %>
             <%= b.check_box %>
