@@ -73,14 +73,7 @@ class Step < ActiveRecord::Base
     end
   end
 
-  require 'cwm_wrapper'
-  require 'io/console'
   def build_step_execution(params)
-    # CwmWrapper::StepExecution.new({
-    #   :step => self,
-    #   :asset_group => asset_group,
-    #   :created_assets => {}
-    # }.merge(params))
     StepExecution.new({
       :step => self,
       :asset_group => asset_group,
