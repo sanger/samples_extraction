@@ -11,7 +11,7 @@ class Asset < ActiveRecord::Base
   include Asset::Export
 
 
-  alias_attribute :name, :barcode 
+  alias_attribute :name, :uuid 
 
   has_many :facts
   has_and_belongs_to_many :asset_groups
@@ -110,6 +110,9 @@ class Asset < ActiveRecord::Base
             if fact.predicate == 'barcode'
               update_attributes(:barcode => fact.object)
             end
+            if fact.predicate == 'uuid'
+              update_attributes(:uuid => fact.object)
+            end            
             yield fact if block_given?
           end
         end
@@ -122,6 +125,7 @@ class Asset < ActiveRecord::Base
     ActiveRecord::Base.transaction do |t|
       list = [list].flatten
       list.each do |fact|
+        yield fact if block_given?
         if fact.object_asset
           facts.where(predicate: fact.predicate, object_asset: fact.object_asset).each(&:destroy)
         elsif fact.object
@@ -132,9 +136,9 @@ class Asset < ActiveRecord::Base
   end
 
 
-  def add_operations(list, step)
+  def add_operations(list, step, action_type = 'addFacts')
     list.each do |fact|
-      Operation.create!(:action_type => 'addFacts', :step => step,
+      Operation.create!(:action_type => action_type, :step => step,
         :asset=> self, :predicate => fact.predicate, :object => fact.object)    
     end
   end
@@ -460,7 +464,7 @@ class Asset < ActiveRecord::Base
 
   def to_n3
     facts.map do |f|
-      ":#{uuid} :#{f.predicate} " + (f.object_asset.nil? ? "\"\"\"#{f.object}\"\"\"" : ":#{f.object_asset.uuid}") +" .\n"
+      "<:##{uuid}> :#{f.predicate} " + (f.object_asset.nil? ? "\"#{f.object}\"" : "<:##{f.object_asset.uuid}>") +" .\n"
     end.join('')
   end
 end

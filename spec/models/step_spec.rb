@@ -204,7 +204,7 @@ RSpec.describe Step, type: :model do
         @step_type.actions << @action
       end
 
-      it 'creates an asset for each input and adds it to the asset group' do
+      it 'creates an asset for each input and adds it to the asset group', :last => true do
         previous_num = @asset_group.assets.count
         @step = create_step
 
