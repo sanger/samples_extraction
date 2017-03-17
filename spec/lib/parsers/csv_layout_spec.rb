@@ -1,5 +1,6 @@
 require 'rails_helper'
 require 'parsers/csv_layout'
+require 'csv'
 
 RSpec.describe Parsers::CsvLayout do
 
@@ -49,6 +50,51 @@ RSpec.describe Parsers::CsvLayout do
           expect(a.facts.with_predicate('parent').count).to eq(1)
           expect(a.facts.with_predicate('parent').first.object_asset).to eq(@asset)
         end
+      end
+
+      describe 'with empty slots in the layout .csv' do
+        def add_empty_slots(content, num_empty, start_pos=0)
+          csv = CSV.new(content).to_a
+          num_empty.times do |i|
+            csv[start_pos + i][1] = 'No Read'
+          end
+          csv.map do |line|
+            line.join(',')
+          end.join("\n")
+        end
+
+        setup do
+          @asset2 = FactoryGirl.create(:asset)
+          @csv = Parsers::CsvLayout.new(@content)
+          @csv.add_facts_to(@asset2, @step)
+          @step.finish
+          @content = File.open('test/data/layout.csv')
+
+          @step = FactoryGirl.create(:step, {
+            :step_type =>@step_type,
+            :asset_group => @asset_group
+            })
+          
+        end
+
+        it 'adds the new facts to the asset and removes the old ones' do
+          @num_empty = 3
+          @start_pos = 0
+          @csv = Parsers::CsvLayout.new(add_empty_slots(@content, @num_empty, @start_pos))
+          expect(@asset2.facts.with_predicate('contains').count).to eq(96)
+          @csv.add_facts_to(@asset2, @step)
+          @step.finish
+          @asset2.facts.reload
+          expect(@asset2.facts.with_predicate('contains').count).to eq(96 - @num_empty)
+          @assets.each_with_index do |a, idx|
+            if (idx < @start_pos) || (idx >= @start_pos + @num_empty)
+              expect(a.facts.with_predicate('location').count).to eq(1)
+              expect(a.facts.with_predicate('parent').count).to eq(1)
+              expect(a.facts.with_predicate('parent').first.object_asset).to eq(@asset2)
+            end
+          end
+        end
+
       end
 
       describe 'with links with previous parents' do
