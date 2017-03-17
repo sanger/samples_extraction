@@ -185,7 +185,7 @@ class Asset < ActiveRecord::Base
 
   def self.assets_for_queries(queries)
     queries.map do |query|
-      if Asset.first.has_attribute?(query.predicate)
+      if Asset.first && Asset.first.has_attribute?(query.predicate)
         Asset.with_field(query.predicate, query.object)
       else
         Asset.with_fact(query.predicate, query.object)

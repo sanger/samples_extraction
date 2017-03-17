@@ -29,8 +29,12 @@
       <td><%= user.username %></td>
       <td><%= user.fullname %></td>
       <td><%= user.role %></td>
-      <td><%= user.tube_printer.name %></td>
-      <td><%= user.plate_printer.name %></td>
+      <% if user.tube_printer %>
+        <td><%= user.tube_printer.name %></td>
+      <% end %>
+      <% if user.plate_printer %>
+        <td><%= user.plate_printer.name %></td>
+      <% end %>
         <td><%= bootstrap_link_to 'Show', user %></td>
         <td><%= bootstrap_link_to 'Edit', edit_user_path(user) %></td>
       </tr>
