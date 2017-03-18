@@ -18,9 +18,9 @@ module CwmWrapper
       input_tempfile.write(@asset_group.to_n3)
       input_tempfile.write(@step.step_type.to_n3)
       input_tempfile.close
-      #`cat #{input_tempfile.path}`
-      `/Users/emr/cwm/cwm-1.2.1/cwm #{input_tempfile.path} --base=h --think > #{output_tempfile.path}`
-
+      #puts `cat #{input_tempfile.path}`
+      `/Users/emr/cwm/cwm-1.2.1/cwm #{input_tempfile.path} --think > #{output_tempfile.path}`
+      #puts `cat #{output_tempfile.path}`
       step_actions = SupportN3::load_step_actions(output_tempfile)
 
       ['create_asset', 'remove_facts', 'add_facts', 'unselect_asset', 'select_asset'].each do |action_type|
@@ -46,19 +46,23 @@ module CwmWrapper
       end
     end
 
+    def equal_quad_and_fact?(quad, fact)
+      return false if fact.predicate != fragment(quad[1])
+      object = fragment(quad[2])
+      if is_uuid?(object)
+        return true if fact.object_asset == Asset.find_by(:uuid => object)
+      else
+        return true if fact.object == object
+      end
+      return false
+    end
+
     def remove_facts(graphs)
       graphs.each do |quads|
         quads.map do |quad|
           asset = Asset.find_by!(:uuid => fragment(quad[0]))
-          asset.remove_facts(asset.facts.select do |f| 
-            return false if f.predicate != fragment(quad[1])
-
-            object = fragment(quad[2])
-            if is_uuid?(object)
-              return true if f.object_asset == Asset.find_by(:uuid => object)
-            else
-              return true if f.object == object
-            end
+          asset.remove_facts(asset.facts.select do |f|
+            equal_quad_and_fact?(quad, f)
           end) do |f|
             asset.add_operations([f], @step, 'removeFacts')
           end
@@ -84,8 +88,8 @@ module CwmWrapper
       created_assets = {}
       graphs.each do |quads|
         quads.each do |quad|
-          created_assets[quad[0]] = [Asset.create!] unless created_assets[quad[0]]
-          @step.asset_group.add_assets(created_assets[quad[0]])
+          created_assets[quad[0]] = [ Asset.create! ].flatten unless created_assets[quad[0]]        
+          @step.asset_group.add_assets(created_assets[quad[0]])        
           created_assets[quad[0]].each do |asset|
             add_quad_to_asset(quad, asset, "createAsset")
           end

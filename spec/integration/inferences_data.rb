@@ -108,6 +108,7 @@ def inferences_data
 },
   {
   :it => %Q{set the value if the destination does not have the value},
+  :unless => :cwm_engine?,
   :rule => %Q{ 
     { 
       ?x :a :Tube .

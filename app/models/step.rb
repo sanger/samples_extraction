@@ -77,16 +77,17 @@ class Step < ActiveRecord::Base
   end
 
   def build_step_execution(params)
-    CwmWrapper::StepExecution.new({
-       :step => self,
-       :asset_group => asset_group,
-       :created_assets => {}
-     }.merge(params))
-    #StepExecution.new({
-    #  :step => self,
-    #  :asset_group => asset_group,
-    #  :created_assets => {}
-    #}.merge(params))
+    if Rails.configuration.inference_engine == :cwm
+      klass = CwmWrapper::StepExecution
+    else
+      klass = StepExecution
+    end
+    
+    klass.new({
+        :step => self,
+        :asset_group => asset_group,
+        :created_assets => {}
+      }.merge(params))
   end
 
   def execute_actions

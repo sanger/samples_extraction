@@ -464,7 +464,7 @@ class Asset < ActiveRecord::Base
 
   def to_n3
     facts.map do |f|
-      "<:##{uuid}> :#{f.predicate} " + (f.object_asset.nil? ? "\"#{f.object}\"" : "<:##{f.object_asset.uuid}>") +" .\n"
+      "<#{uuid}> :#{f.predicate} " + (f.object_asset.nil? ? "\"#{f.object}\"" : "<#{f.object_asset.uuid}>") +" .\n"
     end.join('')
   end
 end

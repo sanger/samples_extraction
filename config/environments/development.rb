@@ -43,4 +43,6 @@ Rails.application.configure do
   config.ss_uri =  ENV.fetch('SS_URI', 'http://localhost:3000/api/1/')
   config.searcher_name_by_barcode = 'Find assets by barcode'
   config.printing_disabled = true
+
+  config.inference_engine = :cwm
 end
