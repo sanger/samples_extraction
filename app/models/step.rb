@@ -1,3 +1,6 @@
+require 'cwm_wrapper'
+require 'io/console'
+
 class Step < ActiveRecord::Base
 
   include Steps::Cancellable
@@ -73,8 +76,6 @@ class Step < ActiveRecord::Base
     end
   end
 
-  require 'cwm_wrapper'
-  require 'io/console'
   def build_step_execution(params)
     CwmWrapper::StepExecution.new({
        :step => self,
