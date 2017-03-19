@@ -44,6 +44,6 @@ Rails.application.configure do
   config.searcher_name_by_barcode = 'Find assets by barcode'
   config.printing_disabled = true
 
-  config.inference_engine = :cwm
-  config.cwm_path = ENV.fetch('CWM_PATH')
+  config.inference_engine = :default
+  config.cwm_path = ENV.fetch('CWM_PATH', '')
 end
