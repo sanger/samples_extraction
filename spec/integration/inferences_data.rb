@@ -164,6 +164,7 @@ def inferences_data
   },
   {
   :it => %Q{transfer between plates},
+  :unless => :cwm_engine?,
   :rule => %Q{ 
     { 
       ?plate :a :Plate .
@@ -177,6 +178,7 @@ def inferences_data
 
       ?tube1 :location ?_location .
       ?tube2 :location ?_location .
+      ?tube1 log:notEqualTo ?tube2 .
     } => { 
       :step :addFacts {?tube1 :transfer ?tube2 .}.
     }. 

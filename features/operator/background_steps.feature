@@ -41,12 +41,12 @@ Given the step type "Create new tube RNA" has this configuration in N3:
   :step :createAsset {
     ?q :a :Tube .
     ?q :aliquotType """RNA""" .
+    ?q :transferredFrom ?p .    
   }.
   :step :removeFacts {?p :is :NotStarted.}.
   :step :addFacts {
     ?p :is :Started.
     ?p :transfer ?q .
-    ?q :transferredFrom ?p .
   }.
 }.
 """

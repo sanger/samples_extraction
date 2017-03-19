@@ -65,9 +65,8 @@ class StepsController < ApplicationController
       step_type_to_do = @activity.step_types.find_by_id!(@step_type.id)
       if valid_step_types.include?(step_type_to_do)
         store_uploads
-          @step = @activity.step(step_type_to_do, @current_user, create_step_params)
-          session[:data_params] = {}
-
+        @step = @activity.step(step_type_to_do, @current_user, create_step_params)
+        session[:data_params] = {}
         if @step.created_asset_group
           @step.created_asset_group.print(printer_config, @current_user.username)
         end

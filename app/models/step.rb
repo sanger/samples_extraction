@@ -1,5 +1,3 @@
-require 'cwm_wrapper'
-require 'io/console'
 
 class Step < ActiveRecord::Base
 
@@ -77,13 +75,7 @@ class Step < ActiveRecord::Base
   end
 
   def build_step_execution(params)
-    if Rails.configuration.inference_engine == :cwm
-      klass = CwmWrapper::StepExecution
-    else
-      klass = StepExecution
-    end
-    
-    klass.new({
+    StepExecution.new({
         :step => self,
         :asset_group => asset_group,
         :created_assets => {}

@@ -18,13 +18,13 @@ class BackgroundSteps::TransferSamples < Step
     asset_group.assets.with_predicate('transfer').each do |asset|
       asset.facts.with_predicate('transfer').each do |fact|
         modified_asset = fact.object_asset
-        yield(asset, modified_asset)
+        yield(asset, modified_asset) if asset && modified_asset
       end
     end
     asset_group.assets.with_predicate('transferredFrom').each do |modified_asset|
       modified_asset.facts.with_predicate('transferredFrom').each do |fact|
         asset = fact.object_asset
-        yield(asset, modified_asset)
+        yield(asset, modified_asset) if asset && modified_asset
       end
     end    
   end
@@ -42,6 +42,7 @@ class BackgroundSteps::TransferSamples < Step
             Fact.new(:predicate => 'sample_id', :object => aliquot_fact.object)
           ]
         end.flatten)
+        debugger if modified_asset.nil?
         unless modified_asset.has_predicate?('aliquotType')
           added_facts.concat(asset.facts.with_predicate('aliquotType').map do |aliquot_fact|
             [

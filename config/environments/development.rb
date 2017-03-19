@@ -45,4 +45,5 @@ Rails.application.configure do
   config.printing_disabled = true
 
   config.inference_engine = :cwm
+  config.cwm_path = ENV.fetch('CWM_PATH')
 end
