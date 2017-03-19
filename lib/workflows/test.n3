@@ -1,7 +1,0 @@
-@prefix : <qiacube.n3#> .
-:tube :a :SampleTube .
-:tube :sanger_sample_id "my_id".
-:tube :is :NotStarted .
-:tube :maxCardinality "12" .
-
-:tube2 :maxCardinality "12" .
