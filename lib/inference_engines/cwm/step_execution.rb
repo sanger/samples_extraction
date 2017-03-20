@@ -9,9 +9,12 @@ module InferenceEngines
         @original_assets= params[:original_assets]
         @created_assets= params[:created_assets]
         @facts_to_destroy = params[:facts_to_destroy]
+
+        @step_types = params[:step_types] || [@step.step_type]
       end
 
       def debug_log(params)
+        puts params
         if Rails.logger
           Rails.logger.debug(params)
         else
@@ -25,7 +28,7 @@ module InferenceEngines
         output_tempfile = Tempfile.new('out_datainfer')
 
         input_tempfile.write(@asset_group.to_n3)
-        input_tempfile.write(@step.step_type.to_n3)
+        input_tempfile.write(@step_types.map(&:to_n3).join("\n"))
         input_tempfile.close
         debug_log `cat #{input_tempfile.path}`
         `#{Rails.configuration.cwm_path}/cwm #{input_tempfile.path} --think > #{output_tempfile.path}`
