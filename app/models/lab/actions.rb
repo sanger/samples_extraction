@@ -114,7 +114,8 @@ module Lab::Actions
     list_layout.each do |obj|
       location = obj[:location]
       asset = obj[:asset]
-      unless asset
+      barcode = obj[:barcode]
+      if (asset.nil? && (!barcode.starts_with?('F')))
         error_locations.push(location)
         error_messages.push("Barcode #{barcode} scanned at #{location} is not in the database")
       end
