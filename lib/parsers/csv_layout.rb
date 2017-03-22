@@ -89,7 +89,6 @@ module Parsers
       @data
     end
 
-
     def add_facts_to(asset, step)
       if valid?
         asset.add_facts(Fact.create(:predicate => 'layout', :object => 'Complete'))
@@ -104,6 +103,7 @@ module Parsers
         end
         facts_to_add = @data.map do |obj|
           next if obj[:asset].nil?
+          previous_parents = obj[:asset].facts.with_predicate('parent').map(&:object_asset)
           if obj[:asset].respond_to? :facts
             [
               obj[:asset].facts.with_predicate(:location), 
@@ -117,6 +117,9 @@ module Parsers
             Fact.create(:predicate => 'location', :object => obj[:location], :to_add_by => step.id),
             Fact.create(:predicate => 'parent', :object_asset => asset, :to_add_by => step.id)
           ])
+          obj[:asset].add_facts(previous_parents.map do |previous_parent|
+            Fact.create(:predicate => 'previousParent', :object_asset => previous_parent, :to_add_by => step.id)
+          end)
           Fact.create(:predicate => 'contains', :object_asset => obj[:asset], :to_add_by => step.id)
         end.compact
         asset.add_facts(facts_to_add) if valid?

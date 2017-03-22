@@ -53,7 +53,7 @@ module Lab::Actions
 
   def rack_tubes(rack, list_layout, step=nil)
     ActiveRecord::Base.transaction do |t|
-      tubes = list_layout.map{|obj| obj[:asset]}
+      tubes = list_layout.map{|obj| obj[:asset]}.compact
       unrack_tubes(tubes, step)
 
       facts_to_add = []
@@ -61,6 +61,7 @@ module Lab::Actions
       list_layout.each do |l|
         location = l[:location]
         tube = l[:asset]
+        next unless tube
         if step
           step_ref = step.id
           tube.facts.with_predicate('location').each{|f| f.set_to_remove_by(step_ref)}
@@ -114,7 +115,8 @@ module Lab::Actions
     list_layout.each do |obj|
       location = obj[:location]
       asset = obj[:asset]
-      unless asset
+      barcode = obj[:barcode]
+      if (asset.nil? && !barcode.nil? && !barcode.starts_with?('F'))
         error_locations.push(location)
         error_messages.push("Barcode #{barcode} scanned at #{location} is not in the database")
       end
