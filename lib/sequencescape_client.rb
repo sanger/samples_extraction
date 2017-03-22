@@ -12,7 +12,7 @@ class SequencescapeClient
     {
       :namespace     => 'SamplesExtraction',
       :url           => Rails.configuration.ss_uri,
-      :authorisation => 'development',
+      :authorisation => Rails.configuration.ss_authorisation,
       :read_timeout  => 60
     }
   end
@@ -27,8 +27,8 @@ class SequencescapeClient
     return nil
   end
 
-  def self.update_extraction_attributes(instance, attrs)
-    instance.extraction_attributes.create!(:attributes_update => attrs, :created_by => 'test')
+  def self.update_extraction_attributes(instance, attrs, username='test')
+    instance.extraction_attributes.create!(:attributes_update => attrs, :created_by => username)
   end
 
   def self.purpose_by_name(name)
