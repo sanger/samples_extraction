@@ -227,7 +227,7 @@ When(/^I want to export a plate to Sequencescape$/) do
     def self.create_plate(name, opts)
       MockSequencescapePlateInstance.new
     end
-    def self.update_extraction_attributes(instance, attrs)
+    def self.update_extraction_attributes(instance, attrs, user)
       MockSequencescapePlateInstance.new
     end
   end
