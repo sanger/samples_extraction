@@ -5,7 +5,7 @@ module Asset::Export
     unless instance
       instance = SequencescapeClient.create_plate(class_name, {}) if class_name
     end
-    SequencescapeClient.update_extraction_attributes(instance, attributes_to_update)
+    SequencescapeClient.update_extraction_attributes(instance, attributes_to_update, user.username)
     facts.each {|f| f.update_attributes!(:up_to_date => true)}
     old_barcode = barcode
     update_attributes(:uuid => instance.uuid, :barcode => instance.barcode.ean13)
