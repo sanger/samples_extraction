@@ -140,6 +140,7 @@ module Lab::Actions
     tubes_for_rack.each do |tube|
       tube_location = tube.facts.with_predicate('location').first.object
       list_layout.each do |obj|
+        next unless obj[:asset]
         if (tube_location == obj[:location])
           if (obj[:asset] != tube)
             error_messages.push(

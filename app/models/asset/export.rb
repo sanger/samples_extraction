@@ -20,7 +20,7 @@ module Asset::Export
     {
       :reracks => facts.with_predicate('contains').map(&:object_asset).map do |well|
         memo = []
-        if well.facts.has_predicate?('previousParent')
+        if well.has_predicate?('previousParent')
           well.facts.with_predicate('previousParent').each_with_index do |previous_parent_fact, idx|
             memo.push({
               previous_plate_uuid: previous_parent_fact.object_asset.uuid,
