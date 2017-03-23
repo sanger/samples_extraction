@@ -18,6 +18,20 @@ module Asset::Export
 
   def attributes_to_update
     {
+      :reracks => facts.with_predicate('contains').map(&:object_asset).map do |well|
+        memo = []
+        if well.has_predicate?('previousParent')
+          well.facts.with_predicate('previousParent').each_with_index do |previous_parent_fact, idx|
+            memo.push({
+              previous_plate_uuid: previous_parent_fact.object_asset.uuid,
+              previous_location: well.facts.with_predicate('previousLocation')[idx].object,
+              actual_plate_uuid: self.uuid,
+              actual_location: well.facts.with_predicate('location').first.object
+            })
+          end
+        end
+        memo
+      end.flatten.compact,
       :wells => facts.with_predicate('contains').map(&:object_asset).map do |well|
         unless well.nil? || well.facts.nil?
           well.facts.reduce({}) do |memo, fact|

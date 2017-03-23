@@ -72,7 +72,7 @@ class Activity < ActiveRecord::Base
   end
 
   def step_types_for(assets, required_assets=nil)
-    stypes = step_types.includes(:condition_groups => :conditions).select do |step_type|
+    stypes = step_types.not_for_reasoning.includes(:condition_groups => :conditions).select do |step_type|
       step_type.compatible_with?(assets, required_assets)
     end.uniq
     stype = stypes.detect{|stype| steps.in_progress.for_step_type(stype).count > 0}
@@ -146,11 +146,11 @@ class Activity < ActiveRecord::Base
   end
 
   def reasoning!(printer_config=nil, user=nil)
+    BackgroundSteps::Inference.delay.create(:asset_group => asset_group, :activity => self, :user => user)
     BackgroundSteps::TransferTubesToTubeRackByPosition.delay.create(:asset_group => asset_group, :activity => self, :user => user)
     BackgroundSteps::TransferPlateToPlate.delay.create(:asset_group => asset_group, :activity => self, :user => user)
     BackgroundSteps::TransferSamples.delay.create(:asset_group => asset_group, :activity => self, :user => user)
     BackgroundSteps::UpdateSequencescape.delay.create(:asset_group => asset_group, :activity => self, :printer_config => printer_config, :user => user)
-
     #PushDataJob.perform_later(printer_config)
   end
 

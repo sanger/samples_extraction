@@ -1,5 +1,10 @@
 require 'rails_helper'
 require 'support_n3'
+
+def assert_equal(a,b)
+  expect(a).to eq(b)
+end
+
 RSpec.describe SupportN3 do
 
   def validates_parsed(obj)

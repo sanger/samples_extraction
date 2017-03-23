@@ -2,11 +2,15 @@ require 'rails_helper'
 require 'inferences_helper'
 require 'integration/inferences_data'
 
+def cwm_engine?
+  Rails.configuration.inference_engine == :cwm
+end
+
 RSpec.describe "Inference" do
 
   describe '#inference' do
     describe '#parse_facts' do
-      it 'creates assets from a N3 definition' do
+      it 'creates assets from a N3 definition', :testcreation => true do
         code = %{
           :tube1 :relates :tube2 .
           :tube2 :name """a name""" .
@@ -50,8 +54,15 @@ RSpec.describe "Inference" do
       end
     end
 
+
     describe '#inferences' do
       inferences_data.each do |data|
+        if data[:unless]
+          if send(data[:unless])
+            next
+          end
+        end            
+
         if data[:it]
           tags = data[:tags] ? data[:tags] : {}
           it data[:it], tags do

@@ -36,6 +36,46 @@ module SupportN3
   end
 
 
+  def self.load_step_actions(input, options={})
+    options = {
+      validate: false,
+      canonicalize: false,
+    }.merge(options)
+
+    content = input.read
+    #puts content
+    open_resource = RDF::N3::Reader.new(content, options)
+    quads = open_resource.quads
+    quads.reduce({}) do |memo, quad|
+      # If it is a step added to the root graph of the document
+      if ((fragment(quad[0]) == 'step') && (quad[3].nil?))
+        memo[fragment(quad[1]).to_sym] = [] unless memo[fragment(quad[1]).to_sym]
+        memo[fragment(quad[1]).to_sym].push(subgraph(quad[2], quads))
+      end
+      memo
+    end
+  end
+
+
+  def self.subgraph(node, quads)
+    quads.select{|q| q[3]==node}
+  end
+
+
+  def self.create_fact(quad, quads, create_assets=true, created_assets=[])
+    asset = build_asset(SupportN3::fragment(quad[0]), create_assets, created_assets)
+    if is_literal?(quad[2], quads)
+      asset.add_facts([Fact.create(
+        :predicate => SupportN3::fragment(quad[1]),
+        :object => SupportN3::fragment(quad[2]))])
+    else
+      related_asset = build_asset(SupportN3::fragment(quad[2]), create_assets, created_assets)
+      asset.add_facts([Fact.create(:predicate => SupportN3::fragment(quad[1]),
+        :object_asset => related_asset, :literal => false)])
+    end
+    asset    
+  end
+
   def self.parse_facts(input, options = {}, create_assets=true)
     options = {
       validate: false,
@@ -46,17 +86,7 @@ module SupportN3
 
     quads = RDF::N3::Reader.new(input, options).quads.clone
     quads.map do |quad|
-      asset = build_asset(SupportN3::fragment(quad[0]), create_assets, created_assets)
-      if is_literal?(quad[2], quads)
-        asset.add_facts([Fact.create(
-          :predicate => SupportN3::fragment(quad[1]),
-          :object => SupportN3::fragment(quad[2]))])
-      else
-        related_asset = build_asset(SupportN3::fragment(quad[2]), create_assets, created_assets)
-        asset.add_facts([Fact.create(:predicate => SupportN3::fragment(quad[1]),
-          :object_asset => related_asset, :literal => false)])
-      end
-      asset
+      create_fact(quad, quads, create_assets, created_assets)
     end.sort_by{|a| a.name }.uniq
   end
 

@@ -1,3 +1,4 @@
+
 class Step < ActiveRecord::Base
 
   include Steps::Cancellable
@@ -75,10 +76,10 @@ class Step < ActiveRecord::Base
 
   def build_step_execution(params)
     StepExecution.new({
-      :step => self,
-      :asset_group => asset_group,
-      :created_assets => {}
-    }.merge(params))
+        :step => self,
+        :asset_group => asset_group,
+        :created_assets => {}
+      }.merge(params))
   end
 
   def execute_actions
