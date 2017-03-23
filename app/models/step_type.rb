@@ -3,7 +3,7 @@ require 'support_n3'
 class StepType < ActiveRecord::Base
 
   before_update :remove_previous_conditions
-  after_save :create_next_conditions
+  after_save :create_next_conditions, :unless => :for_reasoning?
 
   has_many :activity_type_step_types, dependent: :destroy
   has_many :activity_types, :through => :activity_type_step_types
@@ -19,6 +19,8 @@ class StepType < ActiveRecord::Base
   scope :with_template, ->() { where('step_template is not null')}
 
   scope :for_reasoning, ->() { where(:for_reasoning => true)}
+
+  scope :not_for_reasoning, ->() { where(:for_reasoning => false) }
 
   def after_deprecate
     superceded_by.activity_types << activity_types
@@ -208,20 +210,29 @@ class StepType < ActiveRecord::Base
   end
 
   def to_n3
+    return n3_definition if condition_groups.empty? || actions.empty?
     ["{",
     condition_groups.map(&:conditions).flatten.map do |c|
       obj = c.object
-      obj = "\"\"\"#{obj}\"\"\"" if obj
-      "\t?#{c.condition_group.name} :#{c.predicate} #{obj || '?'+c.object_condition_group.name} ."
+      obj = "\"#{obj}\"" unless c.object_condition_group
+      if c.object_condition_group
+        "\t?#{c.condition_group.name} :#{c.predicate} ?#{c.object_condition_group.name} ."
+      else
+        "\t?#{c.condition_group.name} :#{c.predicate} #{obj} ." 
+      end
     end, "} => {",
     actions.map do |a|
       obj = a.object
-      obj = "\"\"\"#{obj}\"\"\"" if obj      
-      "\t:step :#{a.action_type} {?#{a.subject_condition_group.name} :#{a.predicate} #{obj || '?'+a.object_condition_group.name}. } ."
+      obj = "\"#{obj}\"" unless a.object_condition_group
+      if a.object_condition_group
+        "\t:step :#{a.action_type} {?#{a.subject_condition_group.name} :#{a.predicate} ?#{a.object_condition_group.name}. } ."
+      else
+        "\t:step :#{a.action_type} {?#{a.subject_condition_group.name} :#{a.predicate} #{obj}. } ."
+      end
     end, 
-    "\t:step :stepTypeName \"\"\"#{name}\"\"\" .",
-    connect_by ? "\t:step :connectBy \"\"\"#{connect_by}\"\"\" ." : nil,
-    "}"].flatten.compact.join("\n")
+    name ? "\t:step :stepTypeName \"#{name}\" ." : '',
+    connect_by ? "\t:step :connectBy \"#{connect_by}\" ." : nil,
+    "}."].flatten.compact.join("\n")
   end
 
 end
