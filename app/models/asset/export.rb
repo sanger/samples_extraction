@@ -15,13 +15,13 @@ module Asset::Export
     print(print_config, user.username) if old_barcode != barcode
   end
 
-
-  def attributes_to_update
-    {
-      :reracks => facts.with_predicate('contains').map(&:object_asset).map do |well|
-        memo = []
-        if well.has_predicate?('previousParent')
-          well.facts.with_predicate('previousParent').each_with_index do |previous_parent_fact, idx|
+  def rerack_attributes
+    facts.with_predicate('contains').map(&:object_asset).map do |well|
+      memo = []
+      if well.has_predicate?('previousParent')
+        well.facts.with_predicate('previousParent').each_with_index do |previous_parent_fact, idx|
+          previous_plate = previous_parent_fact.object_asset
+          if  previous_plate.is_sequencescape_plate?
             memo.push({
               previous_plate_uuid: previous_parent_fact.object_asset.uuid,
               previous_location: well.facts.with_predicate('previousLocation')[idx].object,
@@ -30,23 +30,33 @@ module Asset::Export
             })
           end
         end
-        memo
-      end.flatten.compact,
-      :wells => facts.with_predicate('contains').map(&:object_asset).map do |well|
-        unless well.nil? || well.facts.nil?
-          well.facts.reduce({}) do |memo, fact|
-            if (['sample_tube'].include?(fact.predicate))
-              memo["#{fact.predicate}_uuid"] = fact.object_asset.uuid
-            end
+      end
+      memo
+    end.flatten.compact
+  end
 
-            if (['location', 'aliquotType', 'sanger_sample_id',
-              'sanger_sample_name', 'sample_uuid'].include?(fact.predicate))
-              memo[fact.predicate] = fact.object
-            end
-            memo
+  def well_attributes
+    facts.with_predicate('contains').map(&:object_asset).map do |well|
+      unless well.nil? || well.facts.nil?
+        well.facts.reduce({}) do |memo, fact|
+          if (['sample_tube'].include?(fact.predicate))
+            memo["#{fact.predicate}_uuid"] = fact.object_asset.uuid
           end
+
+          if (['location', 'aliquotType', 'sanger_sample_id',
+            'sanger_sample_name', 'sample_uuid'].include?(fact.predicate))
+            memo[fact.predicate] = fact.object
+          end
+          memo
         end
       end
+    end    
+  end
+
+  def attributes_to_update
+    obj = {
+      :reracks => rerack_attributes,
+      :wells => well_attributes
     }
   end
 end

@@ -462,6 +462,10 @@ class Asset < ActiveRecord::Base
     errors
   end
 
+  def is_sequencescape_plate?
+    has_literal?('barcodeType', 'SequencescapePlate')
+  end
+
   def to_n3
     facts.map do |f|
       "<#{uuid}> :#{f.predicate} " + (f.object_asset.nil? ? "\"#{f.object}\"" : "<#{f.object_asset.uuid}>") +" .\n"

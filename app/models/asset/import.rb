@@ -16,7 +16,7 @@ module Asset::Import
   def annotate_wells(asset, remote_asset)
     if remote_asset.try(:wells, nil)
       remote_asset.wells.each do |well|
-        local_well = Asset.create!
+        local_well = Asset.create!(:uuid => well.uuid)
         asset.add_facts(Fact.create(:predicate => 'contains', :object_asset => local_well))
         local_well.add_facts(Fact.create(:predicate => 'a', :object => 'Well'))
         local_well.add_facts(Fact.create(:predicate => 'location', :object => well.location))
