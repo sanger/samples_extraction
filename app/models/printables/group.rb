@@ -14,6 +14,7 @@ module Printables::Group
 
   def print(printer_config, user)
     return if Rails.configuration.printing_disabled
+
     classify_for_printing(assets, printer_config).each do |printer_name, info_for_template|
       info_for_template.each do |label_template, assets|
         body_print = assets.map{|a| a.printable_object(user)}.compact.reverse

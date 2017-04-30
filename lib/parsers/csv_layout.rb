@@ -48,11 +48,15 @@ module Parsers
       barcode.start_with?('F')
     end
 
+    def no_read_barcode?(barcode)
+      barcode.start_with?('No Read')
+    end    
+
     def parse
       @data ||= @csv_parser.to_a.map do |line|
         location, barcode = line[0].strip, line[1].strip
         asset = valid_fluidx_barcode?(barcode) ? builder(barcode) : nil
-        
+        @errors.push(:msg => "Invalid Fluidx tube barcode format #{barcode}") unless valid_fluidx_barcode?(barcode) || no_read_barcode?(barcode)
         @errors.push(:msg => "Invalid location") unless valid_location?(location)
 
         if asset.nil? && valid_fluidx_barcode?(barcode)

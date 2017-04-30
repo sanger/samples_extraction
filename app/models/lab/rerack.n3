@@ -1,0 +1,26 @@
+{
+  ?rack :a :TubeRack .
+  ?rack :a :SequencescapePlate .
+  ?tube :barcode ?barcode .
+  ?tube :parent ?parent .
+  ?csv :a :CsvFile .
+  ?csv :cells ?cell .
+  ?cell :a :CsvCell .
+  ?cell :location ?location .
+  ?cell :barcode ?barcode .
+  ?cell :location ?location .
+  ?tube :location ?otherLocation .
+} => {
+  :step :addFacts {
+    ?rack :contains ?tube .
+    ?tube :location ?location .
+    ?tube :previousLocation ?otherLocation .
+    ?tube :previousParent ?parent .
+    ?tube :parent ?rack .
+  } .
+
+  :step :removeFacts {
+    ?tube :location ?otherLocation .
+    ?tube :parent ?parent .
+  } .
+}

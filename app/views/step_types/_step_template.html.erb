@@ -3,7 +3,9 @@
 <%= render :partial => 'step_types/step_templates/' + step_type.step_template,
       :locals => { :step_type => step_type, :index => index } %>
 </div>
-<%= form_for [@activity, step_type, Step.new], action: 'create', class: 'step-template-form' do |f| %>
+<%= form_for [@activity, step_type, Step.new], action: 'create', class: 'step-template-form', html: {
+              "data-psd-component-class": "StepButton"
+            } do |f| %>
   <%= f.hidden_field :tube_printer_id, :value => @current_user.tube_printer_id %>
   <%= f.hidden_field :plate_printer_id, :value => @current_user.plate_printer_id %>
 

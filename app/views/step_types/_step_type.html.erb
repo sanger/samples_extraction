@@ -13,7 +13,9 @@
           </li>
       <% else %>
           <li class="btn-group" style="top:6px;">
-            <%= bootstrap_form_for [@activity, step_type, Step.new], action: 'create' do |f| %>
+            <%= bootstrap_form_for [@activity, step_type, Step.new], action: 'create', html: {
+              "data-psd-component-class": "StepButton"
+            } do |f| %>
                 <%= f.hidden_field :tube_printer_id, :value => @current_user ? @current_user.tube_printer_id : nil, :class => 'tube_printer' %>
                 <%= f.hidden_field :plate_printer_id, :value => @current_user ? @current_user.plate_printer_id : nil, :class => 'plate_printer' %>
                 <%= f.submit step_type.name, :class => 'btn btn-primary' %>

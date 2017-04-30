@@ -86,7 +86,10 @@ class AssetGroupsController < ApplicationController
 
   def perform_barcode_addition
     unless params_update_asset_group[:add_barcode].nil? || params_update_asset_group[:add_barcode].empty?
-      barcodes = [params_update_asset_group[:add_barcode]].flatten
+      barcodes = params_update_asset_group[:add_barcode].split(/[ ,]/).map do |barcode|
+        barcode.gsub('"','').gsub('\'', '')
+      end.flatten.compact.reject(&:empty?)
+
       barcodes_str = "'"+barcodes.join(',')+"'";
       begin
         if @asset_group.select_barcodes(barcodes)

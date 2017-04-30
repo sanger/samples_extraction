@@ -27,19 +27,27 @@ module Asset::Import
     end
   end
 
+  def sequencescape_type_for_asset(remote_asset)
+    remote_asset.class.to_s.gsub(/Sequencescape::/,'')
+  end
+
+  def keep_sync_with_sequencescape?(remote_asset)
+    class_name = sequencescape_type_for_asset(remote_asset)
+    (class_name != 'SampleTube')
+  end
+
   def build_asset_from_remote_asset(barcode, remote_asset)
     ActiveRecord::Base.transaction do |t|
       asset = Asset.create(:barcode => barcode, :uuid => remote_asset.uuid)
-      class_name = remote_asset.class.to_s.gsub(/Sequencescape::/,'')
+      class_name = sequencescape_type_for_asset(remote_asset)
       asset.add_facts(Fact.create(:predicate => 'a', :object => class_name))
 
-      #if class_name == 'SampleTube'
-      #  asset.add_facts(Fact.create(:predicate => 'aliquotType', :object => 'nap'))
-      #end
-
-      if remote_asset.try(:purpose, nil) && (class_name != 'SampleTube')
-        asset.add_facts(Fact.create(:predicate => 'purpose',
-        :object => remote_asset.purpose.name))
+      if keep_sync_with_sequencescape?(remote_asset)
+        asset.add_facts(Fact.create(predicate: 'pushTo', object: 'Sequencescape'))
+        if remote_asset.try(:purpose, nil)
+          asset.add_facts(Fact.create(:predicate => 'purpose',
+          :object => remote_asset.purpose.name))
+        end
       end
       asset.add_facts(Fact.create(:predicate => 'is', :object => 'NotStarted'))
 

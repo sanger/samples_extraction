@@ -1,6 +1,6 @@
 <% operations.each do |operation| %>
 <tr>
-  <td class="col-md-3">
+  <td class="col-md-2">
 
     <% if operation.action_type == 'checkFacts' %>
       <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
@@ -18,7 +18,7 @@
 
     <%= operation.action_type %>
   </td>
-  <td class="col-md-3"><%= operation.asset.barcode if operation.asset %></td>
+  <td class="col-md-4"><%= operation.asset.barcode || operation.asset.uuid if operation.asset %></td>
   <td class="col-md-6" data-psd-component-class="AddFactToSearchbox">
     <%= render :partial => 'facts/fact', :locals => { :fact => operation} %>
     <!--div class="fact"><span class="label label-default"><%= operation.predicate %>:<%= operation.object %></span></div -->
