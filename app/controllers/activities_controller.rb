@@ -30,9 +30,12 @@ class ActivitiesController < ApplicationController
     @activity = Activity.find(params[:activity_id])
     @asset_group = @activity.asset_group
     @assets_changing = @asset_group.assets.currently_changing
-    
+
     response.headers['Content-Type'] = 'text/event-stream'
-    msg =  "event: asset_group\n"
+    # sse.write(@asset_group.last_update, event: 'asset_group')
+    # sse.write(@assets_changing.pluck(:uuid), event: 'asset')
+    
+    msg =  "event: asset_group\n"#
     msg += "data: #{@asset_group.last_update} \n\n"
 
     msg += "event: asset\n"
@@ -41,6 +44,7 @@ class ActivitiesController < ApplicationController
     response.stream.write msg
   ensure
     response.stream.close
+    # sse.close
   end
 
   def update

@@ -16,6 +16,7 @@ gem 'activerecord-session_store'
 
 gem 'js_cookie_rails'
 
+
 gem 'micro_token'
 
 gem 'barby'

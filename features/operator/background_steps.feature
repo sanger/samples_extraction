@@ -124,7 +124,6 @@ Then I should see these barcodes in the selection basket:
 | 1       |
 
 And I perform the step "Create new tube RNA"
-
 Then I should have created an asset with the following facts:
 | Predicate   |  Object |
 | aliquotType |  RNA     |

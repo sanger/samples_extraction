@@ -3,7 +3,7 @@ require 'pry'
 class StepsController < ApplicationController
   before_action :set_step, only: [:show, :edit, :update, :destroy]
   before_action :set_activity, only: [:create]
-  before_action :set_printer_config, only: [:show, :edit, :update, :destroy]
+  before_action :set_printer_config, only: [:create]
 
   before_action :nested_steps, only: [:index]
 
@@ -51,10 +51,13 @@ class StepsController < ApplicationController
   end
 
   def set_printer_config
+    tube_printer = Printer.find_by(id: params_for_printing[:tube_printer_id]) || nil
+    plate_printer = Printer.find_by(id: params_for_printing[:plate_printer_id]) ||  nil
+    tube_rack_printer = Printer.find_by(id: params_for_printing[:plate_printer_id]) || nil
     @printer_config = {
-      'Tube' => Printer.find(params_for_printing[:tube_printer_id]).name,
-      'Plate' => Printer.find(params_for_printing[:plate_printer_id]).name,
-      'TubeRack' => Printer.find(params_for_printing[:plate_printer_id]).name,
+      'Tube' => tube_printer.nil? ? "" : tube_printer.name,
+      'Plate' => plate_printer.nil? ? "" : plate_printer.name,
+      'TubeRack' => tube_rack_printer.nil? ? "" : tube_rack_printer.name
     }
   end
 
