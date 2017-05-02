@@ -49,4 +49,5 @@ Rails.application.configure do
   config.cwm_path = ENV.fetch('CWM_PATH', '')
 
   config.enable_reasoning = false
+
 end

@@ -41,7 +41,9 @@ module Asset::Export
   def mark_as_updated
     add_facts(Fact.create(predicate: 'pushedTo', object: 'Sequencescape'))
     facts.with_predicate('contains').each do |f|
-      f.object_asset.add_facts(Fact.create(predicate: 'pushedTo', object: 'Sequencescape'))
+      if f.object_asset.has_predicate?('sample_tube')
+        f.object_asset.add_facts(Fact.create(predicate: 'pushedTo', object: 'Sequencescape'))
+      end
     end
   end
 
@@ -59,10 +61,10 @@ module Asset::Export
       }
     end
     data = {}
-    unless well.has_predicate?('sample_tube')
-      data[:uuid] = well.uuid
-    end
-    well.facts.reduce(data) do |memo, fact|
+    #unless well.has_predicate?('sample_tube')
+    #  data[:uuid] = well.uuid
+    #end
+    well.facts.reduce({}) do |memo, fact|
       if (['sample_tube'].include?(fact.predicate))
         memo["#{fact.predicate}_uuid".to_sym] = fact.object_asset.uuid
       end

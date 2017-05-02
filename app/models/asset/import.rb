@@ -58,6 +58,10 @@ module Asset::Import
   end
 
   def find_or_import_asset_with_barcode(barcode)
+    unless barcode.match(/^\d+$/)
+      barcode = Barcode.calculate_barcode(barcode[0,2], barcode[2, barcode.length-3].to_i).to_s
+    end
+    
     asset = Asset.find_by_barcode(barcode)
     asset = Asset.find_by_uuid(barcode) unless asset
     unless asset
