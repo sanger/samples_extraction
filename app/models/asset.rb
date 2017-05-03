@@ -135,6 +135,11 @@ class Asset < ActiveRecord::Base
     end
   end
 
+  def add_fact(predicate, object, step=nil)
+    fact = {predicate: predicate, literal: object.kind_of?(Asset)}
+    fact[:literal] ? fact[:object_asset] = object : fact[:object] = object
+    add_facts([Fact.create(fact)], nil)
+  end
 
   def add_operations(list, step, action_type = 'addFacts')
     list.each do |fact|
@@ -324,6 +329,29 @@ class Asset < ActiveRecord::Base
     (!facts.with_predicate(sym.to_s.singularize).empty? || super(sym, include_private))
   end
 
+  def study_and_barcode
+    [study_name, barcode_sequencescaped].join(' ')
+  end
+
+  def barcode_sequencescaped
+    ean13 = barcode.rjust(13, '0')
+    ean13.slice!(0,3)
+    ean13.slice!(ean13.length-3,3)
+    ean13
+  end
+
+  def study_name
+    facts.with_predicate('contains').map(&:object_asset).map do |tube|
+      studies = tube.facts.with_predicate('sanger_sample_id').map do |sanger_sample_id|
+        elems = sanger_sample_id.object.split('-')
+        elems.pop
+        elems.join('-')
+      end
+      return studies.first if studies.count == 1
+      return ''
+    end
+  end
+
   def printable_object(username = 'unknown')
     return nil if barcode.nil?
     if ((class_type=='Plate')||(class_type=='TubeRack'))
@@ -331,8 +359,8 @@ class Asset < ActiveRecord::Base
         :label => {
           :barcode => barcode,
           :top_left => DateTime.now.strftime('%d/%b/%y'),
-          :top_right => username,
-          :bottom_right => info_line,
+          :top_right => info_line, #username,
+          :bottom_right => study_and_barcode,
           :bottom_left => Barcode.barcode_to_human(barcode) || barcode,
           #:top_line => Barcode.barcode_to_human(barcode) || barcode,
           #:bottom_line => bottom_line 
@@ -460,6 +488,10 @@ class Asset < ActiveRecord::Base
     errors.push(more_than_one_aliquot_type_validation)
     #errors.push(duplicated_tubes_validation)
     errors
+  end
+
+  def is_sequencescape_plate?
+    has_literal?('barcodeType', 'SequencescapePlate')
   end
 
   def to_n3

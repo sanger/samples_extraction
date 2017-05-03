@@ -46,7 +46,6 @@ class BackgroundSteps::TransferSamples < Step
             Fact.new(:predicate => 'sample_id', :object => aliquot_fact.object)
           ]
         end.flatten)
-        debugger if modified_asset.nil?
         unless modified_asset.has_predicate?('aliquotType')
           added_facts.concat(asset.facts.with_predicate('aliquotType').map do |aliquot_fact|
             [

@@ -21,12 +21,17 @@ module Lab::Actions
 
   end
 
-  def unrack_tubes(tubes, step=nil)
+  def unrack_tubes(list_layout, destination_rack=nil, step=nil)
+    tubes = list_layout.map{|obj| obj[:asset]}.compact
     return if tubes.empty?
     facts_to_destroy = []
     tubes_ids = tubes.map(&:id)
-    tubes.each do |tube|
-      facts_to_destroy.push(tube.facts.with_predicate('location'))
+    tubes.each_with_index do |tube, index|
+      location_facts = tube.facts.with_predicate('location')
+      unless location_facts.empty?
+        location = location_facts.first.object
+        facts_to_destroy.push(tube.facts.with_predicate('location'))
+      end
       tube.facts.with_predicate('parent').each do |parent_fact|
         previous_rack = parent_fact.object_asset
         previous_rack.facts.with_predicate('contains').each do |contain_fact|
@@ -34,6 +39,19 @@ module Lab::Actions
             facts_to_destroy.push(contain_fact)
           end
         end
+
+        if destination_rack
+          #tube.add_fact()
+          rerack = Asset.create
+          rerack.add_fact('a', 'Rerack')
+          rerack.add_fact('tube', tube)
+          rerack.add_fact('previousParent', previous_rack)
+          rerack.add_fact('previousLocation', location)
+          rerack.add_fact('location', list_layout[index][:location])
+
+          destination_rack.add_fact('rerack', rerack)
+        end
+
         facts_to_destroy.push(parent_fact)
       end
     end
@@ -53,8 +71,7 @@ module Lab::Actions
 
   def rack_tubes(rack, list_layout, step=nil)
     ActiveRecord::Base.transaction do |t|
-      tubes = list_layout.map{|obj| obj[:asset]}.compact
-      unrack_tubes(tubes, step)
+      unrack_tubes(list_layout, rack, step)
 
       facts_to_add = []
 
@@ -69,7 +86,6 @@ module Lab::Actions
           step_ref = nil
           tube.facts.with_predicate('location').each(&:destroy)
         end
-
         tube.add_facts(Fact.create(:predicate => 'location', :object => location, :to_add_by => step_ref))
         tube.add_facts(Fact.create(:predicate => 'parent', :object_asset => rack, :to_add_by => step_ref))
         rack.add_facts(Fact.create(:predicate => 'contains', :object_asset => tube, :to_add_by => step_ref))
@@ -144,7 +160,7 @@ module Lab::Actions
         if (tube_location == obj[:location])
           if (obj[:asset] != tube)
             error_messages.push(
-              "Tube #{obj[:asset].barcode} cannot be put at location #{obj[:location]} because the tube #{tube.barcode} is there"
+              "Tube #{obj[:asset].barcode} cannot be put at location #{obj[:location]} because the tube #{tube.barcode || tube.uuid} is there"
               )
           end
         end
@@ -153,9 +169,8 @@ module Lab::Actions
         # Remember that the tubes needs to be always in a rack. They cannot be interchanged 
         # in between racks
         error_messages.push(
-              "Missing tube!! Tube #{tube.barcode} should be present in the layout at location #{tube_location} but is missed from the rack."
-
-              )
+              "Missing tube!! Any tube already existing in the rack can't disappear from its defined layout without being reracked before. Tube #{tube.barcode || tube.uuid} should be present in the rack at location #{tube_location} but is missed from the rack."
+        )
       end
     end
 

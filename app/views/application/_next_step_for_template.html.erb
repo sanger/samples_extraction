@@ -1,7 +1,9 @@
 <a class="button btn btn-primary">
 	Finish
 	<div style="display:none;" data-psd-component-class="FinishStepButton">
-    <%= form_for [@activity, step_type, Step.new], {action: 'create'} do |f| %>
+    <%= form_for [@activity, step_type, Step.new], action: 'create', html: {
+              "data-psd-component-class": "StepButton"
+            } do |f| %>
       <%= f.hidden_field :tube_printer_id, :value => @current_user.tube_printer_id %>
       <%= f.hidden_field :plate_printer_id, :value => @current_user.plate_printer_id %>
 

@@ -21,10 +21,17 @@
 	this.button.on('click', $.proxy(this.send, this));
     };
 
+    proto.readBarcodes = function(str) {
+      return str.split(' ').map(function(val) {
+        return val.replace(/\"\'/, '');
+      });
+    };
+
     proto.send = function(e) {
       e.preventDefault();
-	  var data = {barcode: this.input.val()};
-      $(this.node).trigger('barcode.barcode_reader', data);
+      this.readBarcodes(this.input.val()).forEach($.proxy(function(barcode) {
+        $(this.node).trigger('barcode.barcode_reader', {barcode: barcode});
+      }, this));
       this.input.val('');
     };
 

@@ -106,7 +106,7 @@ class Activity < ActiveRecord::Base
 
   include Lab::Actions
 
-  def step(step_type, user, step_params)
+  def find_or_create_step(step_type, user, step_params)
     perform_step_actions_for('before_step', self, step_type, step_params)
 
     step = steps.in_progress.for_step_type(step_type).first
@@ -136,8 +136,22 @@ class Activity < ActiveRecord::Base
         raise StepWithoutInputs
       end
     end
+    return step
+  end
+
+
+  def do_step(step_type, user, step_params, printer_config)
+    step = find_or_create_step(step_type, user, step_params)
+    reasoning!(printer_config, user)
+
+    if step && step.created_asset_group
+      step.created_asset_group.print(printer_config, user.username)
+    end
+
     step
   end
+
+
 
   def reasoning_step_types_for(assets)
     step_types.for_reasoning.select do |s|

@@ -219,6 +219,10 @@ When(/^I want to export a plate to Sequencescape$/) do
       @uuid = 'uuid'
       @barcode = MockBarcode.new
     end
+
+    def wells
+      []
+    end
   end
   class SequencescapeClient
     def self.find_by_uuid(uuid)
@@ -292,6 +296,11 @@ end
 
 Then(/^I should ?(not)? have created an asset with the following facts:$/) do |not_action, table|
   table.hashes.each do |h|
+    if not_action!='not'
+      expect(page.has_content?(h["Predicate"])).to eq(not_action!='not')
+      expect(page.has_content?(h["Object"])).to eq(not_action!='not')
+    end
+    sleep(5)
     expect(Asset.last.has_literal?(h["Predicate"], h["Object"])).to eq(not_action!='not')
   end
 end
