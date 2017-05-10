@@ -58,6 +58,16 @@ class Step < ActiveRecord::Base
     raise StandardError unless compatible || (asset_group.assets.count == 0)
   end
 
+  def add_facts(asset, facts)
+    asset.add_facts(facts)
+    asset.add_operations(facts, self)
+  end
+
+  def remove_facts(asset, facts)
+    asset.remove_facts(facts)
+    asset.remove_operations(facts, self)    
+  end
+
   def unselect_assets_from_antecedents
     asset_group.unselect_assets_with_conditions(step_type.condition_groups)
     if activity

@@ -42,18 +42,13 @@ class BackgroundSteps::TransferTubesToTubeRackByPosition < Step
           location_to_pos(location)
         end.reject{|w| w.has_predicate?('transferredFrom')}
         asset_group.assets.with_predicate('transferToTubeRackByPosition').zip(wells).each do |asset, well|
-          #asset.facts.with_predicate('aliquotType').each do |fact|
-          #  rack.add_facts([Fact.create(:predicate => 'aliquotType', :object => fact.object)])
-          #end
           asset.facts.with_predicate('aliquotType').each do |f_aliquot|
             aliquot_types.push(f_aliquot.object)
           end
 
-          asset.add_facts([Fact.create(:predicate => 'transfer', :object_asset => well)])
-          well.add_facts([Fact.create(:predicate => 'transferredFrom', :object_asset => asset)])
-          asset.facts.with_predicate('transferToTubeRackByPosition').each do |t|
-            t.destroy
-          end
+          add_facts(asset, [Fact.create(:predicate => 'transfer', :object_asset => well)])
+          add_facts(well, [Fact.create(:predicate => 'transferredFrom', :object_asset => asset)])
+          remove_facts(asset, asset.facts.with_predicate('transferToTubeRackByPosition'))
         end
         if aliquot_types
           if (((aliquot_types.uniq.length) == 1) && (aliquot_types.uniq.first == 'DNA'))
@@ -63,7 +58,7 @@ class BackgroundSteps::TransferTubesToTubeRackByPosition < Step
           else
             purpose_name = 'Stock Plate'
           end
-          rack.add_facts([Fact.create(:predicate => 'purpose', :object => purpose_name)])
+          add_facts(rack, [Fact.create(:predicate => 'purpose', :object => purpose_name)])
         end
       end
     end
