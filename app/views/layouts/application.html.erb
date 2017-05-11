@@ -44,5 +44,12 @@ $(document).ready(function(e) {
 
 </div>
 </div>
+
+    <footer>
+      <div class="well">
+        <%= bootstrap_link_to "Feedback", "mailto:#{Rails.configuration.admin_email}" %> · <%= Deployed::VERSION_STRING %> · A tool from <%= bootstrap_link_to Rails.configuration.team_name, Rails.configuration.team_url %>
+      </div>
+    </footer>
+
 </body>
 </html>
