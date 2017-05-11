@@ -337,19 +337,14 @@ class Asset < ActiveRecord::Base
     ean13 = barcode.rjust(13, '0')
     ean13.slice!(0,3)
     ean13.slice!(ean13.length-3,3)
-    ean13
+    ean13.to_i
   end
 
   def study_name
-    facts.with_predicate('contains').map(&:object_asset).map do |tube|
-      studies = tube.facts.with_predicate('sanger_sample_id').map do |sanger_sample_id|
-        elems = sanger_sample_id.object.split('-')
-        elems.pop
-        elems.join('-')
-      end
-      return studies.first if studies.count == 1
-      return ''
+    if has_predicate?('study_name')
+      return facts.with_predicate('study_name').first.object
     end
+    return ''
   end
 
   def printable_object(username = 'unknown')

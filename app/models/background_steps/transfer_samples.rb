@@ -40,6 +40,10 @@ class BackgroundSteps::TransferSamples < Step
           added_facts.push([Fact.new(:predicate => 'sample_tube', 
             :object_asset => asset.facts.with_predicate('sample_tube').first.object_asset)])
         end
+        if (asset.has_predicate?('study_name'))
+          added_facts.push([Fact.new(:predicate => 'study_name', 
+            :object => asset.facts.with_predicate('study_name').first.object)])
+        end        
         added_facts.push(asset.facts.with_predicate('sanger_sample_id').map do |aliquot_fact|
           [
             Fact.new(:predicate => 'sanger_sample_id', :object => aliquot_fact.object),
@@ -61,8 +65,8 @@ class BackgroundSteps::TransferSamples < Step
         end.flatten)
         #removed_facts.each(&:destroy)
         added_facts = added_facts.flatten
-        modified_asset.add_facts(added_facts)
-        modified_asset.add_operations(added_facts, self)
+
+        add_facts(modified_asset, added_facts)
       end
       asset_group.touch
       update_attributes!(:state => 'complete')

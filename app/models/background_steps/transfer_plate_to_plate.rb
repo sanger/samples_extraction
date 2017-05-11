@@ -35,7 +35,7 @@ class BackgroundSteps::TransferPlateToPlate < Step
         plates = asset_group.assets.with_predicate('transfer').with_fact('a', 'Plate').each do |plate|
           plate.facts.with_predicate('transfer').each do |f|
             contains_facts = plate.facts.with_predicate('contains').map(&:dup)
-            f.object_asset.add_facts(contain_facts)
+            add_facts(f.object_asset, contain_facts)
           end
         end
       end

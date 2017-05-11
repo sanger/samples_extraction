@@ -145,7 +145,7 @@ class Activity < ActiveRecord::Base
     reasoning!(printer_config, user)
 
     if step && step.created_asset_group
-      step.created_asset_group.print(printer_config, user.username)
+      step.created_asset_group.delay.print(printer_config, user.username)
     end
 
     step
@@ -160,11 +160,15 @@ class Activity < ActiveRecord::Base
   end
 
   def reasoning!(printer_config=nil, user=nil)
-    BackgroundSteps::Inference.delay.create(:asset_group => asset_group, :activity => self, :user => user)
-    BackgroundSteps::TransferTubesToTubeRackByPosition.delay.create(:asset_group => asset_group, :activity => self, :user => user)
-    BackgroundSteps::TransferPlateToPlate.delay.create(:asset_group => asset_group, :activity => self, :user => user)
-    BackgroundSteps::TransferSamples.delay.create(:asset_group => asset_group, :activity => self, :user => user)
-    BackgroundSteps::UpdateSequencescape.delay.create(:asset_group => asset_group, :activity => self, :printer_config => printer_config, :user => user)
+    BackgroundSteps::Inference.create(:asset_group => asset_group, :activity => self, :user => user)
+
+    BackgroundSteps::TransferTubesToTubeRackByPosition.create(:asset_group => asset_group, :activity => self, :user => user)
+    BackgroundSteps::TransferPlateToPlate.create(:asset_group => asset_group, :activity => self, :user => user)
+    BackgroundSteps::TransferSamples.create(:asset_group => asset_group, :activity => self, :user => user)
+
+    BackgroundSteps::AliquotTypeInference.create(:asset_group => asset_group, :activity => self, :user => user)
+
+    BackgroundSteps::UpdateSequencescape.create(:asset_group => asset_group, :activity => self, :printer_config => printer_config, :user => user)
     #PushDataJob.perform_later(printer_config)
   end
 
