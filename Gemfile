@@ -21,6 +21,7 @@ gem 'micro_token'
 
 gem 'barby'
 
+
 gem 'delayed_job'
 gem 'delayed_job_active_record'
 
@@ -83,11 +84,17 @@ end
 
 group :debug do
   gem 'bullet'
+  gem 'brakeman'
+  gem 'deadweight'
+  gem 'rack-mini-profiler'
+  gem 'traceroute'
   gem 'peek'
   gem 'peek-mysql2'
   gem 'peek-gc'
   gem 'peek-performance_bar'
   gem 'rails_panel'
+  gem 'rubocop'
+  gem 'rubycritic'
 
 end
 

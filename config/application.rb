@@ -24,6 +24,10 @@ module SamplesExtraction
     config.active_record.raise_in_transactional_callbacks = true
     config.active_job.queue_adapter = :delayed_job
 
+    config.team_name = 'LIMS and Informatics'
+    config.team_url = 'http://www.sanger.ac.uk/science/groups/production-software-development'
+    config.admin_email = 'admin@test.com'
+
     config.barcode_prefix = 'SE'
   end
 end
