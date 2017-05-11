@@ -168,6 +168,7 @@ class Activity < ActiveRecord::Base
 
     BackgroundSteps::AliquotTypeInference.create(:asset_group => asset_group, :activity => self, :user => user)
     BackgroundSteps::StudyNameInference.create(:asset_group => asset_group, :activity => self, :user => user)
+    BackgroundSteps::PurposeNameInference.create(:asset_group => asset_group, :activity => self, :user => user)
 
     BackgroundSteps::UpdateSequencescape.create(:asset_group => asset_group, :activity => self, :printer_config => printer_config, :user => user)
     #PushDataJob.perform_later(printer_config)
