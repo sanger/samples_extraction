@@ -86,7 +86,15 @@ group :debug do
   gem 'bullet'
   gem 'brakeman'
   gem 'deadweight'
-  gem 'rack-mini-profiler'
+  gem 'rack-mini-profiler', require: false
+  # For memory profiling (requires Ruby MRI 2.1+)
+  gem 'memory_profiler'
+
+  # For call-stack profiling flamegraphs (requires Ruby MRI 2.0.0+)
+  gem 'flamegraph'
+  gem 'stackprof'     # For Ruby MRI 2.1+
+  gem 'fast_stack'    # For Ruby MRI 2.0
+
   gem 'traceroute'
   gem 'peek'
   gem 'peek-mysql2'
