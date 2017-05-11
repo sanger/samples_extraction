@@ -108,6 +108,7 @@ def inferences_data
 },
   {
   :it => %Q{set the value if the destination does not have the value},
+  :unless => :cwm_engine?,
   :rule => %Q{ 
     { 
       ?x :a :Tube .
@@ -163,22 +164,23 @@ def inferences_data
   },
   {
   :it => %Q{transfer between plates},
+  :unless => :cwm_engine?,
   :rule => %Q{ 
     { 
-      ?x :a :Plate .
-      ?y :a :Plate .
-      ?x :transfer ?y .
+      ?plate :a :Plate .
+      ?plate2 :a :Plate .
+      ?plate :transfer ?plate2 .
 
-      ?x :contains ?a .
-      ?a :a :Tube .
-      ?y :contains ?b .
-      ?b :a :Tube .
+      ?plate :contains ?tube1 .
+      ?tube1 :a :Tube .
+      ?plate2 :contains ?tube2 .
+      ?tube2 :a :Tube .
 
-      ?a :location ?_location .
-      ?b :location ?_location .
-      ?a log:notEqualTo ?b .
+      ?tube1 :location ?_location .
+      ?tube2 :location ?_location .
+      ?tube1 log:notEqualTo ?tube2 .
     } => { 
-      :step :addFacts {?a :transfer ?b .}.
+      :step :addFacts {?tube1 :transfer ?tube2 .}.
     }. 
   },
   :inputs => %Q{ 
@@ -219,11 +221,11 @@ def inferences_data
   :xit => %Q{perform math operations},
   :rule => %Q{ 
     { 
-      ?x :a :Plate .
+      ?plate :a :Plate .
 
-      ?x :contains ?a .
-      ?a :a :Well .
-      ?a :contains ?aliquot .
+      ?plate :contains ?well .
+      ?well :a :Well .
+      ?well :contains ?aliquot .
       ?aliquot :a :Aliquot .
       ?aliquot :currentVolume ?_volume .
       (?_volume 10) math:sum ?_newVolume .
@@ -254,14 +256,14 @@ def inferences_data
     :it => 'moves the value of a wildcard using a relation between two cgroups',
     :rule => %Q{
       {
-        ?tube :is :Tube .
+        ?tube :is "Tube" .
         ?tube :location ?_position .
-        ?rack :is :Rack .
+        ?rack :is "Rack" .
         ?rack :position ?_position .
         ?rack :contains ?tube .
         ?rack :relates ?tube .
       } => {
-        :step :addFacts {?rack :is :TubeRack .} .
+        :step :addFacts {?rack :is "TubeRack" .} .
         :step :addFacts {?rack :location ?_position .} .
       }
     },
@@ -298,16 +300,13 @@ def inferences_data
   },
   {
     :it => 'Bug 1: Not transferring tube contents to tube rack',
-    :tags => { :last => true },    
     :rule => %Q{
 {
   ?tuberack :a :TubeRack .
   ?tuberack :layout :Complete .
   ?tube :a :Tube .
   ?tube :sanger_sample_id ?_sample .
-} => {
-  :step :addFacts {?tube :transferToTubeRackByPosition ?tuberack . } .
-}.      
+} => { :step :addFacts {?tube :transferToTubeRackByPosition ?tuberack . } . } .
       },
     :inputs => %Q{
 :tube :a "Tube" .
@@ -344,13 +343,13 @@ def inferences_data
     :it => 'creates new assets from scratch',
     :rule => %Q{
       {?p :maxCardinality "1" .} => {
-        :step :createAsset {?p :a :Tube . ?p :barcode "tube" .}
+        :step :createAsset {?p :a :Tube . ?p :uuid "tube" .}
         } .
       },
     :inputs => %Q{},
     :outputs => %Q{
       :tube :a :Tube .
-      :tube :barcode "tube" .
+      :tube :uuid "tube" .
     }
   }
 

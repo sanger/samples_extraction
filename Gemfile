@@ -14,12 +14,13 @@ gem 'daemons'
 
 gem 'activerecord-session_store'
 
-
 gem 'js_cookie_rails'
+
 
 gem 'micro_token'
 
 gem 'barby'
+
 
 gem 'delayed_job'
 gem 'delayed_job_active_record'
@@ -83,11 +84,25 @@ end
 
 group :debug do
   gem 'bullet'
+  gem 'brakeman'
+  gem 'deadweight'
+  gem 'rack-mini-profiler', require: false
+  # For memory profiling (requires Ruby MRI 2.1+)
+  gem 'memory_profiler'
+
+  # For call-stack profiling flamegraphs (requires Ruby MRI 2.0.0+)
+  gem 'flamegraph'
+  gem 'stackprof'     # For Ruby MRI 2.1+
+  gem 'fast_stack'    # For Ruby MRI 2.0
+
+  gem 'traceroute'
   gem 'peek'
   gem 'peek-mysql2'
   gem 'peek-gc'
   gem 'peek-performance_bar'
   gem 'rails_panel'
+  gem 'rubocop'
+  gem 'rubycritic'
 
 end
 
@@ -118,6 +133,8 @@ group :development do
 
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
+
+  gem 'rubocop', require: false
 end
 
 

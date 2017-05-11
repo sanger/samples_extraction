@@ -25,6 +25,10 @@ class AssetGroup < ActiveRecord::Base
     end
   end
 
+  def remove_assets(list)
+    unselect_barcodes(list.map(&:uuid))
+  end
+
   def has_asset?(asset)
     assets.include?(asset)
   end

@@ -38,9 +38,11 @@
 
   proto.attachDeleteButtons = function(node) {
     $('[data-psd-asset-group-delete-all-barcodes]', node).on('click', $.proxy(function(e) {
+      $(e.target).addClass('disabled');
       $('input#asset_group_delete_all_barcodes', this.form).val('true');
     }));
     $('[data-psd-asset-group-delete-barcode]', node).on('click', $.proxy(function(e) {
+        $(e.target).addClass('disabled');
       //if (!((e.screenX==0) && (e.screenY==0))) {
         // Yes, I know...
         $('input#asset_group_delete_barcode', this.form).val($(e.target).attr('data-psd-asset-group-delete-barcode'));
@@ -91,6 +93,7 @@
       this.loadInProgress=false;
     }
   };
+
 
   proto.attachHandlers = function(node) {
     this.attachDeleteButtons(node);

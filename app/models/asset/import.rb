@@ -13,10 +13,33 @@ module Asset::Import
     end
   end
 
+  def sample_id_to_study_name(sample_id)
+    sample_id.gsub(/\d*$/,'').gsub('-', '')
+  end
+
+  def annotate_study_name_from_aliquots(asset, remote_asset)
+    if remote_asset.try(:aliquots, nil)
+      if remote_asset.aliquots.first.sample
+        asset.add_facts(Fact.create(predicate: 'study_name', 
+          object: sample_id_to_study_name(remote_asset.aliquots.first.sample.sanger.sample_id)))
+      end
+    end    
+  end
+
+  def annotate_study_name(asset, remote_asset)
+    if remote_asset.try(:wells, nil)
+      remote_asset.wells.detect do |w| 
+        annotate_study_name_from_aliquots(asset, w)
+      end
+    else
+      annotate_study_name_from_aliquots(asset, remote_asset)
+    end
+  end
+
   def annotate_wells(asset, remote_asset)
     if remote_asset.try(:wells, nil)
       remote_asset.wells.each do |well|
-        local_well = Asset.create!
+        local_well = Asset.create!(:uuid => well.uuid)
         asset.add_facts(Fact.create(:predicate => 'contains', :object_asset => local_well))
         local_well.add_facts(Fact.create(:predicate => 'a', :object => 'Well'))
         local_well.add_facts(Fact.create(:predicate => 'location', :object => well.location))
@@ -27,29 +50,42 @@ module Asset::Import
     end
   end
 
+  def sequencescape_type_for_asset(remote_asset)
+    remote_asset.class.to_s.gsub(/Sequencescape::/,'')
+  end
+
+  def keep_sync_with_sequencescape?(remote_asset)
+    class_name = sequencescape_type_for_asset(remote_asset)
+    (class_name != 'SampleTube')
+  end
+
   def build_asset_from_remote_asset(barcode, remote_asset)
     ActiveRecord::Base.transaction do |t|
       asset = Asset.create(:barcode => barcode, :uuid => remote_asset.uuid)
-      class_name = remote_asset.class.to_s.gsub(/Sequencescape::/,'')
+      class_name = sequencescape_type_for_asset(remote_asset)
       asset.add_facts(Fact.create(:predicate => 'a', :object => class_name))
 
-      #if class_name == 'SampleTube'
-      #  asset.add_facts(Fact.create(:predicate => 'aliquotType', :object => 'nap'))
-      #end
-
-      if remote_asset.try(:purpose, nil) && (class_name != 'SampleTube')
-        asset.add_facts(Fact.create(:predicate => 'purpose',
-        :object => remote_asset.purpose.name))
+      if keep_sync_with_sequencescape?(remote_asset)
+        asset.add_facts(Fact.create(predicate: 'pushTo', object: 'Sequencescape'))
+        if remote_asset.try(:plate_purpose, nil)
+          asset.add_facts(Fact.create(:predicate => 'purpose',
+          :object => remote_asset.plate_purpose.name))
+        end
       end
       asset.add_facts(Fact.create(:predicate => 'is', :object => 'NotStarted'))
 
       annotate_container(asset, remote_asset)
       annotate_wells(asset, remote_asset)
+      annotate_study_name(asset, remote_asset)
       asset
     end
   end
 
   def find_or_import_asset_with_barcode(barcode)
+    unless barcode.match(/^\d+$/)
+      barcode = Barcode.calculate_barcode(barcode[0,2], barcode[2, barcode.length-3].to_i).to_s
+    end
+    
     asset = Asset.find_by_barcode(barcode)
     asset = Asset.find_by_uuid(barcode) unless asset
     unless asset

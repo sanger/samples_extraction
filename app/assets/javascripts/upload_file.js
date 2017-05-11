@@ -127,7 +127,7 @@
     $('.start', this.node).attr('disabled', true);
     this.myDropzone.removeFile(file);
     this.singleFileAdded = null;
-    setTimeout(function() { window.location.reload();}, 1000);
+    //setTimeout(function() { window.location.reload();}, 1000);
   };
 
   proto.onQueueComplete = function(progress) {

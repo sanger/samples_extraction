@@ -3,6 +3,7 @@ require 'pry'
 class StepsController < ApplicationController
   before_action :set_step, only: [:show, :edit, :update, :destroy]
   before_action :set_activity, only: [:create]
+  before_action :set_printer_config, only: [:create]
 
   before_action :nested_steps, only: [:index]
 
@@ -49,54 +50,46 @@ class StepsController < ApplicationController
       :state, :data_action, :data_action_type, :data_params)
   end
 
-  def printer_config
-    {
-      'Tube' => Printer.find(params_for_printing[:tube_printer_id]).name,
-      'Plate' => Printer.find(params_for_printing[:plate_printer_id]).name,
-      'TubeRack' => Printer.find(params_for_printing[:plate_printer_id]).name,
+  def set_printer_config
+    tube_printer = Printer.find_by(id: params_for_printing[:tube_printer_id]) || nil
+    plate_printer = Printer.find_by(id: params_for_printing[:plate_printer_id]) ||  nil
+    tube_rack_printer = Printer.find_by(id: params_for_printing[:plate_printer_id]) || nil
+    @printer_config = {
+      'Tube' => tube_printer.nil? ? "" : tube_printer.name,
+      'Plate' => plate_printer.nil? ? "" : plate_printer.name,
+      'TubeRack' => tube_rack_printer.nil? ? "" : tube_rack_printer.name
     }
   end
 
   # POST /activity/:activity_id/step_type/:step_type_id/create
   def create
-    begin
-
+    #begin
       valid_step_types = @activity.step_types_for(@assets)
       step_type_to_do = @activity.step_types.find_by_id!(@step_type.id)
       if valid_step_types.include?(step_type_to_do)
-        store_uploads
-          @step = @activity.step(step_type_to_do, @current_user, create_step_params)
-          session[:data_params] = {}
-
-        if @step.created_asset_group
-          @step.created_asset_group.print(printer_config, @current_user.username)
-        end
-        @activity.reasoning!(printer_config, @current_user)
+        @step = @activity.do_step(step_type_to_do, @current_user, create_step_params, @printer_config)
+        session[:data_params] = {}        
       end
-    rescue Lab::Actions::InvalidDataParams => e
-      flash[:danger] = e.message
-      session[:data_params] = JSON.parse(create_step_params[:data_params]).merge({
-        :error_params => e.error_params
-        }).to_json
-      error_params = e.error_params
-      redirect_to @activity
-      return
-    end
+    #rescue Lab::Actions::InvalidDataParams => e
+      # flash[:danger] = e.message
+      # session[:data_params] = JSON.parse(create_step_params[:data_params]).merge({
+      #   :error_params => e.error_params
+      #   }).to_json
+      # error_params = e.error_params
+      # return
+    #end
     respond_to do |format|
       if @step && @step.save
-        #format.html { render @activity}
-        format.html { redirect_to @activity, notice: 'Step was successfully created.' }
-        #format.html { respond_with @activity }
+        #format.html { redirect_to @activity, notice: 'Step was successfully created.' }
         format.json { render :show, status: :created, location: @step }
-        #return
       else
         if @step.nil?
           @step = Step.new
-          errors = error_params
+          #errors = error_params
         else
           errors = @step.errors
         end
-        format.html { render :new }
+        #format.html { render :new }
         format.json { render json: errors, status: :unprocessable_entity }
       end
     end
@@ -107,10 +100,11 @@ class StepsController < ApplicationController
   # PATCH/PUT /steps/1
   # PATCH/PUT /steps/1.json
   def update
-    store_uploads
+    #store_uploads
 
     respond_to do |format|
       if @step.update(create_step_params)
+        debugger
         format.html { redirect_to @step, notice: 'Step was successfully updated.' }
         format.json { render :show, status: :ok, location: @step }
       else
@@ -125,6 +119,7 @@ class StepsController < ApplicationController
   def destroy
     @step.destroy
     respond_to do |format|
+      debugger
       format.html { redirect_to steps_url, notice: 'Step was successfully destroyed.' }
       format.json { head :no_content }
     end
@@ -158,17 +153,6 @@ class StepsController < ApplicationController
       @step_type = StepType.find(params[:step_type_id])
     end
 
-
-    def store_uploads
-      return
-      if params[:file]
-        @upload = Upload.create!(:data => params[:file].read,
-          :filename => params[:file].original_filename,
-          :activity => @activity,
-          :step => @step,
-          :content_type => params[:content_type])
-      end
-    end
 
 
     def show_alert(data)

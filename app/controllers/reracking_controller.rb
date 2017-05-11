@@ -1,4 +1,5 @@
 class RerackingController < ApplicationController
+  include ActionController::Live
 
   before_action :set_instrument
   before_action :set_activity_type
@@ -30,6 +31,10 @@ class RerackingController < ApplicationController
   end
 
   def show
+    @assets = @activity.asset_group.assets
+    @step_types = @activity.step_types_for(@assets)
+    @steps = @activity.previous_steps
+
     respond_to do |format|
       format.html { render :update }
     end
@@ -39,7 +44,7 @@ class RerackingController < ApplicationController
     @asset_group = AssetGroup.create
     @assets = @asset_group.assets
 
-    @activity = Reracking.new(
+    @activity = Activity.new(
       :activity_type => @activity_type,
       :asset_group => @asset_group,
       :instrument => @instrument,

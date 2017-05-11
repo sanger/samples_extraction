@@ -11,7 +11,7 @@ class Asset < ActiveRecord::Base
   include Asset::Export
 
 
-  alias_attribute :name, :barcode 
+  alias_attribute :name, :uuid 
 
   has_many :facts
   has_and_belongs_to_many :asset_groups
@@ -110,6 +110,9 @@ class Asset < ActiveRecord::Base
             if fact.predicate == 'barcode'
               update_attributes(:barcode => fact.object)
             end
+            if fact.predicate == 'uuid'
+              update_attributes(:uuid => fact.object)
+            end            
             yield fact if block_given?
           end
         end
@@ -122,6 +125,7 @@ class Asset < ActiveRecord::Base
     ActiveRecord::Base.transaction do |t|
       list = [list].flatten
       list.each do |fact|
+        yield fact if block_given?
         if fact.object_asset
           facts.where(predicate: fact.predicate, object_asset: fact.object_asset).each(&:destroy)
         elsif fact.object
@@ -131,10 +135,15 @@ class Asset < ActiveRecord::Base
     end
   end
 
+  def add_fact(predicate, object, step=nil)
+    fact = {predicate: predicate, literal: object.kind_of?(Asset)}
+    fact[:literal] ? fact[:object_asset] = object : fact[:object] = object
+    add_facts([Fact.create(fact)], nil)
+  end
 
-  def add_operations(list, step)
+  def add_operations(list, step, action_type = 'addFacts')
     list.each do |fact|
-      Operation.create!(:action_type => 'addFacts', :step => step,
+      Operation.create!(:action_type => action_type, :step => step,
         :asset=> self, :predicate => fact.predicate, :object => fact.object)    
     end
   end
@@ -185,7 +194,7 @@ class Asset < ActiveRecord::Base
 
   def self.assets_for_queries(queries)
     queries.map do |query|
-      if Asset.first.has_attribute?(query.predicate)
+      if Asset.first && Asset.first.has_attribute?(query.predicate)
         Asset.with_field(query.predicate, query.object)
       else
         Asset.with_fact(query.predicate, query.object)
@@ -320,6 +329,24 @@ class Asset < ActiveRecord::Base
     (!facts.with_predicate(sym.to_s.singularize).empty? || super(sym, include_private))
   end
 
+  def study_and_barcode
+    [study_name, barcode_sequencescaped].join(' ')
+  end
+
+  def barcode_sequencescaped
+    ean13 = barcode.rjust(13, '0')
+    ean13.slice!(0,3)
+    ean13.slice!(ean13.length-3,3)
+    ean13.to_i
+  end
+
+  def study_name
+    if has_predicate?('study_name')
+      return facts.with_predicate('study_name').first.object
+    end
+    return ''
+  end
+
   def printable_object(username = 'unknown')
     return nil if barcode.nil?
     if ((class_type=='Plate')||(class_type=='TubeRack'))
@@ -327,8 +354,8 @@ class Asset < ActiveRecord::Base
         :label => {
           :barcode => barcode,
           :top_left => DateTime.now.strftime('%d/%b/%y'),
-          :top_right => username,
-          :bottom_right => info_line,
+          :top_right => info_line, #username,
+          :bottom_right => study_and_barcode,
           :bottom_left => Barcode.barcode_to_human(barcode) || barcode,
           #:top_line => Barcode.barcode_to_human(barcode) || barcode,
           #:bottom_line => bottom_line 
@@ -458,9 +485,13 @@ class Asset < ActiveRecord::Base
     errors
   end
 
+  def is_sequencescape_plate?
+    has_literal?('barcodeType', 'SequencescapePlate')
+  end
+
   def to_n3
     facts.map do |f|
-      ":#{uuid} :#{f.predicate} " + (f.object_asset.nil? ? "\"\"\"#{f.object}\"\"\"" : ":#{f.object_asset.uuid}") +" .\n"
+      "<#{uuid}> :#{f.predicate} " + (f.object_asset.nil? ? "\"#{f.object}\"" : "<#{f.object_asset.uuid}>") +" .\n"
     end.join('')
   end
 end

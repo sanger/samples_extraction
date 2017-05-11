@@ -41,12 +41,12 @@ Given the step type "Create new tube RNA" has this configuration in N3:
   :step :createAsset {
     ?q :a :Tube .
     ?q :aliquotType """RNA""" .
+    ?q :transferredFrom ?p .    
   }.
   :step :removeFacts {?p :is :NotStarted.}.
   :step :addFacts {
     ?p :is :Started.
     ?p :transfer ?q .
-    ?q :transferredFrom ?p .
   }.
 }.
 """
@@ -124,7 +124,6 @@ Then I should see these barcodes in the selection basket:
 | 1       |
 
 And I perform the step "Create new tube RNA"
-
 Then I should have created an asset with the following facts:
 | Predicate   |  Object |
 | aliquotType |  RNA     |

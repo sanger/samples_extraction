@@ -56,7 +56,9 @@ end
 # See https://github.com/cucumber/cucumber-rails/blob/master/features/choose_javascript_database_strategy.feature
 Cucumber::Rails::Database.javascript_strategy = :truncation
 
+
 if ENV["RAILS_ENV"]=='selenium'
+ 
   Capybara.default_driver = :selenium
     require 'factory_girl_rails'
 else

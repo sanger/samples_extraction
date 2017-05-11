@@ -3,7 +3,7 @@ class AssetGroupsController < ApplicationController
   before_action :set_activity, only: [:show, :update]
   before_action :update_barcodes, only: [:update]
 
-  before_filter :check_activity_asset_group
+  before_filter :check_activity_asset_group, only: [:show, :update]
 
   def check_activity_asset_group
     if (@activity.asset_group != @asset_group)
@@ -84,9 +84,18 @@ class AssetGroupsController < ApplicationController
     @alerts.push(data)
   end
 
+  def get_barcodes
+    barcodes = params_update_asset_group[:add_barcode].split(/[ ,]/).map do |barcode|
+      unless barcode.match(/^\d+$/)
+        barcode = Barcode.calculate_barcode(barcode[0,2], barcode[2, barcode.length-3].to_i).to_s
+      end
+      barcode.gsub('"','').gsub('\'', '')
+    end.flatten.compact.reject(&:empty?)
+  end
+
   def perform_barcode_addition
     unless params_update_asset_group[:add_barcode].nil? || params_update_asset_group[:add_barcode].empty?
-      barcodes = [params_update_asset_group[:add_barcode]].flatten
+      barcodes = get_barcodes
       barcodes_str = "'"+barcodes.join(',')+"'";
       begin
         if @asset_group.select_barcodes(barcodes)
