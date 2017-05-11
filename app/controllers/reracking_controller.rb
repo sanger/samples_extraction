@@ -44,7 +44,7 @@ class RerackingController < ApplicationController
     @asset_group = AssetGroup.create
     @assets = @asset_group.assets
 
-    @activity = Reracking.new(
+    @activity = Activity.new(
       :activity_type => @activity_type,
       :asset_group => @asset_group,
       :instrument => @instrument,
