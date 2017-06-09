@@ -24,7 +24,9 @@ class BackgroundSteps::AliquotTypeInference < Step
               o.has_predicate?('aliquotType')
             end
             asset.facts.with_predicate('contains').map(&:object_asset).each do |o|
-              add_facts(o, [Fact.create(predicate: 'aliquotType', object: aliquot_type_fact(asset).object)])
+              if o.has_predicate?('sample_tube')
+                add_facts(o, [Fact.create(predicate: 'aliquotType', object: aliquot_type_fact(asset).object)])
+              end
             end
           end
           remove_facts(asset, [aliquot_type_fact(asset)])
