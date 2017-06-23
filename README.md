@@ -15,7 +15,7 @@ Sequencescape.
 - Admin view to manage users, printers and labware
 - Functionality for searching of labwares by metadata criteria
 
-## Main Data model:
+## Data model:
 ```text
 Kits <-- KitTypes <-- ActivityTypes ---> Activities     
                           |                |
