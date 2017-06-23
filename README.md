@@ -23,10 +23,10 @@ Kits <-- KitTypes <-- ActivityTypes ---> Activities
 Actions <------------ StepTypes -------> Steps
                      /    |                |
                     /     V                V
-ConditionGroups <--   AssetGroups        Operations
-     |                  |
-     V                  V
-Conditions            Assets --> Facts
+ConditionGroups <--/   AssetGroups        Operations
+     |                   |
+     V                   V
+Conditions             Assets --> Facts
 ```
 
 ## Other features:
