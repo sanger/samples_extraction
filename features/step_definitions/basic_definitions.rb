@@ -116,6 +116,7 @@ When(/^I scan these barcodes into the selection basket:$/) do |table|
     step("I scan the barcode \"#{barcode_info["Barcode"]}\" in the selection basket")
     step("I should see the barcode \"#{barcode_info["Barcode"]}\" in the selection basket")
   end
+  sleep 5
 end
 
 Then(/I should see the barcode "([^"]*)" in the selection basket$/) do |barcode|
