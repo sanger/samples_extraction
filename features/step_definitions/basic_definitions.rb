@@ -149,6 +149,7 @@ When(/^I perform the step "([^"]*)"$/) do |step_name|
   all('.firststeptype .step_types_active ul.step-selection li').select do |node|
     node['innerHTML'].include?(step_name)
   end.first.click
+  sleep 5
 end
 
 Then(/^I should not have performed the step "([^"]*)"$/) do |step_name|
@@ -162,7 +163,6 @@ Then(/^I should have performed the step "([^"]*)"$/) do |step_name|
     page.should have_content(step_name)
   end
 end
-
 
 Then(/^I should ?(not)? have performed the step "([^"]*)" with the user "([^"]*)"$/) do |not_action, step_name, username|
   expect((Step.last.step_type.name == step_name) && (Step.last.user.username == username)).to eq(not_action != 'not')
