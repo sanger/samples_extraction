@@ -8,7 +8,6 @@ Given /skip/ do
 end
 
 When(/^I use the browser to enter in the application$/) do
-  sleep(5)
   Rails.application.config.printing_disabled=true
   visit '/'
 end
