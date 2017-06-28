@@ -165,6 +165,10 @@ Then(/^I should have performed the step "([^"]*)"$/) do |step_name|
   end
 end
 
+Given(/^the step type "([^"]*)" uses the step template "([^"]*)"$/) do |step_name, step_template|
+  StepType.find_by_name(step_name).update_attributes(step_template: step_template)
+end
+
 Then(/^I should ?(not)? have performed the step "([^"]*)" with the user "([^"]*)"$/) do |not_action, step_name, username|
   expect((Step.last.step_type.name == step_name) && (Step.last.user.username == username)).to eq(not_action != 'not')
 end
@@ -309,3 +313,62 @@ Then(/^I should ?(not)? have created an asset with the following facts:$/) do |n
     expect(Asset.last.has_literal?(h["Predicate"], h["Object"])).to eq(not_action!='not')
   end
 end
+
+
+Given(/^I want to rerack a tube rack "([^"]*)" with the following contents:$/) do |barcode, table|
+  plate = Asset.create(barcode: barcode)
+  plate.add_facts(Fact.create(predicate: 'a', object: 'TubeRack'))
+
+  table.hashes.each do |h|
+    t = Asset.create(barcode: h["Barcode"]).tap do |t| 
+      t.add_facts([Fact.create({
+        predicate: 'sanger_sample_id', object: h["Sample Id"]
+      }), Fact.create({
+        predicate: 'location',
+        object: h["Location"]
+        })])
+    end
+    plate.add_facts(Fact.create({predicate: 'contains', object_asset: t}))
+  end
+  visit('/reracking')
+  click_on('Start reracking')
+  step("I scan the barcode \"#{barcode}\" in the selection basket")
+  step("I should see the barcode \"#{barcode}\" in the selection basket")
+
+end
+
+
+When(/^I upload the following csv layout:$/) do |content|
+  #page.execute_script("$('input[type=file]').css('visibility','visible')")
+  execute_script("$('input.upload-button').show()")
+  execute_script("$('button[disabled=disabled]').removeAttr('disabled')")
+  #debugger
+
+  @file = Tempfile.new('temp_test')
+  @file.write(content)
+  @file.rewind
+  
+  attach_file("upload-file-input", @file.path)
+
+  @sclient_spy = Spy.on(SequencescapeClient, :update_extraction_attributes)
+end
+
+When(/^I click on upload$/) do
+  click_on('Upload file')
+  @file.close
+  @file.unlink  
+end
+
+When(/^I click on Finish$/) do
+  find('.firststeptype a.button').click
+end
+
+Then(/^I should not have send any update message to Sequencescape$/) do
+  expect(@sclient_spy.has_been_called?).to eq(false)
+end
+
+Then(/^I should have send an update message to Sequencescape$/) do
+  sleep 5
+  expect(@sclient_spy.has_been_called?).to eq(true)
+end
+

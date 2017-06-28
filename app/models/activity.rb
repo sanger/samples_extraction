@@ -142,7 +142,7 @@ class Activity < ActiveRecord::Base
 
   def do_step(step_type, user, step_params, printer_config)
     step = find_or_create_step(step_type, user, step_params)
-    reasoning!(printer_config, user)
+    reasoning!(printer_config, user) unless steps.in_progress.count > 0
 
     if step && step.created_asset_group
       step.created_asset_group.delay.print(printer_config, user.username)

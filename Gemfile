@@ -121,6 +121,7 @@ group :selenium do
 end
 
 group :test do
+  gem 'spy'
   gem 'poltergeist'
   gem 'launchy'
   gem 'rack_session_access'
