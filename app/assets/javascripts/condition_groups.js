@@ -172,7 +172,10 @@
     };
 
     proto.onChangeForReasoning = function() {
-      $('.edit_step_type').toggleClass('for-reasoning', $('#step_type_for_reasoning')[0].checked);
+      var node = $('#step_type_for_reasoning')[0];
+      if (node) {
+        $('.edit_step_type').toggleClass('for-reasoning', node.checked);
+      }
     };
 
     proto.attachHandlers = function() {
