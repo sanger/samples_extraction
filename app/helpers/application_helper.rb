@@ -8,11 +8,26 @@ module ApplicationHelper
   UNKNOW_ALIQUOT_TYPE = 'unknown-aliquot'
 
   def default_ontologies
-    "@prefix : <#{url_to_asset('root-ontology.ttl')}#> .".html_safe
+    [
+      "@prefix se: <#{url_to_asset('root-ontology.ttl')}#> .",
+      "@prefix log: <http://www.w3.org/2000/10/swap/log#> ."
+    ].join("\n").html_safe
   end
 
   def traversable_predicate(predicate)
     ['contains'].include?(predicate)
+  end
+
+  def object_for(fact)
+    if fact.object_asset.nil?
+      if fact.literal?
+        "\"\"\"#{fact.object}\"\"\"".html_safe
+      else
+        "se:#{fact.object}".html_safe
+      end
+    else
+      "<#{asset_url(fact.object_asset.uuid)}>".html_safe
+    end
   end
 
   def data_rack_display(facts)
