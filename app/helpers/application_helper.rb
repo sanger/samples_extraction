@@ -7,8 +7,15 @@ module ApplicationHelper
 
   UNKNOW_ALIQUOT_TYPE = 'unknown-aliquot'
 
-  def data_rack_display(facts)
+  def default_ontologies
+    "@prefix : <#{url_to_asset('root-ontology.ttl')}#> .".html_safe
+  end
 
+  def traversable_predicate(predicate)
+    ['contains'].include?(predicate)
+  end
+
+  def data_rack_display(facts)
     #return '' unless facts.first.class == Fact
     f = facts.select{|f| f.predicate == 'aliquotType'}.first
     if f
@@ -22,7 +29,7 @@ module ApplicationHelper
 
     unless facts.select{|f| f.predicate == 'contains'}.empty?
       return facts.select{|f| f.predicate == 'contains'}.map do |fact|
-        [fact.object_asset, fact.object_asset.facts] if (fact.class == Fact)
+        [fact.object_asset, fact.object_asset.facts] if (fact.class == Fact) && (fact.object_asset)
       end.compact.reduce({}) do |memo, list|
         asset, facts = list[0],list[1]
         f = facts.select{|f| f.predicate == 'location'}.first
