@@ -216,7 +216,7 @@ class Asset < ActiveRecord::Base
   end
 
   def object_value(fact)
-    fact.object || fact.object_asset.uuid
+    fact.object_asset ? fact.object_asset.uuid : fact.object
   end
 
   def condition_groups_init
