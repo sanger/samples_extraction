@@ -16,6 +16,11 @@ When(/^I go to the Instruments page$/) do
   visit '/instruments'
 end
 
+Then(/^I wait for all ajax$/) do
+  Timeout.timeout(Capybara.default_max_wait_time) do
+    loop until page.evaluate_script('jQuery.active').zero?
+  end
+end
 
 Then(/^show me the page$/) do
   save_and_open_page
@@ -138,11 +143,19 @@ Given(/^the step type "([^"]*)" has this configuration in N3:$/) do |step_type_n
   step_type.update(:n3_definition => n3_definition)
 end
 
-Then(/^I should see these steps available:$/) do |table|
-  within(".firststeptype .content_step_types") do
-    table.hashes.each do |step_type|
-      expect(page.has_button?(step_type["Step"])).to eq(true)
+Then(/I should see the step "([^"]*)" available$/) do |step_name|
+  within('.firststeptype .content_step_types') do
+    if (page.has_content?("tr"))
+      page.should have_content(step_name)
+      #expect(page.has_button?(step_type["Step"])).to eq(true)
     end
+  end
+end
+
+Then(/^I should see these steps available:$/) do |table|
+  step("I wait for all ajax")
+  table.hashes.each do |step_type|
+    step("I should see the step \"#{step_type["Step"]}\" available")
   end
 end
 
