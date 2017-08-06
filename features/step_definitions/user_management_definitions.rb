@@ -75,7 +75,7 @@ end
 Then(/^I am logged in as "([^"]*)"$/) do |name|
   result = page.has_content?("Logged as "+name)
   unless result
-    sleep(5)
+    step("I wait for all ajax")
     result = page.has_content?("Logged as "+name)
   end
   expect(result).to eq(true)

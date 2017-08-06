@@ -121,7 +121,7 @@ When(/^I scan these barcodes into the selection basket:$/) do |table|
     step("I scan the barcode \"#{barcode_info["Barcode"]}\" in the selection basket")
     step("I should see the barcode \"#{barcode_info["Barcode"]}\" in the selection basket")
   end
-  sleep 5
+  step("I wait for all ajax")
 end
 
 Then(/I should see the barcode "([^"]*)" in the selection basket$/) do |barcode|
@@ -163,7 +163,7 @@ When(/^I perform the step "([^"]*)"$/) do |step_name|
   all('.firststeptype .step_types_active ul.step-selection li').select do |node|
     node['innerHTML'].include?(step_name)
   end.first.click
-  sleep 5
+  step("I wait for all ajax")
 end
 
 Then(/^I should not have performed the step "([^"]*)"$/) do |step_name|
