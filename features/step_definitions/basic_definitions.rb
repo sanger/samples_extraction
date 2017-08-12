@@ -160,6 +160,8 @@ Then(/^I should see these steps available:$/) do |table|
 end
 
 When(/^I perform the step "([^"]*)"$/) do |step_name|
+  step("I wait for all ajax")
+  step("I should see the step \"#{step_name}\" available")
   all('.firststeptype .step_types_active ul.step-selection li').select do |node|
     node['innerHTML'].include?(step_name)
   end.first.click

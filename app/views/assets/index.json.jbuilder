@@ -1,4 +1,4 @@
 json.array!(@assets) do |asset|
   json.extract! asset, :id
-  json.url asset_url(asset, format: :json)
+  json.url n3_url_resource_for(asset, format: :json)
 end
