@@ -31,13 +31,17 @@ module InferenceEngines
             Rails.application.routes.url_helpers.step_type_url(step_type.id)
           end
         ].flatten.join(" ")
-
+        line = "EXECUTING: #{Rails.configuration.cwm_path}/cwm #{input_urls} --mode=r --think > #{output_tempfile.path}"
+        
+        
         unless system("#{Rails.configuration.cwm_path}/cwm #{input_urls} --mode=r --think > #{output_tempfile.path}")
           raise 'cwm rules failed!!'
         end
 
         debug_log `cat #{output_tempfile.path}`
         step_actions = SupportN3::load_step_actions(output_tempfile)
+
+        step.update_attributes(output: [line, File.read(output_tempfile.path)].join("\n"))
 
         ['create_asset', 'remove_facts', 'add_facts', 'unselect_asset', 'select_asset'].each do |action_type|
           quads = step_actions[action_type.camelize(:lower).to_sym]

@@ -17,10 +17,10 @@ Sequencescape.
 
 ## Data model:
 ```text
-Kits <-- KitTypes <-- ActivityTypes ---> Activities     
+Kits <-- KitTypes <-- ActivityTypes ---> Activities   
                           |                |
                           V                V
-Actions <------------ StepTypes -------> Steps
+Actions <------------ StepTypes -------> Steps -----------> Step Execution
                      /    |                |
                     /     V                V
 ConditionGroups <--/   AssetGroups        Operations
@@ -39,10 +39,10 @@ scripts for querying the data (see lib/examples)
 could use other external tools to perform the processing
 
 ## To start:
+1. Edit the following information in config/environments/#{RAILS_ENV}.rb 
+ - PMB_URI : url for the required instance for print my barcode
+ - SS_URI : url for Sequencescape
 
-1. Modify config/enviroments/... PMB_URI to link with the required instance for
- print my barcode
-2. Modify config/environments SS_URI to link with Sequencescape and start Sequencescape
 3. Create the label_templates for PrintMyBarcode 
 ```bash
 rake label_templates:setup

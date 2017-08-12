@@ -47,6 +47,7 @@ Rails.application.configure do
 
   config.inference_engine = :default
   config.cwm_path = ENV.fetch('CWM_PATH', '')
+  config.default_n3_resources_url = nil
 
   config.enable_reasoning = false
 

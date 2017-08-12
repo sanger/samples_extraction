@@ -9,9 +9,27 @@ module ApplicationHelper
 
   def default_ontologies
     [
-      "@prefix se: <#{url_to_asset('root-ontology.ttl')}#> .",
+      "@prefix se: <#{n3_url_for_ontology('root-ontology.ttl')}#> .",
       "@prefix log: <http://www.w3.org/2000/10/swap/log#> ."
     ].join("\n").html_safe
+  end
+
+  def n3_url_for_ontology(name)
+    url_definition = Rails.configuration.default_n3_resources_url
+    if url_definition
+      "#{url_definition}#{path_to_asset(name)}"
+    else
+      "#{url_to_asset(name)}"
+    end
+  end
+
+  def n3_url_resource_for(asset_uuid)
+    url_definition = Rails.configuration.default_n3_resources_url
+    if url_definition
+      "#{url_definition}/labware/#{asset_uuid}"
+    else
+      asset_url(asset_uuid)
+    end
   end
 
   def traversable_predicate(predicate)
@@ -26,7 +44,7 @@ module ApplicationHelper
         "se:#{fact.object}".html_safe
       end
     else
-      "<#{asset_url(fact.object_asset.uuid)}>".html_safe
+      "<#{n3_url_resource_for(fact.object_asset.uuid)}>".html_safe
     end
   end
 
