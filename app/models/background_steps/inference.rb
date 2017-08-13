@@ -18,13 +18,13 @@ class BackgroundSteps::Inference < Step
   end
 
   def background_job
+    inferences = InferenceEngines::Cwm::StepExecution.new(
+      :step => self, 
+      :asset_group => asset_group,
+      :created_assets => {},
+      :step_types => activity.step_types.for_reasoning
+    )    
     ActiveRecord::Base.transaction do
-      inferences = InferenceEngines::Cwm::StepExecution.new(
-        :step => self, 
-        :asset_group => asset_group,
-        :created_assets => {},
-        :step_types => activity.step_types.for_reasoning
-      )
       inferences.run
     end
     update_attributes!(:state => 'complete')

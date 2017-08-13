@@ -7,8 +7,48 @@ module ApplicationHelper
 
   UNKNOW_ALIQUOT_TYPE = 'unknown-aliquot'
 
-  def data_rack_display(facts)
+  def default_ontologies
+    [
+      "@prefix se: <#{n3_url_for_ontology('root-ontology.ttl')}#> .",
+      "@prefix log: <http://www.w3.org/2000/10/swap/log#> ."
+    ].join("\n").html_safe
+  end
 
+  def n3_url_for_ontology(name)
+    url_definition = Rails.configuration.default_n3_resources_url
+    if url_definition
+      "#{url_definition}#{path_to_asset(name)}"
+    else
+      "#{url_to_asset(name)}"
+    end
+  end
+
+  def n3_url_resource_for(asset_uuid)
+    url_definition = Rails.configuration.default_n3_resources_url
+    if url_definition
+      "#{url_definition}/labware/#{asset_uuid}"
+    else
+      asset_url(asset_uuid)
+    end
+  end
+
+  def traversable_predicate(predicate)
+    ['contains'].include?(predicate)
+  end
+
+  def object_for(fact)
+    if fact.object_asset.nil?
+      if fact.literal?
+        "\"\"\"#{fact.object}\"\"\"".html_safe
+      else
+        "se:#{fact.object}".html_safe
+      end
+    else
+      "<#{n3_url_resource_for(fact.object_asset.uuid)}>".html_safe
+    end
+  end
+
+  def data_rack_display(facts)
     #return '' unless facts.first.class == Fact
     f = facts.select{|f| f.predicate == 'aliquotType'}.first
     if f
@@ -22,7 +62,7 @@ module ApplicationHelper
 
     unless facts.select{|f| f.predicate == 'contains'}.empty?
       return facts.select{|f| f.predicate == 'contains'}.map do |fact|
-        [fact.object_asset, fact.object_asset.facts] if (fact.class == Fact)
+        [fact.object_asset, fact.object_asset.facts] if (fact.class == Fact) && (fact.object_asset)
       end.compact.reduce({}) do |memo, list|
         asset, facts = list[0],list[1]
         f = facts.select{|f| f.predicate == 'location'}.first

@@ -9,6 +9,8 @@ module Asset::Import
           :object => aliquot.sample.sanger.sample_id))
         asset.add_facts(Fact.create(:predicate => 'sanger_sample_name',
           :object => aliquot.sample.sanger.name))
+        asset.add_facts(Fact.create(predicate: 'supplier_sample_name', 
+          object: aliquot.sample.supplier.sample_name))        
       end
     end
   end
@@ -40,12 +42,15 @@ module Asset::Import
     if remote_asset.try(:wells, nil)
       remote_asset.wells.each do |well|
         local_well = Asset.create!(:uuid => well.uuid)
-        asset.add_facts(Fact.create(:predicate => 'contains', :object_asset => local_well))
-        local_well.add_facts(Fact.create(:predicate => 'a', :object => 'Well'))
-        local_well.add_facts(Fact.create(:predicate => 'location', :object => well.location))
-        local_well.add_facts(Fact.create(:predicate => 'parent', :object_asset => asset))
-        #local_well.add_facts(Fact.create(:predicate => 'aliquotType', :object => 'nap'))
-        annotate_container(local_well, well)
+        # Only if the supplier name is defined
+        if (well.aliquots.first.sample.supplier.sample_name)
+          asset.add_facts(Fact.create(:predicate => 'contains', :object_asset => local_well))
+          local_well.add_facts(Fact.create(:predicate => 'a', :object => 'Well'))
+          local_well.add_facts(Fact.create(:predicate => 'location', :object => well.location))
+          local_well.add_facts(Fact.create(:predicate => 'parent', :object_asset => asset))
+          #local_well.add_facts(Fact.create(:predicate => 'aliquotType', :object => 'nap'))
+          annotate_container(local_well, well)
+        end
       end
     end
   end

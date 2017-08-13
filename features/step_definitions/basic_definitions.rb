@@ -16,6 +16,11 @@ When(/^I go to the Instruments page$/) do
   visit '/instruments'
 end
 
+Then(/^I wait for all ajax$/) do
+  Timeout.timeout(Capybara.default_max_wait_time) do
+    loop until page.evaluate_script('jQuery.active').zero?
+  end
+end
 
 Then(/^show me the page$/) do
   save_and_open_page
@@ -106,24 +111,31 @@ Then(/^I should have created an empty activity for "([^"]*)"$/) do |arg1|
   expect(activities.first.asset_group.assets.count).to eq(0)
 end
 
+When(/^I scan the barcode "([^"]*)" in the selection basket$/) do |barcode|
+  fill_in('Scan a barcode', :with => barcode+"\n")
+  click_on('Send barcode')
+end
+
 When(/^I scan these barcodes into the selection basket:$/) do |table|
   table.hashes.each do |barcode_info|
-    fill_in('Scan a barcode', :with => barcode_info["Barcode"]+"\n")
-    click_on('Send barcode')
-    #find("form.edit_asset_group button.barcode-send").click
+    step("I scan the barcode \"#{barcode_info["Barcode"]}\" in the selection basket")
+    step("I should see the barcode \"#{barcode_info["Barcode"]}\" in the selection basket")
+  end
+  step("I wait for all ajax")
+end
+
+Then(/I should see the barcode "([^"]*)" in the selection basket$/) do |barcode|
+  within('form.edit_asset_group') do
+    if (page.has_content?("tr"))
+      page.should have_content(barcode)
+    end
   end
 end
 
 Then(/^I should see these barcodes in the selection basket:$/) do |table|
-  within('form.edit_asset_group') do
-    table.hashes.each do |barcode|
-      if (page.has_content?("tr"))
-        page.should have_content(barcode["Barcode"])
-      end
-      #page.should have_content(barcode["Barcode"])
-    end
+  table.hashes.each do |barcode|
+    step("I should see the barcode \"#{barcode["Barcode"]}\" in the selection basket")
   end
-  # table is a Cucumber::MultilineArgument::DataTable
 end
 
 Given(/^the step type "([^"]*)" has this configuration in N3:$/) do |step_type_name, n3_definition|
@@ -131,18 +143,29 @@ Given(/^the step type "([^"]*)" has this configuration in N3:$/) do |step_type_n
   step_type.update(:n3_definition => n3_definition)
 end
 
-Then(/^I should see these steps available:$/) do |table|
-  within(".firststeptype .content_step_types") do
-    table.hashes.each do |step_type|
-      expect(page.has_button?(step_type["Step"])).to eq(true)
+Then(/I should see the step "([^"]*)" available$/) do |step_name|
+  within('.firststeptype .content_step_types') do
+    if (page.has_content?("tr"))
+      page.should have_content(step_name)
+      #expect(page.has_button?(step_type["Step"])).to eq(true)
     end
   end
 end
 
+Then(/^I should see these steps available:$/) do |table|
+  step("I wait for all ajax")
+  table.hashes.each do |step_type|
+    step("I should see the step \"#{step_type["Step"]}\" available")
+  end
+end
+
 When(/^I perform the step "([^"]*)"$/) do |step_name|
+  step("I wait for all ajax")
+  step("I should see the step \"#{step_name}\" available")
   all('.firststeptype .step_types_active ul.step-selection li').select do |node|
     node['innerHTML'].include?(step_name)
   end.first.click
+  step("I wait for all ajax")
 end
 
 Then(/^I should not have performed the step "([^"]*)"$/) do |step_name|
@@ -156,7 +179,6 @@ Then(/^I should have performed the step "([^"]*)"$/) do |step_name|
     page.should have_content(step_name)
   end
 end
-
 
 Then(/^I should ?(not)? have performed the step "([^"]*)" with the user "([^"]*)"$/) do |not_action, step_name, username|
   expect((Step.last.step_type.name == step_name) && (Step.last.user.username == username)).to eq(not_action != 'not')
@@ -184,7 +206,6 @@ Then(/^I should see a "([^"]*)" in the selection basket$/) do |type|
 
   result = page.find('form.edit_asset_group').has_content?(type)
   unless result
-    sleep(5)
     result = page.find('form.edit_asset_group').has_content?(type)
   end
   expect(result).to eq(true)
@@ -300,7 +321,6 @@ Then(/^I should ?(not)? have created an asset with the following facts:$/) do |n
       expect(page.has_content?(h["Predicate"])).to eq(not_action!='not')
       expect(page.has_content?(h["Object"])).to eq(not_action!='not')
     end
-    sleep(5)
     expect(Asset.last.has_literal?(h["Predicate"], h["Object"])).to eq(not_action!='not')
   end
 end

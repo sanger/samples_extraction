@@ -61,7 +61,11 @@ class BackgroundSteps::TransferSamples < Step
 
         removed_facts = asset.facts.with_predicate('contains')
         added_facts.concat(asset.facts.with_predicate('contains').map do |contain_fact|
-          [Fact.new(:predicate => 'contains', :object_asset => contain_fact.object_asset)]
+          well = contain_fact.object_asset.dup
+          well.uuid = nil
+          well.barcode = contain_fact.object_asset.barcode
+          well.facts = contain_fact.object_asset.facts.map(&:dup)
+          [Fact.new(:predicate => 'contains', :object_asset => well)]
         end.flatten)
         #removed_facts.each(&:destroy)
         added_facts = added_facts.flatten

@@ -11,6 +11,8 @@ module InferenceEngines
         @facts_to_destroy = params[:facts_to_destroy]
 
         @step_types = params[:step_types] || [@step.step_type]
+
+        generate_plan
       end
 
       def debug_log(params)
@@ -23,17 +25,27 @@ module InferenceEngines
         end
       end
 
-      def run
-        input_tempfile = Tempfile.new('datainfer')
+      def generate_plan
         output_tempfile = Tempfile.new('out_datainfer')
+        input_urls = [
+          Rails.application.routes.url_helpers.asset_group_url(@asset_group.id),
+          @step_types.map do |step_type|
+            Rails.application.routes.url_helpers.step_type_url(step_type.id)
+          end
+        ].flatten.join(" ")
+        line = "# EXECUTING: #{Rails.configuration.cwm_path}/cwm #{input_urls} --mode=r --think > #{output_tempfile.path}"
+        
+        
+        unless system("#{Rails.configuration.cwm_path}/cwm #{input_urls} --mode=r --think > #{output_tempfile.path}")
+          raise "cwm rules failed!! #{line}"
+        end
 
-        input_tempfile.write(@asset_group.to_n3)
-        input_tempfile.write(@step_types.map(&:to_n3).join("\n"))
-        input_tempfile.close
-        debug_log `cat #{input_tempfile.path}`
-        `#{Rails.configuration.cwm_path}/cwm #{input_tempfile.path} --think > #{output_tempfile.path}`
-        debug_log `cat #{output_tempfile.path}`
-        step_actions = SupportN3::load_step_actions(output_tempfile)
+        step.update_attributes(output: [line, File.read(output_tempfile.path)].join("\n"))        
+      end
+
+      def run
+        debug_log step.output
+        step_actions = SupportN3::load_step_actions(step.output)
 
         ['create_asset', 'remove_facts', 'add_facts', 'unselect_asset', 'select_asset'].each do |action_type|
           quads = step_actions[action_type.camelize(:lower).to_sym]
@@ -41,8 +53,16 @@ module InferenceEngines
         end
       end
 
+      def self.UUID_REGEXP
+        /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+      end
+
       def is_uuid?(str)
-        str.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/)
+        str.match(self.class.UUID_REGEXP)
+      end
+
+      def uuid(str)
+        str.match(self.class.UUID_REGEXP)[0]
       end
 
       def fragment(k)
@@ -52,7 +72,7 @@ module InferenceEngines
       def add_facts(graphs)
         graphs.each do |quads|
           quads.map do |quad|
-            asset = Asset.find_by!(:uuid => fragment(quad[0]))
+            asset = Asset.find_by!(:uuid => uuid(fragment(quad[0])))
             add_quad_to_asset(quad,asset)
           end
         end
@@ -62,7 +82,7 @@ module InferenceEngines
         return false if fact.predicate != fragment(quad[1])
         object = fragment(quad[2])
         if is_uuid?(object)
-          return true if fact.object_asset == Asset.find_by(:uuid => object)
+          return true if fact.object_asset == Asset.find_by(:uuid => uuid(object))
         else
           return true if fact.object == object
         end
@@ -72,7 +92,7 @@ module InferenceEngines
       def remove_facts(graphs)
         graphs.each do |quads|
           quads.map do |quad|
-            asset = Asset.find_by!(:uuid => fragment(quad[0]))
+            asset = Asset.find_by!(:uuid => uuid(fragment(quad[0])))
             asset.remove_facts(asset.facts.select do |f|
               equal_quad_and_fact?(quad, f)
             end) do |f|
@@ -86,8 +106,8 @@ module InferenceEngines
         object = fragment(quad[2])
         object_asset = nil
         literal = true
-        if is_uuid?(object) || quad[2].uri?
-          object_asset = Asset.find_by(:uuid => object)
+        if is_uuid?(object)
+          object_asset = Asset.find_by(:uuid => uuid(object))
           literal = false if object_asset
         end
         asset.add_facts(Fact.new(:predicate => fragment(quad[1]), :object => object, 
