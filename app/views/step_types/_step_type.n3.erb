@@ -1,5 +1,5 @@
 <% if step_type.condition_groups.empty? && step_type.actions.empty? %>
-  <%= step_type.n3_definition.html_safe  %>
+  <%= step_type.n3_definition.html_safe if step_type.n3_definition  %>
 <% else %>
   {
   <% step_type.condition_groups.includes(:conditions).map(&:conditions).flatten.map do |c| %>

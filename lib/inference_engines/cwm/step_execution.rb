@@ -11,6 +11,8 @@ module InferenceEngines
         @facts_to_destroy = params[:facts_to_destroy]
 
         @step_types = params[:step_types] || [@step.step_type]
+
+        generate_plan
       end
 
       def debug_log(params)
@@ -23,7 +25,7 @@ module InferenceEngines
         end
       end
 
-      def run
+      def generate_plan
         output_tempfile = Tempfile.new('out_datainfer')
         input_urls = [
           Rails.application.routes.url_helpers.asset_group_url(@asset_group.id),
@@ -31,17 +33,19 @@ module InferenceEngines
             Rails.application.routes.url_helpers.step_type_url(step_type.id)
           end
         ].flatten.join(" ")
-        line = "EXECUTING: #{Rails.configuration.cwm_path}/cwm #{input_urls} --mode=r --think > #{output_tempfile.path}"
+        line = "# EXECUTING: #{Rails.configuration.cwm_path}/cwm #{input_urls} --mode=r --think > #{output_tempfile.path}"
         
         
         unless system("#{Rails.configuration.cwm_path}/cwm #{input_urls} --mode=r --think > #{output_tempfile.path}")
-          raise 'cwm rules failed!!'
+          raise "cwm rules failed!! #{line}"
         end
 
-        debug_log `cat #{output_tempfile.path}`
-        step_actions = SupportN3::load_step_actions(output_tempfile)
+        step.update_attributes(output: [line, File.read(output_tempfile.path)].join("\n"))        
+      end
 
-        step.update_attributes(output: [line, File.read(output_tempfile.path)].join("\n"))
+      def run
+        debug_log step.output
+        step_actions = SupportN3::load_step_actions(step.output)
 
         ['create_asset', 'remove_facts', 'add_facts', 'unselect_asset', 'select_asset'].each do |action_type|
           quads = step_actions[action_type.camelize(:lower).to_sym]
@@ -102,7 +106,7 @@ module InferenceEngines
         object = fragment(quad[2])
         object_asset = nil
         literal = true
-        if is_uuid?(object) || quad[2].uri?
+        if is_uuid?(object)
           object_asset = Asset.find_by(:uuid => uuid(object))
           literal = false if object_asset
         end
