@@ -1,5 +1,5 @@
 class BackgroundSteps::TransferSamples < Step
-
+  include PlateTransfer
   def assets_compatible_with_step_type
     (asset_group.assets.with_predicate('transferredFrom').count > 0) ||
       (asset_group.assets.with_predicate('transfer').count > 0)
@@ -58,19 +58,10 @@ class BackgroundSteps::TransferSamples < Step
           end.flatten)
         end
         added_facts.push(Fact.new(:predicate => 'transferredFrom', :object_asset => asset))
-
-        removed_facts = asset.facts.with_predicate('contains')
-        added_facts.concat(asset.facts.with_predicate('contains').map do |contain_fact|
-          well = contain_fact.object_asset.dup
-          well.uuid = nil
-          well.barcode = contain_fact.object_asset.barcode
-          well.facts = contain_fact.object_asset.facts.map(&:dup)
-          [Fact.new(:predicate => 'contains', :object_asset => well)]
-        end.flatten)
-        #removed_facts.each(&:destroy)
         added_facts = added_facts.flatten
-
         add_facts(modified_asset, added_facts)
+
+        transfer(asset, modified_asset)
       end
       asset_group.touch
       update_attributes!(:state => 'complete')
