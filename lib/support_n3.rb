@@ -36,13 +36,12 @@ module SupportN3
   end
 
 
-  def self.load_step_actions(input, options={})
+  def self.load_step_actions(content, options={})
     options = {
       validate: false,
       canonicalize: false,
     }.merge(options)
 
-    content = input.read
     #puts content
     open_resource = RDF::N3::Reader.new(content, options)
     quads = open_resource.quads
