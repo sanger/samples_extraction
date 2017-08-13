@@ -47,12 +47,12 @@ class BackgroundSteps::TransferPlateToPlate < Step
   end
 
   def transfer_with_asset_creation(plate, destination)
-    contains_facts = plate.facts.with_predicate('contains').map do |fact|
-      # Create a new fact and asset with a new uuid
-      fact = fact.dup
-      fact.object_asset = fact.object_asset.dup
-      fact.object_asset.uuid = nil
-      fact
+    contains_facts = plate.facts.with_predicate('contains').map do |contain_fact|
+      well = contain_fact.object_asset.dup
+      well.uuid = nil
+      well.barcode = contain_fact.object_asset.barcode
+      well.facts = contain_fact.object_asset.facts.map(&:dup)
+      Fact.new(:predicate => 'contains', :object_asset => well)
     end
     add_facts(destination, contain_facts)
   end
