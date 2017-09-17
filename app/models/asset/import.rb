@@ -1,115 +1,204 @@
 module Asset::Import
 
-  def annotate_container(asset, remote_asset)
-    if remote_asset.try(:aliquots, nil)
-      remote_asset.aliquots.each do |aliquot|
-        asset.add_facts(Fact.create(:predicate => 'sample_tube',
-          :object_asset => asset))
-        asset.add_facts(Fact.create(:predicate => 'sanger_sample_id',
-          :object => aliquot.sample.sanger.sample_id))
-        asset.add_facts(Fact.create(:predicate => 'sanger_sample_name',
-          :object => aliquot.sample.sanger.name))
-        asset.add_facts(Fact.create(predicate: 'supplier_sample_name', 
-          object: aliquot.sample.supplier.sample_name))        
-      end
+  UUID_REGEXP = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+
+  def self.included(base)
+    base.send :include, InstanceMethods
+    base.extend ClassMethods
+  end
+
+  class NotFound < StandardError ; end
+  class OutOfDate < StandardError ; end
+
+  module InstanceMethods
+
+    def changed_remote?(remote_asset)
+      Digest::MD5::hexdigest(remote_asset.to_s) != remote_digest
     end
-  end
 
-  def sample_id_to_study_name(sample_id)
-    sample_id.gsub(/\d*$/,'').gsub('-', '')
-  end
+    def refresh!
+      remote_asset = SequencescapeClient::get_remote_asset(uuid)
+      @import_step = Step.new(step_type: StepType.find_or_create_by(name: 'Import'))
 
-  def annotate_study_name_from_aliquots(asset, remote_asset)
-    if remote_asset.try(:aliquots, nil)
-      if remote_asset.aliquots.first.sample
-        asset.add_facts(Fact.create(predicate: 'study_name', 
-          object: sample_id_to_study_name(remote_asset.aliquots.first.sample.sanger.sample_id)))
+      raise NotFound unless remote_asset
+      if changed_remote?(remote_asset)
+        remove_operations(facts.from_remote_asset, @import_step)
+        facts.from_remote_asset.each(&:destroy)
+        self.class.update_asset_from_remote_asset(self, remote_asset)
       end
+      self
+    end
+
+    def import!
+      remote_asset = SequencescapeClient::get_remote_asset(barcode)
+      if remote_asset
+        update_attributes!(uuid: remote_asset.uuid)
+        refresh!
+      else
+        raise NotFound
+      end
+      update_compatible_activity_type
+      self
     end    
-  end
 
-  def annotate_study_name(asset, remote_asset)
-    if remote_asset.try(:wells, nil)
-      remote_asset.wells.detect do |w| 
-        annotate_study_name_from_aliquots(asset, w)
-      end
-    else
-      annotate_study_name_from_aliquots(asset, remote_asset)
+    def is_remote_asset?
+      facts.from_remote_asset.count > 0
     end
+
+    def update_facts_from_remote(list)
+      list = [list].flatten
+      added = list.map do |f| 
+        f.assign_attributes(:is_remote? => true) 
+        f
+      end
+      facts << added
+      add_operations([added].flatten, @import_step)
+    end
+
   end
 
-  def annotate_wells(asset, remote_asset)
-    if remote_asset.try(:wells, nil)
-      remote_asset.wells.each do |well|
-        local_well = Asset.create!(:uuid => well.uuid)
-        # Only if the supplier name is defined
-        if (well.aliquots.first.sample.supplier.sample_name)
-          asset.add_facts(Fact.create(:predicate => 'contains', :object_asset => local_well))
-          local_well.add_facts(Fact.create(:predicate => 'a', :object => 'Well'))
-          local_well.add_facts(Fact.create(:predicate => 'location', :object => well.location))
-          local_well.add_facts(Fact.create(:predicate => 'parent', :object_asset => asset))
-          #local_well.add_facts(Fact.create(:predicate => 'aliquotType', :object => 'nap'))
-          annotate_container(local_well, well)
+  module ClassMethods
+
+    def create_local_asset(barcode)
+      asset=nil
+      ActiveRecord::Base.transaction do
+        asset = Asset.create!(:barcode => barcode)
+        asset.update_facts_from_remote([
+          Fact.new(:predicate => 'a', :object => 'Tube', is_remote?: true), 
+          Fact.new(:predicate => 'barcodeType', :object => 'Code2D', is_remote?: true),
+          Fact.new(:predicate => 'is', :object => 'Empty', is_remote?: true)
+          ])
+      end
+      asset   
+    end
+
+    def is_local_asset?(barcode)
+      Barcode.is_creatable_barcode?(barcode.to_s)      
+    end
+
+    def is_digit_barcode?(barcode)
+      barcode.to_s.match(/^\d+$/)
+    end
+
+    def is_uuid?(str)
+      UUID_REGEXP.match(str)
+    end
+
+    def find_or_import_asset_with_barcode(barcode)
+      barcode = barcode.to_s
+      unless is_digit_barcode?(barcode) || is_uuid?(barcode)
+        barcode = Barcode.calculate_barcode(barcode[0,2], barcode[2, barcode.length-3].to_i).to_s
+      end
+      
+      asset = Asset.find_by_barcode(barcode)
+      asset = Asset.find_by_uuid(barcode) unless asset
+
+      ActiveRecord::Base.transaction do 
+        asset = Asset.create_local_asset if asset.nil? && is_local_asset?(barcode)
+
+        if asset
+          asset.refresh! if asset.is_remote_asset?
+        else
+          asset = Asset.create(:barcode => barcode)
+          asset.import!
         end
       end
+      asset
     end
-  end
 
-  def sequencescape_type_for_asset(remote_asset)
-    remote_asset.class.to_s.gsub(/Sequencescape::/,'')
-  end
 
-  def keep_sync_with_sequencescape?(remote_asset)
-    class_name = sequencescape_type_for_asset(remote_asset)
-    (class_name != 'SampleTube')
-  end
+    def update_asset_from_remote_asset(asset, remote_asset)
+      @out_of_date = false
 
-  def build_asset_from_remote_asset(barcode, remote_asset)
-    ActiveRecord::Base.transaction do |t|
-      asset = Asset.create(:barcode => barcode, :uuid => remote_asset.uuid)
       class_name = sequencescape_type_for_asset(remote_asset)
-      asset.add_facts(Fact.create(:predicate => 'a', :object => class_name))
+      asset.update_facts_from_remote(Fact.new(:predicate => 'a', :object => class_name))
 
       if keep_sync_with_sequencescape?(remote_asset)
-        asset.add_facts(Fact.create(predicate: 'pushTo', object: 'Sequencescape'))
+        asset.update_facts_from_remote(Fact.new(predicate: 'pushTo', object: 'Sequencescape'))
         if remote_asset.try(:plate_purpose, nil)
-          asset.add_facts(Fact.create(:predicate => 'purpose',
+          asset.update_facts_from_remote(Fact.new(:predicate => 'purpose',
           :object => remote_asset.plate_purpose.name))
         end
       end
-      asset.add_facts(Fact.create(:predicate => 'is', :object => 'NotStarted'))
+      asset.update_facts_from_remote(Fact.new(:predicate => 'is', :object => 'NotStarted'))
 
       annotate_container(asset, remote_asset)
       annotate_wells(asset, remote_asset)
       annotate_study_name(asset, remote_asset)
-      asset
-    end
-  end
 
-  def find_or_import_asset_with_barcode(barcode)
-    unless barcode.match(/^\d+$/)
-      barcode = Barcode.calculate_barcode(barcode[0,2], barcode[2, barcode.length-3].to_i).to_s
+      update_digest(asset, remote_asset)
+      @out_of_date
     end
-    
-    asset = Asset.find_by_barcode(barcode)
-    asset = Asset.find_by_uuid(barcode) unless asset
-    unless asset
-      if Barcode.is_creatable_barcode?(barcode)
-        asset = Asset.create!(:barcode => barcode)
-        asset.facts << Fact.create!(:predicate => 'a', :object => 'Tube')
-        asset.facts << Fact.create!(:predicate => 'barcodeType', :object => 'Code2D')
-        asset.facts << Fact.create!(:predicate => 'is', :object => 'Empty')
+
+    def update_digest(asset, remote_asset)
+      asset.update_attributes(remote_digest: Digest::MD5::hexdigest(remote_asset.to_s))
+    end
+
+    def annotate_container(asset, remote_asset)
+      if remote_asset.try(:aliquots, nil)
+        remote_asset.aliquots.each do |aliquot|
+          asset.update_facts_from_remote(Fact.new(:predicate => 'sample_tube',
+            :object_asset => asset))
+          asset.update_facts_from_remote(Fact.new(:predicate => 'sanger_sample_id',
+            :object => aliquot.sample.sanger.sample_id))
+          asset.update_facts_from_remote(Fact.new(:predicate => 'sanger_sample_name',
+            :object => aliquot.sample.sanger.name))
+          asset.update_facts_from_remote(Fact.new(predicate: 'supplier_sample_name', 
+            object: aliquot.sample.supplier.sample_name))        
+        end
       end
     end
-    unless asset
-      remote_asset = SequencescapeClient::get_remote_asset(barcode)
-      if remote_asset
-        asset = build_asset_from_remote_asset(barcode, remote_asset)
-        raise 'Asset not found' if asset.nil?
-      end
-      asset.update_compatible_activity_type
-    end
-    asset
-  end
 
+    def sample_id_to_study_name(sample_id)
+      sample_id.gsub(/\d*$/,'').gsub('-', '')
+    end
+
+    def annotate_study_name_from_aliquots(asset, remote_asset)
+      if remote_asset.try(:aliquots, nil)
+        if remote_asset.aliquots.first.sample
+          asset.update_facts_from_remote(Fact.new(predicate: 'study_name', 
+            object: sample_id_to_study_name(remote_asset.aliquots.first.sample.sanger.sample_id)))
+        end
+      end    
+    end
+
+    def annotate_study_name(asset, remote_asset)
+      if remote_asset.try(:wells, nil)
+        remote_asset.wells.detect do |w| 
+          annotate_study_name_from_aliquots(asset, w)
+        end
+      else
+        annotate_study_name_from_aliquots(asset, remote_asset)
+      end
+    end
+
+    def annotate_wells(asset, remote_asset)
+      if remote_asset.try(:wells, nil)
+        remote_asset.wells.each do |well|
+          local_well = Asset.find_or_create_by!(:uuid => well.uuid)
+          # Only if the supplier name is defined
+          if (well.aliquots.first.sample.supplier.sample_name)
+            asset.update_facts_from_remote(Fact.new(:predicate => 'contains', :object_asset => local_well))
+
+            # Updated wells will also mean that the plate is out of date, so we'll set it in the asset
+            @out_of_date ||= local_well.update_facts_from_remote(Fact.new(:predicate => 'a', :object => 'Well'))
+            @out_of_date ||= local_well.update_facts_from_remote(Fact.new(:predicate => 'location', :object => well.location))
+            @out_of_date ||= local_well.update_facts_from_remote(Fact.new(:predicate => 'parent', :object_asset => asset))
+
+            annotate_container(local_well, well)
+          end
+        end
+      end
+    end
+
+    def sequencescape_type_for_asset(remote_asset)
+      remote_asset.class.to_s.gsub(/Sequencescape::/,'')
+    end
+
+    def keep_sync_with_sequencescape?(remote_asset)
+      class_name = sequencescape_type_for_asset(remote_asset)
+      (class_name != 'SampleTube')
+    end
+
+  end
 end

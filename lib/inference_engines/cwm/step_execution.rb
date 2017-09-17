@@ -1,6 +1,10 @@
+require 'step_execution_process'
+
 module InferenceEngines
   module Cwm
     class StepExecution
+      include StepExecutionProcess
+      
       attr_accessor :step, :asset_group, :original_assets, :created_assets, :facts_to_destroy
 
       def initialize(params)
@@ -12,7 +16,6 @@ module InferenceEngines
 
         @step_types = params[:step_types] || [@step.step_type]
 
-        generate_plan
       end
 
       def debug_log(params)
@@ -43,14 +46,25 @@ module InferenceEngines
         step.update_attributes(output: [line, File.read(output_tempfile.path)].join("\n"))        
       end
 
-      def run
+      def inference!
+        generate_plan
+
         debug_log step.output
+      end
+
+      def import!
+        @asset_group.assets.each(&:import!)
+      end
+
+      def export!
         step_actions = SupportN3::load_step_actions(step.output)
 
         ['create_asset', 'remove_facts', 'add_facts', 'unselect_asset', 'select_asset'].each do |action_type|
           quads = step_actions[action_type.camelize(:lower).to_sym]
           send(action_type, quads) if quads
         end
+
+        @asset_group.assets.each(&:export!)
       end
 
       def self.UUID_REGEXP

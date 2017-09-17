@@ -54,8 +54,12 @@ class Step < ActiveRecord::Base
 
   def assets_compatible_with_step_type
     checked_condition_groups=[], @wildcard_values = {}
-    compatible = step_type.compatible_with?(asset_group.assets, nil, checked_condition_groups, wildcard_values)
-    raise StandardError unless compatible || (asset_group.assets.count == 0)
+    compatible = step_type.compatible_with?(asset_group_assets, nil, checked_condition_groups, wildcard_values)
+    raise StandardError unless compatible || (asset_group_assets.count == 0)
+  end
+
+  def asset_group_assets
+    asset_group ? asset_group.assets : []
   end
 
   def add_facts(asset, facts)
@@ -69,15 +73,17 @@ class Step < ActiveRecord::Base
   end
 
   def unselect_assets_from_antecedents
-    asset_group.unselect_assets_with_conditions(step_type.condition_groups)
+    asset_group.unselect_assets_with_conditions(step_type.condition_groups) unless asset_group.nil?
     if activity
       activity.asset_group.unselect_assets_with_conditions(step_type.condition_groups)
     end
   end
 
   def unselect_assets_from_consequents
-    asset_group.unselect_assets_with_conditions(step_type.action_subject_condition_groups)
-    asset_group.unselect_assets_with_conditions(step_type.action_object_condition_groups)
+    unless asset_group.nil?
+      asset_group.unselect_assets_with_conditions(step_type.action_subject_condition_groups)
+      asset_group.unselect_assets_with_conditions(step_type.action_object_condition_groups)
+    end
     if activity
       activity.asset_group.unselect_assets_with_conditions(step_type.action_subject_condition_groups)
       activity.asset_group.unselect_assets_with_conditions(step_type.action_object_condition_groups)
@@ -97,7 +103,7 @@ class Step < ActiveRecord::Base
     if ((activity) && (activity.asset_group.assets.count >= 0))
       original_assets.add_assets(activity.asset_group.assets)
     else
-      original_assets.add_assets(asset_group.assets)
+      original_assets.add_assets(asset_group_assets)
     end
 
     step_execution = build_step_execution(:facts_to_destroy => [], :original_assets => original_assets.assets)
@@ -170,7 +176,7 @@ class Step < ActiveRecord::Base
       update_attributes(:state => 'complete')
       deactivate
     end
-    asset_group.assets.each(&:touch)
+    asset_group_assets.each(&:touch)
   end
 
   include Lab::Actions

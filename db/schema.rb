@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170808222124) do
+ActiveRecord::Schema.define(version: 20170917175535) do
 
   create_table "actions", force: :cascade do |t|
     t.string   "action_type",                limit: 255, null: false
@@ -102,11 +102,12 @@ ActiveRecord::Schema.define(version: 20170808222124) do
   add_index "asset_groups_assets", ["asset_id"], name: "index_asset_groups_assets_on_asset_id", using: :btree
 
   create_table "assets", force: :cascade do |t|
-    t.string   "uuid",        limit: 255
-    t.string   "barcode",     limit: 255
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
-    t.integer  "facts_count", limit: 4
+    t.string   "uuid",          limit: 255
+    t.string   "barcode",       limit: 255
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+    t.integer  "facts_count",   limit: 4
+    t.string   "remote_digest", limit: 255
   end
 
   add_index "assets", ["barcode"], name: "index_assets_on_barcode", using: :btree
@@ -161,6 +162,7 @@ ActiveRecord::Schema.define(version: 20170808222124) do
     t.datetime "updated_at",                                  null: false
     t.integer  "position",        limit: 4
     t.string   "ns_predicate",    limit: 255
+    t.boolean  "is_remote?",                  default: false
   end
 
   add_index "facts", ["asset_id"], name: "index_facts_on_asset_id", using: :btree
