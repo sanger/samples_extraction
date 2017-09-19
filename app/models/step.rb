@@ -17,6 +17,8 @@ class Step < ActiveRecord::Base
 
   scope :cancelled, ->() {where(:state => 'cancel')}
 
+  scope :in_activity, ->() { where.not(activity_id: nil)}
+
   after_create :deprecate_cancelled_steps
   after_create :execute_actions, :unless => :in_progress?
 
