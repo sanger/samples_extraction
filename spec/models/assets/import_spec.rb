@@ -78,6 +78,14 @@ RSpec.describe 'Asset::Import' do
 		  			Asset.find_or_import_asset_with_barcode(@barcode_plate)	
 		  			expect{remote_facts.each(&:reload)}.to raise_exception ActiveRecord::RecordNotFound
 		  		end
+          
+          it 'should destroy any contains dependant remote facts' do
+            remote_facts = @asset.facts.with_predicate('contains').map(&:object_asset).map{|w| w.facts.from_remote_asset}.flatten
+            remote_facts.each(&:reload)
+            Asset.find_or_import_asset_with_barcode(@barcode_plate) 
+            expect{remote_facts.each(&:reload)}.to raise_exception ActiveRecord::RecordNotFound            
+          end
+
 		  		it 'should re-create new remote facts' do
 		  			count = @asset.facts.from_remote_asset.count
 		  			@asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)

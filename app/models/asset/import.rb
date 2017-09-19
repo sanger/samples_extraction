@@ -51,8 +51,13 @@ module Asset::Import
 
       raise NotFound unless remote_asset
       if changed_remote?(remote_asset)
-        remove_operations(facts.from_remote_asset, @import_step)
-        facts.from_remote_asset.each(&:destroy)
+        facts_to_remove = [
+          facts.from_remote_asset, 
+          # We need to destroy also the remote facts of the contained wells on refresh
+          facts.with_predicate('contains').map(&:object_asset).map{|w| w.facts.from_remote_asset}
+        ].flatten
+        remove_operations(facts_to_remove, @import_step)
+        facts_to_remove.each(&:destroy)
         self.class.update_asset_from_remote_asset(self, remote_asset)
       end
       self
