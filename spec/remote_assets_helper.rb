@@ -1,12 +1,14 @@
 module RemoteAssetsHelper
 	def build_remote_plate
 		purpose = double('purpose', name: 'A purpose')
-
-		double('remote_asset', {
+		obj = {
 			uuid: SecureRandom.uuid,
 			wells: [build_well('A1'), build_well('A4')],
 			plate_purpose: purpose
-			})		
+		}
+		my_double = double('remote_asset', obj)		
+		allow(my_double).to receive(:attribute_groups).and_return(obj)
+		my_double
 	end
 
 	def build_well(location)

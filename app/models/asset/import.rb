@@ -12,12 +12,20 @@ module Asset::Import
 
   module InstanceMethods
 
+    def json_for_remote(remote_asset)
+      remote_asset.attribute_groups.to_json
+    end
+
+    def update_digest_with_remote(remote_asset)
+      update_attributes(remote_digest: Digest::MD5::hexdigest(json_for_remote(remote_asset)))
+    end    
+
     def changed_remote?(remote_asset)
-      Digest::MD5::hexdigest(remote_asset.to_s) != remote_digest
+      Digest::MD5::hexdigest(json_for_remote(remote_asset)) != remote_digest
     end
 
     def refresh!
-      remote_asset = SequencescapeClient::get_remote_asset(uuid)
+      remote_asset = SequencescapeClient::find_by_uuid(uuid)
       @import_step = Step.new(step_type: StepType.find_or_create_by(name: 'Import'))
 
       raise NotFound unless remote_asset
@@ -126,12 +134,8 @@ module Asset::Import
       annotate_wells(asset, remote_asset)
       annotate_study_name(asset, remote_asset)
 
-      update_digest(asset, remote_asset)
+      asset.update_digest_with_remote(remote_asset)
       @out_of_date
-    end
-
-    def update_digest(asset, remote_asset)
-      asset.update_attributes(remote_digest: Digest::MD5::hexdigest(remote_asset.to_s))
     end
 
     def annotate_container(asset, remote_asset)

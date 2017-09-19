@@ -28,9 +28,10 @@ RSpec.describe 'Asset::Import' do
   	context 'when importing a remote asset' do
 			setup do
 				@barcode_plate = "1"
-				@remote_plate_asset = build_remote_plate
+        @remote_plate_asset = build_remote_plate
 				allow(@remote_plate_asset).to receive(:class).and_return(Sequencescape::Plate)
 				SequencescapeClient = double('sequencescape_client')
+        allow(SequencescapeClient).to receive(:find_by_uuid).with(@remote_plate_asset.uuid).and_return(@remote_plate_asset)
 				allow(SequencescapeClient).to receive(:get_remote_asset).with(@barcode_plate).and_return(@remote_plate_asset)
 				allow(SequencescapeClient).to receive(:get_remote_asset).with(@remote_plate_asset.uuid).and_return(@remote_plate_asset)
 			end
@@ -59,9 +60,6 @@ RSpec.describe 'Asset::Import' do
 		  	end
 
 		  	context 'when the local copy is up to date' do
-		  		setup do
-		  			allow(@asset).to receive(:changed_remote?).and_return(false)
-		  		end
 		  		it 'should not destroy any remote facts' do
 		  			remote_facts = @asset.facts.from_remote_asset
 		  			remote_facts.each(&:reload)
