@@ -20,7 +20,8 @@ module Asset::Import
       # all the object finding the change
       # Having a :to_json method that returns a json would be pretty sensible too
       if remote_asset.wells
-        listw = remote_asset.wells
+        # wells.to_a because wells relation does not act as an array
+        listw = remote_asset.wells.to_a
         if listw
           listal = listw.compact.map(&:aliquots)
           if listal
