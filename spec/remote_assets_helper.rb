@@ -32,7 +32,9 @@ module RemoteAssetsHelper
 	def build_sample
 		double('sample', 
 			sanger: double('sanger', { sample_id: 'TEST-123', name: 'a sample name'}), 
-			supplier: double('supplier', {sample_name: 'a supplier'}))
+			supplier: double('supplier', {sample_name: 'a supplier'}),
+			updated_at: Time.now.to_s
+			)
 	end
 
 end

@@ -13,7 +13,26 @@ module Asset::Import
   module InstanceMethods
 
     def json_for_remote(remote_asset)
-      remote_asset.attribute_groups.to_json
+      distinct = remote_asset.attribute_groups.to_json
+
+      # It would be useful to have a hashcode in the sequencescape client api to know
+      # if this message is different from a previous one without needing to traverse
+      # all the object finding the change
+      # Having a :to_json method that returns a json would be pretty sensible too
+      if remote_asset.wells
+        listw = remote_asset.wells
+        if listw
+          listal = listw.compact.map(&:aliquots)
+          if listal
+            listsa = listal.flatten.compact.map{|al| al.sample }
+            if listsa
+              distinct+=listsa.compact.map(&:updated_at).uniq.to_s
+            end
+          end
+        end
+      end
+
+      distinct
     end
 
     def update_digest_with_remote(remote_asset)
