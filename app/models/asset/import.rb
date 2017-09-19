@@ -45,29 +45,63 @@ module Asset::Import
       Digest::MD5::hexdigest(json_for_remote(remote_asset)) != remote_digest
     end
 
-    def refresh!
-      remote_asset = SequencescapeClient::find_by_uuid(uuid)
-      @import_step = Step.new(step_type: StepType.find_or_create_by(name: 'Import'))
+    def assets_to_refresh
+      # We need to destroy also the remote facts of the contained wells on refresh
+      [self, facts.with_predicate('contains').map(&:object_asset).select do |asset|
+        asset.facts.from_remote_asset.count > 0
+      end].flatten
+    end
 
-      raise NotFound unless remote_asset
-      if changed_remote?(remote_asset)
-        facts_to_remove = [
-          facts.from_remote_asset, 
-          # We need to destroy also the remote facts of the contained wells on refresh
-          facts.with_predicate('contains').map(&:object_asset).map{|w| w.facts.from_remote_asset}
-        ].flatten
-        remove_operations(facts_to_remove, @import_step)
-        facts_to_remove.each(&:destroy)
-        self.class.update_asset_from_remote_asset(self, remote_asset)
+    def _process_refresh(remote_asset)
+      asset_group = AssetGroup.new
+      @import_step.update_attributes(asset_group: asset_group)
+
+      asset_group.update_attributes(assets: assets_to_refresh)
+
+      # Removes previous state
+      assets_to_refresh.each do |asset|
+        list_facts = asset.facts.from_remote_asset
+        asset.remove_operations(list_facts, @import_step)
+        list_facts.each(&:destroy)
+      end
+
+      # Loads new state
+      self.class.update_asset_from_remote_asset(self, remote_asset)
+
+      @import_step.update_attributes(state: 'complete')
+      asset_group.touch
+    ensure
+      @import_step.update_attributes(state: 'error') unless @import_step.state == 'complete'
+      @import_step.asset_group.touch
+    end
+
+    def refresh
+      if is_remote_asset?
+        remote_asset = SequencescapeClient::find_by_uuid(uuid)
+        raise NotFound unless remote_asset
+        if changed_remote?(remote_asset)
+          @import_step = Step.new(step_type: StepType.find_or_create_by(name: 'Refresh'), state: 'running')
+          _process_refresh(remote_asset)
+        end
       end
       self
     end
 
-    def import!
+    def refresh!
+      @import_step = Step.new(step_type: StepType.find_or_create_by(name: 'Refresh!!'), state: 'running')      
+      remote_asset = SequencescapeClient::find_by_uuid(uuid)
+      raise NotFound unless remote_asset
+      _process_refresh(remote_asset)
+      self      
+    end
+
+    def import
+      @import_step = Step.new(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')      
       remote_asset = SequencescapeClient::get_remote_asset(barcode)
       if remote_asset
+        facts << Fact.new(predicate: 'remoteAsset', object: remote_asset.uuid, is_remote?: true)
         update_attributes!(uuid: remote_asset.uuid)
-        refresh!
+        refresh
       else
         raise NotFound
       end
@@ -131,10 +165,10 @@ module Asset::Import
         asset = Asset.create_local_asset if asset.nil? && is_local_asset?(barcode)
 
         if asset
-          asset.refresh! if asset.is_remote_asset?
+          asset.refresh
         else
           asset = Asset.create(:barcode => barcode)
-          asset.import!
+          asset.import
         end
       end
       asset
@@ -142,8 +176,6 @@ module Asset::Import
 
 
     def update_asset_from_remote_asset(asset, remote_asset)
-      @out_of_date = false
-
       class_name = sequencescape_type_for_asset(remote_asset)
       asset.update_facts_from_remote(Fact.new(:predicate => 'a', :object => class_name))
 
@@ -161,7 +193,6 @@ module Asset::Import
       annotate_study_name(asset, remote_asset)
 
       asset.update_digest_with_remote(remote_asset)
-      @out_of_date
     end
 
     def annotate_container(asset, remote_asset)
@@ -211,9 +242,9 @@ module Asset::Import
             asset.update_facts_from_remote(Fact.new(:predicate => 'contains', :object_asset => local_well))
 
             # Updated wells will also mean that the plate is out of date, so we'll set it in the asset
-            @out_of_date ||= local_well.update_facts_from_remote(Fact.new(:predicate => 'a', :object => 'Well'))
-            @out_of_date ||= local_well.update_facts_from_remote(Fact.new(:predicate => 'location', :object => well.location))
-            @out_of_date ||= local_well.update_facts_from_remote(Fact.new(:predicate => 'parent', :object_asset => asset))
+            local_well.update_facts_from_remote(Fact.new(:predicate => 'a', :object => 'Well'))
+            local_well.update_facts_from_remote(Fact.new(:predicate => 'location', :object => well.location))
+            local_well.update_facts_from_remote(Fact.new(:predicate => 'parent', :object_asset => asset))
 
             annotate_container(local_well, well)
           end

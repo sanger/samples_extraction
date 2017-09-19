@@ -29,6 +29,7 @@ class ActivitiesController < ApplicationController
   def real_time_updates
     @activity = Activity.find(params[:activity_id])
     @asset_group = @activity.asset_group
+    @asset_group.assets.each(&:refresh)
     @assets_changing = @asset_group.assets.currently_changing
 
     response.headers['Content-Type'] = 'text/event-stream'
