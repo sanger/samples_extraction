@@ -23,7 +23,8 @@ module Asset::Import
         # wells.to_a because wells relation does not act as an array
         listw = remote_asset.wells.to_a
         if listw
-          listal = listw.compact.map(&:aliquots)
+          # aliquots.to_a, same reason
+          listal = listw.compact.map(&:aliquots).map(&:to_a)
           if listal
             listsa = listal.flatten.compact.map{|al| al.sample }
             if listsa
