@@ -112,7 +112,7 @@ group :test, :selenium do
   gem 'rspec-rails'
   gem 'shoulda-matchers'
   gem 'rails-controller-testing'
-  gem 'cucumber-rails', :require => false
+  #gem 'cucumber-rails', :require => false
   gem 'database_cleaner'
 end
 
