@@ -48,11 +48,15 @@ module InferenceEngines
         ACTION_TYPES.include?(action.action_type)
       end
 
+      def asset_group_assets
+        asset_group ? asset_group.assets : []
+      end
+
       # Identifies which asset acting as subject is compatible with which rule.
       def classify_assets
         perform_list = []
 
-        @positions_for_asset = step.step_type.position_for_assets_by_condition_group(asset_group.assets)
+        @positions_for_asset = step.step_type.position_for_assets_by_condition_group(asset_group_assets)
 
         step.step_type.actions.includes([:subject_condition_group, :object_condition_group]).each do |r|
           if r.subject_condition_group.nil?
@@ -74,7 +78,7 @@ module InferenceEngines
           if (!step.step_type.condition_groups.include?(r.subject_condition_group))
             perform_list.push([nil, r])
           else
-            asset_group.assets.includes(:facts).each do |asset|
+            asset_group_assets.includes(:facts).each do |asset|
               if r.subject_condition_group.compatible_with?(asset)
                 perform_list.push([asset, r, positions_for_asset[asset][r.subject_condition_group]])
               end
