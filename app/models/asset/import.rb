@@ -53,26 +53,32 @@ module Asset::Import
     end
 
     def _process_refresh(remote_asset)
-      asset_group = AssetGroup.new
-      @import_step.update_attributes(asset_group: asset_group)
+      ActiveRecord::Base.transaction do 
+        asset_group = AssetGroup.new
+        @import_step.update_attributes(asset_group: asset_group)
 
-      asset_group.update_attributes(assets: assets_to_refresh)
+        asset_group.update_attributes(assets: assets_to_refresh)
 
-      # Removes previous state
-      assets_to_refresh.each do |asset|
-        list_facts = asset.facts.from_remote_asset
-        asset.remove_operations(list_facts, @import_step)
-        list_facts.each(&:destroy)
+        # Removes previous state
+        assets_to_refresh.each do |asset|
+          list_facts = asset.facts.from_remote_asset
+          asset.remove_operations(list_facts, @import_step)
+          list_facts.each(&:destroy)
+        end
+
+        # Loads new state
+        self.class.update_asset_from_remote_asset(self, remote_asset)
+
+        @import_step.update_attributes(state: 'complete')
+        asset_group.touch
       end
-
-      # Loads new state
-      self.class.update_asset_from_remote_asset(self, remote_asset)
-
-      @import_step.update_attributes(state: 'complete')
-      asset_group.touch
     ensure
       @import_step.update_attributes(state: 'error') unless @import_step.state == 'complete'
-      @import_step.asset_group.touch
+      @import_step.asset_group.touch if @import_step.asset_group
+    end
+
+    def is_refreshing_right_now?
+      Step.running_with_asset(self).count > 0
     end
 
     def refresh
@@ -80,15 +86,17 @@ module Asset::Import
         remote_asset = SequencescapeClient::find_by_uuid(uuid)
         raise NotFound unless remote_asset
         if changed_remote?(remote_asset)
-          @import_step = Step.new(step_type: StepType.find_or_create_by(name: 'Refresh'), state: 'running')
-          _process_refresh(remote_asset)
+          unless is_refreshing_right_now?
+            @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh'), state: 'running')
+            _process_refresh(remote_asset)
+          end
         end
       end
       self
     end
 
     def refresh!
-      @import_step = Step.new(step_type: StepType.find_or_create_by(name: 'Refresh!!'), state: 'running')      
+      @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh!!'), state: 'running')      
       remote_asset = SequencescapeClient::find_by_uuid(uuid)
       raise NotFound unless remote_asset
       _process_refresh(remote_asset)
@@ -96,7 +104,7 @@ module Asset::Import
     end
 
     def import
-      @import_step = Step.new(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')      
+      @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')      
       remote_asset = SequencescapeClient::get_remote_asset(barcode)
       if remote_asset
         facts << Fact.new(predicate: 'remoteAsset', object: remote_asset.uuid, is_remote?: true)
@@ -160,17 +168,15 @@ module Asset::Import
       
       asset = Asset.find_by_barcode(barcode)
       asset = Asset.find_by_uuid(barcode) unless asset
+      asset = Asset.create_local_asset if asset.nil? && is_local_asset?(barcode)
 
-      ActiveRecord::Base.transaction do 
-        asset = Asset.create_local_asset if asset.nil? && is_local_asset?(barcode)
-
-        if asset
-          asset.refresh
-        else
-          asset = Asset.create(:barcode => barcode)
-          asset.import
-        end
+      if asset
+        asset.refresh
+      else
+        asset = Asset.create(:barcode => barcode)
+        asset.import
       end
+
       asset
     end
 
