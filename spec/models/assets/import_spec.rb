@@ -31,10 +31,28 @@ RSpec.describe 'Asset::Import' do
         @remote_plate_asset = build_remote_plate
 				allow(@remote_plate_asset).to receive(:class).and_return(Sequencescape::Plate)
 				SequencescapeClient = double('sequencescape_client')
-        allow(SequencescapeClient).to receive(:find_by_uuid).with(@remote_plate_asset.uuid).and_return(@remote_plate_asset)
+        allow(SequencescapeClient).to receive(:find_by_uuid).with(@remote_plate_asset.uuid, :plate).and_return(@remote_plate_asset)
 				allow(SequencescapeClient).to receive(:get_remote_asset).with(@barcode_plate).and_return(@remote_plate_asset)
 				allow(SequencescapeClient).to receive(:get_remote_asset).with(@remote_plate_asset.uuid).and_return(@remote_plate_asset)
 			end
+
+      context 'when the asset is a tube' do
+        it 'should try to obtain a tube' do
+          allow(@remote_plate_asset).to receive(:class).and_return(Sequencescape::Tube)
+          allow(SequencescapeClient).to receive(:find_by_uuid).with(@remote_plate_asset.uuid, :tube).and_return(@remote_plate_asset)
+          @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
+          expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_plate_asset.uuid, :tube)
+        end
+      end
+
+      context 'when the asset is a plate' do
+        it 'should try to obtain a plate' do
+          allow(@remote_plate_asset).to receive(:class).and_return(Sequencescape::Plate)
+          allow(SequencescapeClient).to receive(:find_by_uuid).with(@remote_plate_asset.uuid, :plate).and_return(@remote_plate_asset)
+          @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
+          expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_plate_asset.uuid, :plate)
+        end
+      end
 
 			it 'should create the corresponding facts from the json' do
 				@asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
