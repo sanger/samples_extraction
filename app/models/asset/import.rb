@@ -52,6 +52,10 @@ module Asset::Import
       end].flatten
     end
 
+    def get_import_step
+      @import_step
+    end    
+
     def _process_refresh(remote_asset)
       ActiveRecord::Base.transaction do 
         asset_group = AssetGroup.new
@@ -121,14 +125,15 @@ module Asset::Import
       facts.from_remote_asset.count > 0
     end
 
-    def update_facts_from_remote(list)
+    def update_facts_from_remote(list, step=nil)
+      step = step || @import_step
       list = [list].flatten
       added = list.map do |f| 
         f.assign_attributes(:is_remote? => true) 
         f
       end
       facts << added
-      add_operations([added].flatten, @import_step)
+      add_operations([added].flatten, step)
     end
 
   end
@@ -201,17 +206,18 @@ module Asset::Import
       asset.update_digest_with_remote(remote_asset)
     end
 
-    def annotate_container(asset, remote_asset)
+    def annotate_container(asset, remote_asset, step=nil)
+      step = step || asset.get_import_step
       if remote_asset.try(:aliquots, nil)
         remote_asset.aliquots.each do |aliquot|
           asset.update_facts_from_remote(Fact.new(:predicate => 'sample_tube',
-            :object_asset => asset))
+            :object_asset => asset), step)
           asset.update_facts_from_remote(Fact.new(:predicate => 'sanger_sample_id',
-            :object => aliquot.sample.sanger.sample_id))
+            :object => aliquot.sample.sanger.sample_id), step)
           asset.update_facts_from_remote(Fact.new(:predicate => 'sanger_sample_name',
-            :object => aliquot.sample.sanger.name))
+            :object => aliquot.sample.sanger.name), step)
           asset.update_facts_from_remote(Fact.new(predicate: 'supplier_sample_name', 
-            object: aliquot.sample.supplier.sample_name))        
+            object: aliquot.sample.supplier.sample_name), step)        
         end
       end
     end
@@ -248,11 +254,11 @@ module Asset::Import
             asset.update_facts_from_remote(Fact.new(:predicate => 'contains', :object_asset => local_well))
 
             # Updated wells will also mean that the plate is out of date, so we'll set it in the asset
-            local_well.update_facts_from_remote(Fact.new(:predicate => 'a', :object => 'Well'))
-            local_well.update_facts_from_remote(Fact.new(:predicate => 'location', :object => well.location))
-            local_well.update_facts_from_remote(Fact.new(:predicate => 'parent', :object_asset => asset))
+            local_well.update_facts_from_remote(Fact.new(:predicate => 'a', :object => 'Well'), asset.get_import_step)
+            local_well.update_facts_from_remote(Fact.new(:predicate => 'location', :object => well.location), asset.get_import_step)
+            local_well.update_facts_from_remote(Fact.new(:predicate => 'parent', :object_asset => asset), asset.get_import_step)
 
-            annotate_container(local_well, well)
+            annotate_container(local_well, well, asset.get_import_step)
           end
         end
       end
