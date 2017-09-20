@@ -12,7 +12,7 @@ class StepsController < ApplicationController
   def nested_steps
     if step_params[:activity_id]
       @activity = Activity.find(step_params[:activity_id])
-      @steps = @activity.steps
+      @steps = @activity.previous_steps
     else
       @steps = Step.all
     end

@@ -7,7 +7,7 @@ require 'pry'
 class Asset < ActiveRecord::Base
   include Lab::Actions
   include Printables::Instance
-  extend Asset::Import
+  include Asset::Import
   include Asset::Export
 
 
@@ -101,6 +101,8 @@ class Asset < ActiveRecord::Base
   # }
 
   def add_facts(list, position=nil, &block)
+    updated = false
+    updated_fact = false
     ActiveRecord::Base.transaction do |t|
       list = [list].flatten
       list.each do |fact|
@@ -115,13 +117,19 @@ class Asset < ActiveRecord::Base
             end            
             yield fact if block_given?
           end
+          updated_fact = true
         end
       end
+      # If the loop has an exception, updated wont be set to true
+      updated = updated_fact
     end
     touch unless new_record?
+    updated
   end
 
   def remove_facts(list, &block)
+    updated = false
+    updated_fact = false
     ActiveRecord::Base.transaction do |t|
       list = [list].flatten
       list.each do |fact|
@@ -131,8 +139,11 @@ class Asset < ActiveRecord::Base
         elsif fact.object
           facts.where(predicate: fact.predicate, object: fact.object).each(&:destroy)
         end
+        updated_fact = true
       end
+      updated = updated_fact
     end
+    updated
   end
 
   def add_fact(predicate, object, step=nil)
@@ -144,14 +155,14 @@ class Asset < ActiveRecord::Base
   def add_operations(list, step, action_type = 'addFacts')
     list.each do |fact|
       Operation.create!(:action_type => action_type, :step => step,
-        :asset=> self, :predicate => fact.predicate, :object => fact.object)    
+        :asset=> self, :predicate => fact.predicate, :object => fact.object, object_asset: fact.object_asset)
     end
   end
 
   def remove_operations(list, step)
     list.each do |fact|
       Operation.create!(:action_type => 'removeFacts', :step => step,
-        :asset=> self, :predicate => fact.predicate, :object => fact.object)    
+        :asset=> self, :predicate => fact.predicate, :object => fact.object, object_asset: fact.object_asset)    
     end
   end
 
