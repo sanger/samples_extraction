@@ -1,9 +1,11 @@
 module StepExecutionProcess
 
   def run
-  	import!
-  	inference!
-  	export!
+  	refresh
+
+  	inference
+    
+  	export
   end
 
 end

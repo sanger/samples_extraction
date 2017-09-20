@@ -46,17 +46,17 @@ module InferenceEngines
         step.update_attributes(output: [line, File.read(output_tempfile.path)].join("\n"))        
       end
 
-      def inference!
+      def inference
         generate_plan
 
         debug_log step.output
       end
 
-      def import!
-        @asset_group.assets.each(&:import!)
+      def refresh
+        @asset_group.assets.each(&:refresh)
       end
 
-      def export!
+      def export
         step_actions = SupportN3::load_step_actions(step.output)
 
         ['create_asset', 'remove_facts', 'add_facts', 'unselect_asset', 'select_asset'].each do |action_type|
