@@ -19,6 +19,8 @@ module Asset::Import
       # if this message is different from a previous one without needing to traverse
       # all the object finding the change
       # Having a :to_json method that returns a json would be pretty sensible too
+
+      # FOR A PLATE
       if remote_asset.respond_to?(:wells) && remote_asset.wells
         # wells.to_a because wells relation does not act as an array
         listw = remote_asset.wells.to_a
@@ -30,6 +32,18 @@ module Asset::Import
             if listsa
               distinct+=listsa.compact.map(&:updated_at).uniq.to_s
             end
+          end
+        end
+      end
+
+      # FOR A TUBE
+      if remote_asset.respond_to?(:aliquots) && remote_asset.aliquots
+        # aliquots.to_a, same reason
+        listal = remote_asset.aliquots.to_a
+        if listal
+          listsa = listal.flatten.compact.map{|al| al.sample }
+          if listsa
+            distinct+=listsa.compact.map(&:updated_at).uniq.to_s
           end
         end
       end
