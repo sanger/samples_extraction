@@ -19,7 +19,7 @@ module Asset::Import
       # if this message is different from a previous one without needing to traverse
       # all the object finding the change
       # Having a :to_json method that returns a json would be pretty sensible too
-      if remote_asset.wells
+      if remote_asset.respond_to?(:wells) && remote_asset.wells
         # wells.to_a because wells relation does not act as an array
         listw = remote_asset.wells.to_a
         if listw
@@ -85,9 +85,17 @@ module Asset::Import
       Step.running_with_asset(self).count > 0
     end
 
+    def type_of_asset_for_sequencescape
+      if ((facts.with_predicate('a').first) && (facts.with_predicate('a').first.object.include?("Tube")))
+        :tube
+      else
+        :plate
+      end
+    end
+
     def refresh
       if is_remote_asset?
-        remote_asset = SequencescapeClient::find_by_uuid(uuid)
+        remote_asset = SequencescapeClient::find_by_uuid(uuid, type = type_of_asset_for_sequencescape)
         raise NotFound unless remote_asset
         if changed_remote?(remote_asset)
           unless is_refreshing_right_now?
@@ -101,7 +109,7 @@ module Asset::Import
 
     def refresh!
       @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh!!'), state: 'running')      
-      remote_asset = SequencescapeClient::find_by_uuid(uuid)
+      remote_asset = SequencescapeClient::find_by_uuid(uuid, type = type_of_asset_for_sequencescape)
       raise NotFound unless remote_asset
       _process_refresh(remote_asset)
       self      
@@ -111,6 +119,9 @@ module Asset::Import
       @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')      
       remote_asset = SequencescapeClient::get_remote_asset(barcode)
       if remote_asset
+        class_name = self.class.sequencescape_type_for_asset(remote_asset)
+        update_facts_from_remote(Fact.new(:predicate => 'a', :object => class_name))
+
         facts << Fact.new(predicate: 'remoteAsset', object: remote_asset.uuid, is_remote?: true)
         update_attributes!(uuid: remote_asset.uuid)
         refresh
@@ -265,7 +276,9 @@ module Asset::Import
     end
 
     def sequencescape_type_for_asset(remote_asset)
-      remote_asset.class.to_s.gsub(/Sequencescape::/,'')
+      type = remote_asset.class.to_s.gsub(/Sequencescape::/,'')
+      return 'SampleTube' if type == 'Tube'
+      return type
     end
 
     def keep_sync_with_sequencescape?(remote_asset)

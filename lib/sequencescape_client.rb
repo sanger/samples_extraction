@@ -21,8 +21,8 @@ class SequencescapeClient
     @client ||= Sequencescape::Api.new(self.api_connection_options)
   end
 
-  def self.find_by_uuid(uuid)
-    client.plate.find(uuid)
+  def self.find_by_uuid(uuid, type=:plate)
+    client.send(type).find(uuid)
   rescue Sequencescape::Api::ResourceNotFound => exception
     return nil
   end

@@ -42,13 +42,15 @@ class BackgroundSteps::TransferTubesToTubeRackByPosition < Step
           location_to_pos(location)
         end.reject{|w| w.has_predicate?('transferredFrom')}
         asset_group.assets.with_predicate('transferToTubeRackByPosition').zip(wells).each do |asset, well|
-          asset.facts.with_predicate('aliquotType').each do |f_aliquot|
-            aliquot_types.push(f_aliquot.object)
-          end
+          if asset && well
+            asset.facts.with_predicate('aliquotType').each do |f_aliquot|
+              aliquot_types.push(f_aliquot.object)
+            end
 
-          add_facts(asset, [Fact.create(:predicate => 'transfer', :object_asset => well)])
-          add_facts(well, [Fact.create(:predicate => 'transferredFrom', :object_asset => asset)])
-          remove_facts(asset, asset.facts.with_predicate('transferToTubeRackByPosition'))
+            add_facts(asset, [Fact.create(:predicate => 'transfer', :object_asset => well)])
+            add_facts(well, [Fact.create(:predicate => 'transferredFrom', :object_asset => asset)])
+            remove_facts(asset, asset.facts.with_predicate('transferToTubeRackByPosition'))
+          end
         end
         if aliquot_types
           if (((aliquot_types.uniq.length) == 1) && (aliquot_types.uniq.first == 'DNA'))
