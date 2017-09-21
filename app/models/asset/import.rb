@@ -19,7 +19,9 @@ module Asset::Import
       # if this message is different from a previous one without needing to traverse
       # all the object finding the change
       # Having a :to_json method that returns a json would be pretty sensible too
-      if remote_asset.wells
+
+      # FOR A PLATE
+      if remote_asset.respond_to?(:wells) && remote_asset.wells
         # wells.to_a because wells relation does not act as an array
         listw = remote_asset.wells.to_a
         if listw
@@ -30,6 +32,18 @@ module Asset::Import
             if listsa
               distinct+=listsa.compact.map(&:updated_at).uniq.to_s
             end
+          end
+        end
+      end
+
+      # FOR A TUBE
+      if remote_asset.respond_to?(:aliquots) && remote_asset.aliquots
+        # aliquots.to_a, same reason
+        listal = remote_asset.aliquots.to_a
+        if listal
+          listsa = listal.flatten.compact.map{|al| al.sample }
+          if listsa
+            distinct+=listsa.compact.map(&:updated_at).uniq.to_s
           end
         end
       end
@@ -52,53 +66,76 @@ module Asset::Import
       end].flatten
     end
 
+    def get_import_step
+      @import_step
+    end    
+
     def _process_refresh(remote_asset)
-      asset_group = AssetGroup.new
-      @import_step.update_attributes(asset_group: asset_group)
+      ActiveRecord::Base.transaction do 
+        asset_group = AssetGroup.new
+        @import_step.update_attributes(asset_group: asset_group)
 
-      asset_group.update_attributes(assets: assets_to_refresh)
+        asset_group.update_attributes(assets: assets_to_refresh)
 
-      # Removes previous state
-      assets_to_refresh.each do |asset|
-        list_facts = asset.facts.from_remote_asset
-        asset.remove_operations(list_facts, @import_step)
-        list_facts.each(&:destroy)
+        # Removes previous state
+        assets_to_refresh.each do |asset|
+          list_facts = asset.facts.from_remote_asset
+          asset.remove_operations(list_facts, @import_step)
+          list_facts.each(&:destroy)
+        end
+
+        # Loads new state
+        self.class.update_asset_from_remote_asset(self, remote_asset)
+
+        @import_step.update_attributes(state: 'complete')
+        asset_group.touch
       end
-
-      # Loads new state
-      self.class.update_asset_from_remote_asset(self, remote_asset)
-
-      @import_step.update_attributes(state: 'complete')
-      asset_group.touch
     ensure
       @import_step.update_attributes(state: 'error') unless @import_step.state == 'complete'
-      @import_step.asset_group.touch
+      @import_step.asset_group.touch if @import_step.asset_group
+    end
+
+    def is_refreshing_right_now?
+      Step.running_with_asset(self).count > 0
+    end
+
+    def type_of_asset_for_sequencescape
+      if ((facts.with_predicate('a').first) && (facts.with_predicate('a').first.object.include?("Tube")))
+        :tube
+      else
+        :plate
+      end
     end
 
     def refresh
       if is_remote_asset?
-        remote_asset = SequencescapeClient::find_by_uuid(uuid)
+        remote_asset = SequencescapeClient::find_by_uuid(uuid, type = type_of_asset_for_sequencescape)
         raise NotFound unless remote_asset
         if changed_remote?(remote_asset)
-          @import_step = Step.new(step_type: StepType.find_or_create_by(name: 'Refresh'), state: 'running')
-          _process_refresh(remote_asset)
+          unless is_refreshing_right_now?
+            @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh'), state: 'running')
+            _process_refresh(remote_asset)
+          end
         end
       end
       self
     end
 
     def refresh!
-      @import_step = Step.new(step_type: StepType.find_or_create_by(name: 'Refresh!!'), state: 'running')      
-      remote_asset = SequencescapeClient::find_by_uuid(uuid)
+      @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh!!'), state: 'running')      
+      remote_asset = SequencescapeClient::find_by_uuid(uuid, type = type_of_asset_for_sequencescape)
       raise NotFound unless remote_asset
       _process_refresh(remote_asset)
       self      
     end
 
     def import
-      @import_step = Step.new(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')      
+      @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')      
       remote_asset = SequencescapeClient::get_remote_asset(barcode)
       if remote_asset
+        class_name = self.class.sequencescape_type_for_asset(remote_asset)
+        update_facts_from_remote(Fact.new(:predicate => 'a', :object => class_name))
+
         facts << Fact.new(predicate: 'remoteAsset', object: remote_asset.uuid, is_remote?: true)
         update_attributes!(uuid: remote_asset.uuid)
         refresh
@@ -113,14 +150,15 @@ module Asset::Import
       facts.from_remote_asset.count > 0
     end
 
-    def update_facts_from_remote(list)
+    def update_facts_from_remote(list, step=nil)
+      step = step || @import_step
       list = [list].flatten
       added = list.map do |f| 
         f.assign_attributes(:is_remote? => true) 
         f
       end
       facts << added
-      add_operations([added].flatten, @import_step)
+      add_operations([added].flatten, step)
     end
 
   end
@@ -160,17 +198,15 @@ module Asset::Import
       
       asset = Asset.find_by_barcode(barcode)
       asset = Asset.find_by_uuid(barcode) unless asset
+      asset = Asset.create_local_asset if asset.nil? && is_local_asset?(barcode)
 
-      ActiveRecord::Base.transaction do 
-        asset = Asset.create_local_asset if asset.nil? && is_local_asset?(barcode)
-
-        if asset
-          asset.refresh
-        else
-          asset = Asset.create(:barcode => barcode)
-          asset.import
-        end
+      if asset
+        asset.refresh
+      else
+        asset = Asset.create(:barcode => barcode)
+        asset.import
       end
+
       asset
     end
 
@@ -195,17 +231,18 @@ module Asset::Import
       asset.update_digest_with_remote(remote_asset)
     end
 
-    def annotate_container(asset, remote_asset)
+    def annotate_container(asset, remote_asset, step=nil)
+      step = step || asset.get_import_step
       if remote_asset.try(:aliquots, nil)
         remote_asset.aliquots.each do |aliquot|
           asset.update_facts_from_remote(Fact.new(:predicate => 'sample_tube',
-            :object_asset => asset))
+            :object_asset => asset), step)
           asset.update_facts_from_remote(Fact.new(:predicate => 'sanger_sample_id',
-            :object => aliquot.sample.sanger.sample_id))
+            :object => aliquot.sample.sanger.sample_id), step)
           asset.update_facts_from_remote(Fact.new(:predicate => 'sanger_sample_name',
-            :object => aliquot.sample.sanger.name))
+            :object => aliquot.sample.sanger.name), step)
           asset.update_facts_from_remote(Fact.new(predicate: 'supplier_sample_name', 
-            object: aliquot.sample.supplier.sample_name))        
+            object: aliquot.sample.supplier.sample_name), step)        
         end
       end
     end
@@ -216,11 +253,11 @@ module Asset::Import
 
     def annotate_study_name_from_aliquots(asset, remote_asset)
       if remote_asset.try(:aliquots, nil)
-        if remote_asset.aliquots.first.sample
+        if ((remote_asset.aliquots.count == 1) && (remote_asset.aliquots.first.sample))
           asset.update_facts_from_remote(Fact.new(predicate: 'study_name', 
             object: sample_id_to_study_name(remote_asset.aliquots.first.sample.sanger.sample_id)))
         end
-      end    
+      end
     end
 
     def annotate_study_name(asset, remote_asset)
@@ -237,23 +274,24 @@ module Asset::Import
       if remote_asset.try(:wells, nil)
         remote_asset.wells.each do |well|
           local_well = Asset.find_or_create_by!(:uuid => well.uuid)
-          # Only if the supplier name is defined
-          if (well.aliquots.first.sample.supplier.sample_name)
+          if (well.try(:aliquots, nil)&.first&.sample&.supplier&.sample_name)
             asset.update_facts_from_remote(Fact.new(:predicate => 'contains', :object_asset => local_well))
 
             # Updated wells will also mean that the plate is out of date, so we'll set it in the asset
-            local_well.update_facts_from_remote(Fact.new(:predicate => 'a', :object => 'Well'))
-            local_well.update_facts_from_remote(Fact.new(:predicate => 'location', :object => well.location))
-            local_well.update_facts_from_remote(Fact.new(:predicate => 'parent', :object_asset => asset))
+            local_well.update_facts_from_remote(Fact.new(:predicate => 'a', :object => 'Well'), asset.get_import_step)
+            local_well.update_facts_from_remote(Fact.new(:predicate => 'location', :object => well.location), asset.get_import_step)
+            local_well.update_facts_from_remote(Fact.new(:predicate => 'parent', :object_asset => asset), asset.get_import_step)
 
-            annotate_container(local_well, well)
+            annotate_container(local_well, well, asset.get_import_step)
           end
         end
       end
     end
 
     def sequencescape_type_for_asset(remote_asset)
-      remote_asset.class.to_s.gsub(/Sequencescape::/,'')
+      type = remote_asset.class.to_s.gsub(/Sequencescape::/,'')
+      return 'SampleTube' if type == 'Tube'
+      return type
     end
 
     def keep_sync_with_sequencescape?(remote_asset)

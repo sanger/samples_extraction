@@ -1,5 +1,10 @@
 <div class="fact administrator-allowed">
-  <span class="label label-default
+  <span class="label 
+    <% if fact.respond_to?(:is_remote?) %>
+      <%= fact.is_remote? ? 'label-info' : 'label-default'  %>
+    <% else %>
+      label-default
+    <% end %>
   <%= fact.to_add_by ? 'to_add' : '' if fact.respond_to?(:to_add_by) %>
   <%= fact.to_remove_by ? 'to_remove' : '' if fact.respond_to?(:to_remove_by)%>
   ">

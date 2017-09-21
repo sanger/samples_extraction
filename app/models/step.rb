@@ -11,6 +11,10 @@ class Step < ActiveRecord::Base
   has_many :uploads
   has_many :operations
 
+  has_many :assets, through: :asset_group
+
+  scope :running_with_asset, ->(asset) { includes(:assets).where(asset_groups_assets: { asset_id: asset.id}, state: 'running') }
+
   belongs_to :created_asset_group, :class_name => 'AssetGroup', :foreign_key => 'created_asset_group_id'
 
   scope :in_progress, ->() { where(:in_progress? => true)}
