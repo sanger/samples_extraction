@@ -13,8 +13,9 @@ RSpec.describe 'Asset::Import' do
   			expect{Asset.find_or_import_asset_with_barcode('NOT_FOUND')}.to raise_exception Asset::Import::NotFound
   		end
       it 'should not create a new asset' do
+        expect(Asset.all.count).to eq(0)
         expect{Asset.find_or_import_asset_with_barcode('NOT_FOUND')}.to raise_exception Asset::Import::NotFound
-        expect(Asset.where(barcode: 'NOT_FOUND').count).to eq(0)
+        expect(Asset.all.count).to eq(0)
       end
   	end
   	context 'when importing a local asset' do
