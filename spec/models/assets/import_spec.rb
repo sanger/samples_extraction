@@ -9,12 +9,12 @@ RSpec.describe 'Asset::Import' do
   		setup do
   			allow(SequencescapeClient).to receive(:get_remote_asset).and_return(nil)
   		end
-  		it 'should raise a NotFound exception at the end' do
-  			expect{Asset.find_or_import_asset_with_barcode('NOT_FOUND')}.to raise_exception Asset::Import::NotFound
+  		it 'should return nil' do
+  			expect(Asset.find_or_import_asset_with_barcode('NOT_FOUND')).to eq(nil)
   		end
       it 'should not create a new asset' do
         expect(Asset.all.count).to eq(0)
-        expect{Asset.find_or_import_asset_with_barcode('NOT_FOUND')}.to raise_exception Asset::Import::NotFound
+        Asset.find_or_import_asset_with_barcode('NOT_FOUND')
         expect(Asset.all.count).to eq(0)
       end
   	end
@@ -119,51 +119,61 @@ RSpec.describe 'Asset::Import' do
 		  		expect(Asset.count>0).to eq(true)
 		  	end
 		  end
-		  context 'already imported' do
-		  	setup do
-		  		@asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
-		  	end
-		  	it 'should not create a new local asset' do
-		  		count = Asset.count
-					Asset.find_or_import_asset_with_barcode(@barcode_plate)
-		  		expect(Asset.count).to eq(count)
-		  	end
-
-		  	context 'when the local copy is up to date' do
-		  		it 'should not destroy any remote facts' do
-		  			remote_facts = @asset.facts.from_remote_asset
-		  			remote_facts.each(&:reload)
-		  			Asset.find_or_import_asset_with_barcode(@barcode_plate)
-		  			expect{remote_facts.each(&:reload)}.not_to raise_exception ActiveRecord::RecordNotFound
-		  		end
-		  	end
-
-		  	context 'when the local copy is out of date' do
-		  		setup do
-		  			@asset.update_attributes(remote_digest: 'RANDOM')
-		  		end
-		  		it 'should destroy any remote facts' do
-		  			remote_facts = @asset.facts.from_remote_asset
-		  			remote_facts.each(&:reload)
-		  			Asset.find_or_import_asset_with_barcode(@barcode_plate)	
-		  			expect{remote_facts.each(&:reload)}.to raise_exception ActiveRecord::RecordNotFound
-		  		end
-          
-          it 'should destroy any contains dependant remote facts' do
-            remote_facts = @asset.facts.with_predicate('contains').map(&:object_asset).map{|w| w.facts.from_remote_asset}.flatten
-            remote_facts.each(&:reload)
-            Asset.find_or_import_asset_with_barcode(@barcode_plate) 
-            expect{remote_facts.each(&:reload)}.to raise_exception ActiveRecord::RecordNotFound            
+		  context 'when is already imported' do
+        context 'when the remote source is not present anymore' do
+          setup do
+            @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
+            allow(SequencescapeClient).to receive(:find_by_uuid).and_return(nil)
           end
+          it 'should raise an exception' do
+            expect{Asset.find_or_import_asset_with_barcode(@barcode_plate)}.to raise_exception Asset::Import::RefreshSourceNotFoundAnymore
+          end
+        end
+        context 'when the remote source is present' do
+  		  	setup do
+  		  		@asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
+  		  	end
+  		  	it 'should not create a new local asset' do
+  		  		count = Asset.count
+  					Asset.find_or_import_asset_with_barcode(@barcode_plate)
+  		  		expect(Asset.count).to eq(count)
+  		  	end
 
-		  		it 'should re-create new remote facts' do
-		  			count = @asset.facts.from_remote_asset.count
-		  			@asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
-		  			@asset.facts.reload
-		  			expect(@asset.facts.from_remote_asset.count).to eq(count)
-		  		end
-		  	end
+  		  	context 'when the local copy is up to date' do
+  		  		it 'should not destroy any remote facts' do
+  		  			remote_facts = @asset.facts.from_remote_asset
+  		  			remote_facts.each(&:reload)
+  		  			Asset.find_or_import_asset_with_barcode(@barcode_plate)
+  		  			expect{remote_facts.each(&:reload)}.not_to raise_exception ActiveRecord::RecordNotFound
+  		  		end
+  		  	end
 
+  		  	context 'when the local copy is out of date' do
+  		  		setup do
+  		  			@asset.update_attributes(remote_digest: 'RANDOM')
+  		  		end
+  		  		it 'should destroy any remote facts' do
+  		  			remote_facts = @asset.facts.from_remote_asset
+  		  			remote_facts.each(&:reload)
+  		  			Asset.find_or_import_asset_with_barcode(@barcode_plate)	
+  		  			expect{remote_facts.each(&:reload)}.to raise_exception ActiveRecord::RecordNotFound
+  		  		end
+            
+            it 'should destroy any contains dependant remote facts' do
+              remote_facts = @asset.facts.with_predicate('contains').map(&:object_asset).map{|w| w.facts.from_remote_asset}.flatten
+              remote_facts.each(&:reload)
+              Asset.find_or_import_asset_with_barcode(@barcode_plate) 
+              expect{remote_facts.each(&:reload)}.to raise_exception ActiveRecord::RecordNotFound            
+            end
+
+  		  		it 'should re-create new remote facts' do
+  		  			count = @asset.facts.from_remote_asset.count
+  		  			@asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
+  		  			@asset.facts.reload
+  		  			expect(@asset.facts.from_remote_asset.count).to eq(count)
+  		  		end
+  		  	end
+        end
 		  end
   	end
   end
