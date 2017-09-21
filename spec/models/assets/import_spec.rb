@@ -27,30 +27,59 @@ RSpec.describe 'Asset::Import' do
   	end
   	context 'when importing a remote asset' do
 			setup do
-				@barcode_plate = "1"
-        @remote_plate_asset = build_remote_plate
-				allow(@remote_plate_asset).to receive(:class).and_return(Sequencescape::Plate)
 				SequencescapeClient = double('sequencescape_client')
-        allow(SequencescapeClient).to receive(:find_by_uuid).with(@remote_plate_asset.uuid, :plate).and_return(@remote_plate_asset)
-				allow(SequencescapeClient).to receive(:get_remote_asset).with(@barcode_plate).and_return(@remote_plate_asset)
-				allow(SequencescapeClient).to receive(:get_remote_asset).with(@remote_plate_asset.uuid).and_return(@remote_plate_asset)
 			end
 
       context 'when the asset is a tube' do
+        setup do
+          @remote_tube_asset = build_remote_tube
+          @remote_tube_asset.barcode = "1"
+          stub_client_with_asset(SequencescapeClient, @remote_tube_asset)
+        end
         it 'should try to obtain a tube' do
-          allow(@remote_plate_asset).to receive(:class).and_return(Sequencescape::Tube)
-          allow(SequencescapeClient).to receive(:find_by_uuid).with(@remote_plate_asset.uuid, :tube).and_return(@remote_plate_asset)
           @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
           expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_plate_asset.uuid, :tube)
         end
       end
 
       context 'when the asset is a plate' do
+        setup do
+          @remote_plate_asset = build_remote_plate
+          @remote_plate_asset.barcode = "2"
+          stub_client_with_asset(SequencescapeClient, @remote_plate_asset)
+        end
         it 'should try to obtain a plate' do
-          allow(@remote_plate_asset).to receive(:class).and_return(Sequencescape::Plate)
-          allow(SequencescapeClient).to receive(:find_by_uuid).with(@remote_plate_asset.uuid, :plate).and_return(@remote_plate_asset)
           @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
           expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_plate_asset.uuid, :plate)
+        end
+
+        context 'when the plate does not have aliquots in its wells' do
+          setup do
+            @remote_plate_asset_without_aliquots = build_remote_plate
+            @remote_plate_asset_without_aliquots.barcode = "3"
+            @remote_plate_asset_without_aliquots.wells.each do |w|
+              w.aliquots = []
+            end
+            stub_client_with_asset(SequencescapeClient, @remote_plate_asset_without_aliquots)
+          end
+          it 'creates the wells with the same uuid as in the remote asset' do
+            @asset = Asset.find_or_import_asset_with_barcode(@remote_plate_asset_without_aliquots.barcode)
+            wells = @asset.facts.with_predicate('contains').map(&:object_asset)
+            expect(wells.zip(@remote_plate_asset_without_aliquots.wells).all?{|w,w2| w.uuid == w2.uuid}).to eq(true)
+          end
+        end
+        context 'when the plate does not have samples in its wells' do
+          setup do
+            @remote_plate_asset_without_samples.barcode = "4"
+            @remote_plate_asset_without_samples.wells.each do |w|
+              w.aliquots.samples = nil
+            end
+          end
+          it 'creates the wells with the same uuid as in the remote asset' do
+            @asset = Asset.find_or_import_asset_with_barcode(@remote_plate_asset_without_samples.barcode)
+            wells = @asset.facts.with_predicate('contains').map(&:object_asset)
+            expect(wells.zip(@remote_plate_asset_without_samples.wells).all?{|w,w2| w.uuid == w2.uuid}).to eq(true)
+          end
         end
       end
 

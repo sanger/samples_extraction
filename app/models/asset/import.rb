@@ -253,11 +253,11 @@ module Asset::Import
 
     def annotate_study_name_from_aliquots(asset, remote_asset)
       if remote_asset.try(:aliquots, nil)
-        if remote_asset.aliquots.first.sample
+        if ((remote_asset.aliquots.count == 1) && (remote_asset.aliquots.first.sample))
           asset.update_facts_from_remote(Fact.new(predicate: 'study_name', 
             object: sample_id_to_study_name(remote_asset.aliquots.first.sample.sanger.sample_id)))
         end
-      end    
+      end
     end
 
     def annotate_study_name(asset, remote_asset)

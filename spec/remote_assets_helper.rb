@@ -8,6 +8,9 @@ module RemoteAssetsHelper
 		}
 		my_double = double('remote_asset', obj)		
 		allow(my_double).to receive(:attribute_groups).and_return(obj)
+
+		allow(my_double).to receive(:class).and_return(Sequencescape::Plate)
+
 		my_double
 	end
 
@@ -18,11 +21,14 @@ module RemoteAssetsHelper
 	def build_remote_tube
 		purpose = double('purpose', name: 'A purpose')
 
-		double('remote_asset', {
+		my_double = double('remote_asset', {
 			uuid: SecureRandom.uuid,
 			plate_purpose: purpose,
 			aliquots: [build_remote_aliquot]
 			})		
+
+		allow(my_double).to receive(:class).and_return(Sequencescape::Plate)
+		my_double
 	end
 
 	def build_remote_aliquot
@@ -35,6 +41,13 @@ module RemoteAssetsHelper
 			supplier: double('supplier', {sample_name: 'a supplier'}),
 			updated_at: Time.now.to_s
 			)
+	end
+
+	def stub_client_with_asset(double, asset)
+		type = (asset.class==Sequencescape::Plate) ? :plate : :tube
+	  allow(double).to receive(:find_by_uuid).with(asset.uuid, type).and_return(asset)
+		allow(double).to receive(:get_remote_asset).with(asset.barcode).and_return(asset)
+		allow(double).to receive(:get_remote_asset).with(asset.uuid).and_return(asset)
 	end
 
 end
