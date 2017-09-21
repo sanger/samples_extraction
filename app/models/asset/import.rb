@@ -129,23 +129,6 @@ module Asset::Import
       self      
     end
 
-    def import
-      @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')      
-      remote_asset = SequencescapeClient::get_remote_asset(barcode)
-      if remote_asset
-        class_name = self.class.sequencescape_type_for_asset(remote_asset)
-        update_facts_from_remote(Fact.new(:predicate => 'a', :object => class_name))
-
-        facts << Fact.new(predicate: 'remoteAsset', object: remote_asset.uuid, is_remote?: true)
-        update_attributes!(uuid: remote_asset.uuid)
-        refresh
-      else
-        raise NotFound
-      end
-      update_compatible_activity_type
-      self
-    end    
-
     def is_remote_asset?
       facts.from_remote_asset.count > 0
     end
@@ -164,6 +147,24 @@ module Asset::Import
   end
 
   module ClassMethods
+
+    def import(barcode)
+      asset = nil
+
+      @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')      
+      remote_asset = SequencescapeClient::get_remote_asset(barcode)
+      if remote_asset
+        asset = Asset.create(barcode: barcode, uuid: remote_asset.uuid)
+        asset.update_facts_from_remote(Fact.new(:predicate => 'a', :object => sequencescape_type_for_asset(remote_asset)))
+        asset.facts << Fact.new(predicate: 'remoteAsset', object: remote_asset.uuid, is_remote?: true)
+        asset.save
+        asset.refresh
+        asset.update_compatible_activity_type
+      else
+        raise NotFound
+      end
+      asset
+    end    
 
     def create_local_asset(barcode)
       asset=nil
@@ -190,7 +191,7 @@ module Asset::Import
       UUID_REGEXP.match(str)
     end
 
-    def find_or_import_asset_with_barcode(barcode)
+    def find_asset_with_barcode(barcode)
       barcode = barcode.to_s
       unless is_digit_barcode?(barcode) || is_uuid?(barcode)
         barcode = Barcode.calculate_barcode(barcode[0,2], barcode[2, barcode.length-3].to_i).to_s
@@ -198,18 +199,16 @@ module Asset::Import
       
       asset = Asset.find_by_barcode(barcode)
       asset = Asset.find_by_uuid(barcode) unless asset
-      asset = Asset.create_local_asset if asset.nil? && is_local_asset?(barcode)
-
+      asset = Asset.create_local_asset if asset.nil? && is_local_asset?(barcode)      
       if asset
         asset.refresh
-      else
-        asset = Asset.create(:barcode => barcode)
-        asset.import
       end
-
       asset
     end
 
+    def find_or_import_asset_with_barcode(barcode)
+      find_asset_with_barcode(barcode) || import(barcode)
+    end
 
     def update_asset_from_remote_asset(asset, remote_asset)
       class_name = sequencescape_type_for_asset(remote_asset)
