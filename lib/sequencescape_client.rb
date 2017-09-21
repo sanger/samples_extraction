@@ -47,6 +47,8 @@ class SequencescapeClient
 
   def self.get_remote_asset(barcode)
     get_searcher_by_barcode.first(:barcode => barcode)
+  rescue Sequencescape::Api::ResourceNotFound => exception
+    return nil
   end
 
 end

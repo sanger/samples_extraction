@@ -7,8 +7,7 @@ module Asset::Import
     base.extend ClassMethods
   end
 
-  class NotFound < StandardError ; end
-  class OutOfDate < StandardError ; end
+  class RefreshSourceNotFoundAnymore < StandardError ; end
 
   module InstanceMethods
 
@@ -110,7 +109,7 @@ module Asset::Import
     def refresh
       if is_remote_asset?
         remote_asset = SequencescapeClient::find_by_uuid(uuid, type = type_of_asset_for_sequencescape)
-        raise NotFound unless remote_asset
+        raise RefreshSourceNotFoundAnymore unless remote_asset
         if changed_remote?(remote_asset)
           unless is_refreshing_right_now?
             @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh'), state: 'running')
@@ -124,7 +123,7 @@ module Asset::Import
     def refresh!
       @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh!!'), state: 'running')      
       remote_asset = SequencescapeClient::find_by_uuid(uuid, type = type_of_asset_for_sequencescape)
-      raise NotFound unless remote_asset
+      raise RefreshSourceNotFoundAnymore unless remote_asset
       _process_refresh(remote_asset)
       self      
     end
@@ -160,8 +159,6 @@ module Asset::Import
         asset.save
         asset.refresh
         asset.update_compatible_activity_type
-      else
-        raise NotFound
       end
       asset
     end    
