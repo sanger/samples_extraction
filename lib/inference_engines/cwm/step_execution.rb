@@ -64,7 +64,7 @@ module InferenceEngines
           send(action_type, quads) if quads
         end
 
-        @asset_group.assets.each(&:export!)
+        #@asset_group.assets.each(&:export!)
       end
 
       def self.UUID_REGEXP
