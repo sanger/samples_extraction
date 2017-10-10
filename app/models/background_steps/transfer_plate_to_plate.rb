@@ -1,4 +1,4 @@
-class BackgroundSteps::TransferPlateToPlate < Step
+class BackgroundSteps::TransferPlateToPlate < BackgroundSteps::BackgroundStep
   #
   #  {
   #    ?p :a :Plate .

@@ -23,6 +23,7 @@ RSpec.describe Step, type: :model do
     })
   end
 
+
   describe '#execute_actions' do
     setup do
       @step_type = FactoryGirl.create :step_type

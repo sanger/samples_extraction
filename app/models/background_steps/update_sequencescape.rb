@@ -1,4 +1,4 @@
-class BackgroundSteps::UpdateSequencescape < Step
+class BackgroundSteps::UpdateSequencescape < BackgroundSteps::BackgroundStep
   attr_accessor :printer_config
 
   def assets_compatible_with_step_type

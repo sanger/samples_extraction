@@ -67,7 +67,7 @@ class StepsController < ApplicationController
       valid_step_types = @activity.step_types_for(@assets)
       step_type_to_do = @activity.step_types.find_by_id!(@step_type.id)
       if valid_step_types.include?(step_type_to_do)
-        @step = @activity.do_step(step_type_to_do, @current_user, create_step_params, @printer_config)
+        @step = @activity.do_task(step_type_to_do, @current_user, create_step_params, @printer_config)
         session[:data_params] = {}        
       end
     #rescue Lab::Actions::InvalidDataParams => e

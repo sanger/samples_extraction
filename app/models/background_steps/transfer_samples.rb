@@ -1,4 +1,4 @@
-class BackgroundSteps::TransferSamples < Step
+class BackgroundSteps::TransferSamples < BackgroundSteps::BackgroundStep
   include PlateTransfer
   def assets_compatible_with_step_type
     (asset_group.assets.with_predicate('transferredFrom').count > 0) ||

@@ -1,4 +1,4 @@
-class BackgroundSteps::TransferTubesToTubeRackByPosition < Step
+class BackgroundSteps::TransferTubesToTubeRackByPosition < BackgroundSteps::BackgroundStep
   #
   #  {
   #    ?p :a :Tube .

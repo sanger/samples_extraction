@@ -18,13 +18,22 @@ class Step < ActiveRecord::Base
   belongs_to :created_asset_group, :class_name => 'AssetGroup', :foreign_key => 'created_asset_group_id'
 
   scope :in_progress, ->() { where(:in_progress? => true)}
-
   scope :cancelled, ->() {where(:state => 'cancel')}
-
   scope :in_activity, ->() { where.not(activity_id: nil)}
 
   after_create :deprecate_cancelled_steps
-  after_create :execute_actions, :unless => :in_progress?
+  after_create :execute_actions, :if => :can_run_now?
+
+  has_one :next_step, class_name: 'Step', :foreign_key => 'next_step_id'
+
+
+  def can_run_now?
+    !is_background_step? && !in_progress?
+  end
+
+  def is_background_step?
+    false
+  end
 
   def deprecate_cancelled_steps
     if activity
@@ -129,7 +138,7 @@ class Step < ActiveRecord::Base
       deactivate
     end
     update_attributes(:asset_group => original_assets) if activity
-    update_attributes(:state => 'complete')
+    update_attributes(:state => 'running')
   end
 
   def update_assets_started
@@ -179,7 +188,7 @@ class Step < ActiveRecord::Base
 
 
       update_attributes(:in_progress? => false)
-      update_attributes(:state => 'complete')
+      update_attributes(:state => 'running')
       deactivate
     end
     asset_group_assets.each(&:touch)

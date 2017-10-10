@@ -1,4 +1,4 @@
-class BackgroundSteps::StudyNameInference < Step
+class BackgroundSteps::StudyNameInference < BackgroundSteps::BackgroundStep
   def assets_compatible_with_step_type
     asset_group.assets.with_predicate('contains').select do |a| 
       a.facts.with_predicate('contains').any? do |f|

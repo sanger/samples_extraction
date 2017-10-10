@@ -1,4 +1,4 @@
-class BackgroundSteps::AliquotTypeInference < Step
+class BackgroundSteps::AliquotTypeInference < BackgroundSteps::BackgroundStep
   def assets_compatible_with_step_type
     asset_group.assets.with_predicate('aliquotType').select { |a| a.has_predicate?('contains') }
   end

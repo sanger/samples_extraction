@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'inferences_helper'
 
 RSpec.describe :cancellable, cancellable: true do
   setup do
@@ -6,7 +7,9 @@ RSpec.describe :cancellable, cancellable: true do
     @activity_type = FactoryGirl.create :activity_type
     @activity = FactoryGirl.create :activity, activity_type: @activity_type, asset_group: @asset_group
     @steps = 10.times.map do 
-      build_step(%Q{{?p :maxCardinality "1".} => {:step :createAsset {?p :a :Tube .}.} .}, %Q{}, activity: @activity)
+      step = build_step(%Q{{?p :maxCardinality "1".} => {:step :createAsset {?p :a :Tube .}.} .}, %Q{}, activity: @activity)
+      step.update_attributes(state: 'complete')
+      step
     end
   end
 

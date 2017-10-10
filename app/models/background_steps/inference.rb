@@ -1,6 +1,6 @@
 require 'inference_engines/cwm/step_execution'
 
-class BackgroundSteps::Inference < Step
+class BackgroundSteps::Inference < BackgroundSteps::BackgroundStep
 
   def assets_compatible_with_step_type
     Rails.configuration.enable_reasoning && (activity.step_types.for_reasoning.count > 0)
