@@ -47,12 +47,19 @@ class Activity < ActiveRecord::Base
   scope :in_progress, ->() { where('completed_at is null')}
   scope :finished, ->() { where('completed_at is not null')}
 
+  has_one :work_order
+
   def last_user
     users.last
   end
 
   def finish
-    update_attributes(:completed_at => DateTime.now)
+    ActiveRecord::Base.transaction do
+      update_attributes(:completed_at => DateTime.now)
+      if work_order
+        work_order.complete
+      end
+    end
   end
 
   def finished?
@@ -161,7 +168,7 @@ class Activity < ActiveRecord::Base
   end
 
   def reasoning!(printer_config=nil, user=nil)
-    BackgroundSteps::Inference.create(:asset_group => asset_group, :activity => self, :user => user)
+    #BackgroundSteps::Inference.create(:asset_group => asset_group, :activity => self, :user => user)
 
     BackgroundSteps::TransferTubesToTubeRackByPosition.create(:asset_group => asset_group, :activity => self, :user => user)
     BackgroundSteps::TransferPlateToPlate.create(:asset_group => asset_group, :activity => self, :user => user)
@@ -170,6 +177,8 @@ class Activity < ActiveRecord::Base
     BackgroundSteps::AliquotTypeInference.create(:asset_group => asset_group, :activity => self, :user => user)
     BackgroundSteps::StudyNameInference.create(:asset_group => asset_group, :activity => self, :user => user)
     BackgroundSteps::PurposeNameInference.create(:asset_group => asset_group, :activity => self, :user => user)
+    
+    BackgroundSteps::Inference.create(:asset_group => asset_group, :activity => self, :user => user)
 
     BackgroundSteps::UpdateSequencescape.create(:asset_group => asset_group, :activity => self, :printer_config => printer_config, :user => user)
     #PushDataJob.perform_later(printer_config)
