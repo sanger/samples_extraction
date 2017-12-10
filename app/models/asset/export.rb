@@ -1,5 +1,8 @@
 module Asset::Export
 
+
+  class DuplicateLocations < StandardError ; end
+
   def update_sequencescape(print_config, user)
     instance = SequencescapeClient.find_by_uuid(uuid)
     unless instance
@@ -57,7 +60,7 @@ module Asset::Export
   end
 
   def attributes_to_update
-    raise 'Duplicate locations in plate' if duplicate_locations_in_plate?
+    raise DuplicateLocations if duplicate_locations_in_plate?
     facts.with_predicate('contains').map(&:object_asset).map do |well|
       racking_info(well)
     end

@@ -12,7 +12,7 @@ RSpec.describe SupportN3 do
       assert_equal instances_list.length, class_instance.send(:count)
       class_instance.send(:all).each_with_index do |instance, i|
         instances_list[i].each do |k,v|
-          assert_equal v, instance.send(k)
+          expect(v).to eq(instance.send(k))
         end
       end
     end

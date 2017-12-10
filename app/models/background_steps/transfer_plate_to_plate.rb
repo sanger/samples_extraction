@@ -1,4 +1,4 @@
-class BackgroundSteps::TransferPlateToPlate < Step
+class BackgroundSteps::TransferPlateToPlate < BackgroundSteps::BackgroundStep
   #
   #  {
   #    ?p :a :Plate .
@@ -21,7 +21,6 @@ class BackgroundSteps::TransferPlateToPlate < Step
   def execute_actions
     update_attributes!({
       :state => 'running',
-      :step_type => StepType.find_or_create_by(:name => 'TransferPlateToPlate'),
       :asset_group => AssetGroup.create!(:assets => asset_group.assets.with_predicate('transfer').with_fact('a', 'Plate'))
     })
     background_job

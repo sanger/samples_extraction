@@ -1,4 +1,4 @@
-class BackgroundSteps::PurposeNameInference < Step
+class BackgroundSteps::PurposeNameInference < BackgroundSteps::BackgroundStep
   def assets_compatible_with_step_type
     asset_group.assets.with_predicate('contains').select do |a| 
       a.facts.with_predicate('contains').any? do |f|
@@ -10,7 +10,6 @@ class BackgroundSteps::PurposeNameInference < Step
   def execute_actions
     update_attributes!({
       :state => 'running',
-      :step_type => StepType.find_or_create_by(:name => 'PurposeNameInference'),
       :asset_group => AssetGroup.create!(:assets => asset_group.assets)
     })
     background_job(printer_config, user)
