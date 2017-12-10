@@ -38,6 +38,20 @@ RSpec.describe 'BackgroundStep' do
               expect(another_step).to have_received(:execute_actions)
             end
           end
+          context 'when it has several steps configured' do
+            let(:my_steps) { 5.times.map{build :background_step}}
+            it 'executes all steps until the last one' do
+              my_steps.reverse.reduce(nil) do |memo, step|
+                step.update_attributes(next_step: memo)
+                allow(step).to receive(:execute_actions) do
+                  step.update_attributes(state: 'complete')
+                end
+                step
+              end
+              my_steps.first.execute_actions
+              expect(my_steps.last).to have_received(:execute_actions)
+            end
+          end
           context 'when it does not have a next step' do
             it 'does not execute the next step' do
               expect{step.update_attributes(state: 'complete')}.not_to raise_error

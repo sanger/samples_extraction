@@ -53,7 +53,7 @@ class Activity < ActiveRecord::Base
   end
 
   def previous_steps
-    asset_group.assets.includes(:steps).map(&:steps).concat(steps).flatten.sort{|a,b| a.created_at <=> b.created_at}.uniq
+    asset_group.assets.includes(:steps).map(&:steps).concat(steps).flatten.sort{|a,b| a.id <=> b.id}.uniq
   end
 
   def assets

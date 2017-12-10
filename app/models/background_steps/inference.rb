@@ -2,16 +2,10 @@ require 'inference_engines/cwm/step_execution'
 
 class BackgroundSteps::Inference < BackgroundSteps::BackgroundStep
 
-  def assets_compatible_with_step_type
-    Rails.configuration.enable_reasoning && (activity.step_types.for_reasoning.count > 0)
-  end
-
   def execute_actions
-    type = StepType.find_or_create_by(:name => 'Reasoning...')
-    type.update_attributes(:superceded_by_id => -1)
     update_attributes!({
       :state => 'running',
-      :step_type => type,
+      :step_type => step_type,
       :asset_group => AssetGroup.create!(:assets => asset_group.assets)
     })
     background_job
@@ -22,8 +16,8 @@ class BackgroundSteps::Inference < BackgroundSteps::BackgroundStep
       :step => self, 
       :asset_group => asset_group,
       :created_assets => {},
-      :step_types => activity.step_types.for_reasoning
-    )    
+      :step_types => [step_type]
+    )
     ActiveRecord::Base.transaction do
       inferences.run
     end

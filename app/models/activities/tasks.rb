@@ -9,6 +9,8 @@ module Activities
         step.created_asset_group.delay.print(printer_config, user.username)
       end
 
+      step.update_attributes!(:state => 'complete')
+
       step
     end
 

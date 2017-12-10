@@ -24,7 +24,9 @@ class Step < ActiveRecord::Base
   after_create :deprecate_cancelled_steps
   after_create :execute_actions, :if => :can_run_now?
 
-  has_one :next_step, class_name: 'Step', :foreign_key => 'next_step_id'
+
+  self.inheritance_column = :sti_type
+  belongs_to :next_step, class_name: 'Step', :foreign_key => 'next_step_id'
 
 
   def can_run_now?

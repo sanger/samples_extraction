@@ -1,16 +1,33 @@
 module Activities
   module BackgroundTasks
+    class InferenceTask
+      attr_accessor :step_type
+
+      def initialize(step_type)
+        @step_type = step_type
+      end
+
+      def create(params)
+        BackgroundSteps::Inference.create(params.merge(step_type: @step_type))
+      end
+    end
+
     def background_tasks
-      [
-        BackgroundSteps::Inference, 
-        BackgroundSteps::TransferTubesToTubeRackByPosition,
-        BackgroundSteps::TransferPlateToPlate,
-        BackgroundSteps::TransferSamples,
-        BackgroundSteps::AliquotTypeInference,
-        BackgroundSteps::StudyNameInference,
-        BackgroundSteps::PurposeNameInference,
-        BackgroundSteps::UpdateSequencescape
-      ]
+      inference_tasks.concat(
+        [
+          BackgroundSteps::TransferTubesToTubeRackByPosition,
+          BackgroundSteps::TransferPlateToPlate,
+          BackgroundSteps::TransferSamples,
+          BackgroundSteps::AliquotTypeInference,
+          BackgroundSteps::StudyNameInference,
+          BackgroundSteps::PurposeNameInference,
+          BackgroundSteps::UpdateSequencescape
+        ]
+      )
+    end
+
+    def inference_tasks
+      step_types.for_reasoning.map{|type| InferenceTask.new(type)}
     end
 
     def create_background_steps(ordered_tasks, reasoning_params)
@@ -27,7 +44,8 @@ module Activities
         :asset_group => asset_group, 
         :activity => self, 
         :printer_config => printer_config, 
-        :user => user
+        :user => user,
+        :in_progress? => true
       }
 
       connected_tasks = create_background_steps(background_tasks, reasoning_params)

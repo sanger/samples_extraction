@@ -91,7 +91,7 @@ RSpec.describe Asset, type: :model do
         }
         @assets = SupportN3::parse_facts(facts)
         @rack2 = Asset.find_by(uuid: 'rack2')
-        expect{@rack2.attributes_to_update}.to raise_exception
+        expect{@rack2.attributes_to_update}.to raise_exception Asset::Export::DuplicateLocations
       end
     end
   end

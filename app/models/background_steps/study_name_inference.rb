@@ -10,7 +10,6 @@ class BackgroundSteps::StudyNameInference < BackgroundSteps::BackgroundStep
   def execute_actions
     update_attributes!({
       :state => 'running',
-      :step_type => StepType.find_or_create_by(:name => 'StudyNameInference'),
       :asset_group => AssetGroup.create!(:assets => asset_group.assets)
     })
     background_job(printer_config, user)

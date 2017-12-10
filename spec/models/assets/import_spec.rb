@@ -31,9 +31,9 @@ RSpec.describe 'Asset::Import' do
   		end
   	end
   	context 'when importing a remote asset' do
-			setup do
-				SequencescapeClient = double('sequencescape_client')
+      let(:SequencescapeClient) { double('sequencescape_client') }
 
+			setup do
         @remote_plate_asset = build_remote_plate(barcode: '2')
         @barcode_plate = @remote_plate_asset.barcode 
         stub_client_with_asset(SequencescapeClient, @remote_plate_asset)
@@ -144,7 +144,7 @@ RSpec.describe 'Asset::Import' do
   		  			remote_facts = @asset.facts.from_remote_asset
   		  			remote_facts.each(&:reload)
   		  			Asset.find_or_import_asset_with_barcode(@barcode_plate)
-  		  			expect{remote_facts.each(&:reload)}.not_to raise_exception ActiveRecord::RecordNotFound
+  		  			expect{remote_facts.each(&:reload)}.not_to raise_error
   		  		end
   		  	end
 

@@ -1,4 +1,5 @@
 class BackgroundSteps::AliquotTypeInference < BackgroundSteps::BackgroundStep
+
   def assets_compatible_with_step_type
     asset_group.assets.with_predicate('aliquotType').select { |a| a.has_predicate?('contains') }
   end
@@ -6,7 +7,6 @@ class BackgroundSteps::AliquotTypeInference < BackgroundSteps::BackgroundStep
   def execute_actions
     update_attributes!({
       :state => 'running',
-      :step_type => StepType.find_or_create_by(:name => 'AliquotTypeInference'),
       :asset_group => AssetGroup.create!(:assets => asset_group.assets)
     })
     background_job(printer_config, user)
