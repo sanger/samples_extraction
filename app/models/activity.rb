@@ -35,6 +35,8 @@ class Activity < ActiveRecord::Base
   scope :in_progress, ->() { where('completed_at is null')}
   scope :finished, ->() { where('completed_at is not null')}
 
+  has_one :work_order
+
   def active_step
     return nil unless steps.in_progress
     steps.in_progress.first
@@ -45,7 +47,12 @@ class Activity < ActiveRecord::Base
   end
 
   def finish
-    update_attributes(:completed_at => DateTime.now)
+    ActiveRecord::Base.transaction do
+      update_attributes(:completed_at => DateTime.now)
+      if work_order
+        work_order.complete
+      end
+    end
   end
 
   def finished?

@@ -18,6 +18,10 @@ class ActivityType < ActiveRecord::Base
 
   attr_accessor :n3_definition
 
+  def available?
+    superceded_by.nil?
+  end
+
   def parse_n3
     return
     unless n3_definition.nil?

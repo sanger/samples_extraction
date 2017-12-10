@@ -305,6 +305,16 @@ ActiveRecord::Schema.define(version: 20171210183629) do
   add_index "users", ["plate_printer_id"], name: "index_users_on_plate_printer_id", using: :btree
   add_index "users", ["tube_printer_id"], name: "index_users_on_tube_printer_id", using: :btree
 
+  create_table "work_orders", force: :cascade do |t|
+    t.integer  "work_order_id", limit: 4
+    t.integer  "activity_id",   limit: 4
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+  end
+
+  add_index "work_orders", ["activity_id"], name: "index_work_orders_on_activity_id", using: :btree
+  add_index "work_orders", ["work_order_id"], name: "index_work_orders_on_work_order_id", using: :btree
+
   add_foreign_key "actions", "step_types"
   add_foreign_key "activities", "activity_types"
   add_foreign_key "activities", "asset_groups"
@@ -332,4 +342,5 @@ ActiveRecord::Schema.define(version: 20171210183629) do
   add_foreign_key "steps", "users"
   add_foreign_key "uploads", "activities"
   add_foreign_key "uploads", "steps"
+  add_foreign_key "work_orders", "activities"
 end

@@ -20,6 +20,7 @@
 
     </div>
     <% unless @asset_group.assets.empty? %>
+    <% @step_types = [] if @step_types.nil? %>
     <div class="panel-body <%= 'not-matched' if @step_types.empty? %>">
       <div>
         <% if @step_types.empty? %>
