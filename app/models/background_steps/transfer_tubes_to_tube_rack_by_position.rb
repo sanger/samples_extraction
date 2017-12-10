@@ -1,4 +1,4 @@
-class BackgroundSteps::TransferTubesToTubeRackByPosition < Step
+class BackgroundSteps::TransferTubesToTubeRackByPosition < BackgroundSteps::BackgroundStep
   #
   #  {
   #    ?p :a :Tube .
@@ -21,7 +21,6 @@ class BackgroundSteps::TransferTubesToTubeRackByPosition < Step
   def execute_actions
     update_attributes!({
       :state => 'running',
-      :step_type => StepType.find_or_create_by(:name => 'TransferTubesToTubeRackByPosition'),
       :asset_group => AssetGroup.create!(:assets => asset_group.assets.with_predicate('transferToTubeRackByPosition'))
     })
     background_job

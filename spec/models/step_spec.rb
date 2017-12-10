@@ -4,15 +4,16 @@ def assert_equal(a,b)
   expect(a).to eq(b)
 end
 
+def cwm_engine?
+  Rails.configuration.inference_engine == :cwm
+end
+
 RSpec.describe Step, type: :model do
 
   def build_instance
     create_step
   end
 
-  def cwm_engine?
-    Rails.configuration.inference_engine == :cwm
-  end
 
   Struct.new('FakeFact', :predicate, :object)
 
@@ -22,6 +23,7 @@ RSpec.describe Step, type: :model do
       :asset_group => @asset_group
     })
   end
+
 
   describe '#execute_actions' do
     setup do
@@ -297,10 +299,9 @@ RSpec.describe Step, type: :model do
         action = FactoryGirl.create(:action, {:action_type => 'addFacts',
           :predicate => 'has', :object => 'MoreData', :subject_condition_group => @cg3})
         @step_type.actions << action
-
         expect{
           @step = create_step
-          }.to raise_exception
+          }.to raise_exception Step::UnknownConditionGroup
         expect(Operation.all.count).to eq(0)
       end
 

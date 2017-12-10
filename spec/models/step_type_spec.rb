@@ -1,6 +1,5 @@
 require 'rails_helper'
 require 'spec_helper'
-require Rails.root.join "spec/concerns/deprecatable_spec.rb"
 
 def assert_equal(a,b)
   expect(a).to eq(b)

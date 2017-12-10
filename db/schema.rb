@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171205163743) do
+ActiveRecord::Schema.define(version: 20171210183629) do
 
   create_table "actions", force: :cascade do |t|
     t.string   "action_type",                limit: 255, null: false
@@ -265,6 +265,7 @@ ActiveRecord::Schema.define(version: 20171205163743) do
     t.integer  "superceded_by_id",       limit: 4
     t.text     "output",                 limit: 4294967295
     t.integer  "next_step_id",           limit: 4
+    t.string   "sti_type",               limit: 255
   end
 
   add_index "steps", ["activity_id"], name: "index_steps_on_activity_id", using: :btree
