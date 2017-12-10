@@ -18,7 +18,7 @@ module Aker
       { 
         catalogue: {
           pipeline: "Samples Extraction",
-          url: "http://172.19.133.55:9200/aker/work_orders",
+          url: aker_work_orders_url,
           lims_id: "SamplesExtraction",
           products: products_list_msg
         }
