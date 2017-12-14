@@ -15,6 +15,11 @@ Sequencescape.
 - Admin view to manage users, printers and labware
 - Functionality for searching of labwares by metadata criteria
 
+## TODO:
+
+- Sequencial execution of delayed jobs / steps
+
+
 ## Data model:
 ```text
 Kits <-- KitTypes <-- ActivityTypes ---> Activities   

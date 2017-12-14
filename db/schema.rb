@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170917175535) do
+ActiveRecord::Schema.define(version: 20171210183629) do
 
   create_table "actions", force: :cascade do |t|
     t.string   "action_type",                limit: 255, null: false
@@ -264,11 +264,14 @@ ActiveRecord::Schema.define(version: 20170917175535) do
     t.string   "state",                  limit: 255
     t.integer  "superceded_by_id",       limit: 4
     t.text     "output",                 limit: 4294967295
+    t.integer  "next_step_id",           limit: 4
+    t.string   "sti_type",               limit: 255
   end
 
   add_index "steps", ["activity_id"], name: "index_steps_on_activity_id", using: :btree
   add_index "steps", ["asset_group_id"], name: "index_steps_on_asset_group_id", using: :btree
   add_index "steps", ["created_asset_group_id"], name: "index_steps_on_created_asset_group_id", using: :btree
+  add_index "steps", ["next_step_id"], name: "index_steps_on_next_step_id", using: :btree
   add_index "steps", ["step_type_id"], name: "index_steps_on_step_type_id", using: :btree
   add_index "steps", ["user_id"], name: "index_steps_on_user_id", using: :btree
 
@@ -302,6 +305,16 @@ ActiveRecord::Schema.define(version: 20170917175535) do
   add_index "users", ["plate_printer_id"], name: "index_users_on_plate_printer_id", using: :btree
   add_index "users", ["tube_printer_id"], name: "index_users_on_tube_printer_id", using: :btree
 
+  create_table "work_orders", force: :cascade do |t|
+    t.integer  "work_order_id", limit: 4
+    t.integer  "activity_id",   limit: 4
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+  end
+
+  add_index "work_orders", ["activity_id"], name: "index_work_orders_on_activity_id", using: :btree
+  add_index "work_orders", ["work_order_id"], name: "index_work_orders_on_work_order_id", using: :btree
+
   add_foreign_key "actions", "step_types"
   add_foreign_key "activities", "activity_types"
   add_foreign_key "activities", "asset_groups"
@@ -329,4 +342,5 @@ ActiveRecord::Schema.define(version: 20170917175535) do
   add_foreign_key "steps", "users"
   add_foreign_key "uploads", "activities"
   add_foreign_key "uploads", "steps"
+  add_foreign_key "work_orders", "activities"
 end

@@ -11,6 +11,8 @@ gem 'bootstrap_form'
 gem 'sprockets-rails'
 gem 'ace-rails-ap'
 gem 'daemons'
+gem 'yajl-ruby', '>= 1.3'
+
 
 gem 'activerecord-session_store'
 
@@ -26,10 +28,9 @@ gem 'delayed_job'
 gem 'delayed_job_active_record'
 
 gem 'sequencescape-client-api',
-  #:path => '/Users/emr/projects/sequencescape-client-api'
   # Should be switched back to sanger + production for deployment
-  :github  => 'emrojo/sequencescape-client-api',
-  :branch  => 'asset-attribute-update',
+  :github => 'sanger/sequencescape-client-api',
+  :branch  => 'rails_4',
   :require => 'sequencescape'
 
 

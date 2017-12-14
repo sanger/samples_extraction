@@ -1,4 +1,4 @@
-class BackgroundSteps::UpdateSequencescape < Step
+class BackgroundSteps::UpdateSequencescape < BackgroundSteps::BackgroundStep
   attr_accessor :printer_config
 
   def assets_compatible_with_step_type
@@ -8,7 +8,6 @@ class BackgroundSteps::UpdateSequencescape < Step
   def execute_actions
     update_attributes!({
       :state => 'running',
-      :step_type => StepType.find_or_create_by(:name => 'UpdateSequencescape'),
       :asset_group => AssetGroup.create!(:assets => asset_group.assets.with_fact('pushTo', 'Sequencescape'))
     })
     background_job(printer_config, user)

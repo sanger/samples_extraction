@@ -10,7 +10,6 @@ class Asset < ActiveRecord::Base
   include Asset::Import
   include Asset::Export
 
-
   alias_attribute :name, :uuid 
 
   has_many :facts, :dependent => :delete_all
