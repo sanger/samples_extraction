@@ -11,6 +11,10 @@ class BackgroundSteps::Inference < BackgroundSteps::BackgroundStep
     background_job
   end
 
+  def output_error(exception)
+    [exception.message, Rails.backtrace_cleaner.clean(exception.backtrace)].flatten.join("\n")
+  end
+
   def background_job
     @error = nil
     begin
@@ -29,7 +33,7 @@ class BackgroundSteps::Inference < BackgroundSteps::BackgroundStep
       update_attributes!(:state => 'complete')
     end
   ensure
-    update_attributes!(:state => 'error', output: e.backtrace.join("\n")) unless state == 'complete'
+    update_attributes!(:state => 'error', output: output_error(@error)) unless state == 'complete'
     asset_group.touch
   end
 
