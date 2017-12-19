@@ -38,12 +38,11 @@ module InferenceEngines
         ].flatten.join(" ")
         line = "# EXECUTING: #{Rails.configuration.cwm_path}/cwm #{input_urls} --mode=r --think"
         
-        if Rails.configuration.cwm_disable_proxy
-          ENV['http_proxy'] = nil
-          ENV['https_proxy'] = nil
-        end
+
+
+        proxy = Rails.configuration.cwm_proxy
         
-        unless system("#{Rails.configuration.cwm_path}/cwm #{input_urls} --mode=r --think > #{output_tempfile.path}")
+        unless system({'http_proxy'=> proxy, 'https_proxy'=> proxy}, "#{Rails.configuration.cwm_path}/cwm #{input_urls} --mode=r --think > #{output_tempfile.path}")
           #raise "cwm rules failed!! #{line}"
           raise "cwm rules failed--> #{line}"
         end
