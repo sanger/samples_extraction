@@ -2,13 +2,30 @@ require 'rails_helper'
 
 RSpec.describe 'Inference' do
   context '#execute_actions' do
+    let(:execution) { double('step_execution') }
+    let(:inference) { create :inference }
+
+    before do  
+      allow(InferenceEngines::Cwm::StepExecution).to receive(:new).and_return(execution)              
+    end
+    context 'when there is an error' do
+      before do
+        allow(execution).to receive(:run).and_raise('boom!!')
+      end
+      it 'changes the status to error' do
+        inference.execute_actions
+        expect(inference.state).to eq('error')
+      end
+      it 'adds an output value explaining the error' do
+        inference.execute_actions
+        expect(inference.output.nil?).to eq(false)
+      end
+    end
   	context 'when there is no error' do
-  		setup do
-  			execution = double('step_execution')
+  		before do
   			allow(execution).to receive(:run)
-  			allow(InferenceEngines::Cwm::StepExecution).to receive(:new).and_return(execution)  			
   		end
-  		let(:inference) { create :inference }
+  		
 
   		it 'changes the status to complete' do
   			inference.execute_actions
