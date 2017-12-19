@@ -45,7 +45,7 @@ module InferenceEngines
         
         unless system("#{Rails.configuration.cwm_path}/cwm #{input_urls} --mode=r --think > #{output_tempfile.path}")
           #raise "cwm rules failed!! #{line}"
-          raise "cwm rules failed!! #{line}"
+          raise "cwm rules failed--> #{line}"
         end
 
         step.update_attributes(output: [line, File.read(output_tempfile.path)].join("\n"))        
