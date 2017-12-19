@@ -11,20 +11,29 @@ class BackgroundSteps::Inference < BackgroundSteps::BackgroundStep
     background_job
   end
 
+  def output_error(exception)
+    [exception.message, Rails.backtrace_cleaner.clean(exception.backtrace)].flatten.join("\n")
+  end
+
   def background_job
-    inferences = InferenceEngines::Cwm::StepExecution.new(
-      :step => self, 
-      :asset_group => asset_group,
-      :created_assets => {},
-      :step_types => [step_type]
-    )
-    ActiveRecord::Base.transaction do
-      inferences.run
+    @error = nil
+    begin
+      inferences = InferenceEngines::Cwm::StepExecution.new(
+        :step => self, 
+        :asset_group => asset_group,
+        :created_assets => {},
+        :step_types => [step_type]
+      )
+      ActiveRecord::Base.transaction do
+        inferences.run
+      end
+    rescue StandardError => e 
+      @error = e
+    else
+      update_attributes!(:state => 'complete')
     end
-    update_attributes!(:state => 'complete')
-    asset_group.touch
   ensure
-    update_attributes!(:state => 'error') unless state == 'complete'
+    update_attributes!(:state => 'error', output: output_error(@error)) unless state == 'complete'
     asset_group.touch
   end
 

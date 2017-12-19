@@ -36,10 +36,15 @@ module InferenceEngines
             Rails.application.routes.url_helpers.step_type_url(step_type.id)
           end
         ].flatten.join(" ")
-        line = "# EXECUTING: #{Rails.configuration.cwm_path}/cwm #{input_urls} --mode=r --think > #{output_tempfile.path}"
+        line = "# EXECUTING: #{Rails.configuration.cwm_path}/cwm #{input_urls} --mode=r --think"
         
+        if Rails.configuration.cwm_disable_proxy
+          ENV['http_proxy'] = nil
+          ENV['https_proxy'] = nil
+        end
         
         unless system("#{Rails.configuration.cwm_path}/cwm #{input_urls} --mode=r --think > #{output_tempfile.path}")
+          #raise "cwm rules failed!! #{line}"
           raise "cwm rules failed!! #{line}"
         end
 
