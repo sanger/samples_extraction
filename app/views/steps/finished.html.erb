@@ -3,6 +3,16 @@
   <%= render :partial => 'steps/steps', :locals => {:steps => @steps.reverse} %>
 </div>
 
+<% @steps.each do |step| %>
+  <% if step.failed? %>
+    <%= form_tag execute_actions_step_url(step), remote: true do %>
+      <button type='submit' class='btn btn-default'>Rerun failed step <%= step.id %></button>
+    <% end %>
+  <% end %>
+<% end %>
+          
+
+
 <%# if current_page?(controller: 'activity', action: 'update') %>
 
 <!-- script type="text/javascript">

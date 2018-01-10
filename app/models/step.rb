@@ -68,7 +68,6 @@ class Step < ActiveRecord::Base
 
   attr_accessor :wildcard_values
 
-  attr_accessor :printer_config
 
   def assets_compatible_with_step_type
     checked_condition_groups=[], @wildcard_values = {}
@@ -234,6 +233,10 @@ class Step < ActiveRecord::Base
   def cancelled?
     (state == 'cancel')
   end
+
+  def failed?
+    (state == 'error')
+  end  
 
 
   def deactivate
