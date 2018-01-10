@@ -56,8 +56,16 @@ module BackgroundSteps
         update_attributes!(:state => 'complete')
       end
     ensure
-      update_attributes!(:state => 'error', output: output_error(@error)) unless state == 'complete'
+      # We publish to the clients that there has been a change in these assets
       asset_group.touch
+      if activity
+        activity.asset_group.touch unless state == 'complete'
+      end
+
+      # TODO:
+      # This update needs to happen AFTER publishing the changes to the clients (touch), altough
+      # is not clear for me why at this moment. Need to revisit it.
+      update_attributes!(:state => 'error', output: output_error(@error)) unless state == 'complete'
     end
 
     def process
