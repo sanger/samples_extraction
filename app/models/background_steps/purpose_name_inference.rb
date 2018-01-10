@@ -7,14 +7,6 @@ class BackgroundSteps::PurposeNameInference < BackgroundSteps::BackgroundStep
     end
   end
 
-  def execute_actions
-    update_attributes!({
-      :state => 'running',
-      :asset_group => AssetGroup.create!(:assets => asset_group.assets)
-    })
-    background_job(printer_config, user)
-  end
-
   def purpose_for_aliquot(aliquot)
     return 'DNA Stock Plate' if aliquot == 'DNA'
     return 'RNA Stock Plate' if aliquot == 'RNA'
@@ -29,7 +21,7 @@ class BackgroundSteps::PurposeNameInference < BackgroundSteps::BackgroundStep
     return purpose_for_aliquot(list.first)
   end
 
-  def background_job(printer_config=nil, user=nil)
+  def process
     ActiveRecord::Base.transaction do
       if assets_compatible_with_step_type.count > 0
         assets_compatible_with_step_type.each do |asset|
@@ -37,13 +29,6 @@ class BackgroundSteps::PurposeNameInference < BackgroundSteps::BackgroundStep
         end
       end
     end
-    update_attributes!(:state => 'complete')
-    asset_group.touch
-  ensure
-    update_attributes!(:state => 'error') unless state == 'complete'
-    asset_group.touch
   end
-
-  handle_asynchronously :background_job
 
 end

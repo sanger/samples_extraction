@@ -7,14 +7,6 @@ class BackgroundSteps::StudyNameInference < BackgroundSteps::BackgroundStep
     end
   end
 
-  def execute_actions
-    update_attributes!({
-      :state => 'running',
-      :asset_group => AssetGroup.create!(:assets => asset_group.assets)
-    })
-    background_job(printer_config, user)
-  end
-
   def study_name_for(asset)
     list = asset.facts.with_predicate('contains').map do |f|
       f.object_asset.facts.with_predicate('study_name').map(&:object)
@@ -23,7 +15,7 @@ class BackgroundSteps::StudyNameInference < BackgroundSteps::BackgroundStep
     return list.first
   end
 
-  def background_job(printer_config=nil, user=nil)
+  def process
     ActiveRecord::Base.transaction do
       if assets_compatible_with_step_type.count > 0
         assets_compatible_with_step_type.each do |asset|
@@ -31,13 +23,6 @@ class BackgroundSteps::StudyNameInference < BackgroundSteps::BackgroundStep
         end
       end
     end
-    update_attributes!(:state => 'complete')
-    asset_group.touch
-  ensure
-    update_attributes!(:state => 'error') unless state == 'complete'
-    asset_group.touch
   end
-
-  handle_asynchronously :background_job
 
 end

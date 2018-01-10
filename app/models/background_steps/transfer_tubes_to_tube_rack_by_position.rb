@@ -12,26 +12,20 @@ class BackgroundSteps::TransferTubesToTubeRackByPosition < BackgroundSteps::Back
   #    :step :connectBy """position""" .
   #   } .
   #
-  attr_accessor :printer_config
 
   def assets_compatible_with_step_type
     asset_group.assets.with_predicate('transferToTubeRackByPosition').count > 0
   end
 
-  def execute_actions
-    update_attributes!({
-      :state => 'running',
-      :asset_group => AssetGroup.create!(:assets => asset_group.assets.with_predicate('transferToTubeRackByPosition'))
-    })
-    background_job
+  def asset_group_for_execution
+    AssetGroup.create!(:assets => asset_group.assets.with_predicate('transferToTubeRackByPosition'))
   end
 
   def location_to_pos(location, max_row = 8)
     ((location[1..-1].to_i - 1) * max_row)+ (location[0].ord - 'A'.ord);
   end
 
-
-  def background_job
+  def process
     ActiveRecord::Base.transaction do 
       aliquot_types = []
       if assets_compatible_with_step_type
@@ -63,13 +57,6 @@ class BackgroundSteps::TransferTubesToTubeRackByPosition < BackgroundSteps::Back
         end
       end
     end
-    update_attributes!(:state => 'complete')
-    asset_group.touch
-  ensure
-    update_attributes!(:state => 'error') unless state == 'complete'
-    asset_group.touch
   end
-
-  handle_asynchronously :background_job
 
 end
