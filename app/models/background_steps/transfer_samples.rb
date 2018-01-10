@@ -5,12 +5,8 @@ class BackgroundSteps::TransferSamples < BackgroundSteps::BackgroundStep
       (asset_group.assets.with_predicate('transfer').count > 0)
   end
 
-  def execute_actions
-    update_attributes!({
-      :state => 'running',
-      :asset_group => asset_group
-    })
-    background_job
+  def asset_group_for_execution
+    asset_group
   end
 
   def each_asset_and_modified_asset(&block)
@@ -28,7 +24,7 @@ class BackgroundSteps::TransferSamples < BackgroundSteps::BackgroundStep
     end    
   end
 
-  def background_job
+  def process
     ActiveRecord::Base.transaction do
       if assets_compatible_with_step_type
         each_asset_and_modified_asset do |asset, modified_asset|
@@ -63,14 +59,6 @@ class BackgroundSteps::TransferSamples < BackgroundSteps::BackgroundStep
         end
       end
     end
-    asset_group.touch
-    update_attributes!(:state => 'complete')
-
-  ensure
-    update_attributes!(:state => 'error') unless state == 'complete'
-    asset_group.touch    
   end
-
-  handle_asynchronously :background_job
 
 end
