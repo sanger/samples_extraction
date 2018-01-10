@@ -12,22 +12,16 @@ class BackgroundSteps::TransferPlateToPlate < BackgroundSteps::BackgroundStep
   #   } .
   #
   include PlateTransfer
-  attr_accessor :printer_config
 
   def assets_compatible_with_step_type
     asset_group.assets.with_predicate('transfer').with_fact('a', 'Plate').count > 0
   end
 
-  def execute_actions
-    update_attributes!({
-      :state => 'running',
-      :asset_group => AssetGroup.create!(:assets => asset_group.assets.with_predicate('transfer').with_fact('a', 'Plate'))
-    })
-    background_job
+  def asset_group_for_execution
+    AssetGroup.create!(:assets => asset_group.assets.with_predicate('transfer').with_fact('a', 'Plate'))
   end
 
-
-  def background_job
+  def process
     ActiveRecord::Base.transaction do 
       aliquot_types = []
       if assets_compatible_with_step_type
@@ -39,13 +33,6 @@ class BackgroundSteps::TransferPlateToPlate < BackgroundSteps::BackgroundStep
         end
       end
     end
-    update_attributes!(:state => 'complete')
-    asset_group.touch
-  ensure
-    update_attributes!(:state => 'error') unless state == 'complete'
-    asset_group.touch
   end
-
-  handle_asynchronously :background_job
 
 end

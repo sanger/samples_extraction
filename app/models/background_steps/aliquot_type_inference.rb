@@ -4,19 +4,11 @@ class BackgroundSteps::AliquotTypeInference < BackgroundSteps::BackgroundStep
     asset_group.assets.with_predicate('aliquotType').select { |a| a.has_predicate?('contains') }
   end
 
-  def execute_actions
-    update_attributes!({
-      :state => 'running',
-      :asset_group => AssetGroup.create!(:assets => asset_group.assets)
-    })
-    background_job(printer_config, user)
-  end
-
   def aliquot_type_fact(asset)
     asset.facts.with_predicate('aliquotType').first
   end
 
-  def background_job(printer_config=nil, user=nil)
+  def process
     ActiveRecord::Base.transaction do
       if assets_compatible_with_step_type.count > 0
         assets_compatible_with_step_type.each do |asset|
@@ -33,13 +25,5 @@ class BackgroundSteps::AliquotTypeInference < BackgroundSteps::BackgroundStep
         end
       end
     end
-    update_attributes!(:state => 'complete')
-    asset_group.touch
-  ensure
-    update_attributes!(:state => 'error') unless state == 'complete'
-    asset_group.touch
   end
-
-  handle_asynchronously :background_job
-
 end

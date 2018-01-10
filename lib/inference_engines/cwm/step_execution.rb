@@ -1,4 +1,5 @@
 require 'step_execution_process'
+require 'open3'
 
 module InferenceEngines
   module Cwm
@@ -30,25 +31,34 @@ module InferenceEngines
 
       def generate_plan
         output_tempfile = Tempfile.new('out_datainfer')
-        input_urls = [
-          Rails.application.routes.url_helpers.asset_group_url(@asset_group.id),
-          @step_types.map do |step_type|
-            Rails.application.routes.url_helpers.step_type_url(step_type.id)
-          end
-        ].flatten.join(" ")
-        line = "# EXECUTING: #{Rails.configuration.cwm_path}/cwm #{input_urls} --mode=r --think"
-        
-        if Rails.configuration.cwm_disable_proxy
-          ENV['http_proxy'] = nil
-          ENV['https_proxy'] = nil
-        end
-        
-        unless system("#{Rails.configuration.cwm_path}/cwm #{input_urls} --mode=r --think > #{output_tempfile.path}")
-          #raise "cwm rules failed!! #{line}"
-          raise "cwm rules failed!! #{line}"
-        end
 
-        step.update_attributes(output: [line, File.read(output_tempfile.path)].join("\n"))        
+        call_list = [
+          cmd = "#{Rails.configuration.cwm_path}/cwm",
+          input_urls = [
+            Rails.application.routes.url_helpers.asset_group_url(@asset_group.id),
+            @step_types.map do |step_type|
+              Rails.application.routes.url_helpers.step_type_url(step_type.id)
+            end
+          ],
+          '--mode=r', 
+          '--think'
+        ].flatten
+        
+        call_str = call_list.join(" ")
+
+        line = "# EXECUTING: #{call_str}"
+
+        proxy = Rails.configuration.cwm_proxy
+        env_vars = {'http_proxy' => proxy, 'https_proxy' => proxy}
+
+        Open3.popen3(*[env_vars, call_list].flatten) do |stdin, stdout, stderror, thr|
+          content = stdout.read
+          output = [line, content].join("\n")
+          step.update_attributes(output: output)
+          unless thr.value==0
+            raise "cwm execution failed\nCODE: #{thr.value}\nCMD: #{line}\nSTDOUT: #{content}\nSTDERR: #{stderror.read}\n"
+          end
+        end
       end
 
       def inference
