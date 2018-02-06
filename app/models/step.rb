@@ -17,7 +17,7 @@ class Step < ActiveRecord::Base
 
   belongs_to :created_asset_group, :class_name => 'AssetGroup', :foreign_key => 'created_asset_group_id'
 
-  scope :in_progress, ->() { where(:state => 'in_progress')}
+  scope :in_progress, ->() { where(:in_progress? => true)}
   scope :cancelled, ->() {where(:state => 'cancel')}
   scope :in_activity, ->() { where.not(activity_id: nil)}
 
@@ -80,11 +80,13 @@ class Step < ActiveRecord::Base
   end
 
   def add_facts(asset, facts)
+    facts = [facts].flatten
     asset.add_facts(facts)
     asset.add_operations(facts, self)
   end
 
   def remove_facts(asset, facts)
+    facts = [facts].flatten
     asset.remove_facts(facts)
     asset.remove_operations(facts, self)    
   end
@@ -126,6 +128,7 @@ class Step < ActiveRecord::Base
     step_execution = build_step_execution(:facts_to_destroy => [], :original_assets => original_assets.assets)
 
     ActiveRecord::Base.transaction do |t|
+      activate!
 
       step_execution.run
 
@@ -133,7 +136,10 @@ class Step < ActiveRecord::Base
 
       Fact.where(:id => step_execution.facts_to_destroy.flatten.compact.map(&:id)).delete_all
 
+      #update_assets_started if activity
+
       unselect_assets_from_consequents
+      deactivate
     end
     update_attributes(:asset_group => original_assets) if activity
     update_attributes(:state => 'running')
@@ -148,10 +154,11 @@ class Step < ActiveRecord::Base
 
   def progress_with(step_params)
     original_assets = activity.asset_group.assets
-    update_attributes(:state => 'in_progress')
     ActiveRecord::Base.transaction do |t|
+      activate! unless active?
       assets = step_params[:assets]
-      
+      update_attributes(:in_progress? => true)
+
       asset_group.add_assets(assets) if assets
 
       step_execution = build_step_execution(
@@ -169,16 +176,24 @@ class Step < ActiveRecord::Base
       unselect_assets_from_antecedents
       facts_to_remove = Fact.where(:to_remove_by => self.id)
       facts_to_remove.map(&:asset).uniq.compact.each(&:touch)
-
+      #facts_to_remove.each do |fact|
+      #  operation = Operation.create!(:action_type => 'removeFacts', :step => self,
+      #      :asset=> fact.asset, :predicate => fact.predicate, :object => fact.object)
+      #end
       facts_to_remove.delete_all
       facts_to_add = Fact.where(:to_add_by => self.id)
       facts_to_add.map(&:asset).uniq.compact.each(&:touch)
-
+      #facts_to_add.each do |fact|
+      #  operation = Operation.create!(:action_type => 'addFacts', :step => self,
+      #      :asset=> fact.asset, :predicate => fact.predicate, :object => fact.object)
+      #end
       facts_to_add.update_all(:to_add_by => nil)
       unselect_assets_from_consequents
 
 
+      update_attributes(:in_progress? => false)
       update_attributes(:state => 'running')
+      deactivate
     end
     asset_group_assets.each(&:touch)
   end
@@ -199,6 +214,20 @@ class Step < ActiveRecord::Base
     end].flatten.merge
   end
 
+  def activate!
+    #unless activity.nil?
+    #  unless (active? || activity.active_step.nil?)
+    #    raise 'Another step is already active for this activity'
+    #  end
+    #  activity.update_attributes!(:active_step => self)
+    #end
+  end
+
+  def active?
+    return false if activity.nil?
+    activity.active_step == self
+  end
+
   def complete?
     (state == 'complete')
   end
@@ -207,13 +236,13 @@ class Step < ActiveRecord::Base
     (state == 'cancel')
   end
 
-  def in_progress?
-    (state == 'in_progress')
-  end
-
   def failed?
     (state == 'error')
   end  
 
+
+  def deactivate
+    #activity.update_attributes!(:active_step => nil) unless activity.nil?
+  end
 
 end

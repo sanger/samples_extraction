@@ -8,7 +8,7 @@ class BackgroundSteps::PrintBarcodes < BackgroundSteps::BackgroundStep
     ActiveRecord::Base.transaction do
       if assets_compatible_with_step_type
         asset_group.assets.each do |asset|
-          asset.print(print_config, user.username)
+          asset.print(printer_config, user.username)
           # Do not print again unless the step fails
           remove_facts(asset, Fact.new(predicate: 'is', object: 'readyForPrint'))
         end

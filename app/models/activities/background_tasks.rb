@@ -21,7 +21,8 @@ module Activities
           BackgroundSteps::AliquotTypeInference,
           BackgroundSteps::StudyNameInference,
           BackgroundSteps::PurposeNameInference,
-          BackgroundSteps::UpdateSequencescape
+          BackgroundSteps::UpdateSequencescape,
+          BackgroundSteps::PrintBarcodes
         ]
       )
     end
