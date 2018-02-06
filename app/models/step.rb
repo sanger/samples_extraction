@@ -80,11 +80,13 @@ class Step < ActiveRecord::Base
   end
 
   def add_facts(asset, facts)
+    facts = [facts].flatten
     asset.add_facts(facts)
     asset.add_operations(facts, self)
   end
 
   def remove_facts(asset, facts)
+    facts = [facts].flatten
     asset.remove_facts(facts)
     asset.remove_operations(facts, self)    
   end

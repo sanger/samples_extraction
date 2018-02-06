@@ -9,7 +9,7 @@ module Activities
         step.created_asset_group.delay.print(printer_config, user.username)
       end
 
-      step.update_attributes!(:state => 'complete')
+      step.update_attributes!(:state => 'complete') unless step.in_progress?
 
       step
     end
@@ -34,7 +34,7 @@ module Activities
             end
           end
           step = steps.create!(:step_type => step_type, :asset_group_id => group.id,
-            :user_id => user.id, :in_progress? => true, :state => 'in progress')
+            :user_id => user.id, :in_progress? => true, :state => 'in_progress')
         end
         perform_step_actions_for('progress_step', step, step_type, step_params)
         step.progress_with(step_params)

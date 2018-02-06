@@ -22,7 +22,11 @@ module Asset::Export
     facts.with_predicate('barcodeType').each(&:destroy)
     add_facts(Fact.create(:predicate => 'barcodeType', :object => 'SequencescapePlate'))
     mark_as_updated
-    print(print_config, user.username) if old_barcode != barcode
+    mark_to_print if old_barcode != barcode
+  end
+
+  def mark_to_print
+    add_facts(Fact.create(predicate: 'is', object: 'readyForPrint'))
   end
 
   def update_plate(instance)
