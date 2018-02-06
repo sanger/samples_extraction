@@ -32,11 +32,13 @@ module Activities
     end
 
     def create_background_steps(ordered_tasks, reasoning_params)
-      ordered_tasks.reduce([]) do |current_list, actual_task_class|
-        actual_step = actual_task_class.create(reasoning_params)
-        current_list.last.update_attributes(next_step: actual_step) unless current_list.empty?
-        current_list.push(actual_step)
-        current_list
+      ActiveRecord::Base.transaction do 
+        ordered_tasks.reduce([]) do |current_list, actual_task_class|
+          actual_step = actual_task_class.create!(reasoning_params)
+          current_list.last.update_attributes!(next_step: actual_step) unless current_list.empty?
+          current_list.push(actual_step)
+          current_list
+        end
       end
     end
 

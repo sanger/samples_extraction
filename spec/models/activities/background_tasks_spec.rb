@@ -2,8 +2,11 @@ require 'rails_helper'
 
 RSpec.describe 'BackgroundTasks' do
   class DummyBackgroundStep
-    def self.create(params)
-      FactoryGirl.create(:background_step)
+    def self.create!(params)
+      @instance = FactoryGirl.create(:background_step, params)
+    end
+    def self.update_attributes!(params)
+      @instance.update_attributes!(params)
     end
   end
 
