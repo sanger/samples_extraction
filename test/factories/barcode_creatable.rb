@@ -6,6 +6,6 @@ FactoryGirl.define do
   end
 
   sequence :barcode_creatable do |n|
-    "#{Barcode.CREATABLE_PREFIX}#{n}"
+  	Barcode.calculate_sanger_human_barcode("FF", n).to_s
   end
 end

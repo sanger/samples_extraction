@@ -1,10 +1,10 @@
-require 'test_helper'
-require 'minitest/mock'
+require 'rails_helper'
+require 'remote_assets_helper'
 
+RSpec.describe AssetGroupsController, type: :controller do
+  include RemoteAssetsHelper
 
-class AssetGroupsControllerTest < ActionController::TestCase
-  setup do
-    @controller = AssetGroupsController.new
+  before do
     @asset_group = FactoryGirl.create :asset_group
     @activity_type = FactoryGirl.create :activity_type
     @activity = FactoryGirl.create :activity, {
@@ -19,11 +19,11 @@ class AssetGroupsControllerTest < ActionController::TestCase
         @asset = FactoryGirl.create(:asset, {:barcode => @barcode})
       end
 
-      it "adds the new asset to the group" do
-        assert_difference( -> { @asset_group.assets.count} , 1) do
+      it "add the new asset to the group" do
+        expect{
           post :update, {:asset_group => {:add_barcode => @barcode}, 
             :id => @asset_group.id, :activity_id => @activity.id}
-        end
+        }.to change{@asset_group.assets.count}.by(1)
       end
     end
 
@@ -32,15 +32,16 @@ class AssetGroupsControllerTest < ActionController::TestCase
         @barcode = FactoryGirl.generate :barcode
       end
       context "when it is in Sequencescape" do
+        let(:SequencescapeClient) { double('sequencescape_client')}
         setup do
-          SequencescapeClient = MiniTest::Mock.new
-          SequencescapeClient.expect(:get_remote_asset, FactoryGirl.create(:asset, :barcode => @barcode), [@barcode])
+          remote_asset = build_remote_tube(barcode: @barcode.to_s)
+          stub_client_with_asset(SequencescapeClient, remote_asset)
         end
-        it "retrieves the asset from Sequencescape" do          
-          assert_difference( -> { @asset_group.assets.count} , 1) do
+        it "retrieve the asset from Sequencescape" do
+          expect{
             post :update, {:asset_group => {:add_barcode => @barcode}, 
-              :id => @asset_group.id, :activity_id => @activity.id}
-          end
+                :id => @asset_group.id, :activity_id => @activity.id}
+          }.to change{@asset_group.assets.count}.by(1)
         end
       end
 
@@ -48,13 +49,13 @@ class AssetGroupsControllerTest < ActionController::TestCase
         setup do
           @creatable_barcode = FactoryGirl.generate :barcode_creatable
         end
-        it "creates a new asset" do
-          assert_difference( -> { @asset_group.assets.count} , 1) do
+        it "create a new asset" do
+          expect{
             post :update, {:asset_group => {
               :add_barcode => @creatable_barcode
               }, 
               :id => @asset_group.id, :activity_id => @activity.id}
-          end          
+          }.to change{@asset_group.assets.count}.by(1)
         end
       end
     end

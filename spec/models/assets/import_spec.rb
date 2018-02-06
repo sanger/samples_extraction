@@ -34,6 +34,7 @@ RSpec.describe 'Asset::Import' do
       let(:SequencescapeClient) { double('sequencescape_client') }
 
 			setup do
+        
         @remote_plate_asset = build_remote_plate(barcode: '2')
         @barcode_plate = @remote_plate_asset.barcode 
         stub_client_with_asset(SequencescapeClient, @remote_plate_asset)

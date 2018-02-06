@@ -12,19 +12,26 @@ class BackgroundSteps::Inference < BackgroundSteps::BackgroundStep
   end
 
   def background_job
-    inferences = InferenceEngines::Cwm::StepExecution.new(
-      :step => self, 
-      :asset_group => asset_group,
-      :created_assets => {},
-      :step_types => [step_type]
-    )
-    ActiveRecord::Base.transaction do
-      inferences.run
+    @error = nil
+    begin
+      inferences = InferenceEngines::Cwm::StepExecution.new(
+        :step => self, 
+        :asset_group => asset_group,
+        :created_assets => {},
+        :step_types => [step_type]
+      )
+      ActiveRecord::Base.transaction do
+        inferences.run
+      end
+      update_attributes!(:state => 'complete')
+    rescue StandardError => e
+      @error = e
     end
-    update_attributes!(:state => 'complete')
-    asset_group.touch
   ensure
-    update_attributes!(:state => 'error') unless state == 'complete'
+    unless state == 'complete'
+      update_attributes!(:state => 'error', :output => @error.backtrace.join("\n"))
+    end 
+    asset_group.assets.each(&:touch)
     asset_group.touch
   end
 

@@ -8,6 +8,11 @@ class Barcode
     'F'
   end
 
+  def self.creatable_barcode_parsing(barcode)
+    matching = barcode.match(/([^\d]*)(\d*)([^\d]*)/)
+    {prefix: matching[1], number: matching[2].to_i, sufix: matching[3]} 
+  end
+
   def self.is_creatable_barcode?(barcode)
     barcode.starts_with?(self.CREATABLE_PREFIX)
   end

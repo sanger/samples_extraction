@@ -152,6 +152,7 @@ module Asset::Import
 
       @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')      
       remote_asset = SequencescapeClient::get_remote_asset(barcode)
+
       if remote_asset
         asset = Asset.create(barcode: barcode, uuid: remote_asset.uuid)
         asset.update_facts_from_remote(Fact.new(:predicate => 'a', :object => sequencescape_type_for_asset(remote_asset)))
@@ -167,11 +168,16 @@ module Asset::Import
       asset=nil
       ActiveRecord::Base.transaction do
         asset = Asset.create!(:barcode => barcode)
-        asset.update_facts_from_remote([
-          Fact.new(:predicate => 'a', :object => 'Tube', is_remote?: true), 
-          Fact.new(:predicate => 'barcodeType', :object => 'Code2D', is_remote?: true),
-          Fact.new(:predicate => 'is', :object => 'Empty', is_remote?: true)
+        asset.add_facts([
+          Fact.new(:predicate => 'a', :object => 'Tube', is_remote?: false), 
+          Fact.new(:predicate => 'barcodeType', :object => 'Code2D', is_remote?: false),
+          Fact.new(:predicate => 'is', :object => 'Empty', is_remote?: false)          
           ])
+        # asset.update_facts_from_remote([
+        #   Fact.new(:predicate => 'a', :object => 'Tube', is_remote?: false), 
+        #   Fact.new(:predicate => 'barcodeType', :object => 'Code2D', is_remote?: false),
+        #   Fact.new(:predicate => 'is', :object => 'Empty', is_remote?: false)
+        #   ])
       end
       asset   
     end
@@ -188,15 +194,22 @@ module Asset::Import
       UUID_REGEXP.match(str)
     end
 
-    def find_asset_with_barcode(barcode)
+    def barcode_from_str(barcode)
       barcode = barcode.to_s
       unless is_digit_barcode?(barcode) || is_uuid?(barcode)
-        barcode = Barcode.calculate_barcode(barcode[0,2], barcode[2, barcode.length-3].to_i).to_s
+        parsed = Barcode.creatable_barcode_parsing(barcode)
+        barcode = Barcode.calculate_barcode(parsed[:prefix], parsed[:number]).to_s
+
+        #barcode = Barcode.calculate_barcode(barcode[0,2], barcode[2, barcode.length-3].to_i).to_s
       end
-      
+      barcode      
+    end
+
+    def find_asset_with_barcode(barcode_str)
+      barcode = barcode_from_str(barcode_str)
       asset = Asset.find_by_barcode(barcode)
       asset = Asset.find_by_uuid(barcode) unless asset
-      asset = Asset.create_local_asset if asset.nil? && is_local_asset?(barcode)      
+      asset = Asset.create_local_asset(barcode_str) if asset.nil? && is_local_asset?(barcode_str)      
       if asset
         asset.refresh
       end
