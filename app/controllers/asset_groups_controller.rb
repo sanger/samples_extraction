@@ -89,10 +89,6 @@ class AssetGroupsController < ApplicationController
 
   def get_barcodes
     barcodes = params_update_asset_group[:add_barcode].split(/[ ,]/).map do |barcode|
-      #unless barcode.match(/^\d+$/)
-      #  parsed = Barcode.creatable_barcode_parsing(barcode)
-      #  barcode = Barcode.calculate_barcode(parsed[:prefix], parsed[:number]).to_s
-      #end
       barcode.gsub('"','').gsub('\'', '')
     end.flatten.compact.reject(&:empty?)
   end
