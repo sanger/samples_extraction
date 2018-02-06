@@ -1,10 +1,11 @@
 require 'spec_helper'
 
-def build_instance
-  FactoryGirl.create(model.to_s.underscore.to_sym)
-end
-
 shared_examples_for "deprecatable" do
+  def build_instance
+    FactoryGirl.create(model.to_s.underscore.to_sym)
+  end
+
+  
   let(:model) { described_class }
 
   it "deprecates all the instances of the class with the same name" do

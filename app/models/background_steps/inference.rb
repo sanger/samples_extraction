@@ -35,5 +35,4 @@ class BackgroundSteps::Inference < BackgroundSteps::BackgroundStep
     asset_group.touch
   end
 
-  handle_asynchronously :background_job  
 end

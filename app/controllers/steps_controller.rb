@@ -1,11 +1,13 @@
 require 'pry'
 
 class StepsController < ApplicationController
-  before_action :set_step, only: [:show, :edit, :update, :destroy]
+  before_action :set_step, only: [:show, :edit, :update, :destroy, :execute_actions]
   before_action :set_activity, only: [:create]
   before_action :set_printer_config, only: [:create]
 
   before_action :nested_steps, only: [:index]
+
+  before_action :check_executable_step, only: [:execute_actions]
 
 
 
@@ -95,7 +97,14 @@ class StepsController < ApplicationController
     end
   end
 
+  def execute_actions
+    @step.execute_actions
 
+    respond_to do |format|
+        format.html { redirect_to @step.activity }
+        format.json { render :show, status: :ok }      
+    end
+  end
 
   # PATCH/PUT /steps/1
   # PATCH/PUT /steps/1.json
@@ -124,6 +133,11 @@ class StepsController < ApplicationController
   end
 
   private
+
+    def check_executable_step
+      head(500) unless @step.failed?
+    end
+
     # Use callbacks to share common setup or constraints between actions.
     def set_step
       @step = Step.find(params[:id])

@@ -21,12 +21,15 @@ class Step < ActiveRecord::Base
   scope :cancelled, ->() {where(:state => 'cancel')}
   scope :in_activity, ->() { where.not(activity_id: nil)}
 
+  before_create :assets_compatible_with_step_type, :unless => :in_progress?
   after_create :deprecate_cancelled_steps
   after_create :execute_actions, :if => :can_run_now?
 
 
   self.inheritance_column = :sti_type
   belongs_to :next_step, class_name: 'Step', :foreign_key => 'next_step_id'
+
+  serialize :printer_config
 
 
   def can_run_now?
@@ -49,8 +52,6 @@ class Step < ActiveRecord::Base
     update_attributes(:state => 'deprecated', :activity => nil)
   end
 
-  before_create :assets_compatible_with_step_type, :unless => :in_progress?
-
   class RelationCardinality < StandardError
   end
 
@@ -67,7 +68,6 @@ class Step < ActiveRecord::Base
 
   attr_accessor :wildcard_values
 
-  attr_accessor :printer_config
 
   def assets_compatible_with_step_type
     checked_condition_groups=[], @wildcard_values = {}
@@ -233,6 +233,10 @@ class Step < ActiveRecord::Base
   def cancelled?
     (state == 'cancel')
   end
+
+  def failed?
+    (state == 'error')
+  end  
 
 
   def deactivate

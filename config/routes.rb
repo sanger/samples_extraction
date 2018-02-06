@@ -8,7 +8,11 @@ Rails.application.routes.draw do
   resources :users
 
   resources :step_types
-  resources :steps
+  resources :steps do
+    member do
+      post 'execute_actions'
+    end
+  end
   resources :asset_groups do
     member do
       get 'print'
