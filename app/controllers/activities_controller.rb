@@ -48,6 +48,12 @@ class ActivitiesController < ApplicationController
     # sse.close
   end
 
+  before_action :send_sse_events, only: [:show, :update]
+
+  def send_sse_events
+    @activity.steps.running.each{|s| s.sse_event}
+  end
+
   def update
     select_assets_grouped
 

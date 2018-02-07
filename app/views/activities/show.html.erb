@@ -2,7 +2,7 @@
 
 <h1>Activity <%= @activity.id %></h1>
 
-<div data-psd-component-class="ActivityRealTimeUpdates" data-psd-component-parameters='{"url" : "<%= activity_real_time_updates_path(@activity) %>"}'>
+<div data-psd-component-class="ActivityRealTimeUpdates" data-psd-component-parameters='{"url" : "/sse"}'>
 </div>
 <%= bootstrap_form_for @activity, action: 'show', :html => { :class => 'form-inline activity-desc' } do |f| %>
   <%= f.text_field :activity_type, :value => @activity.activity_type.name,:readonly => true %>

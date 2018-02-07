@@ -8,6 +8,11 @@ class AssetGroup < ActiveRecord::Base
 
   include Printables::Group
 
+  after_update :sse_event
+
+  def sse_event
+    SseRailsEngine.send_event('asset_group', id)
+  end
 
   def condition_group_name
     prefix = condition_group.nil? ? "Main" : condition_group.name

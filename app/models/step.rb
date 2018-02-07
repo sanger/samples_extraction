@@ -4,6 +4,23 @@ class Step < ActiveRecord::Base
   include Steps::Cancellable
   include Deprecatable
 
+  after_update :sse_event
+
+  def sse_event
+    if (state == 'running')
+      asset_group.assets.each do |asset|
+        SseRailsEngine.send_event('asset_running', {state: 'running', uuid: asset.uuid})
+      end
+    else
+      if previous_changes[:state]=='running'
+        asset_group.assets.each do |asset|
+          SseRailsEngine.send_event('asset_running', {state: 'hanged', uuid: asset.uuid})
+        end
+      end
+    end
+  end
+
+
   belongs_to :activity
   belongs_to :step_type
   belongs_to :asset_group
@@ -19,6 +36,7 @@ class Step < ActiveRecord::Base
 
   scope :in_progress, ->() { where(:in_progress? => true)}
   scope :cancelled, ->() {where(:state => 'cancel')}
+  scope :running, ->() { where(state: 'running')}
   scope :in_activity, ->() { where.not(activity_id: nil)}
 
   before_create :assets_compatible_with_step_type, :unless => :in_progress?

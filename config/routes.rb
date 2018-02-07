@@ -3,6 +3,8 @@ require 'sass'
 require 'bootstrap-sass'
 
 Rails.application.routes.draw do
+  mount SseRailsEngine::Engine, at: '/sse'
+
   resources :printers
   resources :user_sessions
   resources :users
