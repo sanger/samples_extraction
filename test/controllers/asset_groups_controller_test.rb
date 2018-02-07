@@ -19,7 +19,7 @@ class AssetGroupsControllerTest < ActionController::TestCase
         @asset = FactoryGirl.create(:asset, {:barcode => @barcode})
       end
 
-      should "add the new asset to the group" do
+      it "adds the new asset to the group" do
         assert_difference( -> { @asset_group.assets.count} , 1) do
           post :update, {:asset_group => {:add_barcode => @barcode}, 
             :id => @asset_group.id, :activity_id => @activity.id}
@@ -36,7 +36,7 @@ class AssetGroupsControllerTest < ActionController::TestCase
           SequencescapeClient = MiniTest::Mock.new
           SequencescapeClient.expect(:get_remote_asset, FactoryGirl.create(:asset, :barcode => @barcode), [@barcode])
         end
-        should "retrieve the asset from Sequencescape" do          
+        it "retrieves the asset from Sequencescape" do          
           assert_difference( -> { @asset_group.assets.count} , 1) do
             post :update, {:asset_group => {:add_barcode => @barcode}, 
               :id => @asset_group.id, :activity_id => @activity.id}
@@ -48,7 +48,7 @@ class AssetGroupsControllerTest < ActionController::TestCase
         setup do
           @creatable_barcode = FactoryGirl.generate :barcode_creatable
         end
-        should "create a new asset" do
+        it "creates a new asset" do
           assert_difference( -> { @asset_group.assets.count} , 1) do
             post :update, {:asset_group => {
               :add_barcode => @creatable_barcode
