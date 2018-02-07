@@ -62,22 +62,51 @@ RSpec.describe 'Asset::Import' do
         end
 
         context 'when the supplier sample name has not been provided to some samples' do
-          setup do
-            wells = [
-              build_remote_well('A1', aliquots: [build_remote_aliquot(sample: build_remote_sample(supplier: nil))]),
-              build_remote_well('B1', aliquots: [build_remote_aliquot(sample: build_remote_sample(supplier: double('supplier', sample_name: nil)))]),
-              build_remote_well('C1', aliquots: [build_remote_aliquot(sample: build_remote_sample(supplier: double('supplier', sample_name: 'a supplier name')))]),
-              build_remote_well('D1', aliquots: [build_remote_aliquot(sample: build_remote_sample(supplier: double('supplier', sample_name: 'a supplier name')))])
-            ]
-            @remote_plate_asset_without_supplier = build_remote_plate(barcode: '5', wells: wells)
-            stub_client_with_asset(SequencescapeClient, @remote_plate_asset_without_supplier)            
+          context 'when the asset is a plate' do
+            setup do
+              wells = [
+                build_remote_well('A1', aliquots: [build_remote_aliquot(sample: build_remote_sample(supplier: nil))]),
+                build_remote_well('B1', aliquots: [build_remote_aliquot(sample: build_remote_sample(supplier: double('supplier', sample_name: nil)))]),
+                build_remote_well('C1', aliquots: [build_remote_aliquot(sample: build_remote_sample(supplier: double('supplier', sample_name: 'a supplier name')))]),
+                build_remote_well('D1', aliquots: [build_remote_aliquot(sample: build_remote_sample(supplier: double('supplier', sample_name: 'a supplier name')))])
+              ]
+              @remote_plate_asset_without_supplier = build_remote_plate(barcode: '5', wells: wells)
+              stub_client_with_asset(SequencescapeClient, @remote_plate_asset_without_supplier)            
+            end
+            it 'imports the information of the wells that have a supplier name ignoring the others' do
+              @asset = Asset.find_or_import_asset_with_barcode(@remote_plate_asset_without_supplier.barcode)
+              expect(@asset.facts.with_predicate('contains').count).to eq(2)
+              expect(@asset.facts.with_predicate('contains').map(&:object_asset).map do |w| 
+                w.facts.with_predicate('location').map(&:object)
+              end.flatten).to eq(['C1','D1'])
+            end
           end
-          it 'imports the information of the wells that have a supplier name ignoring the others' do
-            @asset = Asset.find_or_import_asset_with_barcode(@remote_plate_asset_without_supplier.barcode)
-            expect(@asset.facts.with_predicate('contains').count).to eq(2)
-            expect(@asset.facts.with_predicate('contains').map(&:object_asset).map do |w| 
-              w.facts.with_predicate('location').map(&:object)
-            end.flatten).to eq(['C1','D1'])
+          context 'when the asset is a tube' do
+            context 'when the supplier name has not been provided' do
+              setup do
+                @remote_tube_asset_without_supplier = build_remote_tube(barcode: '5', aliquots: [
+                  build_remote_aliquot(sample: build_remote_sample({supplier: nil}))
+                ])
+                stub_client_with_asset(SequencescapeClient, @remote_tube_asset_without_supplier)
+              end
+
+              it 'imports the information of the tube but does not set any supplier name' do
+                @asset = Asset.find_or_import_asset_with_barcode(@remote_tube_asset_without_supplier.barcode)
+                expect(@asset.facts.with_predicate('supplier_sample_name').count).to eq(0)
+              end
+            end
+            context 'when the supplier name has been provided' do
+              setup do
+                @remote_tube_asset_with_supplier = build_remote_tube(barcode: '5')
+                stub_client_with_asset(SequencescapeClient, @remote_tube_asset_with_supplier)
+              end
+
+              it 'imports the supplier name' do
+                @asset = Asset.find_or_import_asset_with_barcode(@remote_tube_asset_with_supplier.barcode)
+                expect(@asset.facts.with_predicate('supplier_sample_name').count).to eq(1)
+              end
+            end
+
           end
         end
 
