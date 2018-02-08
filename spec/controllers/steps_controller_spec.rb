@@ -15,7 +15,7 @@ RSpec.describe StepsController, type: :controller do
         end
           
         it 'reruns the step' do
-          post :execute_actions, id: step.id
+          post :execute_actions, params: { id: step.id }
           step.reload
           expect(step.state).to eq('complete')
           expect(response.status).to eq(302)
@@ -24,7 +24,7 @@ RSpec.describe StepsController, type: :controller do
 
       context 'when the step is not failed' do
         it 'ignores the call to the action' do
-          post :execute_actions, id: step.id
+          post :execute_actions, params: { id: step.id }
           step.reload
           expect(step.state).not_to eq('complete')
           expect(response.status).to eq(500)          

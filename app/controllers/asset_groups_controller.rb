@@ -3,7 +3,7 @@ class AssetGroupsController < ApplicationController
   before_action :set_activity, only: [:show, :update]
   before_action :update_barcodes, only: [:update]
 
-  before_filter :check_activity_asset_group, only: [:show, :update]
+  before_action :check_activity_asset_group, only: [:show, :update]
 
   def check_activity_asset_group
     if @activity

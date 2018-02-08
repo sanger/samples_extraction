@@ -1,5 +1,5 @@
 class AssetGroup < ActiveRecord::Base
-  has_and_belongs_to_many :assets, ->() {uniq}
+  has_and_belongs_to_many :assets, ->() {distinct}
   has_many :steps
   has_one :activity
 

@@ -31,7 +31,7 @@ gem 'delayed_job_active_record'
 gem 'sequencescape-client-api',
   # Should be switched back to sanger + production for deployment
   :github => 'emrojo/sequencescape-client-api',
-  :branch  => 'asset-attribute-update-merged-with-rails-4',
+  :branch  => 'asset-attribute-update-merged-with-rails-5',
   :require => 'sequencescape'
 
 

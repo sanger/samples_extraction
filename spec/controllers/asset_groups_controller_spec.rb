@@ -21,7 +21,7 @@ RSpec.describe AssetGroupsController, type: :controller do
 
       it "add the new asset to the group" do
         expect{
-          post :update, {:asset_group => {:add_barcode => @barcode}, 
+          post :update, params: {:asset_group => {:add_barcode => @barcode}, 
             :id => @asset_group.id, :activity_id => @activity.id}
         }.to change{@asset_group.assets.count}.by(1)
       end
@@ -39,7 +39,7 @@ RSpec.describe AssetGroupsController, type: :controller do
         end
         it "retrieve the asset from Sequencescape" do
           expect{
-            post :update, {:asset_group => {:add_barcode => @barcode}, 
+            post :update, params: {:asset_group => {:add_barcode => @barcode}, 
                 :id => @asset_group.id, :activity_id => @activity.id}
           }.to change{@asset_group.assets.count}.by(1)
         end
@@ -51,7 +51,7 @@ RSpec.describe AssetGroupsController, type: :controller do
         end
         it "create a new asset" do
           expect{
-            post :update, {:asset_group => {
+            post :update, params: {:asset_group => {
               :add_barcode => @creatable_barcode
               }, 
               :id => @asset_group.id, :activity_id => @activity.id}

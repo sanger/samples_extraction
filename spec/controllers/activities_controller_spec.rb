@@ -13,7 +13,7 @@ RSpec.describe ActivitiesController, type: :controller do
 
     it "create a new activity of the activity type of the kit" do
       count = @kit.kit_type.activity_type.activities.count
-      post :create,  { :kit_barcode => @kit.barcode, :instrument_barcode => @instrument.barcode}
+      post :create,  params: { :kit_barcode => @kit.barcode, :instrument_barcode => @instrument.barcode}
       @kit.kit_type.activity_type.activities.reload
       assert_equal @kit.kit_type.activity_type.activities.count, count + 1
       assert_equal @activity_type.activities.count, count + 1
