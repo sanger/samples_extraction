@@ -250,8 +250,10 @@ module Asset::Import
             :object => aliquot.sample.sanger.sample_id), step)
           asset.update_facts_from_remote(Fact.new(:predicate => 'sanger_sample_name',
             :object => aliquot.sample.sanger.name), step)
-          asset.update_facts_from_remote(Fact.new(predicate: 'supplier_sample_name', 
-            object: aliquot.sample.supplier.sample_name), step)        
+          if (aliquot.sample&.supplier&.sample_name)
+            asset.update_facts_from_remote(Fact.new(predicate: 'supplier_sample_name', 
+              object: aliquot.sample.supplier.sample_name), step)
+          end
         end
       end
     end
