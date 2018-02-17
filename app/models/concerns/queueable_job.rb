@@ -14,7 +14,7 @@ module QueueableJob
   end
 
   def perform_error
-    raise QueueableJob::ErrorOnQueuedJobProcess
+    #raise QueueableJob::ErrorOnQueuedJobProcess
   end
 
   def run_next_step

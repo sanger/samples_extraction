@@ -4,7 +4,7 @@ class Step < ActiveRecord::Base
   include Steps::Cancellable
   include Deprecatable
 
-  after_update :sse_event
+  #after_update :sse_event
 
   def sse_event
     if (state == 'running')
