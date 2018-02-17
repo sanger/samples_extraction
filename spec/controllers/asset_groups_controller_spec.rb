@@ -39,7 +39,7 @@ RSpec.describe AssetGroupsController, type: :controller do
         end
         it "retrieve the asset from Sequencescape" do
           expect{
-            post :update, params: {:asset_group => {:add_barcode => @barcode}, 
+            post :update, params: {:asset_group => {:add_barcode => @barcode.to_s}, 
                 :id => @asset_group.id, :activity_id => @activity.id}
           }.to change{@asset_group.assets.count}.by(1)
         end

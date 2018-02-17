@@ -1,9 +1,11 @@
 class ActivityType < ActiveRecord::Base
   has_many :activities
   has_many :kit_types
-  has_many :condition_groups, :through => :step_types
   has_many :activity_type_step_types
   has_many :step_types, :through => :activity_type_step_types
+  has_many :condition_groups, :through => :step_types
+  
+  
   has_and_belongs_to_many :instruments
 
   has_many :conditions, :through => :condition_groups

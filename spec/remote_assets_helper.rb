@@ -48,7 +48,7 @@ module RemoteAssetsHelper
 
 	def stub_client_with_asset(double, asset)
 		type = (asset.class==Sequencescape::Plate) ? :plate : :tube
-	  allow(double).to receive(:find_by_uuid).with(asset.uuid, type).and_return(asset)
+	  	allow(double).to receive(:find_by_uuid).with(asset.uuid, type).and_return(asset)
 		allow(double).to receive(:get_remote_asset).with(asset.barcode).and_return(asset)
 		allow(double).to receive(:get_remote_asset).with(asset.uuid).and_return(asset)
 	end
