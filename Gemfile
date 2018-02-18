@@ -12,7 +12,7 @@ gem 'sprockets-rails'
 gem 'ace-rails-ap'
 gem 'daemons'
 gem 'yajl-ruby', '>= 1.3'
-
+#gem 'yarn'
 gem 'sse-rails-engine'
 
 gem 'rails'#, '~> 5.1.4'
@@ -25,6 +25,10 @@ gem 'micro_token'
 
 gem 'barby'
 
+gem 'webpacker'
+gem 'webpacker-react'
+gem 'jquery-rails'
+gem 'react-rails'
 
 gem 'delayed_job'
 gem 'delayed_job_active_record'

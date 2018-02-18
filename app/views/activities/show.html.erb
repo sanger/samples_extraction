@@ -1,6 +1,19 @@
 <p id="notice"><%= notice %></p>
 
 <h1>Activity <%= @activity.id %></h1>
+ <%= react_component('Activity', 
+  activity_type_name: @activity.activity_type.name,
+  instrument_name: @activity.instrument.name || @activity.instrument.barcode,
+  kit_name: @activity.kit.barcode,
+  tubePrinter: {
+    optionsData: Printer.for_tube.map{|a| [a.name, a.id]},
+    defaultValue: @current_user && @current_user.tube_printer ? @current_user.tube_printer.id : nil
+  },
+  platePrinter: {
+    optionsData: Printer.for_plate.map{|a| [a.name, a.id]},
+    defaultValue: @current_user && @current_user.plate_printer ? @current_user.plate_printer.id : nil
+  }
+ ) %>
 
 <div data-psd-component-class="ActivityRealTimeUpdates" data-psd-component-parameters='{"url" : "/sse"}'>
 </div>
