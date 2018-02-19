@@ -1,4 +1,5 @@
 import React from 'react'
+import StepTypeTemplateControl from "./step_type_template_control"
 
 class StepTypeTemplatesControls extends React.Component {
 	render() {
@@ -16,3 +17,5 @@ class StepTypeTemplatesControls extends React.Component {
 		)
 	}
 }
+
+export default StepTypeTemplatesControls;

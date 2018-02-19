@@ -1,4 +1,5 @@
 import React from 'react'
+import StepTypeButton from "./step_type_button"
 
 class StepTypeButtons extends React.Component {
 	render() {
@@ -7,3 +8,5 @@ class StepTypeButtons extends React.Component {
 		}))
 	}
 }
+
+export default StepTypeButtons;

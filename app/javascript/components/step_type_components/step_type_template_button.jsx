@@ -1,4 +1,6 @@
 import React from 'react'
+import {FormFor} from "react-rails-form-helpers"
+import PrintersSelection from "../activity_components/printers_selection"
 
 class StepTypeTemplate extends React.Component {
 	render() {
@@ -12,13 +14,16 @@ class StepTypeTemplate extends React.Component {
 					Finish
 				  <div style="display:none;" data-psd-component-className="FinishStepButton">
 				  	<FormFor url={this.props.activeStepTypes.createStepUrl} className="form-inline activity-desc">
-	       		<PrintersSelectionHidden 
-	        		selectedTubePrinter={this.props.selectedTubePrinter}
-	        		selectedPlatePrinter={this.props.selectedPlatePrinter} />
-				    <input type="hidden" name='step[state]' value='done' />
+				   		<PrintersSelectionHidden 
+				    		selectedTubePrinter={this.props.selectedTubePrinter}
+				    		selectedPlatePrinter={this.props.selectedPlatePrinter} />
+					    <input type="hidden" name='step[state]' value='done' />
+					  </FormFor>
 					</div>
 				</a>
 	    </li>
 		)	
 	}
 }
+
+export default StepTypeTemplate;

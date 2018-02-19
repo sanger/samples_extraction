@@ -10,3 +10,5 @@ class PrintersSelectionHidden extends React.Component {
   	)
   }	
 }
+
+export default PrintersSelectionHidden;

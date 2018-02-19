@@ -1,12 +1,13 @@
 import React from 'react'
+import {FormFor} from "react-rails-form-helpers"
+import PrintersSelection from "../activity_components/printers_selection"
 
 class StepTypeTemplateControl extends React.Component {
 	render() {
 		return(
 			<div id="{ stepTypeTemplateData.id }" class="tab-pane container step-type-template">
 				<div class="container">
-				 render :partial => 'step_types/step_templates/' + step_type.step_template,
-				      :locals => { :step_type => step_type, :index => index } %>
+				The other step type templates
 				</div>
 
 	      <FormFor url={this.props.activeStepTypes.createStepUrl} className="form-inline activity-desc">
@@ -21,3 +22,5 @@ class StepTypeTemplateControl extends React.Component {
 		)
 	}
 }
+
+export default StepTypeTemplateControl;

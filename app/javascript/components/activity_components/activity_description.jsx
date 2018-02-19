@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-
 import {Label, TextField} from "react-rails-form-helpers"
-
 
 class ActivityDescription extends React.Component {
 	render() {

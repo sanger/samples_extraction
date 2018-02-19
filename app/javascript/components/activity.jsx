@@ -8,10 +8,11 @@ import StepTypesActive from "./step_type_components/step_types_active"
 import {FormFor, HashFields} from "react-rails-form-helpers"
 
 class Activity extends React.Component {
-	getInitialState() {
-		return { 
-			selectedTubePrinter: this.props.tubePrinter.defaultValue,
-			selectedPlatePrinter: this.props.platePrinter.defaultValue
+	constructor(props) {
+		super()
+		this.state = { 
+			selectedTubePrinter: props.tubePrinter.defaultValue,
+			selectedPlatePrinter: props.platePrinter.defaultValue
 		}
 	}
 	onChangeTubePrinter() {
@@ -38,7 +39,7 @@ class Activity extends React.Component {
 		     	onChangeTubePrinter={this.onChangeTubePrinter}
 		     	onChangePlatePrinter={this.onChangePlatePrinter}
 		    />
-		    <StepTypesActive />
+		    <StepTypesActive activeStepTypes={this.props.activeStepTypes} />
       </div>
     )
   }

@@ -1,4 +1,8 @@
 import React from 'react'
+import StepTypeButtons from "./step_type_buttons"
+import StepTypeTemplatesButtons from "./step_type_templates_buttons"
+import StepTypeTemplatesControls from "./step_type_templates_controls"
+
 
 class StepTypes extends React.Component {
 	render() {
@@ -10,12 +14,16 @@ class StepTypes extends React.Component {
 	  	)
 	  } else {
 	  	return(
-	  		<ul className="step-selection list-inline ">
-	  		  <StepTypeButtons stepTypesData={this.props.stepTypesData}/>
-	  		  <StepTypeTemplateButtons stepTypesTemplatesData={this.props.stepTypesTemplatesData} />
-	  		</ul>
-	  		<StepTypeTemplatesControls stepTypesTemplatesData={this.props.stepTypesTemplatesData} />	  		
+	  		<div>
+		  		<ul className="step-selection list-inline ">
+		  		  <StepTypeButtons stepTypesData={this.props.stepTypesData}/>
+		  		  <StepTypeTemplatesButtons stepTypesTemplatesData={this.props.stepTypesTemplatesData} />
+		  		</ul>
+		  		<StepTypeTemplatesControls stepTypesTemplatesData={this.props.stepTypesTemplatesData} />	  
+	  		</div>		
 	  	)
 	  }
 	}
 }
+
+export default StepTypes;
