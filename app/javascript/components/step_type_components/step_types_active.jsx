@@ -15,8 +15,11 @@ class StepTypesActive extends React.Component {
 			      </div>
 			      <div className="content_step_types">
 			        <StepTypes 
-			        	stepTypesData={this.props.stepTypesData} 
-			        	stepTypesTemplatesData={this.props.stepTypesTemplatesData} 
+        		      	selectedTubePrinter={this.props.selectedTubePrinter}
+				      	selectedPlatePrinter={this.props.selectedPlatePrinter}          	
+
+			        	stepTypesData={this.props.activeStepTypes.stepTypesData} 
+			        	stepTypesTemplatesData={this.props.activeStepTypes.stepTypesTemplatesData} 
 			        />
 			      </div>
 			    </div>

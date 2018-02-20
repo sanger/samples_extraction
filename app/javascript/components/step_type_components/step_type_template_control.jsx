@@ -5,8 +5,8 @@ import PrintersSelection from "../activity_components/printers_selection"
 class StepTypeTemplateControl extends React.Component {
 	render() {
 		return(
-			<div id="{ stepTypeTemplateData.id }" class="tab-pane container step-type-template">
-				<div class="container">
+			<div id="{ stepTypeTemplateData.id }" className="tab-pane container step-type-template">
+				<div className="container">
 				The other step type templates
 				</div>
 

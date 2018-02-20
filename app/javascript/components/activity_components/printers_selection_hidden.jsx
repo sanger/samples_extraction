@@ -1,5 +1,5 @@
 import React from 'react'
-
+import {HashFields, HiddenFieldTag} from "react-rails-form-helpers"
 class PrintersSelectionHidden extends React.Component {
   render() {
     return(

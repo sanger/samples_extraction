@@ -33,13 +33,18 @@ class Activity extends React.Component {
 	         />
 	      	</HashFields>
 	      </FormFor>
-	      <PrintersSelection          	
+	      <PrintersSelection
+	      	selectedTubePrinter={this.state.selectedTubePrinter}
+	      	selectedPlatePrinter={this.state.selectedPlatePrinter}          	
 		     	tubePrinter={this.props.tubePrinter}
 		     	platePrinter={this.props.platePrinter} 
 		     	onChangeTubePrinter={this.onChangeTubePrinter}
 		     	onChangePlatePrinter={this.onChangePlatePrinter}
 		    />
-		    <StepTypesActive activeStepTypes={this.props.activeStepTypes} />
+		    <StepTypesActive activeStepTypes={this.props.activeStepTypes} 
+		      	selectedTubePrinter={this.state.selectedTubePrinter}
+		      	selectedPlatePrinter={this.state.selectedPlatePrinter}          	
+		    />
       </div>
     )
   }

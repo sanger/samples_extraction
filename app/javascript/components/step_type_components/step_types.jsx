@@ -16,10 +16,21 @@ class StepTypes extends React.Component {
 	  	return(
 	  		<div>
 		  		<ul className="step-selection list-inline ">
-		  		  <StepTypeButtons stepTypesData={this.props.stepTypesData}/>
-		  		  <StepTypeTemplatesButtons stepTypesTemplatesData={this.props.stepTypesTemplatesData} />
+		  		  <StepTypeButtons stepTypesData={this.props.stepTypesData}
+        		      	selectedTubePrinter={this.props.selectedTubePrinter}
+				      	selectedPlatePrinter={this.props.selectedPlatePrinter}          	
+		  		  />
+		  		  <StepTypeTemplatesButtons stepTypesTemplatesData={this.props.stepTypesTemplatesData} 
+        		      	selectedTubePrinter={this.props.selectedTubePrinter}
+				      	selectedPlatePrinter={this.props.selectedPlatePrinter}          	
+
+		  		  />
 		  		</ul>
-		  		<StepTypeTemplatesControls stepTypesTemplatesData={this.props.stepTypesTemplatesData} />	  
+		  		<StepTypeTemplatesControls stepTypesTemplatesData={this.props.stepTypesTemplatesData} 
+        		      	selectedTubePrinter={this.props.selectedTubePrinter}
+				      	selectedPlatePrinter={this.props.selectedPlatePrinter}          	
+
+		  		/>	  
 	  		</div>		
 	  	)
 	  }
