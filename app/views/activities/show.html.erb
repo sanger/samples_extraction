@@ -2,9 +2,12 @@
 
 <h1>Activity <%= @activity.id %></h1>
  <%= react_component('Activity',  {
-  activity_type_name: @activity.activity_type.name,
-  instrument_name: @activity.instrument.name || @activity.instrument.barcode,
-  kit_name: @activity.kit.barcode,
+   activity: {
+     completed_at: @activity.completed_at,
+     activity_type_name: @activity.activity_type.name,
+     instrument_name: @activity.instrument.name || @activity.instrument.barcode,
+     kit_name: @activity.kit.barcode
+   },
   tubePrinter: {
     optionsData: Printer.for_tube.map{|a| [a.name, a.id]},
     defaultValue: @current_user && @current_user.tube_printer ? @current_user.tube_printer.id : nil
@@ -17,8 +20,9 @@
     updateUrl: activity_step_types_path(@activity),
     stepTypesData: step_types_data,
     stepTypesTemplatesData: step_type_templates_data
-  }
-
+  },
+  assetGroups: asset_groups_data(@activity),
+  stepsFinished: steps_data
    }) %>
 
 <div data-psd-component-class="ActivityRealTimeUpdates" data-psd-component-parameters='{"url" : "/sse"}'>

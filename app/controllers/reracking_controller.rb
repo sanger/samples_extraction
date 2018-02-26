@@ -50,6 +50,7 @@ class RerackingController < ApplicationController
       :instrument => @instrument,
       :kit => @kit
       )
+    @asset_group.update_attributes(:activity_owner => @activity)
     respond_to do |format|
       if @activity.save
         format.html { redirect_to @activity, notice: 'Activity was successfully created.' }

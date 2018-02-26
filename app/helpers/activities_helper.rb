@@ -27,7 +27,33 @@ module ActivitiesHelper
       createStepUrl: activity_step_types_path(@activity, st),
       name: st.name
     }
-    end    
+    end
+  end
+
+  def steps_data
+    @steps.reverse.map do |step|
+      {
+        activity: step.activity,
+        asset_group: step.asset_group,
+        step_type: step.step_type,
+        operations: step.operations
+      }.merge(step.attributes)
+    end
+  end
+
+  def asset_data(asset)
+    {barcode: asset.barcode, uuid: asset.uuid, facts: asset.facts}
+  end
+
+  def asset_groups_data(activity)
+    activity.owned_asset_groups.map do |asset_group|
+      {
+        selected: (activity.asset_group==asset_group),
+        updateUrl: activity_asset_group_url(activity, asset_group),
+        condition_group_name: asset_group.condition_group_name,
+        assets: asset_group.assets.map{|asset| asset_data(asset)}
+      }
+    end
   end
 
   def step_type_templates_data
@@ -37,7 +63,7 @@ module ActivitiesHelper
         name: st.name,
         id: "step-type-id-<%= rand(9999).to_s %>-<%= st.id %>"
       }
-    end    
+    end
   end
 
 end
