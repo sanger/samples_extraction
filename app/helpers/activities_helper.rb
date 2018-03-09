@@ -57,11 +57,11 @@ module ActivitiesHelper
   end
 
   def step_type_templates_data
-    @step_types.select{|s| s.step_template }.each do |st|
+    @step_types.select{|s| s.step_template }.map do |st|
       {
         createStepUrl: activity_step_types_path(@activity, st),
         name: st.name,
-        id: "step-type-id-<%= rand(9999).to_s %>-<%= st.id %>"
+        id: "step-type-id-#{ rand(9999).to_s }-#{ st.id }"
       }
     end
   end

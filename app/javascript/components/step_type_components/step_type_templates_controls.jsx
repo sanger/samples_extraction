@@ -8,7 +8,7 @@ class StepTypeTemplatesControls extends React.Component {
 			  <div className="tab-content">
 			  	{this.props.stepTypesTemplatesData.map((stepTypeTemplateData, pos) => {
 			  		return(
-			  			<StepTypeTemplateControl stepTypeTemplateData={stepTypeTemplateData} 
+			  			<StepTypeTemplateControl stepTypeTemplateData={stepTypeTemplateData}  key={pos}
         		      	selectedTubePrinter={this.props.selectedTubePrinter}
 				      	selectedPlatePrinter={this.props.selectedPlatePrinter}          	
 

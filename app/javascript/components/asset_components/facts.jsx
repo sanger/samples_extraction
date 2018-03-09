@@ -2,7 +2,7 @@ import React from 'react'
 import Fact from '../asset_components/fact'
 class Facts extends React.Component {
   renderFact(fact, index) {
-    return(<Fact fact={fact}/>)
+    return(<Fact fact={fact} key={index} />)
   }
   render() {
     return(

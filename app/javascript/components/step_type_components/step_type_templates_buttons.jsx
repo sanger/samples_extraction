@@ -5,7 +5,7 @@ class StepTypeTemplatesButtons extends React.Component {
   render() {
     return(
       this.props.stepTypesTemplatesData.map((stepTypeTemplateData, pos) => {
-      	return (<StepTypeTemplateButton stepTypeTemplateData={stepTypeTemplateData} 
+      	return (<StepTypeTemplateButton stepTypeTemplateData={stepTypeTemplateData} key={pos}
         		      	selectedTubePrinter={this.props.selectedTubePrinter}
 				      	selectedPlatePrinter={this.props.selectedPlatePrinter}          	
 
