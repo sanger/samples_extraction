@@ -7,7 +7,8 @@ class AssetGroupsEditor extends React.Component {
     this.renderTab = this.renderTab.bind(this)
     this.renderPanel = this.renderPanel.bind(this)
   }
-  renderTab(assetGroup, index) {
+  renderTab(assetGroupId, index) {
+    const assetGroup = this.props.assetGroups[assetGroupId]
     const selectedClass = (assetGroup.selected === true)? 'active' : ''
     return(
       <li
@@ -26,12 +27,14 @@ class AssetGroupsEditor extends React.Component {
   classSelection(assetGroup) {
     return (this.props.selectedAssetGroup == assetGroup.id)? 'active' : ''
   }
-  renderPanel(assetGroup, index) {
+  renderPanel(assetGroupId, index) {
+    const assetGroup = this.props.assetGroups[assetGroupId]
     return(
       <div role="tabpanel" className={"tab-pane "+this.classSelection(assetGroup)}
         id={'asset-group-'+assetGroup.id}
         key={index}>
-        <AssetGroupEditor assetGroup={assetGroup}/>
+        <AssetGroupEditor assetGroup={assetGroup}
+          onChangeAssetGroup={this.props.onChangeAssetGroup}/>
       </div>
     )
   }
@@ -44,10 +47,9 @@ class AssetGroupsEditor extends React.Component {
 
           {/* Nav tabs */}
           <ul className="nav nav-tabs" role="tablist">
-            {this.props.assetGroups.map(this.renderTab)}
+            {Object.keys(this.props.assetGroups).map(this.renderTab)}
           </ul>
-
-          {this.props.assetGroups.map(this.renderPanel)}
+          {Object.keys(this.props.assetGroups).map(this.renderPanel)}
         </div>
 
       </div>

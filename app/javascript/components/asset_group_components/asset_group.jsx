@@ -10,6 +10,7 @@ class AssetGroup extends React.Component {
         "containerIconClass": "spinner", "loadingClass":
         "fast-right-spinner"}' key={index}>
         <td>
+          <input type="hidden" name="asset_group[assets]" value={asset.uuid} />
           <AssetDisplay asset={asset} />
         </td>
         <td data-psd-component-class="AddFactToSearchbox">

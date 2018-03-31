@@ -4,11 +4,11 @@
   <title>SamplesExtraction</title>
   <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
-  <%= javascript_pack_tag 'activity_pack' %> 
+  <%= javascript_pack_tag 'activity_pack' %>
   <%= csrf_meta_tags %>
   <meta name="turbolinks-cache-control" content="no-cache">
 </head>
-<body data-no-turbolink="true">
+<body>
 
   <% if (ENV["RAILS_ENV"] == :debug) %>
      <%= render 'peek/bar' %>

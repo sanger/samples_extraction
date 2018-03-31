@@ -45,5 +45,3 @@
 //= require_tree .
 //    require_asset "peek"
 //    require_asset "peek/views/performance_bar"
-
-

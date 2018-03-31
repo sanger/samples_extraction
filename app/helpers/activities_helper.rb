@@ -77,17 +77,24 @@ module ActivitiesHelper
     {barcode: asset.barcode, uuid: asset.uuid, facts: asset.facts}
   end
 
+  def asset_group_data(activity, asset_group)
+    {
+      id: asset_group.id,
+      selected: (activity.asset_group==asset_group),
+      updateUrl: activity_asset_group_url(activity, asset_group),
+      condition_group_name: asset_group.condition_group_name,
+      assets: asset_group.assets.map{|asset| asset_data(asset)}
+    }
+  end
+
   def asset_groups_data(activity)
-    activity.owned_asset_groups.map do |asset_group|
-      {
-        id: asset_group.id,
-        selected: (activity.asset_group==asset_group),
-        updateUrl: activity_asset_group_url(activity, asset_group),
-        condition_group_name: asset_group.condition_group_name,
-        assets: asset_group.assets.map{|asset| asset_data(asset)}
-      }
+    activity.owned_asset_groups.reduce({}) do |memo, asset_group|
+      data_for_step_types = asset_group_data(activity, asset_group)
+      memo[asset_group.id] = data_for_step_types
+      memo
     end
   end
+
 
   def step_type_templates_data
     @step_types.select{|s| s.step_template }.map do |st|

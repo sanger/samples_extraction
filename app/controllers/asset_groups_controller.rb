@@ -3,16 +3,8 @@ class AssetGroupsController < ApplicationController
   before_action :set_activity, only: [:show, :update]
   before_action :update_barcodes, only: [:update]
 
-  before_action :check_activity_asset_group, only: [:show, :update]
 
-  def check_activity_asset_group
-    if @activity
-      if (@activity.asset_group != @asset_group)
-        @activity.update_attributes(:asset_group => @asset_group)
-        redirect_to @activity
-      end
-    end
-  end
+  include ActivitiesHelper
 
   def show
     @assets = @asset_group.assets
@@ -32,12 +24,16 @@ class AssetGroupsController < ApplicationController
   def update
     @assets = @asset_group.assets
     @assets_grouped = assets_by_fact_group
-    @step_types = @activity.step_types_active
+    #@step_types = @activity.step_types_active
 
-    respond_to do |format|
-      format.html { render @asset_group }
-      format.json { render :update, status: :created, location: [@activity, @asset_group] }
-    end
+    render json: {
+      asset_group: asset_group_data(@activity, @asset_group),
+      step_types: step_types_for_asset_groups_data(@activity, @asset_group)
+    }
+    # respond_to do |format|
+    #   format.html { render @asset_group }
+    #   format.json { render :update, status: :created, location: [@activity, @asset_group] }
+    # end
   end
 
   def print
@@ -49,7 +45,7 @@ class AssetGroupsController < ApplicationController
   private
 
     def update_barcodes
-      perform_barcode_removal
+      perform_assets_update
       perform_barcode_addition
     end
 
@@ -73,12 +69,10 @@ class AssetGroupsController < ApplicationController
       @asset_group = AssetGroup.find(params[:id])
     end
 
-  def perform_barcode_removal
-    unless params_update_asset_group[:delete_barcode].nil? || params_update_asset_group[:delete_barcode].empty?
-      @asset_group.unselect_barcodes([params_update_asset_group[:delete_barcode]].flatten)
-    end
-    if params_update_asset_group[:delete_all_barcodes] == 'true'
-      @asset_group.unselect_all_barcodes
+  def perform_assets_update
+    if params_update_asset_group[:assets]
+      received_list = params_update_asset_group[:assets].map{|uuid| Asset.find_by!(uuid: uuid)}
+      @asset_group.update_attributes(assets: received_list)
     end
   end
 
@@ -88,17 +82,13 @@ class AssetGroupsController < ApplicationController
   end
 
   def get_barcodes
-    barcodes = params_update_asset_group[:add_barcode].split(/[ ,]/).map do |barcode|
-      barcode.gsub('"','').gsub('\'', '')
-    end.flatten.compact.reject(&:empty?)
+    params_update_asset_group[:add_barcodes].split(' ')
   end
 
   def perform_barcode_addition
-    unless params_update_asset_group[:add_barcode].nil? || params_update_asset_group[:add_barcode].empty?
-      barcodes = get_barcodes
-      barcodes_str = "'"+barcodes.join(',')+"'";
+    unless params_update_asset_group[:add_barcodes].nil? || params_update_asset_group[:add_barcodes].empty?
       begin
-        if @asset_group.select_barcodes(barcodes)
+        if @asset_group.select_barcodes(get_barcodes)
           show_alert({:type => 'info',
             :msg => "Barcode #{barcodes_str} added"})
         else
@@ -120,11 +110,7 @@ class AssetGroupsController < ApplicationController
   end
 
   def params_update_asset_group
-    params.require(:asset_group).permit(:add_barcode, :delete_barcode, :delete_all_barcodes)
-  end
-
-  def params_asset_group
-    params.permit(:activity_id, :id, :add_barcode, :delete_barcode, :delete_all_barcodes)
+    params.require(:asset_group).permit(:add_barcodes => [], :assets => [])
   end
 
 end

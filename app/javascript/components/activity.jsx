@@ -17,18 +17,38 @@ class Activity extends React.Component {
 			selectedTubePrinter: props.tubePrinter.defaultValue,
 			selectedPlatePrinter: props.platePrinter.defaultValue,
 			selectedAssetGroup: props.activity.selectedAssetGroup,
-			stepTypes: props.stepTypes
+			stepTypes: props.stepTypes,
+			assetGroups: props.assetGroups
 		}
 		this.onSelectAssetGroup = this.onSelectAssetGroup.bind(this)
+		this.onChangeAssetGroup = this.onChangeAssetGroup.bind(this)
 	}
 	onSelectAssetGroup(assetGroup) {
 		this.setState({selectedAssetGroup: assetGroup.id})
+	}
+	onChangeAssetGroup(msg) {
+		this.state.assetGroups[msg.asset_group.id]=msg.asset_group
+		this.state.stepTypes[msg.asset_group.id]=msg.step_types
+
+		this.setState({
+			assetGroups: this.state.assetGroups,
+			stepTypes: this.state.stepTypes
+		})
 	}
 	onChangeTubePrinter() {
 		this.setState({selectedTubePrinter: e.target.value})
 	}
 	onChangePlatePrinter() {
 		this.setState({selectedPlatePrinter: e.target.value})
+	}
+	renderStepTypesControl() {
+		return(
+			<StepTypesControl stepTypes={this.state.stepTypes}
+				selectedAssetGroup={this.state.selectedAssetGroup}
+				selectedTubePrinter={this.state.selectedTubePrinter}
+				selectedPlatePrinter={this.state.selectedPlatePrinter}
+				/>
+		)
 	}
   render () {
     return (
@@ -46,15 +66,14 @@ class Activity extends React.Component {
 		     	onChangeTubePrinter={this.onChangeTubePrinter}
 		     	onChangePlatePrinter={this.onChangePlatePrinter}
 		    />
-			<StepTypesControl stepTypes={this.state.stepTypes}
-				selectedAssetGroup={this.state.selectedAssetGroup}
-					selectedTubePrinter={this.state.selectedTubePrinter}
-					selectedPlatePrinter={this.state.selectedPlatePrinter}
-					/>
+				{this.renderStepTypesControl()}
 			  <AssetGroupsEditor
+					onChangeAssetGroup={this.onChangeAssetGroup}
 					selectedAssetGroup={this.state.selectedAssetGroup}
 					onSelectAssetGroup={this.onSelectAssetGroup}
 					assetGroups={this.props.assetGroups} />
+				{this.renderStepTypesControl()}
+
 				<StepsFinished steps={this.props.stepsFinished} />
       </div>
     )

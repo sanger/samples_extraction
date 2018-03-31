@@ -63,7 +63,7 @@ Rails.application.routes.draw do
 
   namespace :aker do
     resources :work_orders, only: [:create, :index]
-  end  
+  end
 
 
 

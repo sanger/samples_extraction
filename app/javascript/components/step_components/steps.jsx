@@ -41,7 +41,7 @@ class Steps extends React.Component {
       return(
         <table className="table">
           <thead>
-            <th>Output</th>
+            <tr><th>Output</th></tr>
           </thead>
           <tbody>
           <tr className="output">
