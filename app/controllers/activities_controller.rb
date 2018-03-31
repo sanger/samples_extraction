@@ -7,7 +7,7 @@ class ActivitiesController < ApplicationController
 
   before_action :set_activity_type, only: [:create_without_kit]
 
-  
+
   before_action :select_assets_grouped, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
 
   before_action :set_kit, only: [:create]
@@ -18,7 +18,7 @@ class ActivitiesController < ApplicationController
   before_action :set_uploaded_files, only: [:update]
   #before_action :set_params_for_step_in_progress, only: [:update]
 
-  
+
 
   #before_filter :session_authenticate, only: [:update, :create]
 
@@ -35,7 +35,7 @@ class ActivitiesController < ApplicationController
     response.headers['Content-Type'] = 'text/event-stream'
     # sse.write(@asset_group.last_update, event: 'asset_group')
     # sse.write(@assets_changing.pluck(:uuid), event: 'asset')
-    
+
     msg =  "event: asset_group\n"#
     msg += "data: #{@asset_group.last_update} \n\n"
 
@@ -201,7 +201,7 @@ class ActivitiesController < ApplicationController
 
   def set_assets
     @assets = @asset_group.assets.includes(:facts)
-  end    
+  end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def activity_params

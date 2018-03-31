@@ -6,7 +6,8 @@
      completed_at: @activity.completed_at,
      activity_type_name: @activity.activity_type.name,
      instrument_name: @activity.instrument.name || @activity.instrument.barcode,
-     kit_name: @activity.kit.barcode
+     kit_name: @activity.kit.barcode,
+     selectedAssetGroup: @activity.owned_asset_groups.first.id
    },
   tubePrinter: {
     optionsData: Printer.for_tube.map{|a| [a.name, a.id]},
@@ -21,10 +22,10 @@
     stepTypesData: step_types_data,
     stepTypesTemplatesData: step_type_templates_data
   },
+  stepTypes: step_types_control_data(@activity),
   assetGroups: asset_groups_data(@activity),
   stepsFinished: steps_data
    }) %>
-
 <div data-psd-component-class="ActivityRealTimeUpdates" data-psd-component-parameters='{"url" : "/sse"}'>
 </div>
 <%= bootstrap_form_for @activity, action: 'show', :html => { :class => 'form-inline activity-desc' } do |f| %>

@@ -5,6 +5,7 @@
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "react-inlinesvg": "^0.8.1",
     "react-rails-form-helpers": "^0.1.0-beta.13",
     "react_ujs": "^2.4.4",
     "webpacker-react": "^0.3.2"

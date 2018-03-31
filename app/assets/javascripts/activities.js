@@ -1,6 +1,7 @@
 (function($, undefined) {
 
   function AssetGroup(node) {
+    return;
     var node = $(node);
     this.container = $('#asset-group-container');//node.parent();
     this.form = node;
@@ -98,7 +99,7 @@
   proto.attachHandlers = function(node) {
     this.attachDeleteButtons(node);
 
-    
+
 
     $(this.form).on('submit.rails', function() {
       var node;

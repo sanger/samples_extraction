@@ -24,11 +24,43 @@ module ActivitiesHelper
   def step_types_data
     @step_types.map do |st|
     {
-      createStepUrl: activity_step_types_path(@activity, st),
+      createStepUrl: activity_step_type_steps_path(@activity, st),
       name: st.name
     }
     end
   end
+
+  def step_types_data_for_step_types(activity, step_types)
+    step_types.map do |st|
+    {
+      createStepUrl: activity_step_type_steps_path(activity, st),
+      name: st.name
+    }
+    end
+  end
+
+
+  def step_types_for_asset_groups_data(activity, asset_group)
+    step_types = activity.step_types_for(asset_group.assets)
+    {
+      updateUrl: activity_step_types_path(activity),
+      stepTypesData: step_types_data_for_step_types(activity, step_types),
+      stepTypesTemplatesData: step_type_templates_data_for_step_types(activity, step_types)
+    }
+  end
+
+  def step_types_control_data(activity)
+    activity.owned_asset_groups.reduce({}) do |memo, asset_group|
+      data_for_step_types = step_types_for_asset_groups_data(activity, asset_group)
+      memo[asset_group.id] = data_for_step_types
+      memo
+    end
+  end
+
+  #updateUrl: activity_step_types_path(@activity),
+  #stepTypesData: step_types_data,
+  #stepTypesTemplatesData: step_type_templates_data
+
 
   def steps_data
     @steps.reverse.map do |step|
@@ -48,6 +80,7 @@ module ActivitiesHelper
   def asset_groups_data(activity)
     activity.owned_asset_groups.map do |asset_group|
       {
+        id: asset_group.id,
         selected: (activity.asset_group==asset_group),
         updateUrl: activity_asset_group_url(activity, asset_group),
         condition_group_name: asset_group.condition_group_name,
@@ -60,6 +93,16 @@ module ActivitiesHelper
     @step_types.select{|s| s.step_template }.map do |st|
       {
         createStepUrl: activity_step_types_path(@activity, st),
+        name: st.name,
+        id: "step-type-id-#{ rand(9999).to_s }-#{ st.id }"
+      }
+    end
+  end
+
+  def step_type_templates_data_for_step_types(activity, step_types)
+    step_types.select{|s| s.step_template }.map do |st|
+      {
+        createStepUrl: activity_step_types_path(activity, st),
         name: st.name,
         id: "step-type-id-#{ rand(9999).to_s }-#{ st.id }"
       }

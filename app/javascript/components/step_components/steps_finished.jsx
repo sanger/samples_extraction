@@ -6,7 +6,11 @@ class StepsFinished extends React.Component {
     return(
       <div className="form-group">
         <label className="control-label">What happened before?</label>
-        <Steps steps={this.props.steps}/>
+        <div className="panel panel-default">
+          <div className="panel-body">
+            <Steps steps={this.props.steps}/>
+          </div>
+        </div>
       </div>
     )
   }

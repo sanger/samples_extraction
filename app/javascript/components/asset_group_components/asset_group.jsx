@@ -22,7 +22,7 @@ class AssetGroup extends React.Component {
     )
   }
   render() {
-    if (this.props.assetGroup.length == 0) {
+    if (this.props.assetGroup.assets.length == 0) {
       return(<div className="empty-description"><span>This activity has no assets selected yet.</span></div>)
     } else {
       return(

@@ -113,16 +113,12 @@ class Steps extends React.Component {
       )
     } else {
       return(
-        <div className="panel panel-default">
-          <div className="panel-body">
-            <table className="table table-condensed table-hover steps-table">
-              <thead><tr><th>Step id</th><th>Step type</th><th>Activity id</th><th>Asset Group</th><th>Username</th><th>Last update</th><th>Status</th></tr></thead>
-              <tbody>
-                {this.props.steps.map(this.renderStepRow)}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <table className="table table-condensed table-hover steps-table">
+          <thead><tr><th>Step id</th><th>Step type</th><th>Activity id</th><th>Asset Group</th><th>Username</th><th>Last update</th><th>Status</th></tr></thead>
+          <tbody>
+            {this.props.steps.map(this.renderStepRow)}
+          </tbody>
+        </table>
       )
     }
   }
