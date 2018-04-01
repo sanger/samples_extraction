@@ -47,6 +47,10 @@ class AssetGroupsController < ApplicationController
     def update_barcodes
       perform_assets_update
       perform_barcode_addition
+
+      if @alerts
+        render json: {errors: @alerts}
+      end
     end
 
     def assets_by_fact_group
@@ -71,7 +75,8 @@ class AssetGroupsController < ApplicationController
 
   def perform_assets_update
     if params_update_asset_group[:assets]
-      received_list = params_update_asset_group[:assets].map{|uuid| Asset.find_by!(uuid: uuid)}
+      updated_assets = [params_update_asset_group[:assets]].flatten
+      received_list = updated_assets.map{|uuid| Asset.find_by!(uuid: uuid)}
       @asset_group.update_attributes(assets: received_list)
     end
   end
@@ -89,19 +94,20 @@ class AssetGroupsController < ApplicationController
     unless params_update_asset_group[:add_barcodes].nil? || params_update_asset_group[:add_barcodes].empty?
       begin
         if @asset_group.select_barcodes(get_barcodes)
-          show_alert({:type => 'info',
-            :msg => "Barcode #{barcodes_str} added"})
+          puts 1
+          #show_alert({:type => 'info',
+          #  :msg => "Barcode #{get_barcodes} added"})
         else
           show_alert({:type => 'warning',
-            :msg => "Cannot select #{barcodes_str}"})
+            :msg => "Cannot select #{get_barcodes}"})
           #flash[:danger] = "Could not find barcodes #{barcodes}"
         end
       rescue Net::ReadTimeout => e
         show_alert({:type => 'danger',
-          :msg => "Cannot connect with Sequencescape for reading barcode #{barcodes_str}"})
+          :msg => "Cannot connect with Sequencescape for reading barcode #{get_barcodes}"})
       rescue Sequencescape::Api::ResourceNotFound => e
         show_alert({:type => 'warning',
-          :msg => "Cannot find barcode #{barcodes_str} in Sequencescape"})
+          :msg => "Cannot find barcode #{get_barcodes} in Sequencescape"})
       rescue StandardError => e
         show_alert({:type => 'danger',
           :msg => "Cannot connect with Sequencescape: Message: #{e.message}"})
@@ -110,7 +116,7 @@ class AssetGroupsController < ApplicationController
   end
 
   def params_update_asset_group
-    params.require(:asset_group).permit(:add_barcodes => [], :assets => [])
+    params.require(:asset_group).permit(:add_barcodes, :assets => [])
   end
 
 end

@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import AlertDisplay from "./activity_components/alert_display"
 import ActivityDescription from "./activity_components/activity_description"
 import PrintersSelection from "./activity_components/printers_selection"
 import AssetGroupsEditor from "./asset_group_components/asset_groups_editor"
@@ -18,10 +19,23 @@ class Activity extends React.Component {
 			selectedPlatePrinter: props.platePrinter.defaultValue,
 			selectedAssetGroup: props.activity.selectedAssetGroup,
 			stepTypes: props.stepTypes,
-			assetGroups: props.assetGroups
+			assetGroups: props.assetGroups,
+			messages: []
 		}
 		this.onSelectAssetGroup = this.onSelectAssetGroup.bind(this)
 		this.onChangeAssetGroup = this.onChangeAssetGroup.bind(this)
+		this.onErrorMessage = this.onErrorMessage.bind(this)
+		this.onRemoveErrorMessage = this.onRemoveErrorMessage.bind(this)
+		this.onRemoveAssetFromAssetGroup = this.onRemoveAssetFromAssetGroup.bind(this)
+		this.onRemoveAllAssetsFromAssetGroup = this.onRemoveAllAssetsFromAssetGroup.bind(this)
+	}
+	onRemoveErrorMessage(msg, pos) {
+		this.state.messages.splice(pos,1)
+		this.setState({messages: this.state.messages})
+	}
+	onErrorMessage(msg) {
+		this.state.messages.push(msg)
+		this.setState({messages: this.state.messages})
 	}
 	onSelectAssetGroup(assetGroup) {
 		this.setState({selectedAssetGroup: assetGroup.id})
@@ -35,6 +49,35 @@ class Activity extends React.Component {
 			stepTypes: this.state.stepTypes
 		})
 	}
+	changeAssetGroup(assetGroup, data) {
+		$.ajax({
+      method: 'PUT',
+			dataType: 'json',
+			contentType: 'application/json; charset=utf-8',
+      url: assetGroup.updateUrl,
+      success: this.onChangeAssetGroup,
+      data: JSON.stringify(data)
+    })
+	}
+	onRemoveAssetFromAssetGroup(assetGroup, asset, pos){
+		let assets = this.state.assetGroups[assetGroup.id].assets.slice()
+		assets.splice(pos, 1)
+		const uuids = assets.map((a) => { return a.uuid })
+
+		this.changeAssetGroup(assetGroup, {
+			asset_group: {
+				assets: uuids
+			}
+		})
+	}
+	onRemoveAllAssetsFromAssetGroup(assetGroup){
+		this.changeAssetGroup(assetGroup, {
+			asset_group: {
+				assets: []
+			}
+		})
+	}
+
 	onChangeTubePrinter() {
 		this.setState({selectedTubePrinter: e.target.value})
 	}
@@ -53,6 +96,9 @@ class Activity extends React.Component {
   render () {
     return (
       <div>
+				<AlertDisplay
+					onRemoveErrorMessage={this.onRemoveErrorMessage}
+					messages={this.state.messages} />
 	      <FormFor url='/edu' className="form-inline activity-desc">
 	        <HashFields name="activity">
 	          <ActivityDescription	activity={this.props.activity} />
@@ -68,6 +114,9 @@ class Activity extends React.Component {
 		    />
 				{this.renderStepTypesControl()}
 			  <AssetGroupsEditor
+					onRemoveAssetFromAssetGroup={this.onRemoveAssetFromAssetGroup}
+					onRemoveAllAssetsFromAssetGroup={this.onRemoveAllAssetsFromAssetGroup}
+					onErrorMessage={this.onErrorMessage}
 					onChangeAssetGroup={this.onChangeAssetGroup}
 					selectedAssetGroup={this.state.selectedAssetGroup}
 					onSelectAssetGroup={this.onSelectAssetGroup}

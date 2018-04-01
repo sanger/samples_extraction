@@ -18,7 +18,11 @@ class AssetGroupEditor extends React.Component {
     this.setState({barcodesInputText: e.target.value})
   }
   onAjaxSuccess(msg, text) {
-    this.props.onChangeAssetGroup(msg)
+    if (msg.errors) {
+      msg.errors.forEach(this.props.onErrorMessage)
+    } else {
+      this.props.onChangeAssetGroup(msg)
+    }
     this.setState({disabledBarcodesInput: false, barcodesInputText: ''})
   }
   onSubmit(e) {
@@ -43,13 +47,17 @@ class AssetGroupEditor extends React.Component {
            <div className="panel panel-default">
              <div className="panel-header barcode-adding-control">
                <BarcodeReader
+                 isShown={this.props.isShown}
                  handleChange={this.handleBarcodeReaderChange}
                  barcodesInputText={this.state.barcodesInputText}
                  disabledBarcodesInput={this.state.disabledBarcodesInput}
                  assetGroup={this.props.assetGroup} />
              </div>
              <div className="panel-body collapse in" id="collapseAssets">
-               <AssetGroup assetGroup={this.props.assetGroup} />
+               <AssetGroup
+                 onRemoveAssetFromAssetGroup={this.props.onRemoveAssetFromAssetGroup}
+                 onRemoveAllAssetsFromAssetGroup={this.props.onRemoveAllAssetsFromAssetGroup}
+                 assetGroup={this.props.assetGroup} />
              </div>
              <div className="panel-footer">
              </div>

@@ -6,6 +6,8 @@ class AssetGroupsEditor extends React.Component {
     super(props)
     this.renderTab = this.renderTab.bind(this)
     this.renderPanel = this.renderPanel.bind(this)
+    this.isShown = this.isShown.bind(this)
+    this.classSelection = this.classSelection.bind(this)
   }
   renderTab(assetGroupId, index) {
     const assetGroup = this.props.assetGroups[assetGroupId]
@@ -25,7 +27,10 @@ class AssetGroupsEditor extends React.Component {
     )
   }
   classSelection(assetGroup) {
-    return (this.props.selectedAssetGroup == assetGroup.id)? 'active' : ''
+    return this.isShown(assetGroup) ? 'active' : ''
+  }
+  isShown(assetGroup) {
+    return (this.props.selectedAssetGroup == assetGroup.id)
   }
   renderPanel(assetGroupId, index) {
     const assetGroup = this.props.assetGroups[assetGroupId]
@@ -34,6 +39,10 @@ class AssetGroupsEditor extends React.Component {
         id={'asset-group-'+assetGroup.id}
         key={index}>
         <AssetGroupEditor assetGroup={assetGroup}
+          isShown={this.isShown(assetGroup)}
+          onRemoveAssetFromAssetGroup={this.props.onRemoveAssetFromAssetGroup}
+          onRemoveAllAssetsFromAssetGroup={this.props.onRemoveAllAssetsFromAssetGroup}
+          onErrorMessage={this.props.onErrorMessage}
           onChangeAssetGroup={this.props.onChangeAssetGroup}/>
       </div>
     )
