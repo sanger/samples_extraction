@@ -11,7 +11,7 @@ module InferenceEngines
             @changed_assets= num_create.times.map{|i| Asset.create!}
             #unless action.subject_condition_group.name.nil?
               AssetGroup.create(
-                :activity_owner => @step.activity, 
+                :activity_owner => @step.activity,
                 :assets => @changed_assets,
                 :condition_group => action.subject_condition_group)
             #end
@@ -35,7 +35,7 @@ module InferenceEngines
               created_asset.update_attributes(:barcode => nil)
             else
               created_asset.generate_barcode(i)
-            end            
+            end
           end
         end
 
@@ -44,7 +44,6 @@ module InferenceEngines
           if list_of_assets.length > 0
             created_asset_group = AssetGroup.create
             created_asset_group.add_assets(list_of_assets)
-            step.activity.asset_group.add_assets(list_of_assets) if step.activity
             step.update_attributes(:created_asset_group => created_asset_group)
           end
         end

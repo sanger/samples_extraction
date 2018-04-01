@@ -16,10 +16,11 @@ class AssetGroupsEditor extends React.Component {
       <li
         style={{cursor: 'pointer'}}
         onClick={$.proxy(this.props.onSelectAssetGroup, this, assetGroup)}
-        role="presentation" className={ this.classSelection(assetGroup) } key={ index }>
+        role="presentation" className={ this.classSelection(assetGroup) }
+        key={ assetGroupId }>
         <a
           onClick={$.proxy(this.onSelectAssetGroup, this, assetGroup)}
-          key={ index }
+          key={ assetGroupId }
           aria-controls={ assetGroup.condition_group_name } role="tab" >
           { assetGroup.condition_group_name }
         </a>
@@ -37,7 +38,7 @@ class AssetGroupsEditor extends React.Component {
     return(
       <div role="tabpanel" className={"tab-pane "+this.classSelection(assetGroup)}
         id={'asset-group-'+assetGroup.id}
-        key={index}>
+        key={'asset-group-'+assetGroup.id}>
         <AssetGroupEditor assetGroup={assetGroup}
           isShown={this.isShown(assetGroup)}
           onRemoveAssetFromAssetGroup={this.props.onRemoveAssetFromAssetGroup}

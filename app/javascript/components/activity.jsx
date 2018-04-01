@@ -28,6 +28,7 @@ class Activity extends React.Component {
 		this.onRemoveErrorMessage = this.onRemoveErrorMessage.bind(this)
 		this.onRemoveAssetFromAssetGroup = this.onRemoveAssetFromAssetGroup.bind(this)
 		this.onRemoveAllAssetsFromAssetGroup = this.onRemoveAllAssetsFromAssetGroup.bind(this)
+		this.onExecuteStep = this.onExecuteStep.bind(this)
 	}
 	onRemoveErrorMessage(msg, pos) {
 		this.state.messages.splice(pos,1)
@@ -84,9 +85,16 @@ class Activity extends React.Component {
 	onChangePlatePrinter() {
 		this.setState({selectedPlatePrinter: e.target.value})
 	}
+	onExecuteStep(msg) {
+		this.setState({
+			assetGroups: msg.asset_groups,
+			stepTypes: msg.step_types
+		})
+	}
 	renderStepTypesControl() {
 		return(
 			<StepTypesControl stepTypes={this.state.stepTypes}
+				onExecuteStep={this.onExecuteStep}
 				selectedAssetGroup={this.state.selectedAssetGroup}
 				selectedTubePrinter={this.state.selectedTubePrinter}
 				selectedPlatePrinter={this.state.selectedPlatePrinter}
@@ -120,7 +128,7 @@ class Activity extends React.Component {
 					onChangeAssetGroup={this.onChangeAssetGroup}
 					selectedAssetGroup={this.state.selectedAssetGroup}
 					onSelectAssetGroup={this.onSelectAssetGroup}
-					assetGroups={this.props.assetGroups} />
+					assetGroups={this.state.assetGroups} />
 				{this.renderStepTypesControl()}
 
 				<StepsFinished steps={this.props.stepsFinished} />

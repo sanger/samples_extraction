@@ -106,7 +106,7 @@ class Step < ActiveRecord::Base
   def remove_facts(asset, facts)
     facts = [facts].flatten
     asset.remove_facts(facts)
-    asset.remove_operations(facts, self)    
+    asset.remove_operations(facts, self)
   end
 
   def unselect_assets_from_antecedents
@@ -256,7 +256,7 @@ class Step < ActiveRecord::Base
 
   def failed?
     (state == 'error')
-  end  
+  end
 
 
   def deactivate

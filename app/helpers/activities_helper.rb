@@ -24,7 +24,8 @@ module ActivitiesHelper
   def step_types_data
     @step_types.map do |st|
     {
-      createStepUrl: activity_step_type_steps_path(@activity, st),
+      createStepUrl: activity_steps_path(@activity),
+      stepType: st,
       name: st.name
     }
     end
@@ -33,7 +34,8 @@ module ActivitiesHelper
   def step_types_data_for_step_types(activity, step_types)
     step_types.map do |st|
     {
-      createStepUrl: activity_step_type_steps_path(activity, st),
+      createStepUrl: activity_steps_path(activity),
+      stepType: st,
       name: st.name
     }
     end
@@ -99,7 +101,8 @@ module ActivitiesHelper
   def step_type_templates_data
     @step_types.select{|s| s.step_template }.map do |st|
       {
-        createStepUrl: activity_step_types_path(@activity, st),
+        createStepUrl: activity_steps_path(@activity),
+        stepType: st,
         name: st.name,
         id: "step-type-id-#{ rand(9999).to_s }-#{ st.id }"
       }
@@ -109,11 +112,13 @@ module ActivitiesHelper
   def step_type_templates_data_for_step_types(activity, step_types)
     step_types.select{|s| s.step_template }.map do |st|
       {
-        createStepUrl: activity_step_types_path(activity, st),
+        createStepUrl: activity_steps_path(activity),
+        stepType: st,
         name: st.name,
         id: "step-type-id-#{ rand(9999).to_s }-#{ st.id }"
       }
     end
   end
+
 
 end

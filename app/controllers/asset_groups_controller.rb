@@ -8,10 +8,7 @@ class AssetGroupsController < ApplicationController
 
   def show
     @assets = @asset_group.assets
-
     @assets_grouped = assets_by_fact_group
-
-    @step_types = @activity.step_types_active if @activity
 
     respond_to do |format|
       format.html { render @asset_group }
@@ -24,16 +21,11 @@ class AssetGroupsController < ApplicationController
   def update
     @assets = @asset_group.assets
     @assets_grouped = assets_by_fact_group
-    #@step_types = @activity.step_types_active
 
     render json: {
       asset_group: asset_group_data(@activity, @asset_group),
       step_types: step_types_for_asset_groups_data(@activity, @asset_group)
     }
-    # respond_to do |format|
-    #   format.html { render @asset_group }
-    #   format.json { render :update, status: :created, location: [@activity, @asset_group] }
-    # end
   end
 
   def print

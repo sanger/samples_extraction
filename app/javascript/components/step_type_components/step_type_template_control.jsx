@@ -12,9 +12,12 @@ class StepTypeTemplateControl extends React.Component {
 				</div>
 
 	      <FormFor url={stepTypeTemplateData.createStepUrl} className="form-inline activity-desc">
-	        <PrintersSelectionHidden 
+	        <PrintersSelectionHidden
 	        	selectedTubePrinter={this.props.selectedTubePrinter}
 	        	selectedPlatePrinter={this.props.selectedPlatePrinter} />
+						<input type="hidden" name="step[step_type_id]" value={stepTypeTemplateData.stepType.id} />
+            <input type="hidden" name="step[asset_group_id]" value={this.props.assetGroupId} />
+
 				  <input type="button" name="button" style={{display: 'none'}} />
 				  <input type="hidden" name='step[state]' value='done' />
 	      </FormFor>

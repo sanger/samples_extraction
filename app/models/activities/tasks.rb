@@ -1,8 +1,8 @@
 module Activities
   module Tasks
 
-    def do_task(step_type, user, step_params, printer_config)
-      step = find_or_create_step(step_type, user, step_params)
+    def do_task(step_type, user, step_params, printer_config, asset_group)
+      step = find_or_create_step(step_type, user, step_params, asset_group)
       do_background_tasks(printer_config, user)
 
       if step && step.created_asset_group
@@ -15,7 +15,7 @@ module Activities
     end
 
 
-    def find_or_create_step(step_type, user, step_params)
+    def find_or_create_step(step_type, user, step_params, asset_group)
       perform_step_actions_for('before_step', self, step_type, step_params)
 
       step = steps.in_progress.for_step_type(step_type).first

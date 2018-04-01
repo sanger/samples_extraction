@@ -16,15 +16,19 @@ class StepTypeTemplate extends React.Component {
 					Finish
 				  <div style={{display: 'none'}} data-psd-component-class-name="FinishStepButton">
 				  	<FormFor url={stepTypeTemplateData.createStepUrl} className="form-inline activity-desc">
-				   		<PrintersSelectionHidden 
+				   		<PrintersSelectionHidden
+								entityName="step"
 				    		selectedTubePrinter={this.props.selectedTubePrinter}
 				    		selectedPlatePrinter={this.props.selectedPlatePrinter} />
+								<input type="hidden" name="step[step_type_id]" value={stepTypeTemplateData.stepType.id} />
+		            <input type="hidden" name="step[asset_group_id]" value={this.props.assetGroupId} />
+
 					    <input type="hidden" name='step[state]' value='done' />
 					  </FormFor>
 					</div>
 				</a>
 	    </li>
-		)	
+		)
 	}
 }
 

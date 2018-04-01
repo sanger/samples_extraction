@@ -15,6 +15,8 @@ class StepTypesControl extends React.Component {
       <div key={assetGroupId} className={this.classForAssetGroup(assetGroupId)}>
         <StepTypesActive
           key={assetGroupId}
+          assetGroupId={assetGroupId}
+          onExecuteStep={this.props.onExecuteStep}
           selectedAssetGroup={this.props.selectedAssetGroup}
             activeStepTypes={stepTypes}
             selectedTubePrinter={this.props.selectedTubePrinter}

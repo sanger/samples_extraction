@@ -4,12 +4,37 @@ class StepsController < ApplicationController
   before_action :set_step, only: [:show, :edit, :update, :destroy, :execute_actions]
   before_action :set_activity, only: [:create]
   before_action :set_printer_config, only: [:create]
+  before_action :set_asset_group, only: [:create]
 
   before_action :nested_steps, only: [:index]
 
   before_action :check_executable_step, only: [:execute_actions]
 
+  before_action :set_step_type, only: [:create]
+  include ActivitiesHelper
+  def set_asset_group
+    @asset_group = AssetGroup.find(params_step[:asset_group_id])
+  end
 
+  def set_step_type
+    @step_type = StepType.find(params_step[:step_type_id])
+  end
+
+  def create
+    #@step = Step.create(params_step)
+    #@step = @activity.do_task(step_type_to_do, @current_user, create_step_params, @printer_config)
+    @step = @activity.do_task(@step_type, @current_user, params_step, @printer_config, @asset_group)
+
+    render json: {
+      asset_groups: asset_groups_data(@activity),
+      step_types: step_types_control_data(@activity)
+    }
+  end
+
+  def params_step
+    params.require(:step).permit(:step_type_id, :asset_group_id, :tube_printer_id, :plate_printer_id,
+      :state, :data_action, :data_action_type, :data_params, :file)
+  end
 
   def nested_steps
     if step_params[:activity_id]
@@ -48,7 +73,7 @@ class StepsController < ApplicationController
   end
 
   def params_for_printing
-    params.require(:step).permit(:tube_printer_id, :plate_printer_id, 
+    params.require(:step).permit(:tube_printer_id, :plate_printer_id,
       :state, :data_action, :data_action_type, :data_params)
   end
 
@@ -64,13 +89,13 @@ class StepsController < ApplicationController
   end
 
   # POST /activity/:activity_id/step_type/:step_type_id/create
-  def create
+  def create2
     #begin
       valid_step_types = @activity.step_types_for(@assets)
       step_type_to_do = @activity.step_types.find_by_id!(@step_type.id)
       if valid_step_types.include?(step_type_to_do)
         @step = @activity.do_task(step_type_to_do, @current_user, create_step_params, @printer_config)
-        session[:data_params] = {}        
+        session[:data_params] = {}
       end
     #rescue Lab::Actions::InvalidDataParams => e
       # flash[:danger] = e.message
@@ -102,7 +127,7 @@ class StepsController < ApplicationController
 
     respond_to do |format|
         format.html { redirect_to @step.activity }
-        format.json { render :show, status: :ok }      
+        format.json { render :show, status: :ok }
     end
   end
 
@@ -149,7 +174,7 @@ class StepsController < ApplicationController
     end
 
     def params_for_update
-      params.require(:step).permit(:state)      
+      params.require(:step).permit(:state)
     end
 
     def create_step_params
@@ -160,9 +185,6 @@ class StepsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_activity
       @activity = Activity.find(params[:activity_id])
-      @asset_group = @activity.asset_group
-      @assets = @asset_group.assets
-      @step_type = StepType.find(params[:step_type_id])
     end
 
 

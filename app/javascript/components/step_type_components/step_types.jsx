@@ -17,16 +17,20 @@ class StepTypes extends React.Component {
 	  		<div>
 		  		<ul className="step-selection list-inline ">
 		  		  <StepTypeButtons stepTypesData={this.props.stepTypesData}
+							assetGroupId={this.props.assetGroupId}
         		      	selectedTubePrinter={this.props.selectedTubePrinter}
 				      	selectedPlatePrinter={this.props.selectedPlatePrinter}
+								onExecuteStep={this.props.onExecuteStep}
 		  		  />
 		  		  <StepTypeTemplatesButtons stepTypesTemplatesData={this.props.stepTypesTemplatesData}
+							assetGroupId={this.props.assetGroupId}
         		      	selectedTubePrinter={this.props.selectedTubePrinter}
 				      	selectedPlatePrinter={this.props.selectedPlatePrinter}
 
 		  		  />
 		  		</ul>
 		  		<StepTypeTemplatesControls stepTypesTemplatesData={this.props.stepTypesTemplatesData}
+						assetGroupId={this.props.assetGroupId}
         		      	selectedTubePrinter={this.props.selectedTubePrinter}
 				      	selectedPlatePrinter={this.props.selectedPlatePrinter}
 
