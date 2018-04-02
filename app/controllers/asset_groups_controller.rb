@@ -14,10 +14,7 @@ class AssetGroupsController < ApplicationController
     respond_to do |format|
       format.html { render @asset_group }
       format.n3 { render :show }
-      render json: {
-        asset_group: asset_group_data(@activity, @asset_group),
-        step_types: step_types_for_asset_groups_data(@activity, @asset_group)
-      }
+      format.json { head :ok}
     end
   end
 
@@ -26,10 +23,7 @@ class AssetGroupsController < ApplicationController
     @assets = @asset_group.assets
     @assets_grouped = assets_by_fact_group
 
-    render json: {
-      asset_group: asset_group_data(@activity, @asset_group),
-      step_types: step_types_for_asset_groups_data(@activity, @asset_group)
-    }
+    head :ok
   end
 
   def print
@@ -37,40 +31,6 @@ class AssetGroupsController < ApplicationController
 
     redirect_to :back
   end
-
-  def sse
-    @asset_group = AssetGroup.find(params[:asset_group_id])
-    @asset_group.assets.each(&:refresh)
-    @assets_changing = @asset_group.assets.currently_changing
-
-    response.headers['Content-Type'] = 'text/event-stream'
-    sse = SSE.new(response.stream, event: 'asset_group')
-    #loop do
-      sse.write(@asset_group.last_update)
-      sleep 1
-    #end
-    # sse.write(@asset_group.last_update, event: 'asset_group')
-    # sse.write(@assets_changing.pluck(:uuid), event: 'asset')
-    #loop do
-      #SseRailsEngine.send_event('asset_group', @asset_group.last_update)
-    #end
-    # loop do
-      # msg =  "event: asset_group\n"#
-      # msg += "data: #{@asset_group.last_update} \n\n"
-    #
-    #   msg += "event: asset\n"
-    #   msg += "data: #{@assets_changing.pluck(:uuid)} \n\n"
-    #
-      # response.stream.write msg
-     #end
-       #sleep 5
-    # end
-  ensure
-    #response.stream.close
-    sse.close
-  end
-
-
 
   private
 
@@ -108,6 +68,7 @@ class AssetGroupsController < ApplicationController
       updated_assets = [params_update_asset_group[:assets]].flatten
       received_list = updated_assets.map{|uuid| Asset.find_by!(uuid: uuid)}
       @asset_group.update_attributes(assets: received_list)
+      @asset_group.touch
     end
   end
 
@@ -124,6 +85,7 @@ class AssetGroupsController < ApplicationController
     unless params_update_asset_group[:add_barcodes].nil? || params_update_asset_group[:add_barcodes].empty?
       begin
         if @asset_group.select_barcodes(get_barcodes)
+          @asset_group.touch
           puts 1
           #show_alert({:type => 'info',
           #  :msg => "Barcode #{get_barcodes} added"})

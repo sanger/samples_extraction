@@ -24,7 +24,7 @@ module ActivitiesHelper
   def step_types_data
     @step_types.map do |st|
     {
-      createStepUrl: activity_steps_path(@activity),
+      createStepUrl: Rails.application.routes.url_helpers.activity_steps_path(@activity),
       stepType: st,
       name: st.name
     }
@@ -34,7 +34,7 @@ module ActivitiesHelper
   def step_types_data_for_step_types(activity, step_types)
     step_types.map do |st|
     {
-      createStepUrl: activity_steps_path(activity),
+      createStepUrl: Rails.application.routes.url_helpers.activity_steps_path(activity),
       stepType: st,
       name: st.name
     }
@@ -45,7 +45,7 @@ module ActivitiesHelper
   def step_types_for_asset_groups_data(activity, asset_group)
     step_types = activity.step_types_for(asset_group.assets)
     {
-      updateUrl: activity_step_types_path(activity),
+      updateUrl: Rails.application.routes.url_helpers.activity_step_types_path(activity),
       stepTypesData: step_types_data_for_step_types(activity, step_types),
       stepTypesTemplatesData: step_type_templates_data_for_step_types(activity, step_types)
     }
@@ -82,10 +82,12 @@ module ActivitiesHelper
   def asset_group_data(activity, asset_group)
     {
       id: asset_group.id,
-      selected: (activity.asset_group==asset_group),
+      #selected: (activity.asset_group==asset_group),
+      activityId: asset_group.activity_owner.id,
       lastUpdate: asset_group.updated_at,
-      updateUrl: activity_asset_group_url(activity, asset_group),
+      updateUrl: Rails.application.routes.url_helpers.activity_asset_group_path(activity, asset_group),
       condition_group_name: asset_group.condition_group_name,
+      assets_running: activity.steps.running.joins(asset_group: :assets).map(&:assets).flatten.map(&:uuid).uniq,
       assets: asset_group.assets.map{|asset| asset_data(asset)}
     }
   end
@@ -102,7 +104,7 @@ module ActivitiesHelper
   def step_type_templates_data
     @step_types.select{|s| s.step_template }.map do |st|
       {
-        createStepUrl: activity_steps_path(@activity),
+        createStepUrl: Rails.application.routes.url_helpers.activity_steps_path(@activity),
         stepType: st,
         name: st.name,
         id: "step-type-id-#{ rand(9999).to_s }-#{ st.id }"
@@ -113,7 +115,7 @@ module ActivitiesHelper
   def step_type_templates_data_for_step_types(activity, step_types)
     step_types.select{|s| s.step_template }.map do |st|
       {
-        createStepUrl: activity_steps_path(activity),
+        createStepUrl: Rails.application.routes.url_helpers.activity_steps_path(activity),
         stepType: st,
         name: st.name,
         id: "step-type-id-#{ rand(9999).to_s }-#{ st.id }"

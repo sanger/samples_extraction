@@ -8,53 +8,14 @@ class AssetGroupEditor extends React.Component {
     super(props)
     this.state = {
       barcodesInputText: '',
-      disabledBarcodesInput: false
+      disabledBarcodesInput: false,
+      assets_status: {}
     }
     this.onSubmit = this.onSubmit.bind(this)
     this.onAjaxSuccess = this.onAjaxSuccess.bind(this)
     this.handleBarcodeReaderChange = this.handleBarcodeReaderChange.bind(this)
+    this.assetsChanging = this.assetsChanging.bind(this)
   }
-  componentDidMount() {
-    //this.listenSSE()
-    this.listenWebSockets()
-  }
-  listenWebSockets() {
-    App.cable.subscriptions.create({channel: 'AssetGroupChannel', asset_group_id: this.props.assetGroup.id }, {
-      received: $.proxy(function(data) {
-        if (data > this.props.assetGroup.lastUpdate) {
-          this.updateAssetGroup()
-        }
-      }, this)
-    })
-  }
-  onSSEAssetGroupUpdates(e) {
-    if (e.data > this.props.assetGroup.lastUpdate) {
-      this.updateAssetGroup()
-    }
-  }
-
-  onAssetsChanging(e) {
-    var data = JSON.parse(e.data);
-    var state = data.state;
-    var uuid = data.uuid;
-
-    $('tr[data-asset-uuid]').each($.proxy(function(pos, tr) {
-      if ($(tr).data('asset-uuid') === uuid) {
-        if (state === 'running') {
-          $(tr).trigger('load_start.loading_spinner');
-        }
-        if (state === 'hanged') {
-          $(tr).trigger('load_stop.loading_spinner');
-        }
-      }
-      if ($(tr).data('asset-uuid') === uuid) {
-
-      } else {
-
-      }
-    }, this));
-  }
-
   listenSSE() {
     const evtSource = new EventSource(this.props.assetGroup.updateUrl+'/sse', { withCredentials: true })
     evtSource.addEventListener("asset_group", $.proxy(this.onSSEAssetGroupUpdates, this), false)
@@ -89,6 +50,11 @@ class AssetGroupEditor extends React.Component {
       success: this.onAjaxSuccess,
       data: $(e.target).serializeArray()
     })
+  }
+  assetsChanging() {
+    return Object.keys(this.state.assets_status).filter($.proxy(function(uuid) {
+      return (this.state.assets_status[uuid] == 'running')
+    }, this))
   }
   render() {
     return(

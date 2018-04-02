@@ -37,6 +37,19 @@ class Activity < ActiveRecord::Base
 
   has_one :work_order
 
+  after_touch :wss_event
+
+  def json_state
+    {
+      asset_groups: ApplicationController.helpers.asset_groups_data(self),
+      step_types: ApplicationController.helpers.step_types_control_data(self)
+    }
+  end
+
+  def wss_event
+    ActionCable.server.broadcast("activity_#{id}", json_state)
+  end
+
   def active_step
     return nil unless steps.in_progress
     steps.in_progress.first

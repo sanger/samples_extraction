@@ -40,6 +40,7 @@ class AssetGroupsEditor extends React.Component {
         id={'asset-group-'+assetGroup.id}
         key={'asset-group-'+assetGroup.id}>
         <AssetGroupEditor assetGroup={assetGroup}
+          onExecuteStep={this.props.onExecuteStep}
           isShown={this.isShown(assetGroup)}
           onRemoveAssetFromAssetGroup={this.props.onRemoveAssetFromAssetGroup}
           onRemoveAllAssetsFromAssetGroup={this.props.onRemoveAllAssetsFromAssetGroup}

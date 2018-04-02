@@ -17,6 +17,16 @@ class AssetGroup extends React.Component {
     e.preventDefault()
     this.props.onRemoveAllAssetsFromAssetGroup(this.props.assetGroup)
   }
+  runningAsset(asset) {
+    const found = this.props.assetGroup.assets_running.find((uuid) => { return (uuid == asset.uuid) })
+    if (found) {
+      return (
+        <div className="spinner">
+          <span className="glyphicon glyphicon-refresh fast-right-spinner"></span>
+        </div>
+      )
+    }
+  }
   renderAssetRow(asset, index) {
     return(
       <tr data-asset-uuid={asset.uuid} data-psd-component-class="LoadingIcon"
@@ -24,6 +34,7 @@ class AssetGroup extends React.Component {
         "containerIconClass": "spinner", "loadingClass":
         "fast-right-spinner"}' key={index}>
         <td>
+          {this.runningAsset(asset)}
           <input type="hidden" name="asset_group[assets]" value={asset.uuid} />
           <AssetDisplay asset={asset} />
         </td>

@@ -3,6 +3,7 @@
 <h1>Activity <%= @activity.id %></h1>
  <%= react_component('Activity',  {
    activity: {
+     id: @activity.id,
      completed_at: @activity.completed_at,
      activity_type_name: @activity.activity_type.name,
      instrument_name: @activity.instrument.name || @activity.instrument.barcode,

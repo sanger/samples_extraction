@@ -6,6 +6,35 @@ class Step < ActiveRecord::Base
 
   #after_update :sse_event
 
+  after_update :wss_event
+
+  def wss_event
+    return if asset_group.assets.empty?
+    #debugger if asset_group.assets.map(&:asset_groups).count > 1
+
+    asset_group.touch
+    asset_group.assets.map do |asset|
+      asset.asset_groups.joins(:activity_owner).each(&:touch)
+    end
+
+    return
+    asset_group.assets.map(&:asset_groups).flatten.uniq.each do |agroup|
+      assets_from_step = asset_group.assets & agroup.assets
+      list=[]
+      if (state == 'running')
+        data = {state: 'running', assets: assets_from_step.map(&:uuid)}
+      else
+        data = {state: 'hanged', assets: assets_from_step.map(&:uuid)}
+        #if previous_changes[:state]=='running'
+        #  data = {state: 'hanged', assets: assets_from_step.map(&:uuid)}
+        #end
+      end
+      if (data && !data[:assets].empty?)
+        ActionCable.server.broadcast("asset_group_#{asset_group.id}", {assets_status: data})
+      end
+    end
+  end
+
   def sse_event
     if (state == 'running')
       asset_group.assets.each do |asset|

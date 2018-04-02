@@ -30,6 +30,23 @@ class Activity extends React.Component {
 		this.onRemoveAllAssetsFromAssetGroup = this.onRemoveAllAssetsFromAssetGroup.bind(this)
 		this.onExecuteStep = this.onExecuteStep.bind(this)
 	}
+	componentDidMount() {
+    this.listenWebSockets()
+  }
+  listenWebSockets() {
+    App.cable.subscriptions.create({
+			channel: 'ActivityChannel',
+			activity_id: this.props.activity.id
+		}, {
+      received: $.proxy(this.onWebSocketsMessage, this)
+    })
+  }
+	onWebSocketsMessage(msg) {
+		this.setState({
+			assetGroups: msg.asset_groups,
+			stepTypes: msg.step_types
+		})
+	}
 	onRemoveErrorMessage(msg, pos) {
 		this.state.messages.splice(pos,1)
 		this.setState({messages: this.state.messages})
@@ -42,13 +59,13 @@ class Activity extends React.Component {
 		this.setState({selectedAssetGroup: assetGroup.id})
 	}
 	onChangeAssetGroup(msg) {
-		this.state.assetGroups[msg.asset_group.id]=msg.asset_group
-		this.state.stepTypes[msg.asset_group.id]=msg.step_types
+		//this.state.assetGroups[msg.asset_group.id]=msg.asset_group
+		//this.state.stepTypes[msg.asset_group.id]=msg.step_types
 
-		this.setState({
-			assetGroups: this.state.assetGroups,
-			stepTypes: this.state.stepTypes
-		})
+		//this.setState({
+		//	assetGroups: this.state.assetGroups,
+		//	stepTypes: this.state.stepTypes
+		//})
 	}
 	changeAssetGroup(assetGroup, data) {
 		$.ajax({
@@ -86,10 +103,6 @@ class Activity extends React.Component {
 		this.setState({selectedPlatePrinter: e.target.value})
 	}
 	onExecuteStep(msg) {
-		this.setState({
-			assetGroups: msg.asset_groups,
-			stepTypes: msg.step_types
-		})
 	}
 	renderStepTypesControl() {
 		return(
@@ -122,6 +135,7 @@ class Activity extends React.Component {
 		    />
 				{this.renderStepTypesControl()}
 			  <AssetGroupsEditor
+					onExecuteStep={this.onExecuteStep}
 					onRemoveAssetFromAssetGroup={this.onRemoveAssetFromAssetGroup}
 					onRemoveAllAssetsFromAssetGroup={this.onRemoveAllAssetsFromAssetGroup}
 					onErrorMessage={this.onErrorMessage}

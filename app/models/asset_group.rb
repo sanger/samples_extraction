@@ -1,19 +1,21 @@
+
 class AssetGroup < ActiveRecord::Base
+
   has_and_belongs_to_many :assets, ->() {distinct}
   has_many :steps
-  has_one :activity
+  #has_one :activity
 
   belongs_to :activity_owner, :class_name => 'Activity'
   belongs_to :condition_group, :class_name => 'ConditionGroup'
 
+  alias_method :activity, :activity_owner
+
   include Printables::Group
 
-  #after_update :sse_event
-  after_save :wss_event
+  after_touch :touch_activity
 
-  def wss_event
-    touch
-    ActionCable.server.broadcast("asset_group_#{id}", updated_at)
+  def touch_activity
+    activity_owner.touch if activity_owner
   end
 
   def sse_event

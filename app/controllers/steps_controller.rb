@@ -21,14 +21,9 @@ class StepsController < ApplicationController
   end
 
   def create
-    #@step = Step.create(params_step)
-    #@step = @activity.do_task(step_type_to_do, @current_user, create_step_params, @printer_config)
     @step = @activity.do_task(@step_type, @current_user, params_step, @printer_config, @asset_group)
 
-    render json: {
-      asset_groups: asset_groups_data(@activity),
-      step_types: step_types_control_data(@activity)
-    }
+    head :ok
   end
 
   def params_step
