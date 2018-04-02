@@ -8,7 +8,13 @@ class AssetGroup < ActiveRecord::Base
 
   include Printables::Group
 
-  after_update :sse_event
+  #after_update :sse_event
+  after_save :wss_event
+
+  def wss_event
+    touch
+    ActionCable.server.broadcast("asset_group_#{id}", updated_at)
+  end
 
   def sse_event
     SseRailsEngine.send_event('asset_group', id)
@@ -87,7 +93,7 @@ class AssetGroup < ActiveRecord::Base
   def assets_by_fact_group
     return [] unless assets
     obj_type = Struct.new(:predicate,:object, :to_add_by, :to_remove_by, :object_asset_id)
-    
+
     groups = assets.group_by do |a|
       a.facts.sort do |f1,f2|
         # Canonical sort of facts

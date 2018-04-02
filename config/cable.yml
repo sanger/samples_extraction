@@ -1,0 +1,4 @@
+development:
+  adapter: redis
+  url: redis://127.0.0.1:6379
+  channel_prefix: samples_extraction_development

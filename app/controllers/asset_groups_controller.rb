@@ -3,6 +3,7 @@ class AssetGroupsController < ApplicationController
   before_action :set_activity, only: [:show, :update]
   before_action :update_barcodes, only: [:update]
 
+  include ActionController::Live
 
   include ActivitiesHelper
 
@@ -13,7 +14,10 @@ class AssetGroupsController < ApplicationController
     respond_to do |format|
       format.html { render @asset_group }
       format.n3 { render :show }
-      format.json { render :show, status: :created, location: [@activity, @asset_group] }
+      render json: {
+        asset_group: asset_group_data(@activity, @asset_group),
+        step_types: step_types_for_asset_groups_data(@activity, @asset_group)
+      }
     end
   end
 
@@ -33,6 +37,40 @@ class AssetGroupsController < ApplicationController
 
     redirect_to :back
   end
+
+  def sse
+    @asset_group = AssetGroup.find(params[:asset_group_id])
+    @asset_group.assets.each(&:refresh)
+    @assets_changing = @asset_group.assets.currently_changing
+
+    response.headers['Content-Type'] = 'text/event-stream'
+    sse = SSE.new(response.stream, event: 'asset_group')
+    #loop do
+      sse.write(@asset_group.last_update)
+      sleep 1
+    #end
+    # sse.write(@asset_group.last_update, event: 'asset_group')
+    # sse.write(@assets_changing.pluck(:uuid), event: 'asset')
+    #loop do
+      #SseRailsEngine.send_event('asset_group', @asset_group.last_update)
+    #end
+    # loop do
+      # msg =  "event: asset_group\n"#
+      # msg += "data: #{@asset_group.last_update} \n\n"
+    #
+    #   msg += "event: asset\n"
+    #   msg += "data: #{@assets_changing.pluck(:uuid)} \n\n"
+    #
+      # response.stream.write msg
+     #end
+       #sleep 5
+    # end
+  ensure
+    #response.stream.close
+    sse.close
+  end
+
+
 
   private
 

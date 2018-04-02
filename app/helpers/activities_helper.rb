@@ -83,6 +83,7 @@ module ActivitiesHelper
     {
       id: asset_group.id,
       selected: (activity.asset_group==asset_group),
+      lastUpdate: asset_group.updated_at,
       updateUrl: activity_asset_group_url(activity, asset_group),
       condition_group_name: asset_group.condition_group_name,
       assets: asset_group.assets.map{|asset| asset_data(asset)}

@@ -14,6 +14,53 @@ class AssetGroupEditor extends React.Component {
     this.onAjaxSuccess = this.onAjaxSuccess.bind(this)
     this.handleBarcodeReaderChange = this.handleBarcodeReaderChange.bind(this)
   }
+  componentDidMount() {
+    //this.listenSSE()
+    this.listenWebSockets()
+  }
+  listenWebSockets() {
+    App.cable.subscriptions.create({channel: 'AssetGroupChannel', asset_group_id: this.props.assetGroup.id }, {
+      received: $.proxy(function(data) {
+        if (data > this.props.assetGroup.lastUpdate) {
+          this.updateAssetGroup()
+        }
+      }, this)
+    })
+  }
+  onSSEAssetGroupUpdates(e) {
+    if (e.data > this.props.assetGroup.lastUpdate) {
+      this.updateAssetGroup()
+    }
+  }
+
+  onAssetsChanging(e) {
+    var data = JSON.parse(e.data);
+    var state = data.state;
+    var uuid = data.uuid;
+
+    $('tr[data-asset-uuid]').each($.proxy(function(pos, tr) {
+      if ($(tr).data('asset-uuid') === uuid) {
+        if (state === 'running') {
+          $(tr).trigger('load_start.loading_spinner');
+        }
+        if (state === 'hanged') {
+          $(tr).trigger('load_stop.loading_spinner');
+        }
+      }
+      if ($(tr).data('asset-uuid') === uuid) {
+
+      } else {
+
+      }
+    }, this));
+  }
+
+  listenSSE() {
+    const evtSource = new EventSource(this.props.assetGroup.updateUrl+'/sse', { withCredentials: true })
+    evtSource.addEventListener("asset_group", $.proxy(this.onSSEAssetGroupUpdates, this), false)
+    //evtSource.addEventListener("asset_running", $.proxy(this.onAssetsChanging, this), false)
+    //evtSource.addEventListener("active_step", $.proxy(this.onActiveStepUpdates, this), false)
+  }
   handleBarcodeReaderChange(e) {
     this.setState({barcodesInputText: e.target.value})
   }
@@ -24,6 +71,14 @@ class AssetGroupEditor extends React.Component {
       this.props.onChangeAssetGroup(msg)
     }
     this.setState({disabledBarcodesInput: false, barcodesInputText: ''})
+  }
+  updateAssetGroup() {
+    this.setState({disabledBarcodesInput: true})
+    $.ajax({
+      method: 'GET',
+      url: this.props.assetGroup.updateUrl,
+      success: this.onAjaxSuccess
+    })
   }
   onSubmit(e) {
     e.preventDefault()

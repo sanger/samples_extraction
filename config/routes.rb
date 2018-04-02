@@ -24,7 +24,11 @@ Rails.application.routes.draw do
 
   resources :activities do
     get 'real_time_updates' => 'activities#real_time_updates'
-    resources :asset_groups
+    
+    resources :asset_groups do
+      get 'sse' => 'asset_groups#sse'
+    end
+
     resources :step_types do
       resources :steps do
       end

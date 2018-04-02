@@ -20,7 +20,7 @@ gem 'activerecord-session_store'
 
 gem 'js_cookie_rails'
 
-
+gem 'redis'
 gem 'micro_token'
 
 gem 'barby'

@@ -43,9 +43,17 @@ class FactsSvg extends React.Component {
     if (name == 'filterpaper') {
       return 'filter_paper'
     }
+    return name
   }
   nameForFacts(facts) {
-    return facts.find((v) => { return v.predicate=="a" }).object.toLowerCase()
+    if (facts.length == 0) {
+      return null
+    }
+    let typeFact = facts.find((v) => { return v.predicate=="a" })
+    if (!typeFact) {
+      return null
+    }
+    return typeFact.object.toLowerCase()
   }
   pathImage(facts) {
     const img = this.filename(facts)
