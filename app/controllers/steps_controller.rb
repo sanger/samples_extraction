@@ -21,7 +21,7 @@ class StepsController < ApplicationController
   end
 
   def create
-    @step = @activity.do_task(@step_type, @current_user, params_step, @printer_config, @asset_group)
+    @activity.delay.do_task(@step_type, @current_user, params_step, @printer_config, @asset_group)
 
     head :ok
   end

@@ -13,13 +13,14 @@ import {FormFor, HashFields} from "react-rails-form-helpers"
 
 class Activity extends React.Component {
 	constructor(props) {
-		super()
+		super(props)
 		this.state = {
 			selectedTubePrinter: props.tubePrinter.defaultValue,
 			selectedPlatePrinter: props.platePrinter.defaultValue,
 			selectedAssetGroup: props.activity.selectedAssetGroup,
 			stepTypes: props.stepTypes,
 			assetGroups: props.assetGroups,
+			steps: [],
 			messages: []
 		}
 		this.onSelectAssetGroup = this.onSelectAssetGroup.bind(this)
@@ -29,6 +30,8 @@ class Activity extends React.Component {
 		this.onRemoveAssetFromAssetGroup = this.onRemoveAssetFromAssetGroup.bind(this)
 		this.onRemoveAllAssetsFromAssetGroup = this.onRemoveAllAssetsFromAssetGroup.bind(this)
 		this.onExecuteStep = this.onExecuteStep.bind(this)
+
+		this.renderStepTypesControl = this.renderStepTypesControl.bind(this)
 	}
 	componentDidMount() {
     this.listenWebSockets()
@@ -44,7 +47,8 @@ class Activity extends React.Component {
 	onWebSocketsMessage(msg) {
 		this.setState({
 			assetGroups: msg.asset_groups,
-			stepTypes: msg.step_types
+			stepTypes: msg.step_types,
+			steps: msg.steps
 		})
 	}
 	onRemoveErrorMessage(msg, pos) {
@@ -108,6 +112,7 @@ class Activity extends React.Component {
 		return(
 			<StepTypesControl stepTypes={this.state.stepTypes}
 				onExecuteStep={this.onExecuteStep}
+				stepsRunning={this.state.steps}
 				selectedAssetGroup={this.state.selectedAssetGroup}
 				selectedTubePrinter={this.state.selectedTubePrinter}
 				selectedPlatePrinter={this.state.selectedPlatePrinter}

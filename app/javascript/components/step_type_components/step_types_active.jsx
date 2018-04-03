@@ -16,6 +16,7 @@ class StepTypesActive extends React.Component {
 			      </div>
 			      <div className="content_step_types">
 			        <StepTypes
+                stepsRunning={this.props.stepsRunning}
                 assetGroupId={this.props.assetGroupId}
                 onExecuteStep={this.props.onExecuteStep}
         		      	selectedTubePrinter={this.props.selectedTubePrinter}

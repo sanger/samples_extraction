@@ -16,6 +16,7 @@ class StepTypesControl extends React.Component {
         <StepTypesActive
           key={assetGroupId}
           assetGroupId={assetGroupId}
+          stepsRunning={this.props.stepsRunning}
           onExecuteStep={this.props.onExecuteStep}
           selectedAssetGroup={this.props.selectedAssetGroup}
             activeStepTypes={stepTypes}

@@ -2,16 +2,25 @@ import React from 'react'
 import StepTypeButton from "./step_type_button"
 
 class StepTypeButtons extends React.Component {
-	render() {
-		return (this.props.stepTypesData.map((stepTypeData, pos) => {
-			return(<StepTypeButton key={'step-type-'+pos} stepTypeData={stepTypeData}
-			assetGroupId={this.props.assetGroupId}
-			 					onExecuteStep={this.props.onExecuteStep}
-        		      	selectedTubePrinter={this.props.selectedTubePrinter}
-				      	selectedPlatePrinter={this.props.selectedPlatePrinter}
+	constructor(props) {
+		super(props)
 
-			/>)
-		}))
+		this.renderStepTypeData = this.renderStepTypeData.bind(this)
+	}
+	renderStepTypeData(stepTypeData, pos) {
+		return(
+			<StepTypeButton key={'step-type-'+pos} stepTypeData={stepTypeData}
+				stepsRunning={this.props.stepsRunning}
+				assetGroupId={this.props.assetGroupId}
+				onExecuteStep={this.props.onExecuteStep}
+				selectedTubePrinter={this.props.selectedTubePrinter}
+				selectedPlatePrinter={this.props.selectedPlatePrinter}
+
+			/>
+		)
+	}
+	render() {
+		return (this.props.stepTypesData.map(this.renderStepTypeData))
 	}
 }
 

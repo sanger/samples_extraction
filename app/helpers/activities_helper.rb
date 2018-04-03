@@ -63,9 +63,12 @@ module ActivitiesHelper
   #stepTypesData: step_types_data,
   #stepTypesTemplatesData: step_type_templates_data
 
-
   def steps_data
-    @steps.reverse.map do |step|
+    steps_data_for_steps(@steps.reverse)
+  end
+
+  def steps_data_for_steps(steps)
+    steps.map do |step|
       {
         activity: step.activity,
         asset_group: step.asset_group,
@@ -74,6 +77,17 @@ module ActivitiesHelper
       }.merge(step.attributes)
     end
   end
+
+  def steps_without_operations_data_for_steps(steps)
+    steps.map do |step|
+      {
+        asset_group_id: step.asset_group.id,
+        step_type_id: step.step_type.id,
+        step_id: step.id
+      }
+    end
+  end
+
 
   def asset_data(asset)
     {barcode: asset.barcode, uuid: asset.uuid, facts: asset.facts}

@@ -38,7 +38,7 @@ class StepTypeButton extends React.Component {
             <input type="hidden" name="step[step_type_id]" value={this.props.stepTypeData.stepType.id} />
             <input type="hidden" name="step[asset_group_id]" value={this.props.assetGroupId} />
 
-		       	<button type="submit" className='btn btn-primary'>{this.props.stepTypeData.name}</button>
+		       	<button disabled={this.props.stepsRunning.length > 0} type="submit" className='btn btn-primary'>{this.props.stepTypeData.name}</button>
 		      </FormFor>
 			</li>
 		)

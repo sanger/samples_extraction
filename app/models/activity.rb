@@ -42,7 +42,8 @@ class Activity < ActiveRecord::Base
   def json_state
     {
       asset_groups: ApplicationController.helpers.asset_groups_data(self),
-      step_types: ApplicationController.helpers.step_types_control_data(self)
+      step_types: ApplicationController.helpers.step_types_control_data(self),
+      steps: ApplicationController.helpers.steps_without_operations_data_for_steps(steps.running)
     }
   end
 
