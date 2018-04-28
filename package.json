@@ -2,11 +2,17 @@
   "dependencies": {
     "@rails/webpacker": "^3.2.2",
     "babel-preset-react": "^6.24.1",
+    "caniuse-lite": "^1.0.30000830",
+    "fine-uploader": "^5.16.2",
+    "fine-uploader-wrappers": "^1.0.1",
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "react-fine-uploader": "^1.1.0",
     "react-inlinesvg": "^0.8.1",
     "react-rails-form-helpers": "^0.1.0-beta.13",
+    "react-spinkit": "^3.0.0",
+    "react-transition-group": "^1.2.1",
     "react_ujs": "^2.4.4",
     "webpacker-react": "^0.3.2"
   },

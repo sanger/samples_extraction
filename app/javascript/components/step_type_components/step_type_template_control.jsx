@@ -1,14 +1,33 @@
 import React from 'react'
 import {FormFor} from "react-rails-form-helpers"
 import PrintersSelectionHidden from "../activity_components/printers_selection_hidden"
+/*import FileCreation from "step_type_templates/file_creation"
+import RackLayoutCreatingTubes from "step_type_templates/rack_layout_creating_tubes"
+import RackLayout from "step_type_templates/rack_layout"
+import RackOrderSymphony from "step_type_templates/rack_order_symphony"
+import RackingByColumns from "step_type_templates/racking_by_columns"
+import TransferTubeToTube from "step_type_templates/transfer_tube_to_tube"
+*/
+import UploadFile from "./step_type_templates/upload_file"
 
 class StepTypeTemplateControl extends React.Component {
+	renderTemplate(template) {
+		ReactDOM.render({
+			'file_creation': FileCreation,
+			'rack_layout_creating_tubes': RackLayoutCreatingTubes,
+			'rack_layout': RackLayout,
+			'rack_order_symphony': RackOrderSymphony,
+			'racking_by_columns': RackingByColumns,
+			'transfer_tube_to_tube': TransferTubeToTube
+		}[template])
+	}
 	render() {
 		const stepTypeTemplateData = this.props.stepTypeTemplateData
 		return(
-			<div id="{ stepTypeTemplateData.id }" className="tab-pane container step-type-template">
+			<div id={ stepTypeTemplateData.id } className="tab-pane container step-type-template">
 				<div className="container">
-				The other step type templates
+					<UploadFile />
+					{stepTypeTemplateData.stepType.step_template}
 				</div>
 
 	      <FormFor url={stepTypeTemplateData.createStepUrl} className="form-inline activity-desc">

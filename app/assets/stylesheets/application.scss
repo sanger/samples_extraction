@@ -19,6 +19,7 @@
 @import "bootstrap-sprockets";
 @import "bootstrap";
 
+
 /*.navbar .nav .underlined {
     border-color: #e7e7e7;
     border-style: solid;
@@ -290,7 +291,7 @@ svg {
 
 @media (max-width: 767px){
   body nav .navbar-right .user-status { display:none;}
-  body nav .navbar-header .user-status { 
+  body nav .navbar-header .user-status {
     display:block; position:relative; float:right;
     margin-top: 8px; margin-right: 0.5em;
     .user-status-description-text { display:none;}
