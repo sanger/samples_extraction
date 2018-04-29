@@ -12,7 +12,7 @@ class StepTypeTemplateButton extends React.Component {
 	      	className="btn btn-default" data-toggle="pill">
 	      	{stepTypeTemplateData.name}
 	      </a>
-				<a className="button btn btn-primary">
+				<a className="button btn btn-primary hidden">
 					Finish
 				  <div style={{display: 'none'}} data-psd-component-class-name="FinishStepButton">
 				  	<FormFor url={stepTypeTemplateData.createStepUrl} className="form-inline activity-desc">

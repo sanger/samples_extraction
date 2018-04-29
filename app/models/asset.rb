@@ -9,6 +9,8 @@ class Asset < ActiveRecord::Base
   include Printables::Instance
   include Asset::Import
   include Asset::Export
+  
+  has_one :uploaded_file
 
   after_touch :touch_asset_groups
 

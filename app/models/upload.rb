@@ -1,19 +1,7 @@
-require 'parsers/symphony'
+class AssetGroupFile < ApplicationRecord
+  belongs_to :asset_group
 
-class Upload < ApplicationRecord
-  belongs_to :step
-  belongs_to :activity
-
-  before_save :apply_parsers
-
-  def has_step?
-    !step.nil?
+  def build_asset
+    Asset.create
   end
-
-  def apply_parsers
-    activity.asset_group.assets.each do |asset|
-      Parsers::Symphony.new(data).add_assets(asset) if Parsers::Symphony.valid_for?(data)
-    end
-  end
-
 end

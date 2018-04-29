@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   resources :asset_groups do
     member do
       get 'print'
+      post 'upload', to: 'asset_groups#upload'
     end
 
   end

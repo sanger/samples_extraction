@@ -26,7 +26,7 @@ class StepTypeTemplateControl extends React.Component {
 		return(
 			<div id={ stepTypeTemplateData.id } className="tab-pane container step-type-template">
 				<div className="container">
-					<UploadFile />
+					<UploadFile {...stepTypeTemplateData} />
 					{stepTypeTemplateData.stepType.step_template}
 				</div>
 

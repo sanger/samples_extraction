@@ -1,5 +1,5 @@
 class AssetGroupsController < ApplicationController
-  before_action :set_asset_group, only: [:show, :update, :print]
+  before_action :set_asset_group, only: [:show, :update, :print, :upload]
   before_action :set_activity, only: [:show, :update]
   before_action :update_barcodes, only: [:update]
 
@@ -24,6 +24,15 @@ class AssetGroupsController < ApplicationController
     @assets_grouped = assets_by_fact_group
 
     head :ok
+  end
+
+  def upload
+    @file = UploadedFile.create(filename: params[:qqfilename], data: params[:qqfile].read)
+    asset = @file.build_asset
+    @asset_group.assets << asset
+    @asset_group.touch
+
+    render json: {success: true}
   end
 
   def print

@@ -9,7 +9,7 @@ class Step < ActiveRecord::Base
   after_update :wss_event
 
   def wss_event
-    return if asset_group.assets.empty?
+    return if !asset_group || asset_group.assets.empty?
     #debugger if asset_group.assets.map(&:asset_groups).count > 1
 
     asset_group.touch

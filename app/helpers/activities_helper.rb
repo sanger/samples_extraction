@@ -32,7 +32,7 @@ module ActivitiesHelper
   end
 
   def step_types_data_for_step_types(activity, step_types)
-    step_types.map do |st|
+    step_types.select{|st| st.step_template.nil? }.map do |st|
     {
       createStepUrl: Rails.application.routes.url_helpers.activity_steps_path(activity),
       stepType: st,
@@ -47,7 +47,7 @@ module ActivitiesHelper
     {
       updateUrl: Rails.application.routes.url_helpers.activity_step_types_path(activity),
       stepTypesData: step_types_data_for_step_types(activity, step_types),
-      stepTypesTemplatesData: step_type_templates_data_for_step_types(activity, step_types)
+      stepTypesTemplatesData: step_type_templates_data_for_step_types(activity, step_types, asset_group)
     }
   end
 
@@ -88,9 +88,24 @@ module ActivitiesHelper
     end
   end
 
+  def facts_data(facts)
+    facts.map do |fact|
+      elem = fact.object_asset
+      if elem
+        {
+          object_asset: elem.attributes.merge({
+            facts: fact.object_asset.facts
+          })
+        }.merge(fact.attributes)
+      else
+        fact
+      end
+    end
+  end
+
 
   def asset_data(asset)
-    {barcode: asset.barcode, uuid: asset.uuid, facts: asset.facts}
+    {barcode: asset.barcode, uuid: asset.uuid, facts: facts_data(asset.facts)}
   end
 
   def asset_group_data(activity, asset_group)
@@ -126,9 +141,10 @@ module ActivitiesHelper
     end
   end
 
-  def step_type_templates_data_for_step_types(activity, step_types)
+  def step_type_templates_data_for_step_types(activity, step_types, asset_group)
     step_types.select{|s| s.step_template }.map do |st|
       {
+        asset_group: asset_group,
         createStepUrl: Rails.application.routes.url_helpers.activity_steps_path(activity),
         stepType: st,
         name: st.name,

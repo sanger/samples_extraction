@@ -1,16 +1,47 @@
 import React from 'react'
 class Fact extends React.Component {
+
+  constructor(props) {
+    super(props)
+    this.valueForPredicate = this.valueForPredicate.bind(this)
+    this.classType = this.classType.bind(this)
+    this.renderShortDescription = this.renderShortDescription.bind(this)
+    this.renderObject = this.renderObject.bind(this)
+  }
+
+  valueForPredicate(asset, predicate) {
+    let val = (asset.facts.filter((a) => {
+      return (a.predicate == predicate)
+    })[0])
+    if (val) {
+      return val.object
+    } else {
+      return ''
+    }
+  }
+
+  classType(asset) {
+    return this.valueForPredicate(asset, 'a')
+  }
+
+  renderShortDescription(asset) {
+    let label = asset.barcode ? asset.barcode : '#'+asset.id
+    return(`${this.valueForPredicate(asset, 'aliquotType')} ${this.classType(asset)} ${label}`)
+  }
+
   renderObject(fact) {
-    if (fact.object_asset) {
+    if (fact.object_asset_id) {
+      let url = `/labware/${fact.object_asset_id}`
       return (
-        <a className="object-reference" href={fact.object_asset.url}>
-          { fact.object_asset.short_description }
+        <a className="object-reference" href={url}>
+          { this.renderShortDescription(fact.object_asset) }
         </a>
       )
     } else {
       return ( fact.object )
     }
   }
+
   render() {
     const fact = this.props.fact
 
