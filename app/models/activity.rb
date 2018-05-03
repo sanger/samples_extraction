@@ -48,7 +48,8 @@ class Activity < ActiveRecord::Base
   end
 
   def wss_event
-    ActionCable.server.broadcast("activity_#{id}", json_state)
+    stream_id = "activity_#{id}"
+    ActionCable.server.broadcast(stream_id, json_state) if ActivityChannel.subscribed_ids.include?(stream_id)
   end
 
   def active_step

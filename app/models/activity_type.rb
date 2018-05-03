@@ -5,7 +5,8 @@ class ActivityType < ActiveRecord::Base
   has_many :step_types, :through => :activity_type_step_types
   has_many :condition_groups, :through => :step_types
   
-  
+  after_update :touch_activities
+
   has_and_belongs_to_many :instruments
 
   has_many :conditions, :through => :condition_groups
@@ -15,6 +16,9 @@ class ActivityType < ActiveRecord::Base
 
   include Deprecatable
 
+  def touch_activities
+    activities.each(&:touch)
+  end
 
   before_update :parse_n3
 

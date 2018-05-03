@@ -13,21 +13,20 @@ import UploadFile from "./step_type_templates/upload_file"
 class StepTypeTemplateControl extends React.Component {
 	renderTemplate(template) {
 		ReactDOM.render({
-			'file_creation': FileCreation,
-			'rack_layout_creating_tubes': RackLayoutCreatingTubes,
-			'rack_layout': RackLayout,
-			'rack_order_symphony': RackOrderSymphony,
-			'racking_by_columns': RackingByColumns,
-			'transfer_tube_to_tube': TransferTubeToTube
+			'file_creation': UploadFile,
+			'rack_layout_creating_tubes': UploadFile,
+			'rack_layout': UploadFile,
+			'rack_order_symphony': UploadFile,
+			'racking_by_columns': UploadFile,
+			'transfer_tube_to_tube': UploadFile
 		}[template])
 	}
 	render() {
 		const stepTypeTemplateData = this.props.stepTypeTemplateData
 		return(
-			<div id={ stepTypeTemplateData.id } className="tab-pane container step-type-template">
+			<div id={ stepTypeTemplateData.id + '-' + this.props.instanceId } className="tab-pane container step-type-template">
 				<div className="container">
 					<UploadFile {...stepTypeTemplateData} />
-					{stepTypeTemplateData.stepType.step_template}
 				</div>
 
 	      <FormFor url={stepTypeTemplateData.createStepUrl} className="form-inline activity-desc">

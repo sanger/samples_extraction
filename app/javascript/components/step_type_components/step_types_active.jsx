@@ -16,6 +16,7 @@ class StepTypesActive extends React.Component {
 			      </div>
 			      <div className="content_step_types">
 			        <StepTypes
+                instanceId={this.props.instanceId}
                 stepsRunning={this.props.stepsRunning}
                 assetGroupId={this.props.assetGroupId}
                 onExecuteStep={this.props.onExecuteStep}

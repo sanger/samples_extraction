@@ -5,8 +5,11 @@ class StepType < ActiveRecord::Base
   before_update :remove_previous_conditions
   after_save :create_next_conditions, :unless => :for_reasoning?
 
+  after_update :touch_activities
+
   has_many :activity_type_step_types, dependent: :destroy
   has_many :activity_types, :through => :activity_type_step_types
+  has_many :activities, ->{distinct}, through: :activity_types
   has_many :condition_groups, dependent: :destroy
   has_many :actions, dependent: :destroy
 
@@ -22,11 +25,14 @@ class StepType < ActiveRecord::Base
 
   scope :not_for_reasoning, ->() { where(:for_reasoning => false) }
 
+  def touch_activities
+    activities.each(&:touch)
+  end
+
   def after_deprecate
     superceded_by.activity_types << activity_types
     update_attributes!(:activity_types => [])
   end
-
 
   def fact_css_classes
     {

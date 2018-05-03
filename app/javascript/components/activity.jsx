@@ -108,9 +108,10 @@ class Activity extends React.Component {
 	}
 	onExecuteStep(msg) {
 	}
-	renderStepTypesControl() {
+	renderStepTypesControl(instanceId) {
 		return(
 			<StepTypesControl stepTypes={this.state.stepTypes}
+				instanceId={instanceId}
 				onExecuteStep={this.onExecuteStep}
 				stepsRunning={this.state.steps}
 				selectedAssetGroup={this.state.selectedAssetGroup}
@@ -138,7 +139,7 @@ class Activity extends React.Component {
 		     	onChangeTubePrinter={this.onChangeTubePrinter}
 		     	onChangePlatePrinter={this.onChangePlatePrinter}
 		    />
-				{this.renderStepTypesControl()}
+				{this.renderStepTypesControl("1")}
 			  <AssetGroupsEditor
 					onExecuteStep={this.onExecuteStep}
 					onRemoveAssetFromAssetGroup={this.onRemoveAssetFromAssetGroup}
@@ -148,7 +149,7 @@ class Activity extends React.Component {
 					selectedAssetGroup={this.state.selectedAssetGroup}
 					onSelectAssetGroup={this.onSelectAssetGroup}
 					assetGroups={this.state.assetGroups} />
-				{this.renderStepTypesControl()}
+				{this.renderStepTypesControl("2")}
 
 				<StepsFinished steps={this.props.stepsFinished} />
       </div>

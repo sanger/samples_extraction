@@ -1,10 +1,13 @@
 {
   "dependencies": {
     "@rails/webpacker": "^3.2.2",
+    "ajv": "^6.4.0",
     "babel-preset-react": "^6.24.1",
     "caniuse-lite": "^1.0.30000830",
+    "eslint": "^4.19.1",
     "fine-uploader": "^5.16.2",
     "fine-uploader-wrappers": "^1.0.1",
+    "node": "^10.0.0",
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
@@ -14,6 +17,7 @@
     "react-spinkit": "^3.0.0",
     "react-transition-group": "^1.2.1",
     "react_ujs": "^2.4.4",
+    "upath": "^1.0.5",
     "webpacker-react": "^0.3.2"
   },
   "devDependencies": {

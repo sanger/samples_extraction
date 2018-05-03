@@ -10,6 +10,7 @@ class StepTypeTemplatesControls extends React.Component {
 	renderTemplateData(stepTypeTemplateData, pos) {
 		return(
 			<StepTypeTemplateControl
+				instanceId={this.props.instanceId}
 				stepsRunning={this.props.stepsRunning}
 				stepTypeTemplateData={stepTypeTemplateData}  key={pos}
 				selectedTubePrinter={this.props.selectedTubePrinter}

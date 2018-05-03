@@ -14,6 +14,7 @@ class StepTypesControl extends React.Component {
     return(
       <div key={assetGroupId} className={this.classForAssetGroup(assetGroupId)}>
         <StepTypesActive
+          instanceId={this.props.instanceId}
           key={assetGroupId}
           assetGroupId={assetGroupId}
           stepsRunning={this.props.stepsRunning}

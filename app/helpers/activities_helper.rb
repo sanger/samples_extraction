@@ -32,7 +32,7 @@ module ActivitiesHelper
   end
 
   def step_types_data_for_step_types(activity, step_types)
-    step_types.select{|st| st.step_template.nil? }.map do |st|
+    step_types.select{|st| st.step_template.blank? }.map do |st|
     {
       createStepUrl: Rails.application.routes.url_helpers.activity_steps_path(activity),
       stepType: st,
@@ -131,7 +131,7 @@ module ActivitiesHelper
 
 
   def step_type_templates_data
-    @step_types.select{|s| s.step_template }.map do |st|
+    @step_types.select{|s| !s.step_template.blank? }.map do |st|
       {
         createStepUrl: Rails.application.routes.url_helpers.activity_steps_path(@activity),
         stepType: st,
@@ -142,7 +142,7 @@ module ActivitiesHelper
   end
 
   def step_type_templates_data_for_step_types(activity, step_types, asset_group)
-    step_types.select{|s| s.step_template }.map do |st|
+    step_types.select{|s| !s.step_template.blank? }.map do |st|
       {
         asset_group: asset_group,
         createStepUrl: Rails.application.routes.url_helpers.activity_steps_path(activity),
