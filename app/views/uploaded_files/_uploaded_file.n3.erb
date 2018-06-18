@@ -1,0 +1,15 @@
+<% @csv = CSV.new(data) %>
+<% headers = nil %>
+<% @csv.to_a.each_with_index.map do |line, pos| %>
+  <% if (pos == 0) %>
+    <% headers = line %>
+  <% else %>
+    <% asset_uuid = SecureRandom.uuid %>
+    <%= asset_uuid %> a :CSVLine .
+    <%= asset_uuid %> :position <%= pos %> .
+    <% headers.zip(line).each do |header, value| %>
+      <%= asset_uuid %> <%= header %> <%= value %>
+    <% end %>
+    <%= uuid %> :contains <%= asset_uuid %>
+  <% end %>
+<% end %>

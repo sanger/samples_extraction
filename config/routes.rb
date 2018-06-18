@@ -58,6 +58,7 @@ Rails.application.routes.draw do
   resources :samples_not_started
   resources :history
   resources :reracking
+  resources :uploaded_files, only: [:create, :show]
 
 
   #get '/labware/:uuid', to: 'labware#show', constraints: {:uuid => /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/}
