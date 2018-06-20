@@ -66,6 +66,9 @@ class Step < ActiveRecord::Base
   scope :in_progress, ->() { where(:in_progress? => true)}
   scope :cancelled, ->() {where(:state => 'cancel')}
   scope :running, ->() { where(state: 'running')}
+  scope :pending, ->() { where(state: nil)}
+  scope :active, ->() { where("state = 'running' OR state IS NULL")}
+  scope :finished, ->() { where("state != 'running' AND state IS NOT NULL")}
   scope :in_activity, ->() { where.not(activity_id: nil)}
 
   before_create :assets_compatible_with_step_type, :unless => :in_progress?

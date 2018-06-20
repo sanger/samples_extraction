@@ -25,7 +25,8 @@
   },
   stepTypes: step_types_control_data(@activity),
   assetGroups: asset_groups_data(@activity),
-  stepsFinished: steps_data
+  stepsFinished: steps_data_for_steps(@activity.steps.finished),
+  stepsRunning: steps_data_for_steps(@activity.steps.running)
    }) %>
 
   <% unless @activity.finished? %>

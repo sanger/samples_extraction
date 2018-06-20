@@ -6,6 +6,7 @@ import ActivityDescription from "./activity_components/activity_description"
 import PrintersSelection from "./activity_components/printers_selection"
 import AssetGroupsEditor from "./asset_group_components/asset_groups_editor"
 import StepsFinished from "./step_components/steps_finished"
+import StepsRunning from "./step_components/steps_running"
 import StepTypesControl from "./step_type_components/step_types_control"
 
 
@@ -20,7 +21,8 @@ class Activity extends React.Component {
 			selectedAssetGroup: props.activity.selectedAssetGroup,
 			stepTypes: props.stepTypes,
 			assetGroups: props.assetGroups,
-			steps: [],
+			stepsRunning: props.stepsRunning,
+			stepsFinished: props.stepsFinished,	
 			messages: []
 		}
 		this.onSelectAssetGroup = this.onSelectAssetGroup.bind(this)
@@ -48,7 +50,8 @@ class Activity extends React.Component {
 		this.setState({
 			assetGroups: msg.asset_groups,
 			stepTypes: msg.step_types,
-			steps: msg.steps
+			stepsRunning: msg.steps_running || [],
+			stepsFinished: msg.steps_finished || this.state.stepsFinished || []
 		})
 	}
 	onRemoveErrorMessage(msg, pos) {
@@ -109,16 +112,20 @@ class Activity extends React.Component {
 	onExecuteStep(msg) {
 	}
 	renderStepTypesControl(instanceId) {
-		return(
-			<StepTypesControl stepTypes={this.state.stepTypes}
-				instanceId={instanceId}
-				onExecuteStep={this.onExecuteStep}
-				stepsRunning={this.state.steps}
-				selectedAssetGroup={this.state.selectedAssetGroup}
-				selectedTubePrinter={this.state.selectedTubePrinter}
-				selectedPlatePrinter={this.state.selectedPlatePrinter}
-				/>
-		)
+		if (this.state.stepsRunning.length > 0) {
+			return(<StepsRunning steps={this.state.stepsRunning} />)
+		} else {
+			return(
+				<StepTypesControl stepTypes={this.state.stepTypes}
+					instanceId={instanceId}
+					onExecuteStep={this.onExecuteStep}
+					stepsRunning={this.state.stepsRunning}
+					selectedAssetGroup={this.state.selectedAssetGroup}
+					selectedTubePrinter={this.state.selectedTubePrinter}
+					selectedPlatePrinter={this.state.selectedPlatePrinter}
+					/>
+			)			
+		}
 	}
   render () {
     return (
@@ -150,8 +157,7 @@ class Activity extends React.Component {
 					onSelectAssetGroup={this.onSelectAssetGroup}
 					assetGroups={this.state.assetGroups} />
 				{this.renderStepTypesControl("2")}
-
-				<StepsFinished steps={this.props.stepsFinished} />
+				<StepsFinished steps={this.state.stepsFinished} />
       </div>
     )
   }

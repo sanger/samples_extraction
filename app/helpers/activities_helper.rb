@@ -64,7 +64,7 @@ module ActivitiesHelper
   #stepTypesTemplatesData: step_type_templates_data
 
   def steps_data
-    steps_data_for_steps(@steps.reverse)
+    steps_data_for_steps(@steps ? @steps.reverse : [])
   end
 
   def steps_data_for_steps(steps)

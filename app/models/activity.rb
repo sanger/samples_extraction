@@ -43,7 +43,9 @@ class Activity < ActiveRecord::Base
     {
       asset_groups: ApplicationController.helpers.asset_groups_data(self),
       step_types: ApplicationController.helpers.step_types_control_data(self),
-      steps: ApplicationController.helpers.steps_without_operations_data_for_steps(steps.running)
+      #steps: ApplicationController.helpers.steps_without_operations_data_for_steps(steps.running)
+      steps_running: ApplicationController.helpers.steps_data_for_steps(steps.active),
+      steps_finished: ApplicationController.helpers.steps_data_for_steps(self.steps.finished.reverse)
     }
   end
 
