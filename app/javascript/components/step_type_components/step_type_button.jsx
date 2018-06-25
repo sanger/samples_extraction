@@ -8,6 +8,10 @@ class StepTypeButton extends React.Component {
 
     this.onSubmit = this.onSubmit.bind(this)
     this.onAjaxSuccess = this.onAjaxSuccess.bind(this)
+
+    this.state = {
+      disabledButton: false
+    }
   }
   onAjaxSuccess(msg, text) {
     if (msg.errors) {
@@ -16,14 +20,28 @@ class StepTypeButton extends React.Component {
       this.props.onExecuteStep(msg)
     }
   }
+  toggleDisableButton(flag) {
+    this.setState({disabledButton: flag})
+  }
   onSubmit(e) {
     e.preventDefault()
+    this.toggleDisableButton(true)
     $.ajax({
       method: 'post',
       url: this.props.stepTypeData.createStepUrl,
       success: this.onAjaxSuccess,
-      data: $(e.target).serializeArray()
+      data: $(e.target).serializeArray(),
+      complete: $.proxy(()=> { this.toggleDisableButton(false) }, this)
     })
+  }
+  renderButton() {
+    const loadingIcon = (<span className="glyphicon glyphicon-refresh fast-right-spinner" aria-hidden="true"></span>)
+    return(
+      <button disabled={this.state.disabledButton || this.props.activityRunning} type="submit" className='btn btn-primary'>
+        {this.props.stepTypeData.name}
+        {this.state.disabledButton ? loadingIcon : null }        
+      </button>
+    )
   }
   render() {
 		return(
@@ -37,8 +55,7 @@ class StepTypeButton extends React.Component {
 		        	selectedPlatePrinter={this.props.selectedPlatePrinter} />
             <input type="hidden" name="step[step_type_id]" value={this.props.stepTypeData.stepType.id} />
             <input type="hidden" name="step[asset_group_id]" value={this.props.assetGroupId} />
-
-		       	<button disabled={this.props.stepsRunning.length > 0} type="submit" className='btn btn-primary'>{this.props.stepTypeData.name}</button>
+            {this.renderButton()}
 		      </FormFor>
 			</li>
 		)

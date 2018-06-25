@@ -23,6 +23,7 @@ class Activity extends React.Component {
 			assetGroups: props.assetGroups,
 			stepsRunning: props.stepsRunning,
 			stepsFinished: props.stepsFinished,	
+			activityRunning: props.activityRunning,
 			messages: []
 		}
 		this.onSelectAssetGroup = this.onSelectAssetGroup.bind(this)
@@ -48,6 +49,7 @@ class Activity extends React.Component {
   }
 	onWebSocketsMessage(msg) {
 		this.setState({
+			activityRunning: msg.running,
 			assetGroups: msg.asset_groups,
 			stepTypes: msg.step_types,
 			stepsRunning: msg.steps_running || [],
@@ -110,6 +112,7 @@ class Activity extends React.Component {
 		this.setState({selectedPlatePrinter: e.target.value})
 	}
 	onExecuteStep(msg) {
+		this.setState({activityRunning: true})
 	}
 	renderStepTypesControl(instanceId) {
 		if (this.state.stepsRunning.length > 0) {
@@ -119,7 +122,7 @@ class Activity extends React.Component {
 				<StepTypesControl stepTypes={this.state.stepTypes}
 					instanceId={instanceId}
 					onExecuteStep={this.onExecuteStep}
-					stepsRunning={this.state.stepsRunning}
+					activityRunning={this.state.activityRunning}
 					selectedAssetGroup={this.state.selectedAssetGroup}
 					selectedTubePrinter={this.state.selectedTubePrinter}
 					selectedPlatePrinter={this.state.selectedPlatePrinter}

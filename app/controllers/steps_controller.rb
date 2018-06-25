@@ -21,6 +21,7 @@ class StepsController < ApplicationController
   end
 
   def create
+    @activity.update(running: true)
     @activity.delay.do_task(@step_type, @current_user, params_step, @printer_config, @asset_group)
     #@activity.do_task(@step_type, @current_user, params_step, @printer_config, @asset_group)
 
@@ -130,8 +131,14 @@ class StepsController < ApplicationController
   # PATCH/PUT /steps/1
   # PATCH/PUT /steps/1.json
   def update
-    #store_uploads
+    @step.update(create_step_params)
 
+    head :ok
+  end
+
+  def update2
+    #store_uploads
+    debugger
     respond_to do |format|
       if @step.update(create_step_params)
         format.html { redirect_to @step, notice: 'Step was successfully updated.' }

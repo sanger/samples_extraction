@@ -17,14 +17,14 @@ class StepTypes extends React.Component {
 	  		<div>
 		  		<ul className="step-selection list-inline ">
 		  		  <StepTypeButtons stepTypesData={this.props.stepTypesData}
-							stepsRunning={this.props.stepsRunning}
+							activityRunning={this.props.activityRunning}
 							assetGroupId={this.props.assetGroupId}
         		      	selectedTubePrinter={this.props.selectedTubePrinter}
 				      	selectedPlatePrinter={this.props.selectedPlatePrinter}
 								onExecuteStep={this.props.onExecuteStep}
 		  		  />
 		  		  <StepTypeTemplatesButtons instanceId={this.props.instanceId} stepTypesTemplatesData={this.props.stepTypesTemplatesData}
-							stepsRunning={this.props.stepsRunning}
+							activityRunning={this.props.activityRunning}
 							assetGroupId={this.props.assetGroupId}
         		      	selectedTubePrinter={this.props.selectedTubePrinter}
 				      	selectedPlatePrinter={this.props.selectedPlatePrinter}
@@ -33,7 +33,7 @@ class StepTypes extends React.Component {
 		  		</ul>
 		  		<StepTypeTemplatesControls stepTypesTemplatesData={this.props.stepTypesTemplatesData}
 		  			instanceId={this.props.instanceId}
-						stepsRunning={this.props.stepsRunning}
+						activityRunning={this.props.activityRunning}
 						assetGroupId={this.props.assetGroupId}
         		      	selectedTubePrinter={this.props.selectedTubePrinter}
 				      	selectedPlatePrinter={this.props.selectedPlatePrinter}

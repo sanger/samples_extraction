@@ -33,7 +33,7 @@ class BackgroundSteps::TransferTubesToTubeRackByPosition < BackgroundSteps::Back
         wells = rack.facts.with_predicate('contains').map(&:object_asset).sort_by do |elem|
           location = elem.facts.with_predicate('location').first.object
           location_to_pos(location)
-        end.reject{|w| w.has_predicate?('transferredFrom')}
+        end.reject{|w| w.has_predicate?('transferredFrom')}.uniq
         asset_group.assets.with_predicate('transferToTubeRackByPosition').zip(wells).each do |asset, well|
           if asset && well
             asset.facts.with_predicate('aliquotType').each do |f_aliquot|

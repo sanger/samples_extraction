@@ -7,6 +7,14 @@ class Step < ActiveRecord::Base
   #after_update :sse_event
 
   after_update :wss_event
+  
+  include QueueableJob
+  after_update :unset_activity_running, unless: :can_run_next_step?
+
+  def unset_activity_running
+    activity.update(running: false) if activity && activity.running?
+  end
+
 
   def wss_event
     activity.touch if activity

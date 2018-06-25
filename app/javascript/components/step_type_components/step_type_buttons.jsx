@@ -10,7 +10,7 @@ class StepTypeButtons extends React.Component {
 	renderStepTypeData(stepTypeData, pos) {
 		return(
 			<StepTypeButton key={'step-type-'+pos} stepTypeData={stepTypeData}
-				stepsRunning={this.props.stepsRunning}
+				activityRunning={this.props.activityRunning}
 				assetGroupId={this.props.assetGroupId}
 				onExecuteStep={this.props.onExecuteStep}
 				selectedTubePrinter={this.props.selectedTubePrinter}

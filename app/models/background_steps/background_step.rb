@@ -2,8 +2,6 @@ module BackgroundSteps
 
   class BackgroundStep < Step
 
-    include QueueableJob
-
     after_initialize :set_step_type
 
     def is_background_step?

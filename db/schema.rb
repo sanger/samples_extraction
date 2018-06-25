@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180428131814) do
+ActiveRecord::Schema.define(version: 20180623200601) do
 
   create_table "actions", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.string "action_type", null: false
@@ -35,6 +35,7 @@ ActiveRecord::Schema.define(version: 20180428131814) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer "active_step_id"
+    t.boolean "running"
     t.index ["active_step_id"], name: "index_activities_on_active_step_id"
     t.index ["activity_type_id"], name: "index_activities_on_activity_type_id"
     t.index ["asset_group_id"], name: "index_activities_on_asset_group_id"

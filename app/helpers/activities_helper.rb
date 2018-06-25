@@ -70,6 +70,7 @@ module ActivitiesHelper
   def steps_data_for_steps(steps)
     steps.map do |step|
       {
+        stepUpdateUrl: Rails.application.routes.url_helpers.step_path(step),
         activity: step.activity,
         asset_group: step.asset_group,
         step_type: step.step_type,
@@ -81,6 +82,7 @@ module ActivitiesHelper
   def steps_without_operations_data_for_steps(steps)
     steps.map do |step|
       {
+        state: step.state,
         asset_group_id: step.asset_group.id,
         step_type_id: step.step_type.id,
         step_id: step.id

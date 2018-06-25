@@ -1,15 +1,46 @@
 import React from 'react'
-import Steps from '../step_components/steps'
+import StepsFinished from '../step_components/steps_finished'
 
 
-class StepsRunning extends React.Component {
+class StepsRunning extends StepsFinished {
+  renderStepRow(step,index) {
+    const stepTypeName = step.step_type ? step.step_type.name : ''
+    const stepActivityId = step.activity ? step.activity.id : ''
+    const stepAssetGroup = step.asset_group ? step.asset_group.id : ''
+    const stepUsername = step.user ? step.user.username : ''
+    const classForState = (step.state == 'running') ? 'spinner' : ''
+
+    const dataTarget = "#step-"+ step.id
+    if (step.deprecated == true) {
+      return
+    } else {
+      return(
+        <React.Fragment key={index}>
+          <tr
+            data-psd-step-id={ step.id }
+            key={"a1-"+index}
+            className={this.colorForState(step.state)}>
+            <td>{ step.id }</td>
+            <td>{ stepTypeName }</td>
+            <td>{ stepActivityId }</td>
+            <td>{ stepAssetGroup }</td>
+            <td>{ stepUsername }</td>
+            <td>{ step.updated_at }</td>
+            <td style={{'textAlign': 'center'}}
+              className={classForState}>{ this.imageForState(step.state) }</td>
+          </tr>
+        </React.Fragment>
+      )
+    }
+  }
+
   render() {
     return(
       <div className="form-group">
         <label className="control-label">What is happening now?</label>
         <div className="panel panel-default">
           <div className="panel-body">
-            <Steps steps={this.props.steps}/>
+            {this.renderSteps()}
           </div>
         </div>
       </div>
