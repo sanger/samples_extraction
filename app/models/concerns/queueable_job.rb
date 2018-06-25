@@ -22,7 +22,7 @@ module QueueableJob
   end
 
   def can_run_next_step?
-    complete? && next_step && !next_step.complete?
+    activity && activity.running? && complete? && next_step && !next_step.complete?
   end
 
 end

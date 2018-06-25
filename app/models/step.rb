@@ -9,12 +9,16 @@ class Step < ActiveRecord::Base
   after_update :wss_event
   
   include QueueableJob
-  after_update :unset_activity_running, unless: :can_run_next_step?
+  after_update :unset_activity_running, if: :can_unset_activity_running?
 
-  def unset_activity_running
-    activity.update(running: false) if activity && activity.running?
+  def can_unset_activity_running?
+    (self.kind_of?(BackgroundSteps::BackgroundStep) && complete? && next_step.nil?)
   end
 
+  def unset_activity_running
+    activity.in_progress!
+    activity.touch
+  end
 
   def wss_event
     activity.touch if activity
@@ -73,10 +77,10 @@ class Step < ActiveRecord::Base
 
   scope :in_progress, ->() { where(:in_progress? => true)}
   scope :cancelled, ->() {where(:state => 'cancel')}
-  scope :running, ->() { where(state: 'running')}
+  scope :running, ->() { where(state: 'running').includes(:operations, :step_type)}
   scope :pending, ->() { where(state: nil)}
-  scope :active, ->() { where("state = 'running' OR state IS NULL")}
-  scope :finished, ->() { where("state != 'running' AND state IS NOT NULL")}
+  scope :active, ->() { where("state = 'running' OR state IS NULL").includes(:operations, :step_type)}
+  scope :finished, ->() { where("state != 'running' AND state IS NOT NULL").includes(:operations, :step_type)}
   scope :in_activity, ->() { where.not(activity_id: nil)}
 
   before_create :assets_compatible_with_step_type, :unless => :in_progress?

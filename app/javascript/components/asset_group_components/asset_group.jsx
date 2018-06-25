@@ -42,7 +42,7 @@ class AssetGroup extends React.Component {
           <Facts facts={asset.facts} />
         </td>
         <td>
-          <button onClick={$.proxy(this.removeAsset, this, asset, index) } className="btn btn-primary ">Delete</button>
+          <button disabled={this.props.activityRunning} onClick={$.proxy(this.removeAsset, this, asset, index) } className="btn btn-primary ">Delete</button>
         </td>
       </tr>
     )
@@ -55,7 +55,7 @@ class AssetGroup extends React.Component {
       return(
         <table className="table table-condensed">
           <thead><tr><th>Barcode</th><th>Facts</th><th>
-            <button onClick={this.removeAllAssets} className="btn btn-primary">Delete all</button>
+            <button disabled={this.props.activityRunning} onClick={this.removeAllAssets} className="btn btn-primary">Delete all</button>
           </th></tr></thead>
           <tbody data-psd-asset-group-content="1">
             {this.props.assetGroup.assets.map(this.renderAssetRow)}

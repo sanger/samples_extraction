@@ -1,8 +1,8 @@
 module Steps::Cancellable
   def self.included(klass)
     klass.instance_eval do
-      scope :newer_than, ->(step) { where("id > #{step.id}")}
-      scope :older_than, ->(step) { where("id < #{step.id}")}
+      scope :newer_than, ->(step) { where("id > #{step.id}").includes(:operations, :step_type)}
+      scope :older_than, ->(step) { where("id < #{step.id}").includes(:operations, :step_type)}
 
       before_update :modify_related_steps
     end

@@ -12,28 +12,6 @@ class StepsFinished extends React.Component {
     this.imageForState = this.imageForState.bind(this)
     this.textColorForState = this.textColorForState.bind(this)
     this.renderStepRow = this.renderStepRow.bind(this)
-    this.handlerForCancelStep = this.handlerForCancelStep.bind(this)
-    this.state = {
-      allStepCancelControlsDisabled: false
-    }
-  }
-  handlerForCancelStep(step) {
-    if (this.state.allStepCancelControlsDisabled === true) {
-      // Do not perform more actions if the control is disabled
-      return;
-    }
-    return (e) => {
-      const state = e.target.checked ? 'complete' : 'cancel'
-      this.setState({allStepCancelControlsDisabled: true})
-      $.ajax({
-        method: 'PUT',
-        dataType: 'json',
-        contentType: 'application/json; charset=utf-8',
-        url: step.stepUpdateUrl,
-        data: JSON.stringify({step: {state}}),
-        complete: $.proxy(() => { this.setState({allStepCancelControlsDisabled: false}) }, this)
-      })
-    }
   }
   colorForState(state) {
     if (state == 'complete') return 'success'
@@ -118,8 +96,8 @@ class StepsFinished extends React.Component {
                     <th>Fact 
                       <Toggle
                         checked={step.state!='cancel'}
-                        disabled={this.state.allStepCancelControlsDisabled}
-                        onChange={this.handlerForCancelStep(step)}
+                        disabled={this.props.activityRunning}
+                        onChange={this.props.onCancelStep(step)}
                         className="pull-right"
                       />
                     </th></tr>

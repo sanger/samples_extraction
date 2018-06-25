@@ -39,9 +39,29 @@ class Activity < ActiveRecord::Base
 
   after_touch :wss_event
 
+  def running?
+    state == 'running'
+  end
+
+  def running!
+    update(state: 'running')
+  end
+
+  def editing!
+    update(state: 'editing')
+  end
+
+  def in_progress!
+    update(state: 'in_progress')
+  end
+
+  def editing?
+    state == 'editing'
+  end
+
   def json_state
     {
-      running: running?,
+      running: running? || editing?,
       asset_groups: ApplicationController.helpers.asset_groups_data(self),
       step_types: ApplicationController.helpers.step_types_control_data(self),
       #steps: ApplicationController.helpers.steps_without_operations_data_for_steps(steps.running)

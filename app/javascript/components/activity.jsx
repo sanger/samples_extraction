@@ -33,6 +33,7 @@ class Activity extends React.Component {
 		this.onRemoveAssetFromAssetGroup = this.onRemoveAssetFromAssetGroup.bind(this)
 		this.onRemoveAllAssetsFromAssetGroup = this.onRemoveAllAssetsFromAssetGroup.bind(this)
 		this.onExecuteStep = this.onExecuteStep.bind(this)
+		this.onCancelStep = this.onCancelStep.bind(this)
 
 		this.renderStepTypesControl = this.renderStepTypesControl.bind(this)
 	}
@@ -104,6 +105,25 @@ class Activity extends React.Component {
 			}
 		})
 	}
+  onCancelStep(step) {
+    if (this.state.activityRunning === true) {
+      // Do not perform more actions if the control is disabled
+      return;
+    }
+    return (e) => {
+      const state = e.target.checked ? 'complete' : 'cancel'
+      this.setState({activityRunning: true})
+      $.ajax({
+        method: 'PUT',
+        dataType: 'json',
+        contentType: 'application/json; charset=utf-8',
+        url: step.stepUpdateUrl,
+        data: JSON.stringify({step: {state}}),
+        complete: $.proxy(() => { this.setState({activityRunning: false}) }, this)
+      })
+    }
+  }
+
 
 	onChangeTubePrinter() {
 		this.setState({selectedTubePrinter: e.target.value})
@@ -115,7 +135,7 @@ class Activity extends React.Component {
 		this.setState({activityRunning: true})
 	}
 	renderStepTypesControl(instanceId) {
-		if (this.state.stepsRunning.length > 0) {
+		if ((this.state.stepsRunning.length > 0) && (instanceId == '2')) {
 			return(<StepsRunning steps={this.state.stepsRunning} />)
 		} else {
 			return(
@@ -151,6 +171,7 @@ class Activity extends React.Component {
 		    />
 				{this.renderStepTypesControl("1")}
 			  <AssetGroupsEditor
+			  	activityRunning={this.state.activityRunning}
 					onExecuteStep={this.onExecuteStep}
 					onRemoveAssetFromAssetGroup={this.onRemoveAssetFromAssetGroup}
 					onRemoveAllAssetsFromAssetGroup={this.onRemoveAllAssetsFromAssetGroup}
@@ -160,7 +181,9 @@ class Activity extends React.Component {
 					onSelectAssetGroup={this.onSelectAssetGroup}
 					assetGroups={this.state.assetGroups} />
 				{this.renderStepTypesControl("2")}
-				<StepsFinished steps={this.state.stepsFinished} />
+				<StepsFinished steps={this.state.stepsFinished} 
+					activityRunning={this.state.activityRunning} 
+					onCancelStep={this.onCancelStep}/>
       </div>
     )
   }

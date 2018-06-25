@@ -68,6 +68,7 @@ class AssetGroupEditor extends React.Component {
            <div className="panel panel-default">
              <div className="panel-header barcode-adding-control">
                <BarcodeReader
+                 activityRunning={this.props.activityRunning}
                  isShown={this.props.isShown}
                  handleChange={this.handleBarcodeReaderChange}
                  barcodesInputText={this.state.barcodesInputText}
@@ -76,6 +77,7 @@ class AssetGroupEditor extends React.Component {
              </div>
              <div className="panel-body collapse in" id="collapseAssets">
                <AssetGroup
+                 activityRunning={this.props.activityRunning}
                  onRemoveAssetFromAssetGroup={this.props.onRemoveAssetFromAssetGroup}
                  onRemoveAllAssetsFromAssetGroup={this.props.onRemoveAllAssetsFromAssetGroup}
                  assetGroup={this.props.assetGroup} />
