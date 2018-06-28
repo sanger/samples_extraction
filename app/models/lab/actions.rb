@@ -25,11 +25,11 @@ module Lab::Actions
     facts_to_add = []
     facts_to_destroy = []
 
+    previous_racks = []
     tubes = list_layout.map{|obj| obj[:asset]}.compact
     return if tubes.empty?
-    
     tubes_ids = tubes.map(&:id)
-    tubes_list = Asset.where(id: tubes_ids).joins(:facts)
+    tubes_list = Asset.where(id: tubes_ids).includes(:facts)
     tubes_list.each_with_index do |tube, index|
       location_facts = tube.facts.with_predicate('location')
       unless location_facts.empty?
@@ -38,10 +38,9 @@ module Lab::Actions
       end
       tube.facts.with_predicate('parent').each do |parent_fact|
         previous_rack = parent_fact.object_asset
-        previous_rack.facts.with_predicate('contains').each do |contain_fact|
-          if tubes_ids.include?(contain_fact.object_asset_id)
-            facts_to_destroy.push(contain_fact)
-          end
+        unless (previous_racks.include?(previous_rack))
+          previous_racks.push(previous_rack)
+          facts_to_destroy.push(previous_rack.facts.with_predicate('contains').where(object_asset_id: tubes_ids))
         end
 
         if destination_rack
@@ -50,7 +49,6 @@ module Lab::Actions
           facts_to_add.push([rerack, 'tube', tube])
           facts_to_add.push([rerack, 'previousParent', previous_rack])
           facts_to_add.push([rerack, 'previousLocation', location])
-          binding.pry if list_layout.nil? || list_layout[index].nil?
           facts_to_add.push([rerack, 'location', list_layout[index][:location]])
           facts_to_add.push([destination_rack, 'rerack', rerack])
         end
@@ -58,7 +56,6 @@ module Lab::Actions
         facts_to_destroy.push(parent_fact)
       end
     end
-    binding.pry
     remove_facts(facts_to_destroy)
     create_facts(facts_to_add)
   end
@@ -78,13 +75,11 @@ module Lab::Actions
         location = l[:location]
         tube = l[:asset]
         next unless tube
-        f
         facts_to_remove.push(tube.facts.with_predicate('location'))
         facts_to_add.push([tube, 'location', location])
         facts_to_add.push([tube, 'parent', rack])
         facts_to_add.push([rack, 'contains', tube])
       end
-      binding.pry
       remove_facts(facts_to_remove.flatten)
       create_facts(facts_to_add)
     #end

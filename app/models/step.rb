@@ -35,7 +35,7 @@ class Step < ActiveRecord::Base
   end
 
   def create_facts(triples)
-    facts = triples.each do |t|
+    facts = triples.map do |t|
       params = {asset: t[0], predicate: t[1], literal: t[2].kind_of?(Asset)}
       params[:literal] ? params[:object_asset] = t[2] : params[:object] = t[2]
       Fact.create(params)

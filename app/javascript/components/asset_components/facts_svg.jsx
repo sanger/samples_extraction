@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom'
 import SVG from 'react-inlinesvg';
 
 class FactsSvg extends React.Component {
@@ -67,6 +68,9 @@ class FactsSvg extends React.Component {
       return null
     }
 
+  }
+  componentDidUpdate() {
+    this.onLoadSvg()
   }
   onLoadSvg() {
       var data = this.props.dataRackDisplay[this.props.asset.uuid];
