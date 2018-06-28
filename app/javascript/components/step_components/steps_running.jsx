@@ -1,8 +1,18 @@
 import React from 'react'
+import Moment from 'react-moment';
 import StepsFinished from '../step_components/steps_finished'
 
 
 class StepsRunning extends StepsFinished {
+  renderDuration(step) {
+    if (step.started_at) {
+      return(
+        <span><Moment unit="seconds" diff={ step.started_at }>{ Date.now() }</Moment>s</span>
+      )
+    } else {
+      return ''
+    }
+  }
   renderStepRow(step,index) {
     const stepTypeName = step.step_type ? step.step_type.name : ''
     const stepActivityId = step.activity ? step.activity.id : ''
@@ -25,7 +35,7 @@ class StepsRunning extends StepsFinished {
             <td>{ stepActivityId }</td>
             <td>{ stepAssetGroup }</td>
             <td>{ stepUsername }</td>
-            <td>{ step.updated_at }</td>
+            <td>{ this.renderDuration(step) }</td>
             <td style={{'textAlign': 'center'}}
               className={classForState}>{ this.imageForState(step.state) }</td>
           </tr>

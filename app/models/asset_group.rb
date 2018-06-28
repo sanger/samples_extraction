@@ -16,7 +16,10 @@ class AssetGroup < ActiveRecord::Base
   after_touch :touch_activity
 
   def touch_activity
-    activity_owner.touch if activity_owner
+    if activity_owner
+      activity_owner.touch
+      activity_owner.save 
+    end
   end
 
   def condition_group_name

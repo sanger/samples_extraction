@@ -13,7 +13,7 @@ module Activities
     end
 
     def background_tasks
-      inference_tasks.concat(
+      [inference_tasks,
         [
           BackgroundSteps::TransferTubesToTubeRackByPosition,
           BackgroundSteps::TransferPlateToPlate,
@@ -24,7 +24,7 @@ module Activities
           BackgroundSteps::UpdateSequencescape,
           BackgroundSteps::PrintBarcodes
         ]
-      )
+      ].flatten
     end
 
     def inference_tasks

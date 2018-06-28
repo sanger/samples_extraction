@@ -3,6 +3,8 @@ require 'parsers/csv_layout_with_tube_creation'
 require 'parsers/csv_order'
 require 'parsers/symphony'
 
+require 'fact_changes'
+
 module Lab::Actions
 
   class InvalidDataParams < StandardError
@@ -21,69 +23,67 @@ module Lab::Actions
 
   end
 
-  def unrack_tubes(list_layout, destination_rack=nil, step=nil)
-    facts_to_add = []
-    facts_to_destroy = []
-
-    previous_racks = []
-    tubes = list_layout.map{|obj| obj[:asset]}.compact
-    return if tubes.empty?
-    tubes_ids = tubes.map(&:id)
-    tubes_list = Asset.where(id: tubes_ids).includes(:facts)
-    tubes_list.each_with_index do |tube, index|
-      location_facts = tube.facts.with_predicate('location')
-      unless location_facts.empty?
-        location = location_facts.first.object
-        facts_to_destroy.push(tube.facts.with_predicate('location'))
-      end
-      tube.facts.with_predicate('parent').each do |parent_fact|
-        previous_rack = parent_fact.object_asset
-        unless (previous_racks.include?(previous_rack))
-          previous_racks.push(previous_rack)
-          facts_to_destroy.push(previous_rack.facts.with_predicate('contains').where(object_asset_id: tubes_ids))
-        end
-
-        if destination_rack
-          rerack = Asset.new
-          facts_to_add.push([rerack, 'a', 'Rerack'])
-          facts_to_add.push([rerack, 'tube', tube])
-          facts_to_add.push([rerack, 'previousParent', previous_rack])
-          facts_to_add.push([rerack, 'previousLocation', location])
-          facts_to_add.push([rerack, 'location', list_layout[index][:location]])
-          facts_to_add.push([destination_rack, 'rerack', rerack])
-        end
-
-        facts_to_destroy.push(parent_fact)
-      end
-    end
-    remove_facts(facts_to_destroy)
-    create_facts(facts_to_add)
-  end
-
   def clean_rack(rack, step)
     remove_facts(facts.with_predicate('contains'))
   end
 
-  def rack_tubes(rack, list_layout, step=nil)
-    #ActiveRecord::Base.transaction do |t|
-      unrack_tubes(list_layout, rack, step)
+  def reracking_tubes(rack, list_layout, step=nil)
+    fact_changes_unrack = fact_changes_for_unrack_tubes(list_layout, rack, step)
+    fact_changes_rack = fact_changes_for_rack_tubes(list_layout, rack, step)
+    fact_changes_unrack.merge(fact_changes_rack).apply(self)
+  end
 
-      facts_to_add = []
-      facts_to_remove = []
+  def fact_changes_for_unrack_tubes(list_layout, destination_rack=nil, step=nil)
+    FactChanges.new.tap do |updates|
+      previous_racks = []
+      tubes = list_layout.map{|obj| obj[:asset]}.compact
+      return if tubes.empty?
+      tubes_ids = tubes.map(&:id)
+      tubes_list = Asset.where(id: tubes_ids).includes(:facts)
+      tubes_list.each_with_index do |tube, index|
+        location_facts = tube.facts.with_predicate('location')
+        unless location_facts.empty?
+          location = location_facts.first.object
+          updates.remove(tube.facts.with_predicate('location'))
+        end
+        tube.facts.with_predicate('parent').each do |parent_fact|
+          previous_rack = parent_fact.object_asset
+          unless (previous_racks.include?(previous_rack))
+            previous_racks.push(previous_rack)
+            updates.remove(previous_rack.facts.with_predicate('contains').where(object_asset_id: tubes_ids))
+          end
 
+          if destination_rack
+            rerack = Asset.new
+            updates.add(rerack, 'a', 'Rerack')
+            updates.add(rerack, 'tube', tube)
+            updates.add(rerack, 'previousParent', previous_rack)
+            updates.add(rerack, 'previousLocation', location)
+            updates.add(rerack, 'location', list_layout[index][:location])
+            updates.add(destination_rack, 'rerack', rerack)
+          end
+
+          updates.remove(parent_fact)
+        end
+      end
+    end
+  end
+
+
+  def fact_changes_for_rack_tubes(list_layout, rack, step=nil)
+    FactChanges.new.tap do |updates|
       list_layout.each do |l|
         location = l[:location]
         tube = l[:asset]
         next unless tube
-        facts_to_remove.push(tube.facts.with_predicate('location'))
-        facts_to_add.push([tube, 'location', location])
-        facts_to_add.push([tube, 'parent', rack])
-        facts_to_add.push([rack, 'contains', tube])
+        updates.remove(tube.facts.with_predicate('location'))
+        updates.add(tube, 'location', location)
+        updates.add(tube, 'parent', rack)
+        updates.add(rack, 'contains', tube)
       end
-      remove_facts(facts_to_remove.flatten)
-      create_facts(facts_to_add)
-    #end
+    end
   end
+
 
   def params_to_list_layout(params)
     params.map do |location, barcode|
@@ -137,12 +137,6 @@ module Lab::Actions
     end    
   end
 
-  def check_types_for_racking(list_layout, step_type, error_messages, error_locations)
-    unless step_type.compatible_with?(list_layout.map{|obj| obj[:asset]}.concat(asset_group.assets).sort.uniq)
-      error_messages.push("Some of the assets provided have an incompatible type with the racking step defined")
-    end    
-  end
-
   def check_collisions(rack, list_layout, error_messages, error_locations)
     tubes_for_rack = rack.facts.with_predicate('contains').map(&:object_asset)
     tubes_for_rack.each do |tube|
@@ -168,48 +162,6 @@ module Lab::Actions
 
   end
 
-  def racking(step_type, params)
-    error_messages = []
-    error_locations = []
-
-    check_duplicates(params["racking"], error_messages, error_locations)
-
-    unless error_messages.empty?
-      raise InvalidDataParams.new(error_messages, error_locations)
-    end
-
-    list_layout = params_to_list_layout(params["racking"])
-    rack = asset_group.assets.with_fact('a', 'TubeRack').uniq.first
-
-    check_collisions(rack, list_layout, error_messages, error_locations)
-
-    check_racking_barcodes(list_layout, error_messages, error_locations)
-    check_tuberacks(list_layout, error_messages, error_locations)
-    check_types_for_racking(list_layout, step_type, error_messages, error_locations)
-
-    if error_messages.empty?
-      
-      rack_tubes(rack, list_layout)
-    else
-      raise InvalidDataParams.new(error_messages, error_locations)
-    end
-  end
-
-  def linking(step_type, params)
-    return if params.nil?
-    pairing = Pairing.new(params["pairings"], step_type)
-
-    if pairing.valid?
-      ActiveRecord::Base.transaction do |t|
-        pairing.each_pair_assets do |pair_assets|
-          progress_with({:assets => pair_assets, :state => 'in_progress'})
-        end
-      end
-    else
-      raise InvalidDataParams, pairing.error_messages
-    end
-  end
-
   def csv_parsing(content, class_type)
     error_messages = []
     error_locations = []
@@ -232,7 +184,6 @@ module Lab::Actions
 
       check_racking_barcodes(list_layout, error_messages, error_locations)
       check_tuberacks(list_layout, error_messages, error_locations)
-      #check_types_for_racking(list_layout, step_type, error_messages, error_locations)
     end
 
     unless error_messages.empty?
@@ -240,14 +191,12 @@ module Lab::Actions
     end
 
     if parser.valid?
-      ActiveRecord::Base.transaction do |t|
-        unless rack_tubes(asset, parser.layout, self)# parser.add_facts_to(asset, self)
-          raise InvalidDataParams.new(parser.errors.map{|e| e[:msg]}) 
-        end
-
-        error_messages.push(asset.validate_rack_content)
-        raise InvalidDataParams.new(error_messages) if error_messages.flatten.compact.count > 0
+      unless reracking_tubes(asset, parser.layout, self)
+        raise InvalidDataParams.new(parser.errors.map{|e| e[:msg]}) 
       end
+
+      error_messages.push(asset.validate_rack_content)
+      raise InvalidDataParams.new(error_messages) if error_messages.flatten.compact.count > 0
     else
       raise InvalidDataParams.new(parser.errors.map{|e| e[:msg]})
     end

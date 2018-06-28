@@ -1,4 +1,5 @@
 import React from 'react'
+import Moment from 'react-moment';
 import Operations from '../step_components/operations'
 import Toggle from 'react-toggle'
 
@@ -82,7 +83,7 @@ class StepsFinished extends React.Component {
             <td>{ stepActivityId }</td>
             <td>{ stepAssetGroup }</td>
             <td>{ stepUsername }</td>
-            <td>{ step.updated_at }</td>
+            <td><Moment unit="seconds" diff={ step.started_at }>{ step.finished_at }</Moment>s</td>
             <td style={{'textAlign': 'center'}}
               className={classForState}>{ this.imageForState(step.state) }</td>
           </tr>
@@ -124,7 +125,7 @@ class StepsFinished extends React.Component {
     } else {
       return(
         <table className="table table-condensed table-hover steps-table">
-          <thead><tr><th>Step id</th><th>Step type</th><th>Activity id</th><th>Asset Group</th><th>Username</th><th>Last update</th><th>Status</th></tr></thead>
+          <thead><tr><th>Step id</th><th>Step type</th><th>Activity id</th><th>Asset Group</th><th>Username</th><th>Duration</th><th>Status</th></tr></thead>
           <tbody>
             {this.props.steps.map(this.renderStepRow)}
           </tbody>

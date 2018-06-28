@@ -44,7 +44,7 @@ class Operation < ApplicationRecord
   alias_method :create_asset, :add_facts
 
   def remove_facts
-    asset.remove_facts(Fact.new(predicate: predicate, object: object, object_asset: object_asset))
+    asset.remove_facts(Fact.where(predicate: predicate, object: object, object_asset: object_asset))
     asset.touch
   end
 
