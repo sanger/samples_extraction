@@ -24,6 +24,7 @@ class Activity extends React.Component {
 			stepsRunning: props.stepsRunning,
 			stepsFinished: props.stepsFinished,	
 			activityRunning: props.activityRunning,
+      dataRackDisplay: props.dataRackDisplay,
 			messages: []
 		}
 		this.onSelectAssetGroup = this.onSelectAssetGroup.bind(this)
@@ -51,6 +52,7 @@ class Activity extends React.Component {
 	onWebSocketsMessage(msg) {
 		this.setState({
 			activityRunning: msg.running,
+      dataRackDisplay: msg.data_rack_display,
 			assetGroups: msg.asset_groups,
 			stepTypes: msg.step_types,
 			stepsRunning: msg.steps_running || [],
@@ -171,6 +173,7 @@ class Activity extends React.Component {
 		    />
 				{this.renderStepTypesControl("1")}
 			  <AssetGroupsEditor
+          dataRackDisplay={this.state.dataRackDisplay}
 			  	activityRunning={this.state.activityRunning}
 					onExecuteStep={this.onExecuteStep}
 					onRemoveAssetFromAssetGroup={this.onRemoveAssetFromAssetGroup}

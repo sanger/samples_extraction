@@ -8,6 +8,7 @@ class FactsSvg extends React.Component {
     this.filename = this.filename.bind(this)
     this.pathImage = this.pathImage.bind(this)
     this.nameForFacts = this.nameForFacts.bind(this)
+    this.onLoadSvg = this.onLoadSvg.bind(this)
   }
   numWells(facts) {
     return facts.filter((v) => { return v.predicate=='contains'}).length
@@ -37,13 +38,16 @@ class FactsSvg extends React.Component {
     if (name == 'sampletube') {
       return 'tube'
     }
+    if (name == 'tube') {
+      return 'tube'
+    }
     if (name == 'spincolumn') {
       return 'spin_column'
     }
     if (name == 'filterpaper') {
       return 'filter_paper'
     }
-    return name
+    return null
   }
   nameForFacts(facts) {
     if (facts.length == 0) {
@@ -60,16 +64,33 @@ class FactsSvg extends React.Component {
     if (img) {
       return `/assets/${img}.svg`
     } else {
-      return ''
+      return null
     }
 
   }
+  onLoadSvg() {
+      var data = this.props.dataRackDisplay[this.props.asset.uuid];
+      for (var key in data) {
+        var node = $('.svg-'+this.props.asset.uuid+' .'+key);
+        node.addClass(data[key].cssClass);
+      }
+  }
+
   render() {
-    return(
-      <div className='svg '>
-        <SVG src={this.pathImage(this.props.facts)}></SVG>
-      </div>
-    )
+    const path = this.pathImage(this.props.facts)
+    if (path) {
+      return (
+        <div className={'svg svg-'+this.props.asset.uuid} >
+          <SVG src={this.pathImage(this.props.facts)} ref={el => this.el = el} onLoad={this.onLoadSvg}></SVG>
+        </div>
+      )
+    } else {
+      return(
+        <div className='svg'style={{fontSize: 'xx-large', float: 'left', marginRight: '0.6em'}}>
+          <span className="glyphicon glyphicon-file" />
+        </div>
+        )      
+    }
   }
 }
 

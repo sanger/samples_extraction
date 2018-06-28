@@ -5,7 +5,7 @@ module InferenceEngines
 
         def add_facts
           msg = 'You cannot add facts to an asset not present in the conditions'
-          raise Step::UnknownConditionGroup, msg if changed_assets.compact.length==0
+          raise Steps::ExecutionErrors::UnknownConditionGroup, msg if changed_assets.compact.length==0
           @changed_facts = generate_facts
           changed_assets.each do |asset|
             asset.add_facts(changed_facts.map(&:dup), position) do |fact|

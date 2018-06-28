@@ -22,11 +22,15 @@ module Lab::Actions
   end
 
   def unrack_tubes(list_layout, destination_rack=nil, step=nil)
+    facts_to_add = []
+    facts_to_destroy = []
+
     tubes = list_layout.map{|obj| obj[:asset]}.compact
     return if tubes.empty?
-    facts_to_destroy = []
+    
     tubes_ids = tubes.map(&:id)
-    tubes.each_with_index do |tube, index|
+    tubes_list = Asset.where(id: tubes_ids).joins(:facts)
+    tubes_list.each_with_index do |tube, index|
       location_facts = tube.facts.with_predicate('location')
       unless location_facts.empty?
         location = location_facts.first.object
@@ -41,56 +45,49 @@ module Lab::Actions
         end
 
         if destination_rack
-          #tube.add_fact()
-          rerack = Asset.create
-          rerack.add_fact('a', 'Rerack')
-          rerack.add_fact('tube', tube)
-          rerack.add_fact('previousParent', previous_rack)
-          rerack.add_fact('previousLocation', location)
-          rerack.add_fact('location', list_layout[index][:location])
-
-          destination_rack.add_fact('rerack', rerack)
+          rerack = Asset.new
+          facts_to_add.push([rerack, 'a', 'Rerack'])
+          facts_to_add.push([rerack, 'tube', tube])
+          facts_to_add.push([rerack, 'previousParent', previous_rack])
+          facts_to_add.push([rerack, 'previousLocation', location])
+          binding.pry if list_layout.nil? || list_layout[index].nil?
+          facts_to_add.push([rerack, 'location', list_layout[index][:location]])
+          facts_to_add.push([destination_rack, 'rerack', rerack])
         end
 
         facts_to_destroy.push(parent_fact)
       end
     end
-    facts_to_destroy = facts_to_destroy.flatten.compact
-    if step
-      facts_to_destroy.each{|f| f.set_to_remove_by(step.id)}
-    else
-      facts_to_destroy.each(&:destroy)
-    end
+    binding.pry
+    remove_facts(facts_to_destroy)
+    create_facts(facts_to_add)
   end
 
   def clean_rack(rack, step)
-    rack.facts.with_predicate('contains').each do |f|
-      f.set_to_remove_by(step.id)
-    end
+    remove_facts(facts.with_predicate('contains'))
   end
 
   def rack_tubes(rack, list_layout, step=nil)
-    ActiveRecord::Base.transaction do |t|
+    #ActiveRecord::Base.transaction do |t|
       unrack_tubes(list_layout, rack, step)
 
       facts_to_add = []
+      facts_to_remove = []
 
       list_layout.each do |l|
         location = l[:location]
         tube = l[:asset]
         next unless tube
-        if step
-          step_ref = step.id
-          tube.facts.with_predicate('location').each{|f| f.set_to_remove_by(step_ref)}
-        else
-          step_ref = nil
-          tube.facts.with_predicate('location').each(&:destroy)
-        end
-        tube.add_facts(Fact.create(:predicate => 'location', :object => location, :to_add_by => step_ref))
-        tube.add_facts(Fact.create(:predicate => 'parent', :object_asset => rack, :to_add_by => step_ref))
-        rack.add_facts(Fact.create(:predicate => 'contains', :object_asset => tube, :to_add_by => step_ref))
+        f
+        facts_to_remove.push(tube.facts.with_predicate('location'))
+        facts_to_add.push([tube, 'location', location])
+        facts_to_add.push([tube, 'parent', rack])
+        facts_to_add.push([rack, 'contains', tube])
       end
-    end
+      binding.pry
+      remove_facts(facts_to_remove.flatten)
+      create_facts(facts_to_add)
+    #end
   end
 
   def params_to_list_layout(params)
@@ -218,10 +215,10 @@ module Lab::Actions
     end
   end
 
-  def csv_parsing(step_type, params, class_type)
+  def csv_parsing(content, class_type)
     error_messages = []
     error_locations = []
-    parser = class_type.new(params[:file].read)
+    parser = class_type.new(content, self)
 
     if activity.asset_group.assets.with_fact('a', 'TubeRack').empty?
       error_messages.push("No TubeRacks found to perform the layout process")
@@ -261,12 +258,16 @@ module Lab::Actions
     end
   end
 
-  def layout(step_type, params)
-    csv_parsing(step_type, params, Parsers::CsvLayout)
+  def file
+    asset_group.uploaded_files.first
   end
 
-  def layout_creating_tubes(step_type, params)
-    csv_parsing(step_type, params, Parsers::CsvLayoutWithTubeCreation)
+  def rack_layout
+    csv_parsing(file.data, Parsers::CsvLayout)
+  end
+
+  def rack_layout_creating_tubes
+    csv_parsing(file.data, Parsers::CsvLayoutWithTubeCreation)
   end
 
   def samples_symphony(step_type, params)

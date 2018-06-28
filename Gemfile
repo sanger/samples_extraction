@@ -13,7 +13,7 @@ gem 'ace-rails-ap'
 gem 'daemons'
 gem 'yajl-ruby', '>= 1.3'
 #gem 'yarn'
-gem 'sse-rails-engine'
+#gem 'sse-rails-engine'
 
 gem 'rails'#, '~> 5.1.4'
 gem 'activerecord-session_store'

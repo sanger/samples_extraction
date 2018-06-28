@@ -42,7 +42,7 @@ module Activities
       end
     end
 
-    def do_background_tasks(printer_config=nil, user=nil)
+    def create_connected_tasks(step, printer_config=nil, user=nil)
       reasoning_params = { 
         :asset_group => asset_group, 
         :activity => self, 
@@ -51,10 +51,9 @@ module Activities
         :in_progress? => true
       }
 
-      connected_tasks = create_background_steps(background_tasks, reasoning_params)
-
-      # We start executing the first one, as they are connected they will execute in order
-      connected_tasks.first.execute_actions if connected_tasks.count > 0
+      steps = create_background_steps(background_tasks, reasoning_params)
+      step.update_attributes(next_step: steps.first)
+      [step, steps].flatten
     end
 
   end

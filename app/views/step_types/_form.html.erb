@@ -20,6 +20,13 @@
   <div class="field step_type_for_reasoning">
     <%= f.check_box :for_reasoning, :value => false, :disabled => readonly %>
   </div>
+  <div class="field">
+    <%= f.select :step_action, options_for_select(
+      [
+        ['Rack Layout Creating Tubes', 'rack_layout_creating_tubes'], 
+        ['Rack Layout','rack_layout']
+      ],step_type.step_action || ''), {}, disabled: readonly %>
+  </div>
   <div class="field not-for-reasoning">
     <%= f.select :connect_by, options_for_select([['All', nil], ['By position', 'position']], step_type.connect_by), {}, :disabled => readonly %>
   </div>

@@ -3,19 +3,27 @@ module Activities
 
     def do_task(step_type, user, step_params, printer_config, asset_group)
       step = find_or_create_step(step_type, user, step_params, asset_group)
-      do_background_tasks(printer_config, user)
 
-      if step && step.created_asset_group
-        step.created_asset_group.delay.print(printer_config, user.username)
-      end
+      connected_tasks = create_connected_tasks(step, printer_config, user)
 
-      step.update_attributes!(:state => 'complete') unless step.in_progress?
+      step.execute_actions
+      step.update_attributes!(state: 'complete')
 
-      step
+      #if step && step.created_asset_group
+      #  step.created_asset_group.delay.print(printer_config, user.username)
+      #end
+
+      #step.update_attributes!(:state => 'complete') unless step.in_progress?
+
+      #step
     end
 
 
     def find_or_create_step(step_type, user, step_params, asset_group)
+      steps.create!(:step_type => step_type, :asset_group_id => asset_group.id, :user_id => user.id)
+    end
+
+    def find_or_create_step2(step_type, user, step_params, asset_group)
       perform_step_actions_for('before_step', self, step_type, step_params)
 
       step = steps.in_progress.for_step_type(step_type).first
@@ -37,7 +45,8 @@ module Activities
             :user_id => user.id, :in_progress? => true, :state => 'in_progress')
         end
         perform_step_actions_for('progress_step', step, step_type, step_params)
-        step.progress_with(step_params)
+
+        step.progress_with(step_params[:assets], step_params[:state])
       else
         if step && params_for_finish_step?(step_params)
           step.finish
@@ -52,7 +61,7 @@ module Activities
     def perform_step_actions_for(id, obj, step_type, step_params)
       if step_params[:data_action_type] == id
         params = step_params[:file] ? {:file => step_params[:file] } : JSON.parse(step_params[:data_params])
-        value = obj.send(step_params[:data_action], step_type, params)
+        value = obj.send(step_type.step_template, step_type, params)
       end
     end
 

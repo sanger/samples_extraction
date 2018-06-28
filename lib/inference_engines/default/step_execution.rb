@@ -60,7 +60,7 @@ module InferenceEngines
 
         step.step_type.actions.includes([:subject_condition_group, :object_condition_group]).each do |r|
           if r.subject_condition_group.nil?
-            raise RelationSubject, 'A subject condition group needs to be specified to apply the rule'
+            raise Steps::ExecutionErrors::RelationSubject, 'A subject condition group needs to be specified to apply the rule'
           end
           if (r.object_condition_group) && (!r.object_condition_group.is_wildcard?)
             unless [r.subject_condition_group, r.object_condition_group].any?{|c| c.cardinality == 1}

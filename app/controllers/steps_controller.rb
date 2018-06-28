@@ -62,7 +62,7 @@ class StepsController < ApplicationController
 
     def params_step
       params.require(:step).permit(:step_type_id, :asset_group_id, :tube_printer_id, :plate_printer_id,
-        :state, :data_action, :data_action_type, :data_params, :file)
+        :state, :triples)
     end
 
 end

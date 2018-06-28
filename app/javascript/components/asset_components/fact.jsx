@@ -25,16 +25,17 @@ class Fact extends React.Component {
   }
 
   renderShortDescription(asset) {
-    let label = asset.barcode ? asset.barcode : '#'+asset.id
+    let label = (asset && asset.barcode) ? asset.barcode : '#'+asset.id
     return(`${this.valueForPredicate(asset, 'aliquotType')} ${this.classType(asset)} ${label}`)
   }
 
   renderObject(fact) {
     if (fact.object_asset_id) {
       let url = `/labware/${fact.object_asset_id}`
+
       return (
         <a className="object-reference" href={url}>
-          { this.renderShortDescription(fact.object_asset) }
+          { fact.object_asset ? this.renderShortDescription(fact.object_asset) : '#'+fact.object_asset_id }
         </a>
       )
     } else {

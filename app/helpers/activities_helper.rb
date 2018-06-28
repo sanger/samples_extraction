@@ -155,5 +155,15 @@ module ActivitiesHelper
     end
   end
 
+  def data_rack_display_for_asset_group(asset_group)
+    asset_group.assets.reduce({}) do |memo, asset|
+      if ((asset.has_literal?('a', 'TubeRack')) || ((asset.has_literal?('a', 'Plate'))))
+        memo[asset.uuid] = data_rack_display(asset.facts)
+      end
+      memo
+    end
+  end
+
+
 
 end

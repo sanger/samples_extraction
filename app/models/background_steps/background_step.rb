@@ -42,10 +42,6 @@ module BackgroundSteps
       [exception.message, Rails.backtrace_cleaner.clean(exception.backtrace)].flatten.join("\n")
     end
 
-    def on_background_step_error
-      raise @error
-    end
-
     def background_job
       assign_attributes(state: 'running', output: nil)
       @error = nil
@@ -69,8 +65,6 @@ module BackgroundSteps
       # is not clear for me why at this moment. Need to revisit it.
       unless state == 'complete'
         update_attributes!(:state => 'error', output: output_error(@error)) 
-        # Needs to raise again the error if we need to retry in future
-        on_background_step_error
       end
     end
 

@@ -309,8 +309,6 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
-    sse-rails-engine (1.6.0)
-      rails (>= 4.2.0, < 5.2)
     systemu (2.6.5)
     therubyracer (0.12.3)
       libv8 (~> 3.16.14.15)
@@ -403,7 +401,6 @@ DEPENDENCIES
   shoulda-matchers
   spring
   sprockets-rails
-  sse-rails-engine
   therubyracer
   turbolinks
   tzinfo-data

@@ -27,7 +27,8 @@
   assetGroups: asset_groups_data(@activity),
   stepsFinished: steps_data_for_steps(@activity.steps.finished.reverse),
   stepsRunning: steps_data_for_steps(@activity.steps.running),
-  activityRunning: @activity.running?
+  activityRunning: @activity.running?,
+  dataRackDisplay: data_rack_display_for_asset_group(@activity.asset_group)
    }) %>
 
   <% unless @activity.finished? %>

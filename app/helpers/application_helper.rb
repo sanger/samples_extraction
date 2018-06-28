@@ -73,7 +73,7 @@ module ApplicationHelper
           memo[location] = {:title => "#{asset.short_description}", :cssClass => aliquotType || UNKNOW_ALIQUOT_TYPE, :url => asset_path(asset)} unless location.nil?
         end
         memo
-      end.to_json
+      end
     end
 
     return {

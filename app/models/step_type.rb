@@ -46,6 +46,7 @@ class StepType < ActiveRecord::Base
   end
 
   def all_step_templates
+    return ["", "upload_file"]
     #Dir["app/views/step_types/step_templates/*"].concat([''])
     ['', 'transfer_tube_to_tube', 'upload_file_step']
     Dir["app/views/step_types/step_templates/*"].map do |s|

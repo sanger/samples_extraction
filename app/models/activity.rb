@@ -37,7 +37,7 @@ class Activity < ActiveRecord::Base
 
   has_one :work_order
 
-  after_touch :wss_event
+  after_commit :wss_event
 
   def running?
     state == 'running'
@@ -60,19 +60,34 @@ class Activity < ActiveRecord::Base
   end
 
   def json_state
+    running_activity = running? || editing?
     {
       running: running? || editing?,
       asset_groups: ApplicationController.helpers.asset_groups_data(self),
       step_types: ApplicationController.helpers.step_types_control_data(self),
+      data_rack_display: ApplicationController.helpers.data_rack_display_for_asset_group(self.asset_group),
       #steps: ApplicationController.helpers.steps_without_operations_data_for_steps(steps.running)
       steps_running: ApplicationController.helpers.steps_data_for_steps(steps.active),
       steps_finished: ApplicationController.helpers.steps_data_for_steps(self.steps.finished.reverse)
     }
   end
 
+  def running_inside_transaction?
+    ActiveRecord::Base.connection.open_transactions == 0
+  end
+
+  def send_wss_event
+    ActionCable.server.broadcast(stream_id, json_state) 
+  end
+
+  def stream_id
+    "activity_#{id}"
+  end
+
   def wss_event
-    stream_id = "activity_#{id}"
-    ActionCable.server.broadcast(stream_id, json_state) if ActivityChannel.subscribed_ids.include?(stream_id)
+    if ActivityChannel.subscribed_ids.include?(stream_id)
+      send_wss_event
+    end
   end
 
   def active_step

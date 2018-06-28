@@ -26,34 +26,6 @@ class ActivitiesController < ApplicationController
     raise ActionController::InvalidAuthenticityToken unless session[:session_id]
   end
 
-  def real_time_updates
-    @activity = Activity.find(params[:activity_id])
-    @asset_group = @activity.asset_group
-    @asset_group.assets.each(&:refresh)
-    @assets_changing = @asset_group.assets.currently_changing
-
-    response.headers['Content-Type'] = 'text/event-stream'
-    # sse.write(@asset_group.last_update, event: 'asset_group')
-    # sse.write(@assets_changing.pluck(:uuid), event: 'asset')
-
-    msg =  "event: asset_group\n"#
-    msg += "data: #{@asset_group.last_update} \n\n"
-
-    msg += "event: asset\n"
-    msg += "data: #{@assets_changing.pluck(:uuid)} \n\n"
-
-    response.stream.write msg
-  ensure
-    response.stream.close
-    # sse.close
-  end
-
-  before_action :send_sse_events, only: [:show, :update]
-
-  def send_sse_events
-    @activity.steps.running.each{|s| s.sse_event}
-  end
-
   def update
     select_assets_grouped
 

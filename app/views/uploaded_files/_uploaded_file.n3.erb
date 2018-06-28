@@ -1,15 +1,15 @@
-<% @csv = CSV.new(data) %>
+<% @csv = CSV.new(uploaded_file.data) %>
 <% headers = nil %>
 <% @csv.to_a.each_with_index.map do |line, pos| %>
   <% if (pos == 0) %>
     <% headers = line %>
   <% else %>
-    <% asset_uuid = SecureRandom.uuid %>
-    <%= asset_uuid %> a :CSVLine .
-    <%= asset_uuid %> :position <%= pos %> .
+    <% asset_uuid = n3_url_resource_for(SecureRandom.uuid) %>
+    <<%= asset_uuid %>> a :CSVLine .
+    <<%= asset_uuid %>> :position <%= pos %> .
     <% headers.zip(line).each do |header, value| %>
-      <%= asset_uuid %> <%= header %> <%= value %>
+      <<%= asset_uuid %>> :<%= header %> """<%= value %>"""
     <% end %>
-    <%= uuid %> :contains <%= asset_uuid %>
+    <<%= n3_url_resource_for(uploaded_file.asset.uuid) %>> :contains <<%= asset_uuid %>>
   <% end %>
 <% end %>

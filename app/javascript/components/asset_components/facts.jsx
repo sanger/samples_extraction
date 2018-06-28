@@ -10,7 +10,7 @@ class Facts extends React.Component {
     return(
       <span className="facts-list ">
         <span>
-          <FactsSvg facts={this.props.facts} />
+          <FactsSvg asset={this.props.asset}  facts={this.props.facts}  dataRackDisplay={this.props.dataRackDisplay}  />
           <div className="col-xs-10">
             {this.props.facts.map(this.renderFact)}
           </div>

@@ -40,6 +40,7 @@ class AssetGroupsEditor extends React.Component {
         id={'asset-group-'+assetGroup.id}
         key={'asset-group-'+assetGroup.id}>
         <AssetGroupEditor assetGroup={assetGroup}
+          dataRackDisplay={this.props.dataRackDisplay}
           activityRunning={this.props.activityRunning}
           onExecuteStep={this.props.onExecuteStep}
           isShown={this.isShown(assetGroup)}

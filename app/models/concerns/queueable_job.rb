@@ -14,6 +14,7 @@ module QueueableJob
   end
 
   def perform_error
+    raise @error
     #raise QueueableJob::ErrorOnQueuedJobProcess
   end
 
@@ -22,7 +23,7 @@ module QueueableJob
   end
 
   def can_run_next_step?
-    activity && activity.running? && complete? && next_step && !next_step.complete?
+    activity && activity.running? && completed? && next_step && !next_step.completed?
   end
 
 end
