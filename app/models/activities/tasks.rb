@@ -7,7 +7,7 @@ module Activities
       connected_tasks = create_connected_tasks(step, printer_config, user)
 
       step.execute_actions
-      step.update_attributes!(state: 'complete')
+      #step.update_attributes!(state: 'complete')
 
       #if step && step.created_asset_group
       #  step.created_asset_group.delay.print(printer_config, user.username)

@@ -31,11 +31,9 @@ class AssetGroup < ActiveRecord::Base
     [updated_at, assets.map(&:updated_at)].flatten.max
   end
 
-  def add_assets(list)
-    list = [list].flatten
-    list.each do |asset|
-      assets << asset unless has_asset?(asset)
-    end
+  def add_assets(list_to_add)
+    assets_to_add = list_to_add - assets
+    assets << assets_to_add
   end
 
   def remove_assets(list)

@@ -24,6 +24,8 @@ class Asset < ActiveRecord::Base
   has_and_belongs_to_many :asset_groups
   has_many :steps, :through => :asset_groups
 
+  has_many :activities, through: :asset_groups, source: :activity_owner
+
   before_save :generate_uuid
   #before_save :generate_barcode
 
@@ -94,6 +96,33 @@ class Asset < ActiveRecord::Base
     joins("inner join activity_type_step_types on activity_type_step_types.step_type_id=step_types.id").
     where("activity_type_step_types.activity_type_id = ? and activity_type_step_types.step_type_id = ? and condition_groups.id in (?)", activity_type, st_checks[0], st_checks[1])
   }
+
+  scope :assets_for_queries, ->(queries) {
+    first_elem = Asset.first
+    queries.reduce(self) do |memo, query|
+      if first_elem && first_elem.has_attribute?(query.predicate)
+        memo.with_field(query.predicate, query.object)
+      else
+        memo.with_fact(query.predicate, query.object)
+      end
+    end
+  }
+  # def self.assets_for_queries(queries)
+  #   queries.map do |query|
+  #     if Asset.first && Asset.first.has_attribute?(query.predicate)
+  #       Asset.with_field(query.predicate, query.object)
+  #     else
+  #       Asset.with_fact(query.predicate, query.object)
+  #     end
+  #   end.reduce([]) do |memo, result|
+  #     if memo.empty?
+  #       result
+  #     else
+  #       result & memo
+  #     end
+  #   end
+  # end
+
 
 
   #def self.assets_compatible_with_activity_type(assets, activity_type)
@@ -220,21 +249,6 @@ class Asset < ActiveRecord::Base
     end
   end
 
-  def self.assets_for_queries(queries)
-    queries.map do |query|
-      if Asset.first && Asset.first.has_attribute?(query.predicate)
-        Asset.with_field(query.predicate, query.object)
-      else
-        Asset.with_fact(query.predicate, query.object)
-      end
-    end.reduce([]) do |memo, result|
-      if memo.empty?
-        result
-      else
-        result & memo
-      end
-    end
-  end
 
 
   def facts_to_s

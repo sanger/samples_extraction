@@ -10,7 +10,7 @@ class BackgroundSteps::PrintBarcodes < BackgroundSteps::BackgroundStep
         asset_group.assets.each do |asset|
           asset.print(printer_config, user.username)
           # Do not print again unless the step fails
-          remove_facts(asset, Fact.new(predicate: 'is', object: 'readyForPrint'))
+          remove_facts(Fact.where(asset: asset, predicate: 'is', object: 'readyForPrint'))
         end
       end
     end

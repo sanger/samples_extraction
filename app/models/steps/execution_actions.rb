@@ -2,7 +2,6 @@ module Steps::ExecutionActions
   def self.included(klass)
     klass.instance_eval do
       before_create :assets_compatible_with_step_type, :unless => :in_progress?
-      #after_commit :execute_actions, :if => [:running?, :state_changed?, :can_run_now?]
       after_update :on_complete, :if => [:completed?, :state_changed?]
     end
   end  
@@ -51,9 +50,7 @@ module Steps::ExecutionActions
     send(step_type.step_action)
   end
 
-  def execute_actions
-    update_attributes!({ :state => 'running'})
-
+  def process
     if activity
       activity.touch 
       activity.save

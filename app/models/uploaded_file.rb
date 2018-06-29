@@ -12,10 +12,16 @@ class UploadedFile < ApplicationRecord
     @step ||= Step.new(step_type: StepType.find_or_create_by(name: 'Refresh'), state: 'running')
   end
 
-  def build_asset
+  def file_type(content_type)
+    return 'XMLFile' if content_type=='text/xml'
+    return 'CSVFile' if content_type=='text/csv'
+    return 'UnknownFile'
+  end
+
+  def build_asset(params)
     unless asset
       update_attributes(asset: Asset.create)
-      add_facts(asset, [Fact.new(predicate: 'a', object: 'CSVFile'), Fact.new(predicate: 'contents', object_asset: asset)])
+      add_facts(asset, [Fact.new(predicate: 'a', object: file_type(params[:content_type])), Fact.new(predicate: 'contents', object_asset: asset)])
     end
     asset    
   end

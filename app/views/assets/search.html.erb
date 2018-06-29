@@ -4,46 +4,38 @@
 
 <h4> Query </h4>
 <div class="well">
+  <%= Time.now - @start_time %> seconds
   <% @queries.each do |query| %>
     <%= render :partial => 'facts/fact', :locals => {:fact => query }%>
   <% end %>
 </div>
 
 <h4> <%= @assets.count %> results </h4>
-<table class="table table-bordered">
-  <thead>
-    <tr>
-      <th>Barcode</th>
-      <th>Facts</th>
-      <th>Activities</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @assets.each_with_index do |asset, index| %>
+<% unless @assets.empty? %>
+  <table class="table table-bordered">
+    <thead>
       <tr>
-        <td><%= bootstrap_link_to asset.barcode, asset %></td>
-        <td>
-          <%= render :partial => 'facts/facts', :locals => {:facts => asset.facts} %>
-        </td>
-        <td>
-          <% @activities[index].uniq.each do |a| %>
-            <%= bootstrap_link_to a.activity_type.name+a.id.to_s, a %>
-          <% end %>
-        </td>
-        <!--td><%= bootstrap_link_to 'Edit', edit_asset_path(asset) %></td>
-        <td><%= bootstrap_link_to 'Destroy', asset, method: :delete, data: { confirm: 'Are you sure?' } %></td -->
+        <th>Barcode</th>
+        <th>Facts</th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
 
-<h4> Steps </h4>
+    <tbody>
+      <% @assets.each_with_index do |asset, index| %>
+        <tr>
+          <td><%= bootstrap_link_to asset.barcode, asset %></td>
+          <td>
+            <%= render :partial => 'facts/facts', :locals => {:facts => asset.facts} %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 
-<%= render :partial => 'steps/steps', :locals => {:steps => @steps } %>
 
-<% if @asset_group %>
-  <%= bootstrap_link_to 'Print Labels', print_asset_group_path(@asset_group) %>
+  <% if @asset_group %>
+    <%= bootstrap_link_to 'Print Labels GROUP '+@asset_group.id.to_s, print_asset_group_path(@asset_group) %>
+  <% end %>
 <% end %>
 
 

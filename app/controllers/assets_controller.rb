@@ -11,13 +11,17 @@ class AssetsController < ApplicationController
   end
 
   def search
-    @assets = Asset.assets_for_queries(@queries)
-    @activities = @assets.map(&:activities)
-    @steps = Step.for_assets(@assets)
+    @start_time = Time.now
+    @assets = Asset.assets_for_queries(@queries).includes(:facts)
+    #@activities = Activity.joins(:asset_groups => {asset: @assets.pluck(&:id)})
+    #@activities = @assets.map(&:asset_groups).flatten.map(&:activity) || []
+    #@steps = Step.for_assets(@assets)
 
     # For printing
-    @asset_group = AssetGroup.create!
-    @asset_group.add_assets(@assets)
+    unless @assets.empty?
+      @asset_group = AssetGroup.create!
+      @asset_group.add_assets(@assets)
+    end
 
     respond_to do |format|
       format.html { render :search, layout: false }

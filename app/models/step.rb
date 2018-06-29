@@ -22,9 +22,10 @@ class Step < ActiveRecord::Base
   scope :for_step_type, ->(step_type) { where(:step_type => step_type)}  
 
   include QueueableJob
+  include Deprecatable  
+  include Steps::Job
   include Steps::Cancellable
   include Steps::WebsocketEvents
-  include Deprecatable  
   include Steps::Deprecatable
   include Steps::State
   include Steps::ExecutionActions
