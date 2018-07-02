@@ -8,8 +8,9 @@ import PropTypes from 'prop-types'
 
 import WebpackerReact from 'webpacker-react'
 import Activity from 'components/activity'
+import Steps from 'components/step_components/steps'
 window.React = React;
-WebpackerReact.setup({React,Activity})
+WebpackerReact.setup({React,Activity,Steps})
 
 /*import WebpackerReact from 'webpacker-react'
 import Turbolinks from 'turbolinks'

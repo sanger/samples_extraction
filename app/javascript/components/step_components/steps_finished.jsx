@@ -60,6 +60,15 @@ class StepsFinished extends React.Component {
       )
     }
   }
+  renderDuration(step) {
+    if (step.started_at && step.finished_at) {
+      return(
+        <span><Moment unit="seconds" diff={ step.started_at }>{ step.finished_at }</Moment>s</span>
+      )      
+    } else {
+      return("")
+    }
+  }
   renderStepRow(step,index) {
     const stepTypeName = step.step_type ? step.step_type.name : ''
     const stepActivityId = step.activity ? step.activity.id : ''
@@ -83,7 +92,7 @@ class StepsFinished extends React.Component {
             <td>{ stepActivityId }</td>
             <td>{ stepAssetGroup }</td>
             <td>{ stepUsername }</td>
-            <td><Moment unit="seconds" diff={ step.started_at }>{ step.finished_at }</Moment>s</td>
+            <td>{ this.renderDuration(step) }</td>
             <td style={{'textAlign': 'center'}}
               className={classForState}>{ this.imageForState(step.state) }</td>
           </tr>
