@@ -12,7 +12,7 @@
 
 ActiveRecord::Schema.define(version: 20180628135208) do
 
-  create_table "actions", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "actions", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.string "action_type", null: false
     t.integer "step_type_id"
     t.integer "subject_condition_group_id"
@@ -26,7 +26,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["subject_condition_group_id"], name: "index_actions_on_subject_condition_group_id"
   end
 
-  create_table "activities", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "activities", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.integer "activity_type_id"
     t.integer "instrument_id"
     t.integer "asset_group_id"
@@ -43,7 +43,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["kit_id"], name: "index_activities_on_kit_id"
   end
 
-  create_table "activity_type_compatibilities", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "activity_type_compatibilities", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.integer "asset_id"
     t.integer "activity_type_id"
     t.datetime "created_at", null: false
@@ -52,7 +52,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["asset_id"], name: "index_activity_type_compatibilities_on_asset_id"
   end
 
-  create_table "activity_type_step_types", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "activity_type_step_types", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.integer "activity_type_id"
     t.integer "step_type_id"
     t.datetime "created_at", null: false
@@ -61,7 +61,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["step_type_id"], name: "index_activity_type_step_types_on_step_type_id"
   end
 
-  create_table "activity_types", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "activity_types", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.string "name"
     t.integer "superceded_by_id"
     t.datetime "created_at", null: false
@@ -69,7 +69,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["superceded_by_id"], name: "index_activity_types_on_superceded_by_id"
   end
 
-  create_table "activity_types_instruments", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "activity_types_instruments", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.integer "instrument_id"
     t.integer "activity_type_id"
     t.datetime "created_at", null: false
@@ -78,14 +78,14 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["instrument_id"], name: "index_activity_types_instruments_on_instrument_id"
   end
 
-  create_table "asset_groups", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "asset_groups", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "activity_owner_id"
     t.integer "condition_group_id"
   end
 
-  create_table "asset_groups_assets", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "asset_groups_assets", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.integer "asset_id"
     t.integer "asset_group_id"
     t.datetime "created_at", null: false
@@ -94,7 +94,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["asset_id"], name: "index_asset_groups_assets_on_asset_id"
   end
 
-  create_table "assets", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "assets", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.string "uuid"
     t.string "barcode"
     t.datetime "created_at", null: false
@@ -104,7 +104,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["barcode"], name: "index_assets_on_barcode"
   end
 
-  create_table "condition_groups", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "condition_groups", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.string "name"
     t.boolean "keep_selected", default: true
     t.integer "step_type_id"
@@ -112,7 +112,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["step_type_id"], name: "index_condition_groups_on_step_type_id"
   end
 
-  create_table "conditions", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "conditions", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.integer "condition_group_id"
     t.string "predicate", null: false
     t.string "object"
@@ -123,7 +123,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["object_condition_group_id"], name: "index_conditions_on_object_condition_group_id"
   end
 
-  create_table "delayed_jobs", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "delayed_jobs", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.integer "priority", default: 0, null: false
     t.integer "attempts", default: 0, null: false
     t.text "handler", null: false
@@ -138,7 +138,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
   end
 
-  create_table "facts", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "facts", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.integer "asset_id"
     t.string "predicate", null: false
     t.string "object"
@@ -156,14 +156,14 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["object_asset_id"], name: "index_facts_on_object_asset_id"
   end
 
-  create_table "instruments", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "instruments", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.string "barcode"
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "kit_types", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "kit_types", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.string "name"
     t.integer "activity_type_id"
     t.datetime "created_at", null: false
@@ -171,7 +171,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["activity_type_id"], name: "index_kit_types_on_activity_type_id"
   end
 
-  create_table "kits", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "kits", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.string "barcode", null: false
     t.integer "max_num_reactions"
     t.integer "num_reactions_performed"
@@ -181,7 +181,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["kit_type_id"], name: "index_kits_on_kit_type_id"
   end
 
-  create_table "label_templates", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "label_templates", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.string "name", null: false
     t.string "template_type"
     t.integer "external_id", null: false
@@ -189,7 +189,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "operations", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "operations", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.integer "action_id"
     t.integer "step_id"
     t.integer "asset_id"
@@ -205,7 +205,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["step_id"], name: "index_operations_on_step_id"
   end
 
-  create_table "printers", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "printers", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.string "name", null: false
     t.string "printer_type"
     t.boolean "default_printer", default: false, null: false
@@ -213,7 +213,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "sessions", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "sessions", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.string "session_id", null: false
     t.text "data"
     t.datetime "created_at"
@@ -222,7 +222,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["updated_at"], name: "index_sessions_on_updated_at"
   end
 
-  create_table "step_types", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "step_types", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.string "name"
     t.string "step_template"
     t.binary "n3_definition"
@@ -235,7 +235,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["superceded_by_id"], name: "index_step_types_on_superceded_by_id"
   end
 
-  create_table "steps", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "steps", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.integer "step_type_id"
     t.integer "user_id"
     t.date "completion_date"
@@ -271,7 +271,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["asset_id"], name: "index_uploaded_files_on_asset_id"
   end
 
-  create_table "uploads", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "uploads", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.integer "step_id"
     t.integer "activity_id"
     t.binary "data", limit: 16777215
@@ -279,12 +279,11 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.string "content_type"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer "asset_group_id"
     t.index ["activity_id"], name: "index_uploads_on_activity_id"
     t.index ["step_id"], name: "index_uploads_on_step_id"
   end
 
-  create_table "users", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "users", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.string "login"
     t.string "password"
     t.string "barcode"
@@ -300,7 +299,7 @@ ActiveRecord::Schema.define(version: 20180628135208) do
     t.index ["tube_printer_id"], name: "index_users_on_tube_printer_id"
   end
 
-  create_table "work_orders", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "work_orders", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.integer "work_order_id"
     t.integer "activity_id"
     t.datetime "created_at", null: false

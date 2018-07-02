@@ -25,13 +25,16 @@
         <tr>
           <td><%= bootstrap_link_to asset.barcode, asset %></td>
           <td>
-            <%= render :partial => 'facts/facts', :locals => {:facts => asset.facts} %>
+            <%= render_react_display_and_facts_for_asset(asset) %>
           </td>
         </tr>
       <% end %>
     </tbody>
   </table>
 
+  <script type="application/javascript">
+    WebpackerReact.mountComponents()
+  </script>
 
   <% if @asset_group %>
     <%= bootstrap_link_to 'Print Labels GROUP '+@asset_group.id.to_s, print_asset_group_path(@asset_group) %>

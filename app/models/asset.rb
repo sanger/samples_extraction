@@ -41,7 +41,7 @@ class Asset < ActiveRecord::Base
   has_many :activity_type_compatibilities
   has_many :activity_types, :through => :activity_type_compatibilities
 
-  has_many :activities, :through => :steps
+  has_many :activities, -> { distinct }, :through => :steps
 
   scope :with_fact, ->(predicate, object) {
     joins(:facts).where(:facts => {:predicate => predicate, :object => object})
@@ -60,7 +60,7 @@ class Asset < ActiveRecord::Base
   }
 
   scope :for_activity_type, ->(activity_type) {
-    joins(:activities).joins(:facts).where(:activities => { :activity_type_id => activity_type.id}).order("activities.id")
+    joins(:activities).where(:activities => { :activity_type_id => activity_type.id})
   }
 
   scope :not_started, ->() {

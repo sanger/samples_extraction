@@ -48,29 +48,43 @@ module ApplicationHelper
     end
   end
 
+  def render_react_display_for_asset(asset)
+    data_rack_display = {}.tap {|o| o[asset.uuid]=data_rack_display(asset.facts) }
+    react_component('FactsSvg',  { asset: asset, facts: asset.facts, dataRackDisplay: data_rack_display })
+  end
+
+  def render_react_display_and_facts_for_asset(asset)
+    data_rack_display = {}.tap {|o| o[asset.uuid]=data_rack_display(asset.facts) }
+    react_component('Facts',  { asset: asset, facts: asset.facts, dataRackDisplay: data_rack_display })    
+  end
+
   def data_rack_display(facts)
     #return '' unless facts.first.class == Fact
-    f = facts.select{|f| f.predicate == 'aliquotType'}.first
+    f = facts.with_predicate('aliquotType').first
     if f
       return {:aliquot => {
-        :cssClass => [(f.object || UNKNOW_ALIQUOT_TYPE), facts.select{|f2| f2.predicate == 'is'}.map do |f_is|
+        :cssClass => [(f.object || UNKNOW_ALIQUOT_TYPE), facts.with_predicate('is').map do |f_is|
           [f_is.predicate, f_is.object].join('-')
         end].compact.join(' '),
         :url => ((f.class==Fact) ? asset_path(f.asset) : '')
         }}.to_json
     end
 
-    unless facts.select{|f| f.predicate == 'contains'}.empty?
-      return facts.select{|f| f.predicate == 'contains'}.map do |fact|
+    unless facts.with_predicate('contains').empty?
+      return facts.with_predicate('contains').map do |fact|
         [fact.object_asset, fact.object_asset.facts] if (fact.class == Fact) && (fact.object_asset)
       end.compact.reduce({}) do |memo, list|
         asset, facts = list[0],list[1]
-        f = facts.select{|f| f.predicate == 'location'}.first
+        f = facts.with_predicate('location').first
         unless f.nil?
           location = f.object
-          f2 = facts.select{|f| f.predicate == 'aliquotType'}.first
+          f2 = facts.with_predicate('aliquotType').first
           aliquotType = f2 ? f2.object : nil
-          memo[location] = {:title => "#{asset.short_description}", :cssClass => aliquotType || UNKNOW_ALIQUOT_TYPE, :url => asset_path(asset)} unless location.nil?
+          memo[location] = {
+            :title => "#{asset.short_description}", 
+            :cssClass => aliquotType || UNKNOW_ALIQUOT_TYPE, 
+            :url => asset_path(asset)
+          } unless location.nil?
         end
         memo
       end
@@ -78,7 +92,7 @@ module ApplicationHelper
 
     return {
       :aliquot => {
-        :cssClass => facts.select{|f| f.predicate == 'is'}.map do |f|
+        :cssClass => facts.with_predicate('is').map do |f|
           "#{f.predicate}-#{f.object}"
         end.join(' '),
         :url => ''

@@ -73,11 +73,11 @@ class FactsSvg extends React.Component {
     this.onLoadSvg()
   }
   onLoadSvg() {
-      var data = this.props.dataRackDisplay[this.props.asset.uuid];
-      for (var key in data) {
-        var node = $('.svg-'+this.props.asset.uuid+' .'+key);
-        node.addClass(data[key].cssClass);
-      }
+    var data = this.props.dataRackDisplay[this.props.asset.uuid];
+    for (var key in data) {
+      var node = $('.svg-'+this.props.asset.uuid+' .'+key);
+      node.addClass(data[key].cssClass);
+    }
   }
 
   render() {
@@ -90,7 +90,7 @@ class FactsSvg extends React.Component {
       )
     } else {
       return(
-        <div className='svg'style={{fontSize: 'xx-large', float: 'left', marginRight: '0.6em'}}>
+        <div className='svg' style={{fontSize: 'xx-large', float: 'left', marginRight: '0.6em'}}>
           <span className="glyphicon glyphicon-file" />
         </div>
         )      
