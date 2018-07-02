@@ -24,7 +24,7 @@ class Asset < ActiveRecord::Base
   has_and_belongs_to_many :asset_groups
   has_many :steps, :through => :asset_groups
 
-  has_many :activities, through: :asset_groups, source: :activity_owner
+  #has_many :activities, through: :asset_groups, source: :activity_owner
 
   before_save :generate_uuid
   #before_save :generate_barcode
@@ -41,10 +41,7 @@ class Asset < ActiveRecord::Base
   has_many :activity_type_compatibilities
   has_many :activity_types, :through => :activity_type_compatibilities
 
-#:class_name => 'Action', :foreign_key => 'subject_condition_group_id'
-  #has_many :activities_started, -> {joins(:steps)}, :class_name => 'Activity'
-  has_many :activities_started, -> { uniq }, :through => :steps, :source => :activity, :class_name => 'Activity'
-  has_many :activities, :through => :asset_groups
+  has_many :activities, :through => :steps
 
   scope :with_fact, ->(predicate, object) {
     joins(:facts).where(:facts => {:predicate => predicate, :object => object})
@@ -63,7 +60,7 @@ class Asset < ActiveRecord::Base
   }
 
   scope :for_activity_type, ->(activity_type) {
-    joins(:activities_started).joins(:facts).where(:activities => { :activity_type_id => activity_type.id}).order("activities.id")
+    joins(:activities).joins(:facts).where(:activities => { :activity_type_id => activity_type.id}).order("activities.id")
   }
 
   scope :not_started, ->() {
