@@ -1,9 +1,6 @@
 require 'date'
 
 class Activity < ActiveRecord::Base
-  include Lab::Actions
-  include Activities::Tasks
-  include Activities::BackgroundTasks
 
   validates :activity_type, :presence => true
   validates :asset_group, :presence => true
@@ -16,6 +13,7 @@ class Activity < ActiveRecord::Base
   has_many :uploads
   belongs_to :asset_group
   has_many :users, :through => :steps
+  has_one :work_order
 
   scope :for_assets, ->(assets) { joins(:asset_group => :assets).where(:asset_group => {
     :asset_groups_assets=> {:asset_id => assets }
@@ -28,66 +26,15 @@ class Activity < ActiveRecord::Base
 
   scope :for_user, ->(user) { joins(:steps).where({:steps => {:user_id => user.id}}).distinct }
 
+  include Lab::Actions
+  include Activities::Tasks
+  include Activities::BackgroundTasks
+  include Activities::JsonAttributes
+  include Activities::State
+  include Activities::WebsocketEvents
+
 
   class StepWithoutInputs < StandardError
-  end
-
-  scope :in_progress, ->() { where('completed_at is null')}
-  scope :finished, ->() { where('completed_at is not null')}
-
-  has_one :work_order
-
-  after_commit :wss_event
-
-  def running?
-    state == 'running'
-  end
-
-  def running!
-    update(state: 'running')
-  end
-
-  def editing!
-    update(state: 'editing')
-  end
-
-  def in_progress!
-    update(state: 'in_progress')
-  end
-
-  def editing?
-    state == 'editing'
-  end
-
-  def json_state
-    running_activity = running? || editing?
-    {
-      running: running? || editing?,
-      asset_groups: ApplicationController.helpers.asset_groups_data(self),
-      step_types: ApplicationController.helpers.step_types_control_data(self),
-      data_rack_display: ApplicationController.helpers.data_rack_display_for_asset_group(self.asset_group),
-      #steps: ApplicationController.helpers.steps_without_operations_data_for_steps(steps.running)
-      steps_running: ApplicationController.helpers.steps_data_for_steps(steps.active),
-      steps_finished: ApplicationController.helpers.steps_data_for_steps(self.steps.finished.reverse)
-    }
-  end
-
-  def running_inside_transaction?
-    ActiveRecord::Base.connection.open_transactions == 0
-  end
-
-  def send_wss_event
-    ActionCable.server.broadcast(stream_id, json_state) 
-  end
-
-  def stream_id
-    "activity_#{id}"
-  end
-
-  def wss_event
-    if ActivityChannel.subscribed_ids.include?(stream_id)
-      send_wss_event
-    end
   end
 
   def active_step
@@ -99,18 +46,6 @@ class Activity < ActiveRecord::Base
     users.last
   end
 
-  def finish
-    ActiveRecord::Base.transaction do
-      update_attributes(:completed_at => DateTime.now)
-      if work_order
-        work_order.complete
-      end
-    end
-  end
-
-  def finished?
-    !completed_at.nil?
-  end
 
   def previous_steps
     asset_group.assets.includes(:steps).map(&:steps).concat(steps).flatten.sort{|a,b| a.id <=> b.id}.uniq

@@ -17,7 +17,12 @@ module Steps::Job
     [exception.message, Rails.backtrace_cleaner.clean(exception.backtrace)].flatten.join("\n")
   end
 
+  def job
+    Delayed::Job.find(job_id)
+  end
+
   def perform_job
+    return if cancelled?
     assign_attributes(state: 'running', output: nil)
     @error = nil
     begin
@@ -26,7 +31,7 @@ module Steps::Job
       @error = e
     else
       @error=nil
-      update_attributes!(:state => 'complete')
+      update_attributes!(:state => 'complete', job_id: nil)
     end
   ensure
     # We publish to the clients that there has been a change in these assets
@@ -39,7 +44,7 @@ module Steps::Job
     # This update needs to happen AFTER publishing the changes to the clients (touch), altough
     # is not clear for me why at this moment. Need to revisit it.
     unless state == 'complete'
-      update_attributes!(:state => 'error', output: output_error(@error)) 
+      update_attributes!(:state => 'error', output: output_error(@error), job_id: job ? job.id : nil)
     end
   end
 

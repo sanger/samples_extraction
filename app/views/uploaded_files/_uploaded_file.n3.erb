@@ -6,10 +6,10 @@
   <% else %>
     <% asset_uuid = n3_url_resource_for(SecureRandom.uuid) %>
     <<%= asset_uuid %>> a :CSVLine .
-    <<%= asset_uuid %>> :position <%= pos %> .
+    <<%= asset_uuid %>> :position """<%= pos %>""" .
     <% headers.zip(line).each do |header, value| %>
-      <<%= asset_uuid %>> :<%= header %> """<%= value %>"""
+      <<%= asset_uuid %>> :<%= header %> """<%= value %>""" .
     <% end %>
-    <<%= n3_url_resource_for(uploaded_file.asset.uuid) %>> :contains <<%= asset_uuid %>>
+    <<%= n3_url_resource_for(uploaded_file.asset.uuid) %>> :contains <<%= asset_uuid %>> .
   <% end %>
 <% end %>

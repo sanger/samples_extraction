@@ -1,35 +1,7 @@
 <p id="notice"><%= notice %></p>
 
 <h1>Activity <%= @activity.id %></h1>
- <%= react_component('Activity',  {
-   activity: {
-     id: @activity.id,
-     completed_at: @activity.completed_at,
-     activity_type_name: @activity.activity_type.name,
-     instrument_name: @activity.instrument.name || @activity.instrument.barcode,
-     kit_name: @activity.kit.barcode,
-     selectedAssetGroup: @activity.owned_asset_groups.first.id
-   },
-  tubePrinter: {
-    optionsData: Printer.for_tube.map{|a| [a.name, a.id]},
-    defaultValue: @current_user && @current_user.tube_printer ? @current_user.tube_printer.id : nil
-  },
-  platePrinter: {
-    optionsData: Printer.for_plate.map{|a| [a.name, a.id]},
-    defaultValue: @current_user && @current_user.plate_printer ? @current_user.plate_printer.id : nil
-  },
-  activeStepTypes: {
-    updateUrl: activity_step_types_path(@activity),
-    stepTypesData: step_types_data,
-    stepTypesTemplatesData: step_type_templates_data
-  },
-  stepTypes: step_types_control_data(@activity),
-  assetGroups: asset_groups_data(@activity),
-  stepsFinished: steps_data_for_steps(@activity.steps.finished.reverse),
-  stepsRunning: steps_data_for_steps(@activity.steps.running),
-  activityRunning: @activity.running?,
-  dataRackDisplay: data_rack_display_for_asset_group(@activity.asset_group)
-   }) %>
+ <%= react_component('Activity',  @activity.initial_json_attributes(@current_user)) %>
 
   <% unless @activity.finished? %>
     <%= bootstrap_form_for @activity, action: 'update', :html => {:class => 'operator-allowed'} do |f| %>

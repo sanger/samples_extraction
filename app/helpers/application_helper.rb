@@ -50,12 +50,21 @@ module ApplicationHelper
 
   def render_react_display_for_asset(asset)
     data_rack_display = {}.tap {|o| o[asset.uuid]=data_rack_display(asset.facts) }
-    react_component('FactsSvg',  { asset: asset, facts: asset.facts, dataRackDisplay: data_rack_display })
+    react_component('FactsSvg',  { asset: asset, facts: facts_with_object_asset(asset.facts), dataRackDisplay: data_rack_display })
+  end
+
+  def facts_with_object_asset(facts)
+    facts.left_outer_joins(:object_asset).to_a.map {|f| f.attributes.merge({object_asset: object_with_facts(f.object_asset)})}
+  end
+
+  def object_with_facts(object)
+    return nil if object.nil?
+    object.attributes.merge(facts: object.facts)
   end
 
   def render_react_display_and_facts_for_asset(asset)
     data_rack_display = {}.tap {|o| o[asset.uuid]=data_rack_display(asset.facts) }
-    react_component('Facts',  { asset: asset, facts: asset.facts, dataRackDisplay: data_rack_display })    
+    react_component('Facts',  { asset: asset, facts: facts_with_object_asset(asset.facts), dataRackDisplay: data_rack_display })    
   end
 
   def data_rack_display(facts)

@@ -23,6 +23,7 @@
   <div class="field">
     <%= f.select :step_action, options_for_select(
       [
+        ['None', nil],
         ['Rack Layout Creating Tubes', 'rack_layout_creating_tubes'], 
         ['Rack Layout','rack_layout']
       ],step_type.step_action || ''), {}, disabled: readonly %>

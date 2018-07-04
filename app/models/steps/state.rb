@@ -5,7 +5,8 @@ module Steps::State
       scope :cancelled, ->() {where(:state => 'cancel')}
       scope :running, ->() { where(state: 'running').includes(:operations, :step_type)}
       scope :pending, ->() { where(state: nil)}
-      scope :active, ->() { where("state = 'running' OR state IS NULL").includes(:operations, :step_type)}
+      scope :failed, ->() { where(state: 'error')}
+      scope :active, ->() { where("state = 'running' OR state = 'error' OR state IS NULL") }
       scope :finished, ->() { where("state != 'running' AND state IS NOT NULL").includes(:operations, :step_type)}
       scope :in_activity, ->() { where.not(activity_id: nil)}
 

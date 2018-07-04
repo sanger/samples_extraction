@@ -9,7 +9,7 @@ module Steps::Cancellable
   end
 
   def modify_related_steps
-    if state == 'cancel' && state_was == 'complete'
+    if (state == 'cancel' && (state_was == 'complete' || state_was == 'error'))
       on_cancel
     elsif state == 'complete' && state_was =='cancel'
       on_remake

@@ -25,48 +25,16 @@ class Step < ActiveRecord::Base
   include Deprecatable  
   include Steps::Job
   include Steps::Cancellable
-  include Steps::WebsocketEvents
   include Steps::Deprecatable
+  include Steps::Retryable
   include Steps::State
+  include Steps::WebsocketEvents
   include Steps::ExecutionActions
   include Lab::Actions
 
   def asset_group_assets
     asset_group ? asset_group.assets : []
   end
-
-  def create_facts(triples)
-    facts = triples.map do |t|
-      params = {asset: t[0], predicate: t[1], literal: t[2].kind_of?(Asset)}
-      params[:literal] ? params[:object_asset] = t[2] : params[:object] = t[2]
-      Fact.create(params)
-    end
-
-    add_operations(facts)
-  end
-
-  def remove_facts(facts)
-    facts = [facts].flatten
-    ids_to_remove = facts.map(&:id).compact
-    
-    remove_operations(facts)
-    Fact.where(id: ids_to_remove).delete_all if ids_to_remove && !ids_to_remove.empty?
-  end  
-
-  def add_operations(facts)
-    facts.each do |fact|
-      Operation.create!(:action_type => 'addFacts', :step => self,
-        :asset=> fact.asset, :predicate => fact.predicate, :object => fact.object, object_asset: fact.object_asset)
-    end
-  end
-
-  def remove_operations(facts)
-    facts.each do |fact|
-      Operation.create!(:action_type => 'removeFacts', :step => self,
-        :asset=> fact.asset, :predicate => fact.predicate, :object => fact.object, object_asset: fact.object_asset)
-    end
-  end
-
 
 
 end

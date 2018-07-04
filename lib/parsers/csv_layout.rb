@@ -30,12 +30,11 @@ module Parsers
       location[0] + (location[1..location.length].to_i.to_s)
     end
 
-    def builder(barcode)
+    def builder(barcode, updater)
       if create_tubes?
         asset = Asset.find_by_barcode(barcode)
         unless asset
-          asset = Asset.create!(:barcode => barcode) 
-          step.add_facts(asset, [Fact.new(:predicate => 'a', :object => 'Tube')]);
+          updater.add(Asset.new(:barcode => barcode) , 'a', 'Tube')
         end
       else
         asset = Asset.find_by_barcode(barcode)
@@ -56,9 +55,10 @@ module Parsers
     end    
 
     def parse
+      updater = FactChanges.new
       @data ||= @csv_parser.to_a.map do |line|
         location, barcode = line[0].strip, line[1].strip
-        asset = valid_fluidx_barcode?(barcode) ? builder(barcode) : nil
+        asset = valid_fluidx_barcode?(barcode) ? builder(barcode, updater) : nil
         @errors.push(:msg => "Invalid Fluidx tube barcode format #{barcode}") unless valid_fluidx_barcode?(barcode) || no_read_barcode?(barcode)
         @errors.push(:msg => "Invalid location") unless valid_location?(location)
 
@@ -84,7 +84,8 @@ module Parsers
       end
 
       @parsed = true
-      valid?
+      
+      valid?.tap {|val| updater.apply(@step) if val }
     end
 
     def valid?

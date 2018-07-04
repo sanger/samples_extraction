@@ -5,7 +5,6 @@ import PrintersSelectionHidden from "../activity_components/printers_selection_h
 class StepTypeTemplateButton extends React.Component {
 	render() {
 		const stepTypeTemplateData = this.props.stepTypeTemplateData
-
 		return(
 	    <li>
 	      <a href={ '#' + stepTypeTemplateData.id+'-'+this.props.instanceId }

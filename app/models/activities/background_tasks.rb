@@ -7,9 +7,10 @@ module Activities
         @step_type = step_type
       end
 
-      def create(params)
-        BackgroundSteps::Inference.create(params.merge(step_type: @step_type))
+      def create!(params)
+        BackgroundSteps::Inference.create!(params.merge(step_type: @step_type))
       end
+
     end
 
     def background_tasks

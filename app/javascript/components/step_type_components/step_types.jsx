@@ -6,7 +6,7 @@ import StepTypeTemplatesControls from "./step_type_templates_controls"
 
 class StepTypes extends React.Component {
 	render() {
-	  if (this.props.stepTypesData.length == 0) {
+	  if ((this.props.stepTypesData.length + this.props.stepTypesTemplatesData.length) == 0) {
 	  	return(
 		    <div className="empty-description">
 		      <span>No actions can be performed with the selected group of assets for this activity type.</span>

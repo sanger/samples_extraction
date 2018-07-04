@@ -48,6 +48,7 @@ module Steps::ExecutionActions
 
   def execute_step_action
     send(step_type.step_action)
+    return self
   end
 
   def process

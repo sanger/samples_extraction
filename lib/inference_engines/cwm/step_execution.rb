@@ -31,7 +31,6 @@ module InferenceEngines
 
       def generate_plan
         output_tempfile = Tempfile.new('out_datainfer')
-
         call_list = [
           cmd = "#{Rails.configuration.cwm_path}/cwm",
           input_urls = [

@@ -164,6 +164,8 @@ module ActivitiesHelper
     end
   end
 
-
+  def messages_for_activity(activity)
+    activity.steps.failed.map{|s| {type: 'danger', msg: s.output.to_s.html_safe} }
+  end
 
 end

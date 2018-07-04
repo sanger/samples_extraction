@@ -7,6 +7,7 @@ import PrintersSelection from "./activity_components/printers_selection"
 import AssetGroupsEditor from "./asset_group_components/asset_groups_editor"
 import StepsFinished from "./step_components/steps_finished"
 import StepsRunning from "./step_components/steps_running"
+import StepsFailed from "./step_components/steps_failed"
 import StepTypesControl from "./step_type_components/step_types_control"
 
 
@@ -16,16 +17,18 @@ class Activity extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = {
+      messages: props.messages,
 			selectedTubePrinter: props.tubePrinter.defaultValue,
 			selectedPlatePrinter: props.platePrinter.defaultValue,
 			selectedAssetGroup: props.activity.selectedAssetGroup,
 			stepTypes: props.stepTypes,
 			assetGroups: props.assetGroups,
 			stepsRunning: props.stepsRunning,
+      stepsPending: props.stepsPending,
 			stepsFinished: props.stepsFinished,	
+      stepsFailed: props.stepsFailed, 
 			activityRunning: props.activityRunning,
-      dataRackDisplay: props.dataRackDisplay,
-			messages: []
+      dataRackDisplay: props.dataRackDisplay
 		}
 		this.onSelectAssetGroup = this.onSelectAssetGroup.bind(this)
 		this.onChangeAssetGroup = this.onChangeAssetGroup.bind(this)
@@ -35,6 +38,9 @@ class Activity extends React.Component {
 		this.onRemoveAllAssetsFromAssetGroup = this.onRemoveAllAssetsFromAssetGroup.bind(this)
 		this.onExecuteStep = this.onExecuteStep.bind(this)
 		this.onCancelStep = this.onCancelStep.bind(this)
+    this.changeStatusStep = this.changeStatusStep.bind(this)
+    this.onStopStep = this.onStopStep.bind(this)
+    this.onRetryStep = this.onRetryStep.bind(this)
 
 		this.renderStepTypesControl = this.renderStepTypesControl.bind(this)
 	}
@@ -51,12 +57,15 @@ class Activity extends React.Component {
   }
 	onWebSocketsMessage(msg) {
 		this.setState({
-			activityRunning: msg.running,
-      dataRackDisplay: msg.data_rack_display,
-			assetGroups: msg.asset_groups,
-			stepTypes: msg.step_types,
-			stepsRunning: msg.steps_running || [],
-			stepsFinished: msg.steps_finished || this.state.stepsFinished || []
+      messages: msg.messages,
+			activityRunning: msg.activityRunning,
+      dataRackDisplay: msg.dataRackDisplay,
+			assetGroups: msg.assetGroups,
+			stepTypes: msg.stepTypes,
+			stepsRunning: msg.stepsRunning || [],
+      stepsFailed: msg.stepsFailed || [],
+      stepsPending: msg.stepsPending || [],
+			stepsFinished: msg.stepsFinished || this.state.stepsFinished || []
 		})
 	}
 	onRemoveErrorMessage(msg, pos) {
@@ -108,24 +117,43 @@ class Activity extends React.Component {
 		})
 	}
   onCancelStep(step) {
-    if (this.state.activityRunning === true) {
-      // Do not perform more actions if the control is disabled
-      return;
-    }
     return (e) => {
+      if (this.state.activityRunning === true) {
+        return;
+      }
       const state = e.target.checked ? 'complete' : 'cancel'
       this.setState({activityRunning: true})
-      $.ajax({
-        method: 'PUT',
-        dataType: 'json',
-        contentType: 'application/json; charset=utf-8',
-        url: step.stepUpdateUrl,
-        data: JSON.stringify({step: {state}}),
-        complete: $.proxy(() => { this.setState({activityRunning: false}) }, this)
-      })
+      this.changeStatusStep(step, state).then($.proxy(() => { this.setState({activityRunning: false}) }, this))
     }
   }
 
+  changeStatusStep(step, state) {
+    $.ajax({
+      method: 'PUT',
+      dataType: 'json',
+      contentType: 'application/json; charset=utf-8',
+      url: step.stepUpdateUrl,
+      data: JSON.stringify({step: {state}})
+    })
+  }
+
+  onStopStep(step) {
+    return (e) => {
+      if (!this.state.activityRunning) {
+        return;
+      }
+      this.changeStatusStep(step, 'cancel')
+    }
+  }
+
+  onRetryStep(step) {
+    return (e) => {
+      if (!this.state.activityRunning) {
+        return;
+      }
+      this.changeStatusStep(step, 'retry')
+    }
+  }
 
 	onChangeTubePrinter() {
 		this.setState({selectedTubePrinter: e.target.value})
@@ -137,19 +165,27 @@ class Activity extends React.Component {
 		this.setState({activityRunning: true})
 	}
 	renderStepTypesControl(instanceId) {
-		if ((this.state.stepsRunning.length > 0) && (instanceId == '2')) {
-			return(<StepsRunning steps={this.state.stepsRunning} />)
-		} else {
-			return(
-				<StepTypesControl stepTypes={this.state.stepTypes}
-					instanceId={instanceId}
-					onExecuteStep={this.onExecuteStep}
-					activityRunning={this.state.activityRunning}
-					selectedAssetGroup={this.state.selectedAssetGroup}
-					selectedTubePrinter={this.state.selectedTubePrinter}
-					selectedPlatePrinter={this.state.selectedPlatePrinter}
-					/>
-			)			
+    const steps = [].concat(this.state.stepsRunning).concat(this.state.stepsPending)
+    if (this.state.stepsFailed.length > 0) {
+      return(<StepsFailed 
+                onStopStep={this.onStopStep} 
+                onRetryStep={this.onRetryStep} 
+                steps={this.state.stepsFailed} />)
+    } else {
+      if (this.state.stepsRunning.length > 0) {
+        return(<StepsRunning steps={this.state.stepsRunning} />)
+      } else {
+  			return(
+  				<StepTypesControl stepTypes={this.state.stepTypes}
+  					instanceId={instanceId}
+  					onExecuteStep={this.onExecuteStep}
+  					activityRunning={this.state.activityRunning}
+  					selectedAssetGroup={this.state.selectedAssetGroup}
+  					selectedTubePrinter={this.state.selectedTubePrinter}
+  					selectedPlatePrinter={this.state.selectedPlatePrinter}
+  				/>
+  			)
+      }
 		}
 	}
   render () {

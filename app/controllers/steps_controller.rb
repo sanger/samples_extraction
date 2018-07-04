@@ -14,18 +14,17 @@ class StepsController < ApplicationController
   end
 
   def create
-    @activity.running!
+    #@activity.running!
     @activity.do_task(@step_type, @current_user, params_step, @printer_config, @asset_group)
-    #@activity.do_task(@step_type, @current_user, params_step, @printer_config, @asset_group)
-    @activity.running!
+    #@activity.running!
 
     head :ok
   end
 
   def update
-    @step.activity.editing!
+    @step.activity.editing! if @step.activity
     @step.update({state: params_step[:state]})
-    @step.activity.in_progress!
+    @step.activity.in_progress! if @step.activity
 
     head :ok
   end

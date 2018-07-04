@@ -19,6 +19,7 @@ class StepTypeTemplatesControls extends React.Component {
 		)
 	}
 	render() {
+
 	  return(
 			<div className="step-template-view pull-left">
 			  <div className="tab-content">

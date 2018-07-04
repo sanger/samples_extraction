@@ -8,9 +8,9 @@ module BackgroundSteps
       update_attributes!({
         :state => 'running',
         :step_type => step_type,
-        :asset_group => asset_group_for_execution
+        :asset_group => asset_group_for_execution,
       })
-      delay.perform_job
+      update_attributes!(job_id: delay.perform_job.id)
     end
 
 

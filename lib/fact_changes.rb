@@ -22,8 +22,41 @@ class FactChanges
 
   def apply(step)
     ActiveRecord::Base.transaction do |t|
-      step.remove_facts(facts_to_destroy.flatten)
-      step.create_facts(facts_to_add)
+      remove_facts(step, facts_to_destroy.flatten)
+      create_facts(step, facts_to_add)
     end
   end
+
+  private
+
+  def create_facts(step, triples)
+    facts = triples.map do |t|
+      params = {asset: t[0], predicate: t[1], literal: !(t[2].kind_of?(Asset))}
+      params[:literal] ? params[:object] = t[2] : params[:object_asset] = t[2]
+      Fact.create(params)
+    end
+    add_operations(step, facts)
+  end
+
+  def remove_facts(step, facts)
+    facts = [facts].flatten
+    ids_to_remove = facts.map(&:id).compact
+    remove_operations(step, facts)
+    Fact.where(id: ids_to_remove).delete_all if ids_to_remove && !ids_to_remove.empty?
+  end  
+
+  def add_operations(step, facts)
+    facts.each do |fact|
+      Operation.create!(:action_type => 'addFacts', :step => step,
+        :asset=> fact.asset, :predicate => fact.predicate, :object => fact.object, object_asset: fact.object_asset)
+    end
+  end
+
+  def remove_operations(step, facts)
+    facts.each do |fact|
+      Operation.create!(:action_type => 'removeFacts', :step => step,
+        :asset=> fact.asset, :predicate => fact.predicate, :object => fact.object, object_asset: fact.object_asset)
+    end
+  end
+
 end
