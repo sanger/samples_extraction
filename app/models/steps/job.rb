@@ -18,7 +18,7 @@ module Steps::Job
   end
 
   def job
-    Delayed::Job.find(job_id)
+    job_id ? Delayed::Job.find(job_id) : nil
   end
 
   def perform_job

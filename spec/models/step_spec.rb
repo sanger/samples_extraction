@@ -10,6 +10,11 @@ end
 
 RSpec.describe Step, type: :model do
 
+  let(:activity) { create :activity }
+  before do
+    Delayed::Worker.delay_jobs = false    
+  end
+
   def build_instance
     create_step
   end
@@ -18,10 +23,13 @@ RSpec.describe Step, type: :model do
   Struct.new('FakeFact', :predicate, :object)
 
   def create_step
-    FactoryBot.create(:step, {
-      :step_type =>@step_type,
-      :asset_group => @asset_group
+    step = FactoryBot.create(:step, {
+      activity: activity,
+      step_type: @step_type,
+      asset_group: @asset_group
     })
+    step.execute_actions
+    step
   end
 
 
@@ -301,7 +309,7 @@ RSpec.describe Step, type: :model do
         @step_type.actions << action
         expect{
           @step = create_step
-          }.to raise_exception Step::UnknownConditionGroup
+          }.to raise_exception Steps::ExecutionErrors::UnknownConditionGroup
         expect(Operation.all.count).to eq(0)
       end
 

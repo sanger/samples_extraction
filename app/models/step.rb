@@ -32,9 +32,5 @@ class Step < ActiveRecord::Base
   include Steps::ExecutionActions
   include Lab::Actions
 
-  def asset_group_assets
-    asset_group ? asset_group.assets : []
-  end
-
 
 end

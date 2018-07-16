@@ -135,6 +135,7 @@ class Asset < ActiveRecord::Base
 
   def add_facts(list, position=nil, &block)
     facts << list
+    list.each { |fact| yield fact if block_given? }
   end
 
   def add_facts2(list, position=nil, &block)
@@ -167,6 +168,7 @@ class Asset < ActiveRecord::Base
   def remove_facts(list)
     list = [list].flatten
     ids_to_remove = list.map(&:id).compact
+    list.each { |fact| yield fact if block_given? }
     Fact.where(id: ids_to_remove).delete_all if ids_to_remove && !ids_to_remove.empty?
   end
 

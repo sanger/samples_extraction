@@ -51,6 +51,10 @@ module Steps::ExecutionActions
     return self
   end
 
+  def asset_group_assets
+    asset_group ? asset_group.assets : []
+  end
+
   def process
     if activity
       activity.touch 
@@ -58,14 +62,9 @@ module Steps::ExecutionActions
     end
     return execute_step_action if step_type.step_action
 
-    original_assets = AssetGroup.create!
-    if ((activity) && (activity.asset_group.assets.count >= 0))
-      original_assets.add_assets(activity.asset_group.assets)
-    else
-      original_assets.add_assets(asset_group_assets)
-    end
+    running_asset_group = AssetGroup.create!(assets: asset_group_assets)
 
-    step_execution = build_step_execution(:facts_to_destroy => [], :original_assets => original_assets.assets)
+    step_execution = build_step_execution(:facts_to_destroy => [], :original_assets => running_asset_group.assets)
 
     ActiveRecord::Base.transaction do |t|
 
@@ -79,7 +78,7 @@ module Steps::ExecutionActions
 
       unselect_assets_from_consequents
     end
-    update_attributes(:asset_group => original_assets) if activity
+    update_attributes(:asset_group => running_asset_group) if activity
     update_attributes(:state => 'running')
   end
 
