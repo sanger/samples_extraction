@@ -18,7 +18,7 @@ RSpec.describe Step, type: :model do
   Struct.new('FakeFact', :predicate, :object)
 
   def create_step
-    FactoryGirl.create(:step, {
+    FactoryBot.create(:step, {
       :step_type =>@step_type,
       :asset_group => @asset_group
     })
@@ -27,26 +27,26 @@ RSpec.describe Step, type: :model do
 
   describe '#execute_actions' do
     setup do
-      @step_type = FactoryGirl.create :step_type
+      @step_type = FactoryBot.create :step_type
 
-      @cg1 = FactoryGirl.create(:condition_group,{:name => 'p'})
-      @cg1.conditions << FactoryGirl.create(:condition,{
+      @cg1 = FactoryBot.create(:condition_group,{:name => 'p'})
+      @cg1.conditions << FactoryBot.create(:condition,{
         :predicate => 'is', :object => 'Tube'})
-      @cg2 = FactoryGirl.create(:condition_group,{:name => 'q'})
-      @cg2.conditions << FactoryGirl.create(:condition,{
+      @cg2 = FactoryBot.create(:condition_group,{:name => 'q'})
+      @cg2.conditions << FactoryBot.create(:condition,{
         :predicate => 'is', :object => 'Rack'})
       @step_type.condition_groups << @cg1
       @step_type.condition_groups << @cg2
-      @tubes = 7.times.map{|i| FactoryGirl.create(:asset, {:facts =>[
-        FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube'),
-        FactoryGirl.create(:fact, :predicate => 'is', :object => 'Full')
+      @tubes = 7.times.map{|i| FactoryBot.create(:asset, {:facts =>[
+        FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
+        FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
         ]})}
-      @racks = 5.times.map{|i| FactoryGirl.create(:asset, {:facts =>[
-        FactoryGirl.create(:fact, :predicate => 'is', :object => 'Rack'),
-        FactoryGirl.create(:fact, :predicate => 'is', :object => 'Full')
+      @racks = 5.times.map{|i| FactoryBot.create(:asset, {:facts =>[
+        FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
+        FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
         ]})}
       @assets = [@tubes, @racks].flatten
-      @asset_group = FactoryGirl.create(:asset_group, {:assets => @assets})
+      @asset_group = FactoryBot.create(:asset_group, {:assets => @assets})
     end
 
     describe 'when creating a new step' do
@@ -60,15 +60,15 @@ RSpec.describe Step, type: :model do
 
     describe 'with related assets in conditions' do
       setup do
-        @cg2.conditions << FactoryGirl.create(:condition, {
+        @cg2.conditions << FactoryBot.create(:condition, {
           :predicate => 'contains', :object_condition_group_id => @cg1.id})
 
-        @action = FactoryGirl.create(:action, {:action_type => 'addFacts',
+        @action = FactoryBot.create(:action, {:action_type => 'addFacts',
           :predicate => 'is', :object => 'TubeRack', :subject_condition_group => @cg2})
         @step_type.actions << @action
 
         @racks.each_with_index do |r, i|
-          r.facts << FactoryGirl.create(:fact, :predicate => 'contains', :object_asset_id => @tubes[i].id)
+          r.facts << FactoryBot.create(:fact, :predicate => 'contains', :object_asset_id => @tubes[i].id)
         end
       end
 
@@ -86,8 +86,8 @@ RSpec.describe Step, type: :model do
 
       describe 'with wildcards' do
         setup do
-          @wildcard = FactoryGirl.create :condition_group
-          condition = FactoryGirl.create :condition, {:predicate => 'position',
+          @wildcard = FactoryBot.create :condition_group
+          condition = FactoryBot.create :condition, {:predicate => 'position',
             :object_condition_group => @wildcard}
           @cg2.conditions << condition
         end
@@ -113,7 +113,7 @@ RSpec.describe Step, type: :model do
         describe 'when the wildcard conditions are met' do
           setup do
             @racks.each_with_index do |rack, idx|
-              rack.facts << FactoryGirl.create(:fact, {
+              rack.facts << FactoryBot.create(:fact, {
                 :predicate => 'position',
                 :object => idx.to_s
               })
@@ -136,7 +136,7 @@ RSpec.describe Step, type: :model do
           it 'uses the value of the condition group evaluated for the same cg' do
             previous_num = @asset_group.assets.count
 
-            @action = FactoryGirl.create(:action, {:action_type => 'addFacts',
+            @action = FactoryBot.create(:action, {:action_type => 'addFacts',
               :predicate => 'value', :object_condition_group => @wildcard,
               :subject_condition_group => @cg2
             })
@@ -157,25 +157,25 @@ RSpec.describe Step, type: :model do
             
 
             previous_num = @asset_group.assets.count
-            @cg1.conditions << FactoryGirl.create(:condition, {:predicate => 'location',
+            @cg1.conditions << FactoryBot.create(:condition, {:predicate => 'location',
             :object_condition_group => @wildcard})
-            @cg2.conditions << FactoryGirl.create(:condition, {:predicate => 'location',
+            @cg2.conditions << FactoryBot.create(:condition, {:predicate => 'location',
             :object_condition_group => @wildcard})
-            @action = FactoryGirl.create(:action, {:action_type => 'addFacts',
+            @action = FactoryBot.create(:action, {:action_type => 'addFacts',
               :predicate => 'relates', :object_condition_group => @cg1,
               :subject_condition_group => @cg2
             })
             @step_type.actions << @action
 
             @tubes.each_with_index do |tube, idx|
-              tube.facts << FactoryGirl.create(:fact, {
+              tube.facts << FactoryBot.create(:fact, {
                 :predicate => 'location',
                 :object => idx.to_s
               })
             end
 
             @racks.each_with_index do |rack, idx|
-              rack.facts << FactoryGirl.create(:fact, {
+              rack.facts << FactoryBot.create(:fact, {
                 :predicate => 'location',
                 :object => idx.to_s
               })
@@ -205,16 +205,16 @@ RSpec.describe Step, type: :model do
 
     describe 'with createAsset action type' do
       setup do
-        @cg3 = FactoryGirl.create(:condition_group, {:name => 'r'})
-        @cg3.conditions << FactoryGirl.create(:condition, {
+        @cg3 = FactoryBot.create(:condition_group, {:name => 'r'})
+        @cg3.conditions << FactoryBot.create(:condition, {
           :predicate => 'is', :object => 'NewTube'
         })
-        @action = FactoryGirl.create(:action, {:action_type => 'createAsset',
+        @action = FactoryBot.create(:action, {:action_type => 'createAsset',
           :predicate => 'is', :object => 'NewTube', :subject_condition_group => @cg3})
         if cwm_engine?
-          @action2 = FactoryGirl.create(:action, {:action_type => 'createAsset',
+          @action2 = FactoryBot.create(:action, {:action_type => 'createAsset',
             :predicate => 'createdBy', :object_condition_group => @cg1, :subject_condition_group => @cg3})
-          @action3 = FactoryGirl.create(:action, {:action_type => 'createAsset',
+          @action3 = FactoryBot.create(:action, {:action_type => 'createAsset',
             :predicate => 'createdBy', :object_condition_group => @cg2, :subject_condition_group => @cg3})
 
           @step_type.actions << [@action, @action2, @action3]
@@ -273,7 +273,7 @@ RSpec.describe Step, type: :model do
 
       it 'adds facts to all the assets created' do
         previous_num = @asset_group.assets.count
-        action = FactoryGirl.create(:action, { :action_type => 'createAsset',
+        action = FactoryBot.create(:action, { :action_type => 'createAsset',
           :predicate => 'has', :object => "MoreData", :subject_condition_group => @cg3})
         @step_type.actions << action
 
@@ -296,7 +296,7 @@ RSpec.describe Step, type: :model do
 
       it 'throws exception in any attempt to modify the facts of the created asset' do
         previous_num = @asset_group.assets.count
-        action = FactoryGirl.create(:action, {:action_type => 'addFacts',
+        action = FactoryBot.create(:action, {:action_type => 'addFacts',
           :predicate => 'has', :object => 'MoreData', :subject_condition_group => @cg3})
         @step_type.actions << action
         expect{
@@ -308,9 +308,9 @@ RSpec.describe Step, type: :model do
       describe 'with overlapping assets' do
         setup do
           @tubes_and_racks = 7.times.map do
-            FactoryGirl.create(:asset, { :facts => [
-              FactoryGirl.create(:fact, :predicate => 'is', :object => 'Rack'),
-              FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube')
+            FactoryBot.create(:asset, { :facts => [
+              FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
+              FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube')
               ]})
           end
           @asset_group.assets << @tubes_and_racks
@@ -346,7 +346,7 @@ RSpec.describe Step, type: :model do
 
     describe 'with unselectAsset action type' do
       setup do
-        @action = FactoryGirl.create(:action, {:action_type => 'addFacts',
+        @action = FactoryBot.create(:action, {:action_type => 'addFacts',
           :predicate => 'is', :object => 'Empty', :subject_condition_group => @cg1})
         @step_type.actions << @action
       end
@@ -366,9 +366,9 @@ RSpec.describe Step, type: :model do
       describe 'with overlapping assets' do
         setup do
           @tubes_and_racks = 7.times.map do
-            FactoryGirl.create(:asset, { :facts => [
-              FactoryGirl.create(:fact, :predicate => 'is', :object => 'Rack'),
-              FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube')
+            FactoryBot.create(:asset, { :facts => [
+              FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
+              FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube')
               ]})
           end
           @asset_group.assets << @tubes_and_racks
@@ -393,7 +393,7 @@ RSpec.describe Step, type: :model do
     describe 'with addFacts action_type' do
       describe 'with one action' do
         setup do
-          @action = FactoryGirl.create(:action, {:action_type => 'addFacts',
+          @action = FactoryBot.create(:action, {:action_type => 'addFacts',
             :predicate => 'is', :object => 'Empty', :subject_condition_group => @cg1})
           @step_type.actions << @action
         end
@@ -490,9 +490,9 @@ RSpec.describe Step, type: :model do
           describe 'with overlapping assets' do
             setup do
               @tubes_and_racks = 7.times.map do
-                FactoryGirl.create(:asset, { :facts => [
-                  FactoryGirl.create(:fact, :predicate => 'is', :object => 'Rack'),
-                  FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube')
+                FactoryBot.create(:asset, { :facts => [
+                  FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
+                  FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube')
                   ]})
               end
               @asset_group.assets << @tubes_and_racks
@@ -523,9 +523,9 @@ RSpec.describe Step, type: :model do
 
       describe 'with several actions' do
         setup do
-          @action = FactoryGirl.create(:action, {:action_type => 'addFacts',
+          @action = FactoryBot.create(:action, {:action_type => 'addFacts',
             :predicate => 'is', :object => 'Empty'})
-          @action2 = FactoryGirl.create(:action, {:action_type => 'addFacts',
+          @action2 = FactoryBot.create(:action, {:action_type => 'addFacts',
             :predicate => 'is', :object => 'Red'})
 
           @step_type.actions << @action
@@ -583,7 +583,7 @@ RSpec.describe Step, type: :model do
     describe 'with removeFacts action_type' do
       describe 'with one action' do
         setup do
-          @action = FactoryGirl.create(:action, {:action_type => 'removeFacts',
+          @action = FactoryBot.create(:action, {:action_type => 'removeFacts',
             :predicate => 'is', :object => 'Tube', :subject_condition_group => @cg1})
           @step_type.actions << @action
         end
@@ -608,14 +608,14 @@ RSpec.describe Step, type: :model do
       describe 'relating different condition groups' do
         setup do
           # Something like removeFact(?tube :relatesTo ?rack)
-          @action = FactoryGirl.create(:action, {:action_type => 'removeFacts',
+          @action = FactoryBot.create(:action, {:action_type => 'removeFacts',
             :predicate => 'relatesTo', :subject_condition_group => @cg1,
             :object_condition_group => @cg2})
           @step_type.actions << @action
         end
 
         it 'removes the link between both assets' do
-          @tubes.first.facts << FactoryGirl.create(:fact, {
+          @tubes.first.facts << FactoryBot.create(:fact, {
             :predicate => 'relatesTo', :object => @racks.first.relation_id,
             :object_asset => @racks.first,
             :literal => false})
@@ -634,7 +634,7 @@ RSpec.describe Step, type: :model do
           it 'removes the link between all assets', :last => true do
             @tubes.each do |tube|
               @racks.each do |rack|
-                tube.facts << FactoryGirl.create(:fact, {
+                tube.facts << FactoryBot.create(:fact, {
                   :predicate => 'relatesTo', :object => rack.relation_id,
                   :object_asset => rack,
                   :literal => false})
@@ -661,14 +661,14 @@ RSpec.describe Step, type: :model do
 
           it 'removes the link just between the matched assets', :last => true do
             @tubes.each do |tube|
-              tube.facts << FactoryGirl.create(:fact, {
+              tube.facts << FactoryBot.create(:fact, {
                :predicate => 'relatesTo', :object => @tubes.first.relation_id,
                :object_asset => @racks.first,
                :literal => false})
             end
 
             @racks.each do |rack|
-              rack.facts << FactoryGirl.create(:fact, {
+              rack.facts << FactoryBot.create(:fact, {
                :predicate => 'relatesTo', :object => @racks.first.relation_id,
                :object_asset => @racks.first,
                :literal => false})
@@ -705,9 +705,9 @@ RSpec.describe Step, type: :model do
       end
       describe 'with several actions' do
         setup do
-          @action = FactoryGirl.create(:action, {:action_type => 'removeFacts',
+          @action = FactoryBot.create(:action, {:action_type => 'removeFacts',
             :predicate => 'is', :object => 'Tube'})
-          @action2 = FactoryGirl.create(:action, {:action_type => 'removeFacts',
+          @action2 = FactoryBot.create(:action, {:action_type => 'removeFacts',
             :predicate => 'is', :object => 'Full'})
 
           @step_type.actions << @action

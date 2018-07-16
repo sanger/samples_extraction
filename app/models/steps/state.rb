@@ -10,8 +10,8 @@ module Steps::State
       scope :finished, ->() { where("state != 'running' AND state IS NOT NULL").includes(:operations, :step_type)}
       scope :in_activity, ->() { where.not(activity_id: nil)}
 
-      before_save :set_start_timestamp!, :if => [:running?, :state_changed?]
-      before_save :set_complete_timestamp!, :if => [:completed?, :state_changed?]
+      before_save :set_start_timestamp!, :if => [:running?, :saved_change_to_state?]
+      before_save :set_complete_timestamp!, :if => [:completed?, :saved_change_to_state?]
     end
   end
 

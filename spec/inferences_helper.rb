@@ -39,14 +39,14 @@ module InferencesHelper
   end
 
   def build_step(rule, input_facts, options = {})
-    step_type = FactoryGirl.create(:step_type, :n3_definition => rule)
+    step_type = FactoryBot.create(:step_type, :n3_definition => rule)
 
     input_assets = SupportN3::parse_facts(input_facts, {}, false)
     reload_assets(input_assets)
     fail if input_assets.nil?
-    asset_group = FactoryGirl.create(:asset_group, {:assets => input_assets})
+    asset_group = FactoryBot.create(:asset_group, {:assets => input_assets})
 
-    FactoryGirl.create(:step, {
+    FactoryBot.create(:step, {
       :step_type => step_type,
       :asset_group => asset_group
     }.merge(options))

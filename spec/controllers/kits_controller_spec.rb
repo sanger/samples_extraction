@@ -2,8 +2,8 @@ require 'rails_helper'
 
 RSpec.describe KitsController, type: :controller do
   setup do
-    @kit_type = FactoryGirl.create :kit_type
-    @kit = FactoryGirl.create :kit, { :kit_type => @kit_type }
+    @kit_type = FactoryBot.create :kit_type
+    @kit = FactoryBot.create :kit, { :kit_type => @kit_type }
   end
 
   it "should get index" do

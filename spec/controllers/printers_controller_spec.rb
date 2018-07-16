@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe PrintersController, type: :controller do
   setup do
-    @printer = FactoryGirl.create :printer, {:name => 'one'}
+    @printer = FactoryBot.create :printer, {:name => 'one'}
   end
 
   it "should get index" do

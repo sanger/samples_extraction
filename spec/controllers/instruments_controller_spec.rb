@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe InstrumentsController, type: :controller do
   setup do
-    @instrument = FactoryGirl.create :instrument
+    @instrument = FactoryBot.create :instrument
   end
 
   it "should get index" do

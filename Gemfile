@@ -84,14 +84,14 @@ gem 'pmb-client', '0.1.0', :github => 'sanger/pmb-client'
 group :development, :test, :selenium do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
-  gem 'factory_girl_rails'
+  gem 'factory_bot_rails'
   gem 'pry'
   gem 'ruby-growl'
 end
 
 group :test, :selenium do
   gem 'shoulda'
-  gem 'factory_girl'
+  gem 'factory_bot'
   gem 'rspec-rails'
   gem 'shoulda-matchers'
   gem 'rails-controller-testing'

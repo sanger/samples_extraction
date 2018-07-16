@@ -2,8 +2,8 @@ require 'rails_helper'
 
 RSpec.describe KitTypesController, type: :controller do
   setup do
-    @activity_type = FactoryGirl.create :activity_type, {:name => 'Testing activity type'}
-    @kit_type = FactoryGirl.create :kit_type, {:name => 'My Kit Type', :activity_type => @activity_type}
+    @activity_type = FactoryBot.create :activity_type, {:name => 'Testing activity type'}
+    @kit_type = FactoryBot.create :kit_type, {:name => 'My Kit Type', :activity_type => @activity_type}
   end
 
   it "should get index" do

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe StepTypesController, type: :controller do
   setup do
-    @step_type = FactoryGirl.create :step_type
+    @step_type = FactoryBot.create :step_type
   end
 
   it "should get index" do

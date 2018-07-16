@@ -38,7 +38,7 @@ RSpec.describe SupportN3 do
 
   it "does not create multiple activitytypes" do
     testing_name = 'testing_name'
-    @activity_type = FactoryGirl.create :activity_type, {:name => testing_name}
+    @activity_type = FactoryBot.create :activity_type, {:name => testing_name}
     @activity_type.reload
     expect(@activity_type.deprecated?).to eq(false)
     SupportN3.parse_string(%Q{
@@ -54,7 +54,7 @@ RSpec.describe SupportN3 do
 
   it "deprecates old activity_types" do
     testing_name = 'testing_name'
-    @activity_type = FactoryGirl.create :activity_type, {:name => testing_name}
+    @activity_type = FactoryBot.create :activity_type, {:name => testing_name}
     @activity_type.reload
     expect(@activity_type.deprecated?).to eq(false)
     SupportN3.parse_string(":activity :activityTypeName \"\"\"#{testing_name}\"\"\" .")
@@ -65,7 +65,7 @@ RSpec.describe SupportN3 do
 
   it "deprecates old step_types" do
     testing_name = 'testing_name'
-    @step_type = FactoryGirl.create :step_type, {:name => testing_name}
+    @step_type = FactoryBot.create :step_type, {:name => testing_name}
     @step_type.reload
     expect(@step_type.deprecated?).to eq(false)
     SupportN3.parse_string("{} => {:step :stepTypeName \"\"\"#{testing_name}\"\"\" .}.")
@@ -76,7 +76,7 @@ RSpec.describe SupportN3 do
 
   describe "parses individual rules generating the right content" do
     setup do
-      @step_type = FactoryGirl.create :step_type
+      @step_type = FactoryBot.create :step_type
     end
 
     describe "with rules that remove facts" do

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe ActivityTypesController, type: :controller do
   setup do
-    @activity_type = FactoryGirl.create :activity_type
+    @activity_type = FactoryBot.create :activity_type
   end
 
   it "should get index" do

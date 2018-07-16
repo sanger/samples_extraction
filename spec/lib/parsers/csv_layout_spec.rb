@@ -8,7 +8,7 @@ RSpec.describe Parsers::CsvLayout do
     setup do
       @content = File.open('test/data/layout.csv')
       @assets = 96.times.map do |i|
-        FactoryGirl.create(:asset, {
+        FactoryBot.create(:asset, {
           :barcode => 'FR'+(11200002 + i).to_s
         })
       end
@@ -30,10 +30,10 @@ RSpec.describe Parsers::CsvLayout do
 
     describe "when linking it with an asset" do
       setup do
-        @asset = FactoryGirl.create(:asset)
-        @step_type = FactoryGirl.create(:step_type)
-        @asset_group = FactoryGirl.create(:asset_group)
-        @step = FactoryGirl.create(:step, {
+        @asset = FactoryBot.create(:asset)
+        @step_type = FactoryBot.create(:step_type)
+        @asset_group = FactoryBot.create(:asset_group)
+        @step = FactoryBot.create(:step, {
           :step_type =>@step_type,
           :asset_group => @asset_group
           })
@@ -64,13 +64,13 @@ RSpec.describe Parsers::CsvLayout do
         end
 
         setup do
-          @asset2 = FactoryGirl.create(:asset)
+          @asset2 = FactoryBot.create(:asset)
           @csv = Parsers::CsvLayout.new(@content)
           @csv.add_facts_to(@asset2, @step)
           @step.finish
           @content = File.open('test/data/layout.csv')
 
-          @step = FactoryGirl.create(:step, {
+          @step = FactoryBot.create(:step, {
             :step_type =>@step_type,
             :asset_group => @asset_group
             })
@@ -99,15 +99,15 @@ RSpec.describe Parsers::CsvLayout do
 
       describe 'with links with previous parents' do
         setup do
-          @former_parent = FactoryGirl.create(:asset)
+          @former_parent = FactoryBot.create(:asset)
           @assets.each_with_index do |a, location_index|
-            @former_parent.add_facts(FactoryGirl.create(:fact, {
+            @former_parent.add_facts(FactoryBot.create(:fact, {
               :predicate => 'contains', :object_asset => a
               }))
-            a.facts << [FactoryGirl.create(:fact, {
+            a.facts << [FactoryBot.create(:fact, {
               :predicate => 'parent',
               :object_asset => @former_parent
-            }),FactoryGirl.create(:fact, {
+            }),FactoryBot.create(:fact, {
               :predicate => 'location',
               :object => location_index.to_s
               })]

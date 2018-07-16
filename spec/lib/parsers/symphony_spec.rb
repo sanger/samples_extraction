@@ -6,15 +6,15 @@ RSpec.describe Parsers::Symphony do
   describe "parses a symphony file" do
     setup do
       @content = File.open('test/data/symphony.xml')
-      @rack = FactoryGirl.create(:asset)
-      @tube = FactoryGirl.create(:asset)
+      @rack = FactoryBot.create(:asset)
+      @tube = FactoryBot.create(:asset)
       @barcode = '11111111'
-      @tube_orig = FactoryGirl.create(:asset, { :barcode => @barcode})
-      @rack.add_facts(FactoryGirl.create(:fact, {
+      @tube_orig = FactoryBot.create(:asset, { :barcode => @barcode})
+      @rack.add_facts(FactoryBot.create(:fact, {
         :predicate => 'contains',
         :object_asset => @tube
         }))
-      @tube.add_facts(FactoryGirl.create(:fact, {
+      @tube.add_facts(FactoryBot.create(:fact, {
         :predicate => 'location',
         :object => 'A1'
         }))

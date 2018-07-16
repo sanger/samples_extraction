@@ -11,24 +11,24 @@ RSpec.describe Parsers::CsvOrder do
   describe "parses an order" do
     setup do
       @asset_samples = 96.times.map do |i|
-        FactoryGirl.create(:asset, :barcode => i+1)
+        FactoryBot.create(:asset, :barcode => i+1)
       end
       @content = @asset_samples.map{|a| a.barcode}.join("\n")
-      @rack = FactoryGirl.create(:asset)
+      @rack = FactoryBot.create(:asset)
 
       @assets_dst = 96.times.map do |i|
-        asset = FactoryGirl.create(:asset, {
+        asset = FactoryBot.create(:asset, {
           :barcode => 'FR'+(11200002 + i).to_s
         })
-        asset.add_facts(FactoryGirl.create(:fact, {
+        asset.add_facts(FactoryBot.create(:fact, {
           :predicate => 'location', :object => index_to_location_str(i)
           }))
-        asset.add_facts(FactoryGirl.create(:fact, {
+        asset.add_facts(FactoryBot.create(:fact, {
           :predicate => 'parent', :object_asset => @rack
           }))
         asset
       end
-      @rack.add_facts(@assets_dst.map{|a| FactoryGirl.create(:fact, {
+      @rack.add_facts(@assets_dst.map{|a| FactoryBot.create(:fact, {
         :predicate => 'contains',
         :object_asset => a
         })})
@@ -50,9 +50,9 @@ RSpec.describe Parsers::CsvOrder do
 
     describe "when linking it with an asset" do
       setup do
-        @step_type = FactoryGirl.create(:step_type)
-        @asset_group = FactoryGirl.create(:asset_group)
-        @step = FactoryGirl.create(:step, {
+        @step_type = FactoryBot.create(:step_type)
+        @asset_group = FactoryBot.create(:asset_group)
+        @step = FactoryBot.create(:step, {
           :step_type =>@step_type,
           :asset_group => @asset_group
           })
