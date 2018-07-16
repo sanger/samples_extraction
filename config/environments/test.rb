@@ -48,6 +48,7 @@ Rails.application.configure do
   config.pmb_uri = ENV.fetch('PMB_URI','http://localhost:10000')
   config.ss_uri =  ENV.fetch('SS_URI', 'http://localhost:3000/api/1/')
   config.searcher_name_by_barcode = 'Find assets by barcode'
+  config.ss_authorisation =  'test'
   config.printing_disabled = true
   config.default_n3_resources_url = nil
 

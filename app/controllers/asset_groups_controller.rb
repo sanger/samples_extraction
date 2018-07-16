@@ -45,7 +45,6 @@ class AssetGroupsController < ApplicationController
 
     def update_barcodes
       perform_assets_update
-      perform_barcode_addition
 
       if @alerts
         render json: {errors: @alerts}
@@ -75,7 +74,9 @@ class AssetGroupsController < ApplicationController
   def perform_assets_update
     if params_update_asset_group[:assets]
       updated_assets = [params_update_asset_group[:assets]].flatten
-      received_list = updated_assets.map{|uuid| Asset.find_by!(uuid: uuid)}
+      received_list = updated_assets.map do |uuid_or_barcode| 
+        Asset.find_or_import_asset_with_barcode(uuid_or_barcode)
+      end.compact
       @asset_group.update_attributes(assets: received_list)
       @asset_group.touch
     end
@@ -86,38 +87,9 @@ class AssetGroupsController < ApplicationController
     @alerts.push(data)
   end
 
-  def get_barcodes
-    params_update_asset_group[:add_barcodes].split(' ')
-  end
-
-  def perform_barcode_addition
-    unless params_update_asset_group[:add_barcodes].nil? || params_update_asset_group[:add_barcodes].empty?
-      begin
-        if @asset_group.select_barcodes(get_barcodes)
-          @asset_group.touch
-          puts 1
-          #show_alert({:type => 'info',
-          #  :msg => "Barcode #{get_barcodes} added"})
-        else
-          show_alert({:type => 'warning',
-            :msg => "Cannot select #{get_barcodes}"})
-          #flash[:danger] = "Could not find barcodes #{barcodes}"
-        end
-      rescue Net::ReadTimeout => e
-        show_alert({:type => 'danger',
-          :msg => "Cannot connect with Sequencescape for reading barcode #{get_barcodes}"})
-      rescue Sequencescape::Api::ResourceNotFound => e
-        show_alert({:type => 'warning',
-          :msg => "Cannot find barcode #{get_barcodes} in Sequencescape"})
-      rescue StandardError => e
-        show_alert({:type => 'danger',
-          :msg => "Cannot connect with Sequencescape: Message: #{e.message}"})
-      end
-    end
-  end
 
   def params_update_asset_group
-    params.require(:asset_group).permit(:add_barcodes, :assets => [])
+    params.require(:asset_group).permit(:assets => [])
   end
 
 end
