@@ -1,6 +1,6 @@
 require 'barcode'
 
-FactoryGirl.define do
+FactoryBot.define do
   sequence :barcode do |n|
     n
   end

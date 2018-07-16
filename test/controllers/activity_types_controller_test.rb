@@ -2,7 +2,7 @@ require 'test_helper'
 
 class ActivityTypesControllerTest < ActionController::TestCase
   setup do
-    @activity_type = FactoryGirl.create :activity_type
+    @activity_type = FactoryBot.create :activity_type
   end
 
   test "should get index" do

@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :asset do
     after(:build) do |asset|
       if (Rails.configuration.respond_to?(:testing_barcodes) && asset.barcode.nil?)

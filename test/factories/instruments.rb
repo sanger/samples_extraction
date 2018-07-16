@@ -1,5 +1,5 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :instrument do
-    barcode  { FactoryGirl.generate :barcode }
+    barcode  { FactoryBot.generate :barcode }
   end
 end

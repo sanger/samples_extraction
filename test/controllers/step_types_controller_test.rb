@@ -2,7 +2,7 @@ require 'test_helper'
 
 class StepTypesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @step_type = FactoryGirl.create :step_type
+    @step_type = FactoryBot.create :step_type
   end
 
   test "should get index" do

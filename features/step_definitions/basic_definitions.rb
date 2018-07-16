@@ -32,7 +32,7 @@ end
 
 Given(/^I have the following label templates:$/) do |table|
   table.hashes.each do |label_template|
-    FactoryGirl.create(:label_template, 
+    FactoryBot.create(:label_template, 
       name: label_template['Name'], 
       template_type: label_template['Type'], 
       external_id: label_template['External Id']
@@ -45,9 +45,9 @@ Given(/^I have to process these tubes that are on my table:$/) do |table|
   table.hashes.each do |asset_info|
     facts = asset_info['Facts'].split(',').map do |f|
       l = f.split(':')
-      FactoryGirl.create :fact, {:predicate => l[0].strip, :object => l[1].strip}
+      FactoryBot.create :fact, {:predicate => l[0].strip, :object => l[1].strip}
     end
-    asset = FactoryGirl.create :asset, {:barcode => asset_info['Barcode'], :facts => facts}
+    asset = FactoryBot.create :asset, {:barcode => asset_info['Barcode'], :facts => facts}
   end
 end
 
@@ -57,12 +57,12 @@ Given(/^I have the following kits in house$/) do |table|
     kit_type = KitType.find_by_name(kit_info["Kit type"])
     unless kit_type
       activity_type = ActivityType.find_by_name(kit_info["Activity type"])
-      kit_type = FactoryGirl.create :kit_type, {
+      kit_type = FactoryBot.create :kit_type, {
         :name =>kit_info["Kit type"],
         :activity_type => activity_type
       }
     end
-    FactoryGirl.create :kit, { :barcode => kit_info["Barcode"], :kit_type => kit_type }
+    FactoryBot.create :kit, { :barcode => kit_info["Barcode"], :kit_type => kit_type }
   end
 end
 
@@ -76,7 +76,7 @@ end
 
 Given(/^we use these activity types:$/) do |table|
   table.hashes.each do |activity_type|
-    FactoryGirl.create :activity_type, {:name => activity_type["Name"]}
+    FactoryBot.create :activity_type, {:name => activity_type["Name"]}
   end
 end
 
@@ -85,7 +85,7 @@ Given(/^we use these step types:$/) do |table|
     activity_types = step_type["Activity types"].split(',').map do |activity_type_name|
       ActivityType.find_by_name(activity_type_name.strip)
     end
-    FactoryGirl.create :step_type, {
+    FactoryBot.create :step_type, {
       :name => step_type["Name"],
       :activity_types => activity_types
     }
@@ -97,7 +97,7 @@ Given(/^the laboratory has the following instruments:$/) do |table|
     activity_types = instrument["Activity types"].split(',').map do |activity_type_name|
       ActivityType.find_by_name(activity_type_name.strip)
     end
-    FactoryGirl.create :instrument, {
+    FactoryBot.create :instrument, {
       :barcode => instrument["Barcode"],
       :name => instrument["Name"],
       :activity_types => activity_types

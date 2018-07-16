@@ -7,16 +7,16 @@ class StepsControllerTest < ActionController::TestCase
 
   context "when performing an activity" do
     setup do
-      @user = FactoryGirl.create :user
+      @user = FactoryBot.create :user
       @user.generate_token
 
       session[:token] = @user.token
 
-      @asset = FactoryGirl.create :asset, :barcode => '1111'
-      @asset_group = FactoryGirl.create :asset_group
-      @activity_type = FactoryGirl.create :activity_type
-      @activity = FactoryGirl.create :activity, { :activity_type => @activity_type, :asset_group => @asset_group}
-      @step_type = FactoryGirl.create :step_type
+      @asset = FactoryBot.create :asset, :barcode => '1111'
+      @asset_group = FactoryBot.create :asset_group
+      @activity_type = FactoryBot.create :activity_type
+      @activity = FactoryBot.create :activity, { :activity_type => @activity_type, :asset_group => @asset_group}
+      @step_type = FactoryBot.create :step_type
       @activity_type.step_types << @step_type
     end
 
@@ -63,24 +63,24 @@ class StepsControllerTest < ActionController::TestCase
        # skip('this rule is unsupported as condition_group.compatible_with? does not support loops while following relations')
         SupportN3.parse_string(rule, {}, @step_type)
         assets = []
-        assets.push(FactoryGirl.create :asset, {:facts =>[
-          FactoryGirl.create(:fact, :predicate => 'is', :object => 'A'),
-          FactoryGirl.create(:fact, :predicate => 'position', :object => '7')
+        assets.push(FactoryBot.create :asset, {:facts =>[
+          FactoryBot.create(:fact, :predicate => 'is', :object => 'A'),
+          FactoryBot.create(:fact, :predicate => 'position', :object => '7')
         ]})
-        assets.push(FactoryGirl.create :asset, {:facts =>[
-          FactoryGirl.create(:fact, :predicate => 'is', :object => 'B')
+        assets.push(FactoryBot.create :asset, {:facts =>[
+          FactoryBot.create(:fact, :predicate => 'is', :object => 'B')
         ]})
-        assets.push(FactoryGirl.create :asset, {:facts =>[
-          FactoryGirl.create(:fact, :predicate => 'is', :object => 'C')
+        assets.push(FactoryBot.create :asset, {:facts =>[
+          FactoryBot.create(:fact, :predicate => 'is', :object => 'C')
         ]})
-        assets.push(FactoryGirl.create :asset, {:facts =>[
-          FactoryGirl.create(:fact, :predicate => 'is', :object => 'D')
+        assets.push(FactoryBot.create :asset, {:facts =>[
+          FactoryBot.create(:fact, :predicate => 'is', :object => 'D')
         ]})
 
-        assets[0].facts << FactoryGirl.create(:fact, :predicate => 'transfer', :object_asset => assets[1])
-        assets[1].facts << FactoryGirl.create(:fact, :predicate => 'transfer', :object_asset => assets[2])
-        assets[2].facts << FactoryGirl.create(:fact, :predicate => 'transfer', :object_asset => assets[3])
-        assets[3].facts << FactoryGirl.create(:fact, :predicate => 'transfer', :object_asset => assets[0])
+        assets[0].facts << FactoryBot.create(:fact, :predicate => 'transfer', :object_asset => assets[1])
+        assets[1].facts << FactoryBot.create(:fact, :predicate => 'transfer', :object_asset => assets[2])
+        assets[2].facts << FactoryBot.create(:fact, :predicate => 'transfer', :object_asset => assets[3])
+        assets[3].facts << FactoryBot.create(:fact, :predicate => 'transfer', :object_asset => assets[0])
 
         @asset_group.update_attributes(:assets => assets)
         @activity.update_attributes(:asset_group => @asset_group)
@@ -107,11 +107,11 @@ class StepsControllerTest < ActionController::TestCase
         SupportN3.parse_string(rule, {}, @step_type)
         assets = []
         10.times.each do |i|
-          asset = FactoryGirl.create :asset, {:facts =>[
-            FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube')]}
+          asset = FactoryBot.create :asset, {:facts =>[
+            FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube')]}
           asset.generate_barcode(i)
-          asset2 = FactoryGirl.create :asset, {:facts =>[
-            FactoryGirl.create(:fact, :predicate => 'is', :object => 'Tube2')]}
+          asset2 = FactoryBot.create :asset, {:facts =>[
+            FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube2')]}
           asset2.generate_barcode(10+i)
           assets << asset
           assets << asset2

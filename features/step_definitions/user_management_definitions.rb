@@ -1,5 +1,5 @@
 Given(/^I am an operator called "([^"]*)"$/) do |name|
-  FactoryGirl.create :user_with_barcode, {
+  FactoryBot.create :user_with_barcode, {
       :username => name,
       :fullname => name,
       :role => 'operator'
@@ -9,7 +9,7 @@ end
 Given(/^I am a user with name "([^"]*)" and role "([^"]*)"$/) do |name, role|
   @user = User.find_by(:username => name)
   unless @user
-    @user = FactoryGirl.create :user_with_barcode, {
+    @user = FactoryBot.create :user_with_barcode, {
         :username => name,
         :fullname => name,
         :role => role
@@ -83,7 +83,7 @@ end
 
 Given(/^I have the following printers:$/) do |table|
   table.hashes.each do |printer|
-    FactoryGirl.create :printer, {
+    FactoryBot.create :printer, {
       :name => printer["Name"],
       :printer_type => printer["Printer Type"],
       :default_printer => printer["Default"]
@@ -93,7 +93,7 @@ end
 
 Given(/^I have the following users:$/) do |table|
   table.hashes.each do |user|
-    FactoryGirl.create :user_with_barcode, {
+    FactoryBot.create :user_with_barcode, {
       :username => user["User"],
       :fullname => user["User"],
       :role => user["Role"]

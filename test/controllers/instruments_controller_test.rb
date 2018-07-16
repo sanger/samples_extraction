@@ -2,7 +2,7 @@ require 'test_helper'
 
 class InstrumentsControllerTest < ActionController::TestCase
   setup do
-    @instrument = FactoryGirl.create :instrument
+    @instrument = FactoryBot.create :instrument
   end
 
   test "should get index" do

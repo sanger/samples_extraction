@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :condition_group, class: 'ConditionGroup' do
 
   end

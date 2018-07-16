@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :kit_type do
     
   end

@@ -2,7 +2,7 @@ require 'test_helper'
 
 class PrintersControllerTest < ActionController::TestCase
   setup do
-    @printer = FactoryGirl.create :printer, {:name => 'one'}
+    @printer = FactoryBot.create :printer, {:name => 'one'}
   end
 
   test "should get index" do

@@ -4,7 +4,7 @@ class UserSessionsControllerTest < ActionController::TestCase
   setup do
     @controller = UserSessionsController.new
     @barcode = 1
-    @user = FactoryGirl.create :user, {:barcode => @barcode}
+    @user = FactoryBot.create :user, {:barcode => @barcode}
     @request.headers['Accept'] = Mime::JSON
     @request.headers['Content-Type'] = Mime::JSON.to_s    
   end

@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :asset_relation do
     
   end
