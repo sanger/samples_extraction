@@ -7,7 +7,7 @@ module Steps::WebsocketEvents
   end
 
   def can_unset_activity_running?
-    (self.kind_of?(BackgroundSteps::BackgroundStep) && completed? && next_step.nil?)
+    (self.kind_of?(BackgroundSteps::BackgroundStep) && completed? && next_step.nil? && activity)
   end
 
   def unset_activity_running

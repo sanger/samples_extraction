@@ -8,7 +8,7 @@ RSpec.describe :cancellable, cancellable: true do
     @activity = FactoryBot.create :activity, activity_type: @activity_type, asset_group: @asset_group
     @steps = 10.times.map do 
       step = build_step(%Q{{?p :maxCardinality "1".} => {:step :createAsset {?p :a :Tube .}.} .}, %Q{}, activity: @activity)
-      step.update_attributes(state: 'complete')
+      step.execute_actions
       step
     end
   end

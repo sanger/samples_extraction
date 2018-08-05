@@ -56,6 +56,11 @@ RSpec.describe "Inference" do
 
 
     describe '#inferences' do
+      before do
+        # TODO
+        # This workaround is just for the createAsset test. Refactor candidate
+        allow(SecureRandom).to receive(:uuid).and_return('tube')
+      end
       inferences_data.each do |data|
         if data[:unless]
           if send(data[:unless])

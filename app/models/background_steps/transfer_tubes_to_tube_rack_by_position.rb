@@ -26,7 +26,7 @@ class BackgroundSteps::TransferTubesToTubeRackByPosition < BackgroundSteps::Back
   end
 
   def process
-    ActiveRecord::Base.transaction do 
+    FactChanges.new.tap do |updates|
       aliquot_types = []
       if assets_compatible_with_step_type
         rack = asset_group.assets.first.facts.with_predicate('transferToTubeRackByPosition').first.object_asset
@@ -40,9 +40,9 @@ class BackgroundSteps::TransferTubesToTubeRackByPosition < BackgroundSteps::Back
               aliquot_types.push(f_aliquot.object)
             end
 
-            add_facts(asset, [Fact.create(:predicate => 'transfer', :object_asset => well)])
-            add_facts(well, [Fact.create(:predicate => 'transferredFrom', :object_asset => asset)])
-            remove_facts(asset, asset.facts.with_predicate('transferToTubeRackByPosition'))
+            updates.add(asset, 'transfer', well)
+            updates.add(well, 'transferredFrom', asset)
+            updates.remove(asset.facts.with_predicate('transferToTubeRackByPosition'))
           end
         end
         if aliquot_types
@@ -53,10 +53,10 @@ class BackgroundSteps::TransferTubesToTubeRackByPosition < BackgroundSteps::Back
           else
             purpose_name = 'Stock Plate'
           end
-          add_facts(rack, [Fact.create(:predicate => 'purpose', :object => purpose_name)])
+          updates.add(rack, 'purpose', purpose_name)
         end
       end
-    end
+    end.apply(self)
   end
 
 end

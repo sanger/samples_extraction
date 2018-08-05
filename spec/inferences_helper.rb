@@ -72,6 +72,7 @@ module InferencesHelper
     fail if input_facts.nil? || output_facts.nil? || rule.nil?
 
     step = build_step(rule, input_facts)
+    step.execute_actions
 
     asset_group = step.asset_group
     asset_group.assets.reload    

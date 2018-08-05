@@ -22,17 +22,17 @@ class BackgroundSteps::TransferPlateToPlate < BackgroundSteps::BackgroundStep
   end
 
   def process
-    ActiveRecord::Base.transaction do 
+    FactChanges.new.tap do |updates|
       aliquot_types = []
       if assets_compatible_with_step_type
         plates = asset_group.assets.with_predicate('transfer').with_fact('a', 'Plate').each do |plate|
           plate.facts.with_predicate('transfer').each do |f|
             destination = f.object_asset
-            transfer(plate, destination)
+            updates.merge(transfer(plate, destination))
           end
         end
       end
-    end
+    end.apply(self)
   end
 
 end

@@ -3,7 +3,6 @@ module Activities
 
     def do_task(step_type, user, step_params, printer_config, asset_group)
       step = find_or_create_step(step_type, user, step_params, asset_group)
-
       connected_tasks = create_connected_tasks(step, printer_config, user)
 
       step.execute_actions

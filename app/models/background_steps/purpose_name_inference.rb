@@ -22,13 +22,13 @@ class BackgroundSteps::PurposeNameInference < BackgroundSteps::BackgroundStep
   end
 
   def process
-    ActiveRecord::Base.transaction do
+    FactChanges.new.tap do |updates|
       if assets_compatible_with_step_type.count > 0
         assets_compatible_with_step_type.each do |asset|
-          add_facts(asset, [Fact.create(predicate: 'purpose', object: purpose_for(asset))])
+          updates.add(asset, 'purpose', purpose_for(asset))
         end
       end
-    end
+    end.apply(self)
   end
 
 end

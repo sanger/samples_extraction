@@ -5,15 +5,15 @@ class BackgroundSteps::PrintBarcodes < BackgroundSteps::BackgroundStep
   end
 
   def process
-    ActiveRecord::Base.transaction do
+    FactChanges.new.tap do |updates|
       if assets_compatible_with_step_type
         asset_group.assets.each do |asset|
           asset.print(printer_config, user.username)
           # Do not print again unless the step fails
-          remove_facts(Fact.where(asset: asset, predicate: 'is', object: 'readyForPrint'))
+          updates.remove(Fact.where(asset: asset, predicate: 'is', object: 'readyForPrint'))
         end
       end
-    end
+    end.apply(self)
   end
 
 end

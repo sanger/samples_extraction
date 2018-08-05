@@ -9,7 +9,7 @@ class BackgroundSteps::AliquotTypeInference < BackgroundSteps::BackgroundStep
   end
 
   def process
-    ActiveRecord::Base.transaction do
+    FactChanges.new.tap do |updates|
       if assets_compatible_with_step_type.count > 0
         assets_compatible_with_step_type.each do |asset|
           unless asset.facts.with_predicate('contains').map(&:object_asset).any? do |o| 
@@ -17,13 +17,13 @@ class BackgroundSteps::AliquotTypeInference < BackgroundSteps::BackgroundStep
             end
             asset.facts.with_predicate('contains').map(&:object_asset).each do |o|
               if o.has_predicate?('sample_tube')
-                add_facts(o, [Fact.create(predicate: 'aliquotType', object: aliquot_type_fact(asset).object)])
+                updates.add(o, 'aliquotType', aliquot_type_fact(asset).object)
               end
             end
           end
-          remove_facts(asset, [aliquot_type_fact(asset)])
+          updates.remove(aliquot_type_fact(asset))
         end
       end
-    end
+    end.apply(self)
   end
 end

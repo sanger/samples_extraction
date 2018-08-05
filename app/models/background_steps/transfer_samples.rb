@@ -25,40 +25,38 @@ class BackgroundSteps::TransferSamples < BackgroundSteps::BackgroundStep
   end
 
   def process
-    ActiveRecord::Base.transaction do
+    FactChanges.new.tap do |updates|
       if assets_compatible_with_step_type
         each_asset_and_modified_asset do |asset, modified_asset|
-          added_facts = []
-          added_facts.push([Fact.new(:predicate => 'is', :object => 'Used')])
+          updates.add(modified_asset, 'is', 'Used')
+          #added_facts = []
+          #added_facts.push([Fact.new(:predicate => 'is', :object => 'Used')])
           if (asset.has_predicate?('sample_tube'))
-            added_facts.push([Fact.new(:predicate => 'sample_tube', 
-              :object_asset => asset.facts.with_predicate('sample_tube').first.object_asset)])
+            updates.add(modified_asset, 'sample_tube', asset.facts.with_predicate('sample_tube').first.object_asset)
+            #added_facts.push([Fact.new(:predicate => 'sample_tube', 
+            #  :object_asset => asset.facts.with_predicate('sample_tube').first.object_asset)])
           end
           if (asset.has_predicate?('study_name'))
-            added_facts.push([Fact.new(:predicate => 'study_name', 
-              :object => asset.facts.with_predicate('study_name').first.object)])
-          end        
-          added_facts.push(asset.facts.with_predicate('sanger_sample_id').map do |aliquot_fact|
-            [
-              Fact.new(:predicate => 'sanger_sample_id', :object => aliquot_fact.object),
-              Fact.new(:predicate => 'sample_id', :object => aliquot_fact.object)
-            ]
-          end.flatten)
-          unless modified_asset.has_predicate?('aliquotType')
-            added_facts.concat(asset.facts.with_predicate('aliquotType').map do |aliquot_fact|
-              [
-                Fact.new(:predicate => 'aliquotType', :object => aliquot_fact.object)
-              ]
-            end.flatten)
+            updates.add(modified_asset, 'study_name', asset.facts.with_predicate('study_name').first.object)
+            #added_facts.push([Fact.new(:predicate => 'study_name', 
+            #  :object => asset.facts.with_predicate('study_name').first.object)])
           end
-          added_facts.push(Fact.new(:predicate => 'transferredFrom', :object_asset => asset))
-          added_facts = added_facts.flatten
-          add_facts(modified_asset, added_facts)
 
-          transfer(asset, modified_asset)
+          asset.facts.with_predicate('sanger_sample_id').each do |aliquot_fact|
+            updates.add(modified_asset, 'sanger_sample_id', aliquot_fact.object)
+            updates.add(modified_asset, 'sample_id', aliquot_fact.object)
+          end
+          unless modified_asset.has_predicate?('aliquotType')
+            asset.facts.with_predicate('aliquotType').each do |aliquot_fact|
+              updates.add(modified_asset, 'aliquotType', aliquot_fact.object)
+            end
+          end
+          updates.add(modified_asset, 'transferredFrom', asset)
+
+          updates.merge(transfer(asset, modified_asset))
         end
       end
-    end
+    end.apply(self)
   end
 
 end

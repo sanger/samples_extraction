@@ -26,8 +26,8 @@ shared_examples_for 'background step' do
       end
       context 'when the process of the background step fails' do
         it 'sets the state to error' do
-          allow(step).to receive(:process).and_raise('boom!')
-          step.execute_actions
+          allow(step).to receive(:process).and_raise(StandardError, 'boom!')
+          expect{ step.execute_actions }.to raise_error(StandardError)
           expect(step.state).to eq('error')
           expect(step.output).to include('boom!')
         end        
@@ -52,8 +52,8 @@ shared_examples_for 'background step' do
         end
         context 'when the step fails again' do
           before do
-            allow(step).to receive(:process).and_raise('boom!')
-            step.execute_actions
+            allow(step).to receive(:process).and_raise(StandardError, 'boom!')
+            expect{ step.execute_actions }.to raise_error(StandardError)
             step.reload            
           end
           it 'sets the right state to the step' do

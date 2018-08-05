@@ -6,6 +6,8 @@ RSpec.describe BackgroundSteps::PurposeNameInference do
     build_instance_for_aliquot('DNA')
   end
 
+  let(:activity) { create(:activity) }
+
   def build_instance_for_aliquot(aliquot)
     asset = create(:asset)
     asset2 = create(:asset)
@@ -16,6 +18,7 @@ RSpec.describe BackgroundSteps::PurposeNameInference do
     asset_group.update_attributes(assets: [asset])
 
     BackgroundSteps::PurposeNameInference.new(step_type: create(:step_type), 
+      activity: activity,
       asset_group: asset_group)    
   end
 

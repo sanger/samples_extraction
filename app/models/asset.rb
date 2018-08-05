@@ -135,7 +135,7 @@ class Asset < ActiveRecord::Base
 
   def add_facts(list, position=nil, &block)
     facts << list
-    list.each { |fact| yield fact if block_given? }
+    [list].flatten.each { |fact| yield fact if block_given? }
   end
 
   def add_facts2(list, position=nil, &block)

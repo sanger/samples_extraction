@@ -65,7 +65,6 @@ module Steps::ExecutionActions
     running_asset_group = AssetGroup.create!(assets: asset_group_assets)
 
     step_execution = build_step_execution(:facts_to_destroy => [], :original_assets => running_asset_group.assets)
-
     ActiveRecord::Base.transaction do |t|
 
       step_execution.run

@@ -14,7 +14,7 @@ module InferenceEngines
                 :activity_owner => @step.activity,
                 :assets => @changed_assets,
                 :condition_group => action.subject_condition_group)
-              @step.activity.touch
+              @step.activity.touch if @step.activity
             #end
 
             # Each fact of a createAsset action is considered an action by
