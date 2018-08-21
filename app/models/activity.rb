@@ -26,7 +26,6 @@ class Activity < ActiveRecord::Base
 
   scope :for_user, ->(user) { joins(:steps).where({:steps => {:user_id => user.id}}).distinct }
 
-  include Lab::Actions
   include Activities::Tasks
   include Activities::BackgroundTasks
   include Activities::JsonAttributes

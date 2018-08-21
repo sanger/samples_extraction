@@ -30,7 +30,7 @@ class Step < ActiveRecord::Base
   include Steps::State
   include Steps::WebsocketEvents
   include Steps::ExecutionActions
-  include Lab::Actions
+  include Steps::Actions
 
 
 end

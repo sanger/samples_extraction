@@ -11,6 +11,8 @@ RSpec.describe 'BackgroundTasks' do
   end
 
   let(:activity) { create :activity }
+  let(:step_type) { create :step_type}
+  let(:step) { create :step, step_type: step_type }
 
   context '#create_background_steps' do
     let(:list_of_tasks) { 5.times.map{ DummyBackgroundStep }}
@@ -29,23 +31,21 @@ RSpec.describe 'BackgroundTasks' do
     end
   end
 
-  context '#do_background_tasks' do
+  context '#create_connected_tasks' do
     let(:list_of_tasks) { 5.times.map{ DummyBackgroundStep }}
-
+    
+    let(:other_step) { create :step }
     context 'when it does not have any background task defined' do
       it 'does not raise an error' do
         allow(activity).to receive(:background_tasks).and_return([])
-        expect{ activity.do_background_tasks }.not_to raise_exception
+        expect{ activity.create_connected_tasks(step) }.not_to raise_exception
       end
     end
     context 'when it has background tasks' do
-      it 'executes all the background tasks' do
-        my_double = double('step')
-        other_double = double('step')
-        allow(activity).to receive(:create_background_steps).and_return([my_double, other_double])
-        expect(my_double).to receive(:execute_actions)
-        expect(other_double).not_to receive(:execute_actions)
-        activity.do_background_tasks
+      it 'creates a list of connected tasks' do
+        
+        allow(activity).to receive(:create_background_steps).and_return([step, other_step])
+        expect(activity.create_connected_tasks(step).length).to eq(7)
       end
     end
   end

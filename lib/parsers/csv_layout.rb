@@ -34,7 +34,8 @@ module Parsers
       if create_tubes?
         asset = Asset.find_by_barcode(barcode)
         unless asset
-          updater.add(Asset.new(:barcode => barcode) , 'a', 'Tube')
+          asset = Asset.new(:barcode => barcode)
+          updater.add(asset , 'a', 'Tube')
         end
       else
         asset = Asset.find_by_barcode(barcode)
@@ -84,7 +85,6 @@ module Parsers
       end
 
       @parsed = true
-      
       valid?.tap {|val| updater.apply(@step) if val }
     end
 

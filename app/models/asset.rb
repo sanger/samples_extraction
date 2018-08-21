@@ -5,7 +5,6 @@ require 'date'
 require 'pry'
 
 class Asset < ActiveRecord::Base
-  include Lab::Actions
   include Printables::Instance
   include Asset::Import
   include Asset::Export

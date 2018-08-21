@@ -5,7 +5,18 @@ require 'parsers/symphony'
 
 require 'fact_changes'
 
-module Lab::Actions
+module Steps::Actions
+  # Actions
+  def rack_layout
+    csv_parsing(file.data, Parsers::CsvLayout)
+  end
+
+  def rack_layout_creating_tubes
+    csv_parsing(file.data, Parsers::CsvLayoutWithTubeCreation)
+  end
+
+
+  # Support methods and classes
 
   class InvalidDataParams < StandardError
     attr_accessor :error_params
@@ -37,7 +48,7 @@ module Lab::Actions
     FactChanges.new.tap do |updates|
       previous_racks = []
       tubes = list_layout.map{|obj| obj[:asset]}.compact
-      return if tubes.empty?
+      return updates if tubes.empty?
       tubes_ids = tubes.map(&:id)
       tubes_list = Asset.where(id: tubes_ids).includes(:facts)
       tubes_list.each_with_index do |tube, index|
@@ -167,15 +178,15 @@ module Lab::Actions
     error_locations = []
     parser = class_type.new(content, self)
 
-    if activity.asset_group.assets.with_fact('a', 'TubeRack').empty?
+    if asset_group.assets.with_fact('a', 'TubeRack').empty?
       error_messages.push("No TubeRacks found to perform the layout process")
     end
-    if activity.asset_group.assets.with_fact('a', 'TubeRack').count > 1
+    if asset_group.assets.with_fact('a', 'TubeRack').count > 1
       error_messages.push("Too many TubeRacks found to perform the layout process")
     end
     raise InvalidDataParams.new(error_messages) if error_messages.count > 0
 
-    asset = activity.asset_group.assets.with_fact('a', 'TubeRack').first
+    asset = asset_group.assets.with_fact('a', 'TubeRack').first
 
     if parser.valid?
       rack = asset
@@ -206,16 +217,9 @@ module Lab::Actions
     asset_group.uploaded_files.first
   end
 
-  def rack_layout
-    csv_parsing(file.data, Parsers::CsvLayout)
-  end
-
-  def rack_layout_creating_tubes
-    csv_parsing(file.data, Parsers::CsvLayoutWithTubeCreation)
-  end
 
   def samples_symphony(step_type, params)
-    rack = activity.asset_group.assets.with_fact('a', 'TubeRack').first
+    rack = asset_group.assets.with_fact('a', 'TubeRack').first
     msgs = Parsers::Symphony.parse(params[:file].read, rack)
     raise InvalidDataParams.new(msgs) if msgs.length > 0
   end
