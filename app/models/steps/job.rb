@@ -10,7 +10,7 @@ module Steps::Job
       :step_type => step_type,
       #:asset_group => asset_group_for_execution
     })
-    delay.perform_job      
+    delay.perform_job
   end
 
   def output_error(exception)

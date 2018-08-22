@@ -1,5 +1,5 @@
 module BackgroundSteps
-
+  # This class needs to define the method process(). It is not implemented here
   class BackgroundStep < Step
 
     after_initialize :set_step_type
@@ -22,9 +22,6 @@ module BackgroundSteps
       update_attributes(step_type: StepType.find_or_create_by(:name => self.class.to_s )) if step_type.nil?
     end
 
-    def process
-      raise NotImplementedError
-    end
 
   end
 

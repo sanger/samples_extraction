@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe BackgroundSteps::UpdateSequencescape do
 
-  let(:activity) { create(:activity) }
+  let(:activity) { create(:activity, state: 'running') }
 
   def build_instance
     asset = create(:asset)

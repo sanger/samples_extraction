@@ -2,8 +2,9 @@ require 'rails_helper'
 
 RSpec.describe 'Inference' do
   context '#execute_actions' do
+    let(:activity) { create(:activity, state: 'running')}
     let(:execution) { double('step_execution') }
-    let(:inference) { create :inference }
+    let(:inference) { create :inference, activity: activity }
 
     before do  
       allow(InferenceEngines::Cwm::StepExecution).to receive(:new).and_return(execution)              
@@ -13,11 +14,11 @@ RSpec.describe 'Inference' do
         allow(execution).to receive(:run).and_raise('boom!!')
       end
       it 'changes the status to error' do
-        inference.execute_actions
+        expect{inference.execute_actions}.to raise_error
         expect(inference.state).to eq('error')
       end
       it 'adds an output value explaining the error' do
-        inference.execute_actions
+        expect{inference.execute_actions}.to raise_error
         expect(inference.output.nil?).to eq(false)
       end
     end
@@ -33,7 +34,7 @@ RSpec.describe 'Inference' do
   		end
 
   		it 'executes the rest of next steps' do
-  			inferences = 5.times.map{ create :inference }
+  			inferences = 5.times.map{ create :inference, activity: activity }
   			inferences.reverse.reduce(nil) do |memo, step|
   				id = (memo && memo.id) || nil
   				step.update_attributes(next_step_id: id)

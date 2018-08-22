@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe BackgroundSteps::AliquotTypeInference do
 
-  let(:activity) { create(:activity) }
+  let(:activity) { create(:activity, state: 'running') }
 
   def build_instance
     BackgroundSteps::AliquotTypeInference.new(step_type: create(:step_type), 

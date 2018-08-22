@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Steps::Actions, testactions: true  do
+RSpec.describe Steps::Actions do
   let(:content) { File.open('test/data/layout.csv').read }
   let(:file) { create(:uploaded_file, data: content )}
   let(:activity) { create(:activity) }

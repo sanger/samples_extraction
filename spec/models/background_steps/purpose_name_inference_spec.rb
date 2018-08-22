@@ -6,7 +6,7 @@ RSpec.describe BackgroundSteps::PurposeNameInference do
     build_instance_for_aliquot('DNA')
   end
 
-  let(:activity) { create(:activity) }
+  let(:activity) { create(:activity, state: 'running') }
 
   def build_instance_for_aliquot(aliquot)
     asset = create(:asset)
