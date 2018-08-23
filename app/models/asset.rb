@@ -8,7 +8,7 @@ class Asset < ActiveRecord::Base
   include Printables::Instance
   include Asset::Import
   include Asset::Export
-  
+
   has_one :uploaded_file
 
   after_touch :touch_asset_groups
@@ -351,15 +351,15 @@ class Asset < ActiveRecord::Base
     hash
   end
 
-  def method_missing(sym, *args, &block)
-    list_facts = facts.with_predicate(sym.to_s.singularize)
-    return list_facts.map(&:object_value) unless list_facts.empty?
-    super(sym, *args, &block)
-  end
+  # def method_missing(sym, *args, &block)
+  #   list_facts = facts.with_predicate(sym.to_s.singularize)
+  #   return list_facts.map(&:object_value) unless list_facts.empty?
+  #   super(sym, *args, &block)
+  # end
 
-  def respond_to?(sym, include_private = false)
-    (!facts.with_predicate(sym.to_s.singularize).empty? || super(sym, include_private))
-  end
+  # def respond_to?(sym, include_private = false)
+  #   (!facts.with_predicate(sym.to_s.singularize).empty? || super(sym, include_private))
+  # end
 
   def study_and_barcode
     [study_name, barcode_sequencescaped].join(' ')
