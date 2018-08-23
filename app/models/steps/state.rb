@@ -10,17 +10,17 @@ module Steps::State
       scope :finished, ->() { where("state != 'running' AND state IS NOT NULL").includes(:operations, :step_type)}
       scope :in_activity, ->() { where.not(activity_id: nil)}
 
-      before_save :set_start_timestamp!, :if => [:running?, :saved_change_to_state?]
-      before_save :set_complete_timestamp!, :if => [:completed?, :saved_change_to_state?]
+      after_save :set_start_timestamp!, :if => [:running?, :saved_change_to_state?]
+      after_save :set_complete_timestamp!, :if => [:completed?, :saved_change_to_state?]
     end
   end
 
   def set_start_timestamp!
-    update_attributes(started_at: Time.now.utc) if started_at.nil?
+    update_columns(started_at: Time.now.utc) if started_at.nil?
   end
 
   def set_complete_timestamp!
-    update_attributes(finished_at: Time.now.utc) if finished_at.nil?
+    update_columns(finished_at: Time.now.utc) if finished_at.nil?
   end
 
   def active?

@@ -1,7 +1,7 @@
 module Steps::ExecutionActions
   def self.included(klass)
     klass.instance_eval do
-      before_create :assets_compatible_with_step_type, :unless => :in_progress?
+      before_create :assets_compatible_with_step_type, :unless => [:in_progress?]
       after_update :on_complete, :if => [:completed?, :saved_change_to_state?]
     end
   end  
@@ -15,6 +15,7 @@ module Steps::ExecutionActions
   end  
 
   def assets_compatible_with_step_type
+    return true if asset_group.nil?
     checked_condition_groups=[], @wildcard_values = {}
     compatible = step_type.compatible_with?(asset_group_assets, nil, checked_condition_groups, wildcard_values)
     raise StandardError unless compatible || (asset_group_assets.count == 0)
