@@ -21,7 +21,10 @@ class UploadedFile < ApplicationRecord
   def build_asset(params)
     unless asset
       update_attributes(asset: Asset.create)
-      add_facts(asset, [Fact.new(predicate: 'a', object: file_type(params[:content_type])), Fact.new(predicate: 'contents', object_asset: asset)])
+      FactChanges.new do |updates|
+        updates.add(asset, 'a', file_type(params[:content_type]))
+        updates.add(asset, 'contents', asset)
+      end.apply(step)
     end
     asset    
   end

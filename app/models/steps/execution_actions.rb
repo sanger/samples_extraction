@@ -74,19 +74,10 @@ module Steps::ExecutionActions
 
       Fact.where(:id => step_execution.facts_to_destroy.flatten.compact.map(&:id)).delete_all
 
-      #update_assets_started if activity
-
       unselect_assets_from_consequents
     end
     update_attributes(:asset_group => running_asset_group) if activity
     update_attributes(:state => 'running')
-  end
-
-  def update_assets_started
-    activity.asset_group.assets.not_started.each do |asset|
-      asset.add_facts(Fact.create(:predicate => 'is', :object => 'Started'))
-      asset.facts.where(:predicate => 'is', :object => 'NotStarted').each(&:destroy)
-    end
   end
 
   def progress_with(assets, state = nil)
