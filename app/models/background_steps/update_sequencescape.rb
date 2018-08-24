@@ -11,7 +11,7 @@ class BackgroundSteps::UpdateSequencescape < BackgroundSteps::BackgroundStep
     ActiveRecord::Base.transaction do
       if assets_compatible_with_step_type
         asset_group.assets.each do |asset|
-          asset.update_sequencescape(printer_config, user)
+          asset.update_sequencescape(printer_config, user, self)
         end
       end
     end

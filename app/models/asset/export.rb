@@ -3,7 +3,7 @@ module Asset::Export
 
   class DuplicateLocations < StandardError ; end
 
-  def update_sequencescape(print_config, user)
+  def update_sequencescape(print_config, user, step)
     instance = SequencescapeClient.find_by_uuid(uuid)
     unless instance
       instance = SequencescapeClient.create_plate(class_name, {}) if class_name
@@ -18,17 +18,21 @@ module Asset::Export
     old_barcode = barcode
     previous_asset_group_ids = asset_groups.map(&:id)
     update_attributes(:uuid => instance.uuid, :barcode => instance.barcode.ean13)
-    add_facts(Fact.create(:predicate => 'beforeBarcode', :object => old_barcode))
-    add_facts(Fact.create(predicate: 'purpose', object: class_name))
-    facts.with_predicate('barcodeType').each(&:destroy)
-    add_facts(Fact.create(:predicate => 'barcodeType', :object => 'SequencescapePlate'))
-    mark_as_updated
-    mark_to_print if old_barcode != barcode
+
+    FactChanges.new do |updates|
+      updates.add(self, 'beforeBarcode', old_barcode)
+      updates.add(self, 'purpose', class_name)
+      updates.remove(facts.with_predicate('barcodeType'))
+      updates.add(self, 'barcodeType', 'SequencescapePlate')
+
+      mark_as_updated(updates)
+      mark_to_print(updates) if old_barcode != barcode
+    end.apply(step)
     previous_asset_group_ids.each{|a| AssetGroup.find(a).touch }
   end
 
-  def mark_to_print
-    add_facts(Fact.create(predicate: 'is', object: 'readyForPrint'))
+  def mark_to_print(updates)
+    updates.add(self, 'is', 'readyForPrint')
   end
 
   def update_plate(instance)
@@ -48,11 +52,11 @@ module Asset::Export
     nil
   end
 
-  def mark_as_updated
-    add_facts(Fact.create(predicate: 'pushedTo', object: 'Sequencescape'))
+  def mark_as_updated(updates)
+    updates.add(self, 'pushedTo', 'Sequencescape')
     facts.with_predicate('contains').each do |f|
       if f.object_asset.has_predicate?('sample_tube')
-        f.object_asset.add_facts(Fact.create(predicate: 'pushedTo', object: 'Sequencescape'))
+        updates.add(f.object_asset, 'pushedTo', 'Sequencescape')
       end
     end
   end
