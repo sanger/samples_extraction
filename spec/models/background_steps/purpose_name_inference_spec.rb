@@ -11,8 +11,8 @@ RSpec.describe BackgroundSteps::PurposeNameInference do
   def build_instance_for_aliquot(aliquot)
     asset = create(:asset)
     asset2 = create(:asset)
-    asset2.add_facts(create(:fact, predicate: 'aliquotType', object: aliquot))
-    asset.add_facts(create(:fact, predicate: 'contains', object_asset: asset2))
+    asset2.facts << (create(:fact, predicate: 'aliquotType', object: aliquot))
+    asset.facts << (create(:fact, predicate: 'contains', object_asset: asset2))
 
     asset_group = create(:asset_group)
     asset_group.update_attributes(assets: [asset])

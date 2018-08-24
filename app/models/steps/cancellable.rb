@@ -27,12 +27,9 @@ module Steps::Cancellable
   def on_cancel
     ActiveRecord::Base.transaction do
       steps_newer_than_me.each{|s| s.cancel unless s.cancelled?}
-      operations.each(&:cancel)
+      fact_changes_for_option(:cancel).apply(self)
+      operations.each {|operation| operation.update_attributes(:cancelled? => true) }
     end
-  end
-
-  def cancelled?
-    state == 'cancel'
   end
 
   def on_remake
@@ -40,8 +37,25 @@ module Steps::Cancellable
       steps_older_than_me.each do |s|
         s.remake if s.cancelled?
       end
-      operations.each(&:remake)
+      fact_changes_for_option(:remake).apply(self)
+      operations.each {|operation| operation.update_attributes(:cancelled? => false) }
     end
+  end
+
+  def fact_changes_for_option(option_name)
+    operations.reduce(FactChanges.new) do |memo, operation|
+      action_type = operation.action_type_for_option(option_name)
+      if (action_type == :add_facts)
+        memo.add(operation.asset, operation.predicate, operation.object_value)
+      elsif (action_type == :remove_facts)
+        memo.remove(Fact.where(asset: operation.asset, predicate: operation.predicate, object: operation.object, object_asset: operation.object_asset))
+      end
+      memo
+    end
+  end
+
+  def cancelled?
+    state == 'cancel'
   end
 
   def cancel

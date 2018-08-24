@@ -19,9 +19,6 @@ RSpec.describe Step, type: :model do
     create_step
   end
 
-
-  Struct.new('FakeFact', :predicate, :object)
-
   def create_step
     step = FactoryBot.create(:step, {
       activity: activity,
@@ -436,12 +433,12 @@ RSpec.describe Step, type: :model do
             @racks.each(&:reload)
 
             @racks.each do |rack|
-              assert_equal true, @tubes.first.has_fact?(Struct::FakeFact.new(@action.predicate,
-                  rack.relation_id))
+              assert_equal true, @tubes.first.has_fact?(build(:fact, predicate: @action.predicate,
+                  object_asset_id: rack.id))
             end
-            assert_equal false, @tubes.last.has_fact?(Struct::FakeFact.new(
-              @action.predicate,
-              @racks.first.relation_id))
+
+            assert_equal false, @tubes.last.has_fact?(build(:fact, predicate: @action.predicate,
+              object_asset_id: @racks.first.id))
             expect(Operation.all.count).to eq(@racks.length)
           end
 
@@ -455,11 +452,11 @@ RSpec.describe Step, type: :model do
             @racks.each(&:reload)
 
             @tubes.each do |tube|
-              assert_equal true, tube.has_fact?(Struct::FakeFact.new(@action.predicate,
-                  @racks.first.relation_id))
+              assert_equal true, tube.has_fact?(build(:fact, predicate: @action.predicate,
+                  object_asset_id: @racks.first.id))
             end
-            assert_equal false, @tubes.first.has_fact?(Struct::FakeFact.new(@action.predicate,
-              @racks.last.relation_id))
+            assert_equal false, @tubes.first.has_fact?(build(:fact, predicate: @action.predicate,
+              object_asset_id: @racks.last.id))
             expect(Operation.all.count).to eq(@tubes.length)
           end
 
@@ -473,8 +470,8 @@ RSpec.describe Step, type: :model do
             @tubes.each(&:reload)
             @racks.each(&:reload)
 
-            assert_equal true, @tubes.first.has_fact?(Struct::FakeFact.new(@action.predicate,
-              @racks.first.relation_id))
+            assert_equal true, @tubes.first.has_fact?(build(:fact, predicate: @action.predicate,
+              object_asset_id: @racks.first.id))
             expect(Operation.all.count).to eq(1)
           end
 
@@ -488,8 +485,8 @@ RSpec.describe Step, type: :model do
 
             @tubes.each do |tube|
               @racks.each do |rack|
-                assert_equal true, tube.has_fact?(Struct::FakeFact.new(@action.predicate,
-                  rack.relation_id))
+                assert_equal true, tube.has_fact?(build(:fact, predicate: @action.predicate,
+                  object_asset_id: rack.id))
               end
             end
             expect(Operation.all.count).to eq(@racks.length*@tubes.length)
@@ -517,8 +514,8 @@ RSpec.describe Step, type: :model do
 
               [@tubes, @tubes_and_racks].flatten.each do |tube|
                 [@racks,  @tubes_and_racks].flatten.each do |rack|
-                  assert_equal true, tube.has_fact?(Struct::FakeFact.new(@action.predicate,
-                    rack.relation_id))
+                  assert_equal true, tube.has_fact?(build(:fact, predicate: @action.predicate,
+                    object_asset_id: rack.id))
                 end
               end
               expect(Operation.all.count).to eq((@racks.length+@tubes_and_racks.length)*(@tubes.length+@tubes_and_racks.length))

@@ -3,11 +3,6 @@ require 'csv'
 class UploadedFile < ApplicationRecord
   belongs_to :asset
 
-  def add_facts(asset_elem, facts)
-    asset_elem.add_facts(facts)
-    asset_elem.add_operations([facts].flatten, step)    
-  end
-
   def step
     @step ||= Step.new(step_type: StepType.find_or_create_by(name: 'Refresh'), state: 'running')
   end

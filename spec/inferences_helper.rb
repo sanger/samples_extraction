@@ -27,7 +27,7 @@ module InferencesHelper
       asset.facts.map do |fact|
         ":#{asset.name}\t:#{fact.predicate}\t#{fact.object_asset.nil? ? fact.object: ':'+fact.object_asset.name} ."
       end
-    end.flatten.join("\n")+"\n"
+    end.flatten.sort.join("\n")+"\n"
   end
 
   def assets_are_equal(expected_assets, obtained_assets)

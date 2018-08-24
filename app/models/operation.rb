@@ -24,30 +24,14 @@ class Operation < ApplicationRecord
       add_facts: :add_facts, remove_facts: :remove_facts, 
       create_asset: :add_facts, delete_asset: :remove_facts
     }
-  end  
-
-  def cancel
-    send(opposites[action_type.underscore.to_sym].to_s)
-    update_attributes(:cancelled? => true)
   end
 
-  def remake
-    send(synonims[action_type.underscore.to_sym].to_s)
-    update_attributes(:cancelled? => false)
+  def action_type_for_option(option)
+    if (option == :remake)
+      synonims[action_type.underscore.to_sym].to_s
+    elsif (option == :cancel)
+      opposites[action_type.underscore.to_sym].to_s
+    end
   end
-
-  def add_facts
-    asset.add_facts(Fact.new(predicate: predicate, object: object, object_asset: object_asset))
-    asset.touch
-  end
-
-  alias_method :create_asset, :add_facts
-
-  def remove_facts
-    asset.remove_facts(Fact.where(predicate: predicate, object: object, object_asset: object_asset))
-    asset.touch
-  end
-
-  alias_method :delete_asset, :remove_facts
 
 end

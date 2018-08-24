@@ -39,8 +39,8 @@ RSpec.describe Condition, type: :model do
         FactoryBot.create(:asset, :facts => facts)
       end      
       @rack = FactoryBot.create :asset
-      @rack.add_facts(FactoryBot.create(:fact, {:predicate => 'a', :object => 'Rack'}))
-      @rack.add_facts(@wells.map {|well| FactoryBot.create(:fact, {:predicate => 'contains', :object_asset => well})})
+      @rack.facts << (FactoryBot.create(:fact, {:predicate => 'a', :object => 'Rack'}))
+      @rack.facts << (@wells.map {|well| FactoryBot.create(:fact, {:predicate => 'contains', :object_asset => well})})
 
       @assets = @assets.concat([@wells, @rack]).flatten
 

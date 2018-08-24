@@ -6,7 +6,7 @@ RSpec.describe BackgroundSteps::UpdateSequencescape do
 
   def build_instance
     asset = create(:asset)
-    asset.add_facts(create(:fact, predicate: 'pushTo', object: 'Sequencescape'))
+    asset.facts << (create(:fact, predicate: 'pushTo', object: 'Sequencescape'))
 
     asset_group = create(:asset_group)
     asset_group.update_attributes(assets: [asset])

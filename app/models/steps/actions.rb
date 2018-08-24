@@ -1,7 +1,5 @@
 require 'parsers/csv_layout'
 require 'parsers/csv_layout_with_tube_creation'
-require 'parsers/csv_order'
-require 'parsers/symphony'
 
 require 'fact_changes'
 

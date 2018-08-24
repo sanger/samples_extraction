@@ -8,8 +8,8 @@ module InferenceEngines
           raise Steps::ExecutionErrors::UnknownConditionGroup, msg if changed_assets.compact.length==0
           @changed_facts = generate_facts
           changed_assets.each do |asset|
-            asset.add_facts(changed_facts.map(&:dup), position) do |fact|
-              create_operation(asset, fact)
+            @changed_facts.each do |fact|
+              updates.add(asset, fact.predicate, fact.object_value || fact.object)
             end
           end
         end
@@ -22,16 +22,8 @@ module InferenceEngines
                 (f.object_asset && action.object_condition_group.compatible_with?(f.object_asset))))
             end.select do |f|
               (position.nil? || f.object_asset.nil?) ? true : (position_for_asset(f.object_asset, action.object_condition_group)==position)
-            end.each do |fact|
-              create_operation(asset, fact)
             end
-            if facts_to_destroy.nil?
-              @changed_facts.each do |fact|
-                fact.update_attributes(:to_remove_by => step.id)
-              end
-            else
-              facts_to_destroy.push(@changed_facts)
-            end
+            updates.remove(@changed_facts)
           end
         end
 

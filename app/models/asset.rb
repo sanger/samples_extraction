@@ -104,85 +104,6 @@ class Asset < ActiveRecord::Base
     end
   }
 
-  def add_facts(list, position=nil, &block)
-    facts << list
-    [list].flatten.each { |fact| yield fact if block_given? }
-  end
-
-  def add_facts2(list, position=nil, &block)
-    updated = false
-    updated_fact = false
-    ActiveRecord::Base.transaction do |t|
-      list = [list].flatten
-      list.each do |fact|
-        unless has_fact?(fact)
-          if ((fact.position.nil?) || (fact.position == position))
-            facts << fact
-            if fact.predicate == 'barcode'
-              update_attributes(:barcode => fact.object)
-            end
-            if fact.predicate == 'uuid'
-              update_attributes(:uuid => fact.object)
-            end
-            yield fact if block_given?
-          end
-          updated_fact = true
-        end
-      end
-      # If the loop has an exception, updated wont be set to true
-      updated = updated_fact
-    end
-    touch unless new_record?
-    updated
-  end
-
-  def remove_facts(list)
-    list = [list].flatten
-    ids_to_remove = list.map(&:id).compact
-    list.each { |fact| yield fact if block_given? }
-    Fact.where(id: ids_to_remove).delete_all if ids_to_remove && !ids_to_remove.empty?
-  end
-
-  def remove_facts2(list, &block)
-    updated = false
-    updated_fact = false
-    ActiveRecord::Base.transaction do |t|
-      list = [list].flatten
-      list.each do |fact|
-        yield fact if block_given?
-        if fact.object_asset
-          facts.where(predicate: fact.predicate, object_asset: fact.object_asset).each(&:destroy)
-        elsif fact.object
-          facts.where(predicate: fact.predicate, object: fact.object).each(&:destroy)
-        end
-        updated_fact = true
-      end
-      updated = updated_fact
-    end
-    updated
-  end
-
-  def add_fact(predicate, object, step=nil)
-    fact = {predicate: predicate, literal: object.kind_of?(Asset)}
-    fact[:literal] ? fact[:object_asset] = object : fact[:object] = object
-    add_facts([Fact.create(fact)], nil)
-  end
-
-  def add_operations(list, step, action_type = 'addFacts')
-    list.each do |fact|
-      Operation.create!(:action_type => action_type, :step => step,
-        :asset=> self, :predicate => fact.predicate, :object => fact.object, object_asset: fact.object_asset)
-    end
-  end
-
-  def remove_operations(list, step)
-    list.each do |fact|
-      Operation.create!(:action_type => 'removeFacts', :step => step,
-        :asset=> self, :predicate => fact.predicate, :object => fact.object, object_asset: fact.object_asset)
-    end
-  end
-
-
   def short_description
     "#{aliquot_type} #{class_type} #{barcode.blank? ? '#' : barcode}".chomp
   end
@@ -218,7 +139,6 @@ class Asset < ActiveRecord::Base
       end
     end
   end
-
 
 
   def facts_to_s
@@ -283,14 +203,6 @@ class Asset < ActiveRecord::Base
     if barcode.nil?
       update_attributes(:barcode => Barcode.calculate_barcode(Rails.application.config.barcode_prefix,self.id))
     end
-    # if barcode.nil?
-    #   generated_barcode = Barcode.calculate_barcode(Rails.application.config.barcode_prefix,Asset.count+i)
-    #   if find_by(:barcode =>generated_barcode).nil?
-    #     update_attributes(:barcode => generated_barcode)
-    #   else
-
-    #   end
-    # end
   end
 
   def attrs_for_sequencescape(traversed_list = [])
@@ -322,16 +234,6 @@ class Asset < ActiveRecord::Base
     #return {:uuid => uuid, :barcode => { :prefix => 'SE', :number => 14 }}
     hash
   end
-
-  # def method_missing(sym, *args, &block)
-  #   list_facts = facts.with_predicate(sym.to_s.singularize)
-  #   return list_facts.map(&:object_value) unless list_facts.empty?
-  #   super(sym, *args, &block)
-  # end
-
-  # def respond_to?(sym, include_private = false)
-  #   (!facts.with_predicate(sym.to_s.singularize).empty? || super(sym, include_private))
-  # end
 
   def study_and_barcode
     [study_name, barcode_sequencescaped].join(' ')
@@ -494,9 +396,6 @@ class Asset < ActiveRecord::Base
   end
 
   def to_n3
-    #facts.map do |f|
-    #  "<#{uuid}> :#{f.predicate} " + (f.object_asset.nil? ? "\"#{f.object}\"" : "<#{f.object_asset.uuid}>") +" .\n"
-    #end.join('')
     render :n3
   end
 end

@@ -29,8 +29,8 @@ module InferenceEngines
 
           created_assets[action.subject_condition_group.id].each_with_index do |created_asset, i|
             @changed_facts = generate_facts.map(&:dup)
-            created_asset.add_facts(changed_facts, i) do |fact|
-              create_operation(created_asset, fact)
+            @changed_facts.each do |fact|
+              updates.add(created_asset, fact.predicate, fact.object_value || fact.object)
             end
             if (created_asset.has_literal?('barcodeType', 'NoBarcode'))
               created_asset.update_attributes(:barcode => nil)

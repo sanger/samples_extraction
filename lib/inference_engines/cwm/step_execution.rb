@@ -6,7 +6,7 @@ module InferenceEngines
     class StepExecution
       include StepExecutionProcess
       
-      attr_accessor :step, :asset_group, :original_assets, :created_assets, :facts_to_destroy
+      attr_accessor :step, :asset_group, :original_assets, :created_assets, :facts_to_destroy, :updates
 
       def initialize(params)
         @step = params[:step]
@@ -16,7 +16,7 @@ module InferenceEngines
         @facts_to_destroy = params[:facts_to_destroy]
 
         @step_types = params[:step_types] || [@step.step_type]
-
+        @updates = FactChanges.new
       end
 
       def debug_log(params)
@@ -78,7 +78,8 @@ module InferenceEngines
           send(action_type, quads) if quads
         end
 
-        #@asset_group.assets.each(&:export!)
+        updates.apply(step)
+        
       end
 
       def self.UUID_REGEXP
@@ -121,11 +122,7 @@ module InferenceEngines
         graphs.each do |quads|
           quads.map do |quad|
             asset = Asset.find_by!(:uuid => uuid(fragment(quad[0])))
-            asset.remove_facts(asset.facts.select do |f|
-              equal_quad_and_fact?(quad, f)
-            end) do |f|
-              asset.add_operations([f], @step, 'removeFacts')
-            end
+            updates.remove(asset.facts.select {|f| equal_quad_and_fact?(quad, f) })
           end
         end
       end
@@ -138,10 +135,7 @@ module InferenceEngines
           object_asset = Asset.find_by(:uuid => uuid(object))
           literal = false if object_asset
         end
-        asset.add_facts(Fact.new(:predicate => fragment(quad[1]), :object => object, 
-          :object_asset => object_asset, :literal => literal)) do |f|
-          asset.add_operations([f], @step, action_type)
-        end
+        updates.add(asset, fragment(quad[1]), object || object_asset)
       end
 
       def create_asset(graphs)

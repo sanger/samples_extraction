@@ -1,6 +1,5 @@
 require 'inference_engines/default/actions/asset_actions'
 require 'inference_engines/default/actions/fact_actions'
-require 'inference_engines/default/actions/operation_actions'
 require 'inference_engines/default/actions/service_actions'
 
 module InferenceEngines
@@ -8,7 +7,6 @@ module InferenceEngines
     class StepExecution
       include Actions::AssetActions
       include Actions::FactActions
-      include Actions::OperationActions
       include Actions::ServiceActions
 
       # Elements not modified during all lifetime of StepExecution instance
@@ -34,6 +32,8 @@ module InferenceEngines
       # Hash with the positions for each asset by condition group
       attr_accessor :positions_for_asset
 
+      attr_accessor :updates
+
       ACTION_TYPES = ['addFacts', 'removeFacts', 'createAsset', 'selectAsset', 'updateService']
 
       def initialize(params)
@@ -42,6 +42,7 @@ module InferenceEngines
         @original_assets= params[:original_assets]
         @created_assets= params[:created_assets]
         @facts_to_destroy = params[:facts_to_destroy]
+        @updates = FactChanges.new
       end
 
       def valid_action_type?
@@ -121,6 +122,7 @@ module InferenceEngines
             perform_action(action, asset, nil)
           end
         end
+        updates.apply(step)
         save_created_assets
       end
 
