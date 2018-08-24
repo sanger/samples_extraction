@@ -1,4 +1,16 @@
 class BackgroundSteps::PrintBarcodes < BackgroundSteps::BackgroundStep
+  # %Q{
+  #   {
+  #     ?asset :is :readyForPrint .
+  #     ?username :a :CurrentUser .
+  #     ?tubePrinter :a :TubePrinter .
+  #   } => {
+  #     :step :action :print .
+  #     :step :firstArg ?tubePrinter .
+  #     :step :secondArg ?username .
+  #     :step :removeFacts { ?asset :is :readyForPrint . }.
+  #   } .
+  # }
 
   def assets_compatible_with_step_type
     asset_group.assets.with_fact('is', 'readyForPrint').count > 0

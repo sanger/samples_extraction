@@ -103,34 +103,6 @@ class Asset < ActiveRecord::Base
       end
     end
   }
-  # def self.assets_for_queries(queries)
-  #   queries.map do |query|
-  #     if Asset.first && Asset.first.has_attribute?(query.predicate)
-  #       Asset.with_field(query.predicate, query.object)
-  #     else
-  #       Asset.with_fact(query.predicate, query.object)
-  #     end
-  #   end.reduce([]) do |memo, result|
-  #     if memo.empty?
-  #       result
-  #     else
-  #       result & memo
-  #     end
-  #   end
-  # end
-
-
-
-  #def self.assets_compatible_with_activity_type(assets, activity_type)
-  # scope :assets_compatible_with_activity_type, ->(assets, activity_type) {
-  #   select do |asset|
-  #     activity_type.step_types.any? do |s|
-  #       s.condition_groups.all? do |cg|
-  #         cg.compatible_with?(asset)
-  #       end
-  #     end
-  #   end
-  # }
 
   def add_facts(list, position=nil, &block)
     facts << list

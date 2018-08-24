@@ -45,25 +45,11 @@ class ActivityType < ActiveRecord::Base
   end
 
 
-  # def after_deprecate
-  #   self.reload
-  #   main_instance = self.superceded_by
-  #   main_instance.supercedes.each do |activity_type|
-  #     activity_type.kit_types.each do |kit_type|
-  #       kit_type.update_attributes!(:activity_type => main_instance)
-  #     end
-  #     activities.each do |activity|
-  #       activity.update_attributes!(:activity_type => main_instance)
-  #     end
-  #   end
-  # end
-
   def compatible_with?(assets)
     condition_groups.any?{|c| c.compatible_with?(assets)}
   end
 
   def to_n3
     render :n3
-    #[":step :activityTypeName \"\"\"#{name}\"\"\"", step_types.map(&:to_n3)].flatten.join(" . \n")+" ."
   end
 end

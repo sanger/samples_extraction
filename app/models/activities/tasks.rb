@@ -50,7 +50,7 @@ module Activities
         if step && params_for_finish_step?(step_params)
           step.finish
         else
-          raise StepWithoutInputs
+          raise StandardError, 'Step without inputs'
         end
       end
       return step

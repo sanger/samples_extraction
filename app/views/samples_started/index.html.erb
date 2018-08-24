@@ -36,7 +36,7 @@
                       <td>
                         <%= render_react_display_and_facts_for_asset(asset) %>
                       </td><td><%= activity.completed_at || 'In progress' %></td>
-                      <td><%= (activity.last_user ? activity.last_user.username : 'None') %></td>
+                      <td><%= (activity.users.last ? activity.users.last.username : 'None') %></td>
                     </tr>
                   <% end %>
                 <% end %>

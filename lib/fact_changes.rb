@@ -2,12 +2,20 @@ class FactChanges
   attr_accessor :facts_to_destroy, :facts_to_add
 
   def initialize
-    @facts_to_destroy = []
-    @facts_to_add = []
+    reset
   end
 
-  def add(s,p,o)
-    facts_to_add.push([s,p,o])
+  def reset
+    @facts_to_destroy = []
+    @facts_to_add = []    
+  end
+
+  def add(s,p,o, options=nil)
+    facts_to_add.push([s,p,o, options]) if (s && p && o)
+  end
+
+  def add_remote(s,p,o)
+    add(s,p,o,is_remote?: true)
   end
 
   def remove(f)
@@ -24,6 +32,7 @@ class FactChanges
     ActiveRecord::Base.transaction do |t|
       remove_facts(step, facts_to_destroy.flatten)
       create_facts(step, facts_to_add)
+      reset
     end
   end
 
@@ -33,6 +42,7 @@ class FactChanges
     facts = triples.map do |t|
       params = {asset: t[0], predicate: t[1], literal: !(t[2].kind_of?(Asset))}
       params[:literal] ? params[:object] = t[2] : params[:object_asset] = t[2]
+      params = params.merge(t[3]) if t[3]
       Fact.create(params)
     end
     add_operations(step, facts)
