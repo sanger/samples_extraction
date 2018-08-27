@@ -32,16 +32,20 @@ module InferenceEngines
             @changed_facts.each do |fact|
               updates.add(created_asset, fact.predicate, fact.object_value || fact.object)
             end
-            if (created_asset.has_literal?('barcodeType', 'NoBarcode'))
-              created_asset.update_attributes(:barcode => nil)
-            else
-              created_asset.generate_barcode(i)
-            end
           end
         end
 
         def save_created_assets
-          list_of_assets = created_assets.values.uniq
+          list_of_assets = created_assets.values.flatten.uniq
+
+          list_of_assets.each_with_index do |asset, i|
+            if (asset.has_literal?('barcodeType', 'NoBarcode'))
+              asset.update_attributes(:barcode => nil)
+            else
+              asset.generate_barcode(i)
+            end
+          end
+
           if list_of_assets.length > 0
             created_asset_group = AssetGroup.create
             created_asset_group.add_assets(list_of_assets)

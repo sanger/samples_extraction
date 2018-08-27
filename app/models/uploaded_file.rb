@@ -1,4 +1,5 @@
 require 'csv'
+require 'fact_changes'
 
 class UploadedFile < ApplicationRecord
   belongs_to :asset
@@ -16,11 +17,12 @@ class UploadedFile < ApplicationRecord
   def build_asset(params)
     unless asset
       update_attributes(asset: Asset.create)
-      FactChanges.new do |updates|
+      FactChanges.new.tap do |updates|
         updates.add(asset, 'a', file_type(params[:content_type]))
         updates.add(asset, 'contents', asset)
       end.apply(step)
     end
+    asset.touch
     asset    
   end
 end
