@@ -79,6 +79,9 @@ class AssetGroupEditor extends React.Component {
                <AssetGroup
                  dataRackDisplay={this.props.dataRackDisplay}
                  activityRunning={this.props.activityRunning}
+                 onCollapseFacts={this.props.onCollapseFacts}
+                 collapsedFacts={this.props.collapsedFacts}
+
                  onRemoveAssetFromAssetGroup={this.props.onRemoveAssetFromAssetGroup}
                  onRemoveAllAssetsFromAssetGroup={this.props.onRemoveAllAssetsFromAssetGroup}
                  assetGroup={this.props.assetGroup} />

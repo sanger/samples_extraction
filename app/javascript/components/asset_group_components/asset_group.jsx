@@ -39,7 +39,11 @@ class AssetGroup extends React.Component {
           <AssetDisplay asset={asset} />
         </td>
         <td data-psd-component-class="AddFactToSearchbox">
-          <Facts asset={asset}  facts={asset.facts}  dataRackDisplay={this.props.dataRackDisplay}  />
+          <Facts asset={asset}  facts={asset.facts}  
+            key={"facts-"+index}
+            onCollapseFacts={this.props.onCollapseFacts}
+            collapsedFacts={this.props.collapsedFacts}
+            dataRackDisplay={this.props.dataRackDisplay}  />
         </td>
         <td>
           <button disabled={this.props.activityRunning} onClick={$.proxy(this.removeAsset, this, asset, index) } className="btn btn-primary ">Delete</button>

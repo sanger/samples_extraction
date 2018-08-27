@@ -28,7 +28,8 @@ class Activity extends React.Component {
 			stepsFinished: props.stepsFinished,	
       stepsFailed: props.stepsFailed, 
 			activityRunning: props.activityRunning,
-      dataRackDisplay: props.dataRackDisplay
+      dataRackDisplay: props.dataRackDisplay,
+      collapsedFacts: {}
 		}
 		this.onSelectAssetGroup = this.onSelectAssetGroup.bind(this)
 		this.onChangeAssetGroup = this.onChangeAssetGroup.bind(this)
@@ -41,11 +42,25 @@ class Activity extends React.Component {
     this.changeStatusStep = this.changeStatusStep.bind(this)
     this.onStopStep = this.onStopStep.bind(this)
     this.onRetryStep = this.onRetryStep.bind(this)
+    this.onCollapseFacts = this.onCollapseFacts.bind(this)
 
 		this.renderStepTypesControl = this.renderStepTypesControl.bind(this)
 	}
 	componentDidMount() {
     this.listenWebSockets()
+  }
+  onCollapseFacts(collapsedFacts, uuid, predicate) {
+    return(()=>{
+      if (!collapsedFacts[uuid]) {
+        collapsedFacts[uuid]={}
+      }
+      if (collapsedFacts[uuid][predicate] === true) {
+        collapsedFacts[uuid][predicate]=false
+      } else {
+        collapsedFacts[uuid][predicate]=true
+      }
+      this.setState({collapsedFacts})
+    })
   }
   listenWebSockets() {
     App.cable.subscriptions.create({
@@ -211,6 +226,9 @@ class Activity extends React.Component {
 			  <AssetGroupsEditor
           dataRackDisplay={this.state.dataRackDisplay}
 			  	activityRunning={this.state.activityRunning}
+          onCollapseFacts={this.onCollapseFacts}
+          collapsedFacts={this.state.collapsedFacts}
+
 					onExecuteStep={this.onExecuteStep}
 					onRemoveAssetFromAssetGroup={this.onRemoveAssetFromAssetGroup}
 					onRemoveAllAssetsFromAssetGroup={this.onRemoveAllAssetsFromAssetGroup}
