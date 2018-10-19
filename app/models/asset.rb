@@ -8,14 +8,10 @@ class Asset < ActiveRecord::Base
   include Printables::Instance
   include Asset::Import
   include Asset::Export
+  include Assets::WebsocketEvents
+  include Assets::FactsManagement
 
   has_one :uploaded_file
-
-  after_touch :touch_asset_groups
-
-  def touch_asset_groups
-    asset_groups.each(&:touch)
-  end
 
   alias_attribute :name, :uuid
 
@@ -42,20 +38,8 @@ class Asset < ActiveRecord::Base
 
   has_many :activities, -> { distinct }, :through => :steps
 
-  scope :with_fact, ->(predicate, object) {
-    joins(:facts).where(:facts => {:predicate => predicate, :object => object})
-  }
-
   scope :currently_changing, ->() {
     joins(:asset_groups, :steps).where(:steps => {:state => 'running'})
-  }
-
-  scope :with_field, ->(predicate, object) {
-    where(predicate => object)
-  }
-
-  scope :with_predicate, ->(predicate) {
-    joins(:facts).where(:facts => {:predicate => predicate})
   }
 
   scope :for_activity_type, ->(activity_type) {
@@ -117,61 +101,6 @@ class Asset < ActiveRecord::Base
     uuid
   end
 
-  def has_literal?(predicate, object)
-    facts.any?{|f| f.predicate == predicate && f.object == object}
-  end
-
-  def has_predicate?(predicate)
-    facts.any?{|f| f.predicate == predicate}
-  end
-
-  def has_fact?(fact)
-    facts.any? do |f|
-      if f.object.nil?
-        ((fact.predicate == f.predicate) && (fact.object_asset == f.object_asset) &&
-          (fact.to_add_by == f.to_add_by) && (fact.to_remove_by == f.to_remove_by))
-      else
-        other_conds=true
-        if fact.respond_to?(:to_add_by)
-          other_conds = (fact.to_add_by == f.to_add_by) && (fact.to_remove_by == f.to_remove_by)
-        end
-        ((fact.predicate == f.predicate) && (fact.object == f.object) && other_conds)
-      end
-    end
-  end
-
-
-  def facts_to_s
-    facts.each do |fact|
-      render :partial => fact
-    end
-  end
-
-  def object_value(fact)
-    fact.object_asset ? fact.object_asset.uuid : fact.object
-  end
-
-  def condition_groups_init
-    obj = {}
-    obj[barcode] = { :template => 'templates/asset_facts'}
-    obj[barcode][:facts]=facts.map do |fact|
-          {
-            :cssClasses => '',
-            :name => uuid,
-            :actionType => 'createAsset',
-            :predicate => fact.predicate,
-            :object_reference => fact.object_asset_id,
-            :object_label => fact.object_label,
-            :object => object_value(fact)
-          }
-        end
-
-    obj
-  end
-
-  def facts_for_reasoning
-    [facts, Fact.as_object(asset)].flatten
-  end
 
   def reasoning!(&block)
     num_iterations = 0
@@ -302,10 +231,6 @@ class Asset < ActiveRecord::Base
     return ''
   end
 
-
-  def first_value_for(predicate)
-    facts.with_predicate(predicate).first.object
-  end
 
   def position_name_for_symphony
     str = first_value_for('location')

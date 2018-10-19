@@ -1,7 +1,7 @@
 
 
 
-<%= bootstrap_form_for(step_type, :html => { :"data-psd-component-class" => "ConditionGroups", :"data-psd-component-parameters" => @step_type.condition_groups_init}) do |f| %>
+<%= bootstrap_form_for(step_type, :html => { :"data-psd-component-class" => "ConditionGroups", :"data-psd-component-parameters" => condition_groups_init_for_step_type(@step_type)}) do |f| %>
   <% if step_type.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(step_type.errors.count, "error") %> prohibited this step_type from being saved:</h2>

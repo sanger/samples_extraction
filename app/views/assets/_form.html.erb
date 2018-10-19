@@ -26,7 +26,7 @@
     <%= f.text_field :barcode, :readonly => readonly %>
   </div>
 
-  <div class="asset <%= 'readonly' if readonly %>" data-psd-component-class="ConditionGroups" data-psd-component-parameters="<%= @asset.condition_groups_init.to_json %>">
+  <div class="asset <%= 'readonly' if readonly %>" data-psd-component-class="ConditionGroups" data-psd-component-parameters="<%= condition_groups_init_for_asset(@asset).to_json %>">
     <div id="conditionGroups">
     </div>
   </div>
