@@ -1,6 +1,5 @@
 
 <%= trigger_alerts %>
-
 <div class="form-group" data-psd-component-class="AssetGroup" data-psd-component-parameters="{}">
   <%= bootstrap_form_for [@activity, @asset_group], action: 'update', remote: true, html: { :autocomplete => 'off', :"data-psd-asset-group-form" => "1"} do |f| %>
 
@@ -57,13 +56,13 @@
     <div class="panel-body collapse in" id="collapseAssets">
       <% unless @assets.empty? %>
       <table class="table table-condensed">
-        <thead><th>Barcode</th><th>Facts</th><th>
+        <thead><th>Barcode</th><th>Facts</th><th>Position</th><th>
           <button class="btn btn-primary delete-button" data-psd-asset-group-delete-all-barcodes="">Delete all</button>
         </th></thead>
         <tbody data-psd-asset-group-content="1">
           <% @assets.distinct.each_with_index do |asset, i| %>
             <tr data-asset-uuid="<%= asset.uuid %>" data-psd-component-class="LoadingIcon"
-              data-psd-component-parameters='{ "iconClass": "glyphicon", "containerIconClass": "spinner", "loadingClass": "fast-right-spinner"}'>              
+              data-psd-component-parameters='{ "iconClass": "glyphicon", "containerIconClass": "spinner", "loadingClass": "fast-right-spinner"}'>
               <td>
                 <%= asset.barcode %>
 
@@ -71,6 +70,7 @@
                   <span class="glyphicon glyphicon-refresh"></span>
                 </div>
               </td>
+              <td><%= i %></td>
               <td data-psd-component-class="AddFactToSearchbox">
                 <%= render :partial => 'facts/facts', :locals => { :facts => asset.facts, :show_image => true, :show_facts => true } %>
               </td>
