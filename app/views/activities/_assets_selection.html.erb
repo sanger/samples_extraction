@@ -64,7 +64,7 @@
               <td>
                 <%= render :partial => 'facts/facts', :locals => { :facts => asset.facts, :show_image => true, :show_facts => true } %>
               </td>
-              <td><%= i %></td>
+              <td><%= i+1 %></td>
               <td>
                 <button class="btn btn-default delete-button" data-psd-asset-group-delete-barcode="<%= asset.barcode %>">Delete</button>
               </td>
