@@ -56,7 +56,7 @@
     <div class="panel-body collapse in" id="collapseAssets">
       <% unless @assets.empty? %>
       <table class="table table-condensed">
-        <thead><th>Barcode</th><th>Facts</th><th><span class='pull-right'>Delete All</span></th></thead>
+        <thead><th>Barcode</th><th>Facts</th><th>Position</th><th><span class='pull-right'>Delete All</span></th></thead>
         <tbody data-psd-asset-group-content="1">
           <% @assets.distinct.each_with_index do |asset, i| %>
             <tr>
@@ -64,6 +64,7 @@
               <td>
                 <%= render :partial => 'facts/facts', :locals => { :facts => asset.facts, :show_image => true, :show_facts => true } %>
               </td>
+              <td><%= i %></td>
               <td>
                 <button class="btn btn-default delete-button" data-psd-asset-group-delete-barcode="<%= asset.barcode %>">Delete</button>
               </td>
