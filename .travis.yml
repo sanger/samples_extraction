@@ -4,5 +4,4 @@ bundle_args: "--without deployment"
 cache:
   bundler: true
 script:
-  - bundle exec rubocop
   - bundle exec rspec
