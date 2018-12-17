@@ -1,4 +1,8 @@
 language: ruby
-before_script:
-  - "export SECRET_KEY_BASE=`bundle exec rake secret`"
-  - "bundle exec rake db:create RAILS_ENV=test"
+dist: xenial
+bundle_args: "--without deployment"
+cache:
+  bundler: true
+script:
+  - bundle exec rubocop
+  - bundle exec rspec
