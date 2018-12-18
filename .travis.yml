@@ -6,6 +6,6 @@ bundle_args: "--without deployment"
 cache:
   bundler: true
 before_script:
-  - bundle exec rake db:setup
+  - bundle exec rake db:create
 script:
   - bundle exec rspec
