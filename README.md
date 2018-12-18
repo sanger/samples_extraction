@@ -1,10 +1,16 @@
-# samples_extraction
+Samples Extraction
+==================
+[![Build Status](https://travis-ci.org/radome/samples_extraction.svg?branch=test_openstack)](https://travis-ci.org/radome/samples_extraction)
+
+Description
+-----------
 
 A tool to use and customize workflows for tracking information about the
-process for samples extraction and update the relevant information in 
+process for samples extraction and update the relevant information in
 Sequencescape.
 
-## Main Features:
+Main Features
+-------------
 
 - Inbox of Started and Non started samples
 - Worflows creation using the GUI with the browser
@@ -20,9 +26,11 @@ Sequencescape.
 - Sequencial execution of delayed jobs / steps
 
 
-## Data model:
-```text
-Kits <-- KitTypes <-- ActivityTypes ---> Activities   
+Data model
+----------
+
+```
+Kits <-- KitTypes <-- ActivityTypes ---> Activities
                           |                |
                           V                V
 Actions <------------ StepTypes -------> Steps -----------> Step Execution
@@ -34,21 +42,24 @@ ConditionGroups <--/   AssetGroups        Operations
 Conditions             Assets --> Facts
 ```
 
-## Other features:
+Other features
+--------------
 
-- Main process is labware type agnostic, any labware description is following 
+- Main process is labware type agnostic, any labware description is following
 the description of the ontology created in app/assets/owls/root-ontology.ttl
 - Web resources are accessible in .n3 format to be able to create external
 scripts for querying the data (see lib/examples)
 - Any rules processing is delegated to the delayed job in a background job that
 could use other external tools to perform the processing
 
-## To start:
-1. Edit the following information in config/environments/#{RAILS_ENV}.rb 
- - PMB_URI : url for the required instance for print my barcode
- - SS_URI : url for Sequencescape
+Usage
+-----
 
-3. Create the label_templates for PrintMyBarcode 
+1. Edit the following information in `config/environments/#{RAILS_ENV}.rb`
+ - `PMB_URI`: url for the required instance for Print My Barcode
+ - `SS_URI`: url for Sequencescape
+
+3. Create the `label_templates` for Print My Barcode
 ```bash
 rake label_templates:setup
 ```
