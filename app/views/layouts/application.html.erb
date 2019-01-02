@@ -37,7 +37,7 @@
         <%= Deployed::VERSION_STRING %> <%= Deployed::RELEASE_NAME %> <%= link_to Deployed::VERSION_COMMIT, Deployed::REPO_URL%> | <%= Deployed::HOSTNAME %>
       </div>
 <p>
-  <%= link_to "Feedback", "mailto:#{Rails.configuration.admin_email}" %> · A tool from <%= link_to Rails.configuration.team_name, Rails.configuration.team_url %>
+  <%= bootstrap_link_to "Feedback", "mailto:#{Rails.configuration.admin_email}" %> · A tool from <%= bootstrap_link_to Rails.configuration.team_name, Rails.configuration.team_url %>
 </p>
 
 <input type="hidden" id="refresh" value="no">
