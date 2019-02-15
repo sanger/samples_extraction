@@ -1,4 +1,4 @@
-module Asset::FactsManagement
+module Assets::FactsManagement
   def self.included(klass)
     klass.instance_eval do
       scope :with_fact, ->(predicate, object) {
@@ -12,7 +12,7 @@ module Asset::FactsManagement
         joins(:facts).where(:facts => {:predicate => predicate})
       }
 
-      
+
     end
   end
 
