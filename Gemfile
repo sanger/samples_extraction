@@ -33,11 +33,9 @@ gem 'react-rails'
 gem 'delayed_job'
 gem 'delayed_job_active_record'
 
-gem 'sequencescape-client-api',
-  # Should be switched back to sanger + production for deployment
-  :github => 'emrojo/sequencescape-client-api',
-  :branch  => 'asset-attribute-update-merged-with-rails-5',
-  :require => 'sequencescape'
+gem 'sequencescape-client-api', git: 'https://github.com/emrojo/sequencescape-client-api.git', 
+   branch: 'asset-attribute-update-merged-with-rails-5',
+   require: 'sequencescape'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
@@ -76,7 +74,7 @@ gem 'sdoc'#, '~> 0.4.0', group: :doc
 # gem 'unicorn'
 
 # Add simple support for print-my barcode)
-gem 'pmb-client', '0.1.0', :github => 'sanger/pmb-client'
+gem 'pmb-client', '0.1.0', git: 'https://github.com/sanger/pmb-client.git'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
@@ -95,7 +93,6 @@ group :test, :selenium do
   gem 'rspec-rails'
   gem 'shoulda-matchers'
   gem 'rails-controller-testing'
-  #gem 'cucumber-rails', :require => false
   gem 'database_cleaner'
 end
 
@@ -122,8 +119,6 @@ end
 
 
 group :deployment do
-  gem "psd_logger",
-    :github => "sanger/psd_logger"
-  gem "gmetric", "~>0.1.3"
-  #gem "exception_notification"
+  gem 'psd_logger', git: 'https://github.com/sanger/psd_logger.git'
+  gem 'gmetric', '~>0.1.3'
 end
