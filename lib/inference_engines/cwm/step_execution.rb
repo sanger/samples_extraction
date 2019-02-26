@@ -5,7 +5,7 @@ module InferenceEngines
   module Cwm
     class StepExecution
       include StepExecutionProcess
-      
+
       attr_accessor :step, :asset_group, :original_assets, :created_assets, :facts_to_destroy, :updates
 
       def initialize(params)
@@ -34,15 +34,15 @@ module InferenceEngines
         call_list = [
           cmd = "#{Rails.configuration.cwm_path}/cwm",
           input_urls = [
-            Rails.application.routes.url_helpers.asset_group_url(@asset_group.id),
+            Rails.application.routes.url_helpers.asset_group_url(@asset_group.id)+".n3",
             @step_types.map do |step_type|
-              Rails.application.routes.url_helpers.step_type_url(step_type.id)
+              Rails.application.routes.url_helpers.step_type_url(step_type.id)+".n3"
             end
           ],
-          '--mode=r', 
+          '--mode=r',
           '--think'
         ].flatten
-        
+
         call_str = call_list.join(" ")
 
         line = "# EXECUTING: #{call_str}"
@@ -79,7 +79,7 @@ module InferenceEngines
         end
 
         updates.apply(step)
-        
+
       end
 
       def self.UUID_REGEXP
