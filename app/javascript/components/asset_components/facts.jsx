@@ -6,13 +6,14 @@ class Facts extends React.Component {
   collapsedPredicate(facts) {
     return facts[0].predicate;
   }
-  renderCollapsedControl(facts) {
+  renderCollapsedControl(facts, posPredicate) {
     let uuid = this.props.asset.uuid
     let pred = this.collapsedPredicate(facts)
     let shown = this.props.collapsedFacts[uuid] && this.props.collapsedFacts[uuid][pred]
 
-    return(      
-      <div 
+    return(
+      <div
+        key={posPredicate}
         onClick={this.props.onCollapseFacts(this.props.collapsedFacts, this.props.asset.uuid, this.collapsedPredicate(facts))}
         className="fact administrator-allowed">
           <span className={"label label-warning"}>
@@ -31,16 +32,16 @@ class Facts extends React.Component {
     )
   }
 
-  renderCollapsedList(facts) {
+  renderCollapsedList(facts, posPredicate) {
     let uuid = this.props.asset.uuid
     let pred = this.collapsedPredicate(facts)
     let shown = this.props.collapsedFacts[uuid] && this.props.collapsedFacts[uuid][pred]
     if (facts.length == 1) {
-      return this.renderFact(facts[0])
+      return this.renderFact(facts[0], posPredicate+"-1")
     } else {
-      let render = [this.renderCollapsedControl(facts)]
+      let render = [this.renderCollapsedControl(facts, posPredicate)]
       if (shown) {
-        render = render.concat(facts.map((fact, pos) => { return this.renderFact(fact, pos)}))    
+        render = render.concat(facts.map((fact, pos) => { return this.renderFact(fact, posPredicate+"-"+pos)}))
       }
       return(render)
     }
@@ -48,10 +49,12 @@ class Facts extends React.Component {
   renderCollapsedFacts(facts) {
     let rendered = []
     const factsByPredicate = this.factsByPredicate(facts)
+    let posPredicate = 0
     for (var predicate in factsByPredicate) {
-      rendered.push(this.renderCollapsedList(factsByPredicate[predicate]))
+      rendered.push(this.renderCollapsedList(factsByPredicate[predicate], posPredicate))
+      posPredicate+=1
     }
-    return rendered    
+    return rendered
   }
 
   factsByPredicate(facts) {
