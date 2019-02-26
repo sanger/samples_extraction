@@ -44,7 +44,7 @@ class AssetGroupsEditor extends React.Component {
           activityRunning={this.props.activityRunning}
           onCollapseFacts={this.props.onCollapseFacts}
           collapsedFacts={this.props.collapsedFacts}
-          
+
           onExecuteStep={this.props.onExecuteStep}
           isShown={this.isShown(assetGroup)}
           onRemoveAssetFromAssetGroup={this.props.onRemoveAssetFromAssetGroup}
@@ -65,7 +65,7 @@ class AssetGroupsEditor extends React.Component {
           <ul className="nav nav-tabs" role="tablist">
             {Object.keys(this.props.assetGroups).map(this.renderTab)}
           </ul>
-          {Object.keys(this.props.assetGroups).map(this.renderPanel)}
+          { this.renderPanel(this.props.selectedAssetGroup) }
         </div>
 
       </div>
