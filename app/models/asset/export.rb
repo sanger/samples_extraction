@@ -17,7 +17,7 @@ module Asset::Export
     facts.each {|f| f.update_attributes!(:up_to_date => true)}
     old_barcode = barcode
     previous_asset_group_ids = asset_groups.map(&:id)
-    update_attributes(:uuid => instance.uuid, :barcode => instance.barcode.ean13)
+    update_attributes(:uuid => instance.uuid, :barcode => code39_barcode(instance))
 
     FactChanges.new do |updates|
       updates.add(self, 'beforeBarcode', old_barcode)
@@ -33,6 +33,13 @@ module Asset::Export
 
   def mark_to_print(updates)
     updates.add(self, 'is', 'readyForPrint')
+  end
+
+  def code39_barcode(instance)
+    prefix = instance.barcode.prefix
+    number = instance.barcode.number
+    checksum = Barcode.calculate_checksum(prefix, number)
+    "#{prefix}#{number}#{checksum}"
   end
 
   def update_plate(instance)

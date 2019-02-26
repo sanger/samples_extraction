@@ -101,7 +101,6 @@ class Asset < ActiveRecord::Base
     uuid
   end
 
-
   def reasoning!(&block)
     num_iterations = 0
     current_facts = facts_for_reasoning
@@ -169,6 +168,10 @@ class Asset < ActiveRecord::Base
   end
 
   def barcode_sequencescaped
+    unless barcode.match(/^\d+$/)
+      return barcode.match(/\d+/)[0] if barcode.match(/\d+/)
+      return ""
+    end
     ean13 = barcode.rjust(13, '0')
     ean13.slice!(0,3)
     ean13.slice!(ean13.length-3,3)
