@@ -39,12 +39,13 @@ class AssetGroup extends React.Component {
           <AssetDisplay asset={asset} />
         </td>
         <td data-psd-component-class="AddFactToSearchbox">
-          <Facts asset={asset}  facts={asset.facts}  
+          <Facts asset={asset}  facts={asset.facts}
             key={"facts-"+index}
             onCollapseFacts={this.props.onCollapseFacts}
             collapsedFacts={this.props.collapsedFacts}
             dataRackDisplay={this.props.dataRackDisplay}  />
         </td>
+        <td>{index+1}</td>
         <td>
           <button disabled={this.props.activityRunning} onClick={$.proxy(this.removeAsset, this, asset, index) } className="btn btn-primary ">Delete</button>
         </td>
@@ -58,7 +59,7 @@ class AssetGroup extends React.Component {
     } else {
       return(
         <table className="table table-condensed">
-          <thead><tr><th>Barcode</th><th>Facts</th><th>
+          <thead><tr><th>Barcode</th><th>Facts</th><th>Position</th><th>
             <button disabled={this.props.activityRunning} onClick={this.removeAllAssets} className="btn btn-primary">Delete all</button>
           </th></tr></thead>
           <tbody data-psd-asset-group-content="1">
