@@ -16,13 +16,20 @@ module Asset::Export
 
     facts.each {|f| f.update_attributes!(:up_to_date => true)}
     old_barcode = barcode
-    update_attributes(:uuid => instance.uuid, :barcode => instance.barcode.ean13)
+    update_attributes(:uuid => instance.uuid, :barcode => code39_barcode(instance))
     add_facts(Fact.create(:predicate => 'beforeBarcode', :object => old_barcode))
     add_facts(Fact.create(predicate: 'purpose', object: class_name))
     facts.with_predicate('barcodeType').each(&:destroy)
     add_facts(Fact.create(:predicate => 'barcodeType', :object => 'SequencescapePlate'))
     mark_as_updated
     print(print_config, user.username) if old_barcode != barcode
+  end
+
+  def code39_barcode(instance)
+    prefix = instance.barcode.prefix
+    number = instance.barcode.number
+    checksum = Barcode.calculate_checksum(prefix, number)
+    "#{prefix}#{number}#{checksum}"
   end
 
   def update_plate(instance)
@@ -35,7 +42,7 @@ module Asset::Export
   end
 
   def well_at(location)
-    f = facts.with_predicate('contains').select do |f| 
+    f = facts.with_predicate('contains').select do |f|
       f.object_asset.facts.with_predicate('location').first.object == location
     end.first
     return f.object_asset if f
@@ -53,7 +60,7 @@ module Asset::Export
 
 
   def duplicate_locations_in_plate?
-    locations = facts.with_predicate('contains').map(&:object_asset).map do |a| 
+    locations = facts.with_predicate('contains').map(&:object_asset).map do |a|
       a.facts.with_predicate('location').map(&:object)
     end.flatten.compact
     (locations.uniq.length != locations.length)
@@ -68,8 +75,8 @@ module Asset::Export
 
   def racking_info(well)
     if well.has_literal?('pushedTo', 'Sequencescape')
-      return { 
-        uuid: well.uuid, 
+      return {
+        uuid: well.uuid,
         location: well.facts.with_predicate('location').first.object
       }
     end
@@ -87,7 +94,7 @@ module Asset::Export
         memo[fact.predicate.to_sym] = fact.object
       end
       memo
-    end    
+    end
   end
 
 end

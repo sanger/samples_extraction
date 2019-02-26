@@ -10,7 +10,7 @@ class Asset < ActiveRecord::Base
   include Asset::Import
   include Asset::Export
 
-  alias_attribute :name, :uuid 
+  alias_attribute :name, :uuid
 
   has_many :facts, :dependent => :delete_all
   has_and_belongs_to_many :asset_groups
@@ -113,7 +113,7 @@ class Asset < ActiveRecord::Base
             end
             if fact.predicate == 'uuid'
               update_attributes(:uuid => fact.object)
-            end            
+            end
             yield fact if block_given?
           end
           updated_fact = true
@@ -161,7 +161,7 @@ class Asset < ActiveRecord::Base
   def remove_operations(list, step)
     list.each do |fact|
       Operation.create!(:action_type => 'removeFacts', :step => step,
-        :asset=> self, :predicate => fact.predicate, :object => fact.object, object_asset: fact.object_asset)    
+        :asset=> self, :predicate => fact.predicate, :object => fact.object, object_asset: fact.object_asset)
     end
   end
 
@@ -185,7 +185,7 @@ class Asset < ActiveRecord::Base
 
   def has_predicate?(predicate)
     facts.any?{|f| f.predicate == predicate}
-  end  
+  end
 
   def has_fact?(fact)
     facts.any? do |f|
@@ -284,9 +284,9 @@ class Asset < ActiveRecord::Base
     # if barcode.nil?
     #   generated_barcode = Barcode.calculate_barcode(Rails.application.config.barcode_prefix,Asset.count+i)
     #   if find_by(:barcode =>generated_barcode).nil?
-    #     update_attributes(:barcode => generated_barcode) 
+    #     update_attributes(:barcode => generated_barcode)
     #   else
-        
+
     #   end
     # end
   end
@@ -336,6 +336,10 @@ class Asset < ActiveRecord::Base
   end
 
   def barcode_sequencescaped
+    unless barcode.match(/^\d+$/)
+      return barcode.match(/\d+/)[0] if barcode.match(/\d+/)
+      return ""
+    end
     ean13 = barcode.rjust(13, '0')
     ean13.slice!(0,3)
     ean13.slice!(ean13.length-3,3)
@@ -360,15 +364,15 @@ class Asset < ActiveRecord::Base
           :bottom_right => study_and_barcode,
           :bottom_left => Barcode.barcode_to_human(barcode) || barcode,
           #:top_line => Barcode.barcode_to_human(barcode) || barcode,
-          #:bottom_line => bottom_line 
+          #:bottom_line => bottom_line
         }
-      } 
+      }
     end
     return {:label => {
       :barcode => barcode,
-      :barcode2d => barcode,      
+      :barcode2d => barcode,
       :top_line => Barcode.barcode_to_human(barcode) || barcode,
-      :bottom_line => info_line 
+      :bottom_line => info_line
       }
     }
   end
