@@ -12,11 +12,7 @@ class AssetsController < ApplicationController
 
   def search
     @start_time = Time.now
-    @assets = Asset.assets_for_queries(@queries) #.includes(:facts)
-    #@activities = Activity.joins(:asset_groups => {asset: @assets.pluck(&:id)})
-    #@activities = @assets.map(&:asset_groups).flatten.map(&:activity) || []
-    #@steps = Step.for_assets(@assets)
-
+    @assets = Asset.assets_for_queries(@queries).includes(:facts)
     # For printing
     unless @assets.empty?
       @asset_group = AssetGroup.create!
