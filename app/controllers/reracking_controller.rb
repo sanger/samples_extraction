@@ -8,7 +8,7 @@ class RerackingController < ApplicationController
   before_action :set_activity, :only => [:update, :show]
 
   def set_activity_type
-    @activity_type = ActivityType.find_by_name('Re-Racking')
+    @activity_type = ActivityType.available.find_by_name('Re-Racking')
   end
 
   def set_activity

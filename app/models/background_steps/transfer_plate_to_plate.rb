@@ -1,4 +1,7 @@
 class BackgroundSteps::TransferPlateToPlate < BackgroundSteps::BackgroundStep
+  def _CODE
+
+  end
   #
   #  {
   #    ?p :a :Plate .

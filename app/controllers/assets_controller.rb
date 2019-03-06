@@ -12,7 +12,7 @@ class AssetsController < ApplicationController
 
   def search
     @start_time = Time.now
-    @assets = Asset.assets_for_queries(@queries).includes(:facts)
+    @assets = Asset.assets_for_queries(@queries) #.includes(:facts)
     #@activities = Activity.joins(:asset_groups => {asset: @assets.pluck(&:id)})
     #@activities = @assets.map(&:asset_groups).flatten.map(&:activity) || []
     #@steps = Step.for_assets(@assets)
@@ -42,7 +42,7 @@ class AssetsController < ApplicationController
     respond_to do |format|
       format.html { render :show }
       format.n3 { render :show }
-    end    
+    end
   end
 
 
@@ -78,7 +78,7 @@ class AssetsController < ApplicationController
 
       if @asset.update(@prepared_params)
         @asset.touch
-        
+
         format.html { redirect_to @asset, notice: 'Asset was successfully updated.' }
         format.json { render :show, status: :ok, location: @asset }
       else

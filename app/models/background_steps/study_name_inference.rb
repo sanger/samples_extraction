@@ -1,6 +1,17 @@
 class BackgroundSteps::StudyNameInference < BackgroundSteps::BackgroundStep
+  def _CODE
+    %Q{
+      {
+        ?asset :contains ?anotherAsset .
+        ?anotherAsset :study_name ?study .
+      }=>{
+        :step :addFacts { ?asset :study_name ?study . } .
+      }.
+    }
+  end
+
   def assets_compatible_with_step_type
-    asset_group.assets.with_predicate('contains').select do |a| 
+    asset_group.assets.with_predicate('contains').select do |a|
       a.facts.with_predicate('contains').any? do |f|
         f.object_asset.has_predicate?('study_name')
       end

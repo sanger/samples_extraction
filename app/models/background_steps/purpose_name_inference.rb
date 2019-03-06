@@ -1,6 +1,32 @@
 class BackgroundSteps::PurposeNameInference < BackgroundSteps::BackgroundStep
+  def _CODE
+    %Q{
+      {
+        ?asset :contains ?anotherAsset .
+        ?anotherAsset :aliquotType """DNA""" .
+      }=>{
+        :step :addFacts { ?asset :purpose """DNA Stock Plate""" } .
+      } .
+
+      {
+        ?asset :contains ?anotherAsset .
+        ?anotherAsset :aliquotType """RNA""" .
+      }=>{
+        :step :addFacts { ?asset :purpose """RNA Stock Plate""" } .
+      } .
+
+      @forAll :anotherAsset, :someAliquot .
+      {
+        ?asset :contains ?anotherAsset .
+        ?anotherAsset log:notIncludes { :anotherAsset :aliquotType :someAliquot .} .
+      } => {
+        :step :addFacts { ?asset :purpose """Stock Plate""" } .
+      }
+    }
+  end
+
   def assets_compatible_with_step_type
-    asset_group.assets.with_predicate('contains').select do |a| 
+    asset_group.assets.with_predicate('contains').select do |a|
       a.facts.with_predicate('contains').any? do |f|
         f.object_asset.has_predicate?('aliquotType')
       end

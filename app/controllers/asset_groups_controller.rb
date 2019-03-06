@@ -73,7 +73,7 @@ class AssetGroupsController < ApplicationController
 
   def perform_assets_update
     if params_update_asset_group[:assets]
-      updated_assets = [params_update_asset_group[:assets]].flatten
+      updated_assets = [params_update_asset_group[:assets].split(' ')].flatten
       received_list = updated_assets.map do |uuid_or_barcode|
         Asset.find_or_import_asset_with_barcode(uuid_or_barcode)
       end.compact
@@ -88,7 +88,7 @@ class AssetGroupsController < ApplicationController
   end
 
   def params_update_asset_group
-    params.require(:asset_group).permit(:assets => [])
+    params.require(:asset_group).permit(:assets)
   end
 
 end

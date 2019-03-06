@@ -18,6 +18,7 @@ class StepsFinished extends React.Component {
     if (state == 'complete') return 'success'
     if (state == 'error') return 'danger'
     if (state == 'running') return 'warning'
+    if (state == 'retry') return 'warning'
     if (state == 'cancel') return 'danger'
     if (state == 'in progress') return 'info'
     return 'primary'
@@ -26,6 +27,7 @@ class StepsFinished extends React.Component {
     if (state == 'complete') return 'glyphicon-ok'
     if (state == 'error') return 'glyphicon-remove'
     if (state == 'running') return 'glyphicon-refresh fast-right-spinner'
+    if (state == 'retry') return 'glyphicon-repeat'
     if (state == 'cancel') return 'glyphicon-erase'
     if (state == 'in progress') return 'glyphicon-repeat'
   }
@@ -64,7 +66,7 @@ class StepsFinished extends React.Component {
     if (step.started_at && step.finished_at) {
       return(
         <span><Moment unit="seconds" diff={ step.started_at }>{ step.finished_at }</Moment>s</span>
-      )      
+      )
     } else {
       return("")
     }
@@ -103,7 +105,7 @@ class StepsFinished extends React.Component {
                 <table className="table">
                   <thead>
                     <tr><th>Action</th><th>Barcode</th>
-                    <th>Fact 
+                    <th>Fact
                       <Toggle
                         checked={step.state!='cancel'}
                         disabled={this.props.activityRunning}

@@ -1,5 +1,15 @@
 class BackgroundSteps::AliquotTypeInference < BackgroundSteps::BackgroundStep
-
+  def _CODE
+    %Q{
+      {
+        ?asset :aliquotType ?aliquot .
+        ?asset :contains ?anotherAsset .
+        ?anotherAsset :sample_tube ?tube .
+      } => {
+        :step :addFacts { ?anotherAsset :aliquotType ?aliquot . }
+      }
+    }
+  end
   def assets_compatible_with_step_type
     asset_group.assets.with_predicate('aliquotType').select { |a| a.has_predicate?('contains') }
   end
@@ -12,7 +22,7 @@ class BackgroundSteps::AliquotTypeInference < BackgroundSteps::BackgroundStep
     FactChanges.new.tap do |updates|
       if assets_compatible_with_step_type.count > 0
         assets_compatible_with_step_type.each do |asset|
-          unless asset.facts.with_predicate('contains').map(&:object_asset).any? do |o| 
+          unless asset.facts.with_predicate('contains').map(&:object_asset).any? do |o|
               o.has_predicate?('aliquotType')
             end
             asset.facts.with_predicate('contains').map(&:object_asset).each do |o|

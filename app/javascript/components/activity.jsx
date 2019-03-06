@@ -25,8 +25,8 @@ class Activity extends React.Component {
 			assetGroups: props.assetGroups,
 			stepsRunning: props.stepsRunning,
       stepsPending: props.stepsPending,
-			stepsFinished: props.stepsFinished,	
-      stepsFailed: props.stepsFailed, 
+			stepsFinished: props.stepsFinished,
+      stepsFailed: props.stepsFailed,
 			activityRunning: props.activityRunning,
       dataRackDisplay: props.dataRackDisplay,
       collapsedFacts: {}
@@ -143,7 +143,7 @@ class Activity extends React.Component {
   }
 
   changeStatusStep(step, state) {
-    $.ajax({
+    return $.ajax({
       method: 'PUT',
       dataType: 'json',
       contentType: 'application/json; charset=utf-8',
@@ -182,9 +182,9 @@ class Activity extends React.Component {
 	renderStepTypesControl(instanceId) {
     const steps = [].concat(this.state.stepsRunning).concat(this.state.stepsPending)
     if (this.state.stepsFailed.length > 0) {
-      return(<StepsFailed 
-                onStopStep={this.onStopStep} 
-                onRetryStep={this.onRetryStep} 
+      return(<StepsFailed
+                onStopStep={this.onStopStep}
+                onRetryStep={this.onRetryStep}
                 steps={this.state.stepsFailed} />)
     } else {
       if (this.state.stepsRunning.length > 0) {
@@ -238,8 +238,8 @@ class Activity extends React.Component {
 					onSelectAssetGroup={this.onSelectAssetGroup}
 					assetGroups={this.state.assetGroups} />
 				{this.renderStepTypesControl("2")}
-				<StepsFinished steps={this.state.stepsFinished} 
-					activityRunning={this.state.activityRunning} 
+				<StepsFinished steps={this.state.stepsFinished}
+					activityRunning={this.state.activityRunning}
 					onCancelStep={this.onCancelStep}/>
       </div>
     )

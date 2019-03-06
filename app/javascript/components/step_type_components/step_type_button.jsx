@@ -30,8 +30,8 @@ class StepTypeButton extends React.Component {
       method: 'post',
       url: this.props.stepTypeData.createStepUrl,
       success: this.onAjaxSuccess,
-      data: $(e.target).serializeArray(),
-      complete: $.proxy(()=> { this.toggleDisableButton(false) }, this)
+      data: $(e.target).serializeArray()
+      //complete: $.proxy(()=> { this.toggleDisableButton(false) }, this)
     })
   }
   renderButton() {
@@ -39,7 +39,7 @@ class StepTypeButton extends React.Component {
     return(
       <button disabled={this.state.disabledButton || this.props.activityRunning} type="submit" className='btn btn-primary'>
         {this.props.stepTypeData.name}
-        {this.state.disabledButton ? loadingIcon : null }        
+        {this.state.disabledButton ? loadingIcon : null }
       </button>
     )
   }
