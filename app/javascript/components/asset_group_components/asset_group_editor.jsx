@@ -76,7 +76,7 @@ class AssetGroupEditor extends React.Component {
       method: 'PUT',
       url: this.props.assetGroup.updateUrl,
       success: this.onAjaxSuccess,
-      data: $(e.target).serializeArray()
+      data: {asset_group: {assets: this.state.barcodesInputText.split(' ') } }
     })
   }
   assetsChanging() {
