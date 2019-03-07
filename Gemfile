@@ -35,9 +35,13 @@ gem 'react-rails'
 gem 'delayed_job'
 gem 'delayed_job_active_record'
 
-gem 'sequencescape-client-api', git: 'https://github.com/emrojo/sequencescape-client-api.git', 
-   branch: 'asset-attribute-update-merged-with-rails-5',
-   require: 'sequencescape'
+gem 'sequencescape-client-api'#, path: '/Users/emr/projects/sequencescape-client-api'
+
+# The client api is not good at all
+gem 'faraday'
+#gem 'sequencescape-client-api', git: 'https://github.com/emrojo/sequencescape-client-api.git',
+#   branch: 'asset-attribute-update-merged-with-rails-5',
+#   require: 'sequencescape'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
@@ -76,7 +80,8 @@ gem 'sdoc'#, '~> 0.4.0', group: :doc
 # gem 'unicorn'
 
 # Add simple support for print-my barcode)
-gem 'pmb-client', '0.1.0', git: 'https://github.com/sanger/pmb-client.git'
+gem 'pmb-client', git: 'https://github.com/sanger/pmb-client.git'
+#, '0.1.0', git: 'https://github.com/sanger/pmb-client.git'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
@@ -111,7 +116,7 @@ end
 
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> in views
-  gem 'web-console', '~> 2.0'
+  gem 'web-console'#, '~> 2.0'
 
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
