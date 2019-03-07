@@ -52,7 +52,7 @@ module Asset::Import
 
     def update_digest_with_remote(remote_asset)
       update_attributes(remote_digest: Digest::MD5::hexdigest(json_for_remote(remote_asset)))
-    end    
+    end
 
     def changed_remote?(remote_asset)
       Digest::MD5::hexdigest(json_for_remote(remote_asset)) != remote_digest
@@ -67,7 +67,7 @@ module Asset::Import
 
     def get_import_step
       @import_step
-    end    
+    end
 
     def _process_refresh(remote_asset, fact_changes=nil)
       fact_changes ||= FactChanges.new
@@ -126,7 +126,7 @@ module Asset::Import
       remote_asset = SequencescapeClient::find_by_uuid(uuid, type = type_of_asset_for_sequencescape)
       raise RefreshSourceNotFoundAnymore unless remote_asset
       _process_refresh(remote_asset, fact_changes)
-      self      
+      self
     end
 
     def is_remote_asset?
@@ -136,8 +136,8 @@ module Asset::Import
     def update_facts_from_remote(list, step=nil)
       step = step || @import_step
       list = [list].flatten
-      added = list.map do |f| 
-        f.assign_attributes(:is_remote? => true) 
+      added = list.map do |f|
+        f.assign_attributes(:is_remote? => true)
         f
       end
       facts << added
@@ -151,7 +151,9 @@ module Asset::Import
     def import(barcode)
       asset = nil
 
-      @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')      
+      barcode = barcode_from_str(barcode)
+
+      @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')
       remote_asset = SequencescapeClient::get_remote_asset(barcode)
 
       if remote_asset
@@ -164,7 +166,7 @@ module Asset::Import
         asset.update_compatible_activity_type
       end
       asset
-    end    
+    end
 
     def create_local_asset(barcode, updates)
       asset=nil
@@ -174,11 +176,11 @@ module Asset::Import
         updates.add(asset, 'barcodeType', 'Code2D')
         updates.add(asset, 'is', 'Empty')
       end
-      asset   
+      asset
     end
 
     def is_local_asset?(barcode)
-      Barcode.is_creatable_barcode?(barcode.to_s)      
+      Barcode.is_creatable_barcode?(barcode.to_s)
     end
 
     def is_digit_barcode?(barcode)
@@ -197,7 +199,7 @@ module Asset::Import
 
         #barcode = Barcode.calculate_barcode(barcode[0,2], barcode[2, barcode.length-3].to_i).to_s
       end
-      barcode      
+      barcode
     end
 
     def find_asset_with_barcode(barcode_str)
@@ -206,7 +208,7 @@ module Asset::Import
       asset = Asset.find_by_uuid(barcode) unless asset
       updates = FactChanges.new
       if asset.nil? && is_local_asset?(barcode_str)
-        asset = Asset.create_local_asset(barcode_str, updates) 
+        asset = Asset.create_local_asset(barcode_str, updates)
       end
       if asset
         asset.refresh(updates)
@@ -268,7 +270,7 @@ module Asset::Import
 
     def annotate_study_name(asset, remote_asset, fact_changes)
       if remote_asset.try(:wells, nil)
-        remote_asset.wells.detect do |w| 
+        remote_asset.wells.detect do |w|
           annotate_study_name_from_aliquots(asset, w, fact_changes)
         end
       else

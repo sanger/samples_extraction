@@ -47,6 +47,7 @@ class AssetGroupsEditor extends React.Component {
 
           onExecuteStep={this.props.onExecuteStep}
           isShown={this.isShown(assetGroup)}
+          onAddBarcodesToAssetGroup={this.props.onAddBarcodesToAssetGroup}
           onRemoveAssetFromAssetGroup={this.props.onRemoveAssetFromAssetGroup}
           onRemoveAllAssetsFromAssetGroup={this.props.onRemoveAllAssetsFromAssetGroup}
           onErrorMessage={this.props.onErrorMessage}

@@ -43,6 +43,7 @@ class Activity extends React.Component {
     this.onStopStep = this.onStopStep.bind(this)
     this.onRetryStep = this.onRetryStep.bind(this)
     this.onCollapseFacts = this.onCollapseFacts.bind(this)
+    this.onAddBarcodesToAssetGroup = this.onAddBarcodesToAssetGroup.bind(this)
 
 		this.renderStepTypesControl = this.renderStepTypesControl.bind(this)
 	}
@@ -95,6 +96,7 @@ class Activity extends React.Component {
 		this.setState({selectedAssetGroup: assetGroup.id})
 	}
 	onChangeAssetGroup(msg) {
+    return msg
 		//this.state.assetGroups[msg.asset_group.id]=msg.asset_group
 		//this.state.stepTypes[msg.asset_group.id]=msg.step_types
 
@@ -104,7 +106,7 @@ class Activity extends React.Component {
 		//})
 	}
 	changeAssetGroup(assetGroup, data) {
-		$.ajax({
+		return $.ajax({
       method: 'PUT',
 			dataType: 'json',
 			contentType: 'application/json; charset=utf-8',
@@ -113,24 +115,35 @@ class Activity extends React.Component {
       data: JSON.stringify(data)
     })
 	}
-	onRemoveAssetFromAssetGroup(assetGroup, asset, pos){
-		let assets = this.state.assetGroups[assetGroup.id].assets.slice()
-		assets.splice(pos, 1)
-		const uuids = assets.map((a) => { return a.uuid })
+  getAssetUuidsForAssetGroup(assetGroup) {
+    return assetGroup.assets.map((a) => a.uuid)
+  }
 
-		this.changeAssetGroup(assetGroup, {
+  onAddBarcodesToAssetGroup(assetGroup, barcodes) {
+    return this.changeAssetGroup(assetGroup,
+      {asset_group: {
+        assets: this.getAssetUuidsForAssetGroup(assetGroup).concat(barcodes)
+      }
+    }
+    )
+  }
+	onRemoveAssetFromAssetGroup(assetGroup, asset, pos){
+    let uuids = this.getAssetUuidsForAssetGroup(assetGroup)
+    uuids.splice(pos, 1)
+		return this.changeAssetGroup(assetGroup, {
 			asset_group: {
 				assets: uuids
 			}
 		})
 	}
 	onRemoveAllAssetsFromAssetGroup(assetGroup){
-		this.changeAssetGroup(assetGroup, {
+		return this.changeAssetGroup(assetGroup, {
 			asset_group: {
 				assets: []
 			}
 		})
 	}
+
   onCancelStep(step) {
     return (e) => {
       if (this.state.activityRunning === true) {
@@ -230,6 +243,7 @@ class Activity extends React.Component {
           collapsedFacts={this.state.collapsedFacts}
 
 					onExecuteStep={this.onExecuteStep}
+          onAddBarcodesToAssetGroup={this.onAddBarcodesToAssetGroup}
 					onRemoveAssetFromAssetGroup={this.onRemoveAssetFromAssetGroup}
 					onRemoveAllAssetsFromAssetGroup={this.onRemoveAllAssetsFromAssetGroup}
 					onErrorMessage={this.onErrorMessage}

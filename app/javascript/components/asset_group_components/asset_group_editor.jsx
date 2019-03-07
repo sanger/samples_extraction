@@ -41,6 +41,7 @@ class AssetGroupEditor extends React.Component {
     }
     this.onSubmit = this.onSubmit.bind(this)
     this.onAjaxSuccess = this.onAjaxSuccess.bind(this)
+    this.onAjaxComplete = this.onAjaxComplete.bind(this)
     this.handleBarcodeReaderChange = this.handleBarcodeReaderChange.bind(this)
     this.assetsChanging = this.assetsChanging.bind(this)
   }
@@ -59,25 +60,29 @@ class AssetGroupEditor extends React.Component {
     } else {
       this.props.onChangeAssetGroup(msg)
     }
+
+  }
+  onAjaxComplete() {
     this.setState({disabledBarcodesInput: false, barcodesInputText: ''})
   }
-  updateAssetGroup() {
-    this.setState({disabledBarcodesInput: true})
-    $.ajax({
-      method: 'GET',
-      url: this.props.assetGroup.updateUrl,
-      success: this.onAjaxSuccess
-    })
+  // updateAssetGroup() {
+  //   this.setState({disabledBarcodesInput: true})
+  //   $.ajax({
+  //     method: 'GET',
+  //     url: this.props.assetGroup.updateUrl,
+  //     success: this.onAjaxSuccess
+  //   })
+  // }
+  getBarcodes() {
+    return this.state.barcodesInputText.split(' ')
   }
   onSubmit(e) {
     e.preventDefault()
     this.setState({disabledBarcodesInput: true})
-    $.ajax({
-      method: 'PUT',
-      url: this.props.assetGroup.updateUrl,
-      success: this.onAjaxSuccess,
-      data: {asset_group: {assets: this.state.barcodesInputText.split(' ') } }
-    })
+    return this.props
+      .onAddBarcodesToAssetGroup(this.props.assetGroup, this.getBarcodes())
+      .then(this.onAjaxSuccess)
+      .always(this.onAjaxComplete)
   }
   assetsChanging() {
     return Object.keys(this.state.assets_status).filter($.proxy(function(uuid) {
@@ -99,6 +104,7 @@ class AssetGroupEditor extends React.Component {
                  <BarcodeReader
                    activityRunning={this.props.activityRunning}
                    isShown={this.props.isShown}
+                   onAddBarcodesToAssetGroup={this.props.onAddBarcodesToAssetGroup}
                    handleChange={this.handleBarcodeReaderChange}
                    barcodesInputText={this.state.barcodesInputText}
                    disabledBarcodesInput={this.state.disabledBarcodesInput}
