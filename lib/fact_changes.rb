@@ -7,7 +7,7 @@ class FactChanges
 
   def reset
     @facts_to_destroy = []
-    @facts_to_add = []    
+    @facts_to_add = []
   end
 
   def add(s,p,o, options=nil)
@@ -43,8 +43,8 @@ class FactChanges
       params = {asset: t[0], predicate: t[1], literal: !(t[2].kind_of?(Asset))}
       params[:literal] ? params[:object] = t[2] : params[:object_asset] = t[2]
       params = params.merge(t[3]) if t[3]
-      Fact.create(params)
-    end
+      Fact.create(params) unless Fact.exists?(params)
+    end.compact
     add_operations(step, facts)
   end
 
@@ -53,7 +53,7 @@ class FactChanges
     ids_to_remove = facts.map(&:id).compact
     remove_operations(step, facts)
     Fact.where(id: ids_to_remove).delete_all if ids_to_remove && !ids_to_remove.empty?
-  end  
+  end
 
   def add_operations(step, facts)
     facts.each do |fact|

@@ -10,7 +10,7 @@ class Fact extends React.Component {
   }
 
   valueForPredicate(asset, predicate) {
-    let val = (asset.facts.filter((a) => {
+    let val = (asset.facts && asset.facts.filter((a) => {
       return (a.predicate == predicate)
     })[0])
     if (val) {
@@ -48,7 +48,7 @@ class Fact extends React.Component {
 
     return(
       <div className="fact administrator-allowed">
-        <span className={"label "+ (fact.is_remote ? 'label-info' : 'label-default')}>
+        <span className={"label "+ (fact["is_remote?"] ? 'label-info' : 'label-default')}>
         <span className="predicate">
           { fact.predicate }
         </span>

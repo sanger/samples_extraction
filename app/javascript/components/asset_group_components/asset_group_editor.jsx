@@ -65,14 +65,6 @@ class AssetGroupEditor extends React.Component {
   onAjaxComplete() {
     this.setState({disabledBarcodesInput: false, barcodesInputText: ''})
   }
-  // updateAssetGroup() {
-  //   this.setState({disabledBarcodesInput: true})
-  //   $.ajax({
-  //     method: 'GET',
-  //     url: this.props.assetGroup.updateUrl,
-  //     success: this.onAjaxSuccess
-  //   })
-  // }
   getBarcodes() {
     return this.state.barcodesInputText.split(' ')
   }
@@ -82,7 +74,7 @@ class AssetGroupEditor extends React.Component {
     return this.props
       .onAddBarcodesToAssetGroup(this.props.assetGroup, this.getBarcodes())
       .then(this.onAjaxSuccess)
-      .always(this.onAjaxComplete)
+      .finally(this.onAjaxComplete)
   }
   assetsChanging() {
     return Object.keys(this.state.assets_status).filter($.proxy(function(uuid) {

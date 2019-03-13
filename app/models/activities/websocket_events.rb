@@ -9,17 +9,31 @@ module Activities::WebsocketEvents
     ActiveRecord::Base.connection.open_transactions == 0
   end
 
-  def send_wss_event
-    ActionCable.server.broadcast(stream_id, json_attributes) 
+  def send_wss_event(data)
+    ActionCable.server.broadcast(stream_id, data)
   end
 
   def stream_id
     "activity_#{id}"
   end
 
+  def websockets_attributes(attrs)
+    attrs.keys.reduce({shownComponents: {}}) do |memo, key|
+      memo[key] = attrs[key].call unless (ActivityChannel.activity_attributes(id)[key.to_s] == false)
+      memo
+    end
+  end
+
+  def initial_websockets_attributes(attrs)
+    attrs.keys.reduce({}) do |memo, key|
+      memo[key] = attrs[key].call
+      memo
+    end
+  end
+
   def wss_event
     if ActivityChannel.subscribed_ids.include?(stream_id)
-      send_wss_event
+      send_wss_event(websockets_attributes(json_attributes))
     end
   end
 

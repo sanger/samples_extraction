@@ -1,35 +1,24 @@
-import React from 'react'
 import StepTypesActive from "../step_type_components/step_types_active"
+import Togglable from '../lib/togglable'
 
-class StepTypesControl extends React.Component {
-  constructor(props) {
-    super(props)
-    this.renderStepTypeAssetGroup = this.renderStepTypeAssetGroup.bind(this)
-  }
-  classForAssetGroup(assetGroupId) {
-    return (this.props.selectedAssetGroup == assetGroupId)? '' : 'hidden'
-  }
-  renderStepTypeAssetGroup(assetGroupId) {
-    const stepTypes = this.props.stepTypes[assetGroupId]
-    return(
-      <div key={assetGroupId} className={this.classForAssetGroup(assetGroupId)}>
-        <StepTypesActive
-          instanceId={this.props.instanceId}
-          key={assetGroupId}
-          assetGroupId={assetGroupId}
-          activityRunning={this.props.activityRunning}
-          onExecuteStep={this.props.onExecuteStep}
-          selectedAssetGroup={this.props.selectedAssetGroup}
-            activeStepTypes={stepTypes}
-            selectedTubePrinter={this.props.selectedTubePrinter}
-            selectedPlatePrinter={this.props.selectedPlatePrinter}
-        />
-      </div>
-    )
-  }
-  render() {
-    return Object.keys(this.props.stepTypes).map(this.renderStepTypeAssetGroup)
-  }
+const renderTogglable = (props) => {
+  const assetGroupId=props.selectedAssetGroup
+  const stepTypes = props.stepTypes[assetGroupId]
+
+  return (<StepTypesActive
+        instanceId={props.instanceId}
+        key={assetGroupId}
+        assetGroupId={assetGroupId}
+        activityRunning={props.activityRunning}
+        onExecuteStep={props.onExecuteStep}
+        selectedAssetGroup={props.selectedAssetGroup}
+          activeStepTypes={stepTypes}
+          selectedTubePrinter={props.selectedTubePrinter}
+          selectedPlatePrinter={props.selectedPlatePrinter} />)
+}
+
+const StepTypesControl = (props) => {
+  return Togglable("What can I do with it?", props.stepTypes, props.onToggle, () => { return renderTogglable(props) })
 }
 
 export default StepTypesControl

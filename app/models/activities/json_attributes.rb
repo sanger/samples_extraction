@@ -17,10 +17,10 @@ module Activities::JsonAttributes
         optionsData: Printer.for_plate.map{|a| [a.name, a.id]},
         defaultValue: current_user && current_user.plate_printer ? current_user.plate_printer.id : nil
       }
-    }.merge(json_attributes)
+    }.merge(websockets_attributes(json_attributes))
   end
 
-  def json_attributes
+  def json_attributes2
     running_activity = running? || editing?
     {
       activityRunning: running? || editing?,
@@ -33,5 +33,20 @@ module Activities::JsonAttributes
       stepsFailed: ApplicationController.helpers.steps_data_for_steps(steps.failed),
       stepsFinished: ApplicationController.helpers.steps_data_for_steps(self.steps.finished.reverse)
     }
-  end  
+  end
+
+  def json_attributes
+    running_activity = running? || editing?
+    {
+      activityRunning: -> { running? || editing? },
+      messages: -> { ApplicationController.helpers.messages_for_activity(self) },
+      assetGroups: -> { ApplicationController.helpers.asset_groups_data(self) },
+      dataRackDisplay: -> { ApplicationController.helpers.data_rack_display_for_asset_group(self.asset_group) },
+      stepTypes: -> { ApplicationController.helpers.step_types_control_data(self) },
+      stepsPending: -> { ApplicationController.helpers.steps_data_for_steps(steps.running) },
+      stepsRunning: -> { ApplicationController.helpers.steps_data_for_steps(steps.running) },
+      stepsFailed: -> { ApplicationController.helpers.steps_data_for_steps(steps.failed) },
+      stepsFinished: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.finished.reverse) }
+    }
+  end
 end

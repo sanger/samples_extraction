@@ -2,7 +2,7 @@ import React from 'react'
 import Moment from 'react-moment';
 import Operations from '../step_components/operations'
 import Toggle from 'react-toggle'
-
+import Togglable from '../lib/togglable'
 
 
 class StepsFinished extends React.Component {
@@ -13,6 +13,7 @@ class StepsFinished extends React.Component {
     this.imageForState = this.imageForState.bind(this)
     this.textColorForState = this.textColorForState.bind(this)
     this.renderStepRow = this.renderStepRow.bind(this)
+    this.renderTogglable = this.renderTogglable.bind(this)
   }
   colorForState(state) {
     if (state == 'complete') return 'success'
@@ -145,17 +146,18 @@ class StepsFinished extends React.Component {
     }
   }
 
-  render() {
-    return(
-      <div className="form-group">
-        <label className="control-label">What happened before?</label>
-        <div className="panel panel-default">
-          <div className="panel-body">
-            {this.renderSteps()}
-          </div>
+  renderTogglable() {
+    return (
+      <div className="panel panel-default">
+        <div className="panel-body">
+          {this.renderSteps()}
         </div>
       </div>
     )
+  }
+
+  render() {
+    return Togglable("What happened before?", this.props.steps, this.props.onToggle, this.renderTogglable)
   }
 
 }

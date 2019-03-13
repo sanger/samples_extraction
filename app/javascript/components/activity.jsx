@@ -45,6 +45,8 @@ class Activity extends React.Component {
     this.onCollapseFacts = this.onCollapseFacts.bind(this)
     this.onAddBarcodesToAssetGroup = this.onAddBarcodesToAssetGroup.bind(this)
 
+    this.onToggleStepsFinished = this.onToggleStepsFinished.bind(this)
+
 		this.renderStepTypesControl = this.renderStepTypesControl.bind(this)
 	}
 	componentDidMount() {
@@ -64,7 +66,7 @@ class Activity extends React.Component {
     })
   }
   listenWebSockets() {
-    App.cable.subscriptions.create({
+    this.activityChannel = App.cable.subscriptions.create({
 			channel: 'ActivityChannel',
 			activity_id: this.props.activity.id
 		}, {
@@ -79,10 +81,17 @@ class Activity extends React.Component {
 			assetGroups: msg.assetGroups,
 			stepTypes: msg.stepTypes,
 			stepsRunning: msg.stepsRunning || [],
-      stepsFailed: msg.stepsFailed || [],
+      stepsFailed: msg.stepsFailed,
       stepsPending: msg.stepsPending || [],
-			stepsFinished: msg.stepsFinished || this.state.stepsFinished || []
+			stepsFinished: msg.stepsFinished
 		})
+    if (this.awaitingPromises) {
+      this.awaitingPromises.forEach((args) => {
+        const [resolve, reject] = args
+        return resolve(msg)
+      })
+    }
+    this.awaitingPromises = []
 	}
 	onRemoveErrorMessage(msg, pos) {
 		this.state.messages.splice(pos,1)
@@ -106,14 +115,24 @@ class Activity extends React.Component {
 		//})
 	}
 	changeAssetGroup(assetGroup, data) {
-		return $.ajax({
+    if (!this.awaitingPromises) {
+      this.awaitingPromises = []
+    }
+    let promise = new Promise((resolve, reject) => {
+      this.awaitingPromises.push([resolve, reject])
+    })
+
+
+    this.activityChannel.send(data)
+    return promise
+		/*return $.ajax({
       method: 'PUT',
 			dataType: 'json',
 			contentType: 'application/json; charset=utf-8',
       url: assetGroup.updateUrl,
       success: this.onChangeAssetGroup,
       data: JSON.stringify(data)
-    })
+    })*/
 	}
   getAssetUuidsForAssetGroup(assetGroup) {
     return assetGroup.assets.map((a) => a.uuid)
@@ -122,6 +141,7 @@ class Activity extends React.Component {
   onAddBarcodesToAssetGroup(assetGroup, barcodes) {
     return this.changeAssetGroup(assetGroup,
       {asset_group: {
+        id: assetGroup.id,
         assets: this.getAssetUuidsForAssetGroup(assetGroup).concat(barcodes)
       }
     }
@@ -132,6 +152,7 @@ class Activity extends React.Component {
     uuids.splice(pos, 1)
 		return this.changeAssetGroup(assetGroup, {
 			asset_group: {
+        id: assetGroup.id,
 				assets: uuids
 			}
 		})
@@ -139,6 +160,7 @@ class Activity extends React.Component {
 	onRemoveAllAssetsFromAssetGroup(assetGroup){
 		return this.changeAssetGroup(assetGroup, {
 			asset_group: {
+        id: assetGroup.id,
 				assets: []
 			}
 		})
@@ -192,19 +214,41 @@ class Activity extends React.Component {
 	onExecuteStep(msg) {
 		this.setState({activityRunning: true})
 	}
+  changeShownComponents() {
+    this.activityChannel.send({
+      activity: {
+        id: this.props.activity.id,
+        stepsFinished: !this.state.stepsFinished
+      }
+    })
+  }
+  onToggleComponentBuilder(componentName) {
+    return () => {
+      let msg = { activity: {} }
+      msg.activity[componentName] = (typeof this.state[componentName] === 'undefined')
+      console.log(this.state)
+      this.activityChannel.send(msg)
+    }
+  }
+  onToggleStepsFinished() {
+    //this.setState({shownComponents: {stepsFinished: !this.state.shownComponents.stepsFinished}})
+    this.changeShownComponents()
+  }
 	renderStepTypesControl(instanceId) {
     const steps = [].concat(this.state.stepsRunning).concat(this.state.stepsPending)
-    if (this.state.stepsFailed.length > 0) {
+    if ((this.state.stepsFailed) && (this.state.stepsFailed.length > 0)) {
       return(<StepsFailed
                 onStopStep={this.onStopStep}
                 onRetryStep={this.onRetryStep}
                 steps={this.state.stepsFailed} />)
     } else {
-      if (this.state.stepsRunning.length > 0) {
+      if ((this.state.stepsRunning) && (this.state.stepsRunning.length > 0)) {
         return(<StepsRunning steps={this.state.stepsRunning} />)
       } else {
   			return(
-  				<StepTypesControl stepTypes={this.state.stepTypes}
+  				<StepTypesControl
+            onToggle={this.onToggleComponentBuilder('stepTypes')}
+            stepTypes={this.state.stepTypes}
   					instanceId={instanceId}
   					onExecuteStep={this.onExecuteStep}
   					activityRunning={this.state.activityRunning}
@@ -252,7 +296,9 @@ class Activity extends React.Component {
 					onSelectAssetGroup={this.onSelectAssetGroup}
 					assetGroups={this.state.assetGroups} />
 				{this.renderStepTypesControl("2")}
-				<StepsFinished steps={this.state.stepsFinished}
+				<StepsFinished
+          onToggle={this.onToggleComponentBuilder('stepsFinished')}
+          steps={this.state.stepsFinished}
 					activityRunning={this.state.activityRunning}
 					onCancelStep={this.onCancelStep}/>
       </div>

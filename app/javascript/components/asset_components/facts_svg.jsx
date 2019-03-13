@@ -93,7 +93,7 @@ class FactsSvg extends React.Component {
         <div className='svg' style={{fontSize: 'xx-large', float: 'left', marginRight: '0.6em'}}>
           <span className="glyphicon glyphicon-file" />
         </div>
-        )      
+        )
     }
   }
 }
