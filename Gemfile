@@ -39,6 +39,9 @@ gem 'sequencescape-client-api'#, path: '/Users/emr/projects/sequencescape-client
 
 # The client api is not good at all
 gem 'faraday'
+
+# Bulk insert
+gem 'activerecord-import'
 #gem 'sequencescape-client-api', git: 'https://github.com/emrojo/sequencescape-client-api.git',
 #   branch: 'asset-attribute-update-merged-with-rails-5',
 #   require: 'sequencescape'

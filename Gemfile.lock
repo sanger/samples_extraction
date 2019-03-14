@@ -47,6 +47,8 @@ GEM
       activemodel (= 5.1.6.1)
       activesupport (= 5.1.6.1)
       arel (~> 8.0)
+    activerecord-import (1.0.1)
+      activerecord (>= 3.2)
     activerecord-session_store (1.1.2)
       actionpack (>= 4.0)
       activerecord (>= 4.0)
@@ -357,6 +359,7 @@ PLATFORMS
 
 DEPENDENCIES
   ace-rails-ap
+  activerecord-import
   activerecord-session_store
   barby
   bootstrap-sass

@@ -43,8 +43,9 @@ class FactChanges
       params = {asset: t[0], predicate: t[1], literal: !(t[2].kind_of?(Asset))}
       params[:literal] ? params[:object] = t[2] : params[:object_asset] = t[2]
       params = params.merge(t[3]) if t[3]
-      Fact.create(params) unless Fact.exists?(params)
+      Fact.new(params) unless Fact.exists?(params)
     end.compact
+    Fact.import(facts)
     add_operations(step, facts)
   end
 
@@ -56,17 +57,19 @@ class FactChanges
   end
 
   def add_operations(step, facts)
-    facts.each do |fact|
-      Operation.create!(:action_type => 'addFacts', :step => step,
+    operations = facts.map do |fact|
+      Operation.new(:action_type => 'addFacts', :step => step,
         :asset=> fact.asset, :predicate => fact.predicate, :object => fact.object, object_asset: fact.object_asset)
     end
+    Operation.import(operations)
   end
 
   def remove_operations(step, facts)
-    facts.each do |fact|
-      Operation.create!(:action_type => 'removeFacts', :step => step,
+    operations = facts.map do |fact|
+      Operation.new(:action_type => 'removeFacts', :step => step,
         :asset=> fact.asset, :predicate => fact.predicate, :object => fact.object, object_asset: fact.object_asset)
     end
+    Operation.import(operations)
   end
 
 end

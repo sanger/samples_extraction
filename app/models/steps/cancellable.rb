@@ -28,7 +28,7 @@ module Steps::Cancellable
     ActiveRecord::Base.transaction do
       steps_newer_than_me.each{|s| s.cancel unless s.cancelled?}
       fact_changes_for_option(:cancel).apply(self)
-      operations.update_all(cancelled: true)
+      operations.update_all(cancelled?: true)
       #operations.each {|operation| operation.update_attributes(:cancelled? => true) }
     end
   end
