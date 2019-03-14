@@ -21,10 +21,17 @@
   </div>
   <div class="field" style="clear:both;">
     <%= f.text_field :uuid, :readonly => readonly %>
-  </div>  
+  </div>
   <div class="field">
     <%= f.text_field :barcode, :readonly => readonly %>
   </div>
+
+  <% if @asset.uploaded_file %>
+    <div class="field">
+      <%= f.text_field :uploaded_file, value: "#{@asset.uploaded_file.filename}", readonly: true %>
+      <%= bootstrap_link_to("Download", uploaded_file_path(@asset.uploaded_file, format: 'bin')) %>
+    </div>
+  <% end %>
 
   <div class="asset <%= 'readonly' if readonly %>" data-psd-component-class="ConditionGroups" data-psd-component-parameters="<%= condition_groups_init_for_asset(@asset).to_json %>">
     <div id="conditionGroups">
