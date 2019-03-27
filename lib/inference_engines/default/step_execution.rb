@@ -14,7 +14,7 @@ module InferenceEngines
       attr_accessor :asset_group
       attr_accessor :original_assets
 
-      # Elements not modified during 1 execution
+      # Elements not modified during execution of one action
       attr_accessor :asset
       attr_accessor :position
       attr_accessor :action
@@ -68,7 +68,6 @@ module InferenceEngines
 
       # Identifies which asset acting as subject is compatible with which rule.
       def each_sorted_executable_action_with_applicable_assets(&block)
-
         # Classifies every asset in the asset group with every condition group, returning an object with
         # { asset_id => { condition_group_id => position}}
         @positions_for_asset = step.step_type.position_for_assets_by_condition_group(asset_group_assets)
@@ -92,7 +91,6 @@ module InferenceEngines
       end
 
       def perform_action(action, asset, position)
-        #puts "action=#{action.action_type}, asset=#{asset.name}, position=#{position}"
         @asset = asset
         @position = position
         @action = action
@@ -116,8 +114,9 @@ module InferenceEngines
             perform_action(action, asset, nil)
           end
         end
+        save_created_assets        
         updates.apply(step)
-        save_created_assets
+
       end
 
     end

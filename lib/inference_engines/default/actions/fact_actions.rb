@@ -67,7 +67,7 @@ module InferenceEngines
           end
           positions_for_asset[asset.id][condition_group.id]
         end
-
+        
         def generate_facts
           data = {}
           #debugger if action.predicate == 'aliquotType'

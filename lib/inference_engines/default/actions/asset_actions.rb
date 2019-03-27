@@ -2,33 +2,33 @@ module InferenceEngines
   module Default
     module Actions
       module AssetActions
-        def create_asset
-          debugger
-          unless created_assets[action.subject_condition_group.id]
-            num_create = original_assets.count
-            if (action.subject_condition_group.cardinality) && (action.subject_condition_group.cardinality!=0)
-              num_create = [[original_assets.count, action.subject_condition_group.cardinality].min, 1].max
-            end
-            @changed_assets= num_create.times.map{|i| Asset.create!}
-            #unless action.subject_condition_group.name.nil?
+        def num_assets_for_condition_group(condition_group)
+          return original_assets.count unless (condition_group.cardinality) && (condition_group.cardinality!=0)
+          return [[original_assets.count, condition_group.cardinality].min, 1].max
+        end
+        
+        def get_or_create_assets_for_condition_group(condition_group)
+          unless created_assets[condition_group.id]
+            # If the referred condition group does not exist it means
+            # we have to create the new group
+            num_assets_for_condition_group(condition_group).times.map do
+              Asset.new
+            end.tap do |assets|
+              created_assets[condition_group.id] = assets
+              asset_group.assets << assets
               AssetGroup.create(
-                :activity_owner => @step.activity,
-                :assets => @changed_assets,
-                :condition_group => action.subject_condition_group)
-              @step.activity.touch if @step.activity
-            #end
-
-            # Each fact of a createAsset action is considered an action by
-            # itself, because of that, before creating the assetswe check
-            # if they were already created by a previous action
-            created_assets[action.subject_condition_group.id] = changed_assets
-            asset_group.add_assets(changed_assets)
+                activity_owner: @step.activity,
+                assets: assets,
+                condition_group: condition_group)
+            end
+            
+            @step.activity.touch if @step.activity
           end
-
-          # Is the following line needed??
-          @changed_assets= created_assets[action.subject_condition_group.id]
-
-          created_assets[action.subject_condition_group.id].each_with_index do |created_asset, i|
+          created_assets[condition_group.id]
+        end
+        
+        def create_asset
+          get_or_create_assets_for_condition_group(action.subject_condition_group).each_with_index do |created_asset, i|
             @changed_facts = generate_facts.map(&:dup)
             @changed_facts.each do |fact|
               updates.add(created_asset, fact.predicate, fact.object_value || fact.object)
