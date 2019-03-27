@@ -4,7 +4,9 @@ module Steps::ExecutionActions
       before_create :assets_compatible_with_step_type, :unless => [:in_progress?]
       after_update :on_complete, :if => [:completed?, :saved_change_to_state?]
     end
-  end  
+  end
+
+
 
   def can_run_now?
     !is_background_step? && !in_progress?
@@ -12,7 +14,7 @@ module Steps::ExecutionActions
 
   def is_background_step?
     false
-  end  
+  end
 
   def assets_compatible_with_step_type
     return true if asset_group.nil?
@@ -58,7 +60,7 @@ module Steps::ExecutionActions
 
   def process
     if activity
-      activity.touch 
+      activity.touch
       activity.save
     end
     return execute_step_action if step_type.step_action

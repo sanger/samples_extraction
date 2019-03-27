@@ -45,6 +45,10 @@ class FactChanges
       params = params.merge(t[3]) if t[3]
       Fact.new(params) unless Fact.exists?(params)
     end.compact
+    facts.each do |fact|
+      fact.run_callbacks(:save) { false }
+      fact.run_callbacks(:create) { false }
+    end
     Fact.import(facts)
     add_operations(step, facts)
   end

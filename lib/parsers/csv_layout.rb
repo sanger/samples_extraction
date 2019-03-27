@@ -53,7 +53,7 @@ module Parsers
 
     def no_read_barcode?(barcode)
       barcode.start_with?('No Read')
-    end    
+    end
 
     def parse
       updater = FactChanges.new

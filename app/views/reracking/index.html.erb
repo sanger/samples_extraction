@@ -7,5 +7,6 @@
     <%= f.text_field(:instrument_barcode, :value => @instrument.barcode, :readonly => true) %>
     <%= f.text_field(:kit_barcode, :value => @kit.barcode, :placeholder => 'Scan a kit barcode') %>
   </div>
-  <%= f.submit("Start reracking") %>
+  <input type="submit" class="btn btn-default" value="Start reracking" />
 <% end %>
+

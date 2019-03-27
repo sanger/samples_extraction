@@ -43,7 +43,7 @@ class AssetGroup extends React.Component {
             key={"facts-"+index}
             onCollapseFacts={this.props.onCollapseFacts}
             collapsedFacts={this.props.collapsedFacts}
-            dataRackDisplay={this.props.dataRackDisplay}  />
+            dataAssetDisplay={this.props.dataAssetDisplay}  />
         </td>
         <td>{index+1}</td>
         <td>

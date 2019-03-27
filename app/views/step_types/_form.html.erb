@@ -24,9 +24,9 @@
     <%= f.select :step_action, options_for_select(
       [
         ['None', nil],
-        ['Rack Layout Creating Tubes', 'rack_layout_creating_tubes'], 
+        ['Rack Layout Creating Tubes', 'rack_layout_creating_tubes'],
         ['Rack Layout','rack_layout']
-      ],step_type.step_action || ''), {}, disabled: readonly %>
+      ],step_type.step_action || nil), {}, disabled: readonly %>
   </div>
   <div class="field not-for-reasoning">
     <%= f.select :connect_by, options_for_select([['All', nil], ['By position', 'position']], step_type.connect_by), {}, :disabled => readonly %>
@@ -38,7 +38,7 @@
       else
         [a, a]
       end
-    end, step_type.step_template || ''), {},
+    end, step_type.step_template || nil), {},
     :disabled => readonly %>
   </div>
 

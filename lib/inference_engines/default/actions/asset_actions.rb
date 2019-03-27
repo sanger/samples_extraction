@@ -3,6 +3,7 @@ module InferenceEngines
     module Actions
       module AssetActions
         def create_asset
+          debugger
           unless created_assets[action.subject_condition_group.id]
             num_create = original_assets.count
             if (action.subject_condition_group.cardinality) && (action.subject_condition_group.cardinality!=0)

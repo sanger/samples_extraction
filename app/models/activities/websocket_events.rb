@@ -32,7 +32,7 @@ module Activities::WebsocketEvents
   end
 
   def wss_event
-    if ActivityChannel.subscribed_ids.include?(stream_id)
+    if Rails.configuration.redis_enabled && ActivityChannel.subscribed_ids.include?(stream_id)
       send_wss_event(websockets_attributes(json_attributes))
     end
   end

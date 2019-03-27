@@ -65,11 +65,11 @@ class StepType < ActiveRecord::Base
   def position_for_assets_by_condition_group(assets)
     all_cgroups = {}
     Hash[condition_group_classification_for(assets).map do |asset, cgroups|
-      [asset, Hash[cgroups.map do |cgroup|
+      [asset.id, Hash[cgroups.map do |cgroup|
         all_cgroups[cgroup] = 0 if all_cgroups[cgroup].nil?
         position = all_cgroups[cgroup]
         all_cgroups[cgroup] = all_cgroups[cgroup] + 1
-        [cgroup, position]
+        [cgroup.id, position]
       end]]
     end]
   end
@@ -148,12 +148,12 @@ class StepType < ActiveRecord::Base
         condition_group.compatible_with?([asset].flatten)
       end
       memo
-    end    
+    end
   end
 
   def check_dependency_compatibility_for(asset, condition_group, assets)
-    check_cgs = condition_groups.select do |cg| 
-      cg.conditions.select{|c| c.object_condition_group == condition_group}.count > 0 
+    check_cgs = condition_groups.select do |cg|
+      cg.conditions.select{|c| c.object_condition_group == condition_group}.count > 0
     end
     return true if check_cgs.empty?
     ancestors = assets.select{|a| a.facts.any?{|f| f.object_asset == asset}}.uniq
@@ -178,7 +178,7 @@ class StepType < ActiveRecord::Base
     #   if c.object_condition_group
     #     "\t?#{c.condition_group.name} :#{c.predicate} ?#{c.object_condition_group.name} ."
     #   else
-    #     "\t?#{c.condition_group.name} :#{c.predicate} #{obj} ." 
+    #     "\t?#{c.condition_group.name} :#{c.predicate} #{obj} ."
     #   end
     # end, "} => {",
     # actions.map do |a|
@@ -189,7 +189,7 @@ class StepType < ActiveRecord::Base
     #   else
     #     "\t:step :#{a.action_type} {?#{a.subject_condition_group.name} :#{a.predicate} #{obj}. } ."
     #   end
-    # end, 
+    # end,
     # name ? "\t:step :stepTypeName \"#{name}\" ." : '',
     # connect_by ? "\t:step :connectBy \"#{connect_by}\" ." : nil,
     # "}."].flatten.compact.join("\n")

@@ -28,7 +28,7 @@ class Activity extends React.Component {
 			stepsFinished: props.stepsFinished,
       stepsFailed: props.stepsFailed,
 			activityRunning: props.activityRunning,
-      dataRackDisplay: props.dataRackDisplay,
+      dataAssetDisplay: props.dataAssetDisplay,
       collapsedFacts: {}
 		}
 		this.onSelectAssetGroup = this.onSelectAssetGroup.bind(this)
@@ -54,15 +54,17 @@ class Activity extends React.Component {
   }
   onCollapseFacts(collapsedFacts, uuid, predicate) {
     return(()=>{
-      if (!collapsedFacts[uuid]) {
-        collapsedFacts[uuid]={}
+      let obj = Object.create({}, collapsedFacts)
+      if (!obj[uuid]) {
+        obj[uuid]={}
       }
-      if (collapsedFacts[uuid][predicate] === true) {
-        collapsedFacts[uuid][predicate]=false
+      if (obj[uuid][predicate] === true) {
+        obj[uuid][predicate]=false
       } else {
-        collapsedFacts[uuid][predicate]=true
+        obj[uuid][predicate]=true
       }
-      this.setState({collapsedFacts})
+      return obj
+      //this.setState({collapsedFacts})
     })
   }
   listenWebSockets() {
@@ -77,7 +79,7 @@ class Activity extends React.Component {
 		this.setState({
       messages: msg.messages,
 			activityRunning: msg.activityRunning,
-      dataRackDisplay: msg.dataRackDisplay,
+      dataAssetDisplay: msg.dataAssetDisplay,
 			assetGroups: msg.assetGroups,
 			stepTypes: msg.stepTypes,
 			stepsRunning: msg.stepsRunning || [],
@@ -281,10 +283,10 @@ class Activity extends React.Component {
 		    />
 				{this.renderStepTypesControl("1")}
 			  <AssetGroupsEditor
-          dataRackDisplay={this.state.dataRackDisplay}
+          dataAssetDisplay={this.state.dataAssetDisplay}
 			  	activityRunning={this.state.activityRunning}
           onCollapseFacts={this.onCollapseFacts}
-          collapsedFacts={this.state.collapsedFacts}
+          collapsedFacts={null} // {this.state.collapsedFacts}
 
 					onExecuteStep={this.onExecuteStep}
           onAddBarcodesToAssetGroup={this.onAddBarcodesToAssetGroup}

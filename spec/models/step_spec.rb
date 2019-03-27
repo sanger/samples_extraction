@@ -12,7 +12,7 @@ RSpec.describe Step, type: :model do
 
   let(:activity) { create :activity }
   before do
-    Delayed::Worker.delay_jobs = false    
+    Delayed::Worker.delay_jobs = false
   end
 
   def build_instance
@@ -29,6 +29,46 @@ RSpec.describe Step, type: :model do
     step
   end
 
+  def run_step_type(step_type, asset_group)
+    step = create(:step, {
+      activity: activity,
+      step_type: step_type,
+      asset_group: asset_group
+    })
+    step.execute_actions
+    step
+  end
+
+  def create_asset(type)
+    create(:asset, facts: [
+      create(:fact, predicate: 'a', object: type)
+    ])
+  end
+
+  def create_action_for_creating_asset(asset_type)
+    cg3 = create(:condition_group, name: 'my_new_asset')
+    create(:action, action_type: 'createAsset',
+          predicate: 'a', subject_condition_group: cg3, object: asset_type)
+  end
+
+  def create_action_for_connecting_condition_groups(predicate, cg1, cg2)
+    create(:action, action_type: 'addFacts',
+          predicate: predicate, subject_condition_group: cg1, object_condition_group: cg2)
+  end
+
+  def create_condition_to_select_asset_type(asset_type)
+    create(:condition, predicate: 'a', object: asset_type)
+  end
+
+  def create_condition_group_to_select_asset_type(asset_type, name=nil)
+    create(:condition_group, name: name, conditions: [create_condition_to_select_asset_type(asset_type)])
+  end
+
+
+
+  def create_assets(num, type)
+    num.times.map { create_asset(type) }
+  end
 
   describe '#execute_actions' do
     setup do
@@ -159,7 +199,7 @@ RSpec.describe Step, type: :model do
 
           it 'uses the value of the condition group to relate different groups' do
             # ?x :t ?pos . ?y :v ?pos . => ?x :relates ?y .
-            
+
 
             previous_num = @asset_group.assets.count
             @cg1.conditions << FactoryBot.create(:condition, {:predicate => 'location',
@@ -295,7 +335,7 @@ RSpec.describe Step, type: :model do
         else
           expect(assets_created.length).to eq(previous_num)
           expect(Operation.all.count).to eq(2*assets_created.count)
-        end        
+        end
         expect(assets_created.length+previous_num).to eq(@asset_group.assets.count)
       end
 
@@ -331,7 +371,7 @@ RSpec.describe Step, type: :model do
           if cwm_engine?
             total_count = (@tubes_and_racks.count + @tubes.count) * (@tubes_and_racks.count + @racks.count)
             expect(assets_created.length).to eq(total_count)
-            # Its 3 actions for each asset created, but the 'createdBy' relations with the 
+            # Its 3 actions for each asset created, but the 'createdBy' relations with the
             # asset themselves wont happen twice (this is the case only for the @tubes_and_racks
             # overlapped assets), so its 7
             total_operations = (assets_created.count*3) - @tubes_and_racks.count
@@ -393,6 +433,103 @@ RSpec.describe Step, type: :model do
       end
 
 
+    end
+
+    describe 'when using different values of connect_by' do
+      let(:asset_group) {create(:asset_group, assets: [origins, targets].flatten)}
+
+      shared_examples 'a step type that can connect by position' do
+        let(:step_type) {
+          create(:step_type, condition_groups: condition_groups, actions: actions, connect_by: 'position')
+        }
+        it 'connects origins with destinations 1 to 1 leaving outside assets without associated pair' do
+          s = run_step_type(step_type, asset_group)
+          origins.each(&:reload)
+          destinations.each(&:reload)
+          transfers = origins.map(&:facts).map{|facts| facts.with_predicate('transfer')}.flatten
+          expect(transfers.compact.count).to eq([origins.count, destinations.count].min)
+          transfers.each_with_index do |t, index|
+            expect(t.asset).to eq(origins[index])
+            expect(t.object_asset).to eq(destinations[index])
+          end
+        end
+      end
+
+      shared_examples 'a step type that can connect N to N' do
+        let(:step_type) {
+          create(:step_type, condition_groups: condition_groups, actions: actions, connect_by: nil)
+        }
+
+        it 'connects all origins with all destinations' do
+          s = run_step_type(step_type, asset_group)
+          origins.each(&:reload)
+          destinations.each(&:reload)
+          transfers = origins.map(&:facts).map{|facts| facts.with_predicate('transfer')}.flatten.sort do |a,b|
+            if (a.asset.id == b.asset.id)
+              (a.object_asset.id <=> b.object_asset.id)
+            else
+              (a.asset.id <=> b.asset.id)
+            end
+          end
+          expect(transfers.compact.count).to eq(origins.count * destinations.count)
+          transfers.each_with_index do |t, index|
+            origin_index = (index / destinations.count).floor
+            destination_index = index % destinations.count
+            expect(t.asset).to eq(origins[origin_index])
+            expect(t.object_asset).to eq(destinations[destination_index])
+          end
+        end
+      end
+
+      context 'when the destinations exist upfront' do
+        let(:condition_groups) { [
+          create_condition_group_to_select_asset_type('Tube'),
+          create_condition_group_to_select_asset_type('Rack')
+        ] }
+        let(:actions) { [
+          create_action_for_connecting_condition_groups('transfer',
+            condition_groups.first, condition_groups.last)
+        ] }
+        let(:targets) { destinations }
+        context 'when there are more destinations than origins' do
+          let(:origins) { create_assets(5, 'Tube') }
+          let(:destinations) { create_assets(7, 'Rack') }
+          it_should_behave_like 'a step type that can connect by position'
+          it_should_behave_like 'a step type that can connect N to N'
+        end
+
+        context 'when there are more origins than destinations' do
+          let(:origins) { create_assets(7, 'Tube') }
+          let(:destinations) { create_assets(5, 'Rack') }
+          it_should_behave_like 'a step type that can connect by position'
+          it_should_behave_like 'a step type that can connect N to N'
+        end
+
+        context 'when there are equal number of origins and destinations' do
+          let(:origins) { create_assets(7, 'Tube') }
+          let(:destinations) { create_assets(7, 'Rack') }
+          it_should_behave_like 'a step type that can connect by position'
+          it_should_behave_like 'a step type that can connect N to N'
+        end
+      end
+
+      context 'when the destinations are going to be created during the execution' do
+        let(:condition_groups) { [
+          create_condition_group_to_select_asset_type('Tube')
+        ] }
+        let(:actions) { [
+          create_action_for_connecting_condition_groups('transfer',
+            condition_groups.first,
+            create_condition_group_to_select_asset_type('Rack')
+          ),
+          create_action_for_creating_asset('Rack')
+        ] }
+        let(:origins) { create_assets(5, 'Tube') }
+        let(:targets) { [] }
+        let(:destinations) { Asset.all - origins }
+        it_should_behave_like 'a step type that can connect by position'
+        it_should_behave_like 'a step type that can connect N to N'
+      end
     end
 
     describe 'with addFacts action_type' do
@@ -789,5 +926,5 @@ RSpec.describe Step, type: :model do
 
   end
 
-  
+
 end

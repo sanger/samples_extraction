@@ -46,7 +46,7 @@ module InferenceEngines
                       :object => value.name,
                       :object_asset => value,
                       :literal => false
-                  }          
+                  }
                 else
                   {
                       :predicate => action.predicate,
@@ -61,11 +61,11 @@ module InferenceEngines
         end
 
         def position_for_asset(asset, condition_group)
-          positions_for_asset[asset] = {} unless positions_for_asset[asset]
-          unless positions_for_asset[asset][condition_group]
-            positions_for_asset[asset][condition_group] = step.step_type.position_for_assets_by_condition_group([asset])
+          positions_for_asset[asset.id] = {} unless positions_for_asset[asset.id]
+          unless positions_for_asset[asset.id][condition_group.id]
+            positions_for_asset[asset.id][condition_group.id] = step.step_type.position_for_assets_by_condition_group([asset])
           end
-          positions_for_asset[asset][condition_group]
+          positions_for_asset[asset.id][condition_group.id]
         end
 
         def generate_facts
@@ -83,6 +83,12 @@ module InferenceEngines
                 data = wildcard_facts
               else
                 data = asset_group.assets.each_with_index.map.select do |related_asset, idx|
+                  # Is not compatible if we are selecting by position and the asset is not in
+                  # the same position
+                  if (step.step_type.connect_by=='position')
+                    next if (position != position_for_asset(related_asset, action.object_condition_group))
+                  end
+
                   # They are compatible if the object condition group is
                   # compatible and if they share a common range of values of
                   # values for any of the wildcard values defined
@@ -101,8 +107,8 @@ module InferenceEngines
                     runtime_conditions = action.subject_condition_group.runtime_conditions_compatible_with?(asset, related_asset)
                   end
 
-                  result = action.object_condition_group.compatible_with?(related_asset) && checked_wildcards && 
-                    runtime_conditions 
+                  result = action.object_condition_group.compatible_with?(related_asset) && checked_wildcards &&
+                    runtime_conditions
 
                   dependency_compatibility = true
                   if asset && result
@@ -110,8 +116,8 @@ module InferenceEngines
                   end
 
                   result && dependency_compatibility
-                  
-                end.map do |related_asset, idx|
+
+                end.compact.map do |related_asset, idx|
                   {
                     :position => position_for_asset(related_asset, action.object_condition_group),
                     :predicate => action.predicate,
@@ -122,8 +128,14 @@ module InferenceEngines
                   }
                 end
               end
-            else        
+            else
               data = created_assets[action.object_condition_group.id].each_with_index.map do |related_asset, idx|
+                # Is not compatible if we are selecting by position and the asset is not in
+                # the same position
+                if (step.step_type.connect_by=='position')
+                  next if (position != position_for_asset(related_asset, action.object_condition_group))
+                end
+
                 {
                 :position => idx, #position_for_asset(related_asset, action.object_condition_group),
                 :predicate => action.predicate,
@@ -131,7 +143,7 @@ module InferenceEngines
                 :object_asset_id => related_asset.id,
                 :literal => false
                 }
-              end
+              end.compact
             end
           end
           in_progress = step.in_progress? ? {:to_add_by => step.id} : {}

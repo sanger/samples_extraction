@@ -92,7 +92,7 @@ class StepsFinished extends React.Component {
             className={"clickable  "+ this.colorForState(step.state)}>
             <td>{ step.id }</td>
             <td>{ stepTypeName }</td>
-            <td>{ stepActivityId }</td>
+            <td>{ step.operations.length }</td>
             <td>{ stepAssetGroup }</td>
             <td>{ stepUsername }</td>
             <td>{ this.renderDuration(step) }</td>
@@ -137,7 +137,7 @@ class StepsFinished extends React.Component {
     } else {
       return(
         <table className="table table-condensed table-hover steps-table">
-          <thead><tr><th>Step id</th><th>Step type</th><th>Activity id</th><th>Asset Group</th><th>Username</th><th>Duration</th><th>Status</th></tr></thead>
+          <thead><tr><th>Step id</th><th>Step type</th><th>Operations</th><th>Asset Group</th><th>Username</th><th>Duration</th><th>Status</th></tr></thead>
           <tbody>
             {this.props.steps.map(this.renderStepRow)}
           </tbody>

@@ -138,21 +138,21 @@ class ActivitiesController < ApplicationController
     end
 
     def set_kit
-      @kit = Kit.find_by_barcode!(params[:kit_barcode])
+      @kit = Kit.find_by_barcode!(activity_params[:kit_barcode])
     rescue ActiveRecord::RecordNotFound => e
       flash[:danger] = 'Kit not found'
       redirect_to :back
     end
 
     def set_activity_type
-      @activity_type = ActivityType.find_by_id(params[:activity_type_id])
+      @activity_type = ActivityType.find_by_id(activity_params[:activity_type_id])
     rescue ActiveRecord::RecordNotFound => e
       flash[:danger] = 'Activity Type not found'
       redirect_to :back
     end
 
     def set_instrument
-      @instrument = Instrument.find_by_barcode!(params[:instrument_barcode])
+      @instrument = Instrument.find_by_barcode!(activity_params[:instrument_barcode])
       unless @instrument.compatible_with_kit?(@kit)
         flash[:danger] = "Instrument not compatible with kit type '#{@kit.kit_type.name}'"
         redirect_to :back

@@ -18,6 +18,18 @@
         <td><%= activity_type.name %></td>
         <td><%= bootstrap_link_to 'Show', activity_type %></td>
         <td><%= bootstrap_link_to 'Edit', edit_activity_type_path(activity_type) %></td>
+        <td>
+          <% if activity_type.instruments.length > 0 %>
+            <%= bootstrap_form_for(Activity.new,  :url => {controller: 'activities', action: 'create'}, :html => { :autocomplete => 'off'}) do |f| %>
+              <div class="hidden">
+                <%= f.text_field(:instrument_barcode, :value => activity_type.instruments.first.barcode, :readonly => true) %>
+                <%= f.text_field(:kit_barcode, :value => activity_type.kit_types.first.kits.first.barcode, :placeholder => 'Scan a kit barcode') %>
+              </div>
+              <input type="submit" class="btn btn-default" value="Test" />
+            <% end %>
+          <% end %>
+        </td>
+
         <!-- td><%= bootstrap_link_to 'Destroy', activity_type, method: :delete, data: { confirm: 'Are you sure?' } %></td -->
       </tr>
     <% end %>

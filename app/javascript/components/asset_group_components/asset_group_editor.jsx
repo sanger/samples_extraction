@@ -104,7 +104,7 @@ class AssetGroupEditor extends React.Component {
                </div>
                <div className="panel-body collapse in" id="collapseAssets">
                  <AssetGroup
-                   dataRackDisplay={this.props.dataRackDisplay}
+                   dataAssetDisplay={this.props.dataAssetDisplay}
                    activityRunning={this.props.activityRunning}
                    onCollapseFacts={this.props.onCollapseFacts}
                    collapsedFacts={this.props.collapsedFacts}

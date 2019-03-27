@@ -98,7 +98,7 @@ module ActivitiesHelper
         obj["repeats"] = obj["repeats"] ? obj["repeats"]+1 : 0
         next memo
       end
-      occured_predicates.push(fact.predicate)
+      #occured_predicates.push(fact.predicate)
       elem = fact.object_asset
       if elem
 
@@ -166,12 +166,20 @@ module ActivitiesHelper
     end
   end
 
-  def data_rack_display_for_asset_group(asset_group)
+  def data_asset_display_for_asset_group(asset_group)
     asset_group.assets.reduce({}) do |memo, asset|
+      memo[asset.uuid] = data_asset_display(asset.facts)
+      next memo
       if ((asset.has_literal?('a', 'TubeRack')) || ((asset.has_literal?('a', 'Plate'))))
-        memo[asset.uuid] = data_rack_display(asset.facts)
+        memo[asset.uuid] = data_asset_display(asset.facts)
       end
       memo
+    end
+  end
+
+  def data_asset_display_for_activity(activity)
+    activity.owned_asset_groups.reduce({}) do |memo, asset_group|
+      memo.merge(data_asset_display_for_asset_group(asset_group))
     end
   end
 

@@ -3,45 +3,55 @@ import Fact from '../asset_components/fact'
 import FactsSvg from '../asset_components/facts_svg'
 
 class Facts extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { collapsed: {} }
+  }
   collapsedPredicate(facts) {
     return facts[0].predicate;
   }
-  renderCollapsedControl(facts, posPredicate) {
-    let uuid = this.props.asset.uuid
-    let pred = this.collapsedPredicate(facts)
-    let shown = this.props.collapsedFacts[uuid] && this.props.collapsedFacts[uuid][pred]
-
+  onClickCollapse(predicate) {
+    this.state.collapsed[predicate] = !this.isCollapsed(predicate)
+    this.setState({collapsed: this.state.collapsed})
+  }
+  isCollapsed(predicate) {
+    if (typeof this.state.collapsed[predicate] === 'undefined') {
+      return true
+    } else {
+      return this.state.collapsed[predicate]
+    }
+  }
+  renderCollapsedControl(classifiedFacts, posPredicate) {
+    let predicate = this.collapsedPredicate(classifiedFacts)
     return(
       <div
         key={posPredicate}
-        onClick={this.props.onCollapseFacts(this.props.collapsedFacts, this.props.asset.uuid, this.collapsedPredicate(facts))}
+        onClick={() => { this.onClickCollapse(predicate) }}
         className="fact administrator-allowed">
           <span className={"label label-warning"}>
-          <span className={"glyphicon " + (shown ? 'glyphicon-minus': 'glyphicon-plus')}></span>&nbsp;
+          <span className={"glyphicon " + (this.isCollapsed(predicate) ? 'glyphicon-plus' : 'glyphicon-minus')}></span>&nbsp;
           <span className="predicate">
-            { this.collapsedPredicate(facts) }
+            { this.collapsedPredicate(classifiedFacts) }
           </span>
           :
           <span className="object">
           </span>
             <span>
-              ({facts.length})
+              ({classifiedFacts.length})
             </span>
           </span>
       </div>
     )
   }
 
-  renderCollapsedList(facts, posPredicate) {
-    let uuid = this.props.asset.uuid
-    let pred = this.collapsedPredicate(facts)
-    let shown = this.props.collapsedFacts[uuid] && this.props.collapsedFacts[uuid][pred]
-    if (facts.length == 1) {
-      return this.renderFact(facts[0], posPredicate+"-1")
+  renderCollapsedList(classifiedFacts, posPredicate) {
+    if (classifiedFacts.length == 1) {
+      return this.renderFact(classifiedFacts[0], posPredicate+"-1")
     } else {
-      let render = [this.renderCollapsedControl(facts, posPredicate)]
-      if (shown) {
-        render = render.concat(facts.map((fact, pos) => { return this.renderFact(fact, posPredicate+"-"+pos)}))
+      let render = [this.renderCollapsedControl(classifiedFacts, posPredicate)]
+      let predicate = this.collapsedPredicate(classifiedFacts)
+      if (!this.isCollapsed(predicate)) {
+        render = render.concat(classifiedFacts.map((fact, pos) => { return this.renderFact(fact, posPredicate+"-"+pos)}))
       }
       return(render)
     }
@@ -75,7 +85,7 @@ class Facts extends React.Component {
     return(
       <span className="facts-list ">
         <span>
-          <FactsSvg asset={this.props.asset}  facts={this.props.facts}  dataRackDisplay={this.props.dataRackDisplay}  />
+          <FactsSvg asset={this.props.asset}  facts={this.props.facts}  dataAssetDisplay={this.props.dataAssetDisplay}  />
           <div className="col-xs-10">
             {this.renderCollapsedFacts(this.props.facts)}
           </div>

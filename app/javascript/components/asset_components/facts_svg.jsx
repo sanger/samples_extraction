@@ -73,7 +73,8 @@ class FactsSvg extends React.Component {
     this.onLoadSvg()
   }
   onLoadSvg() {
-    var data = this.props.dataRackDisplay[this.props.asset.uuid];
+    var data = this.props.dataAssetDisplay[this.props.asset.uuid];
+
     for (var key in data) {
       var node = $('.svg-'+this.props.asset.uuid+' .'+key);
       node.addClass(data[key].cssClass);

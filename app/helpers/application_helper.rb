@@ -5,7 +5,7 @@ module ApplicationHelper
     link_to(name, options, modified_options)
   end
 
-  UNKNOW_ALIQUOT_TYPE = 'unknown-aliquot'
+  UNKNOWN_ALIQUOT_TYPE = 'unknown-aliquot'
 
   def default_ontologies
     [
@@ -49,8 +49,8 @@ module ApplicationHelper
   end
 
   def render_react_display_for_asset(asset)
-    data_rack_display = {}.tap {|o| o[asset.uuid]=data_rack_display(asset.facts) }
-    react_component('FactsSvg',  { asset: asset, facts: facts_with_object_asset(asset.facts), dataRackDisplay: data_rack_display })
+    data_asset_display = {}.tap {|o| o[asset.uuid]=data_asset_display(asset.facts) }
+    react_component('FactsSvg',  { asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
   end
 
   def facts_with_object_asset(facts)
@@ -63,20 +63,22 @@ module ApplicationHelper
   end
 
   def render_react_display_and_facts_for_asset(asset)
-    data_rack_display = {}.tap {|o| o[asset.uuid]=data_rack_display(asset.facts) }
-    react_component('Facts',  { asset: asset, facts: facts_with_object_asset(asset.facts), dataRackDisplay: data_rack_display })    
+    data_asset_display = {}.tap {|o| o[asset.uuid]=data_asset_display(asset.facts) }
+    react_component('Facts',  { asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
   end
 
-  def data_rack_display(facts)
+  def data_asset_display(facts)
     #return '' unless facts.first.class == Fact
     f = facts.with_predicate('aliquotType').first
     if f
-      return {:aliquot => {
-        :cssClass => [(f.object || UNKNOW_ALIQUOT_TYPE), facts.with_predicate('is').map do |f_is|
+      obj = {:aliquot => {
+        :cssClass => [(f.object || UNKNOWN_ALIQUOT_TYPE), facts.with_predicate('is').map do |f_is|
           [f_is.predicate, f_is.object].join('-')
         end].compact.join(' '),
         :url => ((f.class==Fact) ? asset_path(f.asset) : '')
-        }}.to_json
+        }}
+
+      return obj
     end
 
     unless facts.with_predicate('contains').empty?
@@ -90,8 +92,8 @@ module ApplicationHelper
           f2 = facts.with_predicate('aliquotType').first
           aliquotType = f2 ? f2.object : nil
           memo[location] = {
-            :title => "#{asset.short_description}", 
-            :cssClass => aliquotType || UNKNOW_ALIQUOT_TYPE, 
+            :title => "#{asset.short_description}",
+            :cssClass => aliquotType || UNKNOWN_ALIQUOT_TYPE,
             :url => asset_path(asset)
           } unless location.nil?
         end
@@ -106,7 +108,7 @@ module ApplicationHelper
         end.join(' '),
         :url => ''
       }
-    }.to_json
+    }
   end
 
   def svg(name)
