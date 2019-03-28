@@ -55,6 +55,7 @@ module InferenceEngines
 
       def executable_actions_sorted
         step.step_type.actions.includes([:subject_condition_group, :object_condition_group]).sort do |a,b|
+          [:create_asset, :add_facts, :remove_facts, :delete_asset, :select_asset, :unselect_asset]
           if a.action_type=='createAsset'
             -1
           elsif b.action_type=='createAsset'

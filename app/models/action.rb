@@ -2,92 +2,62 @@ class Action < ActiveRecord::Base
   belongs_to :subject_condition_group, :class_name => 'ConditionGroup'
   belongs_to :object_condition_group, :class_name => 'ConditionGroup'
 
+  belongs_to :step_type
+  
   @@TYPES = [:checkFacts, :addFacts, :removeFacts]
 
   def self.types
     @@TYPES
   end
 
-  def classified_assets(assets)
-    [subject_condition_group, object_condition_group].reduce({}) do |memo, cg|
-      memo[cg.id] = cg.select_compatible_assets(assets) if cg
-      memo
-    end
-  end
-
-  def sources(assets, position=nil)
-    subject_condition_group.select_compatible_assets(assets, position)
-  end
-
-  def destinations(assets, position=nil)
-    if object_condition_group.nil?
-      [object]
+  def each_connected_asset(sources, destinations, &block)
+    if step_type.connect_by == 'position'
+      sources.zip(destinations).each {|s,d| yield s,d if d}
     else
-      object_condition_group.select_compatible_assets(assets, position)
-    end
-  end
-
-  def run(changes_manager, position=nil)
-    send(action.action_type.underscore, asset_group, position)
-  end
-
-  def add_facts(asset_group, position=nil)
-    sources = sources(asset_group.assets, position)
-    destinations = destinations(asset_group.assets, position)
-
-    changes_manager.fact_changes.tap do |updates|
-      sources.map do |source|
-        destinations.map do |destination|
-          updates.add(source, action.predicate, destination)
+      sources.each do |s|
+        destinations.each do |d|
+          yield s,d
         end
       end
     end
   end
 
-  def remove_facts(asset_group, position=nil)
-    sources = sources(asset_group.assets, position)
-    destinations = destinations(asset_group.assets, position)
+  def sources(assets_group)
+    asset_group.classified_by_condition_group(subject_condition_group)
+  end
 
-    changes_manager.fact_changes.tap do |updates|
-      sources.map do |source|
-        destinations.map do |destination|
-          updates.remove(source, action.predicate, destination)
+  def destinations(asset_group)
+    if object_condition_group.nil?
+      sources(asset_group).length.times.map { object }
+    else
+      asset_group.classified_by_condition_group(object_condition_group)
+    end
+  end
+
+  def run(asset_group)
+    FactChanges.new.tap do |updates|
+      destinations = destinations(asset_group)
+      if action.action_type == 'createAsset'
+        num_assets_to_create(asset_group).times.map{ Asset.new }
+        asset_group.classify_assets_in_condition_group(assets, subject_condition_group)
+        assets.each do |asset|
+          each_connected_asset(assets, destinations) do |s, d|
+            updates.add(s, action.predicate, d)
+          end
+        end
+      else
+        each_connected_asset(sources(asset_group), destinations) do |source, destination|
+          if action.action_type=='addFacts'
+            updates.add(source, action.predicate, destination)
+          elsif action.action_type == 'removeFacts'
+            updates.remove(source, action.predicate, destination)
+          elsif action.action_type == 'selectAsset'
+            asset_group.assets << source
+          elsif action.action_type == 'unselectAsset'
+            asset_group.assets.delete(source)
+          end
         end
       end
-    end
-  end
-
-  def select_asset(asset_group, position=nil)
-    sources = sources(asset_group.assets, position)
-
-    changes_manager.asset_group_changes.tap do |updates|
-      updates.add(sources)
-    end
-  end
-
-  def unselect_asset(asset_group, position=nil)
-    sources = sources(asset_group.assets, position)
-
-    changes_manager.asset_group_changes.tap do |updates|
-      updates.remove(sources)
-    end
-  end
-
-  def create_asset(asset_group, position=nil)
-    sources = num_assets_to_create(asset_group).times.map{ Asset.new }
-    classify_as_source(sources)
-    add_facts(asset_group, position)
-    changes_manager.asset_group_changes.tap do |updates|
-      destinations.each do |destination|
-        updates.add(num_assets_to_create(asset_group), action.predicate, destination)
-      end
-    end
-  end
-
-  def remove_asset(asset_group, position=nil)
-    sources = sources(asset_group.assets, position)
-    AssetChanges.new.tap do |updates|
-      updates.remove(sources)
     end
   end
 

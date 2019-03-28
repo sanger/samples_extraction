@@ -22,6 +22,15 @@ class AssetGroup < ActiveRecord::Base
     end
   end
 
+  def classified_by_condition_group(condition_group)
+    @classification ||= {}
+    @classification[condition_group.id] ||= condition_group.select_compatible_assets(assets)
+  end
+
+  def classify_assets_in_condition_group(assets, condition_group)
+    @classification[condition_group.id] = @classification[condition_group.id].concat(assets)
+  end
+
   def condition_group_name
     prefix = condition_group.nil? ? "Main" : condition_group.name
     "#{prefix} #{id}"
