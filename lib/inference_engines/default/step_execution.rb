@@ -76,6 +76,9 @@ module InferenceEngines
             raise Steps::ExecutionErrors::RelationSubject, 'A subject condition group needs to be specified to apply the rule'
           end
 
+          executable_action.run(asset_group_assets, position)
+
+          yield [executable_action]
           # If this condition group is referring to an element not matched (like
           # a new created asset, for example) I cannot classify any assets with it, so I run it as it is
           if (!step.step_type.condition_groups.include?(executable_action.subject_condition_group))
@@ -114,7 +117,7 @@ module InferenceEngines
             perform_action(action, asset, nil)
           end
         end
-        save_created_assets        
+        save_created_assets
         updates.apply(step)
 
       end

@@ -12,6 +12,11 @@ class ConditionGroup < ActiveRecord::Base
     conditions.empty?
   end
 
+  def select_compatible_assets(assets, position=nil)
+    compatibles = assets.select{|a| compatible_with?(a) }
+    (position.nil? ? compatibles : [compatibles[position]])
+  end
+
   def compatible_with?(assets, related_assets = [], checked_condition_groups=[], wildcard_values={})
     assets = [assets].flatten
     return true if is_wildcard?
@@ -31,7 +36,7 @@ class ConditionGroup < ActiveRecord::Base
   end
 
   def runtime_conditions
-    conditions.select{|c| c.is_runtime_evaluable_condition?}    
+    conditions.select{|c| c.is_runtime_evaluable_condition?}
   end
 
   def runtime_conditions_compatible_with?(asset, related_asset)
