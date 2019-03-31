@@ -77,7 +77,7 @@ module InferenceEngines
             raise Steps::ExecutionErrors::RelationSubject, 'A subject condition group needs to be specified to apply the rule'
           end
 
-          executable_action.run(asset_group_assets, position)
+          executable_action.run(asset_group_assets)
 
           yield [executable_action]
           # If this condition group is referring to an element not matched (like
@@ -111,12 +111,8 @@ module InferenceEngines
       end
 
       def run
-        each_sorted_executable_action_with_applicable_assets do |action, asset, position|
-          if step.step_type.connect_by=='position'
-            perform_action(action, asset, position)
-          else
-            perform_action(action, asset, nil)
-          end
+        updates = executable_actions_sorted.reduce(FactChanges.new) do |updates, action|
+          action.run(asset_group, @step.wildcard_values).merge(updates)
         end
         save_created_assets
         updates.apply(step)

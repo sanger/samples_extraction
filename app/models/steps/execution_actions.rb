@@ -20,7 +20,7 @@ module Steps::ExecutionActions
     return true if asset_group.nil?
     checked_condition_groups=[], @wildcard_values = {}
     compatible = step_type.compatible_with?(asset_group_assets, nil, checked_condition_groups, wildcard_values)
-    raise StandardError unless compatible || (asset_group_assets.count == 0)
+    raise StandardError unless compatible # || (asset_group_assets.count == 0)
   end
 
   def unselect_assets_from_antecedents

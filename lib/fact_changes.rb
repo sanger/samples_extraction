@@ -11,26 +11,40 @@ class FactChanges
   end
 
   def add(s,p,o, options=nil)
-    facts_to_add.push([s,p,o, options]) if (s && p && o)
+    detected = (s && p && o) && facts_to_add.detect do |triple|
+      (triple[0]==s) && (triple[1] ==p) && (triple[2] == o)
+    end
+    facts_to_add.push([s,p,o, options]) unless detected
   end
 
   def add_remote(s,p,o)
-    add(s,p,o,is_remote?: true)
+    add(s,p,o,is_remote?: true) if (s && p && o)
   end
 
   def remove(f)
     facts_to_destroy.push(f)
   end
 
+  def remove_where(subject, predicate, object)
+    if object.kind_of? String
+      elems = Fact.where(asset: subject, predicate: predicate, object: object)
+    else
+      elems = Fact.where(asset: subject, predicate: predicate, object_asset: object)
+    end
+    facts_to_destroy.concat(elems).uniq!
+  end
+
   def merge(fact_changes)
-    facts_to_add.concat(fact_changes.facts_to_add)
-    facts_to_destroy.concat(fact_changes.facts_to_destroy)
+    if (fact_changes)
+      facts_to_add.concat(fact_changes.facts_to_add).uniq!
+      facts_to_destroy.concat(fact_changes.facts_to_destroy).uniq!
+    end
     self
   end
 
   def apply(step)
     ActiveRecord::Base.transaction do |t|
-      remove_facts(step, facts_to_destroy.flatten)
+      remove_facts(step, facts_to_destroy)
       create_facts(step, facts_to_add)
       reset
     end
@@ -55,7 +69,7 @@ class FactChanges
 
   def remove_facts(step, facts)
     facts = [facts].flatten
-    ids_to_remove = facts.map(&:id).compact
+    ids_to_remove = facts.map(&:id).compact.uniq
     remove_operations(step, facts)
     Fact.where(id: ids_to_remove).delete_all if ids_to_remove && !ids_to_remove.empty?
   end

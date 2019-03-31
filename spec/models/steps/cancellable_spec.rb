@@ -3,11 +3,16 @@ require 'inferences_helper'
 
 RSpec.describe :cancellable, cancellable: true do
   setup do
+    @asset = create :asset
+    @fact = create(:fact, predicate: 'a', object: 'Rack')
+    @asset.facts << @fact
+    
     @asset_group = FactoryBot.create :asset_group
+    @asset_group.assets << @asset
     @activity_type = FactoryBot.create :activity_type
     @activity = FactoryBot.create :activity, activity_type: @activity_type, asset_group: @asset_group
     @steps = 10.times.map do 
-      step = build_step(%Q{{?p :maxCardinality "1".} => {:step :createAsset {?p :a :Tube .}.} .}, %Q{}, activity: @activity)
+      step = build_step(%Q{{?p :a :Rack.} => {:step :addFacts {?p :a :TubeRack .}.} .}, %Q{}, activity: @activity, asset_group: @asset_group)
       step.execute_actions
       step
     end

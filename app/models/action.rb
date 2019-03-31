@@ -10,7 +10,31 @@ class Action < ActiveRecord::Base
     @@TYPES
   end
 
-  def each_connected_asset(sources, destinations, &block)
+  def each_connected_asset(sources, destinations, wildcard_values={}, &block)
+    unless wildcard_values.empty?
+      if (object_condition_group)
+        if (wildcard_values[object_condition_group.id])
+          return sources.each_with_index do |source, index|
+            if wildcard_values[object_condition_group.id][source.id]
+              yield source, wildcard_values[object_condition_group.id][source.id].first
+            else
+              yield source, wildcard_values[object_condition_group.id].values.flatten[index]
+            end
+          end
+        else
+          value_for = wildcard_values.values.first
+          return sources.each do |s|
+            destinations.each do |d|
+              if (value_for[s.id] && value_for[d.id])
+                yield s,d if (value_for[s.id] == value_for[d.id])
+              else
+                yield s,d
+              end
+            end
+          end
+        end
+      end
+    end
     if step_type.connect_by == 'position'
       sources.zip(destinations).each {|s,d| yield s,d if d}
     else
@@ -22,7 +46,7 @@ class Action < ActiveRecord::Base
     end
   end
 
-  def sources(assets_group)
+  def sources(asset_group)
     asset_group.classified_by_condition_group(subject_condition_group)
   end
 
@@ -34,26 +58,31 @@ class Action < ActiveRecord::Base
     end
   end
 
-  def run(asset_group)
+  def run(asset_group, wildcard_values={})
     FactChanges.new.tap do |updates|
-      destinations = destinations(asset_group)
-      if action.action_type == 'createAsset'
-        num_assets_to_create(asset_group).times.map{ Asset.new }
-        asset_group.classify_assets_in_condition_group(assets, subject_condition_group)
+      if action_type == 'createAsset'
+        if (asset_group.classified_by_condition_group(subject_condition_group).length > 0)
+          assets = asset_group.classified_by_condition_group(subject_condition_group)
+        else
+          assets = num_assets_to_create(asset_group).times.map{ Asset.new }
+          asset_group.assets << assets
+          asset_group.classify_assets_in_condition_group(assets, subject_condition_group)
+        end
+        destinations = destinations(asset_group)
         assets.each do |asset|
-          each_connected_asset(assets, destinations) do |s, d|
-            updates.add(s, action.predicate, d)
+          each_connected_asset(assets, destinations, wildcard_values) do |s, d|
+            updates.add(s, predicate, d)
           end
         end
       else
-        each_connected_asset(sources(asset_group), destinations) do |source, destination|
-          if action.action_type=='addFacts'
-            updates.add(source, action.predicate, destination)
-          elsif action.action_type == 'removeFacts'
-            updates.remove(source, action.predicate, destination)
-          elsif action.action_type == 'selectAsset'
+        each_connected_asset(sources(asset_group), destinations(asset_group), wildcard_values) do |source, destination|
+          if action_type=='addFacts'
+            updates.add(source, predicate, destination)
+          elsif action_type == 'removeFacts'
+            updates.remove_where(source, predicate, destination)
+          elsif action_type == 'selectAsset'
             asset_group.assets << source
-          elsif action.action_type == 'unselectAsset'
+          elsif action_type == 'unselectAsset'
             asset_group.assets.delete(source)
           end
         end

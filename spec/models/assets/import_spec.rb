@@ -92,6 +92,7 @@ RSpec.describe 'Asset::Import' do
 
               it 'imports the information of the tube but does not set any supplier name' do
                 @asset = Asset.find_or_import_asset_with_barcode(@remote_tube_asset_without_supplier.barcode)
+                @asset.facts.reload
                 expect(@asset.facts.with_predicate('supplier_sample_name').count).to eq(0)
               end
             end

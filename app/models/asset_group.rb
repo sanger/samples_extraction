@@ -24,10 +24,16 @@ class AssetGroup < ActiveRecord::Base
 
   def classified_by_condition_group(condition_group)
     @classification ||= {}
-    @classification[condition_group.id] ||= condition_group.select_compatible_assets(assets)
+    if (condition_group.conditions.length == 0)
+      @classification[condition_group.id] ||= []
+    else
+      @classification[condition_group.id] ||= condition_group.select_compatible_assets(assets)
+    end
   end
 
   def classify_assets_in_condition_group(assets, condition_group)
+    @classification ||= {}
+    @classification[condition_group.id] ||= []
     @classification[condition_group.id] = @classification[condition_group.id].concat(assets)
   end
 
