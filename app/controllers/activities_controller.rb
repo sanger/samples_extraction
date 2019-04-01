@@ -41,6 +41,7 @@ class ActivitiesController < ApplicationController
 
 
   def show
+    @activity.owned_asset_groups.each(&:refresh)
     @assets = @activity.asset_group.assets
     @step_types = @activity.step_types_for(@assets)
     @steps = @activity.previous_steps

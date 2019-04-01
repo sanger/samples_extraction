@@ -116,7 +116,14 @@ module InferenceEngines
         end
         save_created_assets
         updates.apply(step)
-
+        step_type.condition_groups.each do |cg|
+          if cg.keep_selected != true
+            assets = asset_group.classified_by_condition_group(subject_condition_group)
+            assets.each do |asset|
+              asset_group.assets.delete(asset)
+            end
+          end
+        end
       end
 
     end

@@ -66,6 +66,7 @@ class Action < ActiveRecord::Base
         else
           assets = num_assets_to_create(asset_group).times.map{ Asset.new }
           asset_group.assets << assets
+          AssetGroup.create(name: subject_condition_group.name, activity_owner: asset_group.activity_owner, assets: assets)
           asset_group.classify_assets_in_condition_group(assets, subject_condition_group)
         end
         destinations = destinations(asset_group)

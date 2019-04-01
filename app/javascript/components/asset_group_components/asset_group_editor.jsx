@@ -65,14 +65,11 @@ class AssetGroupEditor extends React.Component {
   onAjaxComplete() {
     this.setState({disabledBarcodesInput: false, barcodesInputText: ''})
   }
-  getBarcodes() {
-    return this.state.barcodesInputText.split(' ')
-  }
   onSubmit(e) {
     e.preventDefault()
     this.setState({disabledBarcodesInput: true})
     return this.props
-      .onAddBarcodesToAssetGroup(this.props.assetGroup, this.getBarcodes())
+      .onAddBarcodesToAssetGroup(this.props.assetGroup, this.state.barcodesInputText)
       .then(this.onAjaxSuccess)
       .finally(this.onAjaxComplete)
   }

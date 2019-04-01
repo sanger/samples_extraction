@@ -107,7 +107,12 @@ module ActivitiesHelper
         #    "facts" => fact.object_asset.facts
         #  })
         #}.merge(fact.attributes)
-        obj = {"object_asset" => elem.attributes}.merge(fact.attributes)
+        obj = {"object_asset" => {
+                 uuid: elem.uuid,
+                 barcode: elem.barcode,
+                 id: elem.id,
+                 info_line: elem.info_line
+               }}.merge(fact.attributes)
       else
         obj = fact.attributes
       end

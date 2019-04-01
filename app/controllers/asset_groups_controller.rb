@@ -61,7 +61,6 @@ class AssetGroupsController < ApplicationController
       end
     end
 
-
     def set_activity
       # I need the activity to be able to know the step_types compatible to show.
       @activity = Activity.find(params[:activity_id]) if params[:activity_id]
@@ -72,23 +71,19 @@ class AssetGroupsController < ApplicationController
       @asset_group = AssetGroup.find(params[:id])
     end
 
-  def perform_assets_update
-    if params_update_asset_group[:assets]
-      received_list = params_update_asset_group[:assets].map do |uuid_or_barcode|
-        Asset.find_or_import_asset_with_barcode(uuid_or_barcode)
-      end.compact
-      @asset_group.update_attributes(assets: received_list)
-      @asset_group.touch
+    def perform_assets_update
+      @asset_group.update_attributes(assets: params_update_asset_group[:assets].map do |uuid_or_barcode|
+                                       Asset.find_or_import_asset_with_barcode(uuid_or_barcode)
+                                     end.compact.uniq)
     end
-  end
-
-  def show_alert(data)
-    @alerts = [] unless @alerts
-    @alerts.push(data)
-  end
-
-  def params_update_asset_group
-    params.require(:asset_group).permit(:assets => [])
-  end
-
+    
+    def show_alert(data)
+      @alerts = [] unless @alerts
+      @alerts.push(data)
+    end
+    
+    def params_update_asset_group
+      params.require(:asset_group).permit(:assets => [])
+    end
+    
 end

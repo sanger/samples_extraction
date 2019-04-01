@@ -26,6 +26,9 @@ class Fact extends React.Component {
 
   renderShortDescription(asset) {
     let label = (asset && asset.barcode) ? asset.barcode : '#'+asset.id
+    if (asset && asset.info_line) {
+      return (`${asset.info_line} ${this.classType(asset)} ${label}`)
+    }
     return(`${this.valueForPredicate(asset, 'aliquotType')} ${this.classType(asset)} ${label}`)
   }
 

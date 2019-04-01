@@ -15,6 +15,15 @@ class AssetGroup < ActiveRecord::Base
 
   after_touch :touch_activity
 
+  def refresh
+    assets.each(&:refresh)
+  end
+
+  def position_for_asset(asset)
+    assets.each_with_index{|a, pos| return pos if (asset.id == a.id)}
+    return -1
+  end
+  
   def touch_activity
     if activity_owner
       activity_owner.touch
