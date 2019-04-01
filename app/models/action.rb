@@ -11,7 +11,7 @@ class Action < ActiveRecord::Base
   end
 
   def each_connected_asset(sources, destinations, wildcard_values={}, &block)
-    unless wildcard_values.empty?
+    unless (wildcard_values.nil? || wildcard_values.empty?)
       if (object_condition_group)
         if (wildcard_values[object_condition_group.id])
           return sources.each_with_index do |source, index|
