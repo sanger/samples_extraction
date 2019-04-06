@@ -36,14 +36,6 @@ class StepType < ActiveRecord::Base
 
   def all_step_templates
     return ["", "upload_file"]
-    #Dir["app/views/step_types/step_templates/*"].concat([''])
-    ['', 'transfer_tube_to_tube', 'upload_file_step']
-    Dir["app/views/step_types/step_templates/*"].map do |s|
-      name = File.basename(s)
-      name.gsub!(/^_/, '')
-      name.gsub!(/\.html\.erb$/, '')
-      name
-    end.concat([''])
   end
 
   def create_next_conditions
@@ -131,17 +123,6 @@ class StepType < ActiveRecord::Base
     end
   end
 
-  def actions_for_condition_group(condition_group)
-  end
-
-  def actions_for(assets)
-    #condition_group_classification_for(assets)
-  end
-
-  def explain(assets)
-
-  end
-
   def classification_for(assets, cgroups)
     assets.reduce({}) do |memo, asset|
       memo[asset] = cgroups.select do |condition_group|
@@ -170,29 +151,6 @@ class StepType < ActiveRecord::Base
 
   def to_n3
     render :n3
-    # return n3_definition if condition_groups.empty? || actions.empty?
-    # ["{",
-    # condition_groups.map(&:conditions).flatten.map do |c|
-    #   obj = c.object
-    #   obj = "\"#{obj}\"" unless c.object_condition_group
-    #   if c.object_condition_group
-    #     "\t?#{c.condition_group.name} :#{c.predicate} ?#{c.object_condition_group.name} ."
-    #   else
-    #     "\t?#{c.condition_group.name} :#{c.predicate} #{obj} ."
-    #   end
-    # end, "} => {",
-    # actions.map do |a|
-    #   obj = a.object
-    #   obj = "\"#{obj}\"" unless a.object_condition_group
-    #   if a.object_condition_group
-    #     "\t:step :#{a.action_type} {?#{a.subject_condition_group.name} :#{a.predicate} ?#{a.object_condition_group.name}. } ."
-    #   else
-    #     "\t:step :#{a.action_type} {?#{a.subject_condition_group.name} :#{a.predicate} #{obj}. } ."
-    #   end
-    # end,
-    # name ? "\t:step :stepTypeName \"#{name}\" ." : '',
-    # connect_by ? "\t:step :connectBy \"#{connect_by}\" ." : nil,
-    # "}."].flatten.compact.join("\n")
   end
 
 end

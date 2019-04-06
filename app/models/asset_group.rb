@@ -4,7 +4,6 @@ class AssetGroup < ActiveRecord::Base
   has_and_belongs_to_many :assets, ->() {distinct}
   has_many :steps
   has_many :uploaded_files, through: :assets
-  #has_one :activity
 
   belongs_to :activity_owner, :class_name => 'Activity'
   belongs_to :condition_group, :class_name => 'ConditionGroup'
@@ -102,7 +101,6 @@ class AssetGroup < ActiveRecord::Base
   end
 
   def to_n3
-    #assets.map(&:to_n3).join('')
     render :n3
   end
 

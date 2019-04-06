@@ -29,7 +29,6 @@ module Steps::Cancellable
       steps_newer_than_me.each{|s| s.cancel unless s.cancelled?}
       fact_changes_for_option(:cancel).apply(self)
       operations.update_all(cancelled?: true)
-      #operations.each {|operation| operation.update_attributes(:cancelled? => true) }
     end
   end
 
@@ -40,7 +39,6 @@ module Steps::Cancellable
       end
       fact_changes_for_option(:remake).apply(self)
       operations.update_all(cancelled?: false)
-      #operations.each {|operation| operation.update_attributes(:cancelled? => false) }
     end
   end
 

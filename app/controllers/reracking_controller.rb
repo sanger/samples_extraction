@@ -24,7 +24,7 @@ class RerackingController < ApplicationController
   end
 
   def index
-    @activity = Reracking.new
+    @activity = Activity.new
   end
 
   def update

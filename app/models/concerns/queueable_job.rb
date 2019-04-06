@@ -15,7 +15,6 @@ module QueueableJob
 
   def perform_error
     raise @error if @error
-    #raise QueueableJob::ErrorOnQueuedJobProcess
   end
 
   def run_next_step

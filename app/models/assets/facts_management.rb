@@ -16,8 +16,6 @@ module Assets::FactsManagement
     end
   end
 
-
-
   def has_literal?(predicate, object)
     facts.any?{|f| f.predicate == predicate && f.object == object}
   end

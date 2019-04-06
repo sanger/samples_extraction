@@ -6,8 +6,6 @@ module Steps::ExecutionActions
     end
   end
 
-
-
   def can_run_now?
     !is_background_step? && !in_progress?
   end
@@ -20,7 +18,7 @@ module Steps::ExecutionActions
     return true if asset_group.nil?
     checked_condition_groups=[], @wildcard_values = {}
     compatible = step_type.compatible_with?(asset_group_assets, nil, checked_condition_groups, wildcard_values)
-    raise StandardError unless compatible # || (asset_group_assets.count == 0)
+    raise StandardError unless compatible
   end
 
   def unselect_assets_from_antecedents
@@ -120,17 +118,11 @@ module Steps::ExecutionActions
       unselect_assets_from_antecedents
       facts_to_remove = Fact.where(:to_remove_by => self.id)
       facts_to_remove.map(&:asset).uniq.compact.each(&:touch)
-      #facts_to_remove.each do |fact|
-      #  operation = Operation.create!(:action_type => 'removeFacts', :step => self,
-      #      :asset=> fact.asset, :predicate => fact.predicate, :object => fact.object)
-      #end
+
       facts_to_remove.delete_all
       facts_to_add = Fact.where(:to_add_by => self.id)
       facts_to_add.map(&:asset).uniq.compact.each(&:touch)
-      #facts_to_add.each do |fact|
-      #  operation = Operation.create!(:action_type => 'addFacts', :step => self,
-      #      :asset=> fact.asset, :predicate => fact.predicate, :object => fact.object)
-      #end
+
       facts_to_add.update_all(:to_add_by => nil)
       unselect_assets_from_consequents
 

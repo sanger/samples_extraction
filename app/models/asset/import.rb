@@ -196,8 +196,6 @@ module Asset::Import
       unless is_digit_barcode?(barcode) || is_uuid?(barcode)
         parsed = Barcode.creatable_barcode_parsing(barcode)
         barcode = Barcode.calculate_barcode(parsed[:prefix], parsed[:number]).to_s
-
-        #barcode = Barcode.calculate_barcode(barcode[0,2], barcode[2, barcode.length-3].to_i).to_s
       end
       barcode
     end

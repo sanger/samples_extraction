@@ -4,7 +4,6 @@ import BarcodeReader from "../asset_group_components/barcode_reader"
 import AssetGroup from "../asset_group_components/asset_group"
 import FineUploaderTraditional from 'fine-uploader-wrappers'
 import Dropzone from 'react-fine-uploader/dropzone'
-// ...or load this specific CSS file using a <link> tag in your document
 import 'react-fine-uploader/gallery/gallery.css'
 
 function uploaderOptions(props) {
@@ -114,22 +113,6 @@ class AssetGroupEditor extends React.Component {
                </div>
              </div>
            </FormFor>
-           {
-             /*
-             <FormFor url={this.props.assetGroup.updateAssetGroupUrl}
-               className="form-inline activity-desc">
-               <BarcodeReader />
-               <AssetTypeTabs />
-               <hr />
-              <div class="panel-body collapse in" id="collapseAssets">
-                <AssetGroup />
-              </div>
-              <div class="panel-footer">
-              </div>
-            </div>
-
-             */
-           }
         </div>
       </Dropzone>
     )

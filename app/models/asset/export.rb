@@ -90,10 +90,6 @@ module Asset::Export
         location: well.facts.with_predicate('location').first.object
       }
     end
-    data = {}
-    #unless well.has_predicate?('sample_tube')
-    #  data[:uuid] = well.uuid
-    #end
     well.facts.reduce({}) do |memo, fact|
       if (['sample_tube'].include?(fact.predicate))
         memo["#{fact.predicate}_uuid".to_sym] = fact.object_asset.uuid

@@ -19,10 +19,7 @@ class Asset < ActiveRecord::Base
   has_and_belongs_to_many :asset_groups
   has_many :steps, :through => :asset_groups
 
-  #has_many :activities, through: :asset_groups, source: :activity_owner
-
   before_save :generate_uuid
-  #before_save :generate_barcode
 
 
   def update_compatible_activity_type
@@ -316,7 +313,6 @@ class Asset < ActiveRecord::Base
   def validate_rack_content
     errors=[]
     errors.push(more_than_one_aliquot_type_validation)
-    #errors.push(duplicated_tubes_validation)
     errors
   end
 

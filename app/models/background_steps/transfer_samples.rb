@@ -29,17 +29,11 @@ class BackgroundSteps::TransferSamples < BackgroundSteps::BackgroundStep
       if assets_compatible_with_step_type
         each_asset_and_modified_asset do |asset, modified_asset|
           updates.add(modified_asset, 'is', 'Used')
-          #added_facts = []
-          #added_facts.push([Fact.new(:predicate => 'is', :object => 'Used')])
           if (asset.has_predicate?('sample_tube'))
             updates.add(modified_asset, 'sample_tube', asset.facts.with_predicate('sample_tube').first.object_asset)
-            #added_facts.push([Fact.new(:predicate => 'sample_tube', 
-            #  :object_asset => asset.facts.with_predicate('sample_tube').first.object_asset)])
           end
           if (asset.has_predicate?('study_name'))
             updates.add(modified_asset, 'study_name', asset.facts.with_predicate('study_name').first.object)
-            #added_facts.push([Fact.new(:predicate => 'study_name', 
-            #  :object => asset.facts.with_predicate('study_name').first.object)])
           end
 
           asset.facts.with_predicate('sanger_sample_id').each do |aliquot_fact|

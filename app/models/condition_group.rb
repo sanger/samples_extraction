@@ -2,10 +2,8 @@ class ConditionGroup < ActiveRecord::Base
   belongs_to :step_type
   has_many :activity_types, :through => :step_type
   has_many :conditions, dependent: :destroy
-
   has_many :subject_actions, :class_name => 'Action', :foreign_key => 'subject_condition_group_id'
   has_many :object_actions, :class_name => 'Action', :foreign_key => 'object_condition_group_id'
-
   has_many :asset_groups
 
   def is_wildcard?
@@ -23,7 +21,6 @@ class ConditionGroup < ActiveRecord::Base
     if ((cardinality) && (cardinality > 0))
       return false if assets.kind_of?(Array) && (assets.length > cardinality)
     end
-    #return false if cardinality && (assets.length != cardinality)
     assets.all? do |asset|
       conditions.all? do |condition|
         condition.compatible_with?(asset, related_assets, checked_condition_groups, wildcard_values)

@@ -8,7 +8,6 @@ module Steps::Job
     update_attributes!({
       :state => 'running',
       :step_type => step_type,
-      #:asset_group => asset_group_for_execution
     })
     delay.perform_job
   end
@@ -41,7 +40,7 @@ module Steps::Job
     end
 
     # TODO:
-    # This update needs to happen AFTER publishing the changes to the clients (touch), altough
+    # This update needs to happen AFTER publishing the changes to the clients (touch), although
     # is not clear for me why at this moment. Need to revisit it.
     unless state == 'complete'
       update_attributes!(:state => 'error', output: output_error(@error), job_id: job ? job.id : nil)

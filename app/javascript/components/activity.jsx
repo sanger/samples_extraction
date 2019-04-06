@@ -66,7 +66,6 @@ class Activity extends React.Component {
         obj[uuid][predicate]=true
       }
       return obj
-      //this.setState({collapsedFacts})
     })
   }
   listenWebSockets() {
@@ -110,13 +109,6 @@ class Activity extends React.Component {
   }
   onChangeAssetGroup(msg) {
     return msg
-    //this.state.assetGroups[msg.asset_group.id]=msg.asset_group
-    //this.state.stepTypes[msg.asset_group.id]=msg.step_types
-
-    //this.setState({
-    //	assetGroups: this.state.assetGroups,
-    //	stepTypes: this.state.stepTypes
-    //})
   }
   changeAssetGroup(assetGroup, data) {
     if (!this.awaitingPromises) {
@@ -129,14 +121,6 @@ class Activity extends React.Component {
 
     this.activityChannel.send(data)
     return promise
-    /*return $.ajax({
-      method: 'PUT',
-      dataType: 'json',
-      contentType: 'application/json; charset=utf-8',
-      url: assetGroup.updateUrl,
-      success: this.onChangeAssetGroup,
-      data: JSON.stringify(data)
-      })*/
   }
   getAssetUuidsForAssetGroup(assetGroup) {
     return assetGroup.assets.map((a) => a.uuid)
@@ -240,7 +224,6 @@ class Activity extends React.Component {
     }
   }
   onToggleStepsFinished() {
-    //this.setState({shownComponents: {stepsFinished: !this.state.shownComponents.stepsFinished}})
     this.changeShownComponents()
   }
   renderStepTypesControl(instanceId) {

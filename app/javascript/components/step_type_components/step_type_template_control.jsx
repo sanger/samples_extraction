@@ -3,13 +3,6 @@ import ReactDOM from 'react-dom';
 
 import {FormFor} from "react-rails-form-helpers"
 import PrintersSelectionHidden from "../activity_components/printers_selection_hidden"
-/*import FileCreation from "step_type_templates/file_creation"
-import RackLayoutCreatingTubes from "step_type_templates/rack_layout_creating_tubes"
-import RackLayout from "step_type_templates/rack_layout"
-import RackOrderSymphony from "step_type_templates/rack_order_symphony"
-import RackingByColumns from "step_type_templates/racking_by_columns"
-import TransferTubeToTube from "step_type_templates/transfer_tube_to_tube"
-*/
 import UploadFile from "./step_type_templates/upload_file"
 import ApplyFile from "./step_type_templates/apply_file"
 

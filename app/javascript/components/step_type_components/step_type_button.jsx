@@ -3,8 +3,8 @@ import {FormFor} from "react-rails-form-helpers"
 import PrintersSelectionHidden from "../activity_components/printers_selection_hidden"
 
 class StepTypeButton extends React.Component {
-  constructor(props) {
-    super(props)
+    constructor(props) {
+        super(props)
 
     this.onSubmit = this.onSubmit.bind(this)
     this.onAjaxSuccess = this.onAjaxSuccess.bind(this)
@@ -20,8 +20,8 @@ class StepTypeButton extends React.Component {
       this.props.onExecuteStep(msg)
     }
   }
-  toggleDisableButton(flag) {
-    this.setState({disabledButton: flag})
+    toggleDisableButton(flag) {
+      this.setState({disabledButton: flag})
   }
   onSubmit(e) {
     e.preventDefault()
@@ -31,7 +31,6 @@ class StepTypeButton extends React.Component {
       url: this.props.stepTypeData.createStepUrl,
       success: this.onAjaxSuccess,
       data: $(e.target).serializeArray()
-      //complete: $.proxy(()=> { this.toggleDisableButton(false) }, this)
     })
   }
   renderButton() {
@@ -43,9 +42,9 @@ class StepTypeButton extends React.Component {
       </button>
     )
   }
-  render() {
+    render() {
 		return(
-			<li className="btn-group" style={{top: '6px'}}>
+		    <li className="btn-group" style={{top: '6px'}}>
 		      <FormFor
             onSubmit={this.onSubmit}
             url={this.props.stepTypeData.createStepUrl} className="form-inline activity-desc">
