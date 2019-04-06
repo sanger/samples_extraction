@@ -12,8 +12,6 @@ gem 'sprockets-rails'
 gem 'ace-rails-ap'
 gem 'daemons'
 gem 'yajl-ruby', '>= 1.3'
-#gem 'yarn'
-#gem 'sse-rails-engine'
 
 gem 'rb-readline'
 
@@ -35,16 +33,13 @@ gem 'react-rails'
 gem 'delayed_job'
 gem 'delayed_job_active_record'
 
-gem 'sequencescape-client-api'#, path: '/Users/emr/projects/sequencescape-client-api'
+gem 'sequencescape-client-api'
 
 # The client api is not good at all
 gem 'faraday'
 
 # Bulk insert
 gem 'activerecord-import'
-#gem 'sequencescape-client-api', git: 'https://github.com/emrojo/sequencescape-client-api.git',
-#   branch: 'asset-attribute-update-merged-with-rails-5',
-#   require: 'sequencescape'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
@@ -61,13 +56,6 @@ gem 'will_paginate-bootstrap'
 gem 'uglifier', '>= 1.3.0'
 gem 'therubyracer'
 
-# Use CoffeeScript for .coffee assets and views
-#gem 'coffee-rails', '~> 4.1.0'
-# See https://github.com/rails/execjs#readme for more supported runtimes
-# gem 'therubyracer', platforms: :ruby
-
-# Use jquery as the JavaScript library
-#gem 'jquery-rails'
 # Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks
 gem 'turbolinks'
 
@@ -76,20 +64,11 @@ gem 'jbuilder'#, '~> 2.0'
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc'#, '~> 0.4.0', group: :doc
 
-# Use ActiveModel has_secure_password
-# gem 'bcrypt', '~> 3.1.7'
-
-# Use Unicorn as the app server
-# gem 'unicorn'
-
 # Add simple support for print-my barcode)
 gem 'pmb-client', git: 'https://github.com/sanger/pmb-client.git'
-#, '0.1.0', git: 'https://github.com/sanger/pmb-client.git'
 
-# Use Capistrano for deployment
-# gem 'capistrano-rails', group: :development
 
-group :development, :test, :selenium do
+group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
   gem 'factory_bot_rails'
@@ -97,7 +76,7 @@ group :development, :test, :selenium do
   gem 'ruby-growl'
 end
 
-group :test, :selenium do
+group :test do
   gem 'shoulda'
   gem 'factory_bot'
   gem 'rspec-rails'
@@ -106,12 +85,7 @@ group :test, :selenium do
   gem 'database_cleaner'
 end
 
-group :selenium do
-  gem 'selenium-webdriver'
-end
-
 group :test do
-  gem 'poltergeist'
   gem 'launchy'
   gem 'rack_session_access'
 end
