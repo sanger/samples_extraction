@@ -14,16 +14,16 @@ class StepsController < ApplicationController
   end
 
   def create
-    #@activity.running!
-    @activity.do_task(@step_type, @current_user, params_step, @printer_config, @asset_group)
-    #@activity.running!
-
+    @activity.create_step({ step_type: @step_type,
+                            user: @current_user,
+                            printer: @printer_config,
+                            asset_group: @asset_group})
     head :ok
   end
 
   def update
     @step.activity.editing! if @step.activity
-    @step.update({state: params_step[:state]})
+    @step.update(state: params_step[:state])
     @step.activity.in_progress! if @step.activity
 
     head :ok
@@ -62,7 +62,7 @@ class StepsController < ApplicationController
 
     def params_step
       params.require(:step).permit(:step_type_id, :asset_group_id, :tube_printer_id, :plate_printer_id,
-        :state, :triples)
+        :state)
     end
 
 end

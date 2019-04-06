@@ -1,11 +1,11 @@
 module ApplicationHelper
+  UNKNOWN_ALIQUOT_TYPE = 'unknown-aliquot'
+  
   def bootstrap_link_to(name = nil, options = nil, html_options = nil, &block)
     modified_options = {:class => 'btn btn-default'}
     modified_options.merge!(html_options) if html_options
     link_to(name, options, modified_options)
   end
-
-  UNKNOWN_ALIQUOT_TYPE = 'unknown-aliquot'
 
   def default_ontologies
     [
@@ -68,7 +68,6 @@ module ApplicationHelper
   end
 
   def data_asset_display(facts)
-    #return '' unless facts.first.class == Fact
     f = facts.with_predicate('aliquotType').first
     if f
       obj = {:aliquot => {

@@ -1,26 +1,16 @@
 class ActivitiesController < ApplicationController
   include ActionController::Live
 
-  before_action :set_activity, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
-  before_action :set_asset_group, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
-  before_action :set_assets, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
-
+  before_action :set_activity, only: [:show, :update, :steps_finished, :steps_finished_with_operations]
+  before_action :set_asset_group, only: [:show, :update, :steps_finished, :steps_finished_with_operations]
+  before_action :set_assets, only: [:show, :update, :steps_finished, :steps_finished_with_operations]
   before_action :set_activity_type, only: [:create_without_kit]
-
-
-  before_action :select_assets_grouped, only: [:show, :update, :step_types_active, :steps_finished, :steps_finished_with_operations]
-
+  before_action :select_assets_grouped, only: [:show, :update, :steps_finished, :steps_finished_with_operations]
   before_action :set_kit, only: [:create]
   before_action :set_instrument, only: [:create]
-
   before_action :set_user, only: [:update]
 
-  before_action :set_uploaded_files, only: [:update]
-  #before_action :set_params_for_step_in_progress, only: [:update]
-
-
-
-  #before_filter :session_authenticate, only: [:update, :create]
+  #before_action :session_authenticate, only: [:update, :create]
 
   def session_authenticate
     raise ActionController::InvalidAuthenticityToken unless session[:session_id]
@@ -176,24 +166,15 @@ class ActivitiesController < ApplicationController
     @assets = @asset_group.assets.includes(:facts)
   end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def activity_params
-      params.require(:activity).permit(:kit_barcode, :asset_barcode, :step_type, :instrument_barcode, :delete_barcode)
-    end
-
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def activity_params
+    params.require(:activity).permit(:kit_barcode, :asset_barcode, :step_type, :instrument_barcode, :delete_barcode)
+  end
 
 
   def select_assets_grouped
     @assets_grouped = @asset_group.assets_by_fact_group
   end
-
-  def set_uploaded_files
-    @upload_ids = []
-    if params[:upload_ids]
-      @upload_ids = JSON.parse(params[:upload_ids])
-    end
-  end
-
 
 
 end

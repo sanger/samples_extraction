@@ -59,10 +59,6 @@ module ActivitiesHelper
     end
   end
 
-  #updateUrl: activity_step_types_path(@activity),
-  #stepTypesData: step_types_data,
-  #stepTypesTemplatesData: step_type_templates_data
-
   def steps_data
     steps_data_for_steps(@steps ? @steps.reverse : [])
   end
@@ -98,15 +94,8 @@ module ActivitiesHelper
         obj["repeats"] = obj["repeats"] ? obj["repeats"]+1 : 0
         next memo
       end
-      #occured_predicates.push(fact.predicate)
       elem = fact.object_asset
       if elem
-
-        #obj = {
-        #  "object_asset" => elem.attributes.merge({
-        #    "facts" => fact.object_asset.facts
-        #  })
-        #}.merge(fact.attributes)
         obj = {"object_asset" => {
                  uuid: elem.uuid,
                  barcode: elem.barcode,
@@ -129,7 +118,6 @@ module ActivitiesHelper
   def asset_group_data(activity, asset_group)
     {
       id: asset_group.id,
-      #selected: (activity.asset_group==asset_group),
       activityId: asset_group.activity_owner.id,
       lastUpdate: asset_group.updated_at,
       updateUrl: Rails.application.routes.url_helpers.activity_asset_group_path(activity, asset_group),

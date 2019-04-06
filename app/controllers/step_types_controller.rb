@@ -1,17 +1,5 @@
 class StepTypesController < ApplicationController
   before_action :set_step_type, only: [:show, :edit, :update, :destroy]
-  before_action :set_activity, only: [:active]
-
-  before_action :nested_step_types, only: [:index]
-
-  def nested_step_types
-    if params[:activity_id]
-      @activity = Activity.find(params[:activity_id])
-      @step_types = @activity.step_types_active
-    else
-      @step_types = StepType.not_deprecated
-    end
-  end
 
   # GET /step_types
   # GET /step_types.json
@@ -41,19 +29,6 @@ class StepTypesController < ApplicationController
   def edit
   end
 
-  def active
-    @assets = @activity.asset_group.assets
-    @step_types = @activity.step_types_for(@assets)
-
-    respond_to do |format|
-      format.html {
-        render 'steps/_active', :locals => {
-          :step_types => @step_types,
-          :activity => @activity
-        }, :layout => false
-      }
-    end
-  end
 
   # POST /step_types
   # POST /step_types.json
@@ -99,10 +74,6 @@ class StepTypesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_step_type
       @step_type = StepType.find(params[:id])
-    end
-
-    def set_activity
-      @activity = Activity.find(params[:activity_id])
     end
 
     def empty_options_set_to_nil(params)
