@@ -112,13 +112,13 @@ module InferenceEngines
 
       def run
         updates = executable_actions_sorted.reduce(FactChanges.new) do |updates, action|
-          action.run(asset_group, @step.wildcard_values).merge(updates)
+          action.run(asset_group, step.wildcard_values).merge(updates)
         end
         save_created_assets
         updates.apply(step)
-        step_type.condition_groups.each do |cg|
+        step.step_type.condition_groups.each do |cg|
           if cg.keep_selected != true
-            assets = asset_group.classified_by_condition_group(subject_condition_group)
+            assets = asset_group.classified_by_condition_group(cg)
             assets.each do |asset|
               asset_group.assets.delete(asset)
             end
