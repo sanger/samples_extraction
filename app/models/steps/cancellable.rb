@@ -27,9 +27,10 @@ module Steps::Cancellable
   def on_cancel
     ActiveRecord::Base.transaction do
       steps_newer_than_me.each{|s| s.cancel unless s.cancelled?}
-      fact_changes_for_option(:cancel).apply(self)
+      fact_changes_for_option(:cancel).apply(self, false)
       operations.update_all(cancelled?: true)
     end
+    wss_event
   end
 
   def on_remake
@@ -37,9 +38,10 @@ module Steps::Cancellable
       steps_older_than_me.each do |s|
         s.remake if s.cancelled?
       end
-      fact_changes_for_option(:remake).apply(self)
+      fact_changes_for_option(:remake).apply(self, false)
       operations.update_all(cancelled?: false)
     end
+    wss_event
   end
 
   def fact_changes_for_option(option_name)

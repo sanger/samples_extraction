@@ -112,6 +112,7 @@ module ActivitiesHelper
 
 
   def asset_data(asset)
+    asset.facts.reload
     {barcode: asset.barcode, uuid: asset.uuid, facts: facts_data(asset.facts)}
   end
 

@@ -42,17 +42,17 @@ class FactChanges
     self
   end
 
-  def apply(step)
+  def apply(step, with_operations=true)
     ActiveRecord::Base.transaction do |t|
-      remove_facts(step, facts_to_destroy)
-      create_facts(step, facts_to_add)
+      remove_facts(step, facts_to_destroy, with_operations)
+      create_facts(step, facts_to_add, with_operations)
       reset
     end
   end
 
   private
 
-  def create_facts(step, triples)
+  def create_facts(step, triples, with_operations=true)
     facts = triples.map do |t|
       params = {asset: t[0], predicate: t[1], literal: !(t[2].kind_of?(Asset))}
       params[:literal] ? params[:object] = t[2] : params[:object_asset] = t[2]
@@ -64,13 +64,13 @@ class FactChanges
       fact.run_callbacks(:create) { false }
     end
     Fact.import(facts)
-    add_operations(step, facts)
+    add_operations(step, facts) if with_operations
   end
 
-  def remove_facts(step, facts)
+  def remove_facts(step, facts, with_operations=true)
     facts = [facts].flatten
     ids_to_remove = facts.map(&:id).compact.uniq
-    remove_operations(step, facts)
+    remove_operations(step, facts) if with_operations
     Fact.where(id: ids_to_remove).delete_all if ids_to_remove && !ids_to_remove.empty?
   end
 

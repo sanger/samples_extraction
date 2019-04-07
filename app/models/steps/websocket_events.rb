@@ -2,7 +2,7 @@ module Steps::WebsocketEvents
   def self.included(klass)
     klass.instance_eval do
       after_update :unset_activity_running, if: :can_unset_activity_running?
-      after_update :wss_event      
+      after_update :wss_event
     end
   end
 
@@ -17,12 +17,8 @@ module Steps::WebsocketEvents
 
   def wss_event
     activity.touch if activity
-    return if !asset_group || asset_group.assets.empty?
-
-    asset_group.touch
-    asset_group.assets.map do |asset|
-      asset.asset_groups.joins(:activity_owner).each(&:touch)
-    end
+    asset_group.touch if asset_group
+    asset_groups_affected.each(&:touch)
   end
 
 end
