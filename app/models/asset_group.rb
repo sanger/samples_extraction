@@ -22,11 +22,11 @@ class AssetGroup < ActiveRecord::Base
     assets.each_with_index{|a, pos| return pos if (asset.id == a.id)}
     return -1
   end
-  
+
   def touch_activity
     if activity_owner
       activity_owner.touch
-      activity_owner.save 
+      activity_owner.save
     end
   end
 
@@ -47,6 +47,11 @@ class AssetGroup < ActiveRecord::Base
 
   def condition_group_name
     prefix = condition_group.nil? ? "Main" : condition_group.name
+    "#{prefix} #{id}"
+  end
+
+  def display_name
+    prefix = name || "Main"
     "#{prefix} #{id}"
   end
 

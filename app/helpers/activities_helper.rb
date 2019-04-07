@@ -123,6 +123,7 @@ module ActivitiesHelper
       lastUpdate: asset_group.updated_at,
       updateUrl: Rails.application.routes.url_helpers.activity_asset_group_path(activity, asset_group),
       condition_group_name: asset_group.condition_group_name,
+      name: asset_group.display_name,
       assets_running: activity.steps.running.joins(asset_group: :assets).map(&:assets).flatten.map(&:uuid).uniq,
       assets: asset_group.assets.map{|asset| asset_data(asset)}
     }

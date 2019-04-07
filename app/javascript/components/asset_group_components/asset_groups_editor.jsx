@@ -22,7 +22,7 @@ class AssetGroupsEditor extends React.Component {
           onClick={$.proxy(this.onSelectAssetGroup, this, assetGroup)}
           key={ assetGroupId }
           aria-controls={ assetGroup.condition_group_name } role="tab" >
-          { assetGroup.condition_group_name }
+          { assetGroup.name }
         </a>
       </li>
     )
