@@ -35,6 +35,8 @@ class StepTypesController < ApplicationController
   def create
     @step_type = StepType.new(empty_options_set_to_nil(step_type_params))
 
+    @step_type.task_type = @step_type.task_type_for_step_action(step_type_params[:step_action])
+    
     respond_to do |format|
       if @step_type.save
         format.html { redirect_to @step_type, notice: 'Step type was successfully created.' }
@@ -49,6 +51,8 @@ class StepTypesController < ApplicationController
   # PATCH/PUT /step_types/1
   # PATCH/PUT /step_types/1.json
   def update
+    @step_type.task_type = @step_type.task_type_for_step_action(step_type_params[:step_action])
+        
     respond_to do |format|
       if @step_type.update(empty_options_set_to_nil(step_type_params))
         format.html { redirect_to @step_type, notice: 'Step type was successfully updated.' }
@@ -90,6 +94,5 @@ class StepTypesController < ApplicationController
     def step_type_params
       params.require(:step_type).permit(:n3_definition,:name, :step_template, :connect_by, :for_reasoning, :step_action)
     end
-
 
 end

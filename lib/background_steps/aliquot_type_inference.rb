@@ -1,4 +1,4 @@
-class BackgroundSteps::AliquotTypeInference < BackgroundSteps::BackgroundStep
+class BackgroundSteps::AliquotTypeInference < Activities::BackgroundTasks::BackgroundStep
   def _CODE
     %Q{
       {

@@ -61,7 +61,7 @@ module Steps::ExecutionActions
       activity.touch
       activity.save
     end
-    execute_step_action if step_type.step_action
+    #execute_step_action if step_type.step_action
 
     running_asset_group = AssetGroup.create!(assets: asset_group_assets)
 

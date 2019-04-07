@@ -58,5 +58,13 @@ module Assets::FactsManagement
     facts.with_predicate(predicate).first.object
   end
 
+  def facts_with_triples(triples)
+    uuid, predicate, object = triples
+    if object.kind_of? String
+      asset.facts.where(predicate: predicate, object: object)
+    else
+      asset.facts.where(predicate: predicate, object_asset: object)
+    end
+  end
 
 end

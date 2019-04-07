@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190406171804) do
+ActiveRecord::Schema.define(version: 20190407165921) do
 
   create_table "actions", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.string "action_type", null: false
@@ -233,6 +233,7 @@ ActiveRecord::Schema.define(version: 20190406171804) do
     t.datetime "updated_at", null: false
     t.string "connect_by"
     t.string "step_action"
+    t.string "task_type"
     t.index ["superceded_by_id"], name: "index_step_types_on_superceded_by_id"
   end
 

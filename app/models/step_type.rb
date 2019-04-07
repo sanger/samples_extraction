@@ -21,6 +21,8 @@ class StepType < ActiveRecord::Base
 
   scope :with_template, ->() { where('step_template is not null')}
 
+  scope :for_task_type, ->(task_type) { where(task_type: task_type) }
+  
   scope :for_reasoning, ->() { where(:for_reasoning => true)}
 
   scope :not_for_reasoning, ->() { where(:for_reasoning => false) }
@@ -37,6 +39,48 @@ class StepType < ActiveRecord::Base
   def all_step_templates
     return ["", "upload_file"]
   end
+
+
+  def valid_name_file(names)
+    names.select{|l| l.match(/^[A-Za-z]/)}
+  end
+  
+  def all_background_steps_files
+    valid_name_file(Dir.entries("lib/background_steps"))
+  end
+
+  def all_inferences_files
+    valid_name_file(Dir.entries("script/tasks/inferences"))
+  end
+
+  def all_runners_files
+    valid_name_file(Dir.entries("script/tasks/runners"))
+  end
+  
+  def all_step_actions
+    [all_background_steps_files, all_inferences_files, all_runners_files].flatten
+  end
+
+  def task_type_for_step_action(step_action)
+    return 'cwm' if for_reasoning?
+    return 'background_step' if all_background_steps_files.include?(step_action)
+    return 'runner' if all_runners_files.include?(step_action)
+    return 'cwm' if all_inferences_files.include?(step_action)
+    nil
+  end
+
+  def class_for_task_type
+    if task_type=='cwm'
+      Activities::BackgroundTasks::Inference
+    elsif task_type=='runner'
+      Activities::BackgroundTasks::Runner
+    elsif task_type=='background_step'
+      ["BackgroundSteps::", step_action.gsub(".rb","").classify].join.constantize
+    else
+      Step
+    end
+  end
+  
 
   def create_next_conditions
     unless n3_definition.nil?

@@ -1,6 +1,7 @@
 require 'inference_engines/cwm/step_execution'
 
-class BackgroundSteps::Inference < BackgroundSteps::BackgroundStep
+
+class Activities::BackgroundTasks::Inference < Activities::BackgroundTasks::BackgroundStep
 
   def process
     inferences = InferenceEngines::Cwm::StepExecution.new(

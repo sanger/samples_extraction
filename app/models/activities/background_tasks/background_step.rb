@@ -1,4 +1,4 @@
-module BackgroundSteps
+module Activities::BackgroundTasks
   # This class needs to define the method process(). It is not implemented here
   class BackgroundStep < Step
 
