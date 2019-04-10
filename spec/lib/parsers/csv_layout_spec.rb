@@ -14,6 +14,37 @@ RSpec.describe Parsers::CsvLayout do
       end
     end
 
+
+    describe '#convert_to_location' do
+      let(:obj) { Parsers::CsvLayout.new("test")}
+      it 'converts to right location when less that 2 digit' do
+        expect(obj.convert_to_location("A1")).to eq("A01")
+        expect(obj.convert_to_location("A01")).to eq("A01")
+        expect(obj.convert_to_location("A111")).to eq(nil)
+        expect(obj.convert_to_location("")).to eq(nil)
+      end
+    end
+
+    describe '#no_read_barcode?' do
+      let(:obj) { Parsers::CsvLayout.new("test")}
+      it 'validates no read strings' do
+        expect(obj.no_read_barcode?("NO READ")).to eq(true)
+        expect(obj.no_read_barcode?("no read")).to eq(true)
+        expect(obj.no_read_barcode?("No Read")).to eq(true)
+        expect(obj.no_read_barcode?("adasdf")).to eq(false)
+      end
+    end
+
+    describe '#valid_location?' do
+      let(:obj) { Parsers::CsvLayout.new("test")}
+      it 'checks the valid location can have less that 2 digit' do
+        expect(obj.valid_location?("A1")).to eq(true)
+        expect(obj.valid_location?("A01")).to eq(true)
+        expect(obj.valid_location?("A111")).to eq(false)
+        expect(obj.valid_location?("")).to eq(false)
+      end
+    end
+
     describe "with valid content" do
       it 'parses correctly' do
         @csv = Parsers::CsvLayout.new(@content)
@@ -74,7 +105,7 @@ RSpec.describe Parsers::CsvLayout do
             :step_type =>@step_type,
             :asset_group => @asset_group
             })
-          
+
         end
 
         it 'adds the new facts to the asset and removes the old ones' do
