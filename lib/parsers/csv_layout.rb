@@ -4,6 +4,8 @@ module Parsers
   class CsvLayout
     attr_reader :csv_parser, :errors, :data, :parsed
 
+    LOCATION_REGEXP = /^([A-H])(\d{1,2})$/
+
     def create_tubes?
       false
     end
@@ -41,7 +43,7 @@ module Parsers
     end
 
     def valid_location?(location)
-      !!location.match(/[A-H]\d\d/)
+      !!location.match(LOCATION_REGEXP)
     end
 
     def valid_fluidx_barcode?(barcode)
@@ -49,8 +51,21 @@ module Parsers
     end
 
     def no_read_barcode?(barcode)
-      barcode.start_with?('No Read')
-    end    
+      barcode.downcase.start_with?('no read')
+    end
+
+    def convert_to_location(str)
+      if valid_location?(str)
+        matches = str.match(LOCATION_REGEXP)
+        num = matches[2]
+        if (num.length==1)
+          num = "0" + num.to_s
+        end
+        return matches[1] + num.to_s
+      end
+      return nil
+    end
+
 
     def parse
       @data ||= @csv_parser.to_a.map do |line|
@@ -98,7 +113,7 @@ module Parsers
         asset.add_facts(Fact.create(:predicate => 'layout', :object => 'Complete'))
         facts_to_remove = asset.facts.with_predicate('contains').map do |f|
           [
-            f.object_asset.facts.with_predicate('parent'), 
+            f.object_asset.facts.with_predicate('parent'),
             f.object_asset.facts.with_predicate('location'),
             f
             ].flatten.compact
@@ -110,7 +125,7 @@ module Parsers
           previous_parents = obj[:asset].facts.with_predicate('parent').map(&:object_asset)
           if obj[:asset].respond_to? :facts
             [
-              obj[:asset].facts.with_predicate(:location), 
+              obj[:asset].facts.with_predicate(:location),
               obj[:asset].facts.with_predicate(:parent),
               Fact.where(:predicate => 'contains', :object_asset => obj[:asset])
             ].flatten.each do |f|
