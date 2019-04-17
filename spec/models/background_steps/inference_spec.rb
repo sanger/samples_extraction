@@ -6,8 +6,8 @@ RSpec.describe 'Inference' do
     let(:execution) { double('step_execution') }
     let(:inference) { create :inference, activity: activity }
 
-    before do  
-      allow(InferenceEngines::Cwm::StepExecution).to receive(:new).and_return(execution)              
+    before do
+      allow(InferenceEngines::Cwm::StepExecution).to receive(:new).and_return(execution)
     end
     context 'when there is an error' do
       before do

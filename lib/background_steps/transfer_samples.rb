@@ -1,4 +1,4 @@
-class BackgroundSteps::TransferSamples < BackgroundSteps::BackgroundStep
+class BackgroundSteps::TransferSamples < Activities::BackgroundTasks::BackgroundStep
   include PlateTransfer
   def assets_compatible_with_step_type
     (asset_group.assets.with_predicate('transferredFrom').count > 0) ||
@@ -21,7 +21,7 @@ class BackgroundSteps::TransferSamples < BackgroundSteps::BackgroundStep
         asset = fact.object_asset
         yield(asset, modified_asset) if asset && modified_asset
       end
-    end    
+    end
   end
 
   def process

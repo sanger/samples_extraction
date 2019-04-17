@@ -1,4 +1,4 @@
-class BackgroundSteps::PrintBarcodes < BackgroundSteps::BackgroundStep
+class BackgroundSteps::PrintBarcodes < Activities::BackgroundTasks::BackgroundStep
   # %Q{
   #   {
   #     ?asset :is :readyForPrint .

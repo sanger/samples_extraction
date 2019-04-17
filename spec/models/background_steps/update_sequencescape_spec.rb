@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'background_steps/update_sequencescape'
 
 RSpec.describe BackgroundSteps::UpdateSequencescape do
 
@@ -11,7 +12,7 @@ RSpec.describe BackgroundSteps::UpdateSequencescape do
     asset_group = create(:asset_group)
     asset_group.update_attributes(assets: [asset])
 
-    BackgroundSteps::UpdateSequencescape.new(step_type: create(:step_type), 
+    BackgroundSteps::UpdateSequencescape.new(step_type: create(:step_type),
       activity: activity,
       asset_group: asset_group)
   end

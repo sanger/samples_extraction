@@ -1,4 +1,4 @@
-class BackgroundSteps::TransferPlateToPlate < BackgroundSteps::BackgroundStep
+class BackgroundSteps::TransferPlateToPlate < Activities::BackgroundTasks::BackgroundStep
   def _CODE
 
   end

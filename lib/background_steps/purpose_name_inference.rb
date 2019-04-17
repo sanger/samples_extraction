@@ -1,4 +1,4 @@
-class BackgroundSteps::PurposeNameInference < BackgroundSteps::BackgroundStep
+class BackgroundSteps::PurposeNameInference < Activities::BackgroundTasks::BackgroundStep
   def _CODE
     %Q{
       {

@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'background_steps/purpose_name_inference'
 
 RSpec.describe BackgroundSteps::PurposeNameInference do
 
@@ -17,9 +18,9 @@ RSpec.describe BackgroundSteps::PurposeNameInference do
     asset_group = create(:asset_group)
     asset_group.update_attributes(assets: [asset])
 
-    BackgroundSteps::PurposeNameInference.new(step_type: create(:step_type), 
+    BackgroundSteps::PurposeNameInference.new(step_type: create(:step_type),
       activity: activity,
-      asset_group: asset_group)    
+      asset_group: asset_group)
   end
 
   it_behaves_like 'background step'

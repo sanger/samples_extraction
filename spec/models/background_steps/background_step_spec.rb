@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe BackgroundSteps::BackgroundStep do
+describe Activities::BackgroundTasks::BackgroundStep do
 
   def build_instance
     asset_group = build :asset_group

@@ -33,7 +33,7 @@ RSpec.describe 'BackgroundTasks' do
 
   context '#create_connected_tasks' do
     let(:list_of_tasks) { 5.times.map{ DummyBackgroundStep }}
-    
+
     let(:other_step) { create :step, step_type: step_type }
     context 'when it does not have any background task defined' do
       it 'does not raise an error' do
@@ -43,7 +43,7 @@ RSpec.describe 'BackgroundTasks' do
     end
     context 'when it has background tasks' do
       it 'creates a list of connected tasks' do
-        allow(activity).to receive(:background_tasks).and_return([BackgroundSteps::BackgroundStep])
+        allow(activity).to receive(:background_tasks).and_return([Activities::BackgroundTasks::BackgroundStep])
         expect(activity.create_connected_tasks(step).length).to eq(2)
       end
     end
@@ -53,9 +53,9 @@ RSpec.describe 'BackgroundTasks' do
 
     it 'returns the list of inference tasks' do
       step_types = 5.times.map { create :step_type}
-      reasoning_step_types = 4.times.map { create :step_type, { for_reasoning: true} }
+      reasoning_step_types = 4.times.map { create :step_type, { task_type: 'cwm'} }
       activity.activity_type.update_attributes(step_types: step_types.concat(reasoning_step_types))
-      
+
       expect(activity.inference_tasks.count).to eq(reasoning_step_types.count)
     end
   end

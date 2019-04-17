@@ -22,7 +22,7 @@ class StepType < ActiveRecord::Base
   scope :with_template, ->() { where('step_template is not null')}
 
   scope :for_task_type, ->(task_type) { where(task_type: task_type) }
-  
+
   scope :for_reasoning, ->() { where(:for_reasoning => true)}
 
   scope :not_for_reasoning, ->() { where(:for_reasoning => false) }
@@ -44,19 +44,31 @@ class StepType < ActiveRecord::Base
   def valid_name_file(names)
     names.select{|l| l.match(/^[A-Za-z]/)}
   end
-  
+
   def all_background_steps_files
-    valid_name_file(Dir.entries("lib/background_steps"))
+    begin
+      valid_name_file(Dir.entries("lib/background_steps"))
+    rescue Errno::ENOENT => e
+      []
+    end
   end
 
   def all_inferences_files
-    valid_name_file(Dir.entries("script/tasks/inferences"))
+    begin
+      valid_name_file(Dir.entries("script/tasks/inferences"))
+    rescue Errno::ENOENT => e
+      []
+    end
   end
 
   def all_runners_files
-    valid_name_file(Dir.entries("script/tasks/runners"))
+    begin
+      valid_name_file(Dir.entries("script/tasks/runners"))
+    rescue Errno::ENOENT => e
+      []
+    end
   end
-  
+
   def all_step_actions
     [all_background_steps_files, all_inferences_files, all_runners_files].flatten
   end
@@ -80,7 +92,7 @@ class StepType < ActiveRecord::Base
       Step
     end
   end
-  
+
 
   def create_next_conditions
     unless n3_definition.nil?
