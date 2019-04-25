@@ -1,7 +1,8 @@
 module Steps::Job
 
   def asset_group_for_execution
-    AssetGroup.create!(:assets => asset_group.assets)
+    asset_group
+    #AssetGroup.create!(:assets => asset_group.assets)
   end
 
   def execute_actions
@@ -26,7 +27,7 @@ module Steps::Job
     @error = nil
     begin
       process
-    rescue StandardError => e 
+    rescue StandardError => e
       @error = e
     else
       @error=nil

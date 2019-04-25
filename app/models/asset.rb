@@ -16,7 +16,9 @@ class Asset < ActiveRecord::Base
   alias_attribute :name, :uuid
 
   has_many :facts, :dependent => :delete_all
-  has_and_belongs_to_many :asset_groups
+  has_many :asset_groups_assets, dependent: :destroy
+  has_many :asset_groups, through: :asset_groups_assets
+  #has_and_belongs_to_many :asset_groups
   has_many :steps, :through => :asset_groups
 
   before_save :generate_uuid
@@ -28,7 +30,7 @@ class Asset < ActiveRecord::Base
     end
   end
 
-  has_many :operations
+  has_many :operations, dependent: :nullify
 
   has_many :activity_type_compatibilities
   has_many :activity_types, :through => :activity_type_compatibilities
@@ -205,11 +207,11 @@ class Asset < ActiveRecord::Base
       }
     }
   end
-  
+
   def position_value
     val = facts.map(&:position).compact.first
     return "" if val.nil?
-    "_#{(val.to_i+1).to_s}"    
+    "_#{(val.to_i+1).to_s}"
   end
 
   def info_line

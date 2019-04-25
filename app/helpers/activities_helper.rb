@@ -131,6 +131,7 @@ module ActivitiesHelper
 
   def asset_groups_data(activity)
     activity.owned_asset_groups.reduce({}) do |memo, asset_group|
+      asset_group.assets.reload
       data_for_step_types = asset_group_data(activity, asset_group)
       memo[asset_group.id] = data_for_step_types
       memo

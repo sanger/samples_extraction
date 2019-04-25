@@ -82,17 +82,6 @@ module InferenceEngines
 
       end
 
-      def self.UUID_REGEXP
-        /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
-      end
-
-      def is_uuid?(str)
-        str.match(self.class.UUID_REGEXP)
-      end
-
-      def uuid(str)
-        str.match(self.class.UUID_REGEXP)[0]
-      end
 
       def fragment(k)
         SupportN3::fragment(k)
@@ -101,7 +90,7 @@ module InferenceEngines
       def add_facts(graphs)
         graphs.each do |quads|
           quads.map do |quad|
-            asset = Asset.find_by!(:uuid => uuid(fragment(quad[0])))
+            asset = Asset.find_by!(:uuid => TokenUtil.uuid(fragment(quad[0])))
             add_quad_to_asset(quad,asset)
           end
         end
@@ -110,8 +99,8 @@ module InferenceEngines
       def equal_quad_and_fact?(quad, fact)
         return false if fact.predicate != fragment(quad[1])
         object = fragment(quad[2])
-        if is_uuid?(object)
-          return true if fact.object_asset == Asset.find_by(:uuid => uuid(object))
+        if TokenUtil.is_uuid?(object)
+          return true if fact.object_asset == Asset.find_by(:uuid => TokenUtil.uuid(object))
         else
           return true if fact.object == object
         end
@@ -121,7 +110,7 @@ module InferenceEngines
       def remove_facts(graphs)
         graphs.each do |quads|
           quads.map do |quad|
-            asset = Asset.find_by!(:uuid => uuid(fragment(quad[0])))
+            asset = Asset.find_by!(:uuid => TokenUtil.uuid(fragment(quad[0])))
             updates.remove(asset.facts.select {|f| equal_quad_and_fact?(quad, f) })
           end
         end
@@ -131,8 +120,8 @@ module InferenceEngines
         object = fragment(quad[2])
         object_asset = nil
         literal = true
-        if is_uuid?(object)
-          object_asset = Asset.find_by(:uuid => uuid(object))
+        if TokenUtil.is_uuid?(object)
+          object_asset = Asset.find_by(:uuid => TokenUtil.uuid(object))
           literal = false if object_asset
         end
         updates.add(asset, fragment(quad[1]), object || object_asset)

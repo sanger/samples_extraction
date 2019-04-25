@@ -51,6 +51,12 @@ module Steps::Cancellable
         memo.add(operation.asset, operation.predicate, operation.object_value)
       elsif (action_type == :remove_facts)
         memo.remove(Fact.where(asset: operation.asset, predicate: operation.predicate, object: operation.object, object_asset: operation.object_asset))
+      elsif (action_type == :create_asset)
+        asset = Asset.create(uuid: operation.object)
+        operation.update_attributes(asset: asset)
+        memo.create_assets([asset.uuid])
+      elsif (action_type == :delete_asset)
+        memo.delete_assets([operation.object])
       end
       memo
     end

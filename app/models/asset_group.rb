@@ -1,7 +1,9 @@
 
 class AssetGroup < ActiveRecord::Base
 
-  has_and_belongs_to_many :assets, ->() {distinct}
+  has_many :asset_groups_assets, dependent: :destroy
+  has_many :assets, through: :asset_groups_assets
+  #has_and_belongs_to_many :assets, ->() {distinct}
   has_many :steps
   has_many :uploaded_files, through: :assets
 

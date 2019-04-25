@@ -19,14 +19,14 @@ class Operation < ApplicationRecord
   def opposites
     {
       add_facts: :remove_facts, remove_facts: :add_facts,
-      create_asset: :remove_facts, delete_asset: :add_facts
+      create_asset: :delete_asset, delete_asset: :create_asset
     }
   end
 
   def synonims
     {
       add_facts: :add_facts, remove_facts: :remove_facts,
-      create_asset: :add_facts, delete_asset: :remove_facts
+      create_asset: :create_asset, delete_asset: :delete_asset
     }
   end
 
