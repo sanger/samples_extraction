@@ -2,10 +2,11 @@ require 'token_util'
 
 class FactChanges
   attr_accessor :facts_to_destroy, :facts_to_add, :assets_to_create, :assets_to_destroy,
-    :assets_to_add, :assets_to_remove
+    :assets_to_add, :assets_to_remove, :wildcards, :instances_from_uuid
 
-  def initialize
+  def initialize(json=nil)
     reset
+    parse_json(json) if json
   end
 
   def reset
@@ -15,6 +16,20 @@ class FactChanges
     @assets_to_destroy = []
     @assets_to_add = []
     @assets_to_remove = []
+
+    @instances_from_uuid = {}
+    @wildcards = {}
+  end
+
+  def parse_json(json)
+    obj = JSON.parse(json)
+    ['create_asset', 'create_group', 'destroy_group', 'remove_facts', 'add_facts', 'remove_asset', 'add_asset', 'destroy_asset'].reduce(FactChanges.new) do |updates, action_type|
+      if obj[action_type]
+        updates.merge(send(action_type, obj[action_type]))
+      else
+        updates
+      end
+    end
   end
 
   def add(s,p,o, options=nil)
@@ -29,6 +44,16 @@ class FactChanges
     facts_to_add.push(params) unless detected
   end
 
+  def add_facts(listOfLists)
+    listOfLists.each{|list| add(list[0], list[1], list[2])}
+    self
+  end
+
+  def remove_facts(listOfLists)
+    listOfLists.each{|list| remove_where(list[0], list[1], list[2])}
+    self
+  end
+
   def add_remote(s,p,o)
     add(s,p,o,is_remote?: true) if (s && p && o)
   end
@@ -38,8 +63,8 @@ class FactChanges
   end
 
   def remove_where(subject, predicate, object)
-    subject = to_asset(subject)
-    object = to_asset(object)
+    subject = find_asset(subject)
+    object = find_asset(object)
 
     if object.kind_of? String
       elems = Fact.where(asset: subject, predicate: predicate, object: object)
@@ -77,53 +102,71 @@ class FactChanges
     end
   end
 
-  def to_asset(asset_or_uuid)
-    if TokenUtil.is_uuid?(asset_or_uuid)
-      Asset.find_by(uuid: asset_or_uuid)
-    else
-      asset_or_uuid
-    end
+  def find_asset(asset_or_uuid)
+    find_instance_of_class_by_uuid(Asset, asset_or_uuid)
   end
 
-  def to_assets(assets_or_uuids)
-    assets_or_uuids.map { |asset_or_uuid| to_asset(asset_or_uuid) }
+  def find_asset_group(asset_group_or_id)
+    find_instance_of_class_by_uuid(AssetGroup, asset_group_or_id)
   end
 
-  def to_asset_group(asset_group_or_id)
-    if asset_group_or_id.kind_of? String
-      AssetGroup.find_by(id: asset_group_or_id)
-    else
-      asset_group_or_id
-    end
+  def find_assets(assets_or_uuids)
+    assets_or_uuids.uniq.map { |asset_or_uuid| find_instance_of_class_by_uuid(Asset, asset_or_uuid) }
   end
 
   def build_assets(assets)
-    assets.map do |asset_or_uuid|
-      if TokenUtil.is_uuid?(asset_or_uuid)
-        Asset.new(uuid: asset_or_uuid)
-      else
-        asset_or_uuid
-      end
-    end
+    assets.uniq.map { |asset_or_uuid| find_instance_of_class_by_uuid(Asset, asset_or_uuid, true) }
   end
 
+  def find_instance_of_class_by_uuid(klass, instance_or_uuid_or_id, create=false)
+    if TokenUtil.is_wildcard?(instance_or_uuid_or_id)
+      uuid = uuid_for_wildcard(instance_or_uuid_or_id)
+      found = find_instance_from_uuid(klass, uuid)
+      if !found && create
+        found = ((instances_from_uuid[uuid] ||= klass.new(uuid: uuid)))
+      end
+    elsif TokenUtil.is_uuid?(instance_or_uuid_or_id)
+      found = find_instance_from_uuid(klass, instance_or_uuid_or_id)
+      if !found && create
+        found = ((instances_from_uuid[instance_or_uuid_or_id] ||= klass.new(uuid: instance_or_uuid_or_id)))
+      end
+    else
+      found = instance_or_uuid_or_id
+    end
+
+    raise StandardError.new(found) if found.nil?
+
+    found
+  end
+
+  def uuid_for_wildcard(wildcard)
+    wildcards[wildcard] ||= SecureRandom.uuid
+  end
+
+  def find_instance_from_uuid(klass, uuid)
+    found = klass.find_by(uuid:uuid)
+    return found if found
+    instances_from_uuid[uuid]
+  end
+
+
   def create_assets(assets)
-    assets_to_create.concat(build_assets(assets))
+    assets_to_create.concat(build_assets(assets)).uniq!
   end
 
   def delete_assets(assets)
-    assets_to_destroy.concat(to_assets(assets))
+    assets_to_destroy.concat(find_assets(assets)).uniq!
   end
 
   def add_assets(asset_group_id, assets)
-    asset_group = AssetGroup.find_by(id: asset_group_id)
-    assets = to_assets(assets)
+    asset_group = find_asset_group(asset_group_id)
+    assets = find_assets(assets)
     assets_to_add.concat(assets.map{|asset| { asset_group: asset_group, asset: asset} })
   end
 
   def remove_assets(asset_group_id, assets)
-    asset_group = AssetGroup.find_by(id: asset_group_id)
-    assets = to_assets(assets)
+    asset_group = find_asset_group(asset_group_id)
+    assets = find_assets(assets)
     assets_to_remove.concat(assets.map{|asset| AssetGroupsAsset.where(asset_group: asset_group, asset: asset)})
   end
 
@@ -224,6 +267,5 @@ class FactChanges
     klass.where(id: ids_to_remove).delete_all if ids_to_remove && !ids_to_remove.empty?
     operations
   end
-
 
 end

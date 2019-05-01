@@ -62,14 +62,7 @@ module InferenceEngines
 
 
       def export
-        json = JSON.parse(@content)
-        ['create_asset', 'remove_facts', 'add_facts', 'unselect_asset', 'select_asset', 'delete_asset'].reduce(FactChanges.new) do |updates, action_type|
-          if json[action_type]
-            updates.merge(send(action_type, json[action_type]))
-          else
-            updates
-          end
-        end.apply(step)
+        FactChanges.new(@content).apply(step)
       end
 
       def add_facts(list)

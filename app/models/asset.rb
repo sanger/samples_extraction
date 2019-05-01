@@ -5,6 +5,7 @@ require 'date'
 require 'pry'
 
 class Asset < ActiveRecord::Base
+  include Uuidable
   include Printables::Instance
   include Asset::Import
   include Asset::Export
@@ -21,7 +22,6 @@ class Asset < ActiveRecord::Base
   #has_and_belongs_to_many :asset_groups
   has_many :steps, :through => :asset_groups
 
-  before_save :generate_uuid
 
 
   def update_compatible_activity_type
@@ -119,10 +119,6 @@ class Asset < ActiveRecord::Base
       num_iterations += 1
     end
     raise 'Too many iterations while reasoning...' if num_iterations > 10
-  end
-
-  def generate_uuid
-    update_attributes(:uuid => SecureRandom.uuid) if uuid.nil?
   end
 
   def generate_barcode(i)

@@ -14,6 +14,42 @@ RSpec.describe FactChanges do
   let(:fact1) { create :fact, asset: asset1, predicate: property, object: value }
   let(:fact2) { create :fact, asset: asset1, predicate: relation, object_asset: asset2 }
   let(:step) { create :step }
+  let(:json) { {:"add_facts" => [["?p", "a", "Plate"]]}.to_json }
+
+  describe '#new' do
+    it 'parses a json and loads the config from it' do
+      updates = FactChanges.new(json)
+      expect(updates.facts_to_add.length).to eq(1)
+    end
+  end
+
+  describe '#parse_json' do
+    let(:updates) { FactChanges.new }
+    it 'raises exception when the parsed object is not right' do
+      expect{updates.parse_json("something went wrong!")}.to raise_error(StandardError)
+    end
+    it 'parses a json and loads the changes from it' do
+      expect(updates.facts_to_add.length).to eq(0)
+      updates.parse_json(json)
+      expect(updates.facts_to_add.length).to eq(1)
+    end
+    it 'parses an empty json' do
+      updates.parse_json("{}")
+      expect(updates.facts_to_add.length).to eq(0)
+    end
+    it 'allows to add more changes after parsing' do
+      updates.parse_json(json)
+      expect(updates.facts_to_add.length).to eq(1)
+      updates.add("?q", "a", "Tube")
+      expect(updates.facts_to_add.length).to eq(2)
+    end
+    it 'does not destroy previously loaded changes' do
+      updates.add("?q", "a", "Tube")
+      expect(updates.facts_to_add.length).to eq(1)
+      updates.parse_json(json)
+      expect(updates.facts_to_add.length).to eq(2)
+    end
+  end
 
   describe '#reset' do
     it 'resets the changes' do
@@ -74,6 +110,75 @@ RSpec.describe FactChanges do
       expect(updates1.facts_to_destroy.length).to eq(1)
     end
   end
+
+  describe '#create_assets' do
+    it 'adds the list to the assets to create' do
+      updates1.create_assets(["?p", "?q", "?r"])
+      expect(updates1.assets_to_create.length).to eq(3)
+    end
+    it 'does not add twice the same asset' do
+      updates1.create_assets(["?p", "?q", "?p"])
+      expect(updates1.assets_to_create.length).to eq(2)
+    end
+    it 'does not raise error when referring to an asset not referred before' do
+      expect{updates1.create_assets([SecureRandom.uuid])}.not_to raise_error
+    end
+
+  end
+
+  describe '#delete_assets' do
+    let(:asset1) { Asset.create(uuid: SecureRandom.uuid)}
+    let(:asset2) { Asset.create(uuid: SecureRandom.uuid)}
+    let(:asset3) { Asset.create(uuid: SecureRandom.uuid)}
+    it 'adds the list to the assets to destroy' do
+      updates1.delete_assets([asset1.uuid, asset2.uuid, asset3.uuid])
+      expect(updates1.assets_to_destroy.length).to eq(3)
+    end
+    it 'does not add twice the same asset' do
+      updates1.delete_assets([asset1.uuid, asset2.uuid, asset1.uuid])
+      expect(updates1.assets_to_destroy.length).to eq(2)
+    end
+    it 'raises error when referring to an asset not referred before ' do
+      expect{updates1.delete_assets([SecureRandom.uuid])}.to raise_error(StandardError)
+    end
+  end
+
+  describe '#add_assets' do
+    let(:asset1) { Asset.create(uuid: SecureRandom.uuid)}
+    let(:asset2) { Asset.create(uuid: SecureRandom.uuid)}
+    let(:asset_group) { AssetGroup.create(uuid: SecureRandom.uuid)}
+    it 'adds the changes to the list of assets to add one for each asset' do
+      updates1.add_assets(asset_group, [asset1.uuid, asset2.uuid])
+      expect(updates1.assets_to_add.length).to eq(2)
+    end
+    it 'does not add twice the same asset' do
+      updates1.add_assets(asset_group, [asset1.uuid, asset1.uuid])
+      expect(updates1.assets_to_add.length).to eq(1)
+    end
+    it 'raises error when referring to an asset group not referred before ' do
+      expect{updates1.add_assets(SecureRandom.uuid, [asset1.uuid, asset2.uuid])}.to raise_error(StandardError)
+    end
+
+  end
+
+  describe '#remove_assets' do
+    let(:asset1) { Asset.create(uuid: SecureRandom.uuid)}
+    let(:asset2) { Asset.create(uuid: SecureRandom.uuid)}
+    let(:asset_group) { AssetGroup.create(uuid: SecureRandom.uuid)}
+    it 'adds the changes to the list of assets to add one for each asset' do
+      updates1.remove_assets(asset_group, [asset1.uuid, asset2.uuid])
+      expect(updates1.assets_to_remove.length).to eq(2)
+    end
+    it 'does not add twice the same asset' do
+      updates1.remove_assets(asset_group, [asset1.uuid, asset1.uuid])
+      expect(updates1.assets_to_remove.length).to eq(1)
+    end
+    it 'raises error when referring to an asset group not referred before ' do
+      expect{updates1.remove_assets(SecureRandom.uuid, [asset1.uuid, asset2.uuid])}.to raise_error(StandardError)
+    end
+
+  end
+
 
   describe '#merge' do
 

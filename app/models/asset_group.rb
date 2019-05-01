@@ -1,5 +1,6 @@
 
 class AssetGroup < ActiveRecord::Base
+  include Uuidable
 
   has_many :asset_groups_assets, dependent: :destroy
   has_many :assets, through: :asset_groups_assets
