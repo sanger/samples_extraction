@@ -60,6 +60,108 @@ RSpec.describe FactChanges do
       expect(updates2.facts_to_add.length).to eq(0)
     end
   end
+  describe '#apply' do
+    context 'with add' do
+      it 'applies a new added property' do
+        updates1.add(asset1, property, value)
+        expect{
+          updates1.apply(step)
+        }.to change{asset1.facts.count}.by(1)
+        .and change{Operation.count}.by(1)
+      end
+      it 'applies a new added relation' do
+        updates1.add(asset1, relation, asset2)
+        expect{
+          updates1.apply(step)
+        }.to change{asset1.facts.count}.by(1)
+        .and change{Operation.count}.by(1)
+      end
+      it 'is able to add facts to assets created before' do
+        updates1.create_assets(['?p'])
+        updates1.add('?p', property, value)
+        expect{updates1.apply(step)}.to change{Asset.count}.by(1)
+        .and change{Fact.count}.by(1)
+      end
+    end
+    context 'with add_remote' do
+      it 'adds a new remote fact' do
+        updates1.add_remote(asset1, relation, asset2)
+        expect{
+          updates1.apply(step)
+        }.to change{asset1.facts.count}.by(1)
+        .and change{Operation.count}.by(1)
+
+        expect(asset1.facts.first.is_remote?).to eq(true)
+      end
+    end
+    context 'with remove' do
+      it 'removes an already existing fact' do
+        asset1.facts << fact1
+        updates1.remove(fact1)
+        expect{
+          updates1.apply(step)
+        }.to change{asset1.facts.count}.by(-1)
+        .and change{Operation.count}.by(1)
+      end
+    end
+
+    context 'with remove_where' do
+      let(:fact2) { create(:fact, predicate: 'cond1', object: 'val')}
+      let(:fact3) { create(:fact, predicate: 'cond2', object: 'val')}
+      let(:fact4) { create(:fact, predicate: 'cond1', object: 'val')}
+
+      it 'removes facts with a condition' do
+        asset1.facts << [fact1, fact2, fact3, fact4]
+        updates1.remove_where(asset1, 'cond1', 'val')
+        expect{
+          updates1.apply(step)
+        }.to change{asset1.facts.count}.by(-2)
+        .and change{Operation.count}.by(2)
+      end
+    end
+
+    context 'with create_assets' do
+      it 'creates the assets provided' do
+        updates1.create_assets(["?p", "?q", "?r"])
+        expect{updates1.apply(step)}.to change{Asset.count}.by(3)
+        .and change{Operation.count}.by(3)
+      end
+    end
+
+    context 'with delete_assets' do
+      let(:asset3) { Asset.create }
+      let(:asset4) { Asset.create }
+      it 'deletes the assets provided' do
+        updates1.delete_assets([asset3, asset4])
+        expect{updates1.apply(step)}.to change{Asset.count}.by(-2)
+        .and change{Operation.count}.by(2)
+      end
+    end
+
+    context 'with add_assets' do
+      let(:asset1) { Asset.create(uuid: SecureRandom.uuid)}
+      let(:asset2) { Asset.create(uuid: SecureRandom.uuid)}
+      let(:asset_group) { AssetGroup.create(uuid: SecureRandom.uuid)}
+      it 'adds the assets to the asset group' do
+        updates1.add_assets(asset_group, [asset1.uuid, asset2.uuid])
+        expect{updates1.apply(step)}.to change{asset_group.assets.count}.by(2)
+        .and change{Operation.count}.by(2)
+      end
+    end
+
+    context 'with remove_assets' do
+      let(:asset1) { Asset.create(uuid: SecureRandom.uuid)}
+      let(:asset2) { Asset.create(uuid: SecureRandom.uuid)}
+      let(:asset_group) { AssetGroup.create(uuid: SecureRandom.uuid)}
+      it 'adds the assets to the asset group' do
+        asset_group.assets << [asset1, asset2]
+        updates1.remove_assets(asset_group, [asset1.uuid, asset2.uuid])
+        expect{updates1.apply(step)}.to change{asset_group.assets.count}.by(-2)
+        .and change{Operation.count}.by(2)
+      end
+    end
+
+  end
   describe '#add' do
     it 'adds a new property' do
       expect(updates1.facts_to_add.length).to eq(0)
@@ -126,6 +228,22 @@ RSpec.describe FactChanges do
 
   end
 
+  describe '#create_asset_groups' do
+    it 'adds the list to the asset groups to create' do
+      updates1.create_asset_groups(["?p", "?q", "?r"])
+      expect(updates1.asset_groups_to_create.length).to eq(3)
+    end
+    it 'does not add twice the same asset' do
+      updates1.create_asset_groups(["?p", "?q", "?p"])
+      expect(updates1.asset_groups_to_create.length).to eq(2)
+    end
+    it 'does not raise error when referring to an asset not referred before' do
+      expect{updates1.create_asset_groups([SecureRandom.uuid])}.not_to raise_error
+    end
+
+  end
+
+
   describe '#delete_assets' do
     let(:asset1) { Asset.create(uuid: SecureRandom.uuid)}
     let(:asset2) { Asset.create(uuid: SecureRandom.uuid)}
@@ -140,6 +258,23 @@ RSpec.describe FactChanges do
     end
     it 'raises error when referring to an asset not referred before ' do
       expect{updates1.delete_assets([SecureRandom.uuid])}.to raise_error(StandardError)
+    end
+  end
+
+  describe '#delete_asset_groups' do
+    let(:asset_group1) { AssetGroup.create(uuid: SecureRandom.uuid)}
+    let(:asset_group2) { AssetGroup.create(uuid: SecureRandom.uuid)}
+    let(:asset_group3) { AssetGroup.create(uuid: SecureRandom.uuid)}
+    it 'adds the list to the asset groups to destroy' do
+      updates1.delete_asset_groups([asset_group1.uuid, asset_group2.uuid, asset_group3.uuid])
+      expect(updates1.asset_groups_to_destroy.length).to eq(3)
+    end
+    it 'does not add twice the same asset' do
+      updates1.delete_asset_groups([asset_group1.uuid, asset_group2.uuid, asset_group1.uuid])
+      expect(updates1.asset_groups_to_destroy.length).to eq(2)
+    end
+    it 'raises error when referring to an asset not referred before ' do
+      expect{updates1.delete_asset_groups([SecureRandom.uuid])}.to raise_error(StandardError)
     end
   end
 
