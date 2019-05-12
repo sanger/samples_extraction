@@ -11,7 +11,7 @@ gem 'bootstrap_form'
 gem 'sprockets-rails'
 gem 'ace-rails-ap'
 gem 'daemons'
-gem 'yajl-ruby', '>= 1.3'
+gem 'yajl-ruby'#, '>= 1.3'
 
 gem 'rb-readline'
 
@@ -98,6 +98,7 @@ group :development do
   gem 'spring'
 
   gem 'rubocop', require: false
+  gem 'rubocop-performance'
 end
 
 

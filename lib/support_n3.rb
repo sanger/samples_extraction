@@ -72,7 +72,7 @@ module SupportN3
       asset.facts << Fact.create(:predicate => SupportN3::fragment(quad[1]),
         :object_asset => related_asset, :literal => false)
     end
-    asset    
+    asset
   end
 
   def self.parse_facts(input, options = {}, create_assets=true)
@@ -170,11 +170,11 @@ module SupportN3
     end
 
     def fragment(k)
-      k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/,'')
+      k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/,'').gsub(/_[0-9][0-9][0-9][0-9][0-9][0-9].*$/,'')
     end
 
     def self.fragment(k)
-      k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/,'')
+      k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/,'').gsub(/_[0-9][0-9][0-9][0-9][0-9][0-9].*$/,'')
     end
 
 
