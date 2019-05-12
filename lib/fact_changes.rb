@@ -24,6 +24,24 @@ class FactChanges
     @wildcards = {}
   end
 
+  def to_json
+    {
+      'create_asset': @assets_to_create.map(&:uuid),
+      'create_group': @asset_groups_to_create.map(&:uuid),
+      'destroy_group': @asset_groups_to_destroy.map(&:uuid),
+      'destroy_asset': @assets_to_destroy.map(&:uuid),
+      'add_facts': @facts_to_add.map do |f|
+        [ f[:asset].nil? ? nil : f[:asset].uuid,
+          f[:predicate],
+          (f[:object] || f[:object_asset].uuid)
+        ]
+      end,
+      'remove_facts': @facts_to_destroy.map{|f| [f.asset.uuid, f.predicate, f.object_asset || f.object ]},
+      'add_asset': @assets_to_add.map(&:to_json),
+      'remove_asset': @assets_to_remove.map(&:to_json)
+    }.reject {|k,v| v.length == 0 }.to_json
+  end
+
   def parse_json(json)
     obj = JSON.parse(json)
     ['create_asset', 'create_group', 'destroy_group', 'remove_facts', 'add_facts', 'remove_asset', 'add_asset', 'destroy_asset'].reduce(FactChanges.new) do |updates, action_type|
@@ -65,7 +83,7 @@ class FactChanges
   end
 
   def remove(f)
-    facts_to_destroy.push(f)
+    @facts_to_destroy = facts_to_destroy.push(f).flatten.uniq
   end
 
   def remove_where(subject, predicate, object)
@@ -77,7 +95,7 @@ class FactChanges
     else
       elems = Fact.where(asset: subject, predicate: predicate, object_asset: object)
     end
-    facts_to_destroy.concat(elems).uniq!
+    @facts_to_destroy = @facts_to_destroy.concat(elems).flatten.uniq
   end
 
 
@@ -100,12 +118,12 @@ class FactChanges
       operations = [
         _create_asset_groups(step, asset_groups_to_create, with_operations),
         _create_assets(step, assets_to_create, with_operations),
-        _create_facts(step, facts_to_add, with_operations),
         _add_assets(step, assets_to_add, with_operations),
         _remove_assets(step, assets_to_remove, with_operations),
         _remove_facts(step, facts_to_destroy, with_operations),
         _delete_assets(step, assets_to_destroy, with_operations),
-        _delete_asset_groups(step, asset_groups_to_destroy, with_operations)
+        _delete_asset_groups(step, asset_groups_to_destroy, with_operations),
+        _create_facts(step, facts_to_add, with_operations)
       ].flatten.compact
       Operation.import(operations) unless operations.empty?
       reset

@@ -98,7 +98,7 @@ module Steps::Actions
     params.map do |location, barcode|
       asset = Asset.find_or_import_asset_with_barcode(barcode)
       {
-        :location => location, 
+        :location => location,
         :asset => asset,
         :barcode => barcode
       }
@@ -124,9 +124,9 @@ module Steps::Actions
 
     duplicated_assets.each do |barcode, count|
       #error_locations.push(barcode)
-      error_messages.push("Asset #{barcode} is appearing #{count} times")      
+      error_messages.push("Asset #{barcode} is appearing #{count} times")
     end
-  end  
+  end
 
   def check_racking_barcodes(list_layout, error_messages, error_locations)
     list_layout.each do |obj|
@@ -143,7 +143,7 @@ module Steps::Actions
   def check_tuberacks(list_layout, error_messages, error_locations)
     if asset_group.assets.with_fact('a', 'TubeRack').empty?
       error_messages.push("No TubeRacks found to perform the racking process")
-    end    
+    end
   end
 
   def check_collisions(rack, list_layout, error_messages, error_locations)
@@ -161,7 +161,7 @@ module Steps::Actions
         end
       end
       unless (list_layout.map{|obj| obj[:asset]}.include?(tube))
-        # Remember that the tubes needs to be always in a rack. They cannot be interchanged 
+        # Remember that the tubes needs to be always in a rack. They cannot be interchanged
         # in between racks
         error_messages.push(
               "Missing tube!! Any tube already existing in the rack can't disappear from its defined layout without being reracked before. Tube #{tube.barcode || tube.uuid} should be present in the rack at location #{tube_location} but is missed from the rack."
@@ -201,7 +201,7 @@ module Steps::Actions
 
     if parser.valid?
       unless reracking_tubes(asset, parser.layout, self)
-        raise InvalidDataParams.new(parser.errors.map{|e| e[:msg]}) 
+        raise InvalidDataParams.new(parser.errors.map{|e| e[:msg]})
       end
 
       error_messages.push(asset.validate_rack_content)

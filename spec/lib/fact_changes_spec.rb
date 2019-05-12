@@ -51,6 +51,14 @@ RSpec.describe FactChanges do
     end
   end
 
+  describe '#to_json' do
+    let(:updates) { FactChanges.new }
+    it 'displays the contents of the object in json format' do
+      updates.parse_json(json)
+      expect(updates.to_json.kind_of?(String)).to eq(true)
+    end
+  end
+
   describe '#reset' do
     it 'resets the changes' do
       updates1.add(asset1, property, value)
