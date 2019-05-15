@@ -1,6 +1,6 @@
 module ApplicationHelper
   UNKNOWN_ALIQUOT_TYPE = 'unknown-aliquot'
-  
+
   def bootstrap_link_to(name = nil, options = nil, html_options = nil, &block)
     modified_options = {:class => 'btn btn-default'}
     modified_options.merge!(html_options) if html_options
@@ -88,6 +88,7 @@ module ApplicationHelper
         f = facts.with_predicate('location').first
         unless f.nil?
           location = f.object
+          location=location[0]+location[2] if location.length==3 && location[1]=="0"
           f2 = facts.with_predicate('aliquotType').first
           aliquotType = f2 ? f2.object : nil
           memo[location] = {

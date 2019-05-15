@@ -32,17 +32,17 @@ module Steps::Actions
 
   end
 
-  def clean_rack(rack, step)
+  def clean_rack(rack)
     remove_facts(facts.with_predicate('contains'))
   end
 
-  def reracking_tubes(rack, list_layout, step=nil)
-    fact_changes_unrack = fact_changes_for_unrack_tubes(list_layout, rack, step)
-    fact_changes_rack = fact_changes_for_rack_tubes(list_layout, rack, step)
-    fact_changes_unrack.merge(fact_changes_rack).apply(self)
+  def reracking_tubes(rack, list_layout)
+    fact_changes_unrack = fact_changes_for_unrack_tubes(list_layout, rack)
+    fact_changes_rack = fact_changes_for_rack_tubes(list_layout, rack)
+    fact_changes_unrack.merge(fact_changes_rack)
   end
 
-  def fact_changes_for_unrack_tubes(list_layout, destination_rack=nil, step=nil)
+  def fact_changes_for_unrack_tubes(list_layout, destination_rack=nil)
     FactChanges.new.tap do |updates|
       previous_racks = []
       tubes = list_layout.map{|obj| obj[:asset]}.compact
@@ -64,6 +64,7 @@ module Steps::Actions
 
           if destination_rack
             rerack = Asset.new
+            updates.create_assets([rerack])
             updates.add(rerack, 'a', 'Rerack')
             updates.add(rerack, 'tube', tube)
             updates.add(rerack, 'previousParent', previous_rack)
@@ -79,7 +80,7 @@ module Steps::Actions
   end
 
 
-  def fact_changes_for_rack_tubes(list_layout, rack, step=nil)
+  def fact_changes_for_rack_tubes(list_layout, rack)
     FactChanges.new.tap do |updates|
       list_layout.each do |l|
         location = l[:location]
@@ -200,12 +201,11 @@ module Steps::Actions
     end
 
     if parser.valid?
-      unless reracking_tubes(asset, parser.layout, self)
-        raise InvalidDataParams.new(parser.errors.map{|e| e[:msg]})
-      end
+      updates = parser.parsed_changes.merge(reracking_tubes(asset, parser.layout))
 
       error_messages.push(asset.validate_rack_content)
       raise InvalidDataParams.new(error_messages) if error_messages.flatten.compact.count > 0
+      return updates
     else
       raise InvalidDataParams.new(parser.errors.map{|e| e[:msg]})
     end

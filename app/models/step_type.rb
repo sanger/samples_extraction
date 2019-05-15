@@ -55,7 +55,7 @@ class StepType < ActiveRecord::Base
 
   def all_inferences_files
     begin
-      valid_name_file(Dir.entries("script/tasks/inferences"))
+      valid_name_file(Dir.entries("script/inferences"))
     rescue Errno::ENOENT => e
       []
     end
@@ -63,22 +63,23 @@ class StepType < ActiveRecord::Base
 
   def all_runners_files
     begin
-      valid_name_file(Dir.entries("script/tasks/runners"))
+      valid_name_file(Dir.entries("script/runners"))
     rescue Errno::ENOENT => e
       []
     end
   end
 
   def all_step_actions
-    [all_background_steps_files, all_inferences_files, all_runners_files].flatten
+    [#all_background_steps_files,
+      all_inferences_files,
+      all_runners_files].flatten
   end
 
   def task_type_for_step_action(step_action)
-    return 'cwm' if for_reasoning?
-    return 'background_step' if all_background_steps_files.include?(step_action)
-    return 'runner' if all_runners_files.include?(step_action)
-    return 'cwm' if all_inferences_files.include?(step_action)
-    nil
+    return 'cwm' if for_reasoning? && (step_action.nil? || step_action.empty?)
+    return 'background_step' if step_action.nil? || step_action.empty?
+    return 'cwm' if step_action.end_with?('.n3')
+    return 'runner'
   end
 
   def class_for_task_type

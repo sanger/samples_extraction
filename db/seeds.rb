@@ -27,3 +27,18 @@ kt = KitType.create(name: 'qiacube', activity_type: activity_type)
 Kit.create(barcode: '1234', kit_type: kt)
 
 instrument.activity_types << activity_type
+
+runners = [
+  ['Aliquot type inference', 'aliquot_type_inference.rb'],
+  ['Print barcodes', 'print_barcodes.rb'],
+  ['Purpose name inference', 'purpose_name_inference.rb'],
+  ['Rack Layout', 'rack_layout.rb'],
+  ['Rack Layout creating tubes', 'rack_layout_creating_tubes.rb'],
+  ['Study name inference', 'study_name_inference.rb'],
+  ['Transfer plate to plate', 'transfer_plate_to_plate.rb'],
+  ['Transfer samples', 'transfer_samples.rb'],
+  ['Transfer tubes to tube rack by position', 'transfer_tubes_to_tube_rack_by_position.rb'],
+  ['Update Sequencescape', 'update_sequencescape.rb']
+].map{|l| StepType.create(name: l[0], step_action: l[1], for_reasoning: true) }
+
+reracking_activity_type.step_types << runners

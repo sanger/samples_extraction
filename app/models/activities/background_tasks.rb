@@ -14,14 +14,15 @@ module Activities
     end
 
     def background_tasks(step)
+      return step_types.for_reasoning.map{|type| BackgroundTask.new(type)}
       [inference_tasks, background_steps, runners ].flatten.compact.reject{|s| s.step_type==step.step_type}.compact
     end
-    
+
     def background_steps
       step_types.for_task_type('background_step').map{|type| BackgroundTask.new(type)}
       #step_types.for_task_type('background_step').map(&:class_for_task_type)
-    end       
-       
+    end
+
     def runners
       step_types.for_task_type('runner').map{|type| BackgroundTask.new(type)}
     end
@@ -31,7 +32,7 @@ module Activities
     end
 
     def create_background_steps(ordered_tasks, reasoning_params)
-      ActiveRecord::Base.transaction do 
+      ActiveRecord::Base.transaction do
         ordered_tasks.reduce([]) do |current_list, actual_task_class|
           actual_step = actual_task_class.create!(reasoning_params)
           current_list.last.update_attributes!(next_step: actual_step) unless current_list.empty?
@@ -42,10 +43,10 @@ module Activities
     end
 
     def create_connected_tasks(step, printer_config=nil, user=nil)
-      reasoning_params = { 
-        :asset_group => asset_group, 
-        :activity => self, 
-        :printer_config => printer_config, 
+      reasoning_params = {
+        :asset_group => asset_group,
+        :activity => self,
+        :printer_config => printer_config,
         :user => user,
         :in_progress? => true
       }

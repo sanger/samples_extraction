@@ -1,4 +1,9 @@
-class BackgroundSteps::TransferPlateToPlate < Activities::BackgroundTasks::BackgroundStep
+class TransferPlateToPlate
+  attr_reader :asset_group
+  def initialize(params)
+    @asset_group = params[:asset_group]
+  end
+
   def _CODE
 
   end
@@ -35,7 +40,13 @@ class BackgroundSteps::TransferPlateToPlate < Activities::BackgroundTasks::Backg
           end
         end
       end
-    end.apply(self)
+    end
   end
 
 end
+
+args = ARGV[0]
+asset_group_id = args.match(/(\d*)\.json/)[1]
+asset_group = AssetGroup.find(asset_group_id)
+puts TransferPlateToPlate.new(asset_group: asset_group).process.to_json
+

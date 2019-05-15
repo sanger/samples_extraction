@@ -1,4 +1,9 @@
-class BackgroundSteps::TransferTubesToTubeRackByPosition < Activities::BackgroundTasks::BackgroundStep
+class TransferTubesToTubeRackByPosition
+  attr_reader :asset_group
+  def initialize(params)
+    @asset_group = params[:asset_group]
+  end
+
   #
   #  {
   #    ?p :a :Tube .
@@ -56,7 +61,12 @@ class BackgroundSteps::TransferTubesToTubeRackByPosition < Activities::Backgroun
           updates.add(rack, 'purpose', purpose_name)
         end
       end
-    end.apply(self)
+    end
   end
 
 end
+
+args = ARGV[0]
+asset_group_id = args.match(/(\d*)\.json/)[1]
+asset_group = AssetGroup.find(asset_group_id)
+puts TransferTubesToTubeRackByPosition.new(asset_group: asset_group).process.to_json

@@ -3,7 +3,7 @@ require 'token_util'
 class FactChanges
   attr_accessor :facts_to_destroy, :facts_to_add, :assets_to_create, :assets_to_destroy,
     :assets_to_add, :assets_to_remove, :wildcards, :instances_from_uuid,
-    :asset_groups_to_create, :asset_groups_to_destroy
+    :asset_groups_to_create, :asset_groups_to_destroy, :barcodes_added
 
   def initialize(json=nil)
     reset
@@ -20,16 +20,17 @@ class FactChanges
     @asset_groups_to_create = []
     @asset_groups_to_destroy = []
 
+    @barcodes_added = {}
     @instances_from_uuid = {}
     @wildcards = {}
   end
 
   def to_json
-    {
-      'create_asset': @assets_to_create.map(&:uuid),
-      'create_group': @asset_groups_to_create.map(&:uuid),
-      'destroy_group': @asset_groups_to_destroy.map(&:uuid),
-      'destroy_asset': @assets_to_destroy.map(&:uuid),
+    JSON.pretty_generate({
+      'create_assets': @assets_to_create.map(&:uuid),
+      'create_asset_groups': @asset_groups_to_create.map(&:uuid),
+      'delete_asset_groups': @asset_groups_to_destroy.map(&:uuid),
+      'delete_assets': @assets_to_destroy.map(&:uuid),
       'add_facts': @facts_to_add.map do |f|
         [ f[:asset].nil? ? nil : f[:asset].uuid,
           f[:predicate],
@@ -39,12 +40,12 @@ class FactChanges
       'remove_facts': @facts_to_destroy.map{|f| [f.asset.uuid, f.predicate, f.object_asset || f.object ]},
       'add_asset': @assets_to_add.map(&:to_json),
       'remove_asset': @assets_to_remove.map(&:to_json)
-    }.reject {|k,v| v.length == 0 }.to_json
+    }.reject {|k,v| v.length == 0 })
   end
 
   def parse_json(json)
     obj = JSON.parse(json)
-    ['create_asset', 'create_group', 'destroy_group', 'remove_facts', 'add_facts', 'remove_asset', 'add_asset', 'destroy_asset'].reduce(FactChanges.new) do |updates, action_type|
+    ['create_assets', 'create_asset_groups', 'delete_asset_groups', 'remove_facts', 'add_facts', 'remove_asset', 'add_asset', 'delete_assets'].reduce(FactChanges.new) do |updates, action_type|
       if obj[action_type]
         updates.merge(send(action_type, obj[action_type]))
       else
@@ -56,6 +57,13 @@ class FactChanges
   def add(s,p,o, options=nil)
     s = find_asset(s)
     o = find_asset(o)
+
+    if (p=='barcodeType') && (o=='NoBarcode')
+      barcodes_added[s.uuid] = nil
+    end
+    if (p=='barcode')
+      barcodes_added[s.uuid] = o
+    end
 
     detected = (s && p && o) && facts_to_add.detect do |triple|
       (triple[0]==s) && (triple[1] ==p) && (triple[2] == o)
@@ -109,6 +117,8 @@ class FactChanges
       facts_to_destroy.concat(fact_changes.facts_to_destroy).uniq!
       assets_to_destroy.concat(fact_changes.assets_to_destroy).uniq!
       asset_groups_to_destroy.concat(fact_changes.asset_groups_to_destroy).uniq!
+      instances_from_uuid.merge(fact_changes.instances_from_uuid)
+      barcodes_added.merge(fact_changes.barcodes_added)
     end
     self
   end
@@ -238,12 +248,16 @@ class FactChanges
   def _create_assets(step, assets, with_operations=true)
     return unless assets
     assets.each_with_index do |asset, index|
-      asset.save
       if (asset.has_literal?('barcodeType', 'NoBarcode'))
-        asset.update_attributes(:barcode => nil)
+        asset.barcode = nil
       else
-        asset.generate_barcode(index)
+        if barcodes_added[asset.uuid]
+          asset.barcode = barcodes_added[asset.uuid]
+        else
+          asset.generate_barcode(index)
+        end
       end
+      asset.save
     end
     _asset_operations('createAsset', step, assets) if with_operations
   end

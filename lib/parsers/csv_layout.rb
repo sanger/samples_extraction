@@ -2,7 +2,7 @@ require 'csv'
 
 module Parsers
   class CsvLayout
-    attr_reader :csv_parser, :errors, :data, :parsed, :step
+    attr_reader :csv_parser, :errors, :data, :parsed, :step, :parsed_changes
 
     LOCATION_REGEXP = /^([A-H])(\d{1,2})$/
 
@@ -37,6 +37,8 @@ module Parsers
         asset = Asset.find_by_barcode(barcode)
         unless asset
           asset = Asset.new(:barcode => barcode)
+          updater.create_assets([asset])
+          updater.add(asset, 'barcode', barcode)
           updater.add(asset , 'a', 'Tube')
         end
       else
@@ -99,7 +101,9 @@ module Parsers
       end
 
       @parsed = true
-      valid?.tap {|val| updater.apply(@step) if val }
+      @parsed_changes = updater
+      valid?
+      #valid?.tap {|val| updater.apply(@step) if val }
     end
 
     def valid?

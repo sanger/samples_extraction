@@ -1,4 +1,10 @@
-class BackgroundSteps::PrintBarcodes < Activities::BackgroundTasks::BackgroundStep
+class PrintBarcodes
+  attr_reader :asset_group, :step
+  def initialize(params)
+    @asset_group = params[:asset_group]
+    @step = params[:step]
+  end
+
   # %Q{
   #   {
   #     ?asset :is :readyForPrint .
@@ -25,7 +31,12 @@ class BackgroundSteps::PrintBarcodes < Activities::BackgroundTasks::BackgroundSt
           updates.remove(Fact.where(asset: asset, predicate: 'is', object: 'readyForPrint'))
         end
       end
-    end.apply(self)
+    end
   end
 
 end
+
+args = ARGV[0]
+asset_group_id = args.match(/(\d*)\.json/)[1]
+asset_group = AssetGroup.find(asset_group_id)
+puts PrintBarcodes.new(asset_group: asset_group).process.to_json

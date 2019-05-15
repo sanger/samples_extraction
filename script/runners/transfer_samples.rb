@@ -1,4 +1,9 @@
-class BackgroundSteps::TransferSamples < Activities::BackgroundTasks::BackgroundStep
+class TransferSamples
+  attr_reader :asset_group
+  def initialize(params)
+    @asset_group = params[:asset_group]
+  end
+
   include PlateTransfer
   def assets_compatible_with_step_type
     (asset_group.assets.with_predicate('transferredFrom').count > 0) ||
@@ -50,7 +55,12 @@ class BackgroundSteps::TransferSamples < Activities::BackgroundTasks::Background
           updates.merge(transfer(asset, modified_asset))
         end
       end
-    end.apply(self)
+    end
   end
 
 end
+
+args = ARGV[0]
+asset_group_id = args.match(/(\d*)\.json/)[1]
+asset_group = AssetGroup.find(asset_group_id)
+puts TransferSamples.new(asset_group: asset_group).process.to_json

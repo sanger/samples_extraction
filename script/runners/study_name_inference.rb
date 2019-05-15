@@ -1,4 +1,9 @@
-class BackgroundSteps::StudyNameInference < Activities::BackgroundTasks::BackgroundStep
+class StudyNameInference
+  attr_reader :asset_group
+  def initialize(params)
+    @asset_group = params[:asset_group]
+  end
+
   def _CODE
     %Q{
       {
@@ -33,7 +38,13 @@ class BackgroundSteps::StudyNameInference < Activities::BackgroundTasks::Backgro
           updates.add(asset, 'study_name', study_name_for(asset))
         end
       end
-    end.apply(self)
+    end
   end
 
 end
+
+args = ARGV[0]
+asset_group_id = args.match(/(\d*)\.json/)[1]
+asset_group = AssetGroup.find(asset_group_id)
+puts StudyNameInference.new(asset_group: asset_group).process.to_json
+

@@ -24,7 +24,7 @@ class StepsFailed extends StepsRunning {
             className={this.colorForState(step.state)}>
             <td>{ step.id }</td>
             <td>{ stepTypeName }</td>
-            <td>{ stepActivityId }</td>
+            <td>{ step.operations.length }</td>
             <td>{ stepAssetGroup }</td>
             <td>{ stepUsername }</td>
             <td>{ this.renderDuration(step) }</td>

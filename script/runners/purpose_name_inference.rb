@@ -1,4 +1,9 @@
-class BackgroundSteps::PurposeNameInference < Activities::BackgroundTasks::BackgroundStep
+class PurposeNameInference
+  attr_reader :asset_group
+  def initialize(params)
+    @asset_group = params[:asset_group]
+  end
+
   def _CODE
     %Q{
       {
@@ -54,7 +59,13 @@ class BackgroundSteps::PurposeNameInference < Activities::BackgroundTasks::Backg
           updates.add(asset, 'purpose', purpose_for(asset))
         end
       end
-    end.apply(self)
+    end
   end
 
 end
+
+args = ARGV[0]
+asset_group_id = args.match(/(\d*)\.json/)[1]
+asset_group = AssetGroup.find(asset_group_id)
+puts PurposeNameInference.new(asset_group: asset_group).process.to_json
+

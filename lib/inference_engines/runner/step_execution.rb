@@ -30,10 +30,16 @@ module InferenceEngines
       end
 
       def generate_plan
-        output_tempfile = Tempfile.new('out_datainfer')
+        if @step.step_type.step_action.match(/\.rb$/)
+          cmd = ["bin/rails", "runner", "#{Rails.root}/script/runners/#{@step.step_type.step_action}"]
+        else
+          cmd = "#{Rails.root}/script/runners/#{@step.step_type.step_action}"
+        end
+
         call_list = [
-          cmd = "#{Rails.root}/script/tasks/runners/#{@step.step_type.step_action}",
-          input_url = Rails.application.routes.url_helpers.asset_group_url(@asset_group.id)+".json"
+          cmd,
+          input_url = Rails.application.routes.url_helpers.asset_group_url(@asset_group.id)+".json",
+          step_url = Rails.application.routes.url_helpers.step_url(@step.id)+".json"
         ].flatten
 
         call_str = call_list.join(" ")
