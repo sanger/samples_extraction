@@ -19,7 +19,6 @@ class Asset < ActiveRecord::Base
   has_many :facts, :dependent => :delete_all
   has_many :asset_groups_assets, dependent: :destroy
   has_many :asset_groups, through: :asset_groups_assets
-  #has_and_belongs_to_many :asset_groups
   has_many :steps, :through => :asset_groups
 
 

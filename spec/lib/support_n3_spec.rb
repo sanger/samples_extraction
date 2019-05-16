@@ -33,7 +33,7 @@ RSpec.describe SupportN3 do
   end
 
   it 'parses correct N3 files' do
-    SupportN3.parse_file("lib/assets/graph3.n3")
+    SupportN3.parse_file("test/data/graph.n3")
   end
 
   it "does not create multiple activitytypes" do
@@ -72,7 +72,7 @@ RSpec.describe SupportN3 do
     @step_type.reload
     expect(@step_type.deprecated?).to eq(true)
     expect(StepType.where(:name => testing_name).count).to eq(2)
-  end  
+  end
 
   describe "parses individual rules generating the right content" do
     setup do
