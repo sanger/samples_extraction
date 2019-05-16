@@ -15,20 +15,6 @@ module Activities
 
     def background_tasks(step)
       return step_types.for_reasoning.map{|type| BackgroundTask.new(type)}
-      [inference_tasks, background_steps, runners ].flatten.compact.reject{|s| s.step_type==step.step_type}.compact
-    end
-
-    def background_steps
-      step_types.for_task_type('background_step').map{|type| BackgroundTask.new(type)}
-      #step_types.for_task_type('background_step').map(&:class_for_task_type)
-    end
-
-    def runners
-      step_types.for_task_type('runner').map{|type| BackgroundTask.new(type)}
-    end
-
-    def inference_tasks
-      step_types.for_task_type('cwm').map{|type| BackgroundTask.new(type)}
     end
 
     def create_background_steps(ordered_tasks, reasoning_params)

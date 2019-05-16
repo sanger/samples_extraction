@@ -5,11 +5,11 @@ shared_examples_for "queueable job" do
   let(:activity) { create :activity }
 
   def build_instance_with_activity
-    step = build_instance 
+    step = build_instance
     step.update_attributes(activity: activity)
     step
   end
-  
+
   context 'when a background step is completed' do
 
     let(:step) { build_instance_with_activity }
@@ -70,7 +70,7 @@ shared_examples_for "queueable job" do
       end
       it 'does not execute the next step' do
         step.execute_actions
-        expect(another_step).not_to have_received(:execute_actions)        
+        expect(another_step).not_to have_received(:execute_actions)
       end
     end
 
@@ -113,7 +113,7 @@ shared_examples_for "queueable job" do
             my_steps.reverse.reduce(nil) do |memo, step|
               step.update_attributes(next_step: memo)
               step
-            end   
+            end
             mock_step_completion(my_steps[0], 'complete')
             mock_step_completion(my_steps[1], 'complete')
             mock_step_completion(my_steps[2], 'error')
@@ -137,7 +137,7 @@ shared_examples_for "queueable job" do
         before do
           allow(step).to receive(:execute_actions) do
             step.update_attributes(state: 'complete')
-          end          
+          end
         end
         it 'does not raise an error' do
           step.update_attributes(next_step: nil)

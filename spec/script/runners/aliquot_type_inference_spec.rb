@@ -1,7 +1,8 @@
 require 'rails_helper'
-require 'background_steps/aliquot_type_inference'
 
-RSpec.describe BackgroundSteps::AliquotTypeInference do
+require_relative "../../../script/runners/aliquot_type_inference.rb"
+
+RSpec.describe "AliquotTypeInference" do
 
   let(:activity) { create(:activity, state: 'running') }
 

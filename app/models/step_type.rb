@@ -21,7 +21,9 @@ class StepType < ActiveRecord::Base
 
   scope :with_template, ->() { where('step_template is not null')}
 
-  scope :for_task_type, ->(task_type) { where(task_type: task_type) }
+  def self.for_task_type(task_type)
+    select{|stype| stype.task_type == task_type }
+  end
 
   scope :for_reasoning, ->() { where(:for_reasoning => true)}
 
@@ -75,7 +77,7 @@ class StepType < ActiveRecord::Base
       all_runners_files].flatten
   end
 
-  def task_type_for_step_action(step_action)
+  def task_type
     return 'cwm' if for_reasoning? && (step_action.nil? || step_action.empty?)
     return 'background_step' if step_action.nil? || step_action.empty?
     return 'cwm' if step_action.end_with?('.n3')

@@ -1,5 +1,6 @@
 require 'rails_helper'
 require 'spec_helper'
+require 'concerns/deprecatable_spec.rb'
 
 def assert_equal(a,b)
   expect(a).to eq(b)
@@ -8,7 +9,40 @@ end
 
 RSpec.describe StepType, type: :model do
   it_behaves_like "deprecatable"
-  
+
+  describe '#for_task_type' do
+    it 'returns the step types for that task_type' do
+      runners = 2.times.map { create(:step_type, step_action: 'myscript.rb') }
+      inferences = 2.times.map { create(:step_type, step_action: 'other.n3') }
+      others = 2.times.map { create(:step_type) }
+      expect(StepType.for_task_type('runner')).to eq(runners)
+      expect(StepType.for_task_type('cwm')).to eq(inferences)
+      expect(StepType.all).to eq(runners.concat(inferences).concat(others))
+    end
+  end
+
+  describe '#task_type' do
+    let(:step_type) { create(:step_type, step_action: runner_name) }
+    context 'when selecting a runner action' do
+      let(:runner_name) { 'my_script.rb'}
+      it 'set task_type to \"runner\"' do
+        expect(step_type.task_type).to eq('runner')
+      end
+    end
+    context 'when selecting a rdf action' do
+      let(:runner_name) { 'my_script.n3'}
+      it 'set task_type to \"cwm\"' do
+        expect(step_type.task_type).to eq('cwm')
+      end
+    end
+    context 'when selecting any other option' do
+      let(:runner_name) { nil }
+      it 'set task_type to \"background_step\"' do
+        expect(step_type.task_type).to eq('background_step')
+      end
+    end
+  end
+
   describe '#compatible_with' do
     setup do
       @step_type=FactoryBot.create :step_type

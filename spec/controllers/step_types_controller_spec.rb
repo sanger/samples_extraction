@@ -61,38 +61,6 @@ RSpec.describe StepTypesController, type: :controller do
       post :create, params: params
       expect(response.redirect?).to eq(true)
     end
-    context 'when modifying step action' do
-      context 'when selecting a runner action' do
-        let(:runner_name) { 'my_script.rb'}
-        it 'set task_type to \"runner\"' do
-          post :create, params: {
-            step_type: { step_action: runner_name }
-          }
-          expect(StepType.last.step_action).to eq(runner_name)
-          expect(StepType.last.task_type).to eq('runner')
-        end
-      end
-      context 'when selecting a rdf action' do
-        let(:runner_name) { 'my_script.n3'}
-        it 'set task_type to \"cwm\"' do
-          post :create, params: {
-            step_type: { step_action: runner_name }
-          }
-          expect(StepType.last.step_action).to eq(runner_name)
-          expect(StepType.last.task_type).to eq('cwm')
-        end
-      end
-      context 'when selecting any other option' do
-        it 'set task_type to \"background_step\"' do
-          post :create, params: {
-            step_type: { step_action: '' }
-          }
-          expect(StepType.last.step_action).to eq(nil)
-          expect(StepType.last.task_type).to eq('background_step')
-        end
-      end
-
-    end
 
   end
 

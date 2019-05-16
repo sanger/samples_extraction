@@ -64,8 +64,16 @@ class PurposeNameInference
 
 end
 
+def out(val)
+  puts val.to_json
+  return val.to_json
+end
+
 args = ARGV[0]
-asset_group_id = args.match(/(\d*)\.json/)[1]
+return out({}) unless args
+matches = args.match(/(\d*)\.json/)
+return out({}) unless matches
+asset_group_id = matches[1]
 asset_group = AssetGroup.find(asset_group_id)
-puts PurposeNameInference.new(asset_group: asset_group).process.to_json
+return out(PurposeNameInference.new(asset_group: asset_group).process)
 

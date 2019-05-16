@@ -9,20 +9,21 @@ class UploadedFile < ApplicationRecord
   end
 
   def file_type(content_type)
-    return 'XMLFile' if content_type=='text/xml'
-    return 'CSVFile' if content_type=='text/csv'
-    return 'UnknownFile'
+    return 'XML' if content_type=='text/xml'
+    return 'CSV' if content_type=='text/csv'
+    return 'Unknown'
   end
 
   def build_asset(params)
     unless asset
       update_attributes(asset: Asset.create)
       FactChanges.new.tap do |updates|
-        updates.add(asset, 'a', file_type(params[:content_type]))
+        updates.add(asset, 'a', 'File')
+        updates.add(asset, 'fileType', file_type(params[:content_type]))
         updates.add(asset, 'contents', asset)
       end.apply(step)
     end
     asset.touch
-    asset    
+    asset
   end
 end

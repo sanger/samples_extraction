@@ -1,7 +1,8 @@
 require 'rails_helper'
-require 'background_steps/update_sequencescape'
 
-RSpec.describe BackgroundSteps::UpdateSequencescape do
+require_relative "../../../script/runners/update_sequencescape.rb"
+
+RSpec.describe "UpdateSequencescape" do
 
   let(:activity) { create(:activity, state: 'running') }
 

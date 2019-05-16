@@ -33,6 +33,16 @@
 {
   ?p :a :TubeRack .
   ?p :maxCardinality """1""".
+  ?f :a :File .
+  ?f :fileType :CSV .
+} => {
+  :step :stepTypeName """Apply layout from file into the rack""".
+  :step :stepAction """rack_layout_creating_tubes""" .
+}.
+
+{
+  ?p :a :TubeRack .
+  ?p :maxCardinality """1""".
 } => {
   :step :stepTypeName """Update in Sequencescape""".
   :step :addFacts { ?p :pushTo :Sequencescape . } .

@@ -10,7 +10,12 @@ class FactChanges
     parse_json(json) if json
   end
 
+  def parsing_valid?
+    @parsing_valid
+  end
+
   def reset
+    @parsing_valid = false
     @facts_to_destroy = []
     @facts_to_add = []
     @assets_to_create = []
@@ -52,6 +57,7 @@ class FactChanges
         updates
       end
     end
+    @parsing_valid = true
   end
 
   def add(s,p,o, options=nil)
