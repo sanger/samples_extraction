@@ -1,10 +1,11 @@
 class RackLayoutCreatingTubes
   attr_reader :asset_group
+
+  include Actions::Racking
+
   def initialize(params)
     @asset_group = params[:asset_group]
   end
-
-  include Steps::Actions
 
   def assets_compatible_with_step_type
     asset_group.uploaded_files

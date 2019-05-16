@@ -2,7 +2,7 @@ require 'csv'
 
 module Parsers
   class CsvLayout
-    attr_reader :csv_parser, :errors, :data, :parsed, :step, :parsed_changes
+    attr_reader :csv_parser, :errors, :data, :parsed, :parsed_changes
 
     LOCATION_REGEXP = /^([A-H])(\d{1,2})$/
 
@@ -10,8 +10,7 @@ module Parsers
       false
     end
 
-    def initialize(str, step)
-      @step = step
+    def initialize(str)
       @csv_parser = CSV.new(str)
       @errors = []
       @parsed = false
@@ -103,7 +102,6 @@ module Parsers
       @parsed = true
       @parsed_changes = updater
       valid?
-      #valid?.tap {|val| updater.apply(@step) if val }
     end
 
     def valid?

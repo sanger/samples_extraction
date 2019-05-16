@@ -1,6 +1,7 @@
 require 'rails_helper'
+require 'actions/racking'
 
-RSpec.describe Steps::Actions do
+RSpec.describe Actions::Racking do
   let(:content) { File.open('test/data/layout.csv').read }
   let(:file) { create(:uploaded_file, data: content )}
   let(:activity) { create(:activity) }
@@ -8,19 +9,21 @@ RSpec.describe Steps::Actions do
   let(:fact) { create(:fact, predicate: 'a', object: 'TubeRack')}
   let(:asset) { create :asset, uploaded_file: file, facts: [fact] }
   let(:step_type) {create(:step_type, condition_groups: [condition_group]) }
-  let(:step) { create :step, 
+  let(:step) { create :step,
     activity: activity,
     asset_group: asset_group, step_type: step_type }
 
   let(:condition) { create(:condition, predicate: fact.predicate, object: fact.object) }
   let(:condition_group) { create(:condition_group, conditions: [condition]) }
 
+  include Actions::Racking
+
   shared_examples_for 'rack_layout' do
     describe "when linking it with an asset" do
       it 'adds the facts to the asset' do
         expect(asset.facts.count).to eq(1)
 
-        step.send(method)
+        send(method, asset_group).apply(step)
 
         asset.facts.reload
         assets = asset.facts.with_predicate('contains').map(&:object_asset)
@@ -35,7 +38,7 @@ RSpec.describe Steps::Actions do
       describe 'with links with previous parents' do
         let(:actual_parent) { create(:asset, uploaded_file: file, facts: [fact]) }
         it 'removes links with the previous parents' do
-          step.send(method)
+          send(method, asset_group).apply(step)
           asset.facts.reload
           assets = asset.facts.with_predicate('contains').map(&:object_asset)
           expect(assets.count).to eq(96)
@@ -50,7 +53,7 @@ RSpec.describe Steps::Actions do
             activity: activity,
             asset_group: asset_group, step_type: step_type
           )
-          another_step.send(method)
+          send(method, asset_group).apply(another_step)
 
           assets = asset.facts.with_predicate('contains').map(&:object_asset)
           expect(assets.count).to eq(0)
@@ -68,7 +71,7 @@ RSpec.describe Steps::Actions do
       describe 'with empty slots in the layout .csv' do
         let(:num_empty) { 3 }
         let(:start_pos) { 0 }
-        let(:content) { 
+        let(:content) {
           add_empty_slots(File.open('test/data/layout.csv').read, num_empty, start_pos)
         }
         def add_empty_slots(content, num_empty, start_pos=0)
@@ -83,7 +86,7 @@ RSpec.describe Steps::Actions do
 
         it 'adds the new facts to the asset and removes the old ones' do
           expect(asset.facts.count).to eq(1)
-          step.send(method)
+          send(method, asset_group).apply(step)
 
           asset.facts.reload
           assets = asset.facts.with_predicate('contains').map(&:object_asset)

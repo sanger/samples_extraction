@@ -49,14 +49,14 @@ RSpec.describe 'BackgroundTasks' do
     end
   end
 
-  context '#inference_tasks' do
+  context '#background_tasks' do
 
     it 'returns the list of inference tasks' do
       step_types = 5.times.map { create :step_type}
-      reasoning_step_types = 4.times.map { create :step_type, { task_type: 'cwm'} }
+      reasoning_step_types = 4.times.map { create :step_type, { for_reasoning: true } }
       activity.activity_type.update_attributes(step_types: step_types.concat(reasoning_step_types))
 
-      expect(activity.inference_tasks.count).to eq(reasoning_step_types.count)
+      expect(activity.background_tasks.count).to eq(reasoning_step_types.count)
     end
   end
 end

@@ -13,7 +13,7 @@ module Activities
 
     end
 
-    def background_tasks(step)
+    def background_tasks
       return step_types.for_reasoning.map{|type| BackgroundTask.new(type)}
     end
 
@@ -37,7 +37,7 @@ module Activities
         :in_progress? => true
       }
 
-      steps = create_background_steps(background_tasks(step), reasoning_params)
+      steps = create_background_steps(background_tasks, reasoning_params)
       step.update_attributes(next_step: steps.first)
       [step, steps].flatten.compact
     end

@@ -23,7 +23,7 @@ RSpec.describe Parsers::CsvLayout, akeredu: true do
 
 
     describe '#convert_to_location' do
-      let(:obj) { Parsers::CsvLayout.new("test", step)}
+      let(:obj) { Parsers::CsvLayout.new("test")}
       it 'converts to right location when less that 2 digit' do
         expect(obj.convert_to_location("A1")).to eq("A01")
         expect(obj.convert_to_location("A01")).to eq("A01")
@@ -33,7 +33,7 @@ RSpec.describe Parsers::CsvLayout, akeredu: true do
     end
 
     describe '#no_read_barcode?' do
-      let(:obj) { Parsers::CsvLayout.new("test", step)}
+      let(:obj) { Parsers::CsvLayout.new("test")}
       it 'validates no read strings' do
         expect(obj.no_read_barcode?("NO READ")).to eq(true)
         expect(obj.no_read_barcode?("no read")).to eq(true)
@@ -43,7 +43,7 @@ RSpec.describe Parsers::CsvLayout, akeredu: true do
     end
 
     describe '#valid_location?' do
-      let(:obj) { Parsers::CsvLayout.new("test", step)}
+      let(:obj) { Parsers::CsvLayout.new("test")}
       it 'checks the valid location can have less that 2 digit' do
         expect(obj.valid_location?("A1")).to eq(true)
         expect(obj.valid_location?("A01")).to eq(true)
@@ -54,14 +54,14 @@ RSpec.describe Parsers::CsvLayout, akeredu: true do
 
     describe "with valid content" do
       it 'parses correctly' do
-        @csv = Parsers::CsvLayout.new(@content, step)
+        @csv = Parsers::CsvLayout.new(@content)
 
         expect(@csv.parse).to eq(true)
         expect(@csv.valid?).to eq(true)
       end
 
       it 'recognise incorrect csv files' do
-        @csv = Parsers::CsvLayout.new('1,2,3,4,5', step)
+        @csv = Parsers::CsvLayout.new('1,2,3,4,5')
         expect(@csv.valid?).to eq(false)
       end
     end

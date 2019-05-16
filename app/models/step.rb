@@ -32,7 +32,6 @@ class Step < ActiveRecord::Base
   include Steps::State
   include Steps::WebsocketEvents
   include Steps::ExecutionActions
-  include Steps::Actions
 
 
 end
