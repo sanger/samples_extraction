@@ -1,5 +1,4 @@
 require 'sequencescape_client'
-require 'barcode'
 require 'date'
 
 require 'pry'
