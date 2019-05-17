@@ -1,3 +1,5 @@
+require 'actions/racking'
+
 class RackLayoutCreatingTubes
   attr_reader :asset_group
 

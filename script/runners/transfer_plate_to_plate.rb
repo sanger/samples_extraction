@@ -1,4 +1,8 @@
+require 'actions/plate_transfer'
+
 class TransferPlateToPlate
+  include Actions::PlateTransfer
+
   attr_reader :asset_group
   def initialize(params)
     @asset_group = params[:asset_group]
@@ -19,7 +23,7 @@ class TransferPlateToPlate
   #    ?q :contains ?tube .
   #   } .
   #
-  include PlateTransfer
+
 
   def assets_compatible_with_step_type
     asset_group.assets.with_predicate('transfer').with_fact('a', 'Plate').count > 0

@@ -1,3 +1,5 @@
+require 'actions/racking'
+
 class RackLayout
   attr_reader :asset_group
 
