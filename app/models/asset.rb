@@ -120,10 +120,16 @@ class Asset < ActiveRecord::Base
     raise 'Too many iterations while reasoning...' if num_iterations > 10
   end
 
-  def generate_barcode(i)
+  def generate_barcode
     save
     if barcode.nil?
-      update_attributes(:barcode => Barcode.calculate_barcode(Rails.application.config.barcode_prefix,self.id))
+      update_attributes({
+        barcode: SBCF::SangerBarcode.new({
+          prefix: Rails.application.config.barcode_prefix,
+          number: self.id
+          }).human_barcode
+        }
+      )
     end
   end
 
@@ -188,16 +194,14 @@ class Asset < ActiveRecord::Base
           :top_left => DateTime.now.strftime('%d/%b/%y'),
           :top_right => info_line, #username,
           :bottom_right => study_and_barcode,
-          :bottom_left => Barcode.barcode_to_human(barcode) || barcode,
-          #:top_line => Barcode.barcode_to_human(barcode) || barcode,
-          #:bottom_line => bottom_line
+          :bottom_left => barcode
         }
       }
     end
     return {:label => {
       :barcode => barcode,
       :barcode2d => barcode,
-      :top_line => Barcode.barcode_to_human(barcode) || barcode,
+      :top_line => barcode,
       :bottom_line => info_line
       }
     }

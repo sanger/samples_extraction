@@ -1,4 +1,10 @@
 GIT
+  remote: git://github.com/sanger/sanger_barcode_format.git
+  revision: f409a218a74a1d1571383ceaf693fe296eb6beb7
+  specs:
+    sanger_barcode_format (0.0.2)
+
+GIT
   remote: https://github.com/sanger/pmb-client.git
   revision: 016f151a3bde84448ed64e528259c3511282dcdb
   specs:
@@ -398,6 +404,7 @@ DEPENDENCIES
   rubocop
   rubocop-performance
   ruby-growl
+  sanger_barcode_format!
   sass-rails
   sdoc
   sequencescape-client-api

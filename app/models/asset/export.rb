@@ -38,8 +38,7 @@ module Asset::Export
   def code39_barcode(instance)
     prefix = instance.barcode.prefix
     number = instance.barcode.number
-    checksum = Barcode.calculate_checksum(prefix, number)
-    "#{prefix}#{number}#{checksum}"
+    SBCF::SangerBarcode.new(prefix:prefix, number:number).human_barcode
   end
 
   def update_plate(instance)

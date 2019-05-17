@@ -221,6 +221,59 @@ RSpec.describe FactChanges do
     end
   end
 
+  describe '#values_for_predicate' do
+    it 'returns all the current values in the database' do
+      asset = create(:asset)
+      asset.facts << create(:fact, predicate: 'description', object: 'green')
+      asset.facts << create(:fact, predicate: 'description', object: 'big')
+      expect(updates1.values_for_predicate(asset, 'description')).to eq(['green', 'big'])
+    end
+    it 'returns all the values that will be added' do
+      asset = create(:asset)
+      updates1.add(asset, 'description', 'tall')
+      updates1.add(asset, 'description', 'slim')
+      expect(updates1.values_for_predicate(asset, 'description')).to eq(['tall', 'slim'])
+    end
+    it 'returns all the values both from the database to add' do
+      asset = create(:asset)
+      asset.facts << create(:fact, predicate: 'description', object: 'green')
+      asset.facts << create(:fact, predicate: 'description', object: 'big')
+      updates1.add(asset, 'description', 'tall')
+      updates1.add(asset, 'description', 'slim')
+      expect(updates1.values_for_predicate(asset, 'description')).to eq(['green', 'big', 'tall', 'slim'])
+    end
+
+    it 'does not return the values that will be removed from database' do
+      asset = create(:asset)
+      asset.facts << create(:fact, predicate: 'description', object: 'green')
+      asset.facts << create(:fact, predicate: 'description', object: 'big')
+
+      # These values are not in the database yet, so they won't be removed
+      updates1.add(asset, 'description', 'tall')
+      updates1.add(asset, 'description', 'slim')
+
+      # This won't remove anything, as the value is not in database
+      updates1.remove_where(asset, 'description', 'slim')
+      updates1.remove_where(asset, 'description', 'green')
+
+      expect(updates1.values_for_predicate(asset, 'description')).to eq(['big', 'tall', 'slim'])
+    end
+
+    it 'does not return values from other instances' do
+      asset = create(:asset)
+      asset.facts << create(:fact, predicate: 'description', object: 'green')
+
+      asset2 = create(:asset)
+      asset2.facts << create(:fact, predicate: 'description', object: 'blue')
+
+      updates1.add(asset, 'description', 'tall')
+      updates1.add(asset2, 'description', 'small')
+
+      expect(updates1.values_for_predicate(asset, 'description')).to eq(['green', 'tall'])
+    end
+
+  end
+
   describe '#create_assets' do
     it 'adds the list to the assets to create' do
       updates1.create_assets(["?p", "?q", "?r"])

@@ -35,7 +35,8 @@ module Parsers
       if create_tubes?
         asset = Asset.find_by_barcode(barcode)
         unless asset
-          asset = Asset.new(:barcode => barcode)
+          asset = Asset.new(barcode: barcode)
+          asset.generate_uuid!
           updater.create_assets([asset])
           updater.add(asset, 'barcode', barcode)
           updater.add(asset , 'a', 'Tube')

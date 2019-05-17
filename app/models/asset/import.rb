@@ -2,6 +2,8 @@ module Asset::Import
 
   UUID_REGEXP = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
+  CREATABLE_PREFIX = 'F'
+
   def self.included(base)
     base.send :include, InstanceMethods
     base.extend ClassMethods
@@ -150,8 +152,6 @@ module Asset::Import
     def import(barcode)
       asset = nil
 
-      barcode = barcode_from_str(barcode)
-
       @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')
       remote_asset = SequencescapeClient::get_remote_asset(barcode)
 
@@ -179,7 +179,7 @@ module Asset::Import
     end
 
     def is_local_asset?(barcode)
-      Barcode.is_creatable_barcode?(barcode.to_s)
+      barcode.to_s.starts_with?(CREATABLE_PREFIX)
     end
 
     def is_digit_barcode?(barcode)
@@ -190,22 +190,12 @@ module Asset::Import
       UUID_REGEXP.match(str)
     end
 
-    def barcode_from_str(barcode)
-      barcode = barcode.to_s
-      unless is_digit_barcode?(barcode) || is_uuid?(barcode)
-        parsed = Barcode.creatable_barcode_parsing(barcode)
-        barcode = Barcode.calculate_barcode(parsed[:prefix], parsed[:number]).to_s
-      end
-      barcode
-    end
-
-    def find_asset_with_barcode(barcode_str)
-      barcode = barcode_from_str(barcode_str)
+    def find_asset_with_barcode(barcode)
       asset = Asset.find_by_barcode(barcode)
       asset = Asset.find_by_uuid(barcode) unless asset
       updates = FactChanges.new
-      if asset.nil? && is_local_asset?(barcode_str)
-        asset = Asset.create_local_asset(barcode_str, updates)
+      if asset.nil? && is_local_asset?(barcode)
+        asset = Asset.create_local_asset(barcode, updates)
       end
       if asset
         asset.refresh(updates)

@@ -20,6 +20,10 @@ class Fact < ActiveRecord::Base
     literal? ? object : Asset.find(object_asset_id)
   end
 
+  def object_value_or_uuid
+    literal? ? object : Asset.find(object_asset_id).uuid
+  end
+
   def object_label
     return object unless object_asset
   end

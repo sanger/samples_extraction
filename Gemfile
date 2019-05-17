@@ -64,6 +64,10 @@ gem 'jbuilder'#, '~> 2.0'
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc'#, '~> 0.4.0', group: :doc
 
+
+# Library to convert barcodes in EAN13 and Sanger human barcodes format
+gem 'sanger_barcode_format', github: 'sanger/sanger_barcode_format'
+
 # Add simple support for print-my barcode)
 gem 'pmb-client', git: 'https://github.com/sanger/pmb-client.git'
 
