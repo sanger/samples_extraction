@@ -14,7 +14,7 @@ module Steps::Job
   end
 
   def output_error(exception)
-    [exception.message, Rails.backtrace_cleaner.clean(exception.backtrace)].flatten.join("\n")
+    [output, exception.message, Rails.backtrace_cleaner.clean(exception.backtrace)].flatten.join("\n")
   end
 
   def job

@@ -66,7 +66,7 @@ end
 
 def out(val)
   puts val.to_json
-  return val.to_json
+  exit
 end
 
 args = ARGV[0]

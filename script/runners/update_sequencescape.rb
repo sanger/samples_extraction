@@ -28,6 +28,11 @@ class UpdateSequencescape
 
 end
 
+def out(val)
+  puts val.to_json
+  exit
+end
+
 args = ARGV[0]
 return out({}) unless args
 matches = args.match(/(\d*)\.json/)

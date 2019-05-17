@@ -12,6 +12,6 @@ module Steps::Retryable
   end
 
   def on_retry
-    job.invoke_job
+    job.update_attributes(run_at: job.created_at)
   end
 end

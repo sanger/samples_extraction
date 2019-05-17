@@ -1,6 +1,7 @@
 require 'inference_engines/default/actions/asset_actions'
 require 'inference_engines/default/actions/fact_actions'
 require 'inference_engines/default/actions/service_actions'
+require 'fact_changes'
 
 module InferenceEngines
   module Default

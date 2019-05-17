@@ -44,14 +44,16 @@ end
 
 def out(val)
   puts val.to_json
-  return val.to_json
+  exit
 end
 
 args = ARGV[0]
-return out({}) unless args
+out({}) unless args
+
 matches = args.match(/(\d*)\.json/)
-return out({}) unless matches
+out({}) unless matches
 asset_group_id = matches[1]
 asset_group = AssetGroup.find(asset_group_id)
-return out(AliquotTypeInference.new(asset_group: asset_group).process)
+
+out(AliquotTypeInference.new(asset_group: asset_group).process)
 
