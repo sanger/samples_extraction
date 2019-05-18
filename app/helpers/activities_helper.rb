@@ -71,6 +71,7 @@ module ActivitiesHelper
         asset_group: step.asset_group,
         step_type: step.step_type,
         operations: step.operations,
+        username: step.user.username
       }.merge(step.attributes)
     end
   end

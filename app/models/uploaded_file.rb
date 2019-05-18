@@ -19,6 +19,7 @@ class UploadedFile < ApplicationRecord
       update_attributes(asset: Asset.create)
       FactChanges.new.tap do |updates|
         updates.add(asset, 'a', 'File')
+        updates.add(asset, 'filename', filename)
         updates.add(asset, 'fileType', file_type(params[:content_type]))
         updates.add(asset, 'contents', asset)
       end.apply(step)

@@ -29,6 +29,7 @@ class Step < ActiveRecord::Base
   include Steps::Cancellable
   include Steps::Deprecatable
   include Steps::Retryable
+  include Steps::Stoppable
   include Steps::State
   include Steps::WebsocketEvents
   include Steps::ExecutionActions

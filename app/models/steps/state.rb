@@ -3,11 +3,14 @@ module Steps::State
     klass.instance_eval do
       scope :in_progress, ->() { where(:in_progress? => true)}
       scope :cancelled, ->() {where(:state => 'cancel')}
+      scope :deprecated, ->() {where(:state => 'deprecated')}
       scope :running, ->() { where(state: 'running').includes(:operations, :step_type)}
       scope :pending, ->() { where(state: nil)}
       scope :failed, ->() { where(state: 'error')}
-      scope :active, ->() { where("state = 'running' OR state = 'error' OR state IS NULL") }
-      scope :finished, ->() { where("state != 'running' AND state IS NOT NULL").includes(:operations, :step_type)}
+      scope :completed, ->() { where(state: 'complete')}
+      scope :stopped, ->() { where(state: 'stop')}
+      scope :active, ->() { where("state = 'running' OR state = 'error' OR state = 'retry' OR state IS NULL") }
+      scope :finished, ->() { includes(:operations, :step_type)}
       scope :in_activity, ->() { where.not(activity_id: nil)}
 
       after_save :set_start_timestamp!, :if => [:running?, :saved_change_to_state?]
@@ -21,6 +24,10 @@ module Steps::State
 
   def set_complete_timestamp!
     update_columns(finished_at: Time.now.utc) if finished_at.nil?
+  end
+
+  def stopped?
+    (self.state == 'stop')
   end
 
   def active?

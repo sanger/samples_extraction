@@ -3,6 +3,8 @@ import Moment from 'react-moment';
 import Operations from '../step_components/operations'
 import Toggle from 'react-toggle'
 import Togglable from '../lib/togglable'
+import classNames from 'classnames'
+import Text from 'react-format-text'
 
 
 class StepsFinished extends React.Component {
@@ -53,9 +55,9 @@ class StepsFinished extends React.Component {
           <tbody>
           <tr className="output">
             <td>
-              <pre>
-                { step.output }
-              </pre>
+              <Text>
+                  { step.output }
+              </Text>
             </td>
           </tr>
           </tbody>
@@ -76,7 +78,7 @@ class StepsFinished extends React.Component {
     const stepTypeName = step.step_type ? step.step_type.name : ''
     const stepActivityId = step.activity ? step.activity.id : ''
     const stepAssetGroup = step.asset_group ? step.asset_group.id : ''
-    const stepUsername = step.user ? step.user.username : ''
+    const stepUsername = step.username
     const classForState = (step.state == 'running') ? 'spinner' : ''
 
     const dataTarget = "#step-"+ step.id
@@ -107,12 +109,22 @@ class StepsFinished extends React.Component {
                   <thead>
                     <tr><th>Action</th><th>Barcode</th>
                     <th>Fact
-                      <Toggle
-                        checked={step.state!='cancel'}
-                        disabled={this.props.activityRunning}
-                        onChange={this.props.onCancelStep(step)}
-                        className="pull-right"
-                      />
+                      <button disabled={this.props.activityRunning}
+                        onClick={this.props.onChangeStateStep(step, classNames({
+                          'complete': (step.state === 'cancel') || (step.state === 'stop'),
+                          'cancel': (step.state === 'complete')
+                        }))}
+                        className={classNames({
+                          "pull-right btn": true,
+                          "btn-danger": (step.state==='complete'),
+                          "btn-primary": (step.state!='complete')
+                          })}>
+                        {classNames({
+                          'Redo?': (step.state === 'cancel'),
+                          'Continue?': (step.state === 'stop'),
+                          'Revert?': (step.state === 'complete')
+                        })}
+                      </button>
                     </th></tr>
                   </thead>
                   <tbody>
@@ -127,6 +139,12 @@ class StepsFinished extends React.Component {
       )
     }
   }
+  renderHeaders() {
+    return(<thead>
+            <tr><th>Step id</th><th>Step type</th><th>Num. operations</th>
+            <th>Asset Group</th><th>Username</th><th>Duration</th><th>Status</th></tr>
+          </thead>)
+  }
   renderSteps() {
     if (this.props.steps.length == 0) {
       return(
@@ -137,7 +155,7 @@ class StepsFinished extends React.Component {
     } else {
       return(
         <table className="table table-condensed table-hover steps-table">
-          <thead><tr><th>Step id</th><th>Step type</th><th>Operations</th><th>Asset Group</th><th>Username</th><th>Duration</th><th>Status</th></tr></thead>
+          { this.renderHeaders() }
           <tbody>
             {this.props.steps.map(this.renderStepRow)}
           </tbody>

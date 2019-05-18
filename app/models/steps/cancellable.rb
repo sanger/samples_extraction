@@ -10,9 +10,9 @@ module Steps::Cancellable
 
   def modify_related_steps
     if (state == 'cancel' && (state_was == 'complete' || state_was == 'error'))
-      on_cancel
+      delay.on_cancel
     elsif state == 'complete' && state_was =='cancel'
-      on_remake
+      delay.on_remake
     end
   end
 
@@ -26,8 +26,11 @@ module Steps::Cancellable
 
   def on_cancel
     ActiveRecord::Base.transaction do
-      steps_newer_than_me.each{|s| s.cancel unless s.cancelled?}
-      fact_changes_for_option(:cancel).apply(self, false)
+      fact_changes_for_option(:cancel, self).apply(self, false)
+      steps_newer_than_me.completed.each do |s|
+        fact_changes_for_option(:cancel, s).apply(s, false)
+      end
+      steps_newer_than_me.completed.update_all(state: 'cancel')
       operations.update_all(cancelled?: true)
     end
     wss_event
@@ -35,17 +38,27 @@ module Steps::Cancellable
 
   def on_remake
     ActiveRecord::Base.transaction do
-      steps_older_than_me.each do |s|
-        s.remake if s.cancelled?
+      steps_older_than_me.cancelled.each do |s|
+        fact_changes_for_option(:remake, s).apply(s, false)
       end
-      fact_changes_for_option(:remake).apply(self, false)
+      steps_older_than_me.cancelled.update_all(state: 'complete')
+      fact_changes_for_option(:remake, self).apply(self, false)
       operations.update_all(cancelled?: false)
     end
     wss_event
+
+    # ActiveRecord::Base.transaction do
+    #   steps_older_than_me.cancelled.each do |s|
+    #     s.remake if s.cancelled?
+    #   end
+    #   fact_changes_for_option(:remake).apply(self, false)
+    #   operations.update_all(cancelled?: false)
+    # end
+    # wss_event
   end
 
-  def fact_changes_for_option(option_name)
-    operations.reduce(FactChanges.new) do |memo, operation|
+  def fact_changes_for_option(option_name, step)
+    step.operations.reduce(FactChanges.new) do |memo, operation|
       action_type = operation.action_type_for_option(option_name)
       if (action_type == :add_facts)
         memo.add(operation.asset, operation.predicate, operation.object_value)

@@ -40,8 +40,8 @@ class Activity extends React.Component {
     this.onRemoveAssetFromAssetGroup = this.onRemoveAssetFromAssetGroup.bind(this)
     this.onRemoveAllAssetsFromAssetGroup = this.onRemoveAllAssetsFromAssetGroup.bind(this)
     this.onExecuteStep = this.onExecuteStep.bind(this)
-    this.onCancelStep = this.onCancelStep.bind(this)
-    this.changeStatusStep = this.changeStatusStep.bind(this)
+    this.onChangeStateStep = this.onChangeStateStep.bind(this)
+    this.changeStateStep = this.changeStateStep.bind(this)
     this.onStopStep = this.onStopStep.bind(this)
     this.onRetryStep = this.onRetryStep.bind(this)
     this.onCollapseFacts = this.onCollapseFacts.bind(this)
@@ -159,18 +159,18 @@ class Activity extends React.Component {
     })
   }
 
-  onCancelStep(step) {
+  onChangeStateStep(step, toState) {
     return (e) => {
       if (this.state.activityRunning === true) {
         return;
       }
-      const state = e.target.checked ? 'complete' : 'cancel'
+      const state = toState || (e.target.checked ? 'complete' : 'cancel')
       this.setState({activityRunning: true})
-      this.changeStatusStep(step, state).then($.proxy(() => { this.setState({activityRunning: false}) }, this))
+      this.changeStateStep(step, state).then($.proxy(() => { this.setState({activityRunning: false}) }, this))
     }
   }
 
-  changeStatusStep(step, state) {
+  changeStateStep(step, state) {
     return $.ajax({
       method: 'PUT',
       dataType: 'json',
@@ -185,7 +185,7 @@ class Activity extends React.Component {
       if (!this.state.activityRunning) {
         return;
       }
-      this.changeStatusStep(step, 'cancel')
+      this.changeStateStep(step, 'stop')
     }
   }
 
@@ -194,7 +194,7 @@ class Activity extends React.Component {
       if (!this.state.activityRunning) {
         return;
       }
-      this.changeStatusStep(step, 'retry')
+      this.changeStateStep(step, 'retry')
     }
   }
 
@@ -235,7 +235,7 @@ class Activity extends React.Component {
                       steps={this.state.stepsFailed} />)
     } else {
       if ((this.state.stepsRunning) && (this.state.stepsRunning.length > 0)) {
-        return(<StepsRunning steps={this.state.stepsRunning} />)
+        return(<StepsRunning steps={this.state.stepsRunning} onStopStep={this.onStopStep} />)
       } else {
   	return(
   	  <StepTypesControl
@@ -292,7 +292,7 @@ class Activity extends React.Component {
           onToggle={this.onToggleComponentBuilder('stepsFinished')}
           steps={this.state.stepsFinished}
 	  activityRunning={this.state.activityRunning}
-	  onCancelStep={this.onCancelStep}/>
+	  onChangeStateStep={this.onChangeStateStep}/>
       </div>
     )
   }

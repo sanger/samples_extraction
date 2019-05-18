@@ -34,11 +34,12 @@ class StepTypeButton extends React.Component {
     })
   }
   renderButton() {
-    const loadingIcon = (<span className="glyphicon glyphicon-refresh fast-right-spinner" aria-hidden="true"></span>)
+    const loadingIcon = (<span className="glyphicon glyphicon-refresh fast-right-spinner" aria-hidden="true"> </span>)
+    const hiddenLoadingIcon = (<span className="glyphicon glyphicon-refresh invisible" aria-hidden="true"> </span>)
     return(
       <button disabled={this.state.disabledButton || this.props.activityRunning} type="submit" className='btn btn-primary'>
         {this.props.stepTypeData.name}
-        {this.state.disabledButton ? loadingIcon : null }
+        {this.state.disabledButton ? loadingIcon : hiddenLoadingIcon }
       </button>
     )
   }

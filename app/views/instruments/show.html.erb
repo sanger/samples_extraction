@@ -4,7 +4,7 @@
 <%= bootstrap_form_tag(url: activities_path, action: 'create', :html => { :autocomplete => 'off'}) do |f| %>
   <%= f.text_field(:instrument_barcode, :value => @instrument.barcode, :readonly => true) %>
   <%= f.text_field(:kit_barcode, :placeholder => 'Scan a kit barcode') %>
-  <%= f.submit("Create activity") %>
+  <%= f.submit("Create activity", class: 'btn btn-default') %>
 <% end %>
 
 <%= bootstrap_link_to 'Edit', edit_instrument_path(@instrument) %>

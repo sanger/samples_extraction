@@ -4,6 +4,15 @@
 
 @import 'bootstrap';
 
+tr.output {
+  background-color: lightgray;
+  span {
+    font-family: "Courier New", Courier, monospace;
+  }
+  a:hover {
+    background-color: lightgray;
+  }
+}
 .step_types_active .panel-header {
   position: relative;
   padding-top: 1em;

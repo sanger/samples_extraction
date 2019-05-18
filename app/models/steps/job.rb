@@ -22,7 +22,7 @@ module Steps::Job
   end
 
   def perform_job
-    return if cancelled?
+    return if cancelled? || stopped?
     assign_attributes(state: 'running', output: nil)
     @error = nil
     begin
