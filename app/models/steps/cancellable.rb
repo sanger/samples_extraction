@@ -46,15 +46,6 @@ module Steps::Cancellable
       operations.update_all(cancelled?: false)
     end
     wss_event
-
-    # ActiveRecord::Base.transaction do
-    #   steps_older_than_me.cancelled.each do |s|
-    #     s.remake if s.cancelled?
-    #   end
-    #   fact_changes_for_option(:remake).apply(self, false)
-    #   operations.update_all(cancelled?: false)
-    # end
-    # wss_event
   end
 
   def fact_changes_for_option(option_name, step)

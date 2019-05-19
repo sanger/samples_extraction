@@ -12,10 +12,21 @@ module Steps::Deprecatable
     end
   end
 
+  def following_step_ids
+    obj=self
+    list=[]
+    loop do
+      id = obj.next_step_id
+      return list if id.nil?
+      return list if list.include?(id)
+      list.push(id)
+      obj = next_step
+    end
+  end
 
   def deprecate_unused_previous_steps!
     if activity
-      activity.steps.deprecatable.older_than(self).each do |s|
+      activity.steps.deprecatable.older_than(self).where.not(id: following_step_ids).each do |s|
         s.deprecate_with(self)
       end
     end
