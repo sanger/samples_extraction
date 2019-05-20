@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe FactChanges do
+  let(:activity) { create :activity }
   let(:uuid1) { SecureRandom.uuid }
   let(:uuid2) { SecureRandom.uuid }
   let(:asset_group1) { AssetGroup.new }
@@ -13,7 +14,7 @@ RSpec.describe FactChanges do
   let(:updates2) { FactChanges.new }
   let(:fact1) { create :fact, asset: asset1, predicate: property, object: value }
   let(:fact2) { create :fact, asset: asset1, predicate: relation, object_asset: asset2 }
-  let(:step) { create :step }
+  let(:step) { create :step, activity: activity }
   let(:json) { {:"add_facts" => [["?p", "a", "Plate"]]}.to_json }
 
   describe '#new' do
@@ -423,6 +424,12 @@ RSpec.describe FactChanges do
     end
   end
 
+  describe '#build_asset_groups' do
+    it 'creates a new asset group' do
+      expect(FactChanges.new.build_asset_groups(["?p"]).first.kind_of?(AssetGroup)).to eq(true)
+    end
+  end
+
   describe '#apply' do
     it 'applies the changes in the database' do
       expect(Operation.all.count).to eq(0)
@@ -433,5 +440,69 @@ RSpec.describe FactChanges do
       expect(asset1.facts.count).to eq(1)
       expect(Operation.all.count).to eq(1)
     end
+    context 'with create_asset_groups' do
+      before do
+        updates.create_asset_groups(['?p', '?q'])
+        activity.asset_group
+      end
+      let(:json) { { create_asset_groups: ['?p'] }.to_json }
+      let(:updates) { FactChanges.new }
+      it 'creates new asset groups' do
+        expect{updates.apply(step)}.to change{AssetGroup.count}.by(2)
+      end
+      it 'adds the asset group to the activity this step belongs to' do
+        expect{updates.apply(step)}.to change{activity.owned_asset_groups.count}.by(2)
+      end
+      it 'creates as many operations as asset groups created' do
+        expect{updates.apply(step)}.to change{Operation.all.count}.by(2)
+      end
+    end
+    context 'with delete_asset_groups' do
+      let(:asset_group1){ create :asset_group, activity_owner: activity }
+      let(:asset_group2){ create :asset_group, activity_owner: activity}
+      let(:json) { { create_asset_groups: ['?p'] }.to_json }
+      let(:updates) { FactChanges.new }
+      before do
+        updates.delete_asset_groups([asset_group1.uuid, asset_group2.uuid])
+        activity.asset_group
+      end
+      it 'removes the specified asset groups' do
+        expect{updates.apply(step)}.to change{AssetGroup.count}.by(-2)
+      end
+      it 'removes the asset group from the activity' do
+        expect{updates.apply(step)}.to change{activity.owned_asset_groups.count}.by(-2)
+      end
+      it 'creates as many operations as asset groups deleted' do
+        expect{updates.apply(step)}.to change{Operation.all.count}.by(2)
+      end
+    end
+
+    context 'with create_assets' do
+      before do
+        updates.create_assets(['?p', '?q'])
+      end
+      let(:updates) { FactChanges.new }
+      it 'creates new assets' do
+        expect{updates.apply(step)}.to change{Asset.count}.by(2)
+      end
+      it 'creates as many operations as assets created' do
+        expect{updates.apply(step)}.to change{Operation.all.count}.by(2)
+      end
+    end
+    context 'with delete_assets' do
+      let(:asset1){ create :asset }
+      let(:asset2){ create :asset}
+      let(:updates) { FactChanges.new }
+      before do
+        updates.delete_assets([asset1.uuid, asset2.uuid])
+      end
+      it 'removes the specified assets' do
+        expect{updates.apply(step)}.to change{Asset.count}.by(-2)
+      end
+      it 'creates as many operations as assets deleted' do
+        expect{updates.apply(step)}.to change{Operation.all.count}.by(2)
+      end
+    end
+
   end
 end

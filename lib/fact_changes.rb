@@ -323,15 +323,16 @@ class FactChanges
 
   def _create_asset_groups(step, asset_groups, with_operations=true)
     return unless asset_groups
-    asset_groups.each_with_index do |asset, index|
-      asset_groups.save
+    asset_groups.each_with_index do |asset_group, index|
+      asset_group.update_attributes(activity_owner: step.activity)
+      asset_group.save
     end
-    _asset_operations('createGroup', step, asset_groups) if with_operations
+    _asset_group_building_operations('createGroup', step, asset_groups) if with_operations
   end
 
   def _delete_asset_groups(step, asset_groups, with_operations=true)
-    _instances_deletion(AssetGroup, asset_groups) do |asset_group|
-      _asset_operations('destroyGroup', step, asset_group) if with_operations
+    _instances_deletion(AssetGroup, asset_groups) do |asset_groups|
+      _asset_group_building_operations('destroyGroup', step, asset_groups) if with_operations
     end
   end
 
@@ -348,6 +349,11 @@ class FactChanges
     end
   end
 
+  def _asset_group_building_operations(action_type, step, asset_groups)
+    asset_groups.map do |asset_group|
+      Operation.new(action_type: action_type, step: step, object: asset_group.uuid)
+    end
+  end
 
   def _asset_group_operations(action_type, step, asset_group_assets)
     asset_group_assets.map do |asset_group_asset, index|

@@ -61,9 +61,8 @@ module Steps::ExecutionActions
       activity.touch
       activity.save
     end
-    #execute_step_action if step_type.step_action
 
-    running_asset_group = AssetGroup.create!(assets: asset_group_assets)
+    running_asset_group = asset_group
 
     step_execution = build_step_execution(:facts_to_destroy => [], :original_assets => running_asset_group.assets)
     ActiveRecord::Base.transaction do |t|

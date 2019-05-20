@@ -11,7 +11,7 @@ module Steps::Stoppable
       self.state = 'complete'
       # We try to catch the next steps if we can
       on_stop
-    elsif (state == 'stop')
+    elsif (state == 'stop') && (state_was != 'stop')
       on_stop
     elsif (state == 'complete') && (state_was == 'stop')
       on_continue

@@ -40,6 +40,7 @@ module Parsers
           updater.create_assets([asset])
           updater.add(asset, 'barcode', barcode)
           updater.add(asset , 'a', 'Tube')
+          updater.create_asset_groups(["?created_tubes"])
         end
       else
         asset = Asset.find_by_barcode(barcode)
