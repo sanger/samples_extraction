@@ -203,6 +203,10 @@ class FactChanges
     wildcards[wildcard] ||= SecureRandom.uuid
   end
 
+  def wildcard_for_uuid(uuid)
+    wildcards.keys.select{|key| wildcards[key] == uuid}.first
+  end
+
   def find_instance_from_uuid(klass, uuid)
     found = klass.find_by(uuid:uuid)
     return found if found
@@ -324,7 +328,7 @@ class FactChanges
   def _create_asset_groups(step, asset_groups, with_operations=true)
     return unless asset_groups
     asset_groups.each_with_index do |asset_group, index|
-      asset_group.update_attributes(activity_owner: step.activity)
+      asset_group.update_attributes(activity_owner: step.activity, name: TokenUtil.to_asset_group_name(wildcard_for_uuid(asset_group.uuid)))
       asset_group.save
     end
     _asset_group_building_operations('createGroup', step, asset_groups) if with_operations

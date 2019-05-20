@@ -18,4 +18,9 @@ module TokenUtil
   def self.is_wildcard?(str)
     str.kind_of?(String) && !str.match(TokenUtil.WILDCARD_REGEXP).nil?
   end
+
+  def self.to_asset_group_name(wildcard)
+    return wildcard if wildcard.nil?
+    wildcard.gsub('?', '')
+  end
 end

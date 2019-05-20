@@ -442,10 +442,9 @@ RSpec.describe FactChanges do
     end
     context 'with create_asset_groups' do
       before do
-        updates.create_asset_groups(['?p', '?q'])
+        updates.create_asset_groups(['?pcreate', '?qcreate'])
         activity.asset_group
       end
-      let(:json) { { create_asset_groups: ['?p'] }.to_json }
       let(:updates) { FactChanges.new }
       it 'creates new asset groups' do
         expect{updates.apply(step)}.to change{AssetGroup.count}.by(2)
@@ -456,6 +455,39 @@ RSpec.describe FactChanges do
       it 'creates as many operations as asset groups created' do
         expect{updates.apply(step)}.to change{Operation.all.count}.by(2)
       end
+      context 'when the group is created with wildcard' do
+        it 'adds the wildcard as the name of the asset group' do
+          updates.apply(step)
+          expect(AssetGroup.find_by(name: 'pcreate')).not_to eq(nil)
+          expect(AssetGroup.find_by(name: 'qcreate')).not_to eq(nil)
+        end
+      end
+      context 'when the group is created with uuid' do
+        context 'when the uuid refers to an already existing group' do
+          let(:asset_group) { create :asset_group }
+          let(:updates2) { FactChanges.new }
+          it 'uses that uuid and does not create any group' do
+            updates2.create_asset_groups([asset_group.uuid])
+            expect{updates2.apply(step)}.to change{AssetGroup.count}.by(0)
+          end
+        end
+        context 'when the uuid does not refer anything already in database' do
+          let(:updates2) { FactChanges.new }
+          it 'uses that uuid and does not create any group' do
+            updates2.create_asset_groups([SecureRandom.uuid])
+            expect{updates2.apply(step)}.to change{AssetGroup.count}.by(1)
+          end
+        end
+      end
+      context 'when the group is created with group' do
+        let(:updates2) { FactChanges.new }
+        let(:asset_group) { create :asset_group }
+        it 'uses that group' do
+          updates2.create_asset_groups([asset_group])
+          expect{updates2.apply(step)}.to change{AssetGroup.count}.by(0)
+        end
+      end
+
     end
     context 'with delete_asset_groups' do
       let(:asset_group1){ create :asset_group, activity_owner: activity }
@@ -504,5 +536,56 @@ RSpec.describe FactChanges do
       end
     end
 
+    context 'with add_assets' do
+      let(:asset_group) { create :asset_group }
+      let(:assets){ 2.times.map{ create :asset } }
+      let(:updates) { FactChanges.new }
+
+      before do
+        updates.add_assets(asset_group, assets)
+      end
+      it 'adds the asset to the asset group' do
+        expect{ updates.apply(step) }.to change{asset_group.assets.count}.by(2)
+      end
+      it 'adds one operation for each asset added' do
+        expect{ updates.apply(step) }.to change{Operation.count}.by(2)
+      end
+    end
+
+    context 'with remove_assets' do
+      let(:asset_group) { create :asset_group }
+      let(:assets){ 2.times.map{ create :asset } }
+      let(:updates) { FactChanges.new }
+
+      before do
+        asset_group.assets << assets
+        updates.remove_assets(asset_group, assets)
+      end
+      it 'removes the assets from the asset group' do
+        expect{ updates.apply(step) }.to change{asset_group.assets.count}.by(-2)
+      end
+      it 'adds one operation for each asset removed' do
+        expect{ updates.apply(step) }.to change{Operation.count}.by(2)
+      end
+    end
+    context 'with several operations using wildcards' do
+      let(:updates) { FactChanges.new }
+      before do
+        activity.asset_group
+      end
+      it 'performs all the changes specified' do
+        updates.create_assets(["?p", "?q"])
+        updates.add("?p", "a", "Plate")
+        updates.add("?q", "a", "Plate")
+        updates.create_asset_groups(["?group1"])
+        updates.add_assets("?group1", ["?p", "?q"])
+
+        expect{updates.apply(step)}.to change{Asset.count}.by(2)
+          .and change{AssetGroup.count}.by(1)
+          .and change{AssetGroupsAsset.count}.by(2)
+          .and change{activity.owned_asset_groups.count}.by(1)
+        expect(activity.owned_asset_groups.last.assets.first.facts.first.object).to eq("Plate")
+      end
+    end
   end
 end
