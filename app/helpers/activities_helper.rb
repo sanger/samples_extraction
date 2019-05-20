@@ -181,7 +181,9 @@ module ActivitiesHelper
   end
 
   def messages_for_activity(activity)
-    activity.steps.failed.map{|s| {type: 'danger', msg: s.output.to_s.html_safe} }
+    activity.steps.failed.map(&:step_messages).flatten.map do |m|
+      {type: 'danger', msg: m.content.to_s.html_safe}
+    end
   end
 
 end

@@ -11,6 +11,7 @@ class Step < ActiveRecord::Base
   belongs_to :user
   has_many :uploads
   has_many :operations
+  has_many :step_messages
   has_many :assets, through: :asset_group
   has_many :assets_modified, -> { distinct }, through: :operations, class_name: 'Asset', source: :asset
   has_many :asset_groups_affected, -> { distinct }, through: :assets_modified, class_name: 'AssetGroup', source: :asset_groups

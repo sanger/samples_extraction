@@ -9,9 +9,7 @@ class Activities::BackgroundTasks::Runner < Activities::BackgroundTasks::Backgro
       :created_assets => {},
       :step_types => [step_type]
     )
-    ActiveRecord::Base.transaction do
-      runner.run
-    end
+    runner.run
   end
 
 end

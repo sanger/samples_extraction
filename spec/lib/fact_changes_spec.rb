@@ -69,6 +69,12 @@ RSpec.describe FactChanges do
     end
   end
   describe '#apply' do
+    context 'when the object contains errors' do
+      it 'stores the messages and throws an exception' do
+        updates1.set_errors(["hi"])
+        expect{updates1.apply(step)}.to raise_error(StandardError)
+      end
+    end
     context 'with add' do
       it 'applies a new added property' do
         updates1.add(asset1, property, value)

@@ -10,7 +10,9 @@ module Steps::Job
       :state => 'running',
       :step_type => step_type,
     })
-    delay.perform_job
+    update_attributes!({
+      job_id: delay.perform_job.id
+    })
   end
 
   def output_error(exception)

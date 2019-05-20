@@ -13,7 +13,6 @@
 //= require jquery
 //= require jquery_ujs
 //= require js.cookie
-//= require turbolinks
 //= require_tree .
 //= require bootstrap-sprockets
 //= require dropzone

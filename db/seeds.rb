@@ -26,6 +26,9 @@ kt = KitType.create(name: 'qiacube', activity_type: activity_type)
 
 Kit.create(barcode: '1234', kit_type: kt)
 
+Printer.create(name: 'd304bc', printer_type: 'Plate', default_printer: true)
+Printer.create(name: 'e367bc', printer_type: 'Tube', default_printer: true)
+
 instrument.activity_types << activity_type
 
 runners = [

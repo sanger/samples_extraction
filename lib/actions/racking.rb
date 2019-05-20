@@ -3,6 +3,23 @@ require 'parsers/csv_layout_with_tube_creation'
 
 require 'fact_changes'
 
+class InvalidDataParams < StandardError
+  attr_accessor :errors
+
+  def initialize(message = nil)
+    super(message)
+    @errors = message
+    #@msg = html_error_message([message].flatten)
+  end
+
+  def html_error_message(error_messages)
+    ['<ul>', error_messages.map do |msg|
+      ['<li>',msg,'</li>']
+    end, '</ul>'].flatten.join('')
+  end
+
+end
+
 module Actions
   module Racking
     # Actions
@@ -17,21 +34,6 @@ module Actions
 
     # Support methods and classes
 
-    class InvalidDataParams < StandardError
-      attr_accessor :error_params
-
-      def initialize(message = nil, error_params = nil)
-        super(html_error_message([message].flatten))
-        @error_params = error_params
-      end
-
-      def html_error_message(error_messages)
-        ['<ul>', error_messages.map do |msg|
-          ['<li>',msg,'</li>']
-        end, '</ul>'].flatten.join('')
-      end
-
-    end
 
     def clean_rack(rack)
       remove_facts(facts.with_predicate('contains'))

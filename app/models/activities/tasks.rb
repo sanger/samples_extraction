@@ -8,7 +8,7 @@ module Activities
                                                  asset_group: params[:asset_group],
                                                  user: params[:user]})
 
-      connected_tasks = create_connected_tasks(step, params[:printer_config], params[:user])
+      connected_tasks = create_connected_tasks(step, params[:asset_group], params[:printer_config], params[:user])
       step.execute_actions
       step
     end

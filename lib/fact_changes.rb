@@ -3,7 +3,7 @@ require 'token_util'
 class FactChanges
   attr_accessor :facts_to_destroy, :facts_to_add, :assets_to_create, :assets_to_destroy,
     :assets_to_add, :assets_to_remove, :wildcards, :instances_from_uuid,
-    :asset_groups_to_create, :asset_groups_to_destroy
+    :asset_groups_to_create, :asset_groups_to_destroy, :errors_added
 
   def initialize(json=nil)
     reset
@@ -16,6 +16,7 @@ class FactChanges
 
   def reset
     @parsing_valid = false
+    @errors_added = []
     @facts_to_destroy = []
     @facts_to_add = []
     @assets_to_create = []
@@ -31,6 +32,7 @@ class FactChanges
 
   def to_h
     {
+      'set_errors': @errors_added,
       'create_assets': @assets_to_create.map(&:uuid),
       'create_asset_groups': @asset_groups_to_create.map(&:uuid),
       'delete_asset_groups': @asset_groups_to_destroy.map(&:uuid),
@@ -53,7 +55,7 @@ class FactChanges
 
   def parse_json(json)
     obj = JSON.parse(json)
-    ['create_assets', 'create_asset_groups', 'delete_asset_groups', 'remove_facts', 'add_facts', 'remove_asset', 'add_asset', 'delete_assets'].reduce(FactChanges.new) do |updates, action_type|
+    ['set_errors', 'create_assets', 'create_asset_groups', 'delete_asset_groups', 'remove_facts', 'add_facts', 'remove_asset', 'add_asset', 'delete_assets'].reduce(FactChanges.new) do |updates, action_type|
       if obj[action_type]
         updates.merge(send(action_type, obj[action_type]))
       else
@@ -122,6 +124,7 @@ class FactChanges
 
   def merge(fact_changes)
     if (fact_changes)
+      errors_added.concat(fact_changes.errors_added)
       asset_groups_to_create.concat(fact_changes.asset_groups_to_create).uniq!
       assets_to_create.concat(fact_changes.assets_to_create).uniq!
       facts_to_add.concat(fact_changes.facts_to_add).uniq!
@@ -136,6 +139,7 @@ class FactChanges
   end
 
   def apply(step, with_operations=true)
+    _handle_errors(step) if errors_added.length > 0
     ActiveRecord::Base.transaction do |t|
       operations = [
         _create_asset_groups(step, asset_groups_to_create, with_operations),
@@ -215,35 +219,60 @@ class FactChanges
     instances
   end
 
+  def set_errors(errors)
+    errors_added.concat(errors)
+    self
+  end
+
   def create_assets(assets)
     assets_to_create.concat(validate_instances(build_assets(assets))).uniq!
+    self
   end
 
   def create_asset_groups(asset_groups)
     asset_groups_to_create.concat(validate_instances(build_asset_groups(asset_groups))).uniq!
+    self
   end
 
   def delete_asset_groups(asset_groups)
     asset_groups_to_destroy.concat(validate_instances(find_asset_groups(asset_groups))).uniq!
+    self
   end
 
   def delete_assets(assets)
     assets_to_destroy.concat(validate_instances(find_assets(assets))).uniq!
+    self
   end
 
   def add_assets(asset_group_id, assets)
     asset_group = validate_instances(find_asset_group(asset_group_id))
     assets = validate_instances(find_assets(assets))
     assets_to_add.concat(assets.map{|asset| { asset_group: asset_group, asset: asset} })
+    self
   end
 
   def remove_assets(asset_group_id, assets)
     asset_group = validate_instances(find_asset_group(asset_group_id))
     assets = validate_instances(find_assets(assets))
     assets_to_remove.concat(assets.map{|asset| AssetGroupsAsset.where(asset_group: asset_group, asset: asset)})
+    self
   end
 
   private
+
+  def _handle_errors(step)
+    ActiveRecord::Base.transaction do
+      StepMessage.where(step_id: step.id).delete_all
+      errors_added.each do |error|
+        StepMessage.create(content: error, step_id: step.id)
+      end
+    end
+    _produce_error if errors_added.length > 0
+  end
+
+  def _produce_error
+    raise StandardError.new(message: errors_added.join("\n"))
+  end
 
   def _add_assets(step, asset_group_assets, with_operations = true)
     _instance_builder_for_import(AssetGroupsAsset, asset_group_assets) do |instances|

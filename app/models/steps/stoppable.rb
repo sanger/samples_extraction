@@ -25,8 +25,6 @@ module Steps::Stoppable
   end
 
   def on_stop
-    job.destroy unless job.nil?
-    #activity.steps.older_than(self).update_all(state: 'stop')
     activity.steps.newer_than(self).active.update_all(state: 'stop')
   end
 end

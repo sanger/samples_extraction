@@ -43,8 +43,8 @@ class StepsRunning extends StepsFinished {
             <td>{ this.renderDuration(step) }</td>
             <td style={{'textAlign': 'center'}}
               className={classForState}>
-                <button onClick={this.props.onStopStep(step)} className="btn btn-danger">Stop?</button>
-              { this.imageForState(step.state) }
+              { this.imageForState(step.state) } &nbsp;
+              <button onClick={this.props.onStopStep(step)} className="btn btn-danger">Stop?</button>
             </td>
           </tr>
         </React.Fragment>

@@ -28,7 +28,7 @@ module Activities
       end
     end
 
-    def create_connected_tasks(step, printer_config=nil, user=nil)
+    def create_connected_tasks(step, asset_group, printer_config=nil, user=nil)
       reasoning_params = {
         :asset_group => asset_group,
         :activity => self,
@@ -36,7 +36,6 @@ module Activities
         :user => user,
         :in_progress? => true
       }
-
       steps = create_background_steps(background_tasks, reasoning_params)
       step.update_attributes(next_step: steps.first)
       [step, steps].flatten.compact

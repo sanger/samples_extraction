@@ -161,7 +161,7 @@ class Activity extends React.Component {
 
   onChangeStateStep(step, toState) {
     return (e) => {
-      if (this.state.activityRunning === true) {
+      if ((this.state.activityRunning === true) && (!toState === 'stop')) {
         return;
       }
       const state = toState || (e.target.checked ? 'complete' : 'cancel')

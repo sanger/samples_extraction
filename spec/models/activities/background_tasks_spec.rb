@@ -12,6 +12,7 @@ RSpec.describe 'BackgroundTasks' do
 
   let(:activity) { create :activity }
   let(:step_type) { create :step_type}
+  let(:asset_group) { create :asset_group}
   let(:step) { create :step, step_type: step_type }
 
   context '#create_background_steps' do
@@ -38,13 +39,13 @@ RSpec.describe 'BackgroundTasks' do
     context 'when it does not have any background task defined' do
       it 'does not raise an error' do
         allow(activity).to receive(:background_tasks).and_return([])
-        expect{ activity.create_connected_tasks(step) }.not_to raise_exception
+        expect{ activity.create_connected_tasks(step, asset_group) }.not_to raise_exception
       end
     end
     context 'when it has background tasks' do
       it 'creates a list of connected tasks' do
         allow(activity).to receive(:background_tasks).and_return([Activities::BackgroundTasks::BackgroundStep])
-        expect(activity.create_connected_tasks(step).length).to eq(2)
+        expect(activity.create_connected_tasks(step, asset_group).length).to eq(2)
       end
     end
   end

@@ -21,7 +21,8 @@ class StepsFinished extends React.Component {
     if (state == 'complete') return 'success'
     if (state == 'error') return 'danger'
     if (state == 'running') return 'warning'
-    if (state == 'retry') return 'warning'
+    if (state == 'stop') return 'warning'
+    if (state == 'retry') return 'info'
     if (state == 'cancel') return 'danger'
     if (state == 'in progress') return 'info'
     return 'primary'
@@ -29,6 +30,7 @@ class StepsFinished extends React.Component {
   classImageForState(state) {
     if (state == 'complete') return 'glyphicon-ok'
     if (state == 'error') return 'glyphicon-remove'
+    if (state == 'stop') return 'glyphicon-warning-sign'
     if (state == 'running') return 'glyphicon-refresh fast-right-spinner'
     if (state == 'retry') return 'glyphicon-repeat'
     if (state == 'cancel') return 'glyphicon-erase'
@@ -109,17 +111,20 @@ class StepsFinished extends React.Component {
                   <thead>
                     <tr><th>Action</th><th>Barcode</th>
                     <th>Fact
-                      <button disabled={this.props.activityRunning}
+                      <button disabled={this.props.activityRunning && (!step.state ===null)}
                         onClick={this.props.onChangeStateStep(step, classNames({
+                          'stop': (step.state === null) || (step.state === 'error') || (step.state === 'retry') || (step.state === 'running'),
                           'complete': (step.state === 'cancel') || (step.state === 'stop'),
                           'cancel': (step.state === 'complete')
                         }))}
                         className={classNames({
                           "pull-right btn": true,
-                          "btn-danger": (step.state==='complete'),
+                          "btn-danger": (step.state==='complete') || (step.state === null) ||
+                            (step.state === 'error') || (step.state === 'retry') ||(step.state === 'running'),
                           "btn-primary": (step.state!='complete')
                           })}>
                         {classNames({
+                          'Stop?': (step.state === null) || (step.state === 'error') || (step.state === 'retry') || (step.state === 'running'),
                           'Redo?': (step.state === 'cancel'),
                           'Continue?': (step.state === 'stop'),
                           'Revert?': (step.state === 'complete')
