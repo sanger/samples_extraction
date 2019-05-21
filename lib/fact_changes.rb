@@ -280,12 +280,7 @@ class FactChanges
   private
 
   def _handle_errors(step)
-    ActiveRecord::Base.transaction do
-      StepMessage.where(step_id: step.id).delete_all
-      errors_added.each do |error|
-        StepMessage.create(content: error, step_id: step.id)
-      end
-    end
+    step.set_errors(errors_added)
     _produce_error if errors_added.length > 0
   end
 
@@ -337,9 +332,10 @@ class FactChanges
       if barcode
         asset.barcode = barcode
       else
-        unless barcode_type.nil?
-          asset.generate_barcode
-        end
+        asset.generate_barcode
+        #unless barcode_type.nil?
+        #  asset.generate_barcode
+        #end
       end
     end
   end

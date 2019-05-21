@@ -35,5 +35,13 @@ class Step < ActiveRecord::Base
   include Steps::WebsocketEvents
   include Steps::ExecutionActions
 
+  def set_errors(errors)
+    ActiveRecord::Base.transaction do
+      step_messages.delete_all
+      errors.each do |error|
+        step_messages.create(content: error)
+      end
+    end
+  end
 
 end
