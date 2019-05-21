@@ -98,17 +98,6 @@ class AssetGroup < ActiveRecord::Base
     assets.delete(assets)
   end
 
-  def unselect_assets_with_conditions(condition_groups)
-    condition_groups.each do |condition_group|
-      unless condition_group.keep_selected
-        unselect_assets = assets.includes(:facts).select do |asset|
-          condition_group.compatible_with?(asset)
-        end
-        assets.delete(unselect_assets) if unselect_assets
-      end
-    end
-  end
-
   def to_n3
     render :n3
   end

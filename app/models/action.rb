@@ -3,7 +3,7 @@ class Action < ActiveRecord::Base
   belongs_to :object_condition_group, :class_name => 'ConditionGroup'
 
   belongs_to :step_type
-  
+
   @@TYPES = [:checkFacts, :addFacts, :removeFacts]
 
   def self.types
@@ -65,8 +65,15 @@ class Action < ActiveRecord::Base
           assets = asset_group.classified_by_condition_group(subject_condition_group)
         else
           assets = num_assets_to_create(asset_group).times.map{ Asset.new }
-          asset_group.assets << assets
-          AssetGroup.create(name: subject_condition_group.name, activity_owner: asset_group.activity_owner, assets: assets)
+          updates.create_assets(assets)
+          updates.add_assets([[asset_group, assets]])
+          #asset_group.assets << assets
+
+
+          #AssetGroup.create(name: subject_condition_group.name, activity_owner: asset_group.activity_owner, assets: assets)
+          updates.create_asset_groups(["?#{subject_condition_group.name}"])
+          updates.add_assets([["?#{subject_condition_group.name}", assets]])
+
           asset_group.classify_assets_in_condition_group(assets, subject_condition_group)
         end
         destinations = destinations(asset_group)
@@ -82,9 +89,11 @@ class Action < ActiveRecord::Base
           elsif action_type == 'removeFacts'
             updates.remove_where(source, predicate, destination)
           elsif action_type == 'selectAsset'
-            asset_group.assets << source
+            updates.add_assets([[asset_group, [source]]])
+            #asset_group.assets << source
           elsif action_type == 'unselectAsset'
-            asset_group.assets.delete(source)
+            updates.remove_assets([[asset_group, [source]]])
+            #asset_group.assets.delete(source)
           end
         end
       end
