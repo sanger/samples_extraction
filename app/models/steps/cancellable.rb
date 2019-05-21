@@ -49,29 +49,9 @@ module Steps::Cancellable
   end
 
   def fact_changes_for_option(option_name, step)
-    step.operations.reduce(FactChanges.new) do |memo, operation|
-      action_type = operation.action_type_for_option(option_name)
-      if (action_type == :add_facts)
-        memo.add(operation.asset, operation.predicate, operation.object_value)
-      elsif (action_type == :remove_facts)
-        memo.remove(Fact.where(asset: operation.asset, predicate: operation.predicate, object: operation.object, object_asset: operation.object_asset))
-      elsif (action_type == :create_asset)
-        asset = Asset.create(uuid: operation.object)
-        operation.update_attributes(asset: asset)
-        memo.create_assets([asset.uuid])
-      elsif (action_type == :delete_asset)
-        memo.delete_assets([operation.object])
-      elsif (action_type == :add_assets)
-        memo.add_assets(operation.object, [operation.asset])
-      elsif (action_type == :remove_assets)
-        memo.remove_assets(operation.object, [operation.asset])
-      elsif (action_type == :create_asset_groups)
-        memo.create_asset_groups([operation.object])
-      elsif (action_type == :delete_asset_groups)
-        debugger
-        memo.delete_asset_groups([operation.object])
-      end
-      memo
+    step.operations.reduce(FactChanges.new) do |updates, operation|
+      operation.generate_changes_for(option_name, updates)
+      updates
     end
   end
 

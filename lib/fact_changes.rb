@@ -299,7 +299,7 @@ class FactChanges
       o
     end
     _instance_builder_for_import(AssetGroupsAsset, modified_list) do |instances|
-      _asset_group_operations('selectAsset', step, instances) if with_operations
+      _asset_group_operations('addAssets', step, instances) if with_operations
     end
   end
 
@@ -311,7 +311,7 @@ class FactChanges
       )
     end
     _instances_deletion(AssetGroupsAsset, modified_list) do |asset_group_assets|
-      _asset_group_operations('unselectAsset', step, asset_group_assets) if with_operations
+      _asset_group_operations('removeAssets', step, asset_group_assets) if with_operations
     end
   end
 
@@ -321,7 +321,7 @@ class FactChanges
       _apply_barcode(asset)
       asset.save
     end
-    _asset_operations('createAsset', step, assets) if with_operations
+    _asset_operations('createAssets', step, assets) if with_operations
   end
 
   ## TODO:
@@ -345,7 +345,7 @@ class FactChanges
   end
 
   def _detach_assets(step, assets, with_operations=true)
-    operations = _asset_operations('deleteAsset', step, assets) if with_operations
+    operations = _asset_operations('deleteAssets', step, assets) if with_operations
     _instances_deletion(Fact, assets.map(&:facts).flatten.compact)
     _instances_deletion(AssetGroupsAsset, assets.map(&:asset_groups_assets).flatten.compact)
     operations
@@ -357,11 +357,11 @@ class FactChanges
       asset_group.update_attributes(activity_owner: step.activity, name: TokenUtil.to_asset_group_name(wildcard_for_uuid(asset_group.uuid)))
       asset_group.save
     end
-    _asset_group_building_operations('createGroup', step, asset_groups) if with_operations
+    _asset_group_building_operations('createAssetGroups', step, asset_groups) if with_operations
   end
 
   def _detach_asset_groups(step, asset_groups, with_operations=true)
-    operations = _asset_group_building_operations('destroyGroup', step, asset_groups) if with_operations
+    operations = _asset_group_building_operations('deleteAssetGroups', step, asset_groups) if with_operations
     instances = [asset_groups].flatten
     ids_to_remove = instances.map(&:id).compact.uniq
 
