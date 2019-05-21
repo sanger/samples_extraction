@@ -11,7 +11,12 @@ class Operations extends React.Component {
     if (operation.action_type == 'checkFacts') return 'glyphicon-search'
     if (operation.action_type == 'addFacts') return 'glyphicon-pencil'
     if (operation.action_type == 'removeFacts') return 'glyphicon-erase'
-    if (operation.action_type == 'createAsset') return 'glyphicon-plus'
+    if (operation.action_type == 'addAssets') return 'glyphicon-pencil'
+    if (operation.action_type == 'removeAssets') return 'glyphicon-erase'
+    if (operation.action_type == 'createAssets') return 'glyphicon-plus'
+    if (operation.action_type == 'createAssetGroups') return 'glyphicon-plus'
+    if (operation.action_type == 'deleteAssets') return 'glyphicon-minus'
+    if (operation.action_type == 'deleteAssetGroups') return 'glyphicon-minus'
   }
   renderOperationRow(operation, index) {
     return(

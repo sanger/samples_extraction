@@ -77,8 +77,13 @@ class Activity extends React.Component {
     })
   }
   onWebSocketsMessage(msg) {
+    var selectedGroup = this.state.selectedAssetGroup
+    if (!(msg.assetGroups && msg.assetGroups[selectedGroup])) {
+      selectedGroup = Object.keys(msg.assetGroups)[0]
+    }
     this.setState({
       messages: msg.messages,
+      selectedAssetGroup: selectedGroup,
       activityRunning: msg.activityRunning,
       dataAssetDisplay: msg.dataAssetDisplay,
       assetGroups: msg.assetGroups,
