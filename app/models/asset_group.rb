@@ -8,6 +8,7 @@ class AssetGroup < ActiveRecord::Base
   has_many :steps
   has_many :uploaded_files, through: :assets
 
+  has_one :activity, dependent: :nullify
   belongs_to :activity_owner, :class_name => 'Activity'
   belongs_to :condition_group, :class_name => 'ConditionGroup'
 

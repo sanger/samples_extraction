@@ -11,9 +11,11 @@ class Activity < ActiveRecord::Base
   has_many :steps
   has_many :step_types, :through => :activity_type
   has_many :uploads
-  belongs_to :asset_group
+  belongs_to :asset_group, optional: true
   has_many :users, :through => :steps
   has_one :work_order
+
+
 
   scope :for_assets, ->(assets) { joins(:asset_group => :assets).where(:asset_group => {
     :asset_groups_assets=> {:asset_id => assets }

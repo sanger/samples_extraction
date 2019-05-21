@@ -61,6 +61,15 @@ module Steps::Cancellable
         memo.create_assets([asset.uuid])
       elsif (action_type == :delete_asset)
         memo.delete_assets([operation.object])
+      elsif (action_type == :add_assets)
+        memo.add_assets(operation.object, [operation.asset])
+      elsif (action_type == :remove_assets)
+        memo.remove_assets(operation.object, [operation.asset])
+      elsif (action_type == :create_asset_groups)
+        memo.create_asset_groups([operation.object])
+      elsif (action_type == :delete_asset_groups)
+        debugger
+        memo.delete_asset_groups([operation.object])
       end
       memo
     end
