@@ -30,8 +30,10 @@ end
 
 def out(val)
   puts val.to_json
-  exit
+  return
 end
+
+return unless ARGV.any?{|s| s.match(".json")}
 
 args = ARGV[0]
 out({}) unless args

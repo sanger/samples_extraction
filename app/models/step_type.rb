@@ -3,7 +3,7 @@ require 'support_n3'
 class StepType < ActiveRecord::Base
 
   before_update :remove_previous_conditions
-  after_save :create_next_conditions, :unless => :for_reasoning?
+  after_save :create_next_conditions #, :unless => :for_reasoning?
 
   after_update :touch_activities
 

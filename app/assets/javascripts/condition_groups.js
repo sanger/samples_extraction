@@ -153,7 +153,7 @@
       editor.getSession().setMode("ace/mode/text");
 
       if ($('input#step_type_n3_definition').val().length == 0) {
-        editor.setValue(this.toN3());  
+        editor.setValue(this.toN3());
       } else {
         editor.setValue($('input#step_type_n3_definition').val());
       }
@@ -174,7 +174,7 @@
     proto.onChangeForReasoning = function() {
       var node = $('#step_type_for_reasoning')[0];
       if (node) {
-        $('.edit_step_type').toggleClass('for-reasoning', node.checked);
+        //$('.edit_step_type').toggleClass('for-reasoning', node.checked);
       }
     };
 

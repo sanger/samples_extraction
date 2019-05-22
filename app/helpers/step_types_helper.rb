@@ -9,7 +9,7 @@ module StepTypesHelper
       'checkFacts' => 'glyphicon glyphicon-search'
     }
   end
-  
+
   def condition_groups_init_for_step_type(step_type)
     cgroups = step_type.condition_groups.reduce({}) do |memo, condition_group|
       name = condition_group.name || "a#{condition_group.id}"

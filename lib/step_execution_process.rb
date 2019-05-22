@@ -1,11 +1,9 @@
 module StepExecutionProcess
-
   def run
-  	refresh
-
-  	inference
-    
-  	export
+    return false unless compatible?
+    inference
+    export
+    true
   end
 
 end

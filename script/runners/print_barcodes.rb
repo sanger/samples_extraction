@@ -36,6 +36,8 @@ class PrintBarcodes
 
 end
 
+return unless ARGV.any?{|s| s.match(".json")}
+
 args = ARGV[0]
 asset_group_id = args.match(/(\d*)\.json/)[1]
 asset_group = AssetGroup.find(asset_group_id)
