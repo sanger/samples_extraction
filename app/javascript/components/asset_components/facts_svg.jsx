@@ -86,7 +86,12 @@ class FactsSvg extends React.Component {
     if (path) {
       return (
         <div className={'svg svg-'+this.props.asset.uuid} >
-          <SVG src={this.pathImage(this.props.facts)} ref={el => this.el = el} onLoad={this.onLoadSvg}></SVG>
+          <SVG
+            src={this.pathImage(this.props.facts)}
+            ref={el => this.el = el}
+            cacheGetRequests={true}
+            onLoad={this.onLoadSvg}>
+          </SVG>
         </div>
       )
     } else {
