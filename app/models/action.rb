@@ -10,6 +10,9 @@ class Action < ActiveRecord::Base
     @@TYPES
   end
 
+  # Given the current action (that defines a relation between 2 conditional groups)
+  # and the list of assets classified into 2 groups: sources or destinations, this method
+  # will generate a list of pairs [source, destination] that can be connected.
   def each_connected_asset(sources, destinations, wildcard_values={}, &block)
     unless (wildcard_values.nil? || wildcard_values.empty?)
       if (object_condition_group)
@@ -18,7 +21,12 @@ class Action < ActiveRecord::Base
             if wildcard_values[object_condition_group.id][source.id]
               yield source, wildcard_values[object_condition_group.id][source.id].first
             else
-              yield source, wildcard_values[object_condition_group.id].values.flatten[index]
+              values_for_wildcard = wildcard_values[object_condition_group.id].values.flatten
+              if (values_for_wildcard.length == 1)
+                yield source, values_for_wildcard[0]
+              else
+                yield source, values_for_wildcard[index]
+              end
             end
           end
         else

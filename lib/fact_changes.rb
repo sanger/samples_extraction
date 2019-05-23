@@ -78,9 +78,10 @@ class FactChanges
   def add(s,p,o, options=nil)
     s = find_asset(s)
     o = find_asset(o)
-
-    detected = (s && p && o) && facts_to_add.detect do |triple|
-      (triple[0]==s) && (triple[1] ==p) && (triple[2] == o)
+    detected = (s && p && o) && facts_to_add.detect do |data|
+      first_check = (data[:asset]==s) && (data[:predicate] ==p)
+      second_check = ((data[:literal] ? data[:object] : data[:object_asset])== o)
+      first_check && second_check
     end
     t = [s,p,o, options]
     params = {asset: t[0], predicate: t[1], literal: !(t[2].kind_of?(Asset))}
@@ -132,7 +133,8 @@ class FactChanges
       facts_to_destroy.concat(fact_changes.facts_to_destroy).uniq!
       assets_to_destroy.concat(fact_changes.assets_to_destroy).uniq!
       asset_groups_to_destroy.concat(fact_changes.asset_groups_to_destroy).uniq!
-      instances_from_uuid.merge(fact_changes.instances_from_uuid)
+      instances_from_uuid.merge!(fact_changes.instances_from_uuid)
+      wildcards.merge!(fact_changes.wildcards)
     end
     self
   end
@@ -194,7 +196,7 @@ class FactChanges
     else
       found = instance_or_uuid_or_id
     end
-
+    _produce_error(["Element identified by #{instance_or_uuid_or_id} should be declared before using it"]) unless found
     found
   end
 
@@ -281,10 +283,10 @@ class FactChanges
 
   def _handle_errors(step)
     step.set_errors(errors_added)
-    _produce_error if errors_added.length > 0
+    _produce_error(errors_added) if errors_added.length > 0
   end
 
-  def _produce_error
+  def _produce_error(errors_added)
     raise StandardError.new(message: errors_added.join("\n"))
   end
 
@@ -314,7 +316,6 @@ class FactChanges
     return unless assets
     assets.each_with_index do |asset, index|
       _apply_barcode(asset)
-      asset.save
     end
     _asset_operations('createAssets', step, assets) if with_operations
   end
@@ -333,11 +334,9 @@ class FactChanges
         asset.barcode = barcode
       else
         asset.generate_barcode
-        #unless barcode_type.nil?
-        #  asset.generate_barcode
-        #end
       end
     end
+    asset.save
   end
 
   def _detach_assets(step, assets, with_operations=true)
@@ -350,7 +349,10 @@ class FactChanges
   def _create_asset_groups(step, asset_groups, with_operations=true)
     return unless asset_groups
     asset_groups.each_with_index do |asset_group, index|
-      asset_group.update_attributes(activity_owner: step.activity, name: TokenUtil.to_asset_group_name(wildcard_for_uuid(asset_group.uuid)))
+      asset_group.update_attributes(
+        name: TokenUtil.to_asset_group_name(wildcard_for_uuid(asset_group.uuid)),
+        activity_owner: step.activity
+      )
       asset_group.save
     end
     _asset_group_building_operations('createAssetGroups', step, asset_groups) if with_operations

@@ -21,8 +21,8 @@ const StepTypesActive = (props) => {
                 selectedTubePrinter={props.selectedTubePrinter}
             selectedPlatePrinter={props.selectedPlatePrinter}
 
-            stepTypesData={props.activeStepTypes.stepTypesData}
-            stepTypesTemplatesData={props.activeStepTypes.stepTypesTemplatesData}
+            stepTypesData={props.activeStepTypes ? props.activeStepTypes.stepTypesData : []}
+            stepTypesTemplatesData={props.activeStepTypes ? props.activeStepTypes.stepTypesTemplatesData : []}
           />
         </div>
       </div>

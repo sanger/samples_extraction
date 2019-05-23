@@ -15,7 +15,7 @@ RSpec.describe FactChanges do
   let(:fact1) { create :fact, asset: asset1, predicate: property, object: value }
   let(:fact2) { create :fact, asset: asset1, predicate: relation, object_asset: asset2 }
   let(:step) { create :step, activity: activity }
-  let(:json) { {:"add_facts" => [["?p", "a", "Plate"]]}.to_json }
+  let(:json) { {:"create_assets" => ["?p", "?q"], :"add_facts" => [["?p", "a", "Plate"]]}.to_json }
 
   describe '#new' do
     it 'parses a json and loads the config from it' do
@@ -45,6 +45,7 @@ RSpec.describe FactChanges do
       expect(updates.facts_to_add.length).to eq(2)
     end
     it 'does not destroy previously loaded changes' do
+      updates.create_assets(["?q"])
       updates.add("?q", "a", "Tube")
       expect(updates.facts_to_add.length).to eq(1)
       updates.parse_json(json)
@@ -190,6 +191,9 @@ RSpec.describe FactChanges do
 
   end
   describe '#add' do
+    it 'raises error if we use a wildcard not created before' do
+      expect{updates1.add("?p", property, value)}.to raise_error(StandardError)
+    end
     it 'adds a new property' do
       expect(updates1.facts_to_add.length).to eq(0)
       updates1.add(asset1, property, value)
@@ -396,9 +400,29 @@ RSpec.describe FactChanges do
 
 
   describe '#merge' do
-
     it 'returns another FactChanges object' do
       expect(updates1.merge(updates2).kind_of?(FactChanges)).to eq(true)
+    end
+    context 'when using wildcards' do
+      let(:obj) {FactChanges.new}
+      let(:obj2) { FactChanges.new}
+      before do
+        obj.create_assets(["?p"])
+        obj2.merge(obj)
+      end
+      it 'merges wildcards used in other objects' do
+        expect{
+          obj2.add("?p", "a", "Tube")
+        }.not_to raise_error
+      end
+      it 'merges mapping between wildcards and uuids from other objects' do
+        obj2.add("?p", "a", "Tube")
+        expect(obj.wildcards["?p"]).to eq(obj2.wildcards["?p"])
+      end
+      it 'merges instances generated from other objects' do
+        obj2.add("?p", "a", "Tube")
+        expect(obj.instances_from_uuid[obj.wildcards["?p"]]).to eq(obj2.instances_from_uuid[obj2.wildcards["?p"]])
+      end
     end
     it 'merges changes from other objects' do
       expect(updates1.facts_to_add.length).to eq(0)

@@ -31,7 +31,7 @@ RSpec.describe "Inference" do
         f3 = [
           FactoryBot.create(:fact, {:predicate => 'relates', :object_asset => tube2})
         ]
-        tube4 = FactoryBot.create(:asset, :name => 'tube4', 
+        tube4 = FactoryBot.create(:asset, :name => 'tube4',
           :facts => f3
         )
         f4 = [FactoryBot.create(:fact, {:predicate => 'volume', :object => '17'})]
@@ -66,7 +66,7 @@ RSpec.describe "Inference" do
           if send(data[:unless])
             next
           end
-        end            
+        end
 
         if data[:it]
           tags = data[:tags] ? data[:tags] : {}

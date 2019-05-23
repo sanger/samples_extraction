@@ -52,6 +52,7 @@ module ActivitiesHelper
   end
 
   def step_types_control_data(activity)
+    return {} if activity.running?
     activity.owned_asset_groups.reduce({}) do |memo, asset_group|
       data_for_step_types = step_types_for_asset_groups_data(activity, asset_group)
       memo[asset_group.id] = data_for_step_types
