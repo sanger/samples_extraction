@@ -331,7 +331,6 @@ class FactChanges
     _instance_builder_for_import(Asset, assets) do |instances|
       _asset_operations('createAssets', step, assets) if with_operations
     end
-
   end
 
   ## TODO:
@@ -420,10 +419,17 @@ class FactChanges
     end
   end
 
+  def all_values_are_new_records(hash)
+    hash.values.all? do |value|
+      (value.respond_to?(:new_record?) && value.new_record?)
+    end
+  end
+
   def _instance_builder_for_import(klass, params_list, &block)
+
     instances = params_list.map do |params_for_instance|
       unless (params_for_instance.kind_of?(klass))
-        if (params_for_instance.values.all?(&:new_record?) ||
+        if (all_values_are_new_records(params_for_instance) ||
           (!klass.exists?(params_for_instance)))
           klass.new(params_for_instance)
         end
@@ -432,13 +438,16 @@ class FactChanges
           params_for_instance
         end
       end
-    end.compact
+    end.compact.uniq
     instances.each do |instance|
       instance.run_callbacks(:save) { false }
       instance.run_callbacks(:create) { false }
     end
     if instances && !instances.empty?
       klass.import(instances)
+      # import does not return the ids for the instances, so we need to reload
+      # again. Uuid is the only identificable attribute set
+      klass.synchronize(instances, [:uuid]) if klass == Asset
       yield instances
     end
   end
