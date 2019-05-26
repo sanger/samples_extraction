@@ -40,7 +40,7 @@ class TransferPlateToPlate
         plates = asset_group.assets.with_predicate('transfer').with_fact('a', 'Plate').each do |plate|
           plate.facts.with_predicate('transfer').each do |f|
             destination = f.object_asset
-            updates.merge(transfer(plate, destination))
+            updates.merge(transfer_plates(plate, destination))
           end
         end
       end

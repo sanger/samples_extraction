@@ -5,7 +5,12 @@ module Steps::Cancellable
       scope :older_than, ->(step) { where("id < #{step.id}").includes(:operations, :step_type)}
 
       before_update :modify_related_steps
+
     end
+  end
+
+  def cancellable?
+    true
   end
 
   def modify_related_steps

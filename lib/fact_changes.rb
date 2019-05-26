@@ -141,6 +141,7 @@ class FactChanges
 
   def apply(step, with_operations=true)
     _handle_errors(step) if errors_added.length > 0
+    _handle_inverse_operations
     ActiveRecord::Base.transaction do |t|
       operations = [
         _create_asset_groups(step, asset_groups_to_create, with_operations),
@@ -181,10 +182,15 @@ class FactChanges
     asset_groups.uniq.map { |asset_group_or_uuid| find_instance_of_class_by_uuid(AssetGroup, asset_group_or_uuid, true) }
   end
 
+  def is_new_record?(uuid)
+    !!(instances_from_uuid[uuid] && instances_from_uuid[uuid].new_record?)
+  end
+
   def find_instance_of_class_by_uuid(klass, instance_or_uuid_or_id, create=false)
     if TokenUtil.is_wildcard?(instance_or_uuid_or_id)
       uuid = uuid_for_wildcard(instance_or_uuid_or_id)
-      found = find_instance_from_uuid(klass, uuid)
+      # Do not try to find it if it is a new wildcard created
+      found = find_instance_from_uuid(klass, uuid) unless create
       if !found && create
         found = ((instances_from_uuid[uuid] ||= klass.new(uuid: uuid)))
       end
@@ -209,7 +215,7 @@ class FactChanges
   end
 
   def find_instance_from_uuid(klass, uuid)
-    found = klass.find_by(uuid:uuid)
+    found = klass.find_by(uuid:uuid) unless is_new_record?(uuid)
     return found if found
     instances_from_uuid[uuid]
   end
@@ -230,7 +236,7 @@ class FactChanges
   end
 
   def create_assets(assets)
-    assets_to_create.concat(validate_instances(build_assets(assets))).uniq!
+    assets_to_create.concat(validate_instances(build_assets(assets)))
     self
   end
 
@@ -281,6 +287,9 @@ class FactChanges
 
   private
 
+  def _handle_inverse_operations
+  end
+
   def _handle_errors(step)
     step.set_errors(errors_added)
     _produce_error(errors_added) if errors_added.length > 0
@@ -314,16 +323,21 @@ class FactChanges
 
   def _create_assets(step, assets, with_operations=true)
     return unless assets
-    assets.each_with_index do |asset, index|
-      _apply_barcode(asset)
+    count = Asset.count + 1
+    assets = assets.each_with_index.map do |asset, barcode_index|
+      _build_barcode(asset, count + barcode_index)
+      asset
     end
-    _asset_operations('createAssets', step, assets) if with_operations
+    _instance_builder_for_import(Asset, assets) do |instances|
+      _asset_operations('createAssets', step, assets) if with_operations
+    end
+
   end
 
   ## TODO:
   # Possibly it could be moved to Asset before_save callback
   #
-  def _apply_barcode(asset)
+  def _build_barcode(asset, i)
     barcode_type = values_for_predicate(asset, 'barcodeType').first
 
     if (barcode_type == 'NoBarcode')
@@ -333,10 +347,9 @@ class FactChanges
       if barcode
         asset.barcode = barcode
       else
-        asset.generate_barcode
+        asset.build_barcode(i)
       end
     end
-    asset.save
   end
 
   def _detach_assets(step, assets, with_operations=true)
@@ -409,7 +422,16 @@ class FactChanges
 
   def _instance_builder_for_import(klass, params_list, &block)
     instances = params_list.map do |params_for_instance|
-      klass.new(params_for_instance) unless klass.exists?(params_for_instance)
+      unless (params_for_instance.kind_of?(klass))
+        if (params_for_instance.values.all?(&:new_record?) ||
+          (!klass.exists?(params_for_instance)))
+          klass.new(params_for_instance)
+        end
+      else
+        if params_for_instance.new_record?
+          params_for_instance
+        end
+      end
     end.compact
     instances.each do |instance|
       instance.run_callbacks(:save) { false }

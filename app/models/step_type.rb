@@ -25,12 +25,14 @@ class StepType < ActiveRecord::Base
     select{|stype| stype.task_type == task_type }
   end
 
-  scope :for_reasoning, ->() { where(:for_reasoning => true)}
+  scope :for_reasoning, ->() { where(:for_reasoning => true).order(priority: :desc)}
 
   scope :not_for_reasoning, ->() { where(:for_reasoning => false) }
 
   def touch_activities
-    activities.each(&:touch)
+    activities.each do |activity|
+      activity.touch if activity.is_being_listened?
+    end
   end
 
   def after_deprecate
@@ -78,9 +80,8 @@ class StepType < ActiveRecord::Base
   end
 
   def task_type
-    return 'cwm' if for_reasoning? && (step_action.nil? || step_action.empty?)
-    return 'background_step' if step_action.nil? || step_action.empty?
-    return 'cwm' if step_action.end_with?('.n3')
+    return 'background_step' if (actions.count > 0)  || (step_action.nil?)
+    return 'cwm' if step_action && step_action.end_with?('.n3')
     return 'runner'
   end
 

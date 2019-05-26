@@ -119,6 +119,13 @@ class Asset < ActiveRecord::Base
     raise 'Too many iterations while reasoning...' if num_iterations > 10
   end
 
+  def build_barcode(index)
+    self.barcode = SBCF::SangerBarcode.new({
+      prefix: Rails.application.config.barcode_prefix,
+      number: index
+    }).human_barcode
+  end
+
   def generate_barcode
     save
     if barcode.nil?

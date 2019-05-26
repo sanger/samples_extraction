@@ -1,8 +1,9 @@
 return unless ARGV.any?{|s| s.match(".json")}
+TOTAL_NUMBER=10
 
-tubes = 12.times.map{|i| "?p#{i}"}
-samples = 12.times.map{ SecureRandom.uuid }
-sanger_sample_id = 12.times{|i| "SAMPLE#{i}"}
+tubes = TOTAL_NUMBER.times.map{|i| "?p#{i}"}
+samples = TOTAL_NUMBER.times.map{|i| "?q#{i}" }
+sanger_sample_id = TOTAL_NUMBER.times.map{|i| "SAMPLE#{i}"}
 study_name = "STDY1"
 
 f1 = tubes.each_with_index.map{|t, i| [t, 'a', 'SampleTube']}

@@ -149,7 +149,7 @@ module Asset::Import
 
   module ClassMethods
 
-    def import(barcode)
+    def import_barcode(barcode)
       asset = nil
 
       @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')
@@ -204,7 +204,7 @@ module Asset::Import
     end
 
     def find_or_import_asset_with_barcode(barcode)
-      find_asset_with_barcode(barcode) || import(barcode)
+      find_asset_with_barcode(barcode) || import_barcode(barcode)
     end
 
     def update_asset_from_remote_asset(asset, remote_asset, fact_changes)

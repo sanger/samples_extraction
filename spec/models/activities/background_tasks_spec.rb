@@ -52,12 +52,13 @@ RSpec.describe 'BackgroundTasks' do
 
   context '#background_tasks' do
 
-    it 'returns the list of inference tasks' do
-      step_types = 5.times.map { create :step_type}
-      reasoning_step_types = 4.times.map { create :step_type, { for_reasoning: true } }
+    it 'returns the list of inference tasks sorted by priority' do
+      step_types = 5.times.each_with_index.map {|i| create :step_type}
+      reasoning_step_types = 4.times.each_with_index.map {|i| create :step_type, { for_reasoning: true, priority: i } }
       activity.activity_type.update_attributes(step_types: step_types.concat(reasoning_step_types))
 
       expect(activity.background_tasks.count).to eq(reasoning_step_types.count)
+      expect(activity.background_tasks.map(&:step_type)).to eq(reasoning_step_types.reverse)
     end
   end
 end

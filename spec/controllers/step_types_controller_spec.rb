@@ -40,6 +40,16 @@ RSpec.describe StepTypesController, type: :controller do
     assert_redirected_to step_type_url(@step_type)
   end
 
+  it "should update priority for step_type" do
+    step_type = create :step_type
+    expect{
+      post :update, params: { id: step_type.id, step_type: step_type.attributes.merge({priority: 10}.as_json)}
+    }.to change{
+      step_type.reload
+      step_type.priority
+    }.to(10)
+  end
+
   it "should destroy step_type" do
     expect{
       delete :destroy, params: { id: @step_type }

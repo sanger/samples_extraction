@@ -20,6 +20,9 @@
   <div class="field step_type_for_reasoning">
     <%= f.check_box :for_reasoning, :value => false, :disabled => readonly %>
   </div>
+  <div class="field step_type_priority">
+    <%= f.text_field :priority, :readonly => readonly %>
+  </div>
   <div class="field for-reasoning">
     <%= f.select :step_action, options_for_select( [['None',nil]].concat((step_type.all_step_actions).map{|sa| [sa, sa]}),
 	step_type.step_action || nil), {}, disabled: readonly %>

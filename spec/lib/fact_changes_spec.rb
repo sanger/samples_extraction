@@ -642,6 +642,16 @@ RSpec.describe FactChanges do
         end
       end
     end
+    context 'with several operations' do
+      let(:updates) { FactChanges.new }
+      context 'when you add and remove the same fact' do
+        it 'does not include neither in the apply' do
+          updates.create_assets(["?p", "?q"])
+          updates.add("?p", "transfer", "?q")
+          updates.remove_where("?p", "transfer", "?q")
+        end
+      end
+    end
     context 'with several operations using wildcards' do
       let(:updates) { FactChanges.new }
       before do

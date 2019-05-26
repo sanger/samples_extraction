@@ -1,5 +1,8 @@
+require 'actions/tube_transfer'
+
 class TransferTubesToTubeRackByPosition
   attr_reader :asset_group
+  include Actions::TubeTransfer
   def initialize(params)
     @asset_group = params[:asset_group]
   end
@@ -47,6 +50,7 @@ class TransferTubesToTubeRackByPosition
 
             updates.add(asset, 'transfer', well)
             updates.add(well, 'transferredFrom', asset)
+            updates.merge(transfer_tubes(asset, well))
             updates.remove(asset.facts.with_predicate('transferToTubeRackByPosition'))
           end
         end

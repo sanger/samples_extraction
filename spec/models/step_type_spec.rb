@@ -9,6 +9,24 @@ end
 RSpec.describe StepType, type: :model do
   it_behaves_like "deprecatable"
 
+  describe '#for_reasoning' do
+    it 'returns only step types for running in background sorted by priority' do
+      create :step_type, name: 'Other', for_reasoning: true
+      create :step_type, for_reasoning: false
+      create :step_type, for_reasoning: true
+      create :step_type, name: 'Not background', for_reasoning: false, priority: 5000
+      create :step_type, name: 'Third', for_reasoning: true, priority: 10
+      create :step_type, name: 'First', for_reasoning: true , priority: 1000
+      create :step_type, name: 'Second', for_reasoning: true , priority: 50
+
+      expect(StepType.all.for_reasoning.first.name).to eq('First')
+      expect(StepType.all.for_reasoning[1].name).to eq('Second')
+      expect(StepType.all.for_reasoning[2].name).to eq('Third')
+      expect(StepType.all.for_reasoning.pluck(:name).include?('Other')).to eq(true)
+      expect(StepType.all.for_reasoning.pluck(:name).include?('Not background')).to eq(false)
+    end
+  end
+
   describe '#for_task_type' do
     it 'returns the step types for that task_type' do
       runners = 2.times.map { create(:step_type, step_action: 'myscript.rb') }

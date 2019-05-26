@@ -37,10 +37,21 @@ module Steps::ExecutionActions
       activity.save
     end
 
-    step_execution = StepExecution.new(step: self, asset_group: asset_group)
     ActiveRecord::Base.transaction do |t|
-      step_execution.run
+      step_execution = StepExecution.new(step: self, asset_group: asset_group)
 
+      step_execution.run
+    end
+    ActiveRecord::Base.transaction do |t|
+      unless step_type.step_action.nil? || step_type.step_action.empty?
+        runner = InferenceEngines::Runner::StepExecution.new(
+          :step => self,
+          :asset_group => asset_group,
+          :created_assets => {},
+          :step_types => [step_type]
+        )
+        runner.run
+      end
     end
     update_attributes(:state => 'running')
   end

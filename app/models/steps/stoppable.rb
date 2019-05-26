@@ -13,6 +13,7 @@ module Steps::Stoppable
       on_stop
     elsif (state == 'stop') && (state_was != 'stop')
       on_stop
+      cancel if cancellable?
     elsif (state == 'complete') && (state_was == 'stop')
       on_continue
     end

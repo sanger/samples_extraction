@@ -1,7 +1,7 @@
-require 'actions/plate_transfer'
+require 'actions/tube_transfer'
 
 class TransferSamples
-  include Actions::PlateTransfer
+  include Actions::TubeTransfer
 
   attr_reader :asset_group
   def initialize(params)
@@ -37,25 +37,9 @@ class TransferSamples
       if assets_compatible_with_step_type
         each_asset_and_modified_asset do |asset, modified_asset|
           updates.add(modified_asset, 'is', 'Used')
-          if (asset.has_predicate?('sample_tube'))
-            updates.add(modified_asset, 'sample_tube', asset.facts.with_predicate('sample_tube').first.object_asset)
-          end
-          if (asset.has_predicate?('study_name'))
-            updates.add(modified_asset, 'study_name', asset.facts.with_predicate('study_name').first.object)
-          end
-
-          asset.facts.with_predicate('sanger_sample_id').each do |aliquot_fact|
-            updates.add(modified_asset, 'sanger_sample_id', aliquot_fact.object)
-            updates.add(modified_asset, 'sample_id', aliquot_fact.object)
-          end
-          unless modified_asset.has_predicate?('aliquotType')
-            asset.facts.with_predicate('aliquotType').each do |aliquot_fact|
-              updates.add(modified_asset, 'aliquotType', aliquot_fact.object)
-            end
-          end
           updates.add(modified_asset, 'transferredFrom', asset)
 
-          updates.merge(transfer(asset, modified_asset))
+          updates.merge(transfer_tubes(asset, modified_asset))
         end
       end
     end
