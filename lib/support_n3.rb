@@ -64,15 +64,15 @@ module SupportN3
   def self.create_fact(quad, quads, create_assets=true, created_assets=[])
     asset = build_asset(SupportN3::fragment(quad[0]), create_assets, created_assets)
     if is_literal?(quad[2], quads)
-      asset.add_facts([Fact.create(
+      asset.facts << Fact.create(
         :predicate => SupportN3::fragment(quad[1]),
-        :object => SupportN3::fragment(quad[2]))])
+        :object => SupportN3::fragment(quad[2]))
     else
       related_asset = build_asset(SupportN3::fragment(quad[2]), create_assets, created_assets)
-      asset.add_facts([Fact.create(:predicate => SupportN3::fragment(quad[1]),
-        :object_asset => related_asset, :literal => false)])
+      asset.facts << Fact.create(:predicate => SupportN3::fragment(quad[1]),
+        :object_asset => related_asset, :literal => false)
     end
-    asset    
+    asset
   end
 
   def self.parse_facts(input, options = {}, create_assets=true)
@@ -170,11 +170,11 @@ module SupportN3
     end
 
     def fragment(k)
-      k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/,'')
+      k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/,'').gsub(/_[0-9][0-9][0-9][0-9][0-9][0-9].*$/,'')
     end
 
     def self.fragment(k)
-      k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/,'')
+      k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/,'').gsub(/_[0-9][0-9][0-9][0-9][0-9][0-9].*$/,'')
     end
 
 

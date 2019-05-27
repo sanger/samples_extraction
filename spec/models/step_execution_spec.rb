@@ -8,29 +8,29 @@ RSpec.describe Condition, type: :model do
     setup do
       @assets = 5.times.map do |i|
         facts = [
-          FactoryGirl.create(:fact, {:predicate => 'a', :object => 'Tube'})
+          FactoryBot.create(:fact, {:predicate => 'a', :object => 'Tube'})
         ]
         aliquot = ((i % 2) == 0) ? 'DNA' : 'RNA'
-        facts.push(FactoryGirl.create(:fact, {:predicate => 'aliquotType', :object => aliquot}))
-        FactoryGirl.create(:asset, :facts => facts)
+        facts.push(FactoryBot.create(:fact, {:predicate => 'aliquotType', :object => aliquot}))
+        FactoryBot.create(:asset, :facts => facts)
       end
 
       @wells = 5.times.map do |i|
         facts = [
-          FactoryGirl.create(:fact, {:predicate => 'a', :object => 'Well'})
+          FactoryBot.create(:fact, {:predicate => 'a', :object => 'Well'})
         ]
         aliquot = ((i % 2) == 0) ? 'DNA' : 'RNA'
         aliquot = 'RNA'
-        facts.push(FactoryGirl.create(:fact, {:predicate => 'aliquotType', :object => aliquot}))
-        FactoryGirl.create(:asset, :facts => facts)
+        facts.push(FactoryBot.create(:fact, {:predicate => 'aliquotType', :object => aliquot}))
+        FactoryBot.create(:asset, :facts => facts)
       end      
-      @rack = FactoryGirl.create :asset
-      @rack.add_facts(FactoryGirl.create(:fact, {:predicate => 'a', :object => 'Rack'}))
-      @rack.add_facts(@wells.map {|well| FactoryGirl.create(:fact, {:predicate => 'contains', :object_asset => well})})
+      @rack = FactoryBot.create :asset
+      @rack.facts << (FactoryBot.create(:fact, {:predicate => 'a', :object => 'Rack'}))
+      @rack.facts << (@wells.map {|well| FactoryBot.create(:fact, {:predicate => 'contains', :object_asset => well})})
 
       @assets = @assets.concat([@wells, @rack]).flatten
 
-      @step_type = FactoryGirl.create :step_type
+      @step_type = FactoryBot.create :step_type
     end
     it 'uses the wildcards to apply the step' do
       rule = "{ \
@@ -52,11 +52,11 @@ RSpec.describe Condition, type: :model do
       wildcards = {}
       expect(@step_type.compatible_with?(@assets, nil, checked, wildcards)).to eq(true)
 
-      @asset_group = FactoryGirl.create(:asset_group, :assets => @assets)
+      @asset_group = FactoryBot.create(:asset_group, :assets => @assets)
 
       created_assets = {}
       @step_execution = StepExecution.new({
-        :step => Step.new(:step_type => @step_type, :asset_group => @asset_group),
+        :step => Step.new(:step_type => @step_type, :asset_group => @asset_group, wildcard_values: wildcards),
         :asset_group => @asset_group, :created_assets => created_assets})
       @step_execution.run
 

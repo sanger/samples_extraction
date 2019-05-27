@@ -30,11 +30,6 @@
                       <% else %>
                         <%= render :partial => 'operations/operations', :locals => {
                           :operations => step.operations.for_presenting } %>
-                        <% step.uploads.each do |upload| %>
-                          <tr>
-                            <td></td>
-                          </tr>
-                      <% end %>                      
                       <% end %>
                     </tbody>
                   </table>

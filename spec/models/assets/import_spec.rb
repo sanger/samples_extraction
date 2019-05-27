@@ -34,9 +34,9 @@ RSpec.describe 'Asset::Import' do
       let(:SequencescapeClient) { double('sequencescape_client') }
 
 			setup do
-        
+
         @remote_plate_asset = build_remote_plate(barcode: '2')
-        @barcode_plate = @remote_plate_asset.barcode 
+        @barcode_plate = @remote_plate_asset.barcode
         stub_client_with_asset(SequencescapeClient, @remote_plate_asset)
 			end
 
@@ -71,12 +71,12 @@ RSpec.describe 'Asset::Import' do
                 build_remote_well('D1', aliquots: [build_remote_aliquot(sample: build_remote_sample(supplier: double('supplier', sample_name: 'a supplier name')))])
               ]
               @remote_plate_asset_without_supplier = build_remote_plate(barcode: '5', wells: wells)
-              stub_client_with_asset(SequencescapeClient, @remote_plate_asset_without_supplier)            
+              stub_client_with_asset(SequencescapeClient, @remote_plate_asset_without_supplier)
             end
             it 'imports the information of the wells that have a supplier name ignoring the others' do
               @asset = Asset.find_or_import_asset_with_barcode(@remote_plate_asset_without_supplier.barcode)
               expect(@asset.facts.with_predicate('contains').count).to eq(2)
-              expect(@asset.facts.with_predicate('contains').map(&:object_asset).map do |w| 
+              expect(@asset.facts.with_predicate('contains').map(&:object_asset).map do |w|
                 w.facts.with_predicate('location').map(&:object)
               end.flatten).to eq(['C1','D1'])
             end
@@ -92,6 +92,7 @@ RSpec.describe 'Asset::Import' do
 
               it 'imports the information of the tube but does not set any supplier name' do
                 @asset = Asset.find_or_import_asset_with_barcode(@remote_tube_asset_without_supplier.barcode)
+                @asset.facts.reload
                 expect(@asset.facts.with_predicate('supplier_sample_name').count).to eq(0)
               end
             end
@@ -185,15 +186,15 @@ RSpec.describe 'Asset::Import' do
   		  		it 'should destroy any remote facts' do
   		  			remote_facts = @asset.facts.from_remote_asset
   		  			remote_facts.each(&:reload)
-  		  			Asset.find_or_import_asset_with_barcode(@barcode_plate)	
+  		  			Asset.find_or_import_asset_with_barcode(@barcode_plate)
   		  			expect{remote_facts.each(&:reload)}.to raise_exception ActiveRecord::RecordNotFound
   		  		end
-            
+
             it 'should destroy any contains dependant remote facts' do
               remote_facts = @asset.facts.with_predicate('contains').map(&:object_asset).map{|w| w.facts.from_remote_asset}.flatten
               remote_facts.each(&:reload)
-              Asset.find_or_import_asset_with_barcode(@barcode_plate) 
-              expect{remote_facts.each(&:reload)}.to raise_exception ActiveRecord::RecordNotFound            
+              Asset.find_or_import_asset_with_barcode(@barcode_plate)
+              expect{remote_facts.each(&:reload)}.to raise_exception ActiveRecord::RecordNotFound
             end
 
   		  		it 'should re-create new remote facts' do

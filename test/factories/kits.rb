@@ -1,6 +1,6 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :kit do
-    barcode  { FactoryGirl.generate :barcode }
+    barcode  { FactoryBot.generate :barcode }
   end
 
 end

@@ -2,7 +2,9 @@ require 'csv'
 
 module Parsers
   class CsvLayout
-    attr_reader :csv_parser, :errors, :data, :parsed
+    attr_reader :csv_parser, :errors, :data, :parsed, :parsed_changes
+
+    LOCATION_REGEXP = /^([A-H])(\d{1,2})$/
 
     def create_tubes?
       false
@@ -29,11 +31,17 @@ module Parsers
       location[0] + (location[1..location.length].to_i.to_s)
     end
 
-    def builder(barcode)
+    def builder(barcode, updater)
       if create_tubes?
         asset = Asset.find_by_barcode(barcode)
-        asset = Asset.create!(:barcode => barcode) unless asset
-        asset.add_facts([Fact.new(:predicate => 'a', :object => 'Tube')]);
+        unless asset
+          asset = Asset.new(barcode: barcode)
+          asset.generate_uuid!
+          updater.create_assets([asset])
+          updater.add(asset, 'barcode', barcode)
+          updater.add(asset , 'a', 'Tube')
+          updater.create_asset_groups(["?created_tubes"])
+        end
       else
         asset = Asset.find_by_barcode(barcode)
       end
@@ -41,7 +49,7 @@ module Parsers
     end
 
     def valid_location?(location)
-      !!location.match(/[A-H]\d\d/)
+      !location.nil? && !!location.match(LOCATION_REGEXP)
     end
 
     def valid_fluidx_barcode?(barcode)
@@ -49,13 +57,26 @@ module Parsers
     end
 
     def no_read_barcode?(barcode)
-      barcode.start_with?('No Read')
-    end    
+      barcode.downcase.start_with?('no read')
+    end
+
+    def convert_to_location(str)
+      if valid_location?(str)
+        matches = str.match(LOCATION_REGEXP)
+        num = matches[2]
+        if (num.length==1)
+          num = "0" + num.to_s
+        end
+        return matches[1] + num.to_s
+      end
+      return nil
+    end
 
     def parse
+      updater = FactChanges.new
       @data ||= @csv_parser.to_a.map do |line|
-        location, barcode = line[0].strip, line[1].strip
-        asset = valid_fluidx_barcode?(barcode) ? builder(barcode) : nil
+        location, barcode = convert_to_location(line[0].strip), line[1].strip
+        asset = valid_fluidx_barcode?(barcode) ? builder(barcode, updater) : nil
         @errors.push(:msg => "Invalid Fluidx tube barcode format #{barcode}") unless valid_fluidx_barcode?(barcode) || no_read_barcode?(barcode)
         @errors.push(:msg => "Invalid location") unless valid_location?(location)
 
@@ -64,7 +85,7 @@ module Parsers
         end
 
         {
-          :location => location_str(location),
+          :location => location,
           :asset => asset
         }
       end
@@ -81,6 +102,7 @@ module Parsers
       end
 
       @parsed = true
+      @parsed_changes = updater
       valid?
     end
 
@@ -93,43 +115,5 @@ module Parsers
       @data
     end
 
-    def add_facts_to(asset, step)
-      if valid?
-        asset.add_facts(Fact.create(:predicate => 'layout', :object => 'Complete'))
-        facts_to_remove = asset.facts.with_predicate('contains').map do |f|
-          [
-            f.object_asset.facts.with_predicate('parent'), 
-            f.object_asset.facts.with_predicate('location'),
-            f
-            ].flatten.compact
-        end.flatten.each do |f|
-          f.set_to_remove_by(step.id)
-        end
-        facts_to_add = @data.map do |obj|
-          next if obj[:asset].nil?
-          previous_parents = obj[:asset].facts.with_predicate('parent').map(&:object_asset)
-          if obj[:asset].respond_to? :facts
-            [
-              obj[:asset].facts.with_predicate(:location), 
-              obj[:asset].facts.with_predicate(:parent),
-              Fact.where(:predicate => 'contains', :object_asset => obj[:asset])
-            ].flatten.each do |f|
-              f.set_to_remove_by(step.id)
-            end
-          end
-          obj[:asset].add_facts([
-            Fact.create(:predicate => 'location', :object => obj[:location], :to_add_by => step.id),
-            Fact.create(:predicate => 'parent', :object_asset => asset, :to_add_by => step.id)
-          ])
-          obj[:asset].add_facts(previous_parents.map do |previous_parent|
-            Fact.create(:predicate => 'previousParent', :object_asset => previous_parent, :to_add_by => step.id)
-          end)
-          Fact.create(:predicate => 'contains', :object_asset => obj[:asset], :to_add_by => step.id)
-        end.compact
-        asset.add_facts(facts_to_add) if valid?
-        return valid?
-      end
-      return false
-    end
   end
 end

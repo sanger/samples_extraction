@@ -5,8 +5,8 @@ module InferenceEngines
   module Cwm
     class StepExecution
       include StepExecutionProcess
-      
-      attr_accessor :step, :asset_group, :original_assets, :created_assets, :facts_to_destroy
+
+      attr_accessor :step, :asset_group, :original_assets, :created_assets, :facts_to_destroy, :updates
 
       def initialize(params)
         @step = params[:step]
@@ -16,7 +16,7 @@ module InferenceEngines
         @facts_to_destroy = params[:facts_to_destroy]
 
         @step_types = params[:step_types] || [@step.step_type]
-
+        @updates = FactChanges.new
       end
 
       def debug_log(params)
@@ -31,19 +31,18 @@ module InferenceEngines
 
       def generate_plan
         output_tempfile = Tempfile.new('out_datainfer')
-
         call_list = [
           cmd = "#{Rails.configuration.cwm_path}/cwm",
           input_urls = [
-            Rails.application.routes.url_helpers.asset_group_url(@asset_group.id),
+            Rails.application.routes.url_helpers.asset_group_url(@asset_group.id)+".n3",
             @step_types.map do |step_type|
-              Rails.application.routes.url_helpers.step_type_url(step_type.id)
+              Rails.application.routes.url_helpers.step_type_url(step_type.id)+".n3"
             end
           ],
-          '--mode=r', 
+          '--mode=r',
           '--think'
         ].flatten
-        
+
         call_str = call_list.join(" ")
 
         line = "# EXECUTING: #{call_str}"
@@ -79,20 +78,10 @@ module InferenceEngines
           send(action_type, quads) if quads
         end
 
-        #@asset_group.assets.each(&:export!)
+        updates.apply(step)
+
       end
 
-      def self.UUID_REGEXP
-        /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
-      end
-
-      def is_uuid?(str)
-        str.match(self.class.UUID_REGEXP)
-      end
-
-      def uuid(str)
-        str.match(self.class.UUID_REGEXP)[0]
-      end
 
       def fragment(k)
         SupportN3::fragment(k)
@@ -101,7 +90,7 @@ module InferenceEngines
       def add_facts(graphs)
         graphs.each do |quads|
           quads.map do |quad|
-            asset = Asset.find_by!(:uuid => uuid(fragment(quad[0])))
+            asset = Asset.find_by!(:uuid => TokenUtil.uuid(fragment(quad[0])))
             add_quad_to_asset(quad,asset)
           end
         end
@@ -110,8 +99,8 @@ module InferenceEngines
       def equal_quad_and_fact?(quad, fact)
         return false if fact.predicate != fragment(quad[1])
         object = fragment(quad[2])
-        if is_uuid?(object)
-          return true if fact.object_asset == Asset.find_by(:uuid => uuid(object))
+        if TokenUtil.is_uuid?(object)
+          return true if fact.object_asset == Asset.find_by(:uuid => TokenUtil.uuid(object))
         else
           return true if fact.object == object
         end
@@ -121,12 +110,8 @@ module InferenceEngines
       def remove_facts(graphs)
         graphs.each do |quads|
           quads.map do |quad|
-            asset = Asset.find_by!(:uuid => uuid(fragment(quad[0])))
-            asset.remove_facts(asset.facts.select do |f|
-              equal_quad_and_fact?(quad, f)
-            end) do |f|
-              asset.add_operations([f], @step, 'removeFacts')
-            end
+            asset = Asset.find_by!(:uuid => TokenUtil.uuid(fragment(quad[0])))
+            updates.remove(asset.facts.select {|f| equal_quad_and_fact?(quad, f) })
           end
         end
       end
@@ -135,14 +120,11 @@ module InferenceEngines
         object = fragment(quad[2])
         object_asset = nil
         literal = true
-        if is_uuid?(object)
-          object_asset = Asset.find_by(:uuid => uuid(object))
+        if TokenUtil.is_uuid?(object)
+          object_asset = Asset.find_by(:uuid => TokenUtil.uuid(object))
           literal = false if object_asset
         end
-        asset.add_facts(Fact.new(:predicate => fragment(quad[1]), :object => object, 
-          :object_asset => object_asset, :literal => literal)) do |f|
-          asset.add_operations([f], @step, action_type)
-        end
+        updates.add(asset, fragment(quad[1]), object || object_asset)
       end
 
       def create_asset(graphs)

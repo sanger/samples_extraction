@@ -1,11 +1,17 @@
-<% unless asset.nil? %>
- <<%= n3_url_resource_for(asset.uuid) %>> se:barcode """<%= asset.barcode %>""" .
-  <% asset.facts.includes(:object_asset).each do |f| %>
-    <<%= n3_url_resource_for(asset.uuid) %>> se:<%= f.predicate %> <%= object_for(f) %> .
-    <% unless f.object_asset.nil? %>
-      <% if traversable_predicate(f.predicate) %>
-        <%= render partial: 'assets/asset', locals: {asset: f.object_asset} %>
+<% if asset.uploaded_file.nil? %>
+  <% unless asset.nil? %>
+   <<%= n3_url_resource_for(asset.uuid) %>> se:barcode """<%= asset.barcode %>""" .
+    <% asset.facts.includes(:object_asset).each do |f| %>
+      <<%= n3_url_resource_for(asset.uuid) %>> se:<%= f.predicate %> <%= object_for(f) %> .
+      <% unless f.object_asset.nil? %>
+        <% if traversable_predicate(f.predicate) %>
+          <%= render partial: 'assets/asset', locals: {asset: f.object_asset} %>
+        <% end %>
       <% end %>
     <% end %>
   <% end %>
+<% else %>
+  <%= render partial: 'uploaded_files/uploaded_file', locals: { uploaded_file: asset.uploaded_file } %>
 <% end %>
+
+

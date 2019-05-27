@@ -13,11 +13,13 @@
  *= require_tree .
  *= require_self
  *= require dropzone/dropzone
+ *= require react-fine-uploader/gallery/gallery.css
  * require peek
  * require peek/views/performance_bar
  */
 @import "bootstrap-sprockets";
 @import "bootstrap";
+
 
 /*.navbar .nav .underlined {
     border-color: #e7e7e7;
@@ -290,7 +292,7 @@ svg {
 
 @media (max-width: 767px){
   body nav .navbar-right .user-status { display:none;}
-  body nav .navbar-header .user-status { 
+  body nav .navbar-header .user-status {
     display:block; position:relative; float:right;
     margin-top: 8px; margin-right: 0.5em;
     .user-status-description-text { display:none;}
@@ -363,3 +365,5 @@ svg.enlarge { cursor: -webkit-zoom-out; }
 .fact {cursor: pointer;}
 
 .max-svg-size { max-width: 500px;}
+
+.svg-small-size { height: 150px; }

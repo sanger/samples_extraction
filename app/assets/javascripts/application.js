@@ -13,10 +13,10 @@
 //= require jquery
 //= require jquery_ujs
 //= require js.cookie
-//= require turbolinks
 //= require_tree .
 //= require bootstrap-sprockets
 //= require dropzone
+//= require action_cable
 
 //= require component_builder
 //= require upload_file
@@ -46,4 +46,5 @@
 //    require_asset "peek"
 //    require_asset "peek/views/performance_bar"
 
-
+window.App = {}
+window.App.cable=ActionCable.createConsumer()

@@ -1,5 +1,5 @@
 class UserSessionsController < ApplicationController
-  before_filter :set_user, only: :create
+  before_action :set_user, only: :create
 
   def create
     session[:token] = @user.generate_token

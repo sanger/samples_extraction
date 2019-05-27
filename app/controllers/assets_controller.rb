@@ -11,13 +11,13 @@ class AssetsController < ApplicationController
   end
 
   def search
-    @assets = Asset.assets_for_queries(@queries)
-    @activities = @assets.map(&:activities)
-    @steps = Step.for_assets(@assets)
-
+    @start_time = Time.now
+    @assets = Asset.assets_for_queries(@queries).includes(:facts)
     # For printing
-    @asset_group = AssetGroup.create!
-    @asset_group.add_assets(@assets)
+    unless @assets.empty?
+      @asset_group = AssetGroup.create!
+      @asset_group.add_assets(@assets)
+    end
 
     respond_to do |format|
       format.html { render :search, layout: false }
@@ -38,7 +38,7 @@ class AssetsController < ApplicationController
     respond_to do |format|
       format.html { render :show }
       format.n3 { render :show }
-    end    
+    end
   end
 
 
@@ -74,7 +74,7 @@ class AssetsController < ApplicationController
 
       if @asset.update(@prepared_params)
         @asset.touch
-        
+
         format.html { redirect_to @asset, notice: 'Asset was successfully updated.' }
         format.json { render :show, status: :ok, location: @asset }
       else

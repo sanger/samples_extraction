@@ -1,0 +1,42 @@
+class PrintBarcodes
+  attr_reader :asset_group, :step
+  def initialize(params)
+    @asset_group = params[:asset_group]
+    @step = params[:step]
+  end
+
+  # %Q{
+  #   {
+  #     ?asset :is :readyForPrint .
+  #     ?username :a :CurrentUser .
+  #     ?tubePrinter :a :TubePrinter .
+  #   } => {
+  #     :step :action :print .
+  #     :step :firstArg ?tubePrinter .
+  #     :step :secondArg ?username .
+  #     :step :removeFacts { ?asset :is :readyForPrint . }.
+  #   } .
+  # }
+
+  def assets_compatible_with_step_type
+    asset_group.assets.with_fact('is', 'readyForPrint').count > 0
+  end
+
+  def process
+    FactChanges.new.tap do |updates|
+      if assets_compatible_with_step_type
+        asset_group.assets.each do |asset|
+          asset.print(printer_config, user.username)
+          # Do not print again unless the step fails
+          updates.remove(Fact.where(asset: asset, predicate: 'is', object: 'readyForPrint'))
+        end
+      end
+    end
+  end
+
+end
+
+args = ARGV[0]
+asset_group_id = args.match(/(\d*)\.json/)[1]
+asset_group = AssetGroup.find(asset_group_id)
+puts PrintBarcodes.new(asset_group: asset_group).process.to_json

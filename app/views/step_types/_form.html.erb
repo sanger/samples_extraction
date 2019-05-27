@@ -1,7 +1,7 @@
 
 
 
-<%= bootstrap_form_for(step_type, :html => { :"data-psd-component-class" => "ConditionGroups", :"data-psd-component-parameters" => @step_type.condition_groups_init}) do |f| %>
+<%= bootstrap_form_for(step_type, :html => { :"data-psd-component-class" => "ConditionGroups", :"data-psd-component-parameters" => condition_groups_init_for_step_type(@step_type)}) do |f| %>
   <% if step_type.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(step_type.errors.count, "error") %> prohibited this step_type from being saved:</h2>
@@ -20,6 +20,10 @@
   <div class="field step_type_for_reasoning">
     <%= f.check_box :for_reasoning, :value => false, :disabled => readonly %>
   </div>
+  <div class="field for-reasoning">
+    <%= f.select :step_action, options_for_select( [['None',nil]].concat((step_type.all_step_actions).map{|sa| [sa, sa]}),
+	step_type.step_action || nil), {}, disabled: readonly %>
+  </div>
   <div class="field not-for-reasoning">
     <%= f.select :connect_by, options_for_select([['All', nil], ['By position', 'position']], step_type.connect_by), {}, :disabled => readonly %>
   </div>
@@ -30,7 +34,7 @@
       else
         [a, a]
       end
-    end, step_type.step_template || ''), {},
+    end, step_type.step_template || nil), {},
     :disabled => readonly %>
   </div>
 
@@ -61,7 +65,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <%= f.submit :class => 'btn btn-default update-n3' %>
+        <%= f.submit :class => 'btn btn-primary update-n3' %>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
@@ -73,7 +77,7 @@
   <div class="actions">
     <% unless readonly %>
       <button class='btn btn-default show-n3' data-toggle="modal" data-target="#editorContainer">Edit N3</button>
-      <%= f.submit :class => 'btn btn-default',"data-psd-condition-groups-save"=>true %>
+      <%= f.submit :class => 'btn btn-primary',"data-psd-condition-groups-save"=>true %>
     <% end %>
   </div>
 <script type="text/javascript">

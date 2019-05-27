@@ -2,16 +2,15 @@
 <html>
 <head>
   <title>SamplesExtraction</title>
-  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
-  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <%= stylesheet_link_tag    'application', media: 'all' %>
+  <%= javascript_include_tag 'application' %>
+  <%= javascript_pack_tag 'activity_pack' %>
+  <%= stylesheet_pack_tag 'activity_pack' %>
   <%= csrf_meta_tags %>
   <meta name="turbolinks-cache-control" content="no-cache">
 </head>
-<body data-no-turbolink="true">
+<body>
 
-  <% if (ENV["RAILS_ENV"] == :debug) %>
-     <%= render 'peek/bar' %>
-  <% end %>
 <%= render 'header' %>
 
 <div style="width: 100%; display:table;">

@@ -1,11 +1,11 @@
 module ApplicationHelper
+  UNKNOWN_ALIQUOT_TYPE = 'unknown-aliquot'
+
   def bootstrap_link_to(name = nil, options = nil, html_options = nil, &block)
     modified_options = {:class => 'btn btn-default'}
     modified_options.merge!(html_options) if html_options
     link_to(name, options, modified_options)
   end
-
-  UNKNOW_ALIQUOT_TYPE = 'unknown-aliquot'
 
   def default_ontologies
     [
@@ -48,42 +48,67 @@ module ApplicationHelper
     end
   end
 
-  def data_rack_display(facts)
-    #return '' unless facts.first.class == Fact
-    f = facts.select{|f| f.predicate == 'aliquotType'}.first
+  def render_react_display_for_asset(asset)
+    data_asset_display = {}.tap {|o| o[asset.uuid]=data_asset_display(asset.facts) }
+    react_component('FactsSvg',  { asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
+  end
+
+  def facts_with_object_asset(facts)
+    facts.left_outer_joins(:object_asset).to_a.map {|f| f.attributes.merge({object_asset: object_with_facts(f.object_asset)})}
+  end
+
+  def object_with_facts(object)
+    return nil if object.nil?
+    object.attributes.merge(facts: object.facts)
+  end
+
+  def render_react_display_and_facts_for_asset(asset)
+    data_asset_display = {}.tap {|o| o[asset.uuid]=data_asset_display(asset.facts) }
+    react_component('Facts',  { asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
+  end
+
+  def data_asset_display(facts)
+    f = facts.with_predicate('aliquotType').first
     if f
-      return {:aliquot => {
-        :cssClass => [(f.object || UNKNOW_ALIQUOT_TYPE), facts.select{|f2| f2.predicate == 'is'}.map do |f_is|
+      obj = {:aliquot => {
+        :cssClass => [(f.object || UNKNOWN_ALIQUOT_TYPE), facts.with_predicate('is').map do |f_is|
           [f_is.predicate, f_is.object].join('-')
         end].compact.join(' '),
         :url => ((f.class==Fact) ? asset_path(f.asset) : '')
-        }}.to_json
+        }}
+
+      return obj
     end
 
-    unless facts.select{|f| f.predicate == 'contains'}.empty?
-      return facts.select{|f| f.predicate == 'contains'}.map do |fact|
+    unless facts.with_predicate('contains').empty?
+      return facts.with_predicate('contains').map do |fact|
         [fact.object_asset, fact.object_asset.facts] if (fact.class == Fact) && (fact.object_asset)
       end.compact.reduce({}) do |memo, list|
         asset, facts = list[0],list[1]
-        f = facts.select{|f| f.predicate == 'location'}.first
+        f = facts.with_predicate('location').first
         unless f.nil?
           location = f.object
-          f2 = facts.select{|f| f.predicate == 'aliquotType'}.first
+          location=location[0]+location[2] if location.length==3 && location[1]=="0"
+          f2 = facts.with_predicate('aliquotType').first
           aliquotType = f2 ? f2.object : nil
-          memo[location] = {:title => "#{asset.short_description}", :cssClass => aliquotType || UNKNOW_ALIQUOT_TYPE, :url => asset_path(asset)} unless location.nil?
+          memo[location] = {
+            :title => "#{asset.short_description}",
+            :cssClass => aliquotType || UNKNOWN_ALIQUOT_TYPE,
+            :url => asset_path(asset)
+          } unless location.nil?
         end
         memo
-      end.to_json
+      end
     end
 
     return {
       :aliquot => {
-        :cssClass => facts.select{|f| f.predicate == 'is'}.map do |f|
+        :cssClass => facts.with_predicate('is').map do |f|
           "#{f.predicate}-#{f.object}"
         end.join(' '),
         :url => ''
       }
-    }.to_json
+    }
   end
 
   def svg(name)

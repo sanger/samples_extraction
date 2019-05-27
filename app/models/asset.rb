@@ -1,23 +1,25 @@
 require 'sequencescape_client'
-require 'barcode'
 require 'date'
 
 require 'pry'
 
 class Asset < ActiveRecord::Base
-  include Lab::Actions
+  include Uuidable
   include Printables::Instance
   include Asset::Import
   include Asset::Export
+  include Assets::WebsocketEvents
+  include Assets::FactsManagement
 
-  alias_attribute :name, :uuid 
+  has_one :uploaded_file
+
+  alias_attribute :name, :uuid
 
   has_many :facts, :dependent => :delete_all
-  has_and_belongs_to_many :asset_groups
+  has_many :asset_groups_assets, dependent: :destroy
+  has_many :asset_groups, through: :asset_groups_assets
   has_many :steps, :through => :asset_groups
 
-  before_save :generate_uuid
-  #before_save :generate_barcode
 
 
   def update_compatible_activity_type
@@ -26,34 +28,19 @@ class Asset < ActiveRecord::Base
     end
   end
 
-  has_many :operations
+  has_many :operations, dependent: :nullify
 
   has_many :activity_type_compatibilities
   has_many :activity_types, :through => :activity_type_compatibilities
 
-#:class_name => 'Action', :foreign_key => 'subject_condition_group_id'
-  #has_many :activities_started, -> {joins(:steps)}, :class_name => 'Activity'
-  has_many :activities_started, -> { uniq }, :through => :steps, :source => :activity, :class_name => 'Activity'
-  has_many :activities, :through => :asset_groups
-
-  scope :with_fact, ->(predicate, object) {
-    joins(:facts).where(:facts => {:predicate => predicate, :object => object})
-  }
+  has_many :activities, -> { distinct }, :through => :steps
 
   scope :currently_changing, ->() {
     joins(:asset_groups, :steps).where(:steps => {:state => 'running'})
   }
 
-  scope :with_field, ->(predicate, object) {
-    where(predicate => object)
-  }
-
-  scope :with_predicate, ->(predicate) {
-    joins(:facts).where(:facts => {:predicate => predicate})
-  }
-
   scope :for_activity_type, ->(activity_type) {
-    joins(:activities_started).joins(:facts).where(:activities => { :activity_type_id => activity_type.id}).order("activities.id")
+    joins(:activities).where(:activities => { :activity_type_id => activity_type.id})
   }
 
   scope :not_started, ->() {
@@ -87,84 +74,16 @@ class Asset < ActiveRecord::Base
     where("activity_type_step_types.activity_type_id = ? and activity_type_step_types.step_type_id = ? and condition_groups.id in (?)", activity_type, st_checks[0], st_checks[1])
   }
 
-
-  #def self.assets_compatible_with_activity_type(assets, activity_type)
-  # scope :assets_compatible_with_activity_type, ->(assets, activity_type) {
-  #   select do |asset|
-  #     activity_type.step_types.any? do |s|
-  #       s.condition_groups.all? do |cg|
-  #         cg.compatible_with?(asset)
-  #       end
-  #     end
-  #   end
-  # }
-
-  def add_facts(list, position=nil, &block)
-    updated = false
-    updated_fact = false
-    ActiveRecord::Base.transaction do |t|
-      list = [list].flatten
-      list.each do |fact|
-        unless has_fact?(fact)
-          if ((fact.position.nil?) || (fact.position == position))
-            facts << fact
-            if fact.predicate == 'barcode'
-              update_attributes(:barcode => fact.object)
-            end
-            if fact.predicate == 'uuid'
-              update_attributes(:uuid => fact.object)
-            end            
-            yield fact if block_given?
-          end
-          updated_fact = true
-        end
+  scope :assets_for_queries, ->(queries) {
+    first_elem = Asset.first
+    queries.reduce(self) do |memo, query|
+      if first_elem && first_elem.has_attribute?(query.predicate)
+        memo.with_field(query.predicate, query.object)
+      else
+        memo.with_fact(query.predicate, query.object)
       end
-      # If the loop has an exception, updated wont be set to true
-      updated = updated_fact
     end
-    touch unless new_record?
-    updated
-  end
-
-  def remove_facts(list, &block)
-    updated = false
-    updated_fact = false
-    ActiveRecord::Base.transaction do |t|
-      list = [list].flatten
-      list.each do |fact|
-        yield fact if block_given?
-        if fact.object_asset
-          facts.where(predicate: fact.predicate, object_asset: fact.object_asset).each(&:destroy)
-        elsif fact.object
-          facts.where(predicate: fact.predicate, object: fact.object).each(&:destroy)
-        end
-        updated_fact = true
-      end
-      updated = updated_fact
-    end
-    updated
-  end
-
-  def add_fact(predicate, object, step=nil)
-    fact = {predicate: predicate, literal: object.kind_of?(Asset)}
-    fact[:literal] ? fact[:object_asset] = object : fact[:object] = object
-    add_facts([Fact.create(fact)], nil)
-  end
-
-  def add_operations(list, step, action_type = 'addFacts')
-    list.each do |fact|
-      Operation.create!(:action_type => action_type, :step => step,
-        :asset=> self, :predicate => fact.predicate, :object => fact.object, object_asset: fact.object_asset)
-    end
-  end
-
-  def remove_operations(list, step)
-    list.each do |fact|
-      Operation.create!(:action_type => 'removeFacts', :step => step,
-        :asset=> self, :predicate => fact.predicate, :object => fact.object, object_asset: fact.object_asset)    
-    end
-  end
-
+  }
 
   def short_description
     "#{aliquot_type} #{class_type} #{barcode.blank? ? '#' : barcode}".chomp
@@ -177,78 +96,6 @@ class Asset < ActiveRecord::Base
 
   def relation_id
     uuid
-  end
-
-  def has_literal?(predicate, object)
-    facts.any?{|f| f.predicate == predicate && f.object == object}
-  end
-
-  def has_predicate?(predicate)
-    facts.any?{|f| f.predicate == predicate}
-  end  
-
-  def has_fact?(fact)
-    facts.any? do |f|
-      if f.object.nil?
-        ((fact.predicate == f.predicate) && (fact.object_asset == f.object_asset) &&
-          (fact.to_add_by == f.to_add_by) && (fact.to_remove_by == f.to_remove_by))
-      else
-        other_conds=true
-        if fact.respond_to?(:to_add_by)
-          other_conds = (fact.to_add_by == f.to_add_by) && (fact.to_remove_by == f.to_remove_by)
-        end
-        ((fact.predicate == f.predicate) && (fact.object == f.object) && other_conds)
-      end
-    end
-  end
-
-  def self.assets_for_queries(queries)
-    queries.map do |query|
-      if Asset.first && Asset.first.has_attribute?(query.predicate)
-        Asset.with_field(query.predicate, query.object)
-      else
-        Asset.with_fact(query.predicate, query.object)
-      end
-    end.reduce([]) do |memo, result|
-      if memo.empty?
-        result
-      else
-        result & memo
-      end
-    end
-  end
-
-
-  def facts_to_s
-    facts.each do |fact|
-      render :partial => fact
-    end
-  end
-
-  def object_value(fact)
-    fact.object_asset ? fact.object_asset.uuid : fact.object
-  end
-
-  def condition_groups_init
-    obj = {}
-    obj[barcode] = { :template => 'templates/asset_facts'}
-    obj[barcode][:facts]=facts.map do |fact|
-          {
-            :cssClasses => '',
-            :name => uuid,
-            :actionType => 'createAsset',
-            :predicate => fact.predicate,
-            :object_reference => fact.object_asset_id,
-            :object_label => fact.object_label,
-            :object => object_value(fact)
-          }
-        end
-
-    obj
-  end
-
-  def facts_for_reasoning
-    [facts, Fact.as_object(asset)].flatten
   end
 
   def reasoning!(&block)
@@ -272,23 +119,17 @@ class Asset < ActiveRecord::Base
     raise 'Too many iterations while reasoning...' if num_iterations > 10
   end
 
-  def generate_uuid
-    update_attributes(:uuid => SecureRandom.uuid) if uuid.nil?
-  end
-
-  def generate_barcode(i)
+  def generate_barcode
     save
     if barcode.nil?
-      update_attributes(:barcode => Barcode.calculate_barcode(Rails.application.config.barcode_prefix,self.id))
+      update_attributes({
+        barcode: SBCF::SangerBarcode.new({
+          prefix: Rails.application.config.barcode_prefix,
+          number: self.id
+          }).human_barcode
+        }
+      )
     end
-    # if barcode.nil?
-    #   generated_barcode = Barcode.calculate_barcode(Rails.application.config.barcode_prefix,Asset.count+i)
-    #   if find_by(:barcode =>generated_barcode).nil?
-    #     update_attributes(:barcode => generated_barcode) 
-    #   else
-        
-    #   end
-    # end
   end
 
   def attrs_for_sequencescape(traversed_list = [])
@@ -321,21 +162,15 @@ class Asset < ActiveRecord::Base
     hash
   end
 
-  def method_missing(sym, *args, &block)
-    list_facts = facts.with_predicate(sym.to_s.singularize)
-    return list_facts.map(&:object_value) unless list_facts.empty?
-    super(sym, *args, &block)
-  end
-
-  def respond_to?(sym, include_private = false)
-    (!facts.with_predicate(sym.to_s.singularize).empty? || super(sym, include_private))
-  end
-
   def study_and_barcode
     [study_name, barcode_sequencescaped].join(' ')
   end
 
   def barcode_sequencescaped
+    unless barcode.match(/^\d+$/)
+      return barcode.match(/\d+/)[0] if barcode.match(/\d+/)
+      return ""
+    end
     ean13 = barcode.rjust(13, '0')
     ean13.slice!(0,3)
     ean13.slice!(ean13.length-3,3)
@@ -358,24 +193,23 @@ class Asset < ActiveRecord::Base
           :top_left => DateTime.now.strftime('%d/%b/%y'),
           :top_right => info_line, #username,
           :bottom_right => study_and_barcode,
-          :bottom_left => Barcode.barcode_to_human(barcode) || barcode,
-          #:top_line => Barcode.barcode_to_human(barcode) || barcode,
-          #:bottom_line => bottom_line 
+          :bottom_left => barcode
         }
-      } 
+      }
     end
     return {:label => {
       :barcode => barcode,
-      :barcode2d => barcode,      
-      :top_line => Barcode.barcode_to_human(barcode) || barcode,
-      :bottom_line => info_line 
+      :barcode2d => barcode,
+      :top_line => barcode,
+      :bottom_line => info_line
       }
     }
   end
 
   def position_value
     val = facts.map(&:position).compact.first
-    val.nil? ? "" : "_#{(val.to_i+1).to_s}"
+    return "" if val.nil?
+    "_#{(val.to_i+1).to_s}"
   end
 
   def info_line
@@ -398,10 +232,6 @@ class Asset < ActiveRecord::Base
     return ''
   end
 
-
-  def first_value_for(predicate)
-    facts.with_predicate(predicate).first.object
-  end
 
   def position_name_for_symphony
     str = first_value_for('location')
@@ -483,7 +313,6 @@ class Asset < ActiveRecord::Base
   def validate_rack_content
     errors=[]
     errors.push(more_than_one_aliquot_type_validation)
-    #errors.push(duplicated_tubes_validation)
     errors
   end
 
@@ -492,9 +321,6 @@ class Asset < ActiveRecord::Base
   end
 
   def to_n3
-    #facts.map do |f|
-    #  "<#{uuid}> :#{f.predicate} " + (f.object_asset.nil? ? "\"#{f.object}\"" : "<#{f.object_asset.uuid}>") +" .\n"
-    #end.join('')
     render :n3
   end
 end

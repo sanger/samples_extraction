@@ -10,7 +10,7 @@ User.create(barcode: '1', username: 'admin', role: 'administrator')
 
 require 'support_n3'
 
-SupportN3::parse_file('lib/workflows/reracking.n3')
+SupportN3::parse_file('db/workflows/reracking.n3')
 
 reracking_activity_type = ActivityType.last
 kit_type = KitType.create(name: 'Re-Racking', activity_type: reracking_activity_type)
@@ -18,7 +18,7 @@ kit = Kit.create(barcode: '9999', kit_type: kit_type)
 instrument = Instrument.create(barcode: '9999', name: 'Re-Racking')
 instrument.activity_types << reracking_activity_type
 
-SupportN3::parse_file('lib/workflows/qiacube.n3')
+SupportN3::parse_file('db/workflows/qiacube.n3')
 
 activity_type = ActivityType.last
 
@@ -26,4 +26,22 @@ kt = KitType.create(name: 'qiacube', activity_type: activity_type)
 
 Kit.create(barcode: '1234', kit_type: kt)
 
+Printer.create(name: 'd304bc', printer_type: 'Plate', default_printer: true)
+Printer.create(name: 'e367bc', printer_type: 'Tube', default_printer: true)
+
 instrument.activity_types << activity_type
+
+runners = [
+  ['Aliquot type inference', 'aliquot_type_inference.rb'],
+  ['Print barcodes', 'print_barcodes.rb'],
+  ['Purpose name inference', 'purpose_name_inference.rb'],
+  ['Rack Layout', 'rack_layout.rb'],
+  ['Rack Layout creating tubes', 'rack_layout_creating_tubes.rb'],
+  ['Study name inference', 'study_name_inference.rb'],
+  ['Transfer plate to plate', 'transfer_plate_to_plate.rb'],
+  ['Transfer samples', 'transfer_samples.rb'],
+  ['Transfer tubes to tube rack by position', 'transfer_tubes_to_tube_rack_by_position.rb'],
+  ['Update Sequencescape', 'update_sequencescape.rb']
+].map{|l| StepType.create(name: l[0], step_action: l[1], for_reasoning: true) }
+
+reracking_activity_type.step_types << runners

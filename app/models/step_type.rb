@@ -5,8 +5,11 @@ class StepType < ActiveRecord::Base
   before_update :remove_previous_conditions
   after_save :create_next_conditions, :unless => :for_reasoning?
 
+  after_update :touch_activities
+
   has_many :activity_type_step_types, dependent: :destroy
   has_many :activity_types, :through => :activity_type_step_types
+  has_many :activities, ->{distinct}, through: :activity_types
   has_many :condition_groups, dependent: :destroy
   has_many :actions, dependent: :destroy
 
@@ -18,74 +21,82 @@ class StepType < ActiveRecord::Base
 
   scope :with_template, ->() { where('step_template is not null')}
 
+  def self.for_task_type(task_type)
+    select{|stype| stype.task_type == task_type }
+  end
+
   scope :for_reasoning, ->() { where(:for_reasoning => true)}
 
   scope :not_for_reasoning, ->() { where(:for_reasoning => false) }
+
+  def touch_activities
+    activities.each(&:touch)
+  end
 
   def after_deprecate
     superceded_by.activity_types << activity_types
     update_attributes!(:activity_types => [])
   end
 
-
-  def fact_css_classes
-    {
-      'addFacts' => 'glyphicon glyphicon-pencil',
-      'removeFacts' => 'glyphicon glyphicon-erase',
-      'createAsset' => 'glyphicon glyphicon-plus',
-      'selectAsset' => 'glyphicon glyphicon-eye-open',
-      'unselectAsset' => 'glyphicon glyphicon-eye-close',
-      'checkFacts' => 'glyphicon glyphicon-search'
-    }
-  end
-
   def all_step_templates
-    #Dir["app/views/step_types/step_templates/*"].concat([''])
-    ['', 'transfer_tube_to_tube', 'upload_file_step']
-    Dir["app/views/step_types/step_templates/*"].map do |s|
-      name = File.basename(s)
-      name.gsub!(/^_/, '')
-      name.gsub!(/\.html\.erb$/, '')
-      name
-    end.concat([''])
+    return ["", "upload_file"]
   end
 
-  def condition_groups_init
-    cgroups = condition_groups.reduce({}) do |memo, condition_group|
-      name = condition_group.name || "a#{condition_group.id}"
-      memo[name] = {
-        :cardinality => condition_group.cardinality,
-        :keepSelected => condition_group.keep_selected,
-        :facts =>  condition_group.conditions.map do |condition|
-          {
-            :cssClasses => fact_css_classes['checkFacts'],
-            :name => name,
-            :actionType => 'checkFacts',
-            :predicate => condition.predicate,
-            :object => condition.object
-          }
-        end
-      }
-      memo
-    end
-    agroups = actions.reduce(cgroups) do |memo, action|
-      name = action.subject_condition_group.name || "a#{action.subject_condition_group.id}"
-      memo[name]={
-        :facts => [],
-        :cardinality => action.subject_condition_group.cardinality,
-        :keepSelected => action.subject_condition_group.keep_selected
-      } unless memo[name]
-      memo[name][:facts].push({
-          :cssClasses => fact_css_classes[action.action_type],
-          :name => name,
-          :actionType => action.action_type,
-          :predicate => action.predicate,
-          :object => action.object
-        })
-      memo
-    end
-    agroups.to_json
+
+  def valid_name_file(names)
+    names.select{|l| l.match(/^[A-Za-z]/)}
   end
+
+  def all_background_steps_files
+    begin
+      valid_name_file(Dir.entries("lib/background_steps"))
+    rescue Errno::ENOENT => e
+      []
+    end
+  end
+
+  def all_inferences_files
+    begin
+      valid_name_file(Dir.entries("script/inferences"))
+    rescue Errno::ENOENT => e
+      []
+    end
+  end
+
+  def all_runners_files
+    begin
+      valid_name_file(Dir.entries("script/runners"))
+    rescue Errno::ENOENT => e
+      []
+    end
+  end
+
+  def all_step_actions
+    [#all_background_steps_files,
+      all_inferences_files,
+      all_runners_files].flatten
+  end
+
+  def task_type
+    return 'cwm' if for_reasoning? && (step_action.nil? || step_action.empty?)
+    return 'background_step' if step_action.nil? || step_action.empty?
+    return 'cwm' if step_action.end_with?('.n3')
+    return 'runner'
+  end
+
+  def class_for_task_type
+    if task_type=='cwm'
+      Activities::BackgroundTasks::Inference
+    elsif task_type=='runner'
+      Activities::BackgroundTasks::Runner
+    elsif task_type=='background_step'
+      Activities::BackgroundTasks::BackgroundStep
+      #["BackgroundSteps::", step_action.gsub(".rb","").classify].join.constantize
+    else
+      Step
+    end
+  end
+
 
   def create_next_conditions
     unless n3_definition.nil?
@@ -106,11 +117,11 @@ class StepType < ActiveRecord::Base
   def position_for_assets_by_condition_group(assets)
     all_cgroups = {}
     Hash[condition_group_classification_for(assets).map do |asset, cgroups|
-      [asset, Hash[cgroups.map do |cgroup|
+      [asset.id, Hash[cgroups.map do |cgroup|
         all_cgroups[cgroup] = 0 if all_cgroups[cgroup].nil?
         position = all_cgroups[cgroup]
         all_cgroups[cgroup] = all_cgroups[cgroup] + 1
-        [cgroup, position]
+        [cgroup.id, position]
       end]]
     end]
   end
@@ -172,29 +183,18 @@ class StepType < ActiveRecord::Base
     end
   end
 
-  def actions_for_condition_group(condition_group)
-  end
-
-  def actions_for(assets)
-    #condition_group_classification_for(assets)
-  end
-
-  def explain(assets)
-
-  end
-
   def classification_for(assets, cgroups)
     assets.reduce({}) do |memo, asset|
       memo[asset] = cgroups.select do |condition_group|
         condition_group.compatible_with?([asset].flatten)
       end
       memo
-    end    
+    end
   end
 
   def check_dependency_compatibility_for(asset, condition_group, assets)
-    check_cgs = condition_groups.select do |cg| 
-      cg.conditions.select{|c| c.object_condition_group == condition_group}.count > 0 
+    check_cgs = condition_groups.select do |cg|
+      cg.conditions.select{|c| c.object_condition_group == condition_group}.count > 0
     end
     return true if check_cgs.empty?
     ancestors = assets.select{|a| a.facts.any?{|f| f.object_asset == asset}}.uniq
@@ -211,29 +211,6 @@ class StepType < ActiveRecord::Base
 
   def to_n3
     render :n3
-    # return n3_definition if condition_groups.empty? || actions.empty?
-    # ["{",
-    # condition_groups.map(&:conditions).flatten.map do |c|
-    #   obj = c.object
-    #   obj = "\"#{obj}\"" unless c.object_condition_group
-    #   if c.object_condition_group
-    #     "\t?#{c.condition_group.name} :#{c.predicate} ?#{c.object_condition_group.name} ."
-    #   else
-    #     "\t?#{c.condition_group.name} :#{c.predicate} #{obj} ." 
-    #   end
-    # end, "} => {",
-    # actions.map do |a|
-    #   obj = a.object
-    #   obj = "\"#{obj}\"" unless a.object_condition_group
-    #   if a.object_condition_group
-    #     "\t:step :#{a.action_type} {?#{a.subject_condition_group.name} :#{a.predicate} ?#{a.object_condition_group.name}. } ."
-    #   else
-    #     "\t:step :#{a.action_type} {?#{a.subject_condition_group.name} :#{a.predicate} #{obj}. } ."
-    #   end
-    # end, 
-    # name ? "\t:step :stepTypeName \"#{name}\" ." : '',
-    # connect_by ? "\t:step :connectBy \"#{connect_by}\" ." : nil,
-    # "}."].flatten.compact.join("\n")
   end
 
 end

@@ -1,35 +1,36 @@
 require 'rails_helper'
 
 RSpec.describe StepsController, type: :controller do
-  context '#execute_actions' do
-    context 'when calling it in a background step' do
-      let(:step) { create :background_step, 
-        activity: create(:activity),
-        asset_group: create(:asset_group), step_type: create(:step_type) }
-      before do
-        allow_any_instance_of(step.class).to receive(:process)
-      end
-      context 'when the step is failed' do
-        before do
-          step.update_attributes(state: 'error')
-        end
-          
-        it 'reruns the step' do
-          post :execute_actions, id: step.id
-          step.reload
-          expect(step.state).to eq('complete')
-          expect(response.status).to eq(302)
-        end
-      end
+  let(:activity) { create(:activity)}
+  let(:asset_group) { create(:asset_group) }
+  let(:step_type) {create(:step_type)}
 
-      context 'when the step is not failed' do
-        it 'ignores the call to the action' do
-          post :execute_actions, id: step.id
-          step.reload
-          expect(step.state).not_to eq('complete')
-          expect(response.status).to eq(500)          
-        end
-      end
+  before do
+    session[:token] = 'mytoken'
+    @user = create :user, token: session[:token]
+  end
+
+  context '#create' do
+    it 'creates a new step' do
+      expect {
+        post :create, params: { activity_id: activity.id, step:{ asset_group_id: asset_group.id, step_type_id: step_type.id }}
+      }.to change{Step.all.count}
     end
   end
+  context '#update' do
+    let(:step) { create :background_step, 
+      state: state,
+      activity: activity,
+      asset_group: asset_group, step_type: step_type }
+
+    let(:state) { 'cancel'}
+
+    it 'changes the state for the step' do
+      post :update, params: { id: step.id, step: {state: 'complete'} }
+      step.reload
+      expect(step.state).to eq('complete')
+      expect(response.status).to eq(200)
+    end
+  end
+
 end

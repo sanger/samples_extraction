@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe ActivityTypesController, type: :controller do
   setup do
-    @activity_type = FactoryGirl.create :activity_type
+    @activity_type = FactoryBot.create :activity_type
   end
 
   it "should get index" do
@@ -17,30 +17,30 @@ RSpec.describe ActivityTypesController, type: :controller do
 
   it "should create activity_type" do
     expect{
-      post :create,  { activity_type: @activity_type.attributes}
+      post :create,  params: { activity_type: @activity_type.attributes}
     }.to change{ActivityType.count}.by(1)
 
     assert_redirected_to activity_type_path(assigns(:activity_type))
   end
 
   it "should show activity_type" do
-    get :show,  { id: @activity_type }
+    get :show,  params: { id: @activity_type }
     assert_response :success
   end
 
   it "should get edit" do
-    get :edit,  { id: @activity_type }
+    get :edit,  params: { id: @activity_type }
     assert_response :success
   end
 
   it "should update activity_type" do
-    patch :update,  { id: @activity_type, activity_type: @activity_type.attributes}
+    patch :update,  params: { id: @activity_type, activity_type: @activity_type.attributes}
     assert_redirected_to activity_type_path(assigns(:activity_type))
   end
 
   it "should destroy activity_type" do
     expect{
-      delete :destroy,  { id: @activity_type}
+      delete :destroy,  params: { id: @activity_type}
       }.to change{ActivityType.count}.by(-1)
 
     assert_redirected_to activity_types_path

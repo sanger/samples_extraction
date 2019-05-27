@@ -27,7 +27,7 @@ module InferencesHelper
       asset.facts.map do |fact|
         ":#{asset.name}\t:#{fact.predicate}\t#{fact.object_asset.nil? ? fact.object: ':'+fact.object_asset.name} ."
       end
-    end.flatten.join("\n")+"\n"
+    end.flatten.sort.join("\n")+"\n"
   end
 
   def assets_are_equal(expected_assets, obtained_assets)
@@ -39,14 +39,14 @@ module InferencesHelper
   end
 
   def build_step(rule, input_facts, options = {})
-    step_type = FactoryGirl.create(:step_type, :n3_definition => rule)
+    step_type = FactoryBot.create(:step_type, :n3_definition => rule)
 
     input_assets = SupportN3::parse_facts(input_facts, {}, false)
     reload_assets(input_assets)
     fail if input_assets.nil?
-    asset_group = FactoryGirl.create(:asset_group, {:assets => input_assets})
+    asset_group = FactoryBot.create(:asset_group, {:assets => input_assets})
 
-    FactoryGirl.create(:step, {
+    FactoryBot.create(:step, {
       :step_type => step_type,
       :asset_group => asset_group
     }.merge(options))
@@ -72,6 +72,7 @@ module InferencesHelper
     fail if input_facts.nil? || output_facts.nil? || rule.nil?
 
     step = build_step(rule, input_facts)
+    step.execute_actions
 
     asset_group = step.asset_group
     asset_group.assets.reload    

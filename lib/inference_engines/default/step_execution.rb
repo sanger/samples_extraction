@@ -1,14 +1,13 @@
 require 'inference_engines/default/actions/asset_actions'
 require 'inference_engines/default/actions/fact_actions'
-require 'inference_engines/default/actions/operation_actions'
 require 'inference_engines/default/actions/service_actions'
+require 'fact_changes'
 
 module InferenceEngines
   module Default
     class StepExecution
       include Actions::AssetActions
       include Actions::FactActions
-      include Actions::OperationActions
       include Actions::ServiceActions
 
       # Elements not modified during all lifetime of StepExecution instance
@@ -16,7 +15,7 @@ module InferenceEngines
       attr_accessor :asset_group
       attr_accessor :original_assets
 
-      # Elements not modified during 1 execution
+      # Elements not modified during execution of one action
       attr_accessor :asset
       attr_accessor :position
       attr_accessor :action
@@ -34,6 +33,8 @@ module InferenceEngines
       # Hash with the positions for each asset by condition group
       attr_accessor :positions_for_asset
 
+      attr_accessor :updates
+
       ACTION_TYPES = ['addFacts', 'removeFacts', 'createAsset', 'selectAsset', 'updateService']
 
       def initialize(params)
@@ -42,6 +43,7 @@ module InferenceEngines
         @original_assets= params[:original_assets]
         @created_assets= params[:created_assets]
         @facts_to_destroy = params[:facts_to_destroy]
+        @updates = FactChanges.new
       end
 
       def valid_action_type?
@@ -52,52 +54,48 @@ module InferenceEngines
         asset_group ? asset_group.assets : []
       end
 
-      # Identifies which asset acting as subject is compatible with which rule.
-      def classify_assets
-        perform_list = []
-
-        @positions_for_asset = step.step_type.position_for_assets_by_condition_group(asset_group_assets)
-
-        step.step_type.actions.includes([:subject_condition_group, :object_condition_group]).each do |r|
-          if r.subject_condition_group.nil?
-            raise RelationSubject, 'A subject condition group needs to be specified to apply the rule'
-          end
-          if (r.object_condition_group) && (!r.object_condition_group.is_wildcard?)
-            unless [r.subject_condition_group, r.object_condition_group].any?{|c| c.cardinality == 1}
-              # Because a condition group can refer to an unknown number of assets,
-              # when a rule relates 2 condition groups (?p :transfers ?q) we cannot
-              # know how to connect their assets between each other unless at least
-              # one of the condition groups has maxCardinality set to 1
-              msg = ['In a relation between condition groups, one of them needs to have ',
-                    'maxCardinality set to 1 to be able to infer how to connect its assets'].join('')
-              #raise RelationCardinality, msg
-            end
-          end
-          # If this condition group is referring to an element not matched (like
-          # a new created asset, for example) I cannot classify my assets with it
-          if (!step.step_type.condition_groups.include?(r.subject_condition_group))
-            perform_list.push([nil, r])
-          else
-            asset_group_assets.includes(:facts).each do |asset|
-              if r.subject_condition_group.compatible_with?(asset)
-                perform_list.push([asset, r, positions_for_asset[asset][r.subject_condition_group]])
-              end
-            end
-          end
-        end
-        perform_list.sort do |a,b|
-          if a[1].action_type=='createAsset'
+      def executable_actions_sorted
+        step.step_type.actions.includes([:subject_condition_group, :object_condition_group]).sort do |a,b|
+          [:create_asset, :add_facts, :remove_facts, :delete_asset, :select_asset, :unselect_asset]
+          if a.action_type=='createAsset'
             -1
-          elsif b[1].action_type=='createAsset'
+          elsif b.action_type=='createAsset'
             1
           else
-            a[1].action_type <=> b[1].action_type
+            a.action_type <=> b.action_type
+          end
+        end
+      end
+
+
+      # Identifies which asset acting as subject is compatible with which rule.
+      def each_sorted_executable_action_with_applicable_assets(&block)
+        # Classifies every asset in the asset group with every condition group, returning an object with
+        # { asset_id => { condition_group_id => position}}
+        @positions_for_asset = step.step_type.position_for_assets_by_condition_group(asset_group_assets)
+        executable_actions_sorted.each do |executable_action|
+          if executable_action.subject_condition_group.nil?
+            raise Steps::ExecutionErrors::RelationSubject, 'A subject condition group needs to be specified to apply the rule'
+          end
+
+          executable_action.run(asset_group_assets)
+
+          yield [executable_action]
+          # If this condition group is referring to an element not matched (like
+          # a new created asset, for example) I cannot classify any assets with it, so I run it as it is
+          if (!step.step_type.condition_groups.include?(executable_action.subject_condition_group))
+            yield [executable_action, nil, nil]
+          else
+            asset_group_assets.includes(:facts).each do |asset|
+              if executable_action.subject_condition_group.compatible_with?(asset)
+                yield [executable_action, asset, positions_for_asset[asset.id][executable_action.subject_condition_group.id]]
+              end
+            end
           end
         end
       end
 
       def perform_action(action, asset, position)
-        #puts "action=#{action.action_type}, asset=#{asset.name}, position=#{position}"
         @asset = asset
         @position = position
         @action = action
@@ -114,14 +112,19 @@ module InferenceEngines
       end
 
       def run
-        classify_assets.each do |asset, action, position|
-          if step.step_type.connect_by=='position'
-            perform_action(action, asset, position)
-          else
-            perform_action(action, asset, nil)
-          end
+        updates = executable_actions_sorted.reduce(FactChanges.new) do |updates, action|
+          action.run(asset_group, step.wildcard_values).merge(updates)
         end
         save_created_assets
+        updates.apply(step)
+        step.step_type.condition_groups.each do |cg|
+          if cg.keep_selected != true
+            assets = asset_group.classified_by_condition_group(cg)
+            assets.each do |asset|
+              asset_group.assets.delete(asset)
+            end
+          end
+        end
       end
 
     end

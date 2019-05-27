@@ -1,18 +1,18 @@
 module Steps::Cancellable
   def self.included(klass)
     klass.instance_eval do
-      scope :newer_than, ->(step) { where("id > #{step.id}")}
-      scope :older_than, ->(step) { where("id < #{step.id}")}
+      scope :newer_than, ->(step) { where("id > #{step.id}").includes(:operations, :step_type)}
+      scope :older_than, ->(step) { where("id < #{step.id}").includes(:operations, :step_type)}
 
       before_update :modify_related_steps
     end
   end
 
   def modify_related_steps
-    if state == 'cancel' && state_was == 'complete'
-      on_cancel
+    if (state == 'cancel' && (state_was == 'complete' || state_was == 'error'))
+      delay.on_cancel
     elsif state == 'complete' && state_was =='cancel'
-      on_remake
+      delay.on_remake
     end
   end
 
@@ -22,26 +22,41 @@ module Steps::Cancellable
 
   def steps_older_than_me
     activity.steps.older_than(self)
-  end  
+  end
 
   def on_cancel
     ActiveRecord::Base.transaction do
-      steps_newer_than_me.each{|s| s.cancel unless s.cancelled?}
-      operations.each(&:cancel)
+      fact_changes_for_option(:cancel, self).apply(self, false)
+      steps_newer_than_me.completed.each do |s|
+        fact_changes_for_option(:cancel, s).apply(s, false)
+      end
+      steps_newer_than_me.completed.update_all(state: 'cancel')
+      operations.update_all(cancelled?: true)
+    end
+    wss_event
+  end
+
+  def on_remake
+    ActiveRecord::Base.transaction do
+      steps_older_than_me.cancelled.each do |s|
+        fact_changes_for_option(:remake, s).apply(s, false)
+      end
+      steps_older_than_me.cancelled.update_all(state: 'complete')
+      fact_changes_for_option(:remake, self).apply(self, false)
+      operations.update_all(cancelled?: false)
+    end
+    wss_event
+  end
+
+  def fact_changes_for_option(option_name, step)
+    step.operations.reduce(FactChanges.new) do |updates, operation|
+      operation.generate_changes_for(option_name, updates)
+      updates
     end
   end
 
   def cancelled?
     state == 'cancel'
-  end
-
-  def on_remake
-    ActiveRecord::Base.transaction do
-      steps_older_than_me.each do |s|
-        s.remake if s.cancelled?
-      end
-      operations.each(&:remake)
-    end
   end
 
   def cancel

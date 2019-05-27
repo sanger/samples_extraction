@@ -20,22 +20,22 @@ RSpec.describe "Inference" do
         obtained_assets = SupportN3::parse_facts(code)
 
         f1 = [
-            FactoryGirl.create(:fact, {:predicate => 'name', :object => 'a name'}),
-            FactoryGirl.create(:fact, {:predicate => 'volume', :object => '17'})]
-        tube2 = FactoryGirl.create(:asset, :name => 'tube2', :facts => f1)
+            FactoryBot.create(:fact, {:predicate => 'name', :object => 'a name'}),
+            FactoryBot.create(:fact, {:predicate => 'volume', :object => '17'})]
+        tube2 = FactoryBot.create(:asset, :name => 'tube2', :facts => f1)
         f2 = [
-          FactoryGirl.create(:fact, {:predicate => 'relates', :object_asset => tube2})
+          FactoryBot.create(:fact, {:predicate => 'relates', :object_asset => tube2})
         ]
-        tube1 = FactoryGirl.create(:asset, :name => 'tube1', :facts=> f2)
-        tube3 = FactoryGirl.create(:asset)
+        tube1 = FactoryBot.create(:asset, :name => 'tube1', :facts=> f2)
+        tube3 = FactoryBot.create(:asset)
         f3 = [
-          FactoryGirl.create(:fact, {:predicate => 'relates', :object_asset => tube2})
+          FactoryBot.create(:fact, {:predicate => 'relates', :object_asset => tube2})
         ]
-        tube4 = FactoryGirl.create(:asset, :name => 'tube4', 
+        tube4 = FactoryBot.create(:asset, :name => 'tube4', 
           :facts => f3
         )
-        f4 = [FactoryGirl.create(:fact, {:predicate => 'volume', :object => '17'})]
-        tube5 = FactoryGirl.create(:asset, :name => 'tube2',
+        f4 = [FactoryBot.create(:fact, {:predicate => 'volume', :object => '17'})]
+        tube5 = FactoryBot.create(:asset, :name => 'tube2',
           :facts => f4)
 
         obtained_assets.each do |t|
@@ -56,6 +56,11 @@ RSpec.describe "Inference" do
 
 
     describe '#inferences' do
+      before do
+        # TODO
+        # This workaround is just for the createAsset test. Refactor candidate
+        allow(SecureRandom).to receive(:uuid).and_return('tube')
+      end
       inferences_data.each do |data|
         if data[:unless]
           if send(data[:unless])
