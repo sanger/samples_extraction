@@ -77,7 +77,9 @@ class FactsSvg extends React.Component {
 
     for (var key in data) {
       var node = $('.svg-'+this.props.asset.uuid+' .'+key);
-      node.addClass(data[key].cssClass);
+      // We want to reset all previous css but we also want to
+      // to keep the location, that is represented as a css class (key)
+      node.attr('class', key+' '+data[key].cssClass);
     }
   }
 

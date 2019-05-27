@@ -1,5 +1,5 @@
 return unless ARGV.any?{|s| s.match(".json")}
-TOTAL_NUMBER=10
+TOTAL_NUMBER=12
 
 tubes = TOTAL_NUMBER.times.map{|i| "?p#{i}"}
 samples = TOTAL_NUMBER.times.map{|i| "?q#{i}" }
