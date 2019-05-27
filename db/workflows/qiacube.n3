@@ -1,4 +1,9 @@
 :activityType :activityTypeName """AllPrep DNA/RNA/miRNA Universal""" .
+{} => {
+  :step :stepTypeName """Create 12 tubes""" .
+  :step :stepAction """create_12_tubes.rb""" .
+}.
+
 {
   ?tube   :a  :SampleTube .
   ?tube   :is   :NotStarted .
@@ -14,13 +19,13 @@
     ?dna_tube   :a  :Tube .
     ?dna_tube   :aliquotType  :DNA .
     ?dna_tube   :is  :Empty .
-    ?dna_tube   :groupNamePrefix """"DNA tubes""" .    
+    ?dna_tube   :groupNamePrefix """"DNA tubes""" .
   } .
   :step  :createAsset  {
     ?rnap_tube   :a  :Tube .
     ?rnap_tube   :aliquotType  :RNAP .
     ?rnap_tube   :is :Empty .
-    ?rnap_tube   :groupNamePrefix """"RNA+P tubes""" .    
+    ?rnap_tube   :groupNamePrefix """"RNA+P tubes""" .
   } .
 } .
 
@@ -58,7 +63,7 @@
   ?rnap_tube   :maxCardinality   """12""" .
 } => {
   :step  :stepTypeName """(BY POSITION) Create and Extract DNA and RNA+P from Sample tubes""" .
-  :step :connectBy """position""" .  
+  :step :connectBy """position""" .
   :step  :createAsset  {
     ?dna_tube :a  :Tube .
     ?dna_tube :aliquotType  :DNA .
@@ -70,6 +75,7 @@
     ?rnap_tube :transferredFrom ?tube .
   } .
   :step  :unselectAsset   ?tube.
+  :step :stepAction """transfer_samples.rb""" .
   :step :connectBy """position""" .
   :step  :addFacts   { ?tube   :transfer   ?dna_tube .} .
   :step  :addFacts   { ?tube   :transfer   ?rnap_tube .} .
@@ -149,7 +155,7 @@
 
 {
   ?tube   :a  :SampleTube .
-  ?tube  :is   :NotStarted .  
+  ?tube  :is   :NotStarted .
   ?tube   :aliquotType :RNAP .
   ?tube   :sanger_sample_id ?_sample .
   ?tube   :maxCardinality   """0""" .
@@ -253,7 +259,7 @@
   ?fluidx_tube    :barcodeType :Code2D .
 }=>{
   :step  :stepTypeName """(BY POSITION) Transfer DNA to Fluidx tubes""" .
-  :step :connectBy """position""" .  
+  :step :connectBy """position""" .
   :step :addFacts {?dna_tube :transfer ?fluidx_tube.}.
   :step :addFacts {?fluidx_tube :transferredFrom ?dna_tube . } .
   :step :addFacts {?fluidx_tube :aliquotType :DNA.}.
@@ -285,7 +291,7 @@
   ?fluidx_tube    :barcodeType :Code2D .
 }=>{
   :step  :stepTypeName """(BY POSITION) Transfer RNA to Fluidx tubes""" .
-  :step :connectBy """position""" .  
+  :step :connectBy """position""" .
   :step :addFacts {?rna_tube :transfer ?fluidx_tube.}.
   :step :addFacts {?fluidx_tube :transferredFrom ?rna_tube.}.
   :step :addFacts {?fluidx_tube :aliquotType :RNA.}.
@@ -310,7 +316,7 @@
 }=>{
   :step :stepTypeName """Create TubeRack for DNA""" .
   :step :createAsset {
-    ?rack_dna :a :TubeRack . 
+    ?rack_dna :a :TubeRack .
     ?rack_dna :barcodeType :NoBarcode .
     ?rack_dna :createdFrom ?tube .
   }.
@@ -325,7 +331,7 @@
 }=>{
   :step :stepTypeName """Create TubeRack for RNA""" .
   :step :createAsset {
-    ?rack_rna :a :TubeRack . 
+    ?rack_rna :a :TubeRack .
     ?rack_rna :barcodeType :NoBarcode .
     ?rack_rna :createdFrom ?tube .
   }.
@@ -339,7 +345,7 @@
 }=>{
   :step :stepTypeName """Create TubeRack for Fluidx Tube""" .
   :step :createAsset {
-    ?rack :a :TubeRack . 
+    ?rack :a :TubeRack .
     ?rack :barcodeType :NoBarcode .
     ?rack :createdFrom ?tube .
   }.
@@ -358,19 +364,11 @@
 {
   ?tube_rack :a :TubeRack .
   ?tube_rack :maxCardinality """1""".
-} => {
-  :step :stepTypeName """Upload .csv layout of Fluidx tubes in empty TubeRack""" .
-  :step :stepTemplate """rack_layout_creating_tubes""" .
-  :step :addFacts { ?tube_rack :layout :Complete . } .
-} .
-
-{
-  ?tube_rack :a :TubeRack .
-  ?tube_rack :maxCardinality """1""".
-  ?tube_rack :layout :Complete . 
+  ?tube_rack :layout :Complete .
   ?tube :a :Tube .
   ?tube :sanger_sample_id ?_sample .
 } => {
+  :step :stepAction """transfer_tubes_to_tube_rack_by_position.rb""" .
   :step :stepTypeName """Transfer tube contents to Fluidx rack by column order""" .
   :step :addFacts {
     ?tube :transferToTubeRackByPosition ?tube_rack .
@@ -383,8 +381,20 @@
   ?tube_rack :maxCardinality """1""".
 } => {
   :step :stepTypeName """Upload .csv layout of fluidx tubes in Empty TubeRack""" .
-  :step :stepTemplate """rack_layout_creating_tubes""" .
+  :step :stepTemplate """upload_file""" .
+} .
+
+{
+  ?tube :a :Tube .
+  ?file :a :File .
+  ?tube_rack :a :TubeRack .
+  ?tube_rack :maxCardinality """1""".
+  ?file :maxCardinality """1""".
+} => {
+  :step :stepTypeName """Apply layout of fluidx tubes in Empty TubeRack""" .
+  :step :stepAction """rack_layout_creating_tubes.rb""" .
   :step :addFacts { ?tube_rack :layout :Complete . } .
+  :step :unselectAsset ?file .
 } .
 
 {

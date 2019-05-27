@@ -20,6 +20,23 @@ module Actions
             updates.add(modified_asset, 'aliquotType', aliquot_fact.object)
           end
         end
+        if (asset.has_predicate?('volume') && asset.has_predicate?('transferVolume'))
+          transferredVolume = asset.facts.with_predicate('transferVolume').first.object
+          actualVolume = asset.facts.with_predicate('volume').first.object
+          nextVolume = (actualVolume.to_i - transferredVolume.to_i)
+          if nextVolume < 0
+            transferredVolume = transferredVolume.to_i + nextVolume.to_i
+            actualVolume = 0
+          end
+          updates.add(modified_asset, 'transferVolume', transferredVolume)
+          updates.remove_where(asset, 'volume', actualVolume)
+          updates.add(asset, 'volume', nextVolume)
+          updates.add(modified_asset, 'volume', transferredVolume)
+
+          if nextVolume == 0
+            updates.add(asset, 'is', 'Empty')
+          end
+        end
       end
     end
   end

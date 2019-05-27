@@ -90,18 +90,26 @@ class Action < ActiveRecord::Base
             updates.add(s, predicate, d)
           end
         end
+      elsif action_type == 'createGroup'
+        updates.create_asset_groups([object])
+      elsif action_type == 'deleteGroup'
+        updates.delete_asset_groups([object])
+      elsif action_type == 'addAsset'
+        updates.add_assets([[object, [sources(asset_group)]]])
+      elsif action_type == 'removeAsset'
+        updates.remove_assets([[object, [sources(asset_group)]]])
+      elsif action_type == 'deleteAsset'
+        updates.delete_assets([object])
+      elsif action_type == 'selectAsset'
+        updates.add_assets([[asset_group, sources(asset_group)]])
+      elsif action_type == 'unselectAsset'
+        updates.remove_assets([[asset_group, sources(asset_group)]])
       else
         each_connected_asset(sources(asset_group), destinations(asset_group), wildcard_values) do |source, destination|
           if action_type=='addFacts'
             updates.add(source, predicate, destination)
           elsif action_type == 'removeFacts'
             updates.remove_where(source, predicate, destination)
-          elsif action_type == 'selectAsset'
-            updates.add_assets([[asset_group, [source]]])
-            #asset_group.assets << source
-          elsif action_type == 'unselectAsset'
-            updates.remove_assets([[asset_group, [source]]])
-            #asset_group.assets.delete(source)
           end
         end
       end

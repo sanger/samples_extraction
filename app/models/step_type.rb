@@ -13,9 +13,11 @@ class StepType < ActiveRecord::Base
   has_many :condition_groups, dependent: :destroy
   has_many :actions, dependent: :destroy
 
-  has_many :action_subject_condition_groups, :through => :actions, :source => :subject_condition_group
-  has_many :action_object_condition_groups, :through => :actions, :source => :object_condition_group
-
+  has_many :action_subject_condition_groups, ->{distinct}, :through => :actions, :source => :subject_condition_group
+  has_many :action_object_condition_groups, ->{distinct}, :through => :actions, :source => :object_condition_group
+  def action_condition_groups
+    [action_subject_condition_groups, action_object_condition_groups].flatten.uniq - condition_groups
+  end
 
   include Deprecatable
 

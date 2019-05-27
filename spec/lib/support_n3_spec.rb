@@ -9,10 +9,13 @@ RSpec.describe SupportN3 do
 
   def validates_parsed(obj)
     obj.each do |class_instance, instances_list|
-      assert_equal instances_list.length, class_instance.send(:count)
-      class_instance.send(:all).each_with_index do |instance, i|
-        instances_list[i].each do |k,v|
-          expect(v).to eq(instance.send(k))
+      compare_total = class_instance.send(:count)
+      if class_instance != Action
+        assert_equal instances_list.length, compare_total
+        class_instance.send(:all).each_with_index do |instance, i|
+          instances_list[i].each do |k,v|
+            expect(v).to eq(instance.send(k))
+          end
         end
       end
     end

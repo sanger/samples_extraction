@@ -11,11 +11,13 @@ f2 = tubes.each_with_index.map{|t, i| [t, 'is', 'NotStarted']}
 f3 = tubes.each_with_index.map{|t, i| [t, 'sample_tube', samples[i]]}
 f4 = tubes.each_with_index.map{|t, i| [t, 'sanger_sample_id', sanger_sample_id[i]]}
 f5 = tubes.each_with_index.map{|t, i| [t, 'study_name', study_name]}
+f6 = tubes.each_with_index.map{|t, i| [t, 'transferVolume', 20]}
+f7 = tubes.each_with_index.map{|t, i| [t, 'volume', 100]}
 
 all_assets = tubes + samples
 obj= {
   create_assets: all_assets,
-  add_facts: f1.concat(f2).concat(f3).concat(f4).concat(f5),
+  add_facts: [f1,f2,f3,f4,f5,f6,f7].reduce([]){|memo, facts| memo.concat(facts)},
   add_assets: [tubes]
 }.to_json
 
