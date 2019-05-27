@@ -1,44 +1,15 @@
-class PurposeNameInference
+class ContainerInferences
   attr_reader :asset_group
   def initialize(params)
     @asset_group = params[:asset_group]
   end
 
-  def _CODE
-    %Q{
-      {
-        ?asset :contains ?anotherAsset .
-        ?anotherAsset :aliquotType """DNA""" .
-      }=>{
-        :step :addFacts { ?asset :purpose """DNA Stock Plate""" } .
-      } .
-
-      {
-        ?asset :contains ?anotherAsset .
-        ?anotherAsset :aliquotType """RNA""" .
-      }=>{
-        :step :addFacts { ?asset :purpose """RNA Stock Plate""" } .
-      } .
-
-      @forAll :anotherAsset, :someAliquot .
-      {
-        ?asset :contains ?anotherAsset .
-        ?anotherAsset log:notIncludes { :anotherAsset :aliquotType :someAliquot .} .
-      } => {
-        :step :addFacts { ?asset :purpose """Stock Plate""" } .
-      }
-    }
-  end
-
-  def containers2
-    asset_group.assets.with_predicate('contains')
-  end
 
   def containers
     asset_group.assets.joins(%Q{
       INNER JOIN facts as plate_facts on plate_facts.asset_id=assets.id AND plate_facts.predicate='contains'
       INNER JOIN assets as tubes on tubes.id=plate_facts.object_asset_id
-      INNER JOIN facts as tubes_facts on tubes_facts.asset_id=tubes.id AND tubes_facts.predicate='aliquotType'
+      INNER JOIN facts as tubes_facts on tubes_facts.asset_id=tubes.id AND (tubes_facts.predicate='aliquotType' OR tubes_facts.predicate='study_name')
     }).uniq
   end
 
@@ -46,6 +17,14 @@ class PurposeNameInference
     return 'DNA Stock Plate' if aliquot == 'DNA'
     return 'RNA Stock Plate' if aliquot == 'RNA'
     return 'Stock Plate'
+  end
+
+  def study_name_for(asset)
+    list = asset.facts.with_predicate('contains').map do |f|
+      f.object_asset.facts.with_predicate('study_name').map(&:object)
+    end.flatten.compact.uniq
+    return "" if list.count > 1
+    return list.first
   end
 
   def purpose_for(asset)
@@ -60,6 +39,7 @@ class PurposeNameInference
     FactChanges.new.tap do |updates|
       if containers.count > 0
         containers.each do |asset|
+          updates.add(asset, 'study_name', study_name_for(asset))
           updates.add(asset, 'purpose', purpose_for(asset))
         end
       end
@@ -81,5 +61,5 @@ matches = args.match(/(\d*)\.json/)
 out({}) unless matches
 asset_group_id = matches[1]
 asset_group = AssetGroup.find(asset_group_id)
-out(PurposeNameInference.new(asset_group: asset_group).process)
+out(ContainerInferences.new(asset_group: asset_group).process)
 

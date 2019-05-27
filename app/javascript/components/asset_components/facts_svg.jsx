@@ -77,7 +77,9 @@ class FactsSvg extends React.Component {
 
     for (var key in data) {
       var node = $('.svg-'+this.props.asset.uuid+' .'+key);
-      node.addClass(data[key].cssClass);
+      // We want to reset all previous css but we also want to
+      // to keep the location, that is represented as a css class (key)
+      node.attr('class', key+' '+data[key].cssClass);
     }
   }
 
@@ -86,7 +88,12 @@ class FactsSvg extends React.Component {
     if (path) {
       return (
         <div className={'svg svg-'+this.props.asset.uuid} >
-          <SVG src={this.pathImage(this.props.facts)} ref={el => this.el = el} onLoad={this.onLoadSvg}></SVG>
+          <SVG
+            src={this.pathImage(this.props.facts)}
+            ref={el => this.el = el}
+            cacheGetRequests={true}
+            onLoad={this.onLoadSvg}>
+          </SVG>
         </div>
       )
     } else {

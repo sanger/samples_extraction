@@ -117,7 +117,7 @@ module SupportN3
 
     def self.deprecate_class_by_name(class_type, name, new_instance, &block)
       if name && !name.empty?
-        old_instances = class_type.where(:name => name)
+        old_instances = class_type.where(:name => name).not_deprecated
         old_instances = nil if (old_instances.count > 1) && (old_instances.first == new_instance)
       end
 
@@ -286,6 +286,7 @@ module SupportN3
       config[:name] = name_for_step_type if name_for_step_type
       config[:connect_by] = connect_by if connect_by
       config[:step_template] = step_template if step_template
+      config[:step_action] = step_action if step_action
       config[:n3_definition] = nil
       config
     end
@@ -302,6 +303,11 @@ module SupportN3
 
     def step_template
       value = actions.select{|quad| fragment(quad[1]) == 'stepTemplate'}.flatten[2]
+      fragment(value) unless value.nil?
+    end
+
+    def step_action
+      value = actions.select{|quad| fragment(quad[1]) == 'stepAction'}.flatten[2]
       fragment(value) unless value.nil?
     end
 

@@ -78,9 +78,10 @@ class FactChanges
   def add(s,p,o, options=nil)
     s = find_asset(s)
     o = find_asset(o)
-
-    detected = (s && p && o) && facts_to_add.detect do |triple|
-      (triple[0]==s) && (triple[1] ==p) && (triple[2] == o)
+    detected = (s && p && o) && facts_to_add.detect do |data|
+      first_check = (data[:asset]==s) && (data[:predicate] ==p)
+      second_check = ((data[:literal] ? data[:object] : data[:object_asset])== o)
+      first_check && second_check
     end
     t = [s,p,o, options]
     params = {asset: t[0], predicate: t[1], literal: !(t[2].kind_of?(Asset))}
@@ -132,13 +133,15 @@ class FactChanges
       facts_to_destroy.concat(fact_changes.facts_to_destroy).uniq!
       assets_to_destroy.concat(fact_changes.assets_to_destroy).uniq!
       asset_groups_to_destroy.concat(fact_changes.asset_groups_to_destroy).uniq!
-      instances_from_uuid.merge(fact_changes.instances_from_uuid)
+      instances_from_uuid.merge!(fact_changes.instances_from_uuid)
+      wildcards.merge!(fact_changes.wildcards)
     end
     self
   end
 
   def apply(step, with_operations=true)
     _handle_errors(step) if errors_added.length > 0
+    _handle_inverse_operations
     ActiveRecord::Base.transaction do |t|
       operations = [
         _create_asset_groups(step, asset_groups_to_create, with_operations),
@@ -179,10 +182,15 @@ class FactChanges
     asset_groups.uniq.map { |asset_group_or_uuid| find_instance_of_class_by_uuid(AssetGroup, asset_group_or_uuid, true) }
   end
 
+  def is_new_record?(uuid)
+    !!(instances_from_uuid[uuid] && instances_from_uuid[uuid].new_record?)
+  end
+
   def find_instance_of_class_by_uuid(klass, instance_or_uuid_or_id, create=false)
     if TokenUtil.is_wildcard?(instance_or_uuid_or_id)
       uuid = uuid_for_wildcard(instance_or_uuid_or_id)
-      found = find_instance_from_uuid(klass, uuid)
+      # Do not try to find it if it is a new wildcard created
+      found = find_instance_from_uuid(klass, uuid) unless create
       if !found && create
         found = ((instances_from_uuid[uuid] ||= klass.new(uuid: uuid)))
       end
@@ -194,7 +202,7 @@ class FactChanges
     else
       found = instance_or_uuid_or_id
     end
-
+    _produce_error(["Element identified by #{instance_or_uuid_or_id} should be declared before using it"]) unless found
     found
   end
 
@@ -207,7 +215,7 @@ class FactChanges
   end
 
   def find_instance_from_uuid(klass, uuid)
-    found = klass.find_by(uuid:uuid)
+    found = klass.find_by(uuid:uuid) unless is_new_record?(uuid)
     return found if found
     instances_from_uuid[uuid]
   end
@@ -228,7 +236,7 @@ class FactChanges
   end
 
   def create_assets(assets)
-    assets_to_create.concat(validate_instances(build_assets(assets))).uniq!
+    assets_to_create.concat(validate_instances(build_assets(assets)))
     self
   end
 
@@ -279,17 +287,15 @@ class FactChanges
 
   private
 
-  def _handle_errors(step)
-    ActiveRecord::Base.transaction do
-      StepMessage.where(step_id: step.id).delete_all
-      errors_added.each do |error|
-        StepMessage.create(content: error, step_id: step.id)
-      end
-    end
-    _produce_error if errors_added.length > 0
+  def _handle_inverse_operations
   end
 
-  def _produce_error
+  def _handle_errors(step)
+    step.set_errors(errors_added)
+    _produce_error(errors_added) if errors_added.length > 0
+  end
+
+  def _produce_error(errors_added)
     raise StandardError.new(message: errors_added.join("\n"))
   end
 
@@ -317,17 +323,20 @@ class FactChanges
 
   def _create_assets(step, assets, with_operations=true)
     return unless assets
-    assets.each_with_index do |asset, index|
-      _apply_barcode(asset)
-      asset.save
+    count = Asset.count + 1
+    assets = assets.each_with_index.map do |asset, barcode_index|
+      _build_barcode(asset, count + barcode_index)
+      asset
     end
-    _asset_operations('createAssets', step, assets) if with_operations
+    _instance_builder_for_import(Asset, assets) do |instances|
+      _asset_operations('createAssets', step, assets) if with_operations
+    end
   end
 
   ## TODO:
   # Possibly it could be moved to Asset before_save callback
   #
-  def _apply_barcode(asset)
+  def _build_barcode(asset, i)
     barcode_type = values_for_predicate(asset, 'barcodeType').first
 
     if (barcode_type == 'NoBarcode')
@@ -337,9 +346,7 @@ class FactChanges
       if barcode
         asset.barcode = barcode
       else
-        unless barcode_type.nil?
-          asset.generate_barcode
-        end
+        asset.build_barcode(i)
       end
     end
   end
@@ -354,7 +361,10 @@ class FactChanges
   def _create_asset_groups(step, asset_groups, with_operations=true)
     return unless asset_groups
     asset_groups.each_with_index do |asset_group, index|
-      asset_group.update_attributes(activity_owner: step.activity, name: TokenUtil.to_asset_group_name(wildcard_for_uuid(asset_group.uuid)))
+      asset_group.update_attributes(
+        name: TokenUtil.to_asset_group_name(wildcard_for_uuid(asset_group.uuid)),
+        activity_owner: step.activity
+      )
       asset_group.save
     end
     _asset_group_building_operations('createAssetGroups', step, asset_groups) if with_operations
@@ -409,16 +419,35 @@ class FactChanges
     end
   end
 
+  def all_values_are_new_records(hash)
+    hash.values.all? do |value|
+      (value.respond_to?(:new_record?) && value.new_record?)
+    end
+  end
+
   def _instance_builder_for_import(klass, params_list, &block)
+
     instances = params_list.map do |params_for_instance|
-      klass.new(params_for_instance) unless klass.exists?(params_for_instance)
-    end.compact
+      unless (params_for_instance.kind_of?(klass))
+        if (all_values_are_new_records(params_for_instance) ||
+          (!klass.exists?(params_for_instance)))
+          klass.new(params_for_instance)
+        end
+      else
+        if params_for_instance.new_record?
+          params_for_instance
+        end
+      end
+    end.compact.uniq
     instances.each do |instance|
       instance.run_callbacks(:save) { false }
       instance.run_callbacks(:create) { false }
     end
     if instances && !instances.empty?
       klass.import(instances)
+      # import does not return the ids for the instances, so we need to reload
+      # again. Uuid is the only identificable attribute set
+      klass.synchronize(instances, [:uuid]) if klass == Asset
       yield instances
     end
   end

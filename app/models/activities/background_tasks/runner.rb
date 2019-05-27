@@ -10,6 +10,7 @@ class Activities::BackgroundTasks::Runner < Activities::BackgroundTasks::Backgro
       :step_types => [step_type]
     )
     runner.run
+    runner.updates.apply(self)
   end
 
 end

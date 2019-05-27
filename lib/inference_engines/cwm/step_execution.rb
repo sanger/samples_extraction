@@ -19,6 +19,11 @@ module InferenceEngines
         @updates = FactChanges.new
       end
 
+      def compatible?
+        refresh
+        true
+      end
+
       def debug_log(params)
         puts params
         if Rails.logger

@@ -9,6 +9,10 @@ module Activities::WebsocketEvents
     ActiveRecord::Base.connection.open_transactions == 0
   end
 
+  def is_being_listened?
+    ActivityChannel.subscribed_ids.include?(stream_id)
+  end
+
   def send_wss_event(data)
     ActionCable.server.broadcast(stream_id, data)
   end
@@ -32,7 +36,7 @@ module Activities::WebsocketEvents
   end
 
   def wss_event
-    if Rails.configuration.redis_enabled && ActivityChannel.subscribed_ids.include?(stream_id)
+    if Rails.configuration.redis_enabled && is_being_listened?
       send_wss_event(websockets_attributes(json_attributes))
     end
   end

@@ -85,7 +85,8 @@ class Facts extends React.Component {
     return(
       <span className="facts-list ">
         <span>
-          <FactsSvg asset={this.props.asset}  facts={this.props.facts}  dataAssetDisplay={this.props.dataAssetDisplay}  />
+          <FactsSvg asset={this.props.asset}  facts={this.props.facts}
+            dataAssetDisplay={this.props.dataAssetDisplay}  />
           <div className="col-xs-10">
             {this.renderCollapsedFacts(this.props.facts)}
           </div>

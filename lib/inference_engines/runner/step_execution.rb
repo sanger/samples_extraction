@@ -29,6 +29,13 @@ module InferenceEngines
         end
       end
 
+      def run_from_class
+        require("#{Rails.root}/script/runners/#{@step.step_type.step_action}")
+        @content = @step.step_type.step_action.gsub("\.rb", '').camelize.constantize.new(asset_group: @asset_group, step: @step).process.to_json
+        step.update_attributes(output: @content)
+        return true
+      end
+
       def generate_plan
         if @step.step_type.step_action.match(/\.rb$/)
           cmd = ["bin/rails", "runner", "#{Rails.root}/script/runners/#{@step.step_type.step_action}"]
@@ -66,6 +73,11 @@ module InferenceEngines
         @asset_group.assets.each(&:refresh)
       end
 
+      def compatible?
+        refresh
+        return true if step.step_type.condition_groups.count == 0
+        step.step_type.compatible_with?(@asset_group.assets)
+      end
 
       def export
         FactChanges.new(@content).apply(step)

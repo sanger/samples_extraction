@@ -37,7 +37,7 @@ module Actions
       end
     end
 
-    def transfer(plate, destination)
+    def transfer_plates(plate, destination)
       FactChanges.new.tap do |updates|
         if (destination.facts.with_predicate('contains').count > 0)
           updates.merge(transfer_by_location(plate, destination))

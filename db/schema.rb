@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190519195103) do
+ActiveRecord::Schema.define(version: 20190526185059) do
 
   create_table "actions", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.string "action_type", null: false
@@ -128,7 +128,7 @@ ActiveRecord::Schema.define(version: 20190519195103) do
   create_table "delayed_jobs", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer "priority", default: 0, null: false
     t.integer "attempts", default: 0, null: false
-    t.text "handler", null: false
+    t.text "handler", limit: 4294967295, null: false
     t.text "last_error", limit: 4294967295
     t.datetime "run_at"
     t.datetime "locked_at"
@@ -242,6 +242,7 @@ ActiveRecord::Schema.define(version: 20190519195103) do
     t.datetime "updated_at", null: false
     t.string "connect_by"
     t.string "step_action"
+    t.integer "priority", default: 0, null: false
     t.index ["superceded_by_id"], name: "index_step_types_on_superceded_by_id"
   end
 
@@ -272,7 +273,7 @@ ActiveRecord::Schema.define(version: 20190519195103) do
     t.index ["user_id"], name: "index_steps_on_user_id"
   end
 
-  create_table "uploaded_files", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "uploaded_files", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "asset_id"
     t.binary "data", limit: 16777215
     t.string "filename"

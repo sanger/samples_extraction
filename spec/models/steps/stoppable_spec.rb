@@ -52,8 +52,8 @@ RSpec.describe 'Steps::Stoppable' do
       it 'does not stop any steps before this step' do
         expect(previous_steps.all?{|s| s.state == 'stop'}).to eq(false)
       end
-      it 'stops this step' do
-        expect(step.state).to eq('stop')
+      it 'cancels this step' do
+        expect(step.state).to eq('cancel')
       end
     end
   end
