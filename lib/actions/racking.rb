@@ -70,6 +70,7 @@ module Actions
               updates.create_assets([rerack])
               updates.add(rerack, 'a', 'Rerack')
               updates.add(rerack, 'tube', tube)
+              updates.add(rerack, 'barcodeType', 'NoBarcode')
               updates.add(rerack, 'previousParent', previous_rack)
               updates.add(rerack, 'previousLocation', location)
               updates.add(rerack, 'location', list_layout[index][:location])
