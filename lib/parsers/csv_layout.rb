@@ -11,7 +11,12 @@ module Parsers
     end
 
     def initialize(str)
-      @csv_parser = CSV.new(str)
+      if str.kind_of?(String)
+        copy = str.gsub("\r", "\n")
+      else
+        copy = str
+      end
+      @csv_parser = CSV.new(copy)
       @errors = []
       @parsed = false
     end
