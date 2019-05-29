@@ -257,7 +257,7 @@ RSpec.describe FactChanges do
       updates1.add(asset, 'description', 'slim')
       expect(updates1.values_for_predicate(asset, 'description')).to eq(['tall', 'slim'])
     end
-    it 'returns all the values both from the database to add' do
+    it 'returns all the values both from the database and to add' do
       asset = create(:asset)
       asset.facts << create(:fact, predicate: 'description', object: 'green')
       asset.facts << create(:fact, predicate: 'description', object: 'big')
@@ -266,7 +266,7 @@ RSpec.describe FactChanges do
       expect(updates1.values_for_predicate(asset, 'description')).to eq(['green', 'big', 'tall', 'slim'])
     end
 
-    it 'does not return the values that will be removed from database' do
+    it 'return the values at the database and to add without the values that will be removed' do
       asset = create(:asset)
       asset.facts << create(:fact, predicate: 'description', object: 'green')
       asset.facts << create(:fact, predicate: 'description', object: 'big')
@@ -279,7 +279,7 @@ RSpec.describe FactChanges do
       updates1.remove_where(asset, 'description', 'slim')
       updates1.remove_where(asset, 'description', 'green')
 
-      expect(updates1.values_for_predicate(asset, 'description')).to eq(['big', 'tall', 'slim'])
+      expect(updates1.values_for_predicate(asset, 'description')).to eq(['big', 'tall'])
     end
 
     it 'does not return values from other instances' do
@@ -402,6 +402,22 @@ RSpec.describe FactChanges do
   describe '#merge' do
     it 'returns another FactChanges object' do
       expect(updates1.merge(updates2).kind_of?(FactChanges)).to eq(true)
+    end
+    it 'keeps track of elements already added/removed in previous object' do
+      asset = create :asset
+      fact = create(:fact, predicate: 'p', object: 'v')
+      fact2 = create(:fact, predicate: 'p2', object: 'v2')
+      asset.facts<<fact
+      asset.facts<<fact2
+
+      updates1.add(asset,fact.predicate,fact.object)
+      updates1.add(asset,fact2.predicate,fact2.object)
+
+      expect(updates1.facts_to_add.count).to eq(2)
+      updates2.remove_where(asset,fact.predicate,fact.object)
+      updates1.merge(updates2)
+      expect(updates1.facts_to_add.count).to eq(1)
+      expect(updates2.facts_to_destroy.count).to eq(1)
     end
     context 'when using wildcards' do
       let(:obj) {FactChanges.new}
@@ -646,9 +662,13 @@ RSpec.describe FactChanges do
       let(:updates) { FactChanges.new }
       context 'when you add and remove the same fact' do
         it 'does not include neither in the apply' do
-          updates.create_assets(["?p", "?q"])
-          updates.add("?p", "transfer", "?q")
-          updates.remove_where("?p", "transfer", "?q")
+          asset1 = create :asset
+          asset2 = create :asset
+          updates.add(asset1, "related", asset2)
+          updates.add(asset1, "transfer", asset2)
+          updates.remove_where(asset1, "transfer", asset2)
+          expect{updates.apply(step)}.to change{Fact.with_predicate('related').count}.by(1)
+          .and change{Fact.with_predicate('transfer').count}.by(0)
         end
       end
     end
@@ -656,6 +676,18 @@ RSpec.describe FactChanges do
       let(:updates) { FactChanges.new }
       before do
         activity.asset_group
+      end
+      context 'when you add and remove the same fact' do
+        it 'does not include neither in the apply' do
+          updates.create_assets(["?p", "?q"])
+          updates.add("?p", "related", "?q")
+          updates.add("?p", "transfer", "?q")
+          updates.remove_where("?p", "transfer", "?q")
+          expect{updates.apply(step)}.to change{Asset.count}.by(2)
+          .and change{Fact.count}.by(1)
+          .and change{Fact.with_predicate('related').count}.by(1)
+          .and change{Fact.with_predicate('transfer').count}.by(0)
+        end
       end
       it 'performs all the changes specified' do
         updates.create_assets(["?p", "?q"])

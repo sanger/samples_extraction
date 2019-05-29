@@ -41,8 +41,7 @@ module Steps::ExecutionActions
       step_execution = StepExecution.new(step: self, asset_group: asset_group)
 
       step_execution.run
-    end
-    ActiveRecord::Base.transaction do |t|
+
       unless step_type.step_action.nil? || step_type.step_action.empty?
         runner = InferenceEngines::Runner::StepExecution.new(
           :step => self,

@@ -176,8 +176,12 @@ module Actions
 
     end
 
+    def selected_file(asset_group)
+      asset_group.uploaded_files.first
+    end
+
     def csv_parsing(asset_group, class_type)
-      content = asset_group.uploaded_files.first.data
+      content = selected_file(asset_group).data
       error_messages = []
       error_locations = []
       parser = class_type.new(content)

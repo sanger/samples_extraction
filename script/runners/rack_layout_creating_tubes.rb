@@ -18,6 +18,7 @@ class RackLayoutCreatingTubes
     FactChanges.new.tap do |updates|
       if assets_compatible_with_step_type.count > 0
         updates.merge(rack_layout_creating_tubes(@asset_group))
+        updates.remove_assets([selected_file.uuid])
       end
     end
   end

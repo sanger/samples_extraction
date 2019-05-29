@@ -1,5 +1,6 @@
 source 'http://rubygems.org'
 
+gem 'ruby-xxHash'
 gem 'rdf-n3'
 gem 'tzinfo-data'
 gem 'puma'

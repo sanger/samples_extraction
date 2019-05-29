@@ -1,9 +1,13 @@
 require 'token_util'
+require 'disjoint_list'
 
 class FactChanges
+
   attr_accessor :facts_to_destroy, :facts_to_add, :assets_to_create, :assets_to_destroy,
     :assets_to_add, :assets_to_remove, :wildcards, :instances_from_uuid,
-    :asset_groups_to_create, :asset_groups_to_destroy, :errors_added
+    :asset_groups_to_create, :asset_groups_to_destroy, :errors_added,
+    :already_added_to_list, :instances_by_unique_id
+
 
   def initialize(json=nil)
     reset
@@ -15,19 +19,28 @@ class FactChanges
   end
 
   def reset
+    @cached_unique_ids = {}
     @parsing_valid = false
     @errors_added = []
-    @facts_to_destroy = []
-    @facts_to_add = []
-    @assets_to_create = []
-    @assets_to_destroy = []
-    @assets_to_add = []
-    @assets_to_remove = []
-    @asset_groups_to_create = []
-    @asset_groups_to_destroy = []
+
+    build_disjoint_lists(:facts_to_add, :facts_to_destroy)
+    build_disjoint_lists(:assets_to_create, :assets_to_destroy)
+    build_disjoint_lists(:asset_groups_to_create, :asset_groups_to_destroy)
+    build_disjoint_lists(:assets_to_add, :assets_to_remove)
 
     @instances_from_uuid = {}
     @wildcards = {}
+  end
+
+  def build_disjoint_lists(list, opposite)
+    list1 = DisjointList.new([])
+    list2 = DisjointList.new([])
+
+    list1.set_opposite_disjoint(list2)
+    list2.set_opposite_disjoint(list1)
+
+    send("#{list.to_s}=", list1)
+    send("#{opposite.to_s}=", list2)
   end
 
   def to_h
@@ -70,25 +83,27 @@ class FactChanges
       (f[:asset] == asset) && (f[:predicate] == predicate)
     end.pluck(:object)
     values_to_destroy = facts_to_destroy.select do |f|
-      (f.asset == asset) && (f.predicate == predicate)
-    end.map(&:object)
+      (f[:asset] == asset) && (f[:predicate] == predicate)
+    end.pluck(:object)
     (actual_values + values_to_add - values_to_destroy)
+  end
+
+  def _build_fact_attributes(s, p, o, options={})
+    t = [s,p,o, options]
+    params = {asset: t[0], predicate: t[1], literal: !(t[2].kind_of?(Asset))}
+    params[:literal] ? params[:object] = t[2] : params[:object_asset] = t[2]
+    params = params.merge(t[3]) if t[3]
+    params
   end
 
   def add(s,p,o, options=nil)
     s = find_asset(s)
     o = find_asset(o)
-    detected = (s && p && o) && facts_to_add.detect do |data|
-      first_check = (data[:asset]==s) && (data[:predicate] ==p)
-      second_check = ((data[:literal] ? data[:object] : data[:object_asset])== o)
-      first_check && second_check
-    end
-    t = [s,p,o, options]
-    params = {asset: t[0], predicate: t[1], literal: !(t[2].kind_of?(Asset))}
-    params[:literal] ? params[:object] = t[2] : params[:object_asset] = t[2]
-    params = params.merge(t[3]) if t[3]
 
-    facts_to_add.push(params) unless detected
+    fact = _build_fact_attributes(s, p, o, options)
+
+    facts_to_add << fact if fact
+    #facts_to_add.push(track_object(params)) unless detected
   end
 
   def add_facts(listOfLists)
@@ -106,24 +121,26 @@ class FactChanges
   end
 
   def remove(f)
-    @facts_to_destroy = facts_to_destroy.push(f).flatten.uniq
+    if f.kind_of?(Enumerable)
+      facts_to_destroy << f.map{|o| o.attributes.symbolize_keys}
+    elsif f.kind_of?(Fact)
+      facts_to_destroy << f.attributes.symbolize_keys if f
+    end
   end
 
   def remove_where(subject, predicate, object)
     subject = find_asset(subject)
     object = find_asset(object)
 
-    if object.kind_of? String
-      elems = Fact.where(asset: subject, predicate: predicate, object: object)
-    else
-      elems = Fact.where(asset: subject, predicate: predicate, object_asset: object)
-    end
-    @facts_to_destroy = @facts_to_destroy.concat(elems).flatten.uniq
-  end
+    fact = _build_fact_attributes(subject, predicate, object)
 
+    facts_to_destroy << fact if fact
+  end
 
   def merge(fact_changes)
     if (fact_changes)
+      # To keep track of already added object after merging with another fact changes object
+      #_add_already_added_from_other_object(fact_changes)
       errors_added.concat(fact_changes.errors_added)
       asset_groups_to_create.concat(fact_changes.asset_groups_to_create).uniq!
       assets_to_create.concat(fact_changes.assets_to_create).uniq!
@@ -141,7 +158,6 @@ class FactChanges
 
   def apply(step, with_operations=true)
     _handle_errors(step) if errors_added.length > 0
-    _handle_inverse_operations
     ActiveRecord::Base.transaction do |t|
       operations = [
         _create_asset_groups(step, asset_groups_to_create, with_operations),
@@ -236,22 +252,26 @@ class FactChanges
   end
 
   def create_assets(assets)
-    assets_to_create.concat(validate_instances(build_assets(assets)))
+    assets_to_create << validate_instances(build_assets(assets))
+    #assets_to_create.concat(validate_instances(build_assets(assets)))
     self
   end
 
   def create_asset_groups(asset_groups)
-    asset_groups_to_create.concat(validate_instances(build_asset_groups(asset_groups))).uniq!
+    asset_groups_to_create << validate_instances(build_asset_groups(asset_groups))
+    #asset_groups_to_create.concat(validate_instances(build_asset_groups(asset_groups))).uniq!
     self
   end
 
   def delete_asset_groups(asset_groups)
-    asset_groups_to_destroy.concat(validate_instances(find_asset_groups(asset_groups))).uniq!
+    asset_groups_to_destroy << validate_instances(find_asset_groups(asset_groups))
+    #asset_groups_to_destroy.concat(validate_instances(find_asset_groups(asset_groups))).uniq!
     self
   end
 
   def delete_assets(assets)
-    assets_to_destroy.concat(validate_instances(find_assets(assets))).uniq!
+    assets_to_destroy << validate_instances(find_assets(assets))
+    #assets_to_destroy.concat(validate_instances(find_assets(assets))).uniq!
     self
   end
 
@@ -265,7 +285,9 @@ class FactChanges
         asset_ids = elem
       end
       assets = validate_instances(find_assets(asset_ids))
-      assets_to_add.concat(assets.map{|asset| { asset_group: asset_group, asset: asset} })
+      assets_to_add << assets.map{|asset| { asset_group: asset_group, asset: asset} }
+      #add_to_list_keep_unique(assets.map{|asset| { asset_group: asset_group, asset: asset} }, :assets_to_add, :assets_to_remove)
+      #assets_to_add.concat(assets.map{|asset| { asset_group: asset_group, asset: asset} })
     end
     self
   end
@@ -280,15 +302,14 @@ class FactChanges
         asset_ids = elem
       end
       assets = validate_instances(find_assets(asset_ids))
-      assets_to_remove.concat(assets.map{|asset| { asset_group: asset_group, asset: asset} })
+      assets_to_remove << assets.map{|asset| { asset_group: asset_group, asset: asset} }
+      #add_to_list_keep_unique(assets.map{|asset| { asset_group: asset_group, asset: asset} }, :assets_to_remove, :assets_to_add)
+      #assets_to_remove.concat(assets.map{|asset| { asset_group: asset_group, asset: asset} })
     end
     self
   end
 
   private
-
-  def _handle_inverse_operations
-  end
 
   def _handle_errors(step)
     step.set_errors(errors_added)
@@ -372,7 +393,7 @@ class FactChanges
 
   def _detach_asset_groups(step, asset_groups, with_operations=true)
     operations = _asset_group_building_operations('deleteAssetGroups', step, asset_groups) if with_operations
-    instances = [asset_groups].flatten
+    instances = asset_groups.flatten
     ids_to_remove = instances.map(&:id).compact.uniq
 
     AssetGroup.where(id: ids_to_remove).update_all(activity_owner_id: nil) if ids_to_remove && !ids_to_remove.empty?
@@ -386,9 +407,23 @@ class FactChanges
   end
 
 
-  def _remove_facts(step, facts, with_operations=true)
-    _instances_deletion(Fact, facts) do
-      _fact_operations('removeFacts', step, facts) if with_operations
+  def _remove_facts(step, facts_to_remove, with_operations=true)
+    ids = []
+    modified_list = facts_to_remove.reduce([]) do |memo, data|
+      if data[:id]
+        ids.push(data[:id])
+      elsif data[:object].kind_of? String
+        elems = Fact.where(asset: data[:asset], predicate: data[:predicate],
+          object: data[:object])
+      else
+        elems = Fact.where(asset: data[:asset], predicate: data[:predicate],
+          object_asset: data[:object])
+      end
+      memo.concat(elems) if elems
+      memo
+    end.concat(Fact.where(id: ids))
+    _instances_deletion(Fact, modified_list) do
+      _fact_operations('removeFacts', step, modified_list) if with_operations
     end
   end
 
@@ -454,7 +489,7 @@ class FactChanges
 
   def _instances_deletion(klass, instances, &block)
     operations = block_given? ? yield(instances) : instances
-    instances = [instances].flatten
+    instances = instances.flatten
     ids_to_remove = instances.map(&:id).compact.uniq
 
     klass.where(id: ids_to_remove).delete_all if ids_to_remove && !ids_to_remove.empty?
