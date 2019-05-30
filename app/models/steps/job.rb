@@ -1,18 +1,12 @@
 module Steps::Job
 
-  def asset_group_for_execution
-    asset_group
-    #AssetGroup.create!(:assets => asset_group.assets)
-  end
-
   def execute_actions
     update_attributes!({
       :state => 'running',
       :step_type => step_type,
+      :asset_group => asset_group,
     })
-    update_attributes!({
-      job_id: delay.perform_job.id
-    })
+    update_attributes!(job_id: delay.perform_job.id)
   end
 
   def output_error(exception)

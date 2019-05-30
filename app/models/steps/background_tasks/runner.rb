@@ -1,7 +1,6 @@
 require 'inference_engines/runner/step_execution'
 
-class Activities::BackgroundTasks::Runner < Activities::BackgroundTasks::BackgroundStep
-
+class Steps::BackgroundTasks::Runner < Steps::BackgroundTasks::BackgroundTask
   def process
     runner = InferenceEngines::Runner::StepExecution.new(
       :step => self,
@@ -10,7 +9,6 @@ class Activities::BackgroundTasks::Runner < Activities::BackgroundTasks::Backgro
       :step_types => [step_type]
     )
     runner.run
-    runner.updates.apply(self)
   end
 
 end

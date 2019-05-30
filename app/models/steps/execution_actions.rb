@@ -1,3 +1,5 @@
+require 'inference_engines/runner/step_execution'
+
 module Steps::ExecutionActions
   def self.included(klass)
     klass.instance_eval do
