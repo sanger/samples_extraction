@@ -71,7 +71,7 @@ RSpec.describe 'DisjointList' do
     end
   end
 
-  describe '#add_to_list_keep_unique' do
+  describe '#add' do
     let(:elem) { {} }
     let(:list2) { DisjointList.new(facts_to_destroy) }
     before do
@@ -82,6 +82,13 @@ RSpec.describe 'DisjointList' do
         list.add(elem)
       }.to change{facts_to_add.length}.by(1)
       .and change{list.length}.by(1)
+    end
+    it 'caches values for performance (unique id, instance, added ids)' do
+      expect{
+        list.add(elem)
+      }.to change{list.cached_unique_ids.keys.length}.by(1)
+      .and change{list.cached_instances_by_unique_id.keys.length}.by(1)
+      .and change{list.already_added_ids.keys.length}.by(1)
     end
     it 'does not add the element again if it is already present' do
       list.add(elem)
@@ -101,6 +108,93 @@ RSpec.describe 'DisjointList' do
       }.to change{facts_to_add.length}.by(-1)
       .and change{facts_to_destroy.length}.by(0)
       .and change{list2.length}.by(0)
+    end
+  end
+  describe '#remove' do
+    let(:elem) { {} }
+
+    it 'removes the element from the list' do
+      list.add(elem)
+      expect(list.length).to eq(1)
+      expect{list.remove(elem)}.to change{list.length}.by(-1)
+    end
+    it 'cleans the cache for the element' do
+      list.add(elem)
+      expect(list.length).to eq(1)
+      expect{list.remove(elem)}.to change{list.cached_instances_by_unique_id.keys.length}.by(-1)
+      .and change{list.already_added_ids.keys.length}.by(-1)
+    end
+  end
+  describe '#set_opposite_disjoint' do
+    let(:elem) { {} }
+    let(:elem2) { 'another value' }
+    let(:list2) { DisjointList.new(facts_to_destroy) }
+
+    it 'sets up the list as opposite list' do
+      list.set_opposite_disjoint(list2)
+      expect(list.opposite_disjoint).to eq(list2)
+    end
+
+    it 'performs a recheck operation when opposite already contains data' do
+      list.add(elem)
+      list2.add(elem)
+
+      expect{list.set_opposite_disjoint(list2)}.to change{list.length}.by(-1)
+      list.add(elem2)
+      list2.add(elem2)
+
+      expect(list.length).to eq(1)
+      expect(list2.length).to eq(2)
+
+      expect{list2.set_opposite_disjoint(list)}.to change{list2.length}.by(-1)
+    end
+  end
+  describe '#include?' do
+    let(:elem) { {} }
+    it 'returns true if the element was already added' do
+      expect{list.add(elem)}.to change{list.include?(elem)}.from(false).to(true)
+    end
+    it 'returns false if the element was not on the list' do
+      expect(list.include?(elem)).to eq(false)
+      list.add(elem)
+      expect{list.remove(elem)}.to change{list.include?(elem)}.from(true).to(false)
+    end
+  end
+
+  describe '#merge' do
+    let(:disjoint1) { DisjointList.new([])}
+    let(:disjoint2) { DisjointList.new([])}
+    let(:disjoint3) { DisjointList.new([])}
+    let(:disjoint4) { DisjointList.new([])}
+
+    let(:list2) { DisjointList.new(facts_to_destroy) }
+
+    it 'merges the information of disjoint lists keeping duplicates unique' do
+      disjoint1.set_opposite_disjoint(disjoint2)
+      disjoint3.set_opposite_disjoint(disjoint4)
+
+      disjoint1 << ['green', 'yellow']
+      disjoint2 << ['paris', 'london', 'rome']
+      disjoint3 << ['white', 'green', 'yellow']
+      disjoint4 << ['barcelona', 'rome', 'lisbon']
+
+      disjoint1.merge(disjoint3)
+
+      expect(disjoint1.to_a).to eq(['green', 'yellow', 'white'])
+    end
+
+    it 'merges the information removing values from the merged opposite disjoint list' do
+      disjoint1.set_opposite_disjoint(disjoint2)
+      disjoint3.set_opposite_disjoint(disjoint4)
+
+      disjoint1 << ['green', 'yellow']
+      disjoint2 << ['white', 'red']
+      disjoint3 << ['white', 'blue']
+      disjoint4 << ['green', 'black']
+
+      disjoint1.merge(disjoint3)
+
+      expect(disjoint1.to_a).to eq(['yellow', 'blue'])
     end
   end
 end
