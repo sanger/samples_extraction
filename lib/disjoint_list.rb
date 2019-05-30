@@ -6,7 +6,10 @@ class DisjointList
 
   include Enumerable
 
-  attr_accessor :cached_instances_by_unique_id, :already_added_ids, :list, :opposite_disjoint
+  attr_accessor :cached_instances_by_unique_id, :cached_unique_ids
+  attr_accessor :already_added_ids
+  attr_accessor :list
+  attr_accessor :opposite_disjoint
 
   def initialize(list, opposite_disjoint=nil)
     @list = list
@@ -25,10 +28,17 @@ class DisjointList
     @opposite_disjoint.already_added?(unique_id)
   end
 
+  def include?(element)
+    already_added?(unique_id_for_element(element))
+  end
+
   def remove(element)
+    unique_id = unique_id_for_element(element)
     @list.delete_if do |a|
-      unique_id_for_element(a) == unique_id_for_element(element)
+      unique_id_for_element(a) == unique_id
     end
+    @already_added_ids.delete(unique_id)
+    @cached_instances_by_unique_id.delete(unique_id)
   end
 
   def length
@@ -48,11 +58,19 @@ class DisjointList
   end
 
   def <<(element)
-    add(element)
+    if element.kind_of?(Array)
+      element.each{|e| add(e)}
+    else
+      add(element)
+    end
   end
 
   def concat(element)
-    add(element)
+    if element.kind_of?(Array)
+      element.each{|e| add(e)}
+    else
+      add(element)
+    end
   end
 
   def push(element)
@@ -83,6 +101,16 @@ class DisjointList
 
   def set_opposite_disjoint(opposite_disjoint)
     @opposite_disjoint = opposite_disjoint
+
+    # Remove elements that are no longer valid because of the opposite list
+    if @opposite_disjoint.length > 0
+      @already_added_ids.keys.each do |key|
+        # Any element I have conflicting with my opposite disjoint
+        if (opposite_disjoint.already_added?(key))
+          remove(@cached_instances_by_unique_id[key])
+        end
+      end
+    end
   end
 
   def add_id(unique_id)
