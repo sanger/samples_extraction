@@ -61,12 +61,19 @@ module InferenceEngines
             raise "runner execution failed\nCODE: #{thr.value}\nCMD: #{line}\nSTDOUT: #{content}\nSTDERR: #{stderror.read}\n"
           end
         end
+
+        @updates=FactChanges.new(@content)
       end
 
-      def inference
+      def plan
         generate_plan
 
         debug_log step.output
+        updates
+      end
+
+      def apply
+        @updates.apply(step)
       end
 
       def refresh
@@ -79,9 +86,6 @@ module InferenceEngines
         step.step_type.compatible_with?(@asset_group.assets)
       end
 
-      def export
-        FactChanges.new(@content).apply(step)
-      end
 
       def add_facts(list)
         FactChanges.new.tap do |updates|

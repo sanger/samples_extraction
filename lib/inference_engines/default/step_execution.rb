@@ -51,7 +51,7 @@ module InferenceEngines
         asset_group.assets.each(&:refresh)
       end
 
-      def inference
+      def plan
         @updates = executable_actions_sorted.reduce(updates) do |updates, action|
           action.run(asset_group, step.wildcard_values).merge(updates)
         end
@@ -65,9 +65,10 @@ module InferenceEngines
         unselect_assets_with_conditions(step.step_type.condition_groups, updates)
         unselect_assets_with_conditions(step.step_type.action_subject_condition_groups, updates)
         unselect_assets_with_conditions(step.step_type.action_object_condition_groups, updates)
+        updates
       end
 
-      def export
+      def apply
         updates.apply(step)
       end
 
