@@ -56,7 +56,9 @@ class FactChanges
           (f[:object] || f[:object_asset].uuid)
         ]
       end,
-      'remove_facts': @facts_to_destroy.map{|f| [f.asset.uuid, f.predicate, f.object_value_or_uuid ]},
+      'remove_facts': @facts_to_destroy.map do |f|
+        [f[:asset].uuid, f[:predicate], f[:object] || f[:object_asset].uuid ]
+      end,
       'add_assets': @assets_to_add.map(&:to_json),
       'remove_assets': @assets_to_remove.map(&:to_json)
     }.reject {|k,v| v.length == 0 }
@@ -417,7 +419,7 @@ class FactChanges
           object: data[:object])
       else
         elems = Fact.where(asset: data[:asset], predicate: data[:predicate],
-          object_asset: data[:object])
+          object_asset: data[:object_asset])
       end
       memo.concat(elems) if elems
       memo
