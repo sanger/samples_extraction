@@ -4,10 +4,12 @@ class DisjointList
   SEED_FOR_UNIQUE_IDS = Random.rand(1000)
   MAX_DEEP_UNIQUE_ID = 3
 
+  MAX_OPPOSITE_DISJOINT_CYCLE_LENGTH = 100
+
   include Enumerable
 
   attr_accessor :cached_instances_by_unique_id, :cached_unique_ids
-  attr_accessor :already_added_ids
+  attr_accessor :enabled_ids
   attr_accessor :list
   attr_accessor :opposite_disjoint
 
@@ -16,29 +18,40 @@ class DisjointList
     @opposite_disjoint = opposite_disjoint
     @cached_unique_ids = {}
     @cached_instances_by_unique_id = {}
-    @already_added_ids = {}
+    @enabled_ids = {}
+
+    list.each{|e| enable(unique_id_for_element(e))}
   end
 
   def already_added?(unique_id)
-    @already_added_ids[unique_id]==true
+    @enabled_ids.has_key?(unique_id)
   end
 
-  def opposite_already_added?(unique_id)
-    return false unless @opposite_disjoint
-    @opposite_disjoint.already_added?(unique_id)
+  def enabled?(element)
+    @enabled_ids[unique_id_for_element(element)]
+  end
+
+  def opposite_disjoint_enabled(unique_id)
+    return opposite_disjoint.enabled_ids[unique_id] if opposite_disjoint
   end
 
   def include?(element)
-    already_added?(unique_id_for_element(element))
+    !!@enabled_ids[unique_id_for_element(element)]
   end
 
   def remove(element)
     unique_id = unique_id_for_element(element)
+    remove_from_raw_list_by_id(unique_id)
+    @enabled_ids.delete(unique_id)
+    if opposite_disjoint && opposite_disjoint.already_added?(unique_id)
+      opposite_disjoint.enabled_ids[unique_id]=true
+    end
+  end
+
+  def remove_from_raw_list_by_id(unique_id)
     @list.delete_if do |a|
       unique_id_for_element(a) == unique_id
     end
-    @already_added_ids.delete(unique_id)
-    @cached_instances_by_unique_id.delete(unique_id)
   end
 
   def length
@@ -55,6 +68,10 @@ class DisjointList
 
   def flatten
     @list.flatten
+  end
+
+  def uniq!
+    @list.uniq!
   end
 
   def <<(element)
@@ -80,14 +97,11 @@ class DisjointList
   def add(element)
     return merge(element) if element.kind_of?(DisjointList)
     unique_id = unique_id_for_element(element)
-    if already_added?(unique_id) && opposite_already_added?(unique_id)
-      remove(element)
-    elsif already_added?(unique_id)
+    if opposite_disjoint_enabled(unique_id)
+      disable(unique_id)
+    elsif include?(element)
       # It is already in our list, so we do not add it again
       return false
-    elsif opposite_already_added?(unique_id)
-      # It is in the opposite list, so we remove it from that list to not add it again
-      @opposite_disjoint.remove(element)
     else
       # Is not in any of the lists so we can add it
       if (element.kind_of?(Enumerable) && (!element.kind_of?(Hash)))
@@ -95,26 +109,52 @@ class DisjointList
       else
         @list.push(element)
       end
+      enable(unique_id)
     end
-    add_id(unique_id)
+    self
   end
 
+  # SET_MUTUAL_DISJOINT
+  #
+  # Creates a minimal cycled relation mutually exclujent between two lists
+  # If we want to have the same behaviour between multiple lists we should use
+  # set_opposite_disjoint() and create a cyclic linked structure with it
+  def set_mutual_disjoint(disjoint_list)
+    set_opposite_disjoint(disjoint_list)
+    disjoint_list.set_opposite_disjoint(self)
+  end
+
+  #
+  # SET_OPPOSITE_DISJOINT
+  #
+  # This relation by itself is not useful. It is only useful when there is a cycle,
+  # as the cycled linked structure will make sure that elements only reside in one
+  # of the disjoint lists or they will be removed.
+  # Examples of cycles:
+  #
+  # Mutual opposites:
+  #
+  #     A <=> B
+  #
+  # Linked structure:
+  #
+  #     ---------------
+  #     |              |
+  #     V              |
+  #     A => B => C => D
+  #
   def set_opposite_disjoint(opposite_disjoint)
     @opposite_disjoint = opposite_disjoint
 
     # Remove elements that are no longer valid because of the opposite list
     if @opposite_disjoint.length > 0
-      @already_added_ids.keys.each do |key|
-        # Any element I have conflicting with my opposite disjoint
-        if (opposite_disjoint.already_added?(key))
-          remove(@cached_instances_by_unique_id[key])
+      @opposite_disjoint.enabled_ids.keys.each do |key|
+        if (@opposite_disjoint.enabled_ids[key] == true)
+          @enabled_ids[key]=false
+          remove_from_raw_list_by_id(key)
         end
       end
     end
-  end
-
-  def add_id(unique_id)
-    @already_added_ids[unique_id]=true
   end
 
   def sum_function_for(value)
@@ -122,13 +162,72 @@ class DisjointList
     XXhash.xxh32(value, SEED_FOR_UNIQUE_IDS)
   end
 
-
   def unique_id_for_element(element)
     return @cached_unique_ids[element] if @cached_unique_ids[element]
     @cached_unique_ids[element]||=_unique_id_for_element(element, 0)
     @cached_instances_by_unique_id[@cached_unique_ids[element]]=element
     @cached_unique_ids[element]
   end
+
+  def merge(disjoint_list)
+    # We copy the cache of all instances from the list we want to merge
+    @cached_instances_by_unique_id.merge!(disjoint_list.cached_instances_by_unique_id)
+
+    # We copy the raw content of the list into our list.
+    concat(disjoint_list.list)
+    #@list.concat(disjoint_list.list).uniq!
+
+    # We clean from the copied raw content all the elements that create a conflict with our
+    # current contents
+
+    # All enabled elements I have that are not valid because of the opposite disjoint of the
+    # instance I am merging with
+    enabled_ids.keys.each do |key|
+      if (enabled_ids[key]==true) && (disjoint_list.enabled_ids[key]==false)
+        @enabled_ids[key]=false
+        remove_from_raw_list_by_id(key)
+      end
+    end
+    disjoint_list.enabled_ids.keys.each do |key|
+      if (disjoint_list.enabled_ids[key]==true)
+        if (enabled_ids[key]==false)
+          remove_from_raw_list_by_id(key)
+        else
+          @enabled_ids[key]=true
+        end
+      else
+        @enabled_ids[key]=false
+        remove_from_raw_list_by_id(key)
+      end
+    end
+    self
+  end
+
+  def value_for(key, caller=nil, deep=0)
+    return nil if caller==self
+    return nil if deep > MAX_OPPOSITE_DISJOINT_CYCLE_LENGTH
+    cached_instances_by_unique_id[key] || opposite_disjoint.value_for(key, self, deep+1)
+  end
+
+  def disabled_values
+    enabled_ids.keys.select{|key| enabled_ids[key] == false}.map do |key|
+      value_for(key)
+    end
+  end
+
+  def enabled_values
+    enabled_ids.keys.select{|key| enabled_ids[key] == true}.map do |key|
+      value_for(key)
+    end
+  end
+
+   def values
+    enabled_ids.keys.map do |key|
+      cached_instances_by_unique_id[key]
+    end
+  end
+
+  protected
 
   def _unique_id_for_element(element, deep=0)
     return sum_function_for(SecureRandom.uuid) if deep==MAX_DEEP_UNIQUE_ID
@@ -147,25 +246,26 @@ class DisjointList
     end
   end
 
-  def merge(disjoint_list)
-    # We copy the cache of all instances from the list we want to merge
-    @cached_instances_by_unique_id.merge!(disjoint_list.cached_instances_by_unique_id)
+  def enable(unique_id)
+    _set_enable(unique_id, true) unless @enabled_ids[unique_id]==false
+  end
 
-    # We copy the raw content of the list into our list.
-    @list.concat(disjoint_list.list).uniq!
+  def disable(unique_id)
+    _set_enable(unique_id, false)
+  end
 
-    # As we merge both lists now we have added all elements from both lists
-    @already_added_ids.merge!(disjoint_list.already_added_ids)
+  def _set_enable(unique_id, value, caller=nil, deep=0)
+    return if caller==self
+    return if (deep > MAX_OPPOSITE_DISJOINT_CYCLE_LENGTH)
 
-    # We clean from the copied raw content all the elements that create a conflict with our
-    # current contents
-    @already_added_ids.keys.each do |key|
-      # Any element I have conflicting with my opposite disjoint
-      # Any element I have conflicting with the opposite disjoint of my merged list
-      if (opposite_disjoint.already_added?(key) || disjoint_list.opposite_disjoint.already_added?(key))
-        remove(@cached_instances_by_unique_id[key])
-      end
+    @enabled_ids[unique_id]=value
+    remove_from_raw_list_by_id(unique_id) unless value
+    if opposite_disjoint
+      #opposite_disjoint.enabled_ids[unique_id]=false
+      #opposite_disjoint.remove_from_raw_list_by_id(unique_id)
+      opposite_disjoint._set_enable(unique_id, false, (caller||self), deep+1)
     end
   end
+
 
 end
