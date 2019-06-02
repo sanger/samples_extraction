@@ -419,6 +419,60 @@ RSpec.describe FactChanges do
       expect(updates1.facts_to_add.count).to eq(1)
       expect(updates2.facts_to_destroy.count).to eq(1)
     end
+    it 'keeps track of same fact added in one object and removed in another' do
+      p = create :asset
+      q = create :asset
+
+      updates1.add(p, 'relates', q)
+      updates2.remove_where(p,'relates', q)
+
+      updates1.merge(updates2)
+
+      expect(updates1.to_h).to eq({})
+
+    end
+    it 'merges changes and recalculates inconsistencies' do
+      asset = create :asset
+      asset2 = create :asset
+
+      p = create :asset
+      q = create :asset
+      z = create :asset
+      y = create :asset
+
+      #1 - will be removed by 4
+      updates1.add(p, 'relates', q)
+      #2 - will be removed by 9
+      updates1.add(asset, 'relates', asset2)
+      #3 - will be added by 6, so ignored
+      updates1.remove_where(q, 'relates', asset)
+      #4 - OK
+      updates1.add(p, 'relates', q)
+      #5 - OK
+      updates2.add(q, 'relates', z)
+      #6 - invalidated by 3
+      updates2.add(q, 'relates', asset)
+      #7 - OK
+      updates2.remove_where(q, 'notRelates', z)
+      #8 - OK
+      updates2.remove_where(q, 'relates', y)
+      #9 - Invalidated by 2
+      updates2.remove_where(asset, 'relates', asset2)
+
+      updates1.merge(updates2)
+
+
+      expect(updates1.to_h).to include({
+        add_facts: [
+          [p.uuid, 'relates', q.uuid],
+          [q.uuid, 'relates', z.uuid]
+        ],
+        remove_facts: [
+          [q.uuid, 'notRelates', z.uuid],
+          [q.uuid, 'relates', y.uuid]
+        ]
+      })
+    end
     context 'when using wildcards' do
       let(:obj) {FactChanges.new}
       let(:obj2) { FactChanges.new}

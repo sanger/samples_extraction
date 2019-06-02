@@ -2,27 +2,16 @@ require 'rails_helper'
 require 'disjoint_list'
 
 RSpec.describe 'DisjointList' do
-  let(:facts_to_add) { [] }
-  let(:facts_to_destroy) { [] }
-  let(:list) { DisjointList.new(facts_to_add) }
-
-  def create_linked_relation(num_elements, initial_values=nil)
-    num_elements.times.map.reduce([]) do |memo, i|
-      initial_value = []
-      initial_value = initial_values[i] if initial_values && initial_values.length < i
-      list = DisjointList.new(initial_value)
-      memo[i-1].set_opposite_disjoint(list) if i!=0
-      memo.push(list)
-    end
-  end
 
   describe '#initialize' do
     it 'adds the elements of the list and caches info' do
-      expect(DisjointList.new([1,2,3]).enabled_ids.keys.length).to eq(3)
+      list = DisjointList.new([1,2,3])
+      expect(list.to_a).to eq([1,2,3])
     end
   end
 
   describe '#sum_function_for' do
+    let(:list) { DisjointList.new([]) }
     it 'generates a sum function for the string provided' do
       expect(list.sum_function_for("123")).to eq(list.sum_function_for(123.to_s))
     end
@@ -35,6 +24,7 @@ RSpec.describe 'DisjointList' do
   end
 
   describe '#unique_id_for_element' do
+    let(:list) { DisjointList.new([]) }
     it 'does not generate the same value for different inputs' do
       expect(list.unique_id_for_element("abcdef")).not_to eq(list.unique_id_for_element("ABCDEF"))
     end
@@ -88,93 +78,61 @@ RSpec.describe 'DisjointList' do
   end
 
   describe '#add' do
-    let(:elem) { {} }
-    let(:list2) { DisjointList.new(facts_to_destroy) }
+    let(:elem) { 'a value' }
+    let(:raw_list) {[]}
+    let(:raw_list2) {[]}
+    let(:list) { DisjointList.new(raw_list)}
+    let(:list2) { DisjointList.new(raw_list2) }
+
     before do
-      list.set_opposite_disjoint(list2)
+      list.add_disjoint_list(list2)
     end
+
     it 'returns the disjoint list' do
       expect(list.add(elem)).to eq(list)
     end
     it 'adds the element when is not present in any of the lists' do
       expect{
         list.add(elem)
-      }.to change{facts_to_add.length}.by(1)
+      }.to change{list.to_a.length}.by(1)
       .and change{list.length}.by(1)
+      expect(list.to_a).to eq([elem])
     end
-    it 'caches values for performance (unique id, instance, added ids)' do
+    it 'stores the position in the common hash' do
       expect{
         list.add(elem)
-      }.to change{list.cached_unique_ids.keys.length}.by(1)
-      .and change{list.cached_instances_by_unique_id.keys.length}.by(1)
-      .and change{list.enabled_ids.keys.length}.by(1)
+      }.to change{list.store_for(elem)}.from(nil).to(list)
+      .and change{list2.store_for(elem)}.from(nil).to(list)
     end
     it 'does not add the element again if it is already present' do
       list.add(elem)
+      expect(list.to_a).to eq([elem])
       expect{
         list.add(elem)
-      }.to change{facts_to_add.length}.by(0)
+      }.to change{list.to_a.length}.by(0)
       .and change{list.length}.by(0)
+      expect(list.to_a).to eq([elem])
     end
-    it 'disables the element from the list if is present in the opposite list' do
-      list.set_opposite_disjoint(list2)
-      list2.set_opposite_disjoint(list)
-
+    it 'disables the element from the list if is added to another disjoint list' do
       list.add(elem)
-
-      expect(list.include?(elem)).to eq(true)
-      expect(list2.include?(elem)).to eq(false)
-
-    end
-  end
-  describe '#remove' do
-    let(:elem) { {} }
-
-    it 'removes the element with id from the list' do
-      list.add(elem)
-      expect(list.length).to eq(1)
-      expect{list.remove(elem)}.to change{list.length}.by(-1)
-    end
-  end
-  describe '#set_opposite_disjoint' do
-    let(:elem) { {} }
-    let(:elem2) { 'another value' }
-    let(:list2) { DisjointList.new(facts_to_destroy) }
-
-    it 'sets up the list as opposite list' do
-      list.set_opposite_disjoint(list2)
-      expect(list.opposite_disjoint).to eq(list2)
-    end
-
-    it 'removes all elements present in the opposite list' do
-      list << [1,2,3]
-      list2 << [2]
-      expect(list.to_a).to eq([1,2,3])
-      expect(list2.to_a).to eq([2])
-      expect{list.set_opposite_disjoint(list2)}.to change{list.to_a}.from([1,2,3]).to([1,3])
-    end
-
-    it 'does not remove anything from the opposite list' do
-      list.add(elem)
+      expect(list.to_a).to eq([elem])
       list2.add(elem)
-
-      expect{list.set_opposite_disjoint(list2)}.to change{list.include?(elem)}.from(true).to(false)
-      .and change{list.length}.from(1).to(0)
       expect(list.to_a).to eq([])
-      expect(list2.to_a).to eq([elem])
+      expect(list2.to_a).to eq([])
+      expect(list.disabled?(elem)).to eq(true)
+      expect(list.store_for(elem)).to eq(nil)
     end
 
-    it 'disables elements because of the opposite disjoint' do
-      list.set_opposite_disjoint(list2)
-      expect{list2.add(elem2)}.to change{list2.include?(elem2)}.from(false).to(true)
-      expect{list.add(elem2)}.to change{list2.include?(elem2)}.from(true).to(false)
-      expect(list.include?(elem2)).to eq(false)
-    end
-
-    context 'on a linked relation with disjoint lists' do
-      let(:lists) { create_linked_relation(5) }
-
-      it 'does not add elements disabled that belong to my direct opposite list' do
+    context 'with a group of disjoint lists' do
+      let(:lists) {
+        l=5.times.map{DisjointList.new([])}
+        l[0].add_disjoint_list(l[1])
+        l[0].add_disjoint_list(l[2])
+        l[0].add_disjoint_list(l[3])
+        l[0].add_disjoint_list(l[4])
+        l
+      }
+      it 'disables element if present in another list' do
         lists[0] << []
         lists[1] << [1]
         lists[2] << []
@@ -187,43 +145,7 @@ RSpec.describe 'DisjointList' do
         expect(lists[1].to_a).to eq([])
       end
 
-      it 'claims elements cascades all changes until the last element' do
-        lists[0] << []
-        lists[1] << []
-        lists[2] << []
-        lists[3] << []
-        lists[4] << [1,2,3,4,5]
-
-        lists[0] << [1,2,3,4,5]
-
-        expect(lists[0].to_a).to eq([1,2,3,4,5])
-        expect(lists[1].to_a).to eq([])
-        expect(lists[2].to_a).to eq([])
-        expect(lists[3].to_a).to eq([])
-        expect(lists[4].to_a).to eq([])
-
-        expect(lists[1].disabled_values).to eq([1,2,3,4,5])
-        expect(lists[2].disabled_values).to eq([1,2,3,4,5])
-        expect(lists[3].disabled_values).to eq([1,2,3,4,5])
-        expect(lists[4].disabled_values).to eq([1,2,3,4,5])
-      end
-
-      it 'does not affect previous lists' do
-        lists[0] << [1,2,3,4,5]
-        lists[1] << []
-        lists[2] << []
-        lists[3] << []
-        lists[4] << []
-
-        lists[2] << [1,2,3,4,5]
-
-        expect(lists[0].to_a).to eq([1,2,3,4,5])
-        expect(lists[1].to_a).to eq([])
-        expect(lists[2].to_a).to eq([1,2,3,4,5])
-        expect(lists[3].to_a).to eq([])
-        expect(lists[4].to_a).to eq([])
-      end
-      it 'affects the next lists in the chain' do
+      it 'disables lists in another list' do
         lists[0] << [1,2,3,4,5]
         lists[1] << []
         lists[2] << []
@@ -231,22 +153,6 @@ RSpec.describe 'DisjointList' do
         lists[4] << [6,7,8,9]
 
         lists[2] << [1,2,3,4,5,6,7,8,9]
-        expect(lists[0].to_a).to eq([1,2,3,4,5])
-        expect(lists[1].to_a).to eq([])
-        expect(lists[2].to_a).to eq([1,2,3,4,5,6,7,8,9])
-        expect(lists[3].to_a).to eq([])
-        expect(lists[4].to_a).to eq([])
-      end
-      it 'affects the previous elements if there is a cycle in the chain' do
-        lists[4].set_opposite_disjoint(lists[0])
-        lists[0] << [1,2,3,4,5]
-        lists[1] << []
-        lists[2] << []
-        lists[3] << []
-        lists[4] << []
-
-        lists[4] << [1,2,3,4,5]
-
         expect(lists[0].to_a).to eq([])
         expect(lists[1].to_a).to eq([])
         expect(lists[2].to_a).to eq([])
@@ -256,12 +162,58 @@ RSpec.describe 'DisjointList' do
     end
   end
 
-  describe '#set_mutual_disjoint' do
-    let(:list2) { DisjointList.new(facts_to_destroy) }
-    before do
-      list.set_mutual_disjoint(list2)
+  describe '#remove' do
+    let(:list) { DisjointList.new([]) }
+    let(:elem) { 'a value' }
+
+    it 'removes the element with id from the list' do
+      list.add(elem)
+      expect(list.length).to eq(1)
+      expect{list.remove(elem)}.to change{list.length}.by(-1)
+      .and change{list.store_for(elem)}.from(list).to(nil)
+      expect(list.to_a).to eq([])
     end
+  end
+  describe '#add_disjoint_list' do
+    let(:elem) { 'a value' }
+    let(:elem2) { 'another value' }
+    let(:list) { DisjointList.new([]) }
+    let(:list2) { DisjointList.new([]) }
+    let(:list3) { DisjointList.new([]) }
+
+    it 'adds the list to the disjoint lists' do
+      expect{list.add_disjoint_list(list2)}.to change{list.disjoint_lists}.from([list]).to([list,list2])
+        .and change{list2.disjoint_lists}.from([list2]).to([list,list2])
+    end
+
+    it 'sets up a shared list of disjoint lists for all added instances' do
+      list.add_disjoint_list(list2)
+      expect(list.disjoint_lists).to be(list2.disjoint_lists)
+
+      list3 = DisjointList.new([])
+      expect{list3.add_disjoint_list(list2)}.to change{list.disjoint_lists}.from([list,list2]).to([list3,list,list2])
+    end
+
+    it 'sets up a common list of locations for all added instances' do
+      list.add_disjoint_list(list2)
+      list3.add_disjoint_list(list2)
+      expect(list.location_for_unique_id).to be(list2.location_for_unique_id)
+      expect(list3.location_for_unique_id).to be(list.location_for_unique_id)
+      expect{list.add(elem)}.to change{list3.location_for_unique_id.keys.length}.by(1)
+    end
+
+    it 'disables all elements already disabled in the added list' do
+      list2.add_disjoint_list(list3)
+      list.add(elem)
+      list2.add(elem)
+      list3.add(elem)
+      expect(list2.disabled?(elem)).to eq(true)
+      expect(list.disabled?(elem)).to eq(false)
+      expect{list.add_disjoint_list(list2)}.to change{list.disabled?(elem)}.from(false).to(true)
+    end
+
     it 'removes the element if already present in my opposite list' do
+      list.add_disjoint_list(list2)
       list << 'spiderman'
       list2 << 'superman'
       expect(list.to_a).to eq(['spiderman'])
@@ -273,7 +225,8 @@ RSpec.describe 'DisjointList' do
   end
 
   describe '#include?' do
-    let(:elem) { {} }
+    let(:list) { DisjointList.new([]) }
+    let(:elem) { 'a value' }
     it 'returns true if the element was already added' do
       expect{list.add(elem)}.to change{list.include?(elem)}.from(false).to(true)
     end
@@ -295,8 +248,8 @@ RSpec.describe 'DisjointList' do
 
     context 'with mutual disjoint' do
       before do
-        disjoint1.set_mutual_disjoint(disjoint2)
-        disjoint3.set_mutual_disjoint(disjoint4)
+        disjoint1.add_disjoint_list(disjoint2)
+        disjoint3.add_disjoint_list(disjoint4)
       end
 
       it 'disables an element when adding it in my instance and removing it in the merged object' do
@@ -325,9 +278,9 @@ RSpec.describe 'DisjointList' do
         o2 = DisjointList.new([5])
         o3 = DisjointList.new([6])
 
-        d1.set_mutual_disjoint(o1)
-        d2.set_mutual_disjoint(o2)
-        d3.set_mutual_disjoint(o3)
+        d1.add_disjoint_list(o1)
+        d2.add_disjoint_list(o2)
+        d3.add_disjoint_list(o3)
 
         d1.merge(d2).merge(d3)
 
@@ -343,9 +296,9 @@ RSpec.describe 'DisjointList' do
         o2 = DisjointList.new([1,2])
         o3 = DisjointList.new([3])
 
-        d1.set_mutual_disjoint(o1)
-        d2.set_mutual_disjoint(o2)
-        d3.set_mutual_disjoint(o3)
+        d1.add_disjoint_list(o1)
+        d2.add_disjoint_list(o2)
+        d3.add_disjoint_list(o3)
 
         d1.merge(d2).merge(d3)
 
@@ -362,14 +315,12 @@ RSpec.describe 'DisjointList' do
         o2 = DisjointList.new([1,2])
         o3 = DisjointList.new([3])
 
-        d1.set_mutual_disjoint(o1)
-        d2.set_mutual_disjoint(o2)
-        d3.set_mutual_disjoint(o3)
+        d1.add_disjoint_list(o1)
+        d2.add_disjoint_list(o2)
+        d3.add_disjoint_list(o3)
 
         d1.merge(d2)
         expect(d1.to_a).to eq([3,4])
-        expect(d1.enabled_values.sort).to eq([3,4])
-        expect(d1.disabled_values.sort).to eq([1,2])
         d1.merge(d3)
         expect(d1.to_a).to eq([4])
       end
@@ -389,7 +340,7 @@ RSpec.describe 'DisjointList' do
         let(:winners) { 6.times.map{DisjointList.new([])} }
         let(:losers) { 6.times.map{DisjointList.new([])} }
         let(:list) { winners.zip(losers).map{|l|
-          l[0].set_mutual_disjoint(l[1])
+          l[0].add_disjoint_list(l[1])
           {winner: l[0], loser: l[1]}}
         }
 
@@ -419,8 +370,8 @@ RSpec.describe 'DisjointList' do
 
     context 'when this object and the merged one have all an opposite disjoint' do
       before do
-        disjoint1.set_opposite_disjoint(disjoint2)
-        disjoint3.set_opposite_disjoint(disjoint4)
+        disjoint1.add_disjoint_list(disjoint2)
+        disjoint3.add_disjoint_list(disjoint4)
       end
 
       it 'adds all elements in both lists if no restrictions are found' do
@@ -429,11 +380,11 @@ RSpec.describe 'DisjointList' do
         expect{disjoint1.merge(disjoint3)}.to change{disjoint1.to_a}.from(['green']).to(['green', 'blue'])
       end
 
-      it 'does not add same element twice' do
+      it 'disables all common elements as they can only exist in one place' do
         disjoint1 << ['green', 'red', 'white']
         disjoint3 << ['blue', 'red', 'white']
         expect{disjoint1.merge(disjoint3)}.to change{
-          disjoint1.to_a.sort}.from(['green', 'red', 'white']).to(['blue', 'green', 'red', 'white'])
+          disjoint1.to_a.sort}.from(['green', 'red', 'white']).to(['blue', 'green'])
       end
 
 
@@ -445,7 +396,8 @@ RSpec.describe 'DisjointList' do
 
         disjoint1.merge(disjoint3)
 
-        expect(disjoint1.to_a).to eq(['green', 'yellow', 'white'])
+        expect(disjoint1.to_a).to eq(['white'])
+        expect(disjoint2.to_a).to eq(['paris', 'london'])
       end
 
     end

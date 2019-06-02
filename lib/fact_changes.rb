@@ -36,8 +36,7 @@ class FactChanges
     list1 = DisjointList.new([])
     list2 = DisjointList.new([])
 
-    list1.set_opposite_disjoint(list2)
-    list2.set_opposite_disjoint(list1)
+    list1.add_disjoint_list(list2)
 
     send("#{list.to_s}=", list1)
     send("#{opposite.to_s}=", list2)
@@ -123,6 +122,7 @@ class FactChanges
   end
 
   def remove(f)
+    return if f.nil?
     if f.kind_of?(Enumerable)
       facts_to_destroy << f.map{|o| o.attributes.symbolize_keys}
     elsif f.kind_of?(Fact)
@@ -144,14 +144,14 @@ class FactChanges
       # To keep track of already added object after merging with another fact changes object
       #_add_already_added_from_other_object(fact_changes)
       errors_added.concat(fact_changes.errors_added)
-      asset_groups_to_create.concat(fact_changes.asset_groups_to_create).uniq!
-      assets_to_create.concat(fact_changes.assets_to_create).uniq!
-      facts_to_add.concat(fact_changes.facts_to_add).uniq!
-      assets_to_add.concat(fact_changes.assets_to_add).uniq!
-      assets_to_remove.concat(fact_changes.assets_to_remove).uniq!
-      facts_to_destroy.concat(fact_changes.facts_to_destroy).uniq!
-      assets_to_destroy.concat(fact_changes.assets_to_destroy).uniq!
-      asset_groups_to_destroy.concat(fact_changes.asset_groups_to_destroy).uniq!
+      asset_groups_to_create.concat(fact_changes.asset_groups_to_create.to_a).uniq!
+      assets_to_create.concat(fact_changes.assets_to_create.to_a).uniq!
+      facts_to_add.concat(fact_changes.facts_to_add.to_a).uniq!
+      assets_to_add.concat(fact_changes.assets_to_add.to_a).uniq!
+      assets_to_remove.concat(fact_changes.assets_to_remove.to_a).uniq!
+      facts_to_destroy.concat(fact_changes.facts_to_destroy.to_a)
+      assets_to_destroy.concat(fact_changes.assets_to_destroy.to_a).uniq!
+      asset_groups_to_destroy.concat(fact_changes.asset_groups_to_destroy.to_a).uniq!
       instances_from_uuid.merge!(fact_changes.instances_from_uuid)
       wildcards.merge!(fact_changes.wildcards)
     end
@@ -159,6 +159,7 @@ class FactChanges
   end
 
   def apply(step, with_operations=true)
+    #debugger
     _handle_errors(step) if errors_added.length > 0
     ActiveRecord::Base.transaction do |t|
       operations = [
