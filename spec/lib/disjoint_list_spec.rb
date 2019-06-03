@@ -162,6 +162,32 @@ RSpec.describe 'DisjointList' do
     end
   end
 
+  describe '#concat' do
+    let(:disjoint1) { DisjointList.new([])}
+    let(:disjoint2) { DisjointList.new([])}
+    let(:disjoint3) { DisjointList.new([])}
+    let(:disjoint4) { DisjointList.new([])}
+
+    context 'when concatenating disjoint lists' do
+      before do
+        disjoint1.add_disjoint_list(disjoint2)
+        disjoint3.add_disjoint_list(disjoint4)
+      end
+      it 'all disabled elements are rembered even in next actions after concat' do
+        disjoint1 << []
+        disjoint2 << []
+        disjoint3 << ['rome']
+        disjoint4 << ['barcelona', 'rome', 'lisbon']
+        # rome is disabled
+        disjoint1.concat(disjoint3)
+        disjoint1 << 'barcelona'
+        disjoint1 << 'athens'
+        disjoint1 << 'rome'
+        expect(disjoint1.to_a).to eq(['barcelona', 'athens'])
+      end
+    end
+  end
+
   describe '#remove' do
     let(:list) { DisjointList.new([]) }
     let(:elem) { 'a value' }
@@ -380,11 +406,11 @@ RSpec.describe 'DisjointList' do
         expect{disjoint1.merge(disjoint3)}.to change{disjoint1.to_a}.from(['green']).to(['green', 'blue'])
       end
 
-      it 'disables all common elements as they can only exist in one place' do
+      it 'adds new elements keeping duplicates unique' do
         disjoint1 << ['green', 'red', 'white']
         disjoint3 << ['blue', 'red', 'white']
         expect{disjoint1.merge(disjoint3)}.to change{
-          disjoint1.to_a.sort}.from(['green', 'red', 'white']).to(['blue', 'green'])
+          disjoint1.to_a.sort}.from(['green', 'red', 'white']).to(["blue", "green", "red", "white"])
       end
 
 
@@ -396,8 +422,19 @@ RSpec.describe 'DisjointList' do
 
         disjoint1.merge(disjoint3)
 
-        expect(disjoint1.to_a).to eq(['white'])
+        expect(disjoint1.to_a).to eq(['green', 'yellow', 'white'])
         expect(disjoint2.to_a).to eq(['paris', 'london'])
+      end
+
+      it 'all restrictions are applied even in next actions after merging' do
+        disjoint1 << []
+        disjoint3 << []
+        disjoint4 << ['barcelona', 'rome', 'lisbon']
+        disjoint1.merge(disjoint3)
+        disjoint1 << 'barcelona'
+        disjoint1 << 'athens'
+        disjoint1 << 'rome'
+        expect(disjoint1.to_a).to eq(['athens'])
       end
 
     end

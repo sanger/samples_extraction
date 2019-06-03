@@ -431,6 +431,58 @@ RSpec.describe FactChanges do
       expect(updates1.to_h).to eq({})
 
     end
+    it 'keeps track of disabled changes when merging an object' do
+      p = create :asset
+      q = create :asset
+
+      updates2.add(p, 'relates', q)
+      updates2.remove_where(p,'relates', q)
+      updates2.add(p, 'anotherRel', q)
+
+      updates1.add(p, 'relates', q)
+
+      updates1.merge(updates2)
+
+      expect(updates1.to_h).to eq({add_facts: [[p.uuid, 'anotherRel', q.uuid]]})
+    end
+    it 'keeps track of disabled changes after merging an object' do
+      p = create :asset
+      q = create :asset
+
+      updates2.add(p, 'relates', q)
+      updates2.remove_where(p,'relates', q)
+      updates2.add(p, 'anotherRel', q)
+
+      updates1.merge(updates2)
+
+      # This one is disabled in updates2
+      updates1.add(p, 'relates', q)
+
+      updates1.add(q, 'anotherRel', p)
+
+      expect(updates1.to_h).to eq({add_facts: [
+        [p.uuid, 'anotherRel', q.uuid],
+        [q.uuid, 'anotherRel', p.uuid]
+      ]})
+    end
+    it 'disables an element because of changes merged' do
+      p = create :asset
+      q = create :asset
+
+      updates2.add(p, 'relates', q)
+
+      updates1.merge(updates2)
+
+      expect(updates1.to_h).to eq({
+        add_facts: [
+          [p.uuid, 'relates', q.uuid]
+        ]
+      })
+
+      updates1.remove_where(p,'relates', q)
+
+      expect(updates1.to_h).to eq({})
+    end
     it 'merges changes and recalculates inconsistencies' do
       asset = create :asset
       asset2 = create :asset
@@ -759,3 +811,4 @@ RSpec.describe FactChanges do
     end
   end
 end
+

@@ -144,14 +144,14 @@ class FactChanges
       # To keep track of already added object after merging with another fact changes object
       #_add_already_added_from_other_object(fact_changes)
       errors_added.concat(fact_changes.errors_added)
-      asset_groups_to_create.concat(fact_changes.asset_groups_to_create.to_a).uniq!
-      assets_to_create.concat(fact_changes.assets_to_create.to_a).uniq!
-      facts_to_add.concat(fact_changes.facts_to_add.to_a).uniq!
-      assets_to_add.concat(fact_changes.assets_to_add.to_a).uniq!
-      assets_to_remove.concat(fact_changes.assets_to_remove.to_a).uniq!
-      facts_to_destroy.concat(fact_changes.facts_to_destroy.to_a)
-      assets_to_destroy.concat(fact_changes.assets_to_destroy.to_a).uniq!
-      asset_groups_to_destroy.concat(fact_changes.asset_groups_to_destroy.to_a).uniq!
+      asset_groups_to_create.concat(fact_changes.asset_groups_to_create)
+      assets_to_create.concat(fact_changes.assets_to_create)
+      facts_to_add.concat(fact_changes.facts_to_add)
+      assets_to_add.concat(fact_changes.assets_to_add)
+      assets_to_remove.concat(fact_changes.assets_to_remove)
+      facts_to_destroy.concat(fact_changes.facts_to_destroy)
+      assets_to_destroy.concat(fact_changes.assets_to_destroy)
+      asset_groups_to_destroy.concat(fact_changes.asset_groups_to_destroy)
       instances_from_uuid.merge!(fact_changes.instances_from_uuid)
       wildcards.merge!(fact_changes.wildcards)
     end

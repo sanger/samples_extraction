@@ -49,7 +49,11 @@ class DisjointList
   end
 
   def disabled?(element)
-    @location_for_unique_id[unique_id_for_element(element)] == DISABLED_NAME
+    disabled_key?(unique_id_for_element(element))
+  end
+
+  def disabled_key?(key)
+    @location_for_unique_id[key] == DISABLED_NAME
   end
 
   def enabled_in_other_list?(element)
@@ -57,7 +61,11 @@ class DisjointList
   end
 
   def include?(element)
-    @location_for_unique_id[unique_id_for_element(element)] == name
+    include_key?(unique_id_for_element(element))
+  end
+
+  def include_key?(key)
+    @location_for_unique_id[key] == name
   end
 
   def remove(element)
@@ -113,7 +121,7 @@ class DisjointList
   end
 
   def add(element)
-    return merge(element) if element.kind_of?(DisjointList)
+    return concat_disjoint_list(element) if element.kind_of?(DisjointList)
     if enabled_in_other_list?(element)
       disable(element)
     elsif include?(element)
@@ -134,9 +142,23 @@ class DisjointList
     return _unique_id_for_element(element, 0)
   end
 
+  def concat_disjoint_list(disjoint_list)
+    disjoint_list.location_for_unique_id.keys.each do |key|
+      if disjoint_list.disabled_key?(key)
+        _disable(key)
+      end
+    end
+    disjoint_list.to_a.each {|val| add(val)}
+    self
+  end
+
   def merge(disjoint_list)
-    _synchronize_with_list(disjoint_list)
-    disjoint_list.to_a.select{|val| !disabled?(val)}.each {|val| add(val)}
+    disjoint_list.location_for_unique_id.keys.each do |key|
+      if (!disjoint_list.include_key?(key) || disjoint_list.disabled_key?(key))
+        _disable(key)
+      end
+    end
+    disjoint_list.to_a.each {|val| add(val)}
     self
   end
 
