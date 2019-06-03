@@ -1,4 +1,5 @@
 require 'ruby-xxhash'
+require 'google_hash'
 
 class DisjointList
   SEED_FOR_UNIQUE_IDS = Random.rand(1000)
@@ -15,7 +16,8 @@ class DisjointList
 
   def initialize(list)
     @name = "object_id_#{object_id}"
-    @location_for_unique_id = {}
+    #@location_for_unique_id = {}
+    @location_for_unique_id = GoogleHashDenseLongToRuby.new
     @list = []
     @disjoint_lists = [self]
     list.each {|o| add(o)}
@@ -134,8 +136,9 @@ class DisjointList
   end
 
   def sum_function_for(value)
+    return value.hash
     # Value to create checksum and seed
-    XXhash.xxh32(value, SEED_FOR_UNIQUE_IDS)
+    #XXhash.xxh32(value, SEED_FOR_UNIQUE_IDS)
   end
 
   def unique_id_for_element(element)

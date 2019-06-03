@@ -70,6 +70,8 @@ gem 'sanger_barcode_format', github: 'sanger/sanger_barcode_format'
 gem 'pmb-client', git: 'https://github.com/sanger/pmb-client.git'
 
 
+gem 'google_hash'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
