@@ -37,7 +37,8 @@ class TransferTubesToTubeRackByPosition
     FactChanges.new.tap do |updates|
       aliquot_types = []
       if assets_compatible_with_step_type
-        rack = asset_group.assets.first.facts.with_predicate('transferToTubeRackByPosition').first.object_asset
+        tubes = asset_group.assets.joins(:facts).where(facts: {predicate: 'transferToTubeRackByPosition'}).uniq
+        rack = tubes.first.facts.with_predicate('transferToTubeRackByPosition').first.object_asset
         wells = rack.facts.with_predicate('contains').map(&:object_asset).sort_by do |elem|
           location = elem.facts.with_predicate('location').first.object
           location_to_pos(location)

@@ -51,6 +51,60 @@ RSpec.describe FactChanges do
       updates.parse_json(json)
       expect(updates.facts_to_add.length).to eq(2)
     end
+
+    context 'when loading different json' do
+      let(:updates) {FactChanges.new}
+      it 'loads created assets' do
+        uuid = SecureRandom.uuid
+        json = { create_assets: [uuid] }.to_json
+        expect(updates.parse_json(json)).to eq(true)
+        expect(updates.assets_to_create.length).to eq(1)
+      end
+      it 'loads deleted assets' do
+        uuid = Asset.create.uuid
+        json = { delete_assets: [uuid] }.to_json
+        expect(updates.parse_json(json)).to eq(true)
+        expect(updates.assets_to_destroy.length).to eq(1)
+      end
+      it 'loads created groups' do
+        uuid = AssetGroup.create.uuid
+        json = { create_asset_groups: [uuid] }.to_json
+        expect(updates.parse_json(json)).to eq(true)
+        expect(updates.asset_groups_to_create.length).to eq(1)
+      end
+      it 'loads deleted groups' do
+        uuid = AssetGroup.create.uuid
+        json = { delete_asset_groups: [uuid] }.to_json
+        expect(updates.parse_json(json)).to eq(true)
+        expect(updates.asset_groups_to_destroy.length).to eq(1)
+      end
+      it 'loads added assets' do
+        asset = Asset.create
+        group = AssetGroup.create
+        json = { add_assets: [[group.uuid, [asset.uuid] ]] }.to_json
+        expect(updates.parse_json(json)).to eq(true)
+        expect(updates.assets_to_add.length).to eq(1)
+      end
+      it 'loads removed assets' do
+        asset = Asset.create
+        group = AssetGroup.create
+        json = { remove_assets: [[group.uuid, [asset.uuid] ]] }.to_json
+        expect(updates.parse_json(json)).to eq(true)
+        expect(updates.assets_to_remove.length).to eq(1)
+      end
+      it 'loads facts to add' do
+        asset = Asset.create
+        json = {add_facts: [[asset.uuid, 'is', 'Cool']]}.to_json
+        expect(updates.parse_json(json)).to eq(true)
+        expect(updates.facts_to_add.length).to eq(1)
+      end
+      it 'loads removed facts' do
+        asset = Asset.create
+        json = {remove_facts: [[asset.uuid, 'is', 'Cool']]}.to_json
+        expect(updates.parse_json(json)).to eq(true)
+        expect(updates.facts_to_destroy.length).to eq(1)
+      end
+    end
   end
 
   describe '#to_json' do
@@ -58,6 +112,56 @@ RSpec.describe FactChanges do
     it 'displays the contents of the object in json format' do
       updates.parse_json(json)
       expect(updates.to_json.kind_of?(String)).to eq(true)
+    end
+  end
+
+  describe '#to_h' do
+    let(:updates) {FactChanges.new}
+    it 'generates a hash' do
+      expect{updates.to_h}.not_to raise_error
+    end
+    it 'creates assets and adds them to the hash' do
+      uuid = SecureRandom.uuid
+      updates.create_assets([uuid])
+      expect(updates.to_h).to include(create_assets: [uuid])
+    end
+    it 'adds deleted assets to the hash' do
+      uuid = Asset.create.uuid
+      updates.delete_assets([uuid])
+      expect(updates.to_h).to include(delete_assets: [uuid])
+    end
+    it 'adds created groups to the hash' do
+      uuid = SecureRandom.uuid
+      updates.create_asset_groups([uuid])
+      expect(updates.to_h).to include(create_asset_groups: [uuid])
+    end
+    it 'adds deleted groups to the hash' do
+      uuid = AssetGroup.create.uuid
+      updates.delete_asset_groups([uuid])
+      expect(updates.to_h).to include(delete_asset_groups: [uuid])
+    end
+    it 'adds added assets to the group in the hash' do
+      asset = Asset.create
+      group = AssetGroup.create
+      updates.add_assets([[group, [asset]]])
+      expect(updates.to_h).to include(add_assets: [[group.uuid,  [asset.uuid] ]])
+    end
+    it 'adds removed assets from the group in the hash' do
+      asset = Asset.create
+      group = AssetGroup.create
+      updates.remove_assets([[group, [asset]]])
+      expect(updates.to_h).to include(remove_assets: [[group.uuid,  [asset.uuid] ]])
+    end
+    it 'adds facts to the hash' do
+      asset = Asset.create
+      updates.add(asset, 'is', 'Cool')
+      expect(updates.to_h).to include(add_facts: [[asset.uuid, 'is', 'Cool']])
+    end
+
+    it 'adds removed facts into the hash' do
+      asset = Asset.create
+      updates.remove_where(asset, 'is', 'Cool')
+      expect(updates.to_h).to include(remove_facts: [[asset.uuid, 'is', 'Cool']])
     end
   end
 

@@ -1,4 +1,3 @@
-require 'ruby-xxhash'
 require 'google_hash'
 
 class DisjointList
@@ -16,8 +15,10 @@ class DisjointList
 
   def initialize(list)
     @name = "object_id_#{object_id}"
-    #@location_for_unique_id = {}
+
+    # Replace with a normal hash if we want to stop using it
     @location_for_unique_id = GoogleHashDenseLongToRuby.new
+
     @list = []
     @disjoint_lists = [self]
     list.each {|o| add(o)}

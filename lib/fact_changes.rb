@@ -1,5 +1,6 @@
 require 'token_util'
 require 'disjoint_list'
+require 'google_hash'
 
 class FactChanges
 
@@ -19,7 +20,6 @@ class FactChanges
   end
 
   def reset
-    @cached_unique_ids = {}
     @parsing_valid = false
     @errors_added = []
 
@@ -28,8 +28,8 @@ class FactChanges
     build_disjoint_lists(:asset_groups_to_create, :asset_groups_to_destroy)
     build_disjoint_lists(:assets_to_add, :assets_to_remove)
 
-    @instances_from_uuid = {}
-    @wildcards = {}
+    @instances_from_uuid = GoogleHashDenseRubyToRuby.new
+    @wildcards = GoogleHashDenseRubyToRuby.new
   end
 
   def build_disjoint_lists(list, opposite)
@@ -42,6 +42,17 @@ class FactChanges
     send("#{opposite.to_s}=", list2)
   end
 
+  def asset_group_asset_to_h(asset_group_asset_str)
+    asset_group_asset_str.reduce({}) do |memo, o|
+      key = (o[:asset_group] && o[:asset_group].uuid) || nil
+      memo[key] = [] unless memo[key]
+      memo[key].push(o[:asset].uuid)
+      memo
+    end.map do |k,v|
+      [k,v]
+    end
+  end
+
   def to_h
     {
       'set_errors': @errors_added,
@@ -50,16 +61,26 @@ class FactChanges
       'delete_asset_groups': @asset_groups_to_destroy.map(&:uuid),
       'delete_assets': @assets_to_destroy.map(&:uuid),
       'add_facts': @facts_to_add.map do |f|
-        [ f[:asset].nil? ? nil : f[:asset].uuid,
+        [
+          f[:asset].nil? ? nil : f[:asset].uuid,
           f[:predicate],
           (f[:object] || f[:object_asset].uuid)
         ]
       end,
       'remove_facts': @facts_to_destroy.map do |f|
-        [f[:asset].uuid, f[:predicate], f[:object] || f[:object_asset].uuid ]
+        if f[:id]
+          fact = Fact.find(f[:id])
+          [fact.asset.uuid, fact.predicate, fact.object_value_or_uuid]
+        else
+          [
+            f[:asset].nil? ? nil : f[:asset].uuid,
+            f[:predicate],
+            (f[:object] || f[:object_asset].uuid)
+          ]
+        end
       end,
-      'add_assets': @assets_to_add.map(&:to_json),
-      'remove_assets': @assets_to_remove.map(&:to_json)
+      'add_assets': asset_group_asset_to_h(@assets_to_add),
+      'remove_assets': asset_group_asset_to_h(@assets_to_remove)
     }.reject {|k,v| v.length == 0 }
   end
 
@@ -139,6 +160,13 @@ class FactChanges
     facts_to_destroy << fact if fact
   end
 
+  def merge_hash(h1, h2)
+    h2.keys.each do |k|
+      h1[k]=h2[k]
+    end
+    h1
+  end
+
   def merge(fact_changes)
     if (fact_changes)
       # To keep track of already added object after merging with another fact changes object
@@ -152,8 +180,8 @@ class FactChanges
       facts_to_destroy.concat(fact_changes.facts_to_destroy)
       assets_to_destroy.concat(fact_changes.assets_to_destroy)
       asset_groups_to_destroy.concat(fact_changes.asset_groups_to_destroy)
-      instances_from_uuid.merge!(fact_changes.instances_from_uuid)
-      wildcards.merge!(fact_changes.wildcards)
+      merge_hash(instances_from_uuid, fact_changes.instances_from_uuid)
+      merge_hash(wildcards, fact_changes.wildcards)
     end
     self
   end
@@ -281,7 +309,7 @@ class FactChanges
   def add_assets(list)
     list.each do |elem|
       if ((elem.length > 0) && elem[1].kind_of?(Array))
-        asset_group = validate_instances(find_asset_group(elem[0]))
+        asset_group = elem[0].nil? ? nil : validate_instances(find_asset_group(elem[0]))
         asset_ids = elem[1]
       else
         asset_group = nil
@@ -298,7 +326,7 @@ class FactChanges
   def remove_assets(list)
     list.each do |elem|
       if ((elem.length > 0) && elem[1].kind_of?(Array))
-        asset_group = validate_instances(find_asset_group(elem[0]))
+        asset_group = elem[0].nil? ? nil :validate_instances(find_asset_group(elem[0]))
         asset_ids = elem[1]
       else
         asset_group = nil
@@ -325,6 +353,7 @@ class FactChanges
 
   def _add_assets(step, asset_group_assets, with_operations = true)
     modified_list = asset_group_assets.map do |o|
+      # If is nil, it will use the asset group from the step
       o[:asset_group] = o[:asset_group] || step.asset_group
       o
     end

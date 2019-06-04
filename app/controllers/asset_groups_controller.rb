@@ -7,6 +7,8 @@ class AssetGroupsController < ApplicationController
 
   include ActivitiesHelper
 
+
+
   def show
     @assets = @asset_group.assets
     @assets_grouped = assets_by_fact_group
@@ -76,14 +78,14 @@ class AssetGroupsController < ApplicationController
                                        Asset.find_or_import_asset_with_barcode(uuid_or_barcode)
                                      end.compact.uniq)
     end
-    
+
     def show_alert(data)
       @alerts = [] unless @alerts
       @alerts.push(data)
     end
-    
+
     def params_update_asset_group
       params.require(:asset_group).permit(:assets => [])
     end
-    
+
 end

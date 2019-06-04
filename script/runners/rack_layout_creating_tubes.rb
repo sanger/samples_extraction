@@ -18,7 +18,7 @@ class RackLayoutCreatingTubes
     FactChanges.new.tap do |updates|
       if assets_compatible_with_step_type.count > 0
         updates.merge(rack_layout_creating_tubes(@asset_group))
-        updates.remove_assets([selected_file.uuid])
+        updates.remove_assets([[asset_group.uploaded_files.first.asset.uuid]])
       end
     end
   end
@@ -37,6 +37,7 @@ begin
   puts json
 rescue InvalidDataParams => e
   puts ({ set_errors: e.errors }.to_json)
-rescue StandardError
-  puts ({ set_errors: ['Unknown error while parsing file']}.to_json)
+rescue StandardError => e
+
+  puts ({ set_errors: ['Unknown error while parsing file'+e.to_json+e.backtrace.join('')]}.to_json)
 end

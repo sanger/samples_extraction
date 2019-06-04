@@ -32,6 +32,8 @@ Printer.create(name: 'e367bc', printer_type: 'Tube', default_printer: true)
 instrument.activity_types << activity_type
 
 runners = [
+  ['[DEMO] Create 12 tubes', 'create_12_tubes.rb'],
+  ['[DEMO] Generate plate layout file', 'create_layout.rb'],
   ['Aliquot type inference', 'aliquot_type_inference.rb', %Q{
     {
       ?p :contains ?q .

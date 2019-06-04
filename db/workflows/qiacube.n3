@@ -1,7 +1,15 @@
 :activityType :activityTypeName """AllPrep DNA/RNA/miRNA Universal""" .
 {} => {
-  :step :stepTypeName """Create 12 tubes""" .
+  :step :stepTypeName """[DEMO] Create 12 tubes""" .
   :step :stepAction """create_12_tubes.rb""" .
+}.
+
+{
+  ?rack :a :TubeRack .
+  ?tube :a :Tube .
+} => {
+  :step :stepTypeName """[DEMO] Generate plate layout file""" .
+  :step :stepAction """create_layout.rb""" .
 }.
 
 {
@@ -394,7 +402,6 @@
   :step :stepTypeName """Apply layout of fluidx tubes in Empty TubeRack""" .
   :step :stepAction """rack_layout_creating_tubes.rb""" .
   :step :addFacts { ?tube_rack :layout :Complete . } .
-  :step :unselectAsset ?file .
 } .
 
 {
