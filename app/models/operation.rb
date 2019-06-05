@@ -38,7 +38,7 @@ class Operation < ApplicationRecord
     if (type == :add_facts)
       updates.add(self.asset, self.predicate, object_value)
     elsif (type == :remove_facts)
-      updates.remove(Fact.where(asset: self.asset, predicate: self.predicate, object: object, object_asset: object_asset))
+      updates.remove_where(self.asset, self.predicate, object_value)
     elsif (type == :create_assets)
       asset = Asset.create(uuid: object)
       update_attributes(asset: asset)
