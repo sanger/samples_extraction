@@ -277,7 +277,6 @@ GEM
     ruby-growl (4.1)
       uuid (~> 2.3, >= 2.3.5)
     ruby-progressbar (1.10.0)
-    ruby-xxHash (0.4.0.1)
     sane (0.25.8)
       os (~> 0)
     sass (3.7.4)
@@ -408,7 +407,6 @@ DEPENDENCIES
   rubocop
   rubocop-performance
   ruby-growl
-  ruby-xxHash
   sanger_barcode_format!
   sass-rails
   sdoc
