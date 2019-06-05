@@ -3,6 +3,7 @@
 *~
 capybara-*.html
 .rspec
+/node_modules
 /log
 /tmp
 /db/*.sqlite3
