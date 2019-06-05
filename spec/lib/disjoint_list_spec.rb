@@ -75,6 +75,35 @@ RSpec.describe 'DisjointList' do
       obj[:b][:c] = obj
       expect{list.unique_id_for_element(obj)}.not_to raise_error
     end
+    it 'generates same id for facts when using id or object reference' do
+      asset=create :asset
+      asset2 = create :asset
+      somepredicate='relation'
+      ob1={asset: asset, predicate: somepredicate, object_asset: asset2}
+      ob2={id: 123, asset_id: asset.id, predicate: somepredicate, object_asset_id: asset2.id}
+      expect(list.unique_id_for_element(ob1)).to eq(list.unique_id_for_element(ob2))
+    end
+    it 'generates different ids for facts using instances not in database' do
+      asset=build :asset
+      asset2 = build :asset
+      asset3 = build :asset
+      somepredicate='relation'
+
+      ob1={asset: asset, predicate: somepredicate, object_asset: asset2}
+      ob2={asset: asset2, predicate: somepredicate, object_asset: asset}
+      ob3={asset: asset, predicate: somepredicate, object_asset: asset3}
+      ob4={asset: asset, predicate: somepredicate, object_asset: asset}
+
+      expect(list.unique_id_for_element(ob1)).not_to eq(list.unique_id_for_element(ob2))
+      expect(list.unique_id_for_element(ob1)).not_to eq(list.unique_id_for_element(ob3))
+      expect(list.unique_id_for_element(ob1)).not_to eq(list.unique_id_for_element(ob4))
+
+    end
+    it 'generates different ids for different instances' do
+      asset = build :asset
+      asset2 = build :asset
+      expect(list.unique_id_for_element(asset)).not_to eq(list.unique_id_for_element(asset2))
+    end
   end
 
   describe '#add' do

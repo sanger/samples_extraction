@@ -213,18 +213,31 @@ class DisjointList
     return sum_function_for(SecureRandom.uuid) if deep==MAX_DEEP_UNIQUE_ID
     if element.kind_of?(String)
       sum_function_for(element)
+    elsif (element.respond_to?(:uuid) && (!element.uuid.nil?))
+      sum_function_for(element.uuid)
+    elsif (element.respond_to?(:id) && !element.id.nil?)
+      sum_function_for("#{element.class.to_s}_#{element.id.to_s}")
+    elsif element.kind_of?(Hash)
+      if (element.has_key?(:uuid) && (!element[:uuid].nil?))
+        sum_function_for(element[:uuid])
+      elsif (element.has_key?(:predicate))
+        _unique_id_for_fact(element)
+      else
+        sum_function_for(element.keys.dup.concat(element.values.map{|val| _unique_id_for_element(val, deep+1)}).join(""))
+      end
     elsif element.kind_of?(Enumerable)
       sum_function_for(element.map{|o| _unique_id_for_element(o, deep+1)}.join(""))
-    elsif element.kind_of?(Hash)
-      sum_function_for(element.keys.dup.concat(element.values.map{|val| _unique_id_for_element(val, deep+1)}).join(""))
-    elsif element.respond_to?(:uuid)
-      sum_function_for(element.uuid)
-    elsif element.respond_to?(:id)
-      sum_function_for("#{element.class.to_s}_#{element.id.to_s}")
     else
       sum_function_for(element.to_s)
     end
   end
 
+  def _unique_id_for_fact(element)
+    sum_function_for([
+      (element[:asset_id] || element[:asset].id || element[:asset].object_id),
+      element[:predicate],
+      (element[:object] || element[:object_asset_id] || element[:object_asset].id || element[:object_asset].object_id)
+    ].join('_'))
+  end
 
 end

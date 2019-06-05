@@ -204,6 +204,7 @@
 } => {
   :step  :stepTypeName """(BY POSITION) Create RNA and extract RNA from RNA+P tubes""" .
   :step :connectBy """position""" .
+  :step :stepAction """transfer_samples.rb""" .
   :step  :createAsset  {
     ?rna_tube   :a  :Tube .
     ?rna_tube   :aliquotType  :RNA .

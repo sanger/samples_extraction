@@ -881,6 +881,17 @@ RSpec.describe FactChanges do
           .and change{Fact.with_predicate('transfer').count}.by(0)
         end
       end
+      context 'when you add a fact and remove an specific fact that complies the added one' do
+        it 'does not include neither in the apply' do
+          asset1 = create :asset
+          asset2 = create :asset
+          fact = create(:fact, asset: asset1, predicate: 'related', object_asset: asset2, literal: false)
+
+          updates.add(asset1, "related", asset2)
+          updates.remove(fact)
+          expect{updates.apply(step)}.to change{Fact.with_predicate('related').count}.by(0)
+        end
+      end
     end
     context 'with several operations using wildcards' do
       let(:updates) { FactChanges.new }

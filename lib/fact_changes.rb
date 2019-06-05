@@ -187,7 +187,6 @@ class FactChanges
   end
 
   def apply(step, with_operations=true)
-    #debugger
     _handle_errors(step) if errors_added.length > 0
     ActiveRecord::Base.transaction do |t|
       operations = [

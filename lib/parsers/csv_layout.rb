@@ -80,6 +80,7 @@ module Parsers
     def parse
       updater = FactChanges.new
       @data ||= @csv_parser.to_a.map do |line|
+        next if line.nil? || line.length == 0
         location, barcode = convert_to_location(line[0].strip), line[1].strip
         asset = valid_fluidx_barcode?(barcode) ? builder(barcode, updater) : nil
         @errors.push(:msg => "Invalid Fluidx tube barcode format #{barcode}") unless valid_fluidx_barcode?(barcode) || no_read_barcode?(barcode)
@@ -93,7 +94,7 @@ module Parsers
           :location => location,
           :asset => asset
         }
-      end
+      end.compact
 
       unless duplicated(:asset).empty?
         duplicated(:asset).each do |asset|

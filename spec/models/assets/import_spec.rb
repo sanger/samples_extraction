@@ -180,28 +180,29 @@ RSpec.describe 'Asset::Import' do
   		  	end
 
   		  	context 'when the local copy is out of date' do
-  		  		setup do
+  		  		before do
   		  			@asset.update_attributes(remote_digest: 'RANDOM')
+              @fact_changed = @asset.facts.from_remote_asset.where(predicate: 'contains').first
+
+              @well_changed = create :asset
+              @dependant_fact = create :fact, predicate: 'some', object: 'Moredata', is_remote?: true
+              @well_changed.facts << @dependant_fact
+              @fact_changed.update_attributes(object_asset_id: @well_changed.id)
   		  		end
-  		  		it 'should destroy any remote facts' do
-  		  			remote_facts = @asset.facts.from_remote_asset
-  		  			remote_facts.each(&:reload)
+  		  		it 'should destroy any remote facts that has changed' do
   		  			Asset.find_or_import_asset_with_barcode(@barcode_plate)
-  		  			expect{remote_facts.each(&:reload)}.to raise_exception ActiveRecord::RecordNotFound
+  		  			expect{@fact_changed.reload}.to raise_exception ActiveRecord::RecordNotFound
   		  		end
 
             it 'should destroy any contains dependant remote facts' do
-              remote_facts = @asset.facts.with_predicate('contains').map(&:object_asset).map{|w| w.facts.from_remote_asset}.flatten
-              remote_facts.each(&:reload)
               Asset.find_or_import_asset_with_barcode(@barcode_plate)
-              expect{remote_facts.each(&:reload)}.to raise_exception ActiveRecord::RecordNotFound
+              expect{@dependant_fact.reload}.to raise_exception ActiveRecord::RecordNotFound
             end
 
   		  		it 'should re-create new remote facts' do
-  		  			count = @asset.facts.from_remote_asset.count
   		  			@asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
   		  			@asset.facts.reload
-  		  			expect(@asset.facts.from_remote_asset.count).to eq(count)
+              expect(@asset.facts.from_remote_asset.all?{|f| f.object_asset != @well_changed})
   		  		end
   		  	end
         end

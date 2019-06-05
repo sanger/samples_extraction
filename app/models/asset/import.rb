@@ -75,12 +75,12 @@ module Asset::Import
       fact_changes ||= FactChanges.new
       asset_group = AssetGroup.new
       @import_step.update_attributes(asset_group: asset_group)
+
       begin
         fact_changes.tap do |updates|
           asset_group.update_attributes(assets: assets_to_refresh)
 
           # Removes previous state
-
           assets_to_refresh.each do |asset|
             updates.remove(asset.facts.from_remote_asset)
           end
