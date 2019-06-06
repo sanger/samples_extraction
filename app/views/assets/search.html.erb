@@ -23,7 +23,7 @@
     <tbody>
       <% @assets.each_with_index do |asset, index| %>
         <tr>
-          <td><%= bootstrap_link_to asset.barcode, asset %></td>
+          <td><%= bootstrap_link_to asset.barcode || "##{asset.id}", asset %></td>
           <td>
             <%= render_react_display_and_facts_for_asset(asset) %>
           </td>
