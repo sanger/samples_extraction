@@ -244,8 +244,8 @@ header, .blurheader {
 
 /* images */
 
-.facts-list svg { width: 50px; height: 50px; float:left; }
-.facts-list svg.enlarge { width: 300px; height: 300px;}
+.facts-list .svg svg { width: 50px; height: 50px; float:left; cursor: -webkit-zoom-in;}
+.facts-list .svg.enlarge svg { width: 300px; height: 300px; cursor: -webkit-zoom-out;}
 
 
 svg {
@@ -353,8 +353,6 @@ div.fact a.active.object-reference  {color:orange;}
 #asset-group-container ul.nav-pills a { color: #666;}
 
 
-svg { cursor: -webkit-zoom-in; }
-svg.enlarge { cursor: -webkit-zoom-out; }
 
 .step_types_active svg ellipse { cursor: pointer;}
 .step_types_active svg { cursor: default;}

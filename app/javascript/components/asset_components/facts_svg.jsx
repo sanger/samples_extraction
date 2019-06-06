@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom'
-import SVG from 'react-inlinesvg';
+import SVG from 'react-inlinesvg'
+import classNames from 'classnames'
 
 class FactsSvg extends React.Component {
   constructor(props) {
@@ -10,6 +11,11 @@ class FactsSvg extends React.Component {
     this.pathImage = this.pathImage.bind(this)
     this.nameForFacts = this.nameForFacts.bind(this)
     this.onLoadSvg = this.onLoadSvg.bind(this)
+    this.toggleEnlarge = this.toggleEnlarge.bind(this)
+    this.classesConfig = this.classesConfig.bind(this)
+    this.state = {
+      enlarge: false
+    }
   }
   numWells(facts) {
     return facts.filter((v) => { return v.predicate=='contains'}).length
@@ -72,6 +78,9 @@ class FactsSvg extends React.Component {
   componentDidUpdate() {
     this.onLoadSvg()
   }
+  toggleEnlarge() {
+    this.setState({ enlarge: !this.state.enlarge })
+  }
   onLoadSvg() {
     var data = this.props.dataAssetDisplay[this.props.asset.uuid];
 
@@ -83,11 +92,21 @@ class FactsSvg extends React.Component {
     }
   }
 
+  classesConfig() {
+    let classesConfig = {
+      'svg': true,
+      'enlarge': this.state.enlarge
+    }
+    classesConfig["svg-"+this.props.asset.uuid]=true
+    return classNames(classesConfig)
+  }
+
   render() {
     const path = this.pathImage(this.props.facts)
+
     if (path) {
       return (
-        <div className={'svg svg-'+this.props.asset.uuid} >
+        <div className={this.classesConfig()} onClick={this.toggleEnlarge} >
           <SVG
             src={this.pathImage(this.props.facts)}
             ref={el => this.el = el}
