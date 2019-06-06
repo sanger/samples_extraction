@@ -13,6 +13,10 @@ module Printables::Group
   end
 
   def print(printer_config, user)
+    print_assets(assets, printer_config, user)
+  end
+
+  def print_assets(assets, printer_config, user)
     return if Rails.configuration.printing_disabled
 
     classify_for_printing(assets, printer_config).each do |printer_name, info_for_template|
@@ -27,4 +31,6 @@ module Printables::Group
       end
     end
   end
+
+  module_function :print_assets
 end

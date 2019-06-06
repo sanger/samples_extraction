@@ -36,9 +36,16 @@
     WebpackerReact.mountComponents()
   </script>
 
-  <% if @asset_group %>
-    <%= bootstrap_link_to 'Print Labels GROUP '+@asset_group.id.to_s, print_asset_group_path(@asset_group) %>
+<form role="search"
+  data-remote="true"
+  method='post' action='<%= print_search_assets_path %>'>
+  <% @queries.each_with_index do |query, index| %>
+    <input type="hidden" name="p<%= index %>" value="<%= query[:predicate] %>" />
+    <input type="hidden" name="o<%= index %>" value="<%= query[:object] %>" />
   <% end %>
+  <button type="submit" class="btn btn-default">Print labels from search</button>
+</form>
+
 <% end %>
 
 

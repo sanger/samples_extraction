@@ -75,12 +75,16 @@ class Asset < ActiveRecord::Base
   }
 
   scope :assets_for_queries, ->(queries) {
-    first_elem = Asset.first
-    queries.reduce(self) do |memo, query|
-      if first_elem && first_elem.has_attribute?(query.predicate)
-        memo.with_field(query.predicate, query.object)
+    queries.each_with_index.reduce(Asset) do |memo, list|
+      query = list[0]
+      index = list[1]
+      if query.predicate=='barcode'
+        memo.where(barcode: query.object)
       else
-        memo.with_fact(query.predicate, query.object)
+        memo.joins(
+          "INNER JOIN facts AS facts#{index} ON facts#{index}.asset_id=assets.id"
+          ).where("facts#{index}.predicate" => query.predicate,
+          "facts#{index}.object" => query.object)
       end
     end
   }

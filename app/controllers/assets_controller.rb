@@ -1,8 +1,8 @@
 require 'pry'
 class AssetsController < ApplicationController
   before_action :prepare_asset_params, only: [:create, :update]
-  before_action :set_asset, only: [:show, :edit, :update, :destroy]
-  before_action :set_queries, only: [:search]
+  before_action :set_asset, only: [:show, :edit, :update, :destroy, :print]
+  before_action :set_queries, only: [:search, :print_search]
 
   # GET /assets
   # GET /assets.json
@@ -10,16 +10,34 @@ class AssetsController < ApplicationController
     @assets = Asset.all.includes(:facts).paginate(:page => params[:page], :per_page => 5)
   end
 
-  def search
-    @start_time = Time.now
-    @assets = Asset.assets_for_queries(@queries).includes(:facts)
-    # For printing
-    unless @assets.empty?
-      @asset_group = AssetGroup.create!
-      @asset_group.add_assets(@assets)
-    end
+  def print
+    @asset.print(@current_user.printer_config, @current_user.username)
 
     respond_to do |format|
+      format.html { redirect_to @asset, notice: 'Asset was printed.' }
+    end
+
+  end
+
+  def print_search
+    @start_time = Time.now
+    @assets = get_search_results(@queries)
+
+    Printables::Group.print_assets(@assets, @current_user.printer_config, @current_user.username)
+
+    respond_to do |format|
+      format.js { render :search, notice: 'Search was printed.' }
+    end
+  end
+
+  def search
+    @start_time = Time.now
+    @assets = get_search_results(@queries)
+
+    @valid_indexes = valid_indexes
+
+    respond_to do |format|
+      format.js { render :search, layout: false}
       format.html { render :search, layout: false }
     end
   end
@@ -94,11 +112,6 @@ class AssetsController < ApplicationController
     end
   end
 
-    def print
-      respond_to do |format|
-        format.html { redirect_to @asset, notice: 'Asset was printed.' }
-      end
-    end
 
   private
 
@@ -112,8 +125,15 @@ class AssetsController < ApplicationController
              end
   end
 
+  def get_search_results(queries)
+    Asset.assets_for_queries(queries)
+  end
+
+  def valid_indexes
+    params.keys.map{|k| k.match(/^[pq](\d*)$/)}.compact.map{|k| k[1]}
+  end
+
     def set_queries
-      valid_indexes = params.keys.map{|k| k.match(/^[pq](\d*)$/)}.compact.map{|k| k[1]}
       @queries = valid_indexes.map do |val|
         OpenStruct.new({:predicate => params["p"+val], :object => params["o"+val]})
       end

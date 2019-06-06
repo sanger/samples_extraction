@@ -14,7 +14,8 @@ class FactsSvg extends React.Component {
     this.toggleEnlarge = this.toggleEnlarge.bind(this)
     this.classesConfig = this.classesConfig.bind(this)
     this.state = {
-      enlarge: false
+      enlarge: false,
+      previousValue: {}
     }
   }
   numWells(facts) {
@@ -75,20 +76,35 @@ class FactsSvg extends React.Component {
     }
 
   }
-  componentDidUpdate() {
-    this.onLoadSvg()
+  componentDidUpdate(prevProps) {
+    this.onLoadSvg(prevProps)
   }
   toggleEnlarge() {
     this.setState({ enlarge: !this.state.enlarge })
   }
-  onLoadSvg() {
+  onLoadSvg(prevProps) {
     var data = this.props.dataAssetDisplay[this.props.asset.uuid];
-
+    var ignoreKeys=[];
     for (var key in data) {
+      if (prevProps && prevProps.dataAssetDisplay && prevProps.dataAssetDisplay[this.props.asset.uuid][key]) {
+        ignoreKeys.push(key)
+      }
       var node = $('.svg-'+this.props.asset.uuid+' .'+key);
       // We want to reset all previous css but we also want to
       // to keep the location, that is represented as a css class (key)
       node.attr('class', key+' '+data[key].cssClass);
+    }
+    if (prevProps && prevProps.dataAssetDisplay) {
+      var oldData = prevProps.dataAssetDisplay[this.props.asset.uuid];
+      for (var key in oldData) {
+        if (!(ignoreKeys.find((e)=> {return e==key}))) {
+          var node = $('.svg-'+this.props.asset.uuid+' .'+key);
+          // We want to reset all previous css but we also want to
+          // to keep the location, that is represented as a css class (key)
+          node.attr('class', '');
+        }
+      }
+
     }
   }
 

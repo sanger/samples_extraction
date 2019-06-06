@@ -478,11 +478,19 @@ class FactChanges
     end
   end
 
+  def listening_to_predicate?(predicate)
+    predicate == 'parent'
+  end
+
   def _fact_operations(action_type, step, facts)
-    facts.map do |fact|
+    modified_assets = []
+    operations = facts.map do |fact|
+      modified_assets.push(fact.object_asset) if listening_to_predicate?(fact.predicate)
       Operation.new(:action_type => action_type, :step => step,
         :asset=> fact.asset, :predicate => fact.predicate, :object => fact.object, object_asset: fact.object_asset)
     end
+    modified_assets.flatten.compact.uniq.each(&:touch)
+    operations
   end
 
   def all_values_are_new_records(hash)
