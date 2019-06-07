@@ -33,7 +33,13 @@ gem 'react-rails'
 gem 'delayed_job'
 gem 'delayed_job_active_record'
 
-gem 'sequencescape-client-api'
+#gem 'sequencescape-client-api'
+gem 'sequencescape-client-api',
+  # Should be switched back to sanger + production for deployment
+  :github => 'emrojo/sequencescape-client-api',
+  :branch  => 'asset-attribute-update-merged-with-rails-4',
+  :require => 'sequencescape'
+
 
 # The client api is not good at all
 gem 'faraday'

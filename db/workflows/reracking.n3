@@ -45,6 +45,7 @@
   ?p :maxCardinality """1""".
 } => {
   :step :stepTypeName """Update in Sequencescape""".
+  :step :stepAction """update_sequencescape.rb""" .
   :step :addFacts { ?p :pushTo :Sequencescape . } .
 }.
 
