@@ -29,6 +29,7 @@ module Asset::Export
       mark_to_print(updates) if old_barcode != barcode
     end.apply(step)
     previous_asset_group_ids.each{|a| AssetGroup.find(a).touch }
+    refresh
   end
 
   def mark_to_print(updates)

@@ -83,14 +83,14 @@ RSpec.describe 'Asset::Export' do
       let(:asset) { create :asset }
 
       it 'updates a plate in sequencescape' do
-        allow(SequencescapeClient).to receive(:find_by_uuid).and_return(nil)
+        allow(SequencescapeClient).to receive(:find_by_uuid).with(asset.uuid).and_return(nil)
+        allow(SequencescapeClient).to receive(:find_by_uuid).with(plate.uuid, :plate).and_return(plate)
         allow(SequencescapeClient).to receive(:create_plate).and_return(plate)
         barcode = double('barcode')
         allow(barcode).to receive(:prefix).and_return('DN')
         allow(barcode).to receive(:number).and_return('123')
         allow(plate).to receive(:barcode).and_return(barcode)
         asset.update_sequencescape(print_config, user, step)
-
         expect(asset.facts.where(predicate: 'contains').count).to eq(plate.wells.count)
       end
 
