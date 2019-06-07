@@ -86,7 +86,7 @@ class FactsSvg extends React.Component {
     var data = this.props.dataAssetDisplay[this.props.asset.uuid];
     var ignoreKeys=[];
     for (var key in data) {
-      if (prevProps && prevProps.dataAssetDisplay && prevProps.dataAssetDisplay[this.props.asset.uuid][key]) {
+      if (prevProps && prevProps.dataAssetDisplay && prevProps.dataAssetDisplay[this.props.asset.uuid] && prevProps.dataAssetDisplay[this.props.asset.uuid][key]) {
         ignoreKeys.push(key)
       }
       var node = $('.svg-'+this.props.asset.uuid+' .'+key);
