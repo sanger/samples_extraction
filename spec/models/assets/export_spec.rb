@@ -73,6 +73,29 @@ RSpec.describe 'Asset::Export' do
         expect(well.uuid).to eq(plate.wells.first.uuid)
       end
     end
+
+    context '#update_sequencescape' do
+      let(:step_type) { create :step_type }
+      let(:step) { create :step, step_type: step_type }
+      let(:user) { create :user, username: 'test' }
+      let(:print_config) { {"Plate"=>'Pum', "Tube"=>'Pim'} }
+      let(:plate) { build_remote_plate }
+      let(:asset) { create :asset }
+
+      it 'updates a plate in sequencescape' do
+        allow(SequencescapeClient).to receive(:find_by_uuid).and_return(nil)
+        allow(SequencescapeClient).to receive(:create_plate).and_return(plate)
+        barcode = double('barcode')
+        allow(barcode).to receive(:prefix).and_return('DN')
+        allow(barcode).to receive(:number).and_return('123')
+        allow(plate).to receive(:barcode).and_return(barcode)
+        asset.update_sequencescape(print_config, user, step)
+
+        expect(asset.facts.where(predicate: 'contains').count).to eq(plate.wells.count)
+      end
+
+    end
+
     context '#attributes_to_update' do
       it 'can convert location to Sequencescape location format' do
         %Q{

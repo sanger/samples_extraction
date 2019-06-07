@@ -17,10 +17,10 @@ module Asset::Export
     previous_asset_group_ids = asset_groups.map(&:id)
     update_attributes(:uuid => instance.uuid, :barcode => code39_barcode(instance))
 
-    FactChanges.new do |updates|
+    FactChanges.new.tap do |updates|
       update_plate(instance, updates)
 
-      updates.add(self, 'beforeBarcode', old_barcode)
+      updates.add(self, 'beforeBarcode', old_barcode) if old_barcode
       updates.add(self, 'purpose', class_name)
       updates.remove(facts.with_predicate('barcodeType'))
       updates.add(self, 'barcodeType', 'SequencescapePlate')
@@ -51,9 +51,9 @@ module Asset::Export
           fact.update_attributes(is_remote?: true)
         end
       else
-        w = Asset.new(uuid: well.uuid)
-        updates.create_assets([w])
-        updates.add_remote(self, 'contains', w)
+        updates.create_assets([well.uuid])
+        updates.add(well.uuid, 'barcodeType', 'NoBarcode')
+        updates.add_remote(self, 'contains', well.uuid)
       end
     end
   end
