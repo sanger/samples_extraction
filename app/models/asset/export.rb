@@ -82,11 +82,16 @@ module Asset::Export
     end
   end
 
+  def to_sequencescape_location(location)
+    loc = location.match(/(\w)(0*)(\d*)/)
+    loc[1]+loc[3]
+  end
+
   def racking_info(well)
     if well.has_literal?('pushedTo', 'Sequencescape')
       return {
         uuid: well.uuid,
-        location: well.facts.with_predicate('location').first.object
+        location: to_sequencescape_location(well.facts.with_predicate('location').first.object)
       }
     end
     well.facts.reduce({}) do |memo, fact|

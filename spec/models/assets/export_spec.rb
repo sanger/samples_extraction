@@ -36,6 +36,15 @@ RSpec.describe 'Asset::Export' do
       end
 
     end
+    context '#to_sequencescape_location' do
+      it 'converts SE locations to sequencescape' do
+        a = create :asset
+        expect(a.to_sequencescape_location("A01")).to eq("A1")
+        expect(a.to_sequencescape_location("F01")).to eq("F1")
+        expect(a.to_sequencescape_location("A1")).to eq("A1")
+        expect(a.to_sequencescape_location("E1")).to eq("E1")
+      end
+    end
     context '#attributes_to_update' do
       it 'generates the attributes when the locations are not duplicated' do
         facts = %Q{
