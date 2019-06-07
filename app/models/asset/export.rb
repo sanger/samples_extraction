@@ -12,14 +12,14 @@ module Asset::Export
       SequencescapeClient.update_extraction_attributes(instance, attributes_to_update, user.username)
     end
 
-    update_plate(instance)
-
-    facts.each {|f| f.update_attributes!(:up_to_date => true)}
+    #facts.each {|f| f.update_attributes!(:up_to_date => true)}
     old_barcode = barcode
     previous_asset_group_ids = asset_groups.map(&:id)
     update_attributes(:uuid => instance.uuid, :barcode => code39_barcode(instance))
 
     FactChanges.new do |updates|
+      update_plate(instance, updates)
+
       updates.add(self, 'beforeBarcode', old_barcode)
       updates.add(self, 'purpose', class_name)
       updates.remove(facts.with_predicate('barcodeType'))
@@ -44,17 +44,25 @@ module Asset::Export
   def update_plate(instance, updates)
     instance.wells.each do |well|
       fact = fact_well_at(well.location)
-      w = fact.object_asset
-      if w && w.uuid != well.uuid
-        w.update_attributes(uuid: well.uuid)
-        fact.update_attributes(is_remote?: true)
+      if fact
+        w = fact.object_asset
+        if w && w.uuid != well.uuid
+          w.update_attributes(uuid: well.uuid)
+          fact.update_attributes(is_remote?: true)
+        end
+      else
+        w = Asset.new(uuid: well.uuid)
+        updates.create_assets([w])
+        updates.add_remote(self, 'contains', w)
       end
     end
   end
 
   def fact_well_at(location)
     facts.with_predicate('contains').select do |f|
-      to_sequencescape_location(f.object_asset.facts.with_predicate('location').first.object) == to_sequencescape_location(location)
+      if f.object_asset
+        to_sequencescape_location(f.object_asset.facts.with_predicate('location').first.object) == to_sequencescape_location(location)
+      end
     end.first
   end
 

@@ -1,6 +1,9 @@
 require 'rails_helper'
+require 'remote_assets_helper'
 
 RSpec.describe 'Asset::Export' do
+  include RemoteAssetsHelper
+
   describe 'Export' do
     context '#racking_info' do
       it 'generates an attribute object for a well' do
@@ -43,6 +46,31 @@ RSpec.describe 'Asset::Export' do
         expect(a.to_sequencescape_location("F01")).to eq("F1")
         expect(a.to_sequencescape_location("A1")).to eq("A1")
         expect(a.to_sequencescape_location("E1")).to eq("E1")
+      end
+    end
+    context '#update_plate' do
+      let(:step_type) { create :step_type }
+      let(:step) { create :step, step_type: step_type }
+      let(:updates) { FactChanges.new }
+      let(:plate) { build_remote_plate }
+      let(:asset) { create :asset }
+      it 'builds all wells not already present' do
+        asset.update_plate(plate, updates)
+        updates.apply(step)
+        expect(asset.facts.with_predicate('contains').count).to eq(plate.wells.count)
+      end
+      it 'updates all wells uuids at same location' do
+        well = create :asset
+        well.facts << Fact.create(predicate: 'location', object: 'A1')
+        asset.facts << Fact.create(predicate: 'contains', object_asset_id: well.id)
+
+        expect(well.uuid).not_to eq(plate.wells.first.uuid)
+
+        asset.update_plate(plate, updates)
+        updates.apply(step)
+        expect(asset.facts.with_predicate('contains').count).to eq(plate.wells.count)
+        well.reload
+        expect(well.uuid).to eq(plate.wells.first.uuid)
       end
     end
     context '#attributes_to_update' do
