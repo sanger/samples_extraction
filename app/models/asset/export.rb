@@ -52,7 +52,7 @@ module Asset::Export
 
   def well_at(location)
     f = facts.with_predicate('contains').select do |f|
-      f.object_asset.facts.with_predicate('location').first.object == location
+      to_sequencescape_location(f.object_asset.facts.with_predicate('location').first.object) == to_sequencescape_location(location)
     end.first
     return f.object_asset if f
     nil
@@ -98,8 +98,10 @@ module Asset::Export
       if (['sample_tube'].include?(fact.predicate))
         memo["#{fact.predicate}_uuid".to_sym] = fact.object_asset.uuid
       end
-
-      if (['location', 'aliquotType', 'sanger_sample_id',
+      if (fact.predicate == 'location')
+        memo[fact.predicate.to_sym] = to_sequencescape_location(fact.object)
+      end
+      if (['aliquotType', 'sanger_sample_id',
         'sanger_sample_name', 'sample_uuid'].include?(fact.predicate))
         memo[fact.predicate.to_sym] = fact.object
       end
