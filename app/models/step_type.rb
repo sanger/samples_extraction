@@ -89,11 +89,11 @@ class StepType < ActiveRecord::Base
 
   def class_for_task_type
     if task_type=='cwm'
-      Activities::BackgroundTasks::Inference
+      Steps::BackgroundTasks::Inference
     elsif task_type=='runner'
-      Activities::BackgroundTasks::Runner
+      Steps::BackgroundTasks::Runner
     elsif task_type=='background_step'
-      Activities::BackgroundTasks::BackgroundStep
+      Steps::BackgroundTasks::BackgroundTask
       #["BackgroundSteps::", step_action.gsub(".rb","").classify].join.constantize
     else
       Step

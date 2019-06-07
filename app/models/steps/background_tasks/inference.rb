@@ -1,6 +1,6 @@
 require 'inference_engines/cwm/step_execution'
 
-class Activities::BackgroundTasks::Inference < Activities::BackgroundTasks::BackgroundStep
+class Steps::BackgroundTasks::Inference < Steps::BackgroundTasks::BackgroundTask
 
   def process
     inferences = InferenceEngines::Cwm::StepExecution.new(
@@ -9,9 +9,7 @@ class Activities::BackgroundTasks::Inference < Activities::BackgroundTasks::Back
       :created_assets => {},
       :step_types => [step_type]
     )
-    ActiveRecord::Base.transaction do
-      inferences.run
-    end
+    inferences.run
   end
 
 end

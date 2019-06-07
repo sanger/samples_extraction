@@ -66,5 +66,11 @@ RSpec.describe Parsers::CsvLayout, akeredu: true do
       end
     end
 
+    describe "parsing content saved by Excel" do
+      it 'parses it correcctly' do
+        @csv = Parsers::CsvLayout.new("A01,FR11200002\rA02,FR11200003\n")
+        expect(@csv.parse).to eq(true)
+      end
+    end
   end
 end

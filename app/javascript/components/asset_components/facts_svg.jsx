@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom'
-import SVG from 'react-inlinesvg';
+import SVG from 'react-inlinesvg'
+import classNames from 'classnames'
 
 class FactsSvg extends React.Component {
   constructor(props) {
@@ -10,6 +11,12 @@ class FactsSvg extends React.Component {
     this.pathImage = this.pathImage.bind(this)
     this.nameForFacts = this.nameForFacts.bind(this)
     this.onLoadSvg = this.onLoadSvg.bind(this)
+    this.toggleEnlarge = this.toggleEnlarge.bind(this)
+    this.classesConfig = this.classesConfig.bind(this)
+    this.state = {
+      enlarge: false,
+      previousValue: {}
+    }
   }
   numWells(facts) {
     return facts.filter((v) => { return v.predicate=='contains'}).length
@@ -69,25 +76,53 @@ class FactsSvg extends React.Component {
     }
 
   }
-  componentDidUpdate() {
-    this.onLoadSvg()
+  componentDidUpdate(prevProps) {
+    this.onLoadSvg(prevProps)
   }
-  onLoadSvg() {
+  toggleEnlarge() {
+    this.setState({ enlarge: !this.state.enlarge })
+  }
+  onLoadSvg(prevProps) {
     var data = this.props.dataAssetDisplay[this.props.asset.uuid];
-
+    var ignoreKeys=[];
     for (var key in data) {
+      if (prevProps && prevProps.dataAssetDisplay && prevProps.dataAssetDisplay[this.props.asset.uuid][key]) {
+        ignoreKeys.push(key)
+      }
       var node = $('.svg-'+this.props.asset.uuid+' .'+key);
       // We want to reset all previous css but we also want to
       // to keep the location, that is represented as a css class (key)
       node.attr('class', key+' '+data[key].cssClass);
     }
+    if (prevProps && prevProps.dataAssetDisplay) {
+      var oldData = prevProps.dataAssetDisplay[this.props.asset.uuid];
+      for (var key in oldData) {
+        if (!(ignoreKeys.find((e)=> {return e==key}))) {
+          var node = $('.svg-'+this.props.asset.uuid+' .'+key);
+          // We want to reset all previous css but we also want to
+          // to keep the location, that is represented as a css class (key)
+          node.attr('class', '');
+        }
+      }
+
+    }
+  }
+
+  classesConfig() {
+    let classesConfig = {
+      'svg': true,
+      'enlarge': this.state.enlarge
+    }
+    classesConfig["svg-"+this.props.asset.uuid]=true
+    return classNames(classesConfig)
   }
 
   render() {
     const path = this.pathImage(this.props.facts)
+
     if (path) {
       return (
-        <div className={'svg svg-'+this.props.asset.uuid} >
+        <div className={this.classesConfig()} onClick={this.toggleEnlarge} >
           <SVG
             src={this.pathImage(this.props.facts)}
             ref={el => this.el = el}

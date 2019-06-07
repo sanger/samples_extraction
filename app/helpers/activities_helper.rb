@@ -71,7 +71,7 @@ module ActivitiesHelper
         activity: step.activity,
         asset_group: step.asset_group,
         step_type: step.step_type,
-        operations: step.operations,
+        operations: operations_data(step.operations.joins(:asset)),
         username: step.user.username
       }.merge(step.attributes)
     end
@@ -87,6 +87,32 @@ module ActivitiesHelper
       }
     end
   end
+
+  def operations_data(operations)
+    occured_predicates = []
+    operations.reduce([]) do |memo, fact|
+      if occured_predicates.include?(fact.predicate)
+        obj = memo.select{|f| f["predicate"] == fact.predicate}.first
+        obj["repeats"] = obj["repeats"] ? obj["repeats"]+1 : 0
+        next memo
+      end
+      elem = fact.object_asset
+      if elem
+        obj = {"object_asset" => {
+                 uuid: elem.uuid,
+                 barcode: elem.barcode,
+                 id: elem.id,
+                 info_line: elem.info_line
+               }}.merge(fact.attributes)
+      else
+        obj = fact.attributes
+      end
+      obj[:asset]=fact.asset.attributes
+      memo.push(obj)
+      memo
+    end
+  end
+
 
   def facts_data(facts)
     occured_predicates = []

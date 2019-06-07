@@ -10,7 +10,7 @@ Rails.application.routes.draw do
 
   resources :step_types
   resources :steps
-  
+
   resources :asset_groups do
     member do
       get 'print'
@@ -32,6 +32,8 @@ Rails.application.routes.draw do
   resources :assets, :path => 'labware' do
     collection do
       get 'search'
+      post 'print'
+      post 'print_search'
     end
   end
 
@@ -39,7 +41,7 @@ Rails.application.routes.draw do
   resources :kit_types
   resources :kits
   resources :instruments
-  
+
   root 'instruments#index'
 
   resources :samples_started

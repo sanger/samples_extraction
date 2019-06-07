@@ -6,7 +6,8 @@ module InferenceEngines
     class StepExecution
       include StepExecutionProcess
 
-      attr_accessor :step, :asset_group, :original_assets, :created_assets, :facts_to_destroy, :updates, :content
+      attr_accessor :step, :asset_group, :original_assets,
+        :created_assets, :facts_to_destroy, :updates, :content
 
       def initialize(params)
         @step = params[:step]
@@ -16,7 +17,7 @@ module InferenceEngines
         @facts_to_destroy = params[:facts_to_destroy]
 
         @step_types = params[:step_types] || [@step.step_type]
-        @updates = FactChanges.new
+        @updates = params[:updates] || FactChanges.new
       end
 
       def debug_log(params)
@@ -61,12 +62,19 @@ module InferenceEngines
             raise "runner execution failed\nCODE: #{thr.value}\nCMD: #{line}\nSTDOUT: #{content}\nSTDERR: #{stderror.read}\n"
           end
         end
+
+        @updates=FactChanges.new(@content)
       end
 
-      def inference
+      def plan
         generate_plan
 
         debug_log step.output
+        updates
+      end
+
+      def apply
+        @updates.apply(step)
       end
 
       def refresh
@@ -79,9 +87,6 @@ module InferenceEngines
         step.step_type.compatible_with?(@asset_group.assets)
       end
 
-      def export
-        FactChanges.new(@content).apply(step)
-      end
 
       def add_facts(list)
         FactChanges.new.tap do |updates|

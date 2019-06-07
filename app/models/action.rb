@@ -78,7 +78,6 @@ class Action < ActiveRecord::Base
           #asset_group.assets << assets
 
 
-          #AssetGroup.create(name: subject_condition_group.name, activity_owner: asset_group.activity_owner, assets: assets)
           updates.create_asset_groups(["?#{subject_condition_group.name}"])
           updates.add_assets([["?#{subject_condition_group.name}", assets]])
 
@@ -118,7 +117,8 @@ class Action < ActiveRecord::Base
 
   def num_assets_to_create(asset_group)
     return asset_group.assets.count unless (subject_condition_group.cardinality) && (subject_condition_group.cardinality!=0)
-    return [[asset_group.assets.count, subject_condition_group.cardinality].min, 1].max
+    return subject_condition_group.cardinality
+    #return [[asset_group.assets.count, subject_condition_group.cardinality].min, 1].max
   end
 
 end

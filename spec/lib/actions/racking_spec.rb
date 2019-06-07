@@ -23,7 +23,9 @@ RSpec.describe Actions::Racking do
       it 'adds the facts to the asset' do
         expect(asset.facts.count).to eq(1)
 
-        send(method, asset_group).apply(step)
+        updates = send(method, asset_group)
+
+        updates.apply(step)
 
         asset.facts.reload
         assets = asset.facts.with_predicate('contains').map(&:object_asset)

@@ -303,14 +303,15 @@ RSpec.describe Step, type: :model do
 
         it 'cardinality does not restrict the number of assets created when it is over the number of inputs' do
           previous_num = @asset_group.assets.count
-          @cg3.update_attributes(:cardinality => @tubes.length + @racks.length + 2)
+          cardinality = @tubes.length + @racks.length + 2
+          @cg3.update_attributes(:cardinality => cardinality)
           @step = create_step
 
           @asset_group.reload
           assets_created = Asset.with_fact('is', 'NewTube')
           expect(previous_num).not_to eq(@asset_group.assets.count)
-          expect(assets_created.length).to eq(previous_num)
-          expect(assets_created.length+previous_num).to eq(@asset_group.assets.count)
+          expect(assets_created.length).to eq(cardinality)
+          #expect(assets_created.length+previous_num).to eq(@asset_group.assets.count)
 
           expect(Operation.all.select{|o| o.action_type=='createAssets'}.count).to eq(assets_created.count)
         end

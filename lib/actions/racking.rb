@@ -47,6 +47,8 @@ module Actions
 
     def fact_changes_for_unrack_tubes(list_layout, destination_rack=nil)
       FactChanges.new.tap do |updates|
+        rerackGroup=nil
+
         previous_racks = []
         tubes = list_layout.map{|obj| obj[:asset]}.compact
         return updates if tubes.empty?
@@ -66,14 +68,22 @@ module Actions
             end
 
             if destination_rack
+              unless rerackGroup
+                rerackGroup = Asset.new
+                updates.create_assets([rerackGroup])
+                updates.add(rerackGroup, 'barcodeType', 'NoBarcode')
+                updates.add(destination_rack, 'rerackGroup', rerackGroup)
+              end
+
               rerack = Asset.new
               updates.create_assets([rerack])
               updates.add(rerack, 'a', 'Rerack')
               updates.add(rerack, 'tube', tube)
+              updates.add(rerack, 'barcodeType', 'NoBarcode')
               updates.add(rerack, 'previousParent', previous_rack)
               updates.add(rerack, 'previousLocation', location)
               updates.add(rerack, 'location', list_layout[index][:location])
-              updates.add(destination_rack, 'rerack', rerack)
+              updates.add(rerackGroup, 'rerack', rerack)
             end
 
             updates.remove(parent_fact)
@@ -175,8 +185,12 @@ module Actions
 
     end
 
+    def selected_file(asset_group)
+      asset_group.uploaded_files.first
+    end
+
     def csv_parsing(asset_group, class_type)
-      content = asset_group.uploaded_files.first.data
+      content = selected_file(asset_group).data
       error_messages = []
       error_locations = []
       parser = class_type.new(content)

@@ -1,3 +1,5 @@
+require 'inference_engines/runner/step_execution'
+
 module Steps::ExecutionActions
   def self.included(klass)
     klass.instance_eval do
@@ -37,22 +39,19 @@ module Steps::ExecutionActions
       activity.save
     end
 
-    ActiveRecord::Base.transaction do |t|
-      step_execution = StepExecution.new(step: self, asset_group: asset_group)
+    step_execution = StepExecution.new(step: self, asset_group: asset_group)
+    updates = step_execution.plan
+    unless step_type.step_action.nil? || step_type.step_action.empty?
+      runner = InferenceEngines::Runner::StepExecution.new(
+        :step => self,
+        :asset_group => asset_group,
+        :created_assets => {},
+        :step_types => [step_type]
+      )
+      updates.merge(runner.plan)
+    end
 
-      step_execution.run
-    end
-    ActiveRecord::Base.transaction do |t|
-      unless step_type.step_action.nil? || step_type.step_action.empty?
-        runner = InferenceEngines::Runner::StepExecution.new(
-          :step => self,
-          :asset_group => asset_group,
-          :created_assets => {},
-          :step_types => [step_type]
-        )
-        runner.run
-      end
-    end
+    updates.apply(self)
     update_attributes(:state => 'running')
   end
 

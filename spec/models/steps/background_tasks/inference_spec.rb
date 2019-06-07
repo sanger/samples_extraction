@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Activities::BackgroundTasks::Inference do
+RSpec.describe Steps::BackgroundTasks::Inference do
   context '#execute_actions' do
     let(:activity) { create(:activity, state: 'running')}
     let(:execution) { double('step_execution') }

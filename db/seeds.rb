@@ -32,6 +32,8 @@ Printer.create(name: 'e367bc', printer_type: 'Tube', default_printer: true)
 instrument.activity_types << activity_type
 
 runners = [
+  ['[DEMO] Create 12 tubes', 'create_12_tubes.rb'],
+  ['[DEMO] Generate plate layout file', 'create_layout.rb'],
   ['Aliquot type inference', 'aliquot_type_inference.rb', %Q{
     {
       ?p :contains ?q .
@@ -85,6 +87,6 @@ runners = [
   ['Update Sequencescape', 'update_sequencescape.rb', %Q{
     { ?p :a :TubeRack .}=>{}.
     }]
-].map{|l| StepType.create(name: l[0], step_action: l[1], for_reasoning: true, n3_definition: l[2]) }
+].map{|l| StepType.create(name: l[0], step_action: l[1], n3_definition: l[2]) }
 
-reracking_activity_type.step_types << runners
+#reracking_activity_type.step_types << runners
