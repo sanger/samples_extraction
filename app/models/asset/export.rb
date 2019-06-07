@@ -41,21 +41,21 @@ module Asset::Export
     SBCF::SangerBarcode.new(prefix:prefix, number:number).human_barcode
   end
 
-  def update_plate(instance)
+  def update_plate(instance, updates)
     instance.wells.each do |well|
-      w = well_at(well.location)
+      fact = fact_well_at(well.location)
+      w = fact.object_asset
       if w && w.uuid != well.uuid
         w.update_attributes(uuid: well.uuid)
+        fact.update_attributes(is_remote?: true)
       end
     end
   end
 
-  def well_at(location)
-    f = facts.with_predicate('contains').select do |f|
+  def fact_well_at(location)
+    facts.with_predicate('contains').select do |f|
       to_sequencescape_location(f.object_asset.facts.with_predicate('location').first.object) == to_sequencescape_location(location)
     end.first
-    return f.object_asset if f
-    nil
   end
 
   def mark_as_updated(updates)
