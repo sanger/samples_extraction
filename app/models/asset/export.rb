@@ -51,10 +51,6 @@ module Asset::Export
           w.update_attributes(uuid: well.uuid)
           fact.update_attributes(is_remote?: true)
         end
-      else
-        updates.create_assets([well.uuid])
-        updates.add(well.uuid, 'barcodeType', 'NoBarcode')
-        updates.add_remote(self, 'contains', well.uuid)
       end
     end
   end

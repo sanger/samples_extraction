@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import ActivityControl from './activity_components/activity_control'
 import AlertDisplay from './activity_components/alert_display'
 import ActivityDescription from "./activity_components/activity_description"
 import PrintersSelection from "./activity_components/printers_selection"
@@ -260,12 +261,19 @@ class Activity extends React.Component {
   render () {
     return (
       <div>
+      <h1>Activity {this.props.activity.id }&nbsp;
+      <ActivityControl activityRunning={this.state.activityRunning} />
+      </h1>
+
+
 	<AlertDisplay
 	  onRemoveErrorMessage={this.onRemoveErrorMessage}
 	  messages={this.state.messages} />
 	<FormFor url='/edu' className="form-inline activity-desc">
 	  <HashFields name="activity">
-	    <ActivityDescription	activity={this.props.activity} />
+	    <ActivityDescription
+        activity={this.props.activity}
+      />
 	  </HashFields>
 	</FormFor>
 	<PrintersSelection
