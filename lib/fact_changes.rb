@@ -391,9 +391,7 @@ class FactChanges
   def _build_barcode(asset, i)
     barcode_type = values_for_predicate(asset, 'barcodeType').first
 
-    if (barcode_type == 'NoBarcode')
-      asset.barcode = nil
-    else
+    unless (barcode_type == 'NoBarcode')
       barcode = values_for_predicate(asset, 'barcode').first
       if barcode
         asset.barcode = barcode

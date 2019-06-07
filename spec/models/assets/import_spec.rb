@@ -5,29 +5,79 @@ RSpec.describe 'Asset::Import' do
 	include RemoteAssetsHelper
 
   context '#refresh' do
-    it 'recognises a plate' do
-      asset = create :asset
-      asset.facts << create(:fact, predicate: 'a', object: 'TubeRack', is_remote?: true)
-
+    let(:asset) { create :asset }
+    let(:plate) { build_remote_plate }
+    before do
       allow(SequencescapeClient).to receive(:find_by_uuid).and_return(true)
       allow(asset).to receive(:changed_remote?).and_return(false)
-
+    end
+    it 'recognises a plate' do
+      asset.facts << create(:fact, predicate: 'a', object: 'TubeRack', is_remote?: true)
       asset.refresh
-
       expect(SequencescapeClient).to have_received(:find_by_uuid).with(asset.uuid, :plate)
     end
     it 'recognises a tube' do
-      asset = create :asset
       asset.facts << create(:fact, predicate: 'a', object: 'Tube', is_remote?: true)
-
-      allow(SequencescapeClient).to receive(:find_by_uuid).and_return(true)
-      allow(asset).to receive(:changed_remote?).and_return(false)
-
       asset.refresh
-
       expect(SequencescapeClient).to have_received(:find_by_uuid).with(asset.uuid, :tube)
     end
+    context 'when actually updating' do
+      before do
+        allow(SequencescapeClient).to receive(:find_by_uuid).and_return(plate)
+        allow(asset).to receive(:changed_remote?).and_return(true)
+      end
+      it 'does not destroy remote facts that have not changed' do
+        fact = create(:fact, predicate: 'a', object: 'Plate', is_remote?: true)
+        asset.facts << fact
+        asset.refresh
+        expect{fact.reload}.not_to raise_error
+        expect(asset.facts.with_predicate('a').first.object).to eq('Plate')
+      end
+      it 'destroys and refreshes remote facts that have changed' do
+        fact = create(:fact, predicate: 'a', object: 'Tube', is_remote?: true)
+        asset.facts << fact
+        asset.refresh
+        expect{fact.reload}.to raise_error(ActiveRecord::RecordNotFound)
+        expect(asset.facts.with_predicate('a').first.object).to eq('Plate')
+      end
+      it 'does not destroy local facts' do
+        fact = create(:fact, predicate: 'is', object: 'Red', is_remote?: false)
+        asset.facts << fact
+        asset.refresh
+        expect{fact.reload}.not_to raise_error
+        expect(asset.facts.with_predicate('is').first.object).to eq('Red')
+      end
+      it 'does not destroy the assets linked by remote facts' do
+        asset2 = create(:asset)
+        fact = create(:fact, predicate: 'contains', object_asset_id: asset2.id, is_remote?: true)
+        asset.facts << fact
+        asset.refresh
+        expect{fact.reload}.to raise_error(ActiveRecord::RecordNotFound)
+        expect{asset.reload}.not_to raise_error
+        expect{asset2.reload}.not_to raise_error
+      end
+      it 'does not destroy the local facts of the assets linked with remote facts that are changing' do
+        asset2 = create(:asset, uuid: plate.wells.first.uuid)
+        fact_well = create(:fact, predicate: 'location', object: 'A01', is_remote?: false)
+        asset2.facts << fact_well
+        fact = create(:fact, predicate: 'contains', object_asset_id: asset2.id, is_remote?: true)
+        asset.facts << fact
+        asset.refresh
+        expect{fact_well.reload}.not_to raise_error
+        expect{asset2.reload}.not_to raise_error
+      end
 
+      it 'destroys the remote facts of the assets linked with remote facts that are changing' do
+        asset2 = create(:asset, uuid: plate.wells.first.uuid)
+        fact_well = create(:fact, predicate: 'location', object: 'A01', is_remote?: true)
+        asset2.facts << fact_well
+        fact = create(:fact, predicate: 'contains', object_asset_id: asset2.id, is_remote?: true)
+        asset.facts << fact
+        asset.refresh
+        expect{fact_well.reload}.to raise_error(ActiveRecord::RecordNotFound)
+        expect{asset2.reload}.not_to raise_error
+      end
+    end
   end
 
   context '#find_or_import_asset_with_barcode' do
