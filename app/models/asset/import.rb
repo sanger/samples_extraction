@@ -101,7 +101,7 @@ module Asset::Import
     end
 
     def type_of_asset_for_sequencescape
-      if ((facts.with_predicate('a').first) && (facts.with_predicate('a').first.object.include?("Tube")))
+      if ((facts.with_predicate('a').first) && ["Tube", "SampleTube"].include?(facts.with_predicate('a').first.object))
         :tube
       else
         :plate

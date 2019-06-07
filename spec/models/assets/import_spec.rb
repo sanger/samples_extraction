@@ -4,6 +4,32 @@ require 'remote_assets_helper'
 RSpec.describe 'Asset::Import' do
 	include RemoteAssetsHelper
 
+  context '#refresh' do
+    it 'recognises a plate' do
+      asset = create :asset
+      asset.facts << create(:fact, predicate: 'a', object: 'TubeRack', is_remote?: true)
+
+      allow(SequencescapeClient).to receive(:find_by_uuid).and_return(true)
+      allow(asset).to receive(:changed_remote?).and_return(false)
+
+      asset.refresh
+
+      expect(SequencescapeClient).to have_received(:find_by_uuid).with(asset.uuid, :plate)
+    end
+    it 'recognises a tube' do
+      asset = create :asset
+      asset.facts << create(:fact, predicate: 'a', object: 'Tube', is_remote?: true)
+
+      allow(SequencescapeClient).to receive(:find_by_uuid).and_return(true)
+      allow(asset).to receive(:changed_remote?).and_return(false)
+
+      asset.refresh
+
+      expect(SequencescapeClient).to have_received(:find_by_uuid).with(asset.uuid, :tube)
+    end
+
+  end
+
   context '#find_or_import_asset_with_barcode' do
   	context 'when importing an asset that does not exist' do
   		setup do
