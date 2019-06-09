@@ -81,10 +81,18 @@ class Asset < ActiveRecord::Base
       if query.predicate=='barcode'
         memo.where(barcode: query.object)
       else
-        memo.joins(
-          "INNER JOIN facts AS facts#{index} ON facts#{index}.asset_id=assets.id"
-          ).where("facts#{index}.predicate" => query.predicate,
-          "facts#{index}.object" => query.object)
+        asset = Asset.where(barcode: query.object).first
+        if asset
+          memo.joins(
+            "INNER JOIN facts AS facts#{index} ON facts#{index}.asset_id=assets.id"
+            ).where("facts#{index}.predicate" => query.predicate,
+            "facts#{index}.object_asset_id" => asset.id)
+        else
+          memo.joins(
+            "INNER JOIN facts AS facts#{index} ON facts#{index}.asset_id=assets.id"
+            ).where("facts#{index}.predicate" => query.predicate,
+            "facts#{index}.object" => query.object)
+        end
       end
     end
   }

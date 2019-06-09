@@ -9,8 +9,11 @@ class FactChanges
     :asset_groups_to_create, :asset_groups_to_destroy, :errors_added,
     :already_added_to_list, :instances_by_unique_id
 
+  attr_accessor :operations
+
 
   def initialize(json=nil)
+    @assets_updated=[]
     reset
     parse_json(json) if json
   end
@@ -199,9 +202,17 @@ class FactChanges
         _detach_asset_groups(step, asset_groups_to_destroy, with_operations),
         _create_facts(step, facts_to_add, with_operations)
       ].flatten.compact
-      Operation.import(operations) unless operations.empty?
+      unless operations.empty?
+        Operation.import(operations)
+        @operations = operations
+      end
       reset
     end
+  end
+
+  def assets_updated
+    return [] unless @operations
+    @assets_updated=Asset.where(id: @operations.pluck(:asset_id).uniq).distinct
   end
 
   def find_asset(asset_or_uuid)

@@ -1,5 +1,4 @@
 <p id="notice"><%= notice %></p>
-
  <%= react_component('Activity',  @activity.initial_json_attributes(@current_user)) %>
 
   <% unless @activity.finished? %>

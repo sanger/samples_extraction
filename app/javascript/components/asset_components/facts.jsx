@@ -79,9 +79,12 @@ class Facts extends React.Component {
   }
 
   renderFact(fact, index) {
-    return(<Fact fact={fact} key={index} />)
+    return(<Fact fact={fact} key={index} onRemoveFact={this.props.onRemoveFact} />)
   }
   render() {
+    if ((!this.props.facts) || (this.props.facts.length == 0)) {
+      return null
+    }
     return(
       <span className="facts-list ">
         <span>

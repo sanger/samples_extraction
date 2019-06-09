@@ -1,4 +1,65 @@
 module SupportN3
+
+  def self.ontology_to_json(ontology_file)
+    reading_instance = nil
+    data = {}
+    definitions = {}
+    inheritance = {}
+    ontology = RDF::N3::Reader.new(ontology_file, {
+      validate: false,
+      canonicalize: false,
+    }).quads.reduce({}) do |memo, quad|
+      subject = quad[0].pname
+      predicate = quad[1].pname
+      object = quad[2].to_s
+
+      if reading_instance != subject
+        if (data["rdfs:label"])
+          memo[data["rdfs:label"]]=data
+          definitions[reading_instance]=data["rdfs:label"]
+        end
+        data={ uri: subject }
+        reading_instance = subject
+      end
+
+      if (predicate == "rdfs:subClassOf")
+        inheritance[subject]=[subject] unless inheritance[subject]
+        inheritance[subject].push(object)
+      end
+
+      if (predicate == "http://purl.org/dc/elements/1.1/description")
+        predicate = "description"
+      end
+      data[predicate]=object
+      memo
+    end
+
+    ontology.keys.each do |key|
+      if ontology[key]["rdfs:domain"]
+        if inheritance[ontology[key]["rdfs:domain"]]
+          ontology[key]["rdfs:domain"] = inheritance[ontology[key]["rdfs:domain"]].reduce([]) do |memo, uri|
+            memo.push(definitions[uri])
+            memo
+          end
+        else
+          definitions[ontology[key]["rdfs:domain"]]
+        end
+      end
+      if ontology[key]["rdfs:range"]
+        if inheritance[ontology[key]["rdfs:range"]]
+          ontology[key]["rdfs:range"] = inheritance[ontology[key]["rdfs:range"]].reduce([]) do |memo, uri|
+            memo.push(definitions[uri])
+            memo
+          end
+        else
+          definitions[ontology[key]["rdfs:range"]]
+        end
+      end
+    end
+    ontology
+  end
+
+
   def self.parse_string(input, options = {}, step_type=nil)
     options = {
       validate: false,

@@ -54,23 +54,27 @@ RSpec.describe 'Asset::Export' do
       let(:updates) { FactChanges.new }
       let(:plate) { build_remote_plate }
       let(:asset) { create :asset }
-      it 'builds all wells not already present' do
-        asset.update_plate(plate, updates)
-        updates.apply(step)
-        expect(asset.facts.with_predicate('contains').count).to eq(plate.wells.count)
+      before do
+
       end
       it 'updates all wells uuids at same location' do
         well = create :asset
         well.facts << Fact.create(predicate: 'location', object: 'A1')
+        well2 = create :asset
+        well2.facts << Fact.create(predicate: 'location', object: 'A4')
         asset.facts << Fact.create(predicate: 'contains', object_asset_id: well.id)
+        asset.facts << Fact.create(predicate: 'contains', object_asset_id: well2.id)
 
         expect(well.uuid).not_to eq(plate.wells.first.uuid)
+        expect(well2.uuid).not_to eq(plate.wells.last.uuid)
 
         asset.update_plate(plate, updates)
         updates.apply(step)
         expect(asset.facts.with_predicate('contains').count).to eq(plate.wells.count)
         well.reload
+        well2.reload
         expect(well.uuid).to eq(plate.wells.first.uuid)
+        expect(well2.uuid).to eq(plate.wells.last.uuid)
       end
     end
 
@@ -90,6 +94,8 @@ RSpec.describe 'Asset::Export' do
         allow(barcode).to receive(:prefix).and_return('DN')
         allow(barcode).to receive(:number).and_return('123')
         allow(plate).to receive(:barcode).and_return(barcode)
+
+        expect(asset.facts.where(predicate: 'contains').count).to eq(0)
         asset.update_sequencescape(print_config, user, step)
         expect(asset.facts.where(predicate: 'contains').count).to eq(plate.wells.count)
       end

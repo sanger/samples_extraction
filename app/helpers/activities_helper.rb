@@ -1,4 +1,12 @@
+require 'support_n3'
+
 module ActivitiesHelper
+
+  def ontology_json
+    return @ontology if @ontology
+    ontology = File.new(Rails.root.to_s+'/app/assets/owls/root-ontology.ttl')
+    @ontology=SupportN3.ontology_to_json(ontology).to_json.html_safe
+  end
 
   def asset_types_for(assets_grouped, step_type, &block)
     created_condition_groups = []

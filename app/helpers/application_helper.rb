@@ -53,6 +53,10 @@ module ApplicationHelper
     react_component('FactsSvg',  { asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
   end
 
+  def render_react_tooltip
+    react_component('ReactTooltip', {multiline: true, effect: 'solid'})
+  end
+
   def facts_with_object_asset(facts)
     facts.left_outer_joins(:object_asset).to_a.map {|f| f.attributes.merge({object_asset: object_with_facts(f.object_asset)})}
   end
@@ -67,6 +71,13 @@ module ApplicationHelper
     react_component('Facts',  { asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
   end
 
+  def render_react_edit_asset(asset, readonly=false)
+    data_asset_display = {}.tap {|o| o[asset.uuid]=data_asset_display(asset.facts) }
+    react_component('FactsEditor',  {
+      changesUrl: readonly ? nil : changes_url,
+      asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
+  end
+
   def data_asset_display(facts)
     f = facts.with_predicate('aliquotType').first
     if f
@@ -74,6 +85,7 @@ module ApplicationHelper
         :cssClass => [(f.object || UNKNOWN_ALIQUOT_TYPE), facts.with_predicate('is').map do |f_is|
           [f_is.predicate, f_is.object].join('-')
         end].compact.join(' '),
+        :title => "#{f.asset.short_description}",
         :url => ((f.class==Fact) ? asset_path(f.asset) : '')
         }}
 

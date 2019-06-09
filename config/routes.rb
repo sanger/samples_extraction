@@ -10,6 +10,7 @@ Rails.application.routes.draw do
 
   resources :step_types
   resources :steps
+  resources :changes
 
   resources :asset_groups do
     member do
@@ -43,6 +44,7 @@ Rails.application.routes.draw do
   resources :instruments
 
   root 'instruments#index'
+  #root 'activity_types#index'
 
   resources :samples_started
   resources :samples_not_started

@@ -1,6 +1,5 @@
 require 'pry'
 class AssetsController < ApplicationController
-  before_action :prepare_asset_params, only: [:create, :update]
   before_action :set_asset, only: [:show, :edit, :update, :destroy, :print]
   before_action :set_queries, only: [:search, :print_search]
 
@@ -26,19 +25,18 @@ class AssetsController < ApplicationController
     Printables::Group.print_assets(@assets, @current_user.printer_config, @current_user.username)
 
     respond_to do |format|
-      format.js { render :search, notice: 'Search was printed.' }
+      format.html { render :search, notice: 'Search was printed.' }
     end
   end
 
   def search
     @start_time = Time.now
-    @assets = get_search_results(@queries)
+    @assets = get_search_results(@queries).paginate(:page => params[:page], :per_page => 10)
 
     @valid_indexes = valid_indexes
 
     respond_to do |format|
-      format.js { render :search, layout: false}
-      format.html { render :search, layout: false }
+      format.html { render :search  }
     end
   end
 
@@ -72,7 +70,7 @@ class AssetsController < ApplicationController
   # POST /assets
   # POST /assets.json
   def create
-    @asset = Asset.new(@prepared_params)
+    @asset = Asset.new(asset_params)
 
     respond_to do |format|
       if @asset.save
@@ -90,7 +88,7 @@ class AssetsController < ApplicationController
   def update
     respond_to do |format|
 
-      if @asset.update(@prepared_params)
+      if @asset.update(asset_params)
         @asset.touch
 
         format.html { redirect_to @asset, notice: 'Asset was successfully updated.' }
@@ -141,20 +139,9 @@ class AssetsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def asset_params
-      params.require(:asset).permit(:barcode, :facts)
+      params.require(:asset).permit(:barcode)
     end
 
     UUID_REGEXP = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
-    def prepare_asset_params
-      @prepared_params = asset_params
-      @prepared_params[:facts] = JSON.parse(@prepared_params[:facts]).map do |obj|
-        if UUID_REGEXP.match(obj["object"].to_s)
-          ref = Asset.find_by(:uuid => obj["object"])
-          Fact.create(:predicate => obj["predicate"], :object_asset => ref)
-        else
-          Fact.create(:predicate => obj["predicate"], :object => obj["object"])
-        end
-      end
-    end
 end

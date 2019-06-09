@@ -16,15 +16,15 @@ RSpec.describe AssetsController, type: :controller do
     it 'searches by barcode' do
       asset = create :asset, barcode: 'S1234'
       search = Asset.where(barcode: 'S1234')
-      send(method, action_name, params: { p0: 'barcode', o0: 'S1234'}, xhr: true)
-      expect(assigns(:assets)).to eq(search)
+      send(method, action_name, params: { p0: 'barcode', o0: 'S1234'})
+      expect(assigns(:assets)[0]).to eq(search[0])
     end
     it 'searches by properties' do
       asset = create :asset, barcode: 'S1234'
       asset.facts << create(:fact, predicate: 'a', object: 'Tube')
       search = Asset.joins(:facts).where(facts: { predicate: 'a', object: 'Tube'}).first
-      send(method, action_name, params: { p0: 'a', o0: 'Tube'}, xhr: true)
-      expect(assigns(:assets)).to eq([search])
+      send(method, action_name, params: { p0: 'a', o0: 'Tube'})
+      expect(assigns(:assets)[0]).to eq(search)
     end
   end
   context '#search' do

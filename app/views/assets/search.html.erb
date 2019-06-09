@@ -1,3 +1,4 @@
+
 <p id="notice"><%= notice %></p>
 
 <h1>Assets <small>Search</small></h1>
@@ -10,6 +11,8 @@
   <% end %>
 </div>
 
+<%= will_paginate @assets, renderer: BootstrapPagination::Rails %>
+
 <h4> <%= @assets.count %> results </h4>
 <% unless @assets.empty? %>
   <table class="table table-bordered">
@@ -21,6 +24,7 @@
     </thead>
 
     <tbody>
+      <%= render_react_tooltip %>
       <% @assets.each_with_index do |asset, index| %>
         <tr>
           <td><%= bootstrap_link_to asset.barcode || "##{asset.id}", asset %></td>
@@ -35,6 +39,8 @@
   <script type="application/javascript">
     WebpackerReact.mountComponents()
   </script>
+
+<%= will_paginate @assets, renderer: BootstrapPagination::Rails %>
 
 <form role="search"
   data-remote="true"

@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import ReactTooltip from 'react-tooltip'
+
 import ActivityControl from './activity_components/activity_control'
 import AlertDisplay from './activity_components/alert_display'
 import ActivityDescription from "./activity_components/activity_description"
@@ -265,7 +267,7 @@ class Activity extends React.Component {
       <ActivityControl activityRunning={this.state.activityRunning} />
       </h1>
 
-
+  <ReactTooltip multiline={true} effect="solid" />
 	<AlertDisplay
 	  onRemoveErrorMessage={this.onRemoveErrorMessage}
 	  messages={this.state.messages} />
