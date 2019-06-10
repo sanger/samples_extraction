@@ -74,13 +74,14 @@ module ActivitiesHelper
 
   def steps_data_for_steps(steps)
     steps.map do |step|
+      username = (step && step.user) ? step.user.username : nil
       {
         stepUpdateUrl: Rails.application.routes.url_helpers.step_path(step),
         activity: step.activity,
         asset_group: step.asset_group,
         step_type: step.step_type,
         operations: operations_data(step.operations.joins(:asset)),
-        username: step.user.username
+        username: username
       }.merge(step.attributes)
     end
   end

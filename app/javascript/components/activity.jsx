@@ -8,7 +8,7 @@ import AlertDisplay from './activity_components/alert_display'
 import ActivityDescription from "./activity_components/activity_description"
 import PrintersSelection from "./activity_components/printers_selection"
 import AssetGroupsEditor from "./asset_group_components/asset_groups_editor"
-import StepsFinished from "./step_components/steps_finished"
+import Steps from "./step_components/steps"
 import StepsRunning from "./step_components/steps_running"
 import StepsFailed from "./step_components/steps_failed"
 import StepTypesControl from "./step_type_components/step_types_control"
@@ -303,11 +303,11 @@ class Activity extends React.Component {
 	  onSelectAssetGroup={this.onSelectAssetGroup}
 	  assetGroups={this.state.assetGroups} />
 	{this.renderStepTypesControl("2")}
-	<StepsFinished
-          onToggle={this.onToggleComponentBuilder('stepsFinished')}
-          steps={this.state.stepsFinished}
-	  activityRunning={this.state.activityRunning}
-	  onChangeStateStep={this.onChangeStateStep}/>
+	<Steps
+      onToggle={this.onToggleComponentBuilder('stepsFinished')}
+      steps={this.state.stepsFinished}
+	    activityRunning={this.state.activityRunning}
+	   onChangeStateStep={this.onChangeStateStep}/>
       </div>
     )
   }

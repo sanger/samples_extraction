@@ -9,6 +9,7 @@ import PropTypes from 'prop-types'
 import WebpackerReact from 'webpacker-react'
 import Activity from 'components/activity'
 import Steps from 'components/step_components/steps'
+import StepsFinished from 'components/step_components/steps_finished'
 import FactsSvg from 'components/asset_components/facts_svg'
 import Facts from 'components/asset_components/facts'
 import FactsEditor from 'components/asset_components/facts_editor'
@@ -17,4 +18,4 @@ import ReactTooltip from 'react-tooltip'
 window.React = React;
 
 
-WebpackerReact.setup({React,Activity,Steps,FactsSvg,Facts,FactsEditor,ReactTooltip})
+WebpackerReact.setup({React,Activity,Steps,StepsFinished,FactsSvg,Facts,FactsEditor,ReactTooltip})

@@ -28,7 +28,7 @@ module Actions
         value.each do |location, assets|
           asset1, asset2 = assets
           if asset2
-            updates.add(asset2, 'aliquotType', aliquot) if aliquot && !asset2.has_predicate?('aliquotType')
+            updates.add(asset2, 'aliquotType', aliquot.object) if aliquot && !asset2.has_predicate?('aliquotType')
             asset1.facts.each do |fact|
               unless ignored_predicates.include?(fact.predicate)
                 updates.add(asset2, fact.predicate, fact.object_value)
@@ -52,7 +52,7 @@ module Actions
             updates.add(well, fact.predicate, fact.object_value)
           end
           updates.add(well, 'barcodeType', 'NoBarcode')
-          updates.add(well, 'aliquotType', aliquot) if aliquot && !well.has_predicate?('aliquotType')
+          updates.add(well, 'aliquotType', aliquot.object) if aliquot && !well.has_predicate?('aliquotType')
           updates.add(destination, 'contains', well)
         end
       end
