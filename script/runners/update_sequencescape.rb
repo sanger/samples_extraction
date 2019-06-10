@@ -18,7 +18,7 @@ class UpdateSequencescape
       aliquot_types = []
       if assets_compatible_with_step_type
         ActiveRecord::Base.transaction do
-          asset_group.assets.each do |asset|
+          asset_group.assets.with_fact('pushTo', 'Sequencescape').each do |asset|
             asset.update_sequencescape(step.printer_config, step.user, step)
           end
         end

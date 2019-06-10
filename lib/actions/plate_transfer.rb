@@ -1,15 +1,26 @@
 module Actions
   module PlateTransfer
+
+    def to_sequencescape_location(location)
+      loc = location.match(/(\w)(0*)(\d*)/)
+      loc[1]+loc[3]
+    end
+
+    def ignored_predicates
+      ['a', 'parent']
+    end
+
     def transfer_by_location(plate, destination)
+      aliquot = plate.facts.where(predicate: 'aliquotType').first
       FactChanges.new.tap do |updates|
         value = plate.facts.with_predicate('contains').reduce({}) do |memo, f|
-          location = f.object_asset.facts.with_predicate('location').first.object
+          location = to_sequencescape_location(f.object_asset.facts.with_predicate('location').first.object)
           memo[location] = [] unless memo[location]
           memo[location].push(f.object_asset)
           memo
         end
         value = destination.facts.with_predicate('contains').reduce(value) do |memo, f|
-          location = f.object_asset.facts.with_predicate('location').first.object
+          location = to_sequencescape_location(f.object_asset.facts.with_predicate('location').first.object)
           memo[location] = [] unless memo[location]
           memo[location].push(f.object_asset)
           memo
@@ -17,8 +28,11 @@ module Actions
         value.each do |location, assets|
           asset1, asset2 = assets
           if asset2
+            updates.add(asset2, 'aliquotType', aliquot) if aliquot && !asset2.has_predicate?('aliquotType')
             asset1.facts.each do |fact|
-              updates.add(asset2, fact.predicate, fact.object_value)
+              unless ignored_predicates.include?(fact.predicate)
+                updates.add(asset2, fact.predicate, fact.object_value)
+              end
             end
           end
         end
@@ -26,12 +40,19 @@ module Actions
     end
 
     def transfer_with_asset_creation(plate, destination)
+      aliquot = plate.facts.where(predicate: 'aliquotType').first
       FactChanges.new.tap do |updates|
         contains_facts = plate.facts.with_predicate('contains').map do |contain_fact|
           well = contain_fact.object_asset.dup
           well.uuid = nil
           well.barcode = contain_fact.object_asset.barcode
           well.facts = contain_fact.object_asset.facts.map(&:dup)
+          updates.create_assets([well])
+          contain_fact.object_asset.facts.each do |fact|
+            updates.add(well, fact.predicate, fact.object_value)
+          end
+          updates.add(well, 'barcodeType', 'NoBarcode')
+          updates.add(well, 'aliquotType', aliquot) if aliquot && !well.has_predicate?('aliquotType')
           updates.add(destination, 'contains', well)
         end
       end
