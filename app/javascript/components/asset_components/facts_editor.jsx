@@ -95,12 +95,12 @@ class FactsEditor extends Facts {
             </div>
             <input
               disabled={!this.props.changesUrl}
+              autoComplete="off"
               type="text" name="object" value={this.state.text} onChange={this.onChangeText}
               className="form-control" aria-label="..."
               onKeyPress={this.onKeyPress} />
             <div className="input-group-btn">
-              <button type="button"
-              disabled={!this.props.changesUrl}
+              <button type="button" disabled={!this.props.changesUrl}
               onClick={this.props.changesUrl ? this.onAddFact : null} className="btn btn-default form-control">Add</button>
             </div>
           </div>

@@ -80,22 +80,31 @@ class Activity extends React.Component {
     })
   }
   onWebSocketsMessage(msg) {
-    var selectedGroup = this.state.selectedAssetGroup
-    if (!(msg.assetGroups && msg.assetGroups[selectedGroup])) {
-      selectedGroup = Object.keys(msg.assetGroups)[0]
+    let newState
+
+    if (msg.error) {
+      newState = {messages: [msg.error]}
+    } else {
+      var selectedGroup = this.state.selectedAssetGroup
+      if (!(msg.assetGroups && msg.assetGroups[selectedGroup])) {
+        selectedGroup = Object.keys(msg.assetGroups)[0]
+      }
+      newState = {
+        messages: msg.messages,
+        selectedAssetGroup: selectedGroup,
+        activityRunning: msg.activityRunning,
+        dataAssetDisplay: msg.dataAssetDisplay,
+        assetGroups: msg.assetGroups,
+        stepTypes: msg.stepTypes,
+        stepsRunning: msg.stepsRunning || [],
+        stepsFailed: msg.stepsFailed,
+        stepsPending: msg.stepsPending || [],
+        stepsFinished: msg.stepsFinished
+      }
     }
-    this.setState({
-      messages: msg.messages,
-      selectedAssetGroup: selectedGroup,
-      activityRunning: msg.activityRunning,
-      dataAssetDisplay: msg.dataAssetDisplay,
-      assetGroups: msg.assetGroups,
-      stepTypes: msg.stepTypes,
-      stepsRunning: msg.stepsRunning || [],
-      stepsFailed: msg.stepsFailed,
-      stepsPending: msg.stepsPending || [],
-      stepsFinished: msg.stepsFinished
-    })
+
+    this.setState(newState)
+
     if (this.awaitingPromises) {
       this.awaitingPromises.forEach((args) => {
         const [resolve, reject] = args
