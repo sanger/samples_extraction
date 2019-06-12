@@ -39,7 +39,7 @@ class Step < ActiveRecord::Base
     ActiveRecord::Base.transaction do
       step_messages.delete_all
       errors.each do |error|
-        step_messages.create(content: error)
+        step_messages.create(step_id: self.id, content: error)
       end
     end
   end
