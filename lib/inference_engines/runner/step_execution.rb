@@ -34,10 +34,14 @@ module InferenceEngines
         require("#{Rails.root}/script/runners/#{@step.step_type.step_action}")
         @content = @step.step_type.step_action.gsub("\.rb", '').camelize.constantize.new(asset_group: @asset_group, step: @step).process.to_json
         step.update_attributes(output: @content)
-        return true
+        @updates = FactChanges.new(@content)
       end
 
       def generate_plan
+        run_from_class
+      end
+
+      def generate_plan2
         if @step.step_type.step_action.match(/\.rb$/)
           cmd = ["bin/rails", "runner", "#{Rails.root}/script/runners/#{@step.step_type.step_action}"]
         else
