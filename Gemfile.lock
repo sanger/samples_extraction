@@ -22,12 +22,6 @@ GIT
     pmb-client (0.1.0)
       json_api_client (~> 1.1)
 
-GIT
-  remote: https://github.com/sanger/psd_logger.git
-  revision: dd2d634114df75b1d8535715c169a7fc99521389
-  specs:
-    psd_logger (0.1.6)
-
 GEM
   remote: http://rubygems.org/
   specs:
@@ -118,6 +112,9 @@ GEM
       sxp (~> 1.0)
     ejs (1.1.1)
     erubi (1.8.0)
+    exception_notification (4.3.0)
+      actionmailer (>= 4.0, < 6)
+      activesupport (>= 4.0, < 6)
     execjs (2.7.0)
     factory_bot (5.0.2)
       activesupport (>= 4.2.0)
@@ -385,6 +382,7 @@ DEPENDENCIES
   delayed_job_active_record
   dropzonejs-rails
   ejs
+  exception_notification
   factory_bot
   factory_bot_rails
   faraday
@@ -398,7 +396,6 @@ DEPENDENCIES
   mysql2 (>= 0.3.13)
   pmb-client!
   pry
-  psd_logger!
   puma
   rack_session_access
   rails

@@ -112,6 +112,6 @@ end
 
 
 group :deployment do
-  gem 'psd_logger', git: 'https://github.com/sanger/psd_logger.git'
+  gem 'exception_notification'
   gem 'gmetric', '~>0.1.3'
 end
