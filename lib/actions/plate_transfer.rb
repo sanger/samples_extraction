@@ -10,9 +10,36 @@ module Actions
       ['a', 'parent']
     end
 
+    def validate_plate_is_compatible_with_aliquot(updates, plate, aliquotType)
+      aliquots = plate.facts.with_predicate('aliquotType').map(&:object).uniq
+      return true if aliquots.empty?
+      if ((aliquots.size != 1) || (aliquots.first != aliquotType))
+        updates.set_errors(
+          ["The plate #{plate.barcode} contains aliquot #{aliquots.first} which is not compatible with #{aliquotType}"]
+        )
+        return false
+      end
+      true
+    end
+
+
+    def validate_tube_is_compatible_with_aliquot(updates, tube, aliquotType)
+      aliquots = tube.facts.with_predicate('aliquotType').map(&:object).uniq
+      return true if aliquots.empty?
+      if ((aliquots.size != 1) || (aliquots.first != aliquotType))
+        updates.set_errors(
+          ["The tube #{tube.barcode} contains aliquot #{aliquots.first} which is not compatible with #{aliquotType}"]
+        )
+        return false
+      end
+      true
+    end
+
     def transfer_by_location(plate, destination)
       aliquot = plate.facts.where(predicate: 'aliquotType').first
       FactChanges.new.tap do |updates|
+        return updates unless validate_plate_is_compatible_with_aliquot(updates, destination, aliquot.object) if aliquot
+        updates.add(destination, 'aliquotType', aliquot.object) if aliquot
         value = plate.facts.with_predicate('contains').reduce({}) do |memo, f|
           location = to_sequencescape_location(f.object_asset.facts.with_predicate('location').first.object)
           memo[location] = [] unless memo[location]
@@ -28,6 +55,7 @@ module Actions
         value.each do |location, assets|
           asset1, asset2 = assets
           if asset2
+            return updates unless validate_tube_is_compatible_with_aliquot(updates, asset2, aliquot.object) if aliquot
             updates.add(asset2, 'aliquotType', aliquot.object) if aliquot && !asset2.has_predicate?('aliquotType')
             asset1.facts.each do |fact|
               unless ignored_predicates.include?(fact.predicate)

@@ -43,6 +43,7 @@ module Steps::ExecutionActions
       step_execution = StepExecution.new(step: self, asset_group: asset_group)
       updates = step_execution.plan
       updates.apply(self)
+
       unless step_type.step_action.nil? || step_type.step_action.empty?
         runner = InferenceEngines::Runner::StepExecution.new(
           :step => self,
@@ -50,9 +51,8 @@ module Steps::ExecutionActions
           :created_assets => {},
           :step_types => [step_type]
         )
-        updates.merge(runner.plan)
+        runner.plan.apply(self)
       end
-      updates.apply(self)
     end
 
     update_attributes(:state => 'running')
