@@ -38,7 +38,11 @@ module InferenceEngines
       end
 
       def generate_plan
-        run_from_class
+        if @step.step_type.actions.length > 0
+          run_from_class
+        else
+          generate_plan2
+        end
       end
 
       def generate_plan2

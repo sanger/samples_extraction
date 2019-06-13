@@ -11,7 +11,7 @@ class Step < ActiveRecord::Base
   belongs_to :user
   has_many :uploads
   has_many :operations
-  has_many :step_messages, dependent: :destroy
+  has_many :step_messages #, dependent: :destroy
   has_many :assets, through: :asset_group
   has_many :assets_modified, -> { distinct }, through: :operations, class_name: 'Asset', source: :asset
   has_many :asset_groups_affected, -> { distinct }, through: :assets_modified, class_name: 'AssetGroup', source: :asset_groups
@@ -36,12 +36,18 @@ class Step < ActiveRecord::Base
   include Steps::ExecutionActions
 
   def set_errors(errors)
-    ActiveRecord::Base.transaction do
-      step_messages.delete_all
-      errors.each do |error|
-        step_messages.create(step_id: self.id, content: error)
-      end
-    end
+    activity.send_wss_event({error: {type: 'danger', msg: errors.first} })
+    #step_messages.delete_all
+    #errors.each do |error|
+    #  step_messages << StepMessage.new(content: error)
+    #end
+
+    #ActiveRecord::Base.transaction do
+    #  step_messages.delete_all
+    #  errors.each do |error|
+    #    step_messages.create(step_id: self.id, content: error)
+    #  end
+    #end
   end
 
 end
