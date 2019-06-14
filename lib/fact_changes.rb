@@ -1,8 +1,10 @@
 require 'token_util'
-require 'disjoint_list'
+require 'changes_support/disjoint_list'
+require 'changes_support/transaction_scope'
 require 'google_hash'
 
 class FactChanges
+  include ChangesSupport::TransactionScope
 
   attr_accessor :facts_to_destroy, :facts_to_add, :assets_to_create, :assets_to_destroy,
     :assets_to_add, :assets_to_remove, :wildcards, :instances_from_uuid,
@@ -36,8 +38,8 @@ class FactChanges
   end
 
   def build_disjoint_lists(list, opposite)
-    list1 = DisjointList.new([])
-    list2 = DisjointList.new([])
+    list1 = ChangesSupport::DisjointList.new([])
+    list2 = ChangesSupport::DisjointList.new([])
 
     list1.add_disjoint_list(list2)
 
