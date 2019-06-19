@@ -22,7 +22,9 @@ class AssetsController < ApplicationController
     @start_time = Time.now
     @assets = get_search_results(@queries)
 
-    Printables::Group.print_assets(@assets, @current_user.printer_config, @current_user.username)
+    temp_group = AssetGroup.new
+    temp_group.assets << @assets
+    temp_group.print(@current_user.printer_config, @current_user.username)
 
     respond_to do |format|
       format.html { render :search, notice: 'Search was printed.' }
