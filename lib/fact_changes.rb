@@ -217,6 +217,14 @@ class FactChanges
     @assets_updated=Asset.where(id: @operations.pluck(:asset_id).uniq).distinct
   end
 
+  def assets_for_printing
+    return [] unless @operations
+    asset_ids = @operations.select do |operation|
+      (operation.action_type == :create_asset)
+    end.pluck(:asset_id).uniq
+    @assets_for_printing=Asset.for_printing.where(id: asset_ids)
+  end
+
   def find_asset(asset_or_uuid)
     find_instance_of_class_by_uuid(Asset, asset_or_uuid)
   end

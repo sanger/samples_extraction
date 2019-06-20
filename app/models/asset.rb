@@ -51,6 +51,10 @@ class Asset < ActiveRecord::Base
     with_fact('is','Started')
   }
 
+  scope :for_printing, ->() {
+    where.not(barcode: nil)
+  }
+
   scope :compatible2_with_activity_type, ->(activity_type) {
     joins(:facts).
     joins("right outer join conditions on conditions.predicate=facts.predicate and conditions.object=facts.object").
