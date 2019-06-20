@@ -42,10 +42,17 @@ RSpec.describe AssetsController, type: :controller do
 
       asset = create :asset, barcode: 'S1234'
       search = Asset.where(barcode: 'S1234')
+
+      mocked_group = double('asset_group')
+      allow(AssetGroup).to receive(:new).and_return(mocked_group)
+      allow(mocked_group).to receive(:assets).and_return([])
+      allow(mocked_group).to receive(:assets).and_return([])
+      allow(mocked_group).to receive(:print)
+
       post :print_search, params: { p0: 'barcode', o0: 'S1234'}, xhr: true
       expect(assigns(:assets)).to eq(search)
 
-      expect(Printables::Group).to have_received(:print_assets).with(search, {"Plate"=>'Pum', "Tube"=>'Pim'}, 'test')
+      expect(mocked_group).to have_received(:print).with({"Plate"=>'Pum', "Tube"=>'Pim'}, 'test')
     end
   end
 end

@@ -33,7 +33,7 @@ RSpec.describe 'ChangesSupport::DisjointList' do
       expect(list.unique_id_for_element("abcdef")).to eq(list.unique_id_for_element("abcdef"))
     end
     it 'can generate an id for arrays' do
-      expect(list.unique_id_for_element(["1","2", "3"])).to eq(list.unique_id_for_element([1,2,3]))
+      expect(list.unique_id_for_element(["1","2","3"])).to eq(list.unique_id_for_element([1,2,3]))
     end
     it 'can generate an id for hash' do
       expect(list.unique_id_for_element({a: 1, b: 2, c: 3})).to eq(list.unique_id_for_element({a: "1", b: "2", c: "3"}))
