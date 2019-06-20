@@ -20,7 +20,7 @@ class AssetsController < ApplicationController
 
   def print_search
     @start_time = Time.now
-    @assets = get_search_results(@queries)
+    @assets = get_search_results(@queries).paginate(:page => params[:page], :per_page => 10)
 
     temp_group = AssetGroup.new
     temp_group.assets << @assets
