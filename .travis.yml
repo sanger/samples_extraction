@@ -1,6 +1,6 @@
 language: ruby
+cache: bundler
 before_script:
-  - "bundle install"
   - "export SECRET_KEY_BASE=`bundle exec rake secret`"
   - "bundle exec rake db:create RAILS_ENV=test"
 services:
