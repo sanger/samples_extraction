@@ -45,18 +45,16 @@ gem 'yajl-ruby'#, '>= 1.3'
 gem 'google_hash'
 
 # Tools
-gem 'sanger_barcode_format', github: 'sanger/sanger_barcode_format'
+gem 'sanger_barcode_format', git: 'https://github.com/sanger/sanger_barcode_format.git'
 gem 'pmb-client', git: 'https://github.com/sanger/pmb-client.git'
 
 # Sequencescspae
 gem 'rest-client'
 gem 'faraday'
 gem 'sequencescape-client-api',
-  # Should be switched back to sanger + production for deployment
-  :github => 'emrojo/sequencescape-client-api',
-  :branch  => 'asset-attribute-update-merged-with-rails-4',
+  git: 'https://github.com/emrojo/sequencescape-client-api.git',
+  branch: 'asset-attribute-update-merged-with-rails-4',
   :require => 'sequencescape'
-
 
 # Debugging
 gem 'rb-readline'

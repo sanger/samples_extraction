@@ -1,5 +1,5 @@
 GIT
-  remote: git://github.com/emrojo/sequencescape-client-api.git
+  remote: https://github.com/emrojo/sequencescape-client-api.git
   revision: 21bbd6371e5903f6c31e8fe4eeb26e878f4a7d4b
   branch: asset-attribute-update-merged-with-rails-4
   specs:
@@ -10,17 +10,17 @@ GIT
       yajl-ruby (>= 1.1.0)
 
 GIT
-  remote: git://github.com/sanger/sanger_barcode_format.git
-  revision: f409a218a74a1d1571383ceaf693fe296eb6beb7
-  specs:
-    sanger_barcode_format (0.0.2)
-
-GIT
   remote: https://github.com/sanger/pmb-client.git
   revision: 016f151a3bde84448ed64e528259c3511282dcdb
   specs:
     pmb-client (0.1.0)
       json_api_client (~> 1.1)
+
+GIT
+  remote: https://github.com/sanger/sanger_barcode_format.git
+  revision: f409a218a74a1d1571383ceaf693fe296eb6beb7
+  specs:
+    sanger_barcode_format (0.0.2)
 
 GEM
   remote: http://rubygems.org/
