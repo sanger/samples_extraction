@@ -21,7 +21,7 @@
       <tr>
         <td><%= instrument.barcode %></td>
         <td><%= instrument.name %></td>
-        <td><%= bootstrap_link_to 'Use', instrument %>
+        <td><%= bootstrap_link_to 'Use', use_instrument_path(instrument) %>
           <%= bootstrap_link_to 'Edit', edit_instrument_path(instrument) %></td>
       </tr>
     <% end %>

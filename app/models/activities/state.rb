@@ -8,7 +8,7 @@ module Activities::State
 
   def finish
     ActiveRecord::Base.transaction do
-      update_attributes(:completed_at => DateTime.now)
+      update_attributes(:completed_at => DateTime.now, state: 'finish')
     end
   end
 

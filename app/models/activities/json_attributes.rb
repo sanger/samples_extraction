@@ -5,8 +5,8 @@ module Activities::JsonAttributes
          id: id,
          completed_at: completed_at,
          activity_type_name: activity_type.name,
-         instrument_name: instrument.name || instrument.barcode,
-         kit_name: kit.barcode,
+         instrument_name: instrument ? (instrument.name || instrument.barcode) : nil,
+         kit_name: kit ? kit.barcode : nil,
          selectedAssetGroup: owned_asset_groups.first.id
        },
       tubePrinter: {

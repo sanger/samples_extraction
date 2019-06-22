@@ -41,7 +41,11 @@ Rails.application.routes.draw do
   resources :activity_types
   resources :kit_types
   resources :kits
-  resources :instruments
+  resources :instruments do
+    member do
+      get 'use', to: 'instruments#use'
+    end
+  end
 
   root 'instruments#index'
   #root 'activity_types#index'

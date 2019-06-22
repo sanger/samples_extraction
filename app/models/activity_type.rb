@@ -26,6 +26,19 @@ class ActivityType < ActiveRecord::Base
 
   attr_accessor :n3_definition
 
+  def create_activity(params)
+    activity = nil
+    ActiveRecord::Base.transaction do
+      group = AssetGroup.create
+      activity = Activity.create({
+        kit: params[:kit], instrument: params[:instrument],
+        activity_type: self, asset_group: group})
+      activities << activity
+      group.update_attributes!(activity_owner: activity)
+    end
+    activity
+  end
+
   def available?
     superceded_by.nil?
   end

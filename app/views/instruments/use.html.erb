@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<form method="post" class="form" action="<%= activities_path %>">
+  <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>" />
+  <div class="form-group">
+    <label for="activity[instrument_barcode]">Instrument barcode</label>
+    <input class="form-control" readonly="readonly" type="text" name="activity[instrument_barcode]" value="<%= @instrument.barcode %>" />
+  </div>
+  <div class="form-group">
+    <label for="activity[kit_barcode]">Kit barcode</label>
+    <input class="form-control" autocomplete="off"
+    placeholder="Scan a kit barcode" type="text" name="activity[kit_barcode]" value="" />
+  </div>
+
+  <input type="submit" value="Create activity" class="btn btn-default" />
+</form>
+
+<%= bootstrap_link_to 'Edit', edit_instrument_path(@instrument) %>
+<%= bootstrap_link_to 'Back', :back %>

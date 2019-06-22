@@ -3,8 +3,10 @@
 
   <% unless @activity.finished? %>
     <%= bootstrap_form_for @activity, action: 'update', :html => {:class => 'operator-allowed'} do |f| %>
-      <input type="hidden" name="user_barcode" value="" />
-      <button name="finish" class='btn btn-danger'>Finish activity?</button> &nbsp;
+      <div class="hidden">
+        <%= f.text_field(:state, :value => "finish", :readonly => true) %>
+      </div>
+      <input type="submit" class='btn btn-danger' value="Finish activity?" /> &nbsp;
     <% end %>
   <% end %>
 <%= bootstrap_link_to 'Back', :back %>

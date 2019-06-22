@@ -5,6 +5,11 @@ RSpec.describe InstrumentsController, type: :controller do
     @instrument = FactoryBot.create :instrument
   end
 
+  it 'shows the use instrument interface' do
+    get :use, params: { id: @instrument }
+    assert_response :success
+  end
+
   it "should get index" do
     get :index
     assert_response :success

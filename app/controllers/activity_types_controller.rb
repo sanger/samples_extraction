@@ -4,6 +4,7 @@ class ActivityTypesController < ApplicationController
   # GET /activity_types
   # GET /activity_types.json
   def index
+    @activity = Activity.new
     @activity_types = ActivityType.all
   end
 

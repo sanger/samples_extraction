@@ -1,83 +1,75 @@
 require 'rails_helper'
 
 RSpec.describe ActivitiesController, type: :controller do
+  before do
+    session[:token] = 'mytoken'
+    create :printer, printer_type: 'Tube', default_printer: true, name: 'Pim'
+    create :printer, printer_type: 'Plate', default_printer: true, name: 'Pum'
+    @user = create :user, token: session[:token], username: 'test'
+  end
 
-  context "when scanning a new kit" do
-    setup do
-      @activity_type = FactoryBot.create :activity_type
-      @kit_type = FactoryBot.create :kit_type, :activity_type => @activity_type
-      @kit = FactoryBot.create :kit, {:kit_type => @kit_type}
-      @instrument = FactoryBot.create :instrument
-      @instrument.activity_types << @activity_type
-    end
-
-    it "create a new activity of the activity type of the kit" do
-      count = @kit.kit_type.activity_type.activities.count
-      post :create,  params: { :kit_barcode => @kit.barcode, :instrument_barcode => @instrument.barcode}
-      @kit.kit_type.activity_type.activities.reload
-      assert_equal @kit.kit_type.activity_type.activities.count, count + 1
-      assert_equal @activity_type.activities.count, count + 1
-    end
-
-    context "when scanning a new barcode" do
-      setup do
-        @asset = FactoryBot.create :asset, {:barcode => '1'}
-
-        @facts = [
-          ['is_a', 'Tube'],
-          ['is_a', 'ReceptionTube'],
-          ['aliquotType', 'DNA']
-        ].map do |a,b|
-          FactoryBot.create :fact, { :predicate => a, :object => b}
-        end
-
-        @step_type = FactoryBot.create :step_type, :name => 'Step B'
-        @step_type2 = FactoryBot.create :step_type, :name => 'Step A'
-
-
-        @step_type.activity_types << @activity_type
-        @step_type2.activity_types << @activity_type
-
-        @condition_group = FactoryBot.create :condition_group, :step_type => @step_type
-
-        @conditions = [
-          ['is_a', 'ReceptionTube'],
-          ['aliquotType', 'DNA']
-        ].map do |a,b|
-          FactoryBot.create :condition, {
-            :predicate => a, :object => b, :condition_group_id => @condition_group.id}
-        end
-
-
-        @asset.facts << @facts
-
-        @asset_group = FactoryBot.create :asset_group
-
-        @asset.asset_groups << @asset_group
-        @activity = FactoryBot.create :activity, :activity_type => @activity_type, :asset_group => @asset_group
-
-        @activity_type.activities << @activity
-
-        @step = FactoryBot.create :step, {
-          :step_type_id => @step_type.id,
-          :activity_id => @activity.id,
-          :asset_group_id => @asset_group.id
-        }
-      end
-
-      it "identify all the step types" do
-        assert_equal @activity.step_types, [@step_type, @step_type2]
-      end
-
-      it "identify the possible step types" do
-        assert_equal @activity.step_types_for([@asset]), [@step_type]
-      end
-
-      it "identify the steps done" do
-        assert_equal @activity.steps_for(@asset_group.assets), [@step]
-      end
-    end
+  setup do
+    @activity_type = FactoryBot.create :activity_type
+    @kit_type = FactoryBot.create :kit_type, :activity_type => @activity_type
+    @kit = FactoryBot.create :kit, {:kit_type => @kit_type}
+    @instrument = FactoryBot.create :instrument
 
   end
 
+  context "when updating an activity" do
+    before do
+      @activity = @kit.kit_type.activity_type.create_activity({kit: @kit, instrument: @instrument})
+    end
+    it 'can finish the activity' do
+      post :update,  params: { id: @activity.id, activity: { state: 'finish' } }
+      @activity.reload
+      expect(@activity.state).to eq('finish')
+    end
+  end
+  context "when scanning a new kit" do
+    context 'when the kit does not exist' do
+      let(:subject) {
+        post :create,  params: { activity: { :kit_barcode => '11850', :instrument_barcode => @instrument.barcode} }
+      }
+      it 'fails creating the activity' do
+        count = @kit.kit_type.activity_type.activities.count
+        subject
+        @kit.kit_type.activity_type.activities.reload
+        assert_equal @kit.kit_type.activity_type.activities.count, count
+        assert_equal @activity_type.activities.count, count
+      end
+      it 'redirects to the use instrument view' do
+        expect(subject).to redirect_to(use_instrument_path(@instrument))
+      end
+    end
+    context 'when the kit exists' do
+      context 'when the instrument does not support the activity type' do
+        let(:subject) {
+          post :create,  params: { activity: { :kit_barcode => @kit.barcode, :instrument_barcode => @instrument.barcode} }
+        }
+        it 'fails creating the activity' do
+          count = @kit.kit_type.activity_type.activities.count
+          subject
+          @kit.kit_type.activity_type.activities.reload
+          assert_equal @kit.kit_type.activity_type.activities.count, count
+          assert_equal @activity_type.activities.count, count
+        end
+        it 'redirects to the use instrument view' do
+          expect(subject).to redirect_to(use_instrument_path(@instrument))
+        end
+      end
+      context 'when the instrument supports the activity type selected by the kit' do
+        before do
+          @instrument.activity_types << @activity_type
+        end
+        it "creates a new activity" do
+          count = @kit.kit_type.activity_type.activities.count
+          post :create,  params: { activity:  { :kit_barcode => @kit.barcode, :instrument_barcode => @instrument.barcode} }
+          @kit.kit_type.activity_type.activities.reload
+          assert_equal @kit.kit_type.activity_type.activities.count, count + 1
+          assert_equal @activity_type.activities.count, count + 1
+        end
+      end
+    end
+  end
 end
