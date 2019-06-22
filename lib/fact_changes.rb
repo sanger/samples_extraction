@@ -220,9 +220,9 @@ class FactChanges
   def assets_for_printing
     return [] unless @operations
     asset_ids = @operations.select do |operation|
-      (operation.action_type == :create_asset)
-    end.pluck(:asset_id).uniq
-    @assets_for_printing=Asset.for_printing.where(id: asset_ids)
+      (operation.action_type == 'createAssets')
+    end.pluck(:object).uniq
+    @assets_for_printing=Asset.for_printing.where(uuid: asset_ids)
   end
 
   def find_asset(asset_or_uuid)

@@ -2,7 +2,7 @@ module InferencesHelper
   def assets_equal?(expected, obtained)
     return false if expected.nil? || obtained.nil?
 
-    [[expected, obtained], 
+    [[expected, obtained],
       [obtained, expected]].all? do |expected_assets, obtained_assets|
       expected_assets.all? do |expected_asset|
         obtained_assets.any? do |obtained_asset|
@@ -46,9 +46,12 @@ module InferencesHelper
     fail if input_assets.nil?
     asset_group = FactoryBot.create(:asset_group, {:assets => input_assets})
 
+    user = FactoryBot.create :user, username: 'test'
+
     FactoryBot.create(:step, {
-      :step_type => step_type,
-      :asset_group => asset_group
+      step_type: step_type,
+      asset_group: asset_group,
+      user_id: user.id
     }.merge(options))
   end
 
@@ -58,14 +61,14 @@ module InferencesHelper
 
     lines_expected.all? do |line|
       lines_obtained.include?(line)
-    end   
+    end
   end
 
   def reload_assets(assets)
-    assets.each do |a| 
+    assets.each do |a|
       a.reload
       a.facts.reload
-    end    
+    end
   end
 
   def check_inference(rule, input_facts, output_facts)
@@ -75,13 +78,13 @@ module InferencesHelper
     step.execute_actions
 
     asset_group = step.asset_group
-    asset_group.assets.reload    
+    asset_group.assets.reload
     reload_assets(asset_group.assets)
     obtained_n3 = assets_to_n3(asset_group.assets)
     asset_group.assets.each{|a| a.facts.each(&:destroy)}
 
     expected_output_assets = SupportN3::parse_facts(output_facts, {}, false)
-    fail if expected_output_assets.nil?    
+    fail if expected_output_assets.nil?
 
     reload_assets(expected_output_assets)
     expected_n3 = assets_to_n3(expected_output_assets)

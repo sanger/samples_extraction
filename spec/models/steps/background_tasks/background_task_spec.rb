@@ -2,13 +2,14 @@ require 'rails_helper'
 
 describe Steps::BackgroundTasks::BackgroundTask do
 
+  let(:user) { create :user, username: 'test'}
   def build_instance
     asset_group = build :asset_group
     build :background_task, asset_group: asset_group
   end
 
   def create_instance(step_type, activity, group)
-    create(:background_task, step_type: step_type, activity: activity, asset_group: group)
+    create(:background_task, step_type: step_type, activity: activity, asset_group: group, user: user)
   end
 
   it_behaves_like 'background task'

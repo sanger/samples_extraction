@@ -11,6 +11,7 @@ end
 RSpec.describe Step, type: :model do
 
   let(:activity) { create :activity }
+  let(:user) { create :user, username: 'test'}
   before do
     Delayed::Worker.delay_jobs = false
   end
@@ -23,7 +24,8 @@ RSpec.describe Step, type: :model do
     step = FactoryBot.create(:step, {
       activity: activity,
       step_type: @step_type,
-      asset_group: @asset_group
+      asset_group: @asset_group,
+      user: user
     })
     step.execute_actions
     step
@@ -33,7 +35,8 @@ RSpec.describe Step, type: :model do
     step = create(:step, {
       activity: activity,
       step_type: step_type,
-      asset_group: asset_group
+      asset_group: asset_group,
+      user: user
     })
     step.execute_actions
     step
