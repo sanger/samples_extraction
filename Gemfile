@@ -11,14 +11,15 @@ gem 'delayed_job_active_record'
 gem 'mysql2'
 
 # Rails and framework libraries
+gem 'rails', '~> 5.2.3'
 gem 'tzinfo-data'
-gem 'rails'#, '~> 5.1.4'
 gem 'activerecord-session_store'
 gem 'micro_token'
 gem 'activerecord-import'
 
 
 # Rails views and UI
+gem 'turbolinks'
 gem 'bootstrap_form'
 gem 'sprockets-rails'
 gem 'js_cookie_rails'

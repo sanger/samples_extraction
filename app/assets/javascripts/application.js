@@ -17,6 +17,7 @@
 //= require bootstrap-sprockets
 //= require dropzone
 //= require action_cable
+//= require turbolinks
 
 //= require component_builder
 //= require upload_file
