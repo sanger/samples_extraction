@@ -20,8 +20,8 @@ class StepTypeButton extends React.Component {
       this.props.onExecuteStep(msg)
     }
   }
-    toggleDisableButton(flag) {
-      this.setState({disabledButton: flag})
+  toggleDisableButton(flag) {
+    this.setState({disabledButton: flag})
   }
   onSubmit(e) {
     e.preventDefault()
@@ -36,16 +36,17 @@ class StepTypeButton extends React.Component {
   renderButton() {
     const loadingIcon = (<span className="glyphicon glyphicon-refresh fast-right-spinner" aria-hidden="true"> </span>)
     const hiddenLoadingIcon = (<span className="glyphicon glyphicon-refresh invisible" aria-hidden="true"> </span>)
+    const isDisabled = this.state.disabledButton
     return(
-      <button disabled={this.state.disabledButton || this.props.activityRunning}
+      <button disabled={isDisabled}
         data-turbolinks="false"
         type="submit" className='btn btn-primary'>
         {this.props.stepTypeData.name}
-        {this.state.disabledButton ? loadingIcon : hiddenLoadingIcon }
+        {isDisabled ? loadingIcon : hiddenLoadingIcon }
       </button>
     )
   }
-    render() {
+  render() {
 		return(
 		    <li className="btn-group" style={{top: '6px'}}>
 		      <FormFor
