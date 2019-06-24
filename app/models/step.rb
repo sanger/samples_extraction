@@ -13,8 +13,9 @@ class Step < ActiveRecord::Base
   has_many :operations
   has_many :step_messages #, dependent: :destroy
   has_many :assets, through: :asset_group
-  has_many :assets_modified, -> { distinct }, through: :operations, class_name: 'Asset', source: :asset
-  has_many :asset_groups_affected, -> { distinct }, through: :assets_modified, class_name: 'AssetGroup', source: :asset_groups
+  has_many :assets_affected, -> { distinct }, through: :operations, class_name: 'Asset', source: :asset
+  has_many :asset_groups_affected, -> { distinct }, through: :assets_affected, class_name: 'AssetGroup', source: :asset_groups
+  has_many :activities_affected, -> { distinct }, through: :asset_groups_affected, class_name: 'Activity', source: :activity_owner
   belongs_to :created_asset_group, :class_name => 'AssetGroup', :foreign_key => 'created_asset_group_id'
   belongs_to :next_step, class_name: 'Step', :foreign_key => 'next_step_id'
 

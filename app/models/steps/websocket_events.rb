@@ -16,9 +16,7 @@ module Steps::WebsocketEvents
   end
 
   def wss_event
-    activity.touch if activity
-    asset_group.touch if asset_group
-    asset_groups_affected.each(&:touch)
+    activities_affected.each(&:touch)
   end
 
 end

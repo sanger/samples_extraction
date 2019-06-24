@@ -8,7 +8,6 @@ class Asset < ActiveRecord::Base
   include Printables::Instance
   include Asset::Import
   include Asset::Export
-  include Assets::WebsocketEvents
   include Assets::FactsManagement
 
   has_one :uploaded_file
@@ -20,10 +19,12 @@ class Asset < ActiveRecord::Base
   has_many :asset_groups, through: :asset_groups_assets
   has_many :steps, :through => :asset_groups
 
+  has_many :activities_affected, -> { distinct }, through: :asset_groups, class_name: 'Activity', source: :activity_owner
+
 
 
   def update_compatible_activity_type
-    ActivityType.visible.all.each do |at|
+    ActivityType.not_deprecated.all.each do |at|
       activity_types << at if at.compatible_with?(self)
     end
   end
@@ -53,29 +54,6 @@ class Asset < ActiveRecord::Base
 
   scope :for_printing, ->() {
     where.not(barcode: nil)
-  }
-
-  scope :compatible2_with_activity_type, ->(activity_type) {
-    joins(:facts).
-    joins("right outer join conditions on conditions.predicate=facts.predicate and conditions.object=facts.object").
-    joins("inner join condition_groups on condition_groups.id=condition_group_id").
-    joins("inner join step_types on step_types.id=condition_groups.step_type_id").
-    joins("inner join activity_type_step_types on activity_type_step_types.step_type_id=step_types.id").
-    where("activity_type_step_types.activity_type_id = ?", activity_type)
-  }
-
-  scope :compatible_with_activity_type, ->(activity_type) {
-    st = activity_type.step_types.select do |st|
-      st.condition_groups.select{|cg| cg.conditions.any?{|c| c.predicate == 'is' && c.object == 'NotStarted'}}
-    end.first
-    st_checks = [st.id, st.condition_groups.map(&:id)]
-
-    joins(:facts).
-    joins("right outer join conditions on conditions.predicate=facts.predicate and conditions.object=facts.object").
-    joins("inner join condition_groups on condition_groups.id=condition_group_id").
-    joins("inner join step_types on step_types.id=condition_groups.step_type_id").
-    joins("inner join activity_type_step_types on activity_type_step_types.step_type_id=step_types.id").
-    where("activity_type_step_types.activity_type_id = ? and activity_type_step_types.step_type_id = ? and condition_groups.id in (?)", activity_type, st_checks[0], st_checks[1])
   }
 
   scope :assets_for_queries, ->(queries) {
@@ -112,27 +90,6 @@ class Asset < ActiveRecord::Base
 
   def relation_id
     uuid
-  end
-
-  def reasoning!(&block)
-    num_iterations = 0
-    current_facts = facts_for_reasoning
-    assets = current_facts.pluck(:asset)
-    done = false
-    while !done do
-
-      previous_facts = current_facts.clone
-
-      yield assets
-
-      current_facts = facts_for_reasoning
-
-      if ((current_facts == previous_facts) || (num_iterations >10))
-        done = true
-      end
-      num_iterations += 1
-    end
-    raise 'Too many iterations while reasoning...' if num_iterations > 10
   end
 
   def build_barcode(index)

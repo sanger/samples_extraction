@@ -30,7 +30,6 @@ class AssetGroup < ActiveRecord::Base
   def touch_activity
     if activity_owner
       activity_owner.touch
-      activity_owner.save
     end
   end
 

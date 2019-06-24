@@ -14,8 +14,6 @@ class ActivityType < ActiveRecord::Base
   has_many :activity_type_compatibilities
   has_many :assets, -> { distinct }, :through => :activity_type_compatibilities
 
-  scope :available, ->() { where(superceded_by: nil)}
-
   include Deprecatable
 
   def touch_activities
