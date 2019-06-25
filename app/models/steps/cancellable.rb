@@ -15,9 +15,9 @@ module Steps::Cancellable
 
   def modify_related_steps
     if (state == 'cancel' && (state_was == 'complete' || state_was == 'error'))
-      delay.on_cancel
+      on_cancel
     elsif state == 'complete' && state_was =='cancel'
-      delay.on_remake
+      on_remake
     end
   end
 
@@ -30,11 +30,15 @@ module Steps::Cancellable
   end
 
   def on_cancel
+    changes = [
+      fact_changes_for_option(:cancel),
+      steps_newer_than_me.completed.map{|s| s.fact_changes_for_option(:cancel)}
+    ].flatten.reduce(FactChanges.new) do |memo, updates|
+      memo.merge(updates)
+    end
+
     ActiveRecord::Base.transaction do
-      fact_changes_for_option(:cancel).apply(self, false)
-      steps_newer_than_me.completed.each do |s|
-        s.fact_changes_for_option(:cancel).apply(s, false)
-      end
+      changes.apply(self, false)
       steps_newer_than_me.completed.update_all(state: 'cancel')
       operations.update_all(cancelled?: true)
     end
@@ -42,14 +46,19 @@ module Steps::Cancellable
   end
 
   def on_remake
+    changes = [
+      steps_older_than_me.cancelled.map{|s| s.fact_changes_for_option(:remake)},
+      fact_changes_for_option(:remake)
+    ].flatten.reduce(FactChanges.new) do |memo, updates|
+      memo.merge(updates)
+    end
+
     ActiveRecord::Base.transaction do
-      steps_older_than_me.cancelled.each do |s|
-        s.fact_changes_for_option(:remake).apply(s, false)
-      end
+      changes.apply(self, false)
       steps_older_than_me.cancelled.update_all(state: 'complete')
-      fact_changes_for_option(:remake).apply(self, false)
       operations.update_all(cancelled?: false)
     end
+
     wss_event
   end
 
@@ -64,11 +73,15 @@ module Steps::Cancellable
     state == 'cancel'
   end
 
+  def _change_state(state)
+    update_attributes(:state => state)
+  end
+
   def cancel
-    update_attributes(:state => 'cancel')
+    delay._change_state('cancel')
   end
 
   def remake
-    update_attributes(:state => 'complete')
+    delay._change_state('complete')
   end
 end

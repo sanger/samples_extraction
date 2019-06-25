@@ -34,10 +34,10 @@ module Steps::ExecutionActions
   end
 
   def process
-    if activity
-      activity.touch
-      activity.save
-    end
+    #if activity
+    #  activity.touch
+    #  activity.save
+    #end
 
     ActiveRecord::Base.transaction do
       step_execution = StepExecution.new(step: self, asset_group: asset_group)

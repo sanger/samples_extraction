@@ -32,10 +32,10 @@ module Steps::Job
     end
   ensure
     # We publish to the clients that there has been a change in these assets
-    asset_group.touch
-    if activity
-      activity.asset_group.touch unless state == 'complete'
-    end
+    #asset_group.touch
+    #if activity
+    #  activity.asset_group.touch unless state == 'complete'
+    #end
 
     # TODO:
     # This update needs to happen AFTER publishing the changes to the clients (touch), although

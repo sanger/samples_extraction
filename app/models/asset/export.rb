@@ -12,9 +12,8 @@ module Asset::Export
       SequencescapeClient.update_extraction_attributes(instance, attributes_to_update, user.username)
     end
 
-    #facts.each {|f| f.update_attributes!(:up_to_date => true)}
     old_barcode = barcode
-    previous_asset_group_ids = asset_groups.map(&:id)
+    activities_to_touch = activities_affected
     update_attributes(:uuid => instance.uuid, :barcode => code39_barcode(instance))
 
     FactChanges.new.tap do |updates|
@@ -28,7 +27,7 @@ module Asset::Export
       mark_as_updated(updates)
       mark_to_print(updates) if old_barcode != barcode
     end.apply(step)
-    previous_asset_group_ids.each{|a| AssetGroup.find(a).touch }
+    activities_to_touch.each{|a| a.touch }
     refresh
   end
 

@@ -36,10 +36,12 @@ class ActivityChannel < ApplicationCable::Channel
 
         received_list = assets.map do |uuid_or_barcode|
           Asset.find_or_import_asset_with_barcode(uuid_or_barcode)
-        end
+        end.compact
 
-        asset_group.update_attributes(assets: received_list)
-        asset_group.touch
+        asset_group.update_with_assets(received_list)
+
+        #asset_group.update_attributes(assets: received_list)
+        #asset_group.touch
       rescue Errno::ECONNREFUSED => e
         asset_group.activity.send_wss_event({error: {type: 'danger', msg: 'Cannot connect with sequencescape'} })
       rescue StandardError => e

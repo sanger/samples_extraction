@@ -53,6 +53,7 @@ class Activity extends React.Component {
     this.onToggleStepsFinished = this.onToggleStepsFinished.bind(this)
 
     this.renderStepTypesControl = this.renderStepTypesControl.bind(this)
+    this.renderAssetGroupsEditorAndStepTypes = this.renderAssetGroupsEditorAndStepTypes.bind(this)
   }
   componentDidMount() {
     this.listenWebSockets()
@@ -269,6 +270,35 @@ class Activity extends React.Component {
       }
     }
   }
+
+  renderAssetGroupsEditorAndStepTypes() {
+    if (this.props.activityState=='finish') {
+      return null
+    } else {
+      return(
+        <React.Fragment>
+        {this.renderStepTypesControl("1")}
+        <AssetGroupsEditor
+                dataAssetDisplay={this.state.dataAssetDisplay}
+          activityRunning={this.state.activityRunning}
+                onCollapseFacts={this.onCollapseFacts}
+                collapsedFacts={null} // {this.state.collapsedFacts}
+
+          onExecuteStep={this.onExecuteStep}
+                onAddBarcodesToAssetGroup={this.onAddBarcodesToAssetGroup}
+          onRemoveAssetFromAssetGroup={this.onRemoveAssetFromAssetGroup}
+          onRemoveAllAssetsFromAssetGroup={this.onRemoveAllAssetsFromAssetGroup}
+          onErrorMessage={this.onErrorMessage}
+          onChangeAssetGroup={this.onChangeAssetGroup}
+          selectedAssetGroup={this.state.selectedAssetGroup}
+          onSelectAssetGroup={this.onSelectAssetGroup}
+          assetGroups={this.state.assetGroups} />
+        {this.renderStepTypesControl("2")}
+        </React.Fragment>
+      )
+    }
+  }
+
   render () {
     return (
       <div>
@@ -280,13 +310,8 @@ class Activity extends React.Component {
 	<AlertDisplay
 	  onRemoveErrorMessage={this.onRemoveErrorMessage}
 	  messages={this.state.messages} />
-	<FormFor url='/edu' className="form-inline activity-desc">
-	  <HashFields name="activity">
-	    <ActivityDescription
-        activity={this.props.activity}
-      />
-	  </HashFields>
-	</FormFor>
+  <ActivityDescription activity={this.props.activity} />
+
 	<PrintersSelection
 	  selectedTubePrinter={this.state.selectedTubePrinter}
 	  selectedPlatePrinter={this.state.selectedPlatePrinter}
@@ -295,23 +320,7 @@ class Activity extends React.Component {
 	  onChangeTubePrinter={this.onChangeTubePrinter}
 	  onChangePlatePrinter={this.onChangePlatePrinter}
 	/>
-	{this.renderStepTypesControl("1")}
-	<AssetGroupsEditor
-          dataAssetDisplay={this.state.dataAssetDisplay}
-	  activityRunning={this.state.activityRunning}
-          onCollapseFacts={this.onCollapseFacts}
-          collapsedFacts={null} // {this.state.collapsedFacts}
-
-	  onExecuteStep={this.onExecuteStep}
-          onAddBarcodesToAssetGroup={this.onAddBarcodesToAssetGroup}
-	  onRemoveAssetFromAssetGroup={this.onRemoveAssetFromAssetGroup}
-	  onRemoveAllAssetsFromAssetGroup={this.onRemoveAllAssetsFromAssetGroup}
-	  onErrorMessage={this.onErrorMessage}
-	  onChangeAssetGroup={this.onChangeAssetGroup}
-	  selectedAssetGroup={this.state.selectedAssetGroup}
-	  onSelectAssetGroup={this.onSelectAssetGroup}
-	  assetGroups={this.state.assetGroups} />
-	{this.renderStepTypesControl("2")}
+  {this.renderAssetGroupsEditorAndStepTypes()}
 	<Steps
       onToggle={this.onToggleComponentBuilder('stepsFinished')}
       steps={this.state.stepsFinished}

@@ -16,7 +16,7 @@ module Steps::WebsocketEvents
   end
 
   def wss_event
-    activities_affected.each(&:touch)
+    [activity].concat(activities_affected).compact.uniq.each(&:touch)
   end
 
 end

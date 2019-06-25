@@ -24,6 +24,7 @@ module Activities::JsonAttributes
     running_activity = running? || editing?
     {
       activityRunning: -> { running? || editing? },
+      activityState: -> { state },
       messages: -> { ApplicationController.helpers.messages_for_activity(self) },
       assetGroups: -> { ApplicationController.helpers.asset_groups_data(self) },
       dataAssetDisplay: -> { ApplicationController.helpers.data_asset_display_for_activity(self) },

@@ -20,7 +20,8 @@ class Operation < ApplicationRecord
     {
       add_facts: :remove_facts, remove_facts: :add_facts,
       create_assets: :delete_assets, delete_assets: :create_assets,
-      create_asset_groups: :delete_asset_groups, add_assets: :remove_assets
+      create_asset_groups: :delete_asset_groups, delete_asset_groups: :create_asset_groups,
+      add_assets: :remove_assets, remove_assets: :add_assets
     }
   end
 
@@ -40,9 +41,10 @@ class Operation < ApplicationRecord
     elsif (type == :remove_facts)
       updates.remove_where(self.asset, self.predicate, object_value)
     elsif (type == :create_assets)
-      asset = Asset.create(uuid: object)
-      update_attributes(asset: asset)
-      updates.create_assets([asset.uuid])
+      #asset = Asset.create(uuid: object)
+      #update_attributes(asset: asset)
+      #updates.create_assets([asset.uuid])
+      updates.create_assets([object])
     elsif (type == :delete_assets)
       updates.delete_assets([object])
     elsif (type == :add_assets)

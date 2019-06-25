@@ -14,17 +14,22 @@ class StepsController < ApplicationController
   end
 
   def create
-    @activity.create_step({ step_type: @step_type,
-                            user: @current_user,
-                            printer: @printer_config,
-                            asset_group: @asset_group})
+    @activity.create_step({
+      step_type: @step_type,
+      user: @current_user,
+      printer: @printer_config,
+      asset_group: @asset_group
+    })
     head :ok
   end
 
   def update
-    @step.activity.editing! if @step.activity
-    @step.update(state: params_step[:state])
-    @step.activity.in_progress! if @step.activity
+    #@step.activity.editing! if @step.activity
+    ActiveRecord::Base.transaction do
+      @step.activity.editing! if @step.activity
+      @step.change_state(params_step[:state])
+      @step.activity.in_progress! if @step.activity
+    end
 
     head :ok
   end

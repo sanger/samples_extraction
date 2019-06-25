@@ -92,7 +92,7 @@ module Asset::Import
         asset_group.touch
       ensure
         @import_step.update_attributes(state: 'error') unless @import_step.state == 'complete'
-        @import_step.asset_group.touch if @import_step.asset_group
+        #@import_step.asset_group.touch if @import_step.asset_group
       end
     end
 

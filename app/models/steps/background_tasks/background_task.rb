@@ -10,7 +10,8 @@ module Steps::BackgroundTasks
         :step_type => step_type,
         :asset_group => asset_group,
       })
-      update_attributes!(job_id: delay.perform_job.id)
+      # We do not want to republish to websockets
+      update_columns(job_id: delay.perform_job.id)
     end
 
 
