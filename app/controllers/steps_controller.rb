@@ -27,7 +27,7 @@ class StepsController < ApplicationController
     #@step.activity.editing! if @step.activity
     ActiveRecord::Base.transaction do
       @step.activity.editing! if @step.activity
-      @step.change_state(params_step[:state])
+      @step.update(state: params_step[:state])
       @step.activity.in_progress! if @step.activity
     end
 

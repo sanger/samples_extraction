@@ -7,6 +7,7 @@ class Steps extends React.Component {
   constructor(props) {
     super(props)
     this.renderTogglable = this.renderTogglable.bind(this)
+    this.renderSteps = this.renderSteps.bind(this)
   }
   renderSteps() {
     return(

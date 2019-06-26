@@ -24,7 +24,7 @@ RSpec.describe 'Steps::Stoppable' do
   }
 
   context 'when a step is stopped' do
-    let(:state) { 'stop' }
+    let(:state) { 'stopping' }
     context 'but the step was already completed before' do
       let(:previous_state) { 'complete'}
       before do
@@ -43,6 +43,8 @@ RSpec.describe 'Steps::Stoppable' do
     context 'when the step was not completed before' do
       let(:previous_state) { nil }
       before do
+        asset = create :asset
+        step.operations << create(:operation, action_type: 'create_assets', object: asset.uuid, :cancelled? => false)
         do_action
       end
 
@@ -52,13 +54,16 @@ RSpec.describe 'Steps::Stoppable' do
       it 'does not stop any steps before this step' do
         expect(previous_steps.all?{|s| s.state == 'stop'}).to eq(false)
       end
-      it 'cancels this step' do
-        expect(step.state).to eq('cancel')
+      it 'performs cancelling of the operations for this step' do
+        expect(step.operations.all?(&:cancelled?)).to eq(true)
+      end
+      it 'stops this step' do
+        expect(step.state).to eq('stop')
       end
     end
   end
   context 'when a step is continued' do
-    let(:state) { 'complete' }
+    let(:state) { 'continuing' }
     let(:next_steps_stopped) {
       2.times.map{
         create(:step, state: 'stop', activity: activity, asset_group: asset_group, step_type: step_type)

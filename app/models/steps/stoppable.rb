@@ -6,16 +6,15 @@ module Steps::Stoppable
   end
 
   def check_stop
-    if (state == 'stop') && (state_was == 'complete')
+    if (state == 'stopping') && (state_was == 'complete')
       # We cannot stop a step that has already happened
       self.state = 'complete'
       # We try to catch the next steps if we can
-      on_stop
-    elsif (state == 'stop') && (state_was != 'stop')
-      on_stop
-      cancel if cancellable?
-    elsif (state == 'complete') && (state_was == 'stop')
-      on_continue
+      delay.on_stopping_rest
+    elsif (state == 'stopping') && (state_was != 'stopping')
+      delay.on_stopping_me_and_rest
+    elsif (state == 'continuing') && (state_was == 'stop')
+      delay.on_continue
     end
   end
 
@@ -25,7 +24,13 @@ module Steps::Stoppable
     execute_actions
   end
 
-  def on_stop
+  def on_stopping_rest
     activity.steps.newer_than(self).active.update_all(state: 'stop')
+  end
+
+  def on_stopping_me_and_rest
+    on_stopping_rest
+    on_cancel(false) if cancellable?
+    self.state = 'stop'
   end
 end

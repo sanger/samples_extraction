@@ -50,14 +50,4 @@ module Steps::State
     (self.state == 'running')
   end
 
-  def change_state(state)
-    if (state == 'cancel' && (self.state == 'complete' || self.state == 'error'))
-      cancel
-    elsif state == 'complete' && self.state =='cancel'
-      remake
-    else
-      update(state: state)
-    end
-  end
-
 end

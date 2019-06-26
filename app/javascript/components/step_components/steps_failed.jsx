@@ -1,9 +1,13 @@
 import React from 'react'
 import StepsFinished from '../step_components/steps_finished'
+import StepControl from '../step_components/step_control'
+import C from '../step_components/step_states'
 
 class StepsFailed extends StepsFinished {
   constructor(props) {
     super(props)
+
+    this.renderStepRow = this.renderStepRow.bind(this)
   }
   renderHeaders() {
     return(<thead>
@@ -16,7 +20,7 @@ class StepsFailed extends StepsFinished {
     const stepActivityId = step.activity ? step.activity.id : ''
     const stepAssetGroup = step.asset_group ? step.asset_group.id : ''
     const stepUsername = step.username
-    const classForState = (step.state == 'running') ? 'spinner' : ''
+    const classForState = (step.state == C.STEP_RUNNING) ? 'spinner' : ''
 
     const dataTarget = "#step-"+ step.id
     if (step.deprecated == true) {
@@ -35,8 +39,9 @@ class StepsFailed extends StepsFinished {
             <td>{ this.renderDuration(step) }</td>
             <td style={{'textAlign': 'center'}}
               className={classForState}>
-              <button onClick={this.props.onRetryStep(step)} className="btn btn-success">Retry?</button>&nbsp;
-              <button onClick={this.props.onStopStep(step)} className="btn btn-danger">Stop?</button>
+              <StepControl step={step}
+                onChangeStateStep={this.props.onChangeStateStep}
+                isDisabled={this.props.activityRunning && (!step.state ===null)} />
             </td>
           </tr>
         </React.Fragment>

@@ -6,7 +6,7 @@ module Steps::Retryable
   end
 
   def check_retry
-    if ((state == 'retry') && (state_was == 'error'))
+    if ((state == 'retrying') && (state_was == 'error'))
       on_retry
     end
   end

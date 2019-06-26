@@ -14,10 +14,10 @@ module Steps::Cancellable
   end
 
   def modify_related_steps
-    if (state == 'cancel' && (state_was == 'complete' || state_was == 'error'))
-      on_cancel
-    elsif state == 'complete' && state_was =='cancel'
-      on_remake
+    if (state == 'cancelling' && (state_was == 'complete' || state_was == 'error'))
+      delay.on_cancel
+    elsif state == 'remaking' && state_was =='cancel'
+      delay.on_remake
     end
   end
 
@@ -29,7 +29,7 @@ module Steps::Cancellable
     activity.steps.older_than(self)
   end
 
-  def on_cancel
+  def on_cancel(change_state=true)
     changes = [
       fact_changes_for_option(:cancel),
       steps_newer_than_me.completed.map{|s| s.fact_changes_for_option(:cancel)}
@@ -41,6 +41,7 @@ module Steps::Cancellable
       changes.apply(self, false)
       steps_newer_than_me.completed.update_all(state: 'cancel')
       operations.update_all(cancelled?: true)
+      update_attributes(state: 'cancel') if change_state
     end
     wss_event
   end
@@ -57,6 +58,7 @@ module Steps::Cancellable
       changes.apply(self, false)
       steps_older_than_me.cancelled.update_all(state: 'complete')
       operations.update_all(cancelled?: false)
+      update_attributes(state: 'complete')
     end
 
     wss_event
@@ -78,10 +80,10 @@ module Steps::Cancellable
   end
 
   def cancel
-    delay._change_state('cancel')
+    _change_state('cancelling')
   end
 
   def remake
-    delay._change_state('complete')
+    _change_state('remaking')
   end
 end

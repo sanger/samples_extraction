@@ -29,9 +29,9 @@ module Activities::JsonAttributes
       assetGroups: -> { ApplicationController.helpers.asset_groups_data(self) },
       dataAssetDisplay: -> { ApplicationController.helpers.data_asset_display_for_activity(self) },
       stepTypes: -> { ApplicationController.helpers.step_types_control_data(self) },
-      stepsPending: -> { ApplicationController.helpers.steps_data_for_steps(steps.running) },
-      stepsRunning: -> { ApplicationController.helpers.steps_data_for_steps(steps.running) },
-      stepsFailed: -> { ApplicationController.helpers.steps_data_for_steps(steps.failed) },
+      stepsPending: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.running) },
+      stepsRunning: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.running) },
+      stepsFailed: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.finished.select{|s| s.state == 'error'}) },
       stepsFinished: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.finished.reverse) }
     }
   end

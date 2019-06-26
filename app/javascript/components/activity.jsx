@@ -12,7 +12,7 @@ import Steps from "./step_components/steps"
 import StepsRunning from "./step_components/steps_running"
 import StepsFailed from "./step_components/steps_failed"
 import StepTypesControl from "./step_type_components/step_types_control"
-
+import C from "./step_components/step_states"
 
 import {FormFor, HashFields} from "react-rails-form-helpers"
 
@@ -45,8 +45,7 @@ class Activity extends React.Component {
     this.onExecuteStep = this.onExecuteStep.bind(this)
     this.onChangeStateStep = this.onChangeStateStep.bind(this)
     this.changeStateStep = this.changeStateStep.bind(this)
-    this.onStopStep = this.onStopStep.bind(this)
-    this.onRetryStep = this.onRetryStep.bind(this)
+
     this.onCollapseFacts = this.onCollapseFacts.bind(this)
     this.onAddBarcodesToAssetGroup = this.onAddBarcodesToAssetGroup.bind(this)
 
@@ -179,10 +178,10 @@ class Activity extends React.Component {
 
   onChangeStateStep(step, toState) {
     return (e) => {
-      if ((this.state.activityRunning === true) && (!toState === 'stop')) {
+      if ((this.state.activityRunning === true) && (!toState === C.STEP_STOPPING)) {
         return;
       }
-      const state = toState || (e.target.checked ? 'complete' : 'cancel')
+      const state = toState || (e.target.checked ? C.STEP_REMAKING : C.STEP_CANCELLING)
       this.setState({activityRunning: true})
       this.changeStateStep(step, state).then($.proxy(() => { this.setState({activityRunning: false}) }, this))
     }
@@ -196,24 +195,6 @@ class Activity extends React.Component {
       url: step.stepUpdateUrl,
       data: JSON.stringify({step: {state}})
     })
-  }
-
-  onStopStep(step) {
-    return (e) => {
-      if (!this.state.activityRunning) {
-        return;
-      }
-      this.changeStateStep(step, 'stop')
-    }
-  }
-
-  onRetryStep(step) {
-    return (e) => {
-      if (!this.state.activityRunning) {
-        return;
-      }
-      this.changeStateStep(step, 'retry')
-    }
   }
 
   onChangeTubePrinter() {
@@ -248,12 +229,11 @@ class Activity extends React.Component {
     const steps = [].concat(this.state.stepsRunning).concat(this.state.stepsPending)
     if ((this.state.stepsFailed) && (this.state.stepsFailed.length > 0)) {
       return(<StepsFailed
-                                       onStopStep={this.onStopStep}
-                      onRetryStep={this.onRetryStep}
+                      onChangeStateStep={this.onChangeStateStep}
                       steps={this.state.stepsFailed} />)
     } else {
       if ((this.state.stepsRunning) && (this.state.stepsRunning.length > 0)) {
-        return(<StepsRunning steps={this.state.stepsRunning} onStopStep={this.onStopStep} />)
+        return(<StepsRunning steps={this.state.stepsRunning} onChangeStateStep={this.onChangeStateStep} />)
       } else {
   	return(
   	  <StepTypesControl
