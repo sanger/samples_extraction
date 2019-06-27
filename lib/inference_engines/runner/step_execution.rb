@@ -33,7 +33,7 @@ module InferenceEngines
       def run_from_class
         require("#{Rails.root}/script/runners/#{@step.step_type.step_action}")
         @content = @step.step_type.step_action.gsub("\.rb", '').camelize.constantize.new(asset_group: @asset_group, step: @step).process.to_json
-        step.update_attributes(output: @content)
+        step.update_columns(output: @content)
         @updates = FactChanges.new(@content)
       end
 

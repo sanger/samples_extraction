@@ -4,6 +4,9 @@ module Steps::State
       scope :in_progress, ->() { where(:in_progress? => true)}
       scope :cancelled, ->() {where(:state => 'cancel')}
       scope :deprecated, ->() {where(:state => 'deprecated')}
+      scope :processing, ->() {
+        where("state = 'running' OR state = 'cancelling' OR state = 'stopping' OR state = 'remaking' OR state = 'retrying'").includes(:operations, :step_type)
+      }
       scope :running, ->() { where(state: 'running').includes(:operations, :step_type)}
       scope :pending, ->() { where(state: nil)}
       scope :failed, ->() { where(state: 'error')}
@@ -28,6 +31,10 @@ module Steps::State
 
   def stopped?
     (self.state == 'stop')
+  end
+
+  def processing?
+    ['running', 'cancelling', 'stopping', 'remaking', 'retrying'].include?(self.state)
   end
 
   def active?

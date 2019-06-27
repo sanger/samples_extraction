@@ -10,11 +10,11 @@ module Steps::Stoppable
       # We cannot stop a step that has already happened
       self.state = 'complete'
       # We try to catch the next steps if we can
-      delay.on_stopping_rest
-    elsif (state == 'stopping') && (state_was != 'stopping')
-      delay.on_stopping_me_and_rest
+      delay(queue: 'steps').on_stopping_rest
+    elsif (state == 'stopping') && (state_was != 'stop')
+      delay(queue: 'steps').on_stopping_me_and_rest
     elsif (state == 'continuing') && (state_was == 'stop')
-      delay.on_continue
+      delay(queue: 'steps').on_continue
     end
   end
 
@@ -31,6 +31,9 @@ module Steps::Stoppable
   def on_stopping_me_and_rest
     on_stopping_rest
     on_cancel(false) if cancellable?
+
+    self.state = 'stop'
+    update_columns(state: 'stop')
     self.state = 'stop'
   end
 end

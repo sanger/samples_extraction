@@ -10,6 +10,7 @@ class StepControl extends React.Component {
     this.renderStepRunningControl = this.renderStepRunningControl.bind(this)
     this.renderStepErrorControl = this.renderStepErrorControl.bind(this)
     this.renderStepFinishedControl = this.renderStepFinishedControl.bind(this)
+    this.configClass = this.configClass.bind(this)
   }
 
   buildChangeStateHandler(state) {
@@ -29,17 +30,20 @@ class StepControl extends React.Component {
       </React.Fragment>
     )
   }
+  configClass(state) {
+    let config = {}
+    config[C.STEP_CONTINUING]=(state == C.STEP_STOPPED)
+    config[C.STEP_STOPPING]=(state === null) || (state === C.STEP_FAILED) || (state === C.STEP_RETRY) || (state === C.STEP_RUNNING)
+    config[C.STEP_REMAKING]=(state === C.STEP_CANCELLED)
+    config[C.STEP_CANCELLING]=(state === C.STEP_COMPLETED)
+    return config
+  }
   renderStepFinishedControl() {
     const state = this.props.step.state
 
     return(
       <button disabled={this.props.isDisabled}
-        onClick={this.buildChangeStateHandler(classNames({
-          "`${C.STEP_CONTINUING}`": (state == C.STEP_STOPPED),
-          "`${C.STEP_STOPPING}`": (state === null) || (state === C.STEP_FAILED) || (state === C.STEP_RETRY) || (state === C.STEP_RUNNING),
-          "`${C.STATE_REMAKING}`": (state === C.STEP_CANCELLED),
-          "`${C.STEP_CANCELLING}`": (state === C.STEP_COMPLETED)
-        }))}
+        onClick={this.buildChangeStateHandler(classNames(this.configClass(state)))}
         className={classNames({
           "pull-right btn": true,
           "btn-danger": (state===C.STEP_COMPLETED) || (state === null) ||
@@ -67,6 +71,11 @@ class StepControl extends React.Component {
       case C.STEP_CANCELLED:
         return this.renderStepFinishedControl()
       case C.STEP_RUNNING:
+      case C.STEP_CANCELLING:
+      case C.STEP_RETRYING:
+      case C.STEP_REMAKING:
+      case C.STEP_CONTINUING:
+      case C.STEP_STOPPING:
         return this.renderStepRunningControl()
       case C.STEP_FAILED:
         return this.renderStepErrorControl()

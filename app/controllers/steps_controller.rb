@@ -27,9 +27,11 @@ class StepsController < ApplicationController
     #@step.activity.editing! if @step.activity
     ActiveRecord::Base.transaction do
       @step.activity.editing! if @step.activity
-      @step.update(state: params_step[:state])
+      @step.update_attributes(state: params_step[:state])
       @step.activity.in_progress! if @step.activity
     end
+
+    #@step.delay.wss_event
 
     head :ok
   end

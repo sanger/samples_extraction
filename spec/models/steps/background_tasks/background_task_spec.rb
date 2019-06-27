@@ -83,7 +83,7 @@ describe Steps::BackgroundTasks::BackgroundTask do
           step = create_instance(step_type, activity, group)
           expect{
             step.execute_actions
-          }.to raise_error{StandardError}
+          }.not_to raise_error
           expect(Asset.all.count).to eq(1)
         end
       end

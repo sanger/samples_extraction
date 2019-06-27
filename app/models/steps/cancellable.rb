@@ -15,9 +15,9 @@ module Steps::Cancellable
 
   def modify_related_steps
     if (state == 'cancelling' && (state_was == 'complete' || state_was == 'error'))
-      delay.on_cancel
+      delay(queue: 'steps').on_cancel
     elsif state == 'remaking' && state_was =='cancel'
-      delay.on_remake
+      delay(queue: 'steps').on_remake
     end
   end
 

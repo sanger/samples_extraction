@@ -5,13 +5,15 @@ module Steps::BackgroundTasks
     after_initialize :set_step_type
 
     def execute_actions
+      return if processing?
+
       update_attributes!({
         :state => 'running',
         :step_type => step_type,
         :asset_group => asset_group,
       })
       # We do not want to republish to websockets
-      update_columns(job_id: delay.perform_job.id)
+      update_columns(job_id: delay(queue: 'steps').perform_job.id)
     end
 
 

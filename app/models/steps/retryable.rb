@@ -7,11 +7,13 @@ module Steps::Retryable
 
   def check_retry
     if ((state == 'retrying') && (state_was == 'error'))
-      on_retry
+      delay(queue: 'steps').on_retry
     end
   end
 
   def on_retry
-    job.update_attributes(run_at: job.created_at)
+    ActiveRecord::Base.transaction do
+      job.update_attributes(run_at: job.created_at)
+    end
   end
 end

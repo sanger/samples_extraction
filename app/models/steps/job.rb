@@ -1,17 +1,24 @@
 module Steps::Job
 
   def execute_actions
+    return if processing?
+
     update_attributes!({
       :state => 'running',
       :step_type => step_type,
       :asset_group => asset_group,
     })
-    update_attributes!(job_id: delay.perform_job.id)
+    job = delay(queue: 'steps').perform_job
+    job.save
+    update_attributes!(job_id: job.id)
   end
 
   def output_error(exception)
     return output unless exception
-    [output, exception && exception.message, Rails.backtrace_cleaner.clean(exception && exception.backtrace)].flatten.join("\n")
+    [
+      output, exception && exception.message,
+      Rails.backtrace_cleaner.clean(exception && exception.backtrace)
+    ].flatten.join("\n")
   end
 
   def job
@@ -19,8 +26,9 @@ module Steps::Job
   end
 
   def perform_job
-    return if cancelled? || stopped?
-    assign_attributes(state: 'running', output: nil)
+    return if processing? && !running?
+    #return if cancelled? || stopped?
+    update_columns(state: 'running', output: nil)
     @error = nil
     begin
       process
@@ -41,8 +49,9 @@ module Steps::Job
     # This update needs to happen AFTER publishing the changes to the clients (touch), although
     # is not clear for me why at this moment. Need to revisit it.
     unless state == 'complete'
-      update_attributes!(:state => 'error', output: output_error(@error), job_id: job ? job.id : nil)
+      update_columns(:state => 'error', output: output_error(@error), job_id: job ? job.id : nil)
     end
+    wss_event
   end
 
 end
