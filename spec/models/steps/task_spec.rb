@@ -1,18 +1,18 @@
 require 'rails_helper'
 
-describe Steps::BackgroundTasks::BackgroundTask do
+describe Steps::Task do
 
   let(:user) { create :user, username: 'test'}
   def build_instance
     asset_group = build :asset_group
-    build :background_task, asset_group: asset_group
+    build :step, asset_group: asset_group
   end
 
   def create_instance(step_type, activity, group)
-    create(:background_task, step_type: step_type, activity: activity, asset_group: group, user: user)
+    create(:step, step_type: step_type, activity: activity, asset_group: group, user: user)
   end
 
-  it_behaves_like 'background task'
+  #it_behaves_like 'background task'
 
   context 'a background task with some changes defined' do
     let(:step_type) {
@@ -38,7 +38,7 @@ describe Steps::BackgroundTasks::BackgroundTask do
 
         step = create_instance(step_type, activity, group)
         expect{
-          step.execute_actions
+          step.run
         }.to change{Asset.all.count}.by(1)
       end
     end
@@ -60,18 +60,18 @@ describe Steps::BackgroundTasks::BackgroundTask do
 
           step = create_instance(step_type, activity, group)
           expect{
-            step.execute_actions
+            step.run
           }.to change{Asset.all.count}.by(2)
         end
       end
       context 'when the step works fine but the step action fails' do
         let(:failable_execution) {
           execution = double('step_execution')
-          allow(execution).to receive(:plan).and_raise(StandardError)
           execution
         }
 
         before do
+          allow(failable_execution).to receive(:plan).and_raise('not good!!')
           allow(InferenceEngines::Runner::StepExecution).to receive(:new).and_return(failable_execution)
         end
 
@@ -81,10 +81,14 @@ describe Steps::BackgroundTasks::BackgroundTask do
           expect(Asset.all.count).to eq(1)
 
           step = create_instance(step_type, activity, group)
+
           expect{
-            step.execute_actions
-          }.not_to raise_error
-          expect(Asset.all.count).to eq(1)
+            begin
+              expect{step.perform_job}.to raise_error(RuntimeError)
+            rescue StandardError => e
+            end
+          }.not_to change{Asset.count}
+
         end
       end
     end

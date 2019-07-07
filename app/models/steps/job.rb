@@ -1,16 +1,22 @@
 module Steps::Job
 
-  def execute_actions
-    return if processing?
+  def create_job
+    created_job = delay(queue: 'steps').perform_job
+    created_job.save
+    self.job_id = created_job.id
+    save!
+  end
 
-    update_attributes!({
-      :state => 'running',
-      :step_type => step_type,
-      :asset_group => asset_group,
-    })
-    job = delay(queue: 'steps').perform_job
-    job.save
-    update_attributes!(job_id: job.id)
+  def clear_job
+    self.job_id = nil
+    @error=nil
+    save!
+  end
+
+  def save_error_output
+    self.output = output_error(@error)
+    self.job_id = job ? job.id : nil
+    save!
   end
 
   def output_error(exception)
@@ -26,32 +32,31 @@ module Steps::Job
   end
 
   def perform_job
-    return if processing? && !running?
-    #return if cancelled? || stopped?
-    update_columns(state: 'running', output: nil)
     @error = nil
     begin
       process
     rescue StandardError => e
       @error = e
+      true
     else
-      @error=nil
-      update_attributes!(:state => 'complete', job_id: nil)
+      complete!
+      #@error=nil
+      #update_attributes!(state: 'complete', job_id: nil)
     end
   ensure
     # We publish to the clients that there has been a change in these assets
-    #asset_group.touch
-    #if activity
-    #  activity.asset_group.touch unless state == 'complete'
-    #end
+    wss_event
 
     # TODO:
     # This update needs to happen AFTER publishing the changes to the clients (touch), although
     # is not clear for me why at this moment. Need to revisit it.
-    unless state == 'complete'
-      update_columns(:state => 'error', output: output_error(@error), job_id: job ? job.id : nil)
+    unless completed?
+      fail!
     end
-    wss_event
+    #unless state == 'complete'
+    #  update_attributes(state: 'error', output: output_error(@error), job_id: job ? job.id : nil)
+    #end
+
   end
 
 end

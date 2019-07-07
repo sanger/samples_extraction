@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe 'BackgroundTasks' do
   class DummyBackgroundStep
     def self.create!(params)
-      @instance = FactoryBot.create(:background_task, params)
+      @instance = FactoryBot.create(:step, params)
     end
     def self.update_attributes!(params)
       @instance.update_attributes!(params)
@@ -44,7 +44,7 @@ RSpec.describe 'BackgroundTasks' do
     end
     context 'when it has background tasks' do
       it 'creates a list of connected tasks' do
-        allow(activity).to receive(:background_tasks).and_return([Steps::BackgroundTasks::BackgroundTask])
+        allow(activity).to receive(:background_tasks).and_return([Step])
         expect(activity.create_connected_tasks(step, asset_group).length).to eq(2)
       end
     end

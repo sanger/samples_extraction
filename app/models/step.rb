@@ -28,27 +28,30 @@ class Step < ActiveRecord::Base
   include QueueableJob
   include Deprecatable
   include Steps::Job
+  include Steps::Task
+  include Steps::Compatible
   include Steps::Cancellable
   include Steps::Deprecatable
   include Steps::Retryable
   include Steps::Stoppable
   include Steps::State
   include Steps::WebsocketEvents
-  include Steps::ExecutionActions
+
 
   def set_errors(errors)
-    activity.send_wss_event({error: {type: 'danger', msg: errors.first} })
+    #activity.send_wss_event({error: {type: 'danger', msg: errors.first} })
+    #wss_event
     #step_messages.delete_all
     #errors.each do |error|
     #  step_messages << StepMessage.new(content: error)
     #end
-
-    #ActiveRecord::Base.transaction do
-    #  step_messages.delete_all
-    #  errors.each do |error|
-    #    step_messages.create(step_id: self.id, content: error)
-    #  end
-    #end
+    ActiveRecord::Base.transaction do
+     step_messages.delete_all
+     errors.each do |error|
+       step_messages.create(step_id: self.id, content: error)
+     end
+    end
+    wss_event
   end
 
 end

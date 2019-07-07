@@ -1,11 +1,6 @@
 module Steps::Retryable
-  def self.included(klass)
-    klass.instance_eval do
-      before_update :check_retry
-    end
-  end
 
-  def check_retry
+  def on_retrying
     if ((state == 'retrying') && (state_was == 'error'))
       delay(queue: 'steps').on_retry
     end

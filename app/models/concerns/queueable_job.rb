@@ -18,11 +18,11 @@ module QueueableJob
   end
 
   def run_next_step
-    next_step.execute_actions
+    next_step.run
   end
 
   def can_run_next_step?
-    activity && activity.running? && completed? && next_step && !next_step.completed? && !next_step.running? && !next_step.stopped?
+    activity && activity.running? && completed? && next_step && !next_step.completed? && !next_step.running?
   end
 
 end

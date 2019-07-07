@@ -13,7 +13,7 @@ RSpec.describe :cancellable, cancellable: true do
     @activity = FactoryBot.create :activity, activity_type: @activity_type, asset_group: @asset_group
     @steps = 10.times.map do
       step = build_step(%Q{{?p :a :Rack.} => {:step :addFacts {?p :a :TubeRack .}.} .}, %Q{}, activity: @activity, asset_group: @asset_group)
-      step.execute_actions
+      step.run
       step
     end
   end

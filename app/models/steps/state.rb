@@ -2,22 +2,81 @@ module Steps::State
   def self.included(klass)
     klass.instance_eval do
       scope :in_progress, ->() { where(:in_progress? => true)}
-      scope :cancelled, ->() {where(:state => 'cancel')}
-      scope :deprecated, ->() {where(:state => 'deprecated')}
+      scope :cancelled, ->() {where(:state => 'cancelled')}
+      scope :deprecated, ->() {where(:state => 'ignored')}
       scope :processing, ->() {
-        where("state = 'running' OR state = 'cancelling' OR state = 'stopping' OR state = 'remaking' OR state = 'retrying'").includes(:operations, :step_type)
+        where("state = 'running' OR state = 'cancelling' OR  state = 'remaking' OR state = 'retrying'").includes(:operations, :step_type)
       }
       scope :running, ->() { where(state: 'running').includes(:operations, :step_type)}
-      scope :pending, ->() { where(state: nil)}
-      scope :failed, ->() { where(state: 'error')}
+      scope :pending, ->() { where(state: 'pending')}
+      scope :failed, ->() { where(state: 'failed')}
       scope :completed, ->() { where(state: 'complete')}
-      scope :stopped, ->() { where(state: 'stop')}
-      scope :active, ->() { where("state = 'running' OR state = 'error' OR state = 'retry' OR state IS NULL") }
+      scope :stopped, ->() { where(state: 'pending')}
+      scope :active, ->() { where("state = 'running' OR state = 'failed' OR state = 'pending' OR state IS NULL") }
       scope :finished, ->() { includes(:operations, :step_type)}
       scope :in_activity, ->() { where.not(activity_id: nil)}
 
-      after_save :set_start_timestamp!, :if => [:running?, :saved_change_to_state?]
-      after_save :set_complete_timestamp!, :if => [:completed?, :saved_change_to_state?]
+      include AASM
+
+      aasm column: :state do
+        state :pending, initial: true
+
+        state :cancelled
+        state :complete
+        state :running, after_enter: [
+          :deprecate_unused_previous_steps!, :set_start_timestamp!, :create_job
+        ]
+        state :cancelling
+        state :remaking
+        state :failed
+        state :ignored
+
+        event :complete do
+          transitions from: :cancelled, to: :complete
+          transitions from: [:running,:remaking], to: :complete, after: [
+            :clear_job, :set_complete_timestamp!
+          ]
+        end
+
+        event :cancelled do
+          transitions from: [:cancelling,:complete], to: :cancelled
+        end
+
+        event :run do
+          transitions from: [:pending, :failed], to: :running
+        end
+
+        event :fail do
+          transitions from: [:running, :failed], to: :failed, after: :save_error_output
+        end
+
+        event :cancel do
+          transitions from: [:complete, :cancelling], to: :cancelling,
+            after: :cancel_me_and_any_newer_completed_steps
+        end
+
+        event :remake do
+          transitions from: [:cancelled, :remaking], to: :remaking,
+            after: :remake_me_and_any_older_cancelled_steps
+        end
+
+        event :continue do
+          transitions from: :running, to: :running
+          transitions from: [:failed,:pending], to: :running, after: [:continue_newer_steps, :run]
+        end
+
+        event :stop do
+          transitions from: :pending, to: :pending
+          transitions from: :complete, to: :complete, after: :stop_newer_steps
+          transitions from: [:failed, :running, :remaking], to: :pending,
+            after: [:stop_newer_steps, :cancel_me]
+          transitions from: :cancelling, to: :complete, after: :stop_newer_steps
+        end
+
+        event :deprecate do
+          transitions from: [:failed, :cancelled, :pending], to: :ignored, after: :remove_from_activity
+        end
+      end
     end
   end
 
@@ -29,32 +88,22 @@ module Steps::State
     update_columns(finished_at: Time.now.utc) if finished_at.nil?
   end
 
-  def stopped?
-    (self.state == 'stop')
+  def processing?
+    is_processing_state?(state)
   end
 
-  def processing?
-    ['running', 'cancelling', 'stopping', 'remaking', 'retrying'].include?(self.state)
+  def is_processing_state?(state)
+    return false if state.nil?
+    running? || cancelling? || remaking?
   end
 
   def active?
-    ((self.state == 'running') || (self.state.nil?))
+    running? || pending?
+    #((self.state == 'running') || (self.state.nil?))
   end
 
   def completed?
-    (self.state == 'complete')
-  end
-
-  def cancelled?
-    (self.state == 'cancel')
-  end
-
-  def failed?
-    (self.state == 'error')
-  end
-
-  def running?
-    (self.state == 'running')
+    complete?
   end
 
 end

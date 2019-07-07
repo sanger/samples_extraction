@@ -18,7 +18,7 @@ RSpec.describe StepsController, type: :controller do
     end
   end
   context '#update' do
-    let(:step) { create :background_task,
+    let(:step) { create :step,
       state: state,
       activity: activity,
       asset_group: asset_group, step_type: step_type }

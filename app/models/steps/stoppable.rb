@@ -1,11 +1,5 @@
 module Steps::Stoppable
-  def self.included(klass)
-    klass.instance_eval do
-      before_update :check_stop
-    end
-  end
-
-  def check_stop
+  def on_stopping
     if (state == 'stopping') && (state_was == 'complete')
       # We cannot stop a step that has already happened
       self.state = 'complete'
@@ -18,22 +12,12 @@ module Steps::Stoppable
     end
   end
 
-  def on_continue
-    activity.steps.newer_than(self).stopped.update_all(state: nil)
-    deprecate_unused_previous_steps!
-    execute_actions
+  def continue_newer_steps
+    activity.steps.newer_than(self).stopped.each(&:continue!)
   end
 
-  def on_stopping_rest
-    activity.steps.newer_than(self).active.update_all(state: 'stop')
+  def stop_newer_steps
+    activity.steps.newer_than(self).active.each(&:stop!)
   end
 
-  def on_stopping_me_and_rest
-    on_stopping_rest
-    on_cancel(false) if cancellable?
-
-    self.state = 'stop'
-    update_columns(state: 'stop')
-    self.state = 'stop'
-  end
 end

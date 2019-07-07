@@ -25,6 +25,8 @@ GIT
 GEM
   remote: http://rubygems.org/
   specs:
+    aasm (5.0.5)
+      concurrent-ruby (~> 1.0)
     ace-rails-ap (4.2)
     actioncable (5.2.3)
       actionpack (= 5.2.3)
@@ -374,6 +376,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  aasm
   ace-rails-ap
   activerecord-import
   activerecord-session_store

@@ -1,6 +1,7 @@
 require 'inference_engines/runner/step_execution'
 
-class Steps::BackgroundTasks::Runner < Steps::BackgroundTasks::BackgroundTask
+class Steps::BackgroundTasks::Runner < Step
+
   def process
     runner = InferenceEngines::Runner::StepExecution.new(
       :step => self,
