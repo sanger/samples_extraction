@@ -23,7 +23,7 @@ RSpec.describe StepsController, type: :controller do
       activity: activity,
       asset_group: asset_group, step_type: step_type }
 
-    let(:state) { 'cancel'}
+    let(:state) { 'cancelled'}
 
     it 'changes the state for the step' do
       post :update, params: { id: step.id, step: {state: 'complete'} }

@@ -139,6 +139,7 @@ class StepsFinished extends React.Component {
                   <thead>
                     <tr><th>Action</th><th>Barcode</th>
                     <th>Fact
+                    {step.state}
                       <StepControl step={step}
                         onChangeStateStep={this.props.onChangeStateStep}
                         isDisabled={this.props.activityRunning && (!step.state ===null)} />

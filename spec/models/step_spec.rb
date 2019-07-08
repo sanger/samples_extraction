@@ -27,7 +27,7 @@ RSpec.describe Step, type: :model do
       asset_group: @asset_group,
       user: user
     })
-    step.execute_actions
+    step.run
     step
   end
 
@@ -38,7 +38,7 @@ RSpec.describe Step, type: :model do
       asset_group: asset_group,
       user: user
     })
-    step.execute_actions
+    step.run
     step
   end
 
@@ -73,7 +73,7 @@ RSpec.describe Step, type: :model do
     num.times.map { create_asset(type) }
   end
 
-  describe '#execute_actions' do
+  describe '#run' do
     setup do
       @step_type = FactoryBot.create :step_type
 

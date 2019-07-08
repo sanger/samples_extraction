@@ -1,9 +1,4 @@
 module Steps::Compatible
-  def self.included(klass)
-    klass.instance_eval do
-      #before_create :assets_compatible_with_step_type, :unless => [:in_progress?]
-    end
-  end
 
   def assets_compatible_with_step_type
     return true if asset_group.nil?

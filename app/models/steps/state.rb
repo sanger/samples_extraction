@@ -24,7 +24,7 @@ module Steps::State
         state :cancelled
         state :complete
         state :running, after_enter: [
-          :deprecate_unused_previous_steps!, :set_start_timestamp!, :create_job
+          :assets_compatible_with_step_type, :deprecate_unused_previous_steps!, :set_start_timestamp!, :create_job
         ]
         state :cancelling
         state :remaking
