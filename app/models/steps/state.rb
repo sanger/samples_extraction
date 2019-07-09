@@ -56,7 +56,7 @@ module Steps::State
         end
 
         event :fail do
-          transitions from: [:running, :failed], to: :failed, after: :save_error_output
+          transitions from: [:running, :failed], to: :failed, after: [:cancel_me, :save_error_output]
         end
 
         event :cancel do

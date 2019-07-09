@@ -42,24 +42,12 @@ module Steps::Job
       @error = e
       true
     else
-      complete!
-      #@error=nil
-      #update_attributes!(state: 'complete', job_id: nil)
+      complete! if running?
     end
   ensure
-    # We publish to the clients that there has been a change in these assets
-    #wss_event
-
-    # TODO:
-    # This update needs to happen AFTER publishing the changes to the clients (touch), although
-    # is not clear for me why at this moment. Need to revisit it.
-    unless completed?
+    unless (pending? || completed?)
       fail!
     end
-    #unless state == 'complete'
-    #  update_attributes(state: 'error', output: output_error(@error), job_id: job ? job.id : nil)
-    #end
-
   end
 
 end

@@ -81,13 +81,7 @@ describe Steps::Task do
           expect(Asset.all.count).to eq(1)
 
           step = create_instance(step_type, activity, group)
-
-          expect{
-            begin
-              expect{step.perform_job}.to raise_error(RuntimeError)
-            rescue StandardError => e
-            end
-          }.not_to change{Asset.count}
+          expect{step.perform_job}.not_to change{Asset.count}
 
         end
       end
