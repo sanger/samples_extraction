@@ -11,6 +11,7 @@ RSpec.describe Actions::Racking do
   let(:step_type) {create(:step_type, condition_groups: [condition_group]) }
   let(:step) { create :step,
     activity: activity,
+    state: Step::STATE_RUNNING,
     asset_group: asset_group, step_type: step_type }
 
   let(:condition) { create(:condition, predicate: fact.predicate, object: fact.object) }
@@ -53,7 +54,8 @@ RSpec.describe Actions::Racking do
           asset_group = AssetGroup.create(assets: [actual_parent])
           another_step = Step.new(
             activity: activity,
-            asset_group: asset_group, step_type: step_type
+            asset_group: asset_group, step_type: step_type,
+            state: Step::STATE_RUNNING
           )
           send(method, asset_group).apply(another_step)
 

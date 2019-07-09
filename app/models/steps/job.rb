@@ -1,9 +1,12 @@
 module Steps::Job
 
   def create_job
-    created_job = delay(queue: 'steps').perform_job
-    created_job.save
-    self.job_id = created_job.id
+    save_job(delay(queue: 'steps').perform_job)
+  end
+
+  def save_job(delayed_job)
+    delayed_job.save
+    self.job_id = delayed_job.id
     save!
   end
 
@@ -45,7 +48,7 @@ module Steps::Job
     end
   ensure
     # We publish to the clients that there has been a change in these assets
-    wss_event
+    #wss_event
 
     # TODO:
     # This update needs to happen AFTER publishing the changes to the clients (touch), although

@@ -23,7 +23,7 @@ RSpec.describe Condition, type: :model do
         aliquot = 'RNA'
         facts.push(FactoryBot.create(:fact, {:predicate => 'aliquotType', :object => aliquot}))
         FactoryBot.create(:asset, :facts => facts)
-      end      
+      end
       @rack = FactoryBot.create :asset
       @rack.facts << (FactoryBot.create(:fact, {:predicate => 'a', :object => 'Rack'}))
       @rack.facts << (@wells.map {|well| FactoryBot.create(:fact, {:predicate => 'contains', :object_asset => well})})
@@ -55,21 +55,23 @@ RSpec.describe Condition, type: :model do
       @asset_group = FactoryBot.create(:asset_group, :assets => @assets)
 
       created_assets = {}
+      @step = Step.new(step_type: @step_type, asset_group: @asset_group,
+        wildcard_values: wildcards, state: Step::STATE_RUNNING)
       @step_execution = StepExecution.new({
-        :step => Step.new(:step_type => @step_type, :asset_group => @asset_group, wildcard_values: wildcards),
+        :step => @step,
         :asset_group => @asset_group, :created_assets => created_assets})
       @step_execution.run
 
-      {210=>{1737=>["DNA"], 1738=>["RNA"], 
-        1739=>["DNA"], 1740=>["RNA"], 1741=>["DNA"], 
-        1742=>["DNA"], 1743=>["RNA"], 1744=>["DNA"], 
-        1745=>["RNA"], 1746=>["DNA"]}, 
-      211=>{1737=>["DNA"], 
-        1738=>["RNA"], 1739=>["DNA"], 1740=>["RNA"], 
-        1741=>["DNA"], 1742=>["DNA"], 1743=>["RNA"], 
+      {210=>{1737=>["DNA"], 1738=>["RNA"],
+        1739=>["DNA"], 1740=>["RNA"], 1741=>["DNA"],
+        1742=>["DNA"], 1743=>["RNA"], 1744=>["DNA"],
+        1745=>["RNA"], 1746=>["DNA"]},
+      211=>{1737=>["DNA"],
+        1738=>["RNA"], 1739=>["DNA"], 1740=>["RNA"],
+        1741=>["DNA"], 1742=>["DNA"], 1743=>["RNA"],
         1744=>["DNA"], 1745=>["RNA"], 1746=>["DNA"]}}
-   
+
     end
 
-  end  
+  end
 end

@@ -176,24 +176,24 @@ class Activity extends React.Component {
     })
   }
 
-  onChangeStateStep(step, toState) {
+  onChangeStateStep(step, asdf) {
     return (e) => {
-      if ((this.state.activityRunning === true) && (!toState === C.STEP_STOPPING)) {
+      if (this.state.activityRunning === true) {
         return;
       }
-      const state = toState || (e.target.checked ? C.STEP_REMAKING : C.STEP_CANCELLING)
+      const event_name = asdf || (e.target.checked ? C.STEP_EVENT_REMAKE : C.STEP_EVENT_CANCEL)
       this.setState({activityRunning: true})
-      this.changeStateStep(step, state).then($.proxy(() => { this.setState({activityRunning: false}) }, this))
+      this.changeStateStep(step, event_name).then($.proxy(() => { this.setState({activityRunning: false}) }, this))
     }
   }
 
-  changeStateStep(step, state) {
+  changeStateStep(step, event_name) {
     return $.ajax({
       method: 'PUT',
       dataType: 'json',
       contentType: 'application/json; charset=utf-8',
       url: step.stepUpdateUrl,
-      data: JSON.stringify({step: {state}})
+      data: JSON.stringify({step: {event_name}})
     })
   }
 

@@ -31,7 +31,7 @@ RSpec.describe Steps::State do
     it 'can transition to pending' do
       expect(step).to transition_from(:failed).to(:pending).on_event(:stop)
       expect(step).to transition_from(:running).to(:pending).on_event(:stop)
-      expect(step).to transition_from(:remaking).to(:pending).on_event(:stop)
+      expect(step).to transition_from(:remaking).to(:cancelled).on_event(:stop)
     end
     it 'can transition to complete' do
       expect(step).to transition_from(:cancelling).to(:complete).on_event(:stop)

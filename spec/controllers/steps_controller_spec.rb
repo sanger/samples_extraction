@@ -19,14 +19,13 @@ RSpec.describe StepsController, type: :controller do
   end
   context '#update' do
     let(:step) { create :step,
-      state: state,
       activity: activity,
       asset_group: asset_group, step_type: step_type }
 
-    let(:state) { 'cancelled'}
+    let(:event_name) { Step::EVENT_RUN }
 
     it 'changes the state for the step' do
-      post :update, params: { id: step.id, step: {state: 'complete'} }
+      post :update, params: { id: step.id, step: {event_name: event_name} }
       step.reload
       expect(step.state).to eq('complete')
       expect(response.status).to eq(200)

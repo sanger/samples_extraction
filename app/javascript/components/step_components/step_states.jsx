@@ -1,16 +1,18 @@
 const C = {
-  STEP_RUNNING: 'running',
-  STEP_RETRYING: 'retrying',
-  STEP_RETRY: 'retry',
-  STEP_IN_PROGRESS: 'in_progress',
-  STEP_STOPPING: 'stopping',
-  STEP_CONTINUING: 'continuing',
-  STEP_REMAKING: 'remaking',
-  STEP_CANCELLING: 'cancelling',
-  STEP_FAILED: 'error',
-  STEP_STOPPED: 'stop',
-  STEP_CANCELLED: 'cancel',
-  STEP_COMPLETED: 'complete'
+  STEP_STATE_RUNNING: 'running',
+  STEP_STATE_IN_PROGRESS: 'in_progress',
+  STEP_STATE_CONTINUING: 'continuing',
+  STEP_STATE_REMAKING: 'remaking',
+  STEP_STATE_CANCELLING: 'cancelling',
+  STEP_STATE_FAILED: 'error',
+  STEP_STATE_PENDING: 'pending',
+  STEP_STATE_CANCELLED: 'cancelled',
+  STEP_STATE_COMPLETED: 'complete',
+
+  STEP_EVENT_CONTINUE: 'continue',
+  STEP_EVENT_STOP: 'stop',
+  STEP_EVENT_REMAKE: 'remake',
+  STEP_EVENT_CANCEL: 'cancel'
 }
 
 export default C

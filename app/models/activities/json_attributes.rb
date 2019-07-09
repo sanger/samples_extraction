@@ -32,7 +32,7 @@ module Activities::JsonAttributes
       stepsPending: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.running) },
       stepsRunning: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.processing) },
       stepsFailed: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.finished.select{|s| s.state == 'error'}) },
-      stepsFinished: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.finished.reverse) }
+      stepsFinished: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.reload.finished.reverse) }
     }
   end
 end

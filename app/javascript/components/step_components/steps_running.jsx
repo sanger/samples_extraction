@@ -25,7 +25,7 @@ class StepsRunning extends StepsFinished {
     const stepActivityId = step.activity ? step.activity.id : ''
     const stepAssetGroup = step.asset_group ? step.asset_group.id : ''
     const stepUsername = step.username
-    const classForState = (step.state == C.STEP_RUNNING) ? 'spinner' : ''
+    const classForState = (step.state == C.STEP_STATE_RUNNING) ? 'spinner' : ''
 
     const dataTarget = "#step-"+ step.id
     if (step.deprecated == true) {

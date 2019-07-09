@@ -1,4 +1,11 @@
 module Steps::State
+  EVENT_RUN = 'run'
+  EVENT_CONTINUE = 'continue'
+  EVENT_STOP = 'stop'
+  EVENT_REMAKE = 'remake'
+  EVENT_CANCEL = 'cancel'
+
+
   def self.included(klass)
     klass.instance_eval do
       scope :in_progress, ->() { where(:in_progress? => true)}
@@ -16,19 +23,21 @@ module Steps::State
       scope :finished, ->() { includes(:operations, :step_type)}
       scope :in_activity, ->() { where.not(activity_id: nil)}
 
+
       include AASM
+
 
       aasm column: :state do
         state :pending, initial: true
 
-        state :cancelled
-        state :complete
+        state :cancelled, after_enter: :wss_event
+        state :complete, after_enter: :wss_event
         state :running, after_enter: [
-          :assets_compatible_with_step_type, :deprecate_unused_previous_steps!, :set_start_timestamp!, :create_job
+          :assets_compatible_with_step_type, :deprecate_unused_previous_steps!, :set_start_timestamp!, :create_job, :wss_event
         ]
-        state :cancelling
-        state :remaking
-        state :failed
+        state :cancelling, after_enter: :wss_event
+        state :remaking, after_enter: :wss_event
+        state :failed, after_enter: :wss_event
         state :ignored
 
         event :complete do
@@ -66,11 +75,14 @@ module Steps::State
         end
 
         event :stop do
-          transitions from: :pending, to: :pending
-          transitions from: :complete, to: :complete, after: :stop_newer_steps
-          transitions from: [:failed, :running, :remaking], to: :pending,
-            after: [:stop_newer_steps, :cancel_me]
-          transitions from: :cancelling, to: :complete, after: :stop_newer_steps
+          transitions from: :cancelled, to: :cancelled, after: [:stop_newer_steps]
+          transitions from: :pending, to: :pending, after: [:stop_newer_steps]
+          transitions from: :complete, to: :complete, after: [:stop_newer_steps]
+
+          transitions from: :remaking, to: :cancelled, after: [:stop_job, :stop_newer_steps]
+          transitions from: [:failed, :running], to: :pending,
+            after: [:stop_job, :stop_newer_steps, :cancel_me]
+          transitions from: :cancelling, to: :complete, after: [:stop_job, :stop_newer_steps]
         end
 
         event :deprecate do

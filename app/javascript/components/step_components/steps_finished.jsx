@@ -19,21 +19,18 @@ class StepsFinished extends React.Component {
   }
   colorForState(state) {
     switch(state) {
-      case C.STEP_COMPLETED:
+      case C.STEP_STATE_COMPLETED:
         return 'success'
-      case C.STEP_FAILED:
-      case C.STEP_CANCELLED:
+      case C.STEP_STATE_FAILED:
+      case C.STEP_STATE_CANCELLED:
         return 'danger'
-      case C.STEP_RUNNING:
-      case C.STEP_STOPPING:
-      case C.STEP_RETRYING:
-      case C.STEP_CANCELLING:
-      case C.STEP_CONTINUING:
-      case C.STEP_REMAKING:
-      case C.STEP_STOPPED:
+      case C.STEP_STATE_RUNNING:
+      case C.STEP_STATE_CANCELLING:
+      case C.STEP_STATE_CONTINUING:
+      case C.STEP_STATE_REMAKING:
+      case C.STEP_STATE_PENDING:
         return 'warning'
-      case C.STEP_RETRY:
-      case C.STEP_IN_PROGRESS:
+      case C.STEP_STATE_IN_PROGRESS:
         return 'info'
       default:
         return 'primary'
@@ -41,24 +38,20 @@ class StepsFinished extends React.Component {
   }
   classImageForState(state) {
     switch(state) {
-      case C.STEP_COMPLETED:
+      case C.STEP_STATE_COMPLETED:
         return 'glyphicon-ok'
-      case C.STEP_FAILED:
+      case C.STEP_STATE_FAILED:
         return 'glyphicon-remove'
-      case C.STEP_STOPPED:
+      case C.STEP_STATE_PENDING:
         return 'glyphicon-warning-sign'
-      case C.STEP_RUNNING:
-      case C.STEP_RETRYING:
-      case C.STEP_CANCELLING:
-      case C.STEP_STOPPING:
-      case C.STEP_CONTINUING:
-      case C.STEP_REMAKING:
+      case C.STEP_STATE_RUNNING:
+      case C.STEP_STATE_CANCELLING:
+      case C.STEP_STATE_CONTINUING:
+      case C.STEP_STATE_REMAKING:
         return 'glyphicon-refresh fast-right-spinner'
-      case C.STEP_RETRY:
-        return 'glyphicon-repeat'
-      case C.STEP_CANCELLED:
+      case C.STEP_STATE_CANCELLED:
         return 'glyphicon-erase'
-      case C.STEP_IN_PROGRESS:
+      case C.STEP_STATE_IN_PROGRESS:
         return 'glyphicon-repeat'
       default:
         return ''
@@ -109,7 +102,7 @@ class StepsFinished extends React.Component {
     const stepActivityId = step.activity ? step.activity.id : ''
     const stepAssetGroup = step.asset_group ? step.asset_group.id : ''
     const stepUsername = step.username
-    const classForState = (step.state == C.STEP_RUNNING) ? 'spinner' : ''
+    const classForState = (step.state == C.STEP_STATE_RUNNING) ? 'spinner' : ''
 
     const dataTarget = "#step-"+ step.id
     if (step.deprecated == true) {

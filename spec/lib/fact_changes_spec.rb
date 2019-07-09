@@ -14,7 +14,7 @@ RSpec.describe FactChanges do
   let(:updates2) { FactChanges.new }
   let(:fact1) { create :fact, asset: asset1, predicate: property, object: value }
   let(:fact2) { create :fact, asset: asset1, predicate: relation, object_asset: asset2 }
-  let(:step) { create :step, activity: activity }
+  let(:step) { create :step, activity: activity, state: Step::STATE_RUNNING }
   let(:json) { {:"create_assets" => ["?p", "?q"], :"add_facts" => [["?p", "a", "Plate"]]}.to_json }
 
   describe '#new' do
@@ -175,6 +175,13 @@ RSpec.describe FactChanges do
     end
   end
   describe '#apply' do
+    context 'when using an stopped step' do
+      let(:stopped_step) { create :step, activity: activity, state: Step::STATE_PENDING }
+      it 'raises an exception' do
+        updates1.create_assets(['?p'])
+        expect{updates1.apply(stopped_step)}.to raise_error(StandardError)
+      end
+    end
     context 'when the object contains errors' do
       it 'stores the messages and throws an exception' do
         updates1.set_errors(["hi"])

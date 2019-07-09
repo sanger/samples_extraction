@@ -7,15 +7,15 @@ module Steps::Cancellable
   end
 
   def cancel_me_and_any_newer_completed_steps
-    delay(queue: 'steps')._cancel_me_and_any_newer_completed_steps
+    save_job(delay(queue: 'steps')._cancel_me_and_any_newer_completed_steps)
   end
 
   def remake_me_and_any_older_cancelled_steps
-    delay(queue: 'steps')._remake_me_and_any_older_cancelled_steps
+    save_job(delay(queue: 'steps')._remake_me_and_any_older_cancelled_steps)
   end
 
   def cancel_me
-    delay(queue: 'steps')._cancel_me
+    save_job(delay(queue: 'steps')._cancel_me)
   end
 
   def cancellable?
@@ -49,12 +49,10 @@ module Steps::Cancellable
 
     ActiveRecord::Base.transaction do
       changes.apply(self, false)
-      steps_newer_than_me.completed.each(&:cancelled!) #update_all(state: 'cancel')
+      steps_newer_than_me.completed.each(&:cancelled!)
       operations.update_all(cancelled?: true)
       cancelled! if change_state
-      #update_attributes(state: 'cancel') if change_state
     end
-    wss_event
   end
 
   def _remake_me_and_any_older_cancelled_steps
@@ -68,13 +66,9 @@ module Steps::Cancellable
     ActiveRecord::Base.transaction do
       changes.apply(self, false)
       steps_older_than_me.cancelled.each(&:complete!)
-      #steps_older_than_me.cancelled.update_all(state: 'complete')
       operations.update_all(cancelled?: false)
       complete!
-      #update_attributes(state: 'complete')
     end
-
-    wss_event
   end
 
   def fact_changes_for_option(option_name)
