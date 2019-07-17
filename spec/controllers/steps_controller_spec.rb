@@ -13,14 +13,18 @@ RSpec.describe StepsController, type: :controller do
   context '#create' do
     it 'creates a new step' do
       expect {
-        post :create, params: { activity_id: activity.id, step:{ asset_group_id: asset_group.id, step_type_id: step_type.id }}
+        post :create, params: {
+          activity_id: activity.id, step: {
+            asset_group_id: asset_group.id, step_type_id: step_type.id
+          }
+        }
       }.to change{Step.all.count}
     end
   end
   context '#update' do
-    let(:step) { create :step,
-      activity: activity,
-      asset_group: asset_group, step_type: step_type }
+    let(:step) {
+      create(:step, activity: activity, asset_group: asset_group, step_type: step_type)
+    }
 
     let(:event_name) { Step::EVENT_RUN }
 
@@ -41,27 +45,33 @@ RSpec.describe StepsController, type: :controller do
         # need 2 different calls ran asynchronously that is why one of them will be performed
         # in a different thread
         step_id = step.id
-        Thread.new do
+        begin
           post :update, params: { id: step_id, step: { event_name: 'run' } }
+        rescue ActionDispatch::IllegalStateError => e
         end
       }
       it 'can be stopped' do
         step_id = step.id
         allow_any_instance_of(Step).to receive(:process) do
-          post :update, params: { id: step_id, step: { event_name: 'stop' } }
+          begin
+            post :update, params: { id: step_id, step: { event_name: 'stop' } }
+          rescue ActionDispatch::IllegalStateError => e
+          end
         end
 
         run_step
 
         step.reload
-        expect(step.pending?).to eq(true)
+        expect(step.stopped?).to eq(true)
       end
       context 'when the step performed some changes before stopping' do
 
         it 'cancels all changes that were produced during running' do
           step_id = step.id
           allow_any_instance_of(Step).to receive(:process) do
+            step.reload
             FactChanges.new.create_assets(["?p"]).apply(step)
+            expect(step.operations.length > 0).to eq(true)
             post :update, params: { id: step_id, step: { event_name: 'stop' } }
           end
           expect(step.operations.all?{|op| !op.cancelled?}).to eq(true)
@@ -70,7 +80,7 @@ RSpec.describe StepsController, type: :controller do
 
           step.reload
           expect(step.operations.all?{|op| op.cancelled?}).to eq(true)
-          expect(step.pending?).to eq(true)
+          expect(step.stopped?).to eq(true)
         end
       end
     end

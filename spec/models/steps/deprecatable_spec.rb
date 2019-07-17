@@ -12,18 +12,18 @@ RSpec.describe 'Steps::Deprecatable' do
 
       expect(steps.all?(&:cancelled?)).to eq(true)
       expect(activity.steps.count).to eq(11)
-      step.run
+      step.run!
       steps.each(&:reload)
       expect(steps.all?(&:ignored?)).to eq(true)
       expect(activity.steps.count).to eq(1)
     end
 
-    it 'deprecates all pending steps created before me on step execution' do
-      steps = 10.times.map{create(:step, state: Step::STATE_PENDING, activity: activity)}
+    it 'deprecates all stopped steps created before me on step execution' do
+      steps = 10.times.map{create(:step, state: Step::STATE_STOPPED, activity: activity)}
       step = create(:step, activity: activity, asset_group: asset_group, step_type: step_type)
 
       expect(activity.steps.count).to eq(11)
-      step.run
+      step.run!
       steps.each(&:reload)
       expect(steps.all?(&:ignored?)).to eq(true)
       expect(activity.steps.count).to eq(1)
@@ -34,7 +34,7 @@ RSpec.describe 'Steps::Deprecatable' do
       step = create(:step, activity: activity, state: Step::STATE_PENDING, asset_group: asset_group, step_type: step_type)
 
       expect(activity.steps.count).to eq(11)
-      step.run
+      step.run!
       steps.each(&:reload)
       expect(steps.any?(&:ignored?)).to eq(false)
       expect(activity.steps.count).to eq(11)
@@ -45,21 +45,21 @@ RSpec.describe 'Steps::Deprecatable' do
       steps = 10.times.map{create(:step, state: 'cancelled', activity: activity)}
 
       expect(activity.steps.count).to eq(11)
-      step.run
+      step.run!
       steps.each(&:reload)
       expect(steps.any?(&:ignored?)).to eq(false)
       expect(activity.steps.count).to eq(11)
     end
 
     it 'does not deprecate any steps created before me that are in my chain for next_step' do
-      steps = 10.times.map{create(:step, activity: activity, asset_group: asset_group, step_type: step_type)}
+      steps = 10.times.map{create(:step, state: Step::STATE_STOPPED, activity: activity, asset_group: asset_group, step_type: step_type)}
       step = create(:step, activity: activity, asset_group: asset_group, step_type: step_type, next_step: steps.last)
 
       expect(activity.steps.count).to eq(11)
-      step.run
+      step.run!
       steps.each(&:reload)
       expect(steps.select(&:ignored?).count).to eq(9)
-      expect(steps.select(&:complete?).count).to eq(1)
+      expect(steps.select(&:completed?).count).to eq(1)
       expect(activity.steps.count).to eq(2)
     end
   end

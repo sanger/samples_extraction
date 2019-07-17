@@ -42,10 +42,11 @@ module Steps::Job
       @error = e
       true
     else
+      reload
       complete! if running?
     end
   ensure
-    unless (pending? || completed?)
+    unless (stopped? || ignored? || completed?)
       fail!
     end
   end

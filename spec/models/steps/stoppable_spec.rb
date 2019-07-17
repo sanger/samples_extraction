@@ -31,7 +31,7 @@ RSpec.describe 'Steps::Stoppable' do
         do_action
       end
       it 'stops any other steps after this step' do
-        expect(next_steps.all?(&:pending?)).to eq(true)
+        expect(next_steps.all?(&:stopped?)).to eq(true)
       end
       it 'does not stop any steps before this step' do
         expect(previous_steps.all?(&:complete?)).to eq(false)
@@ -41,7 +41,7 @@ RSpec.describe 'Steps::Stoppable' do
       end
     end
     context 'when the step was not completed before' do
-      let(:previous_state) { 'running' }
+      let(:previous_state) { Step::STATE_RUNNING }
       before do
         asset = create :asset
         step.operations << create(:operation, action_type: 'create_assets', object: asset.uuid, :cancelled? => false)
@@ -49,7 +49,7 @@ RSpec.describe 'Steps::Stoppable' do
       end
 
       it 'stops any other steps after this step' do
-        expect(next_steps.all?(&:pending?)).to eq(true)
+        expect(next_steps.all?(&:stopped?)).to eq(true)
       end
       it 'does not stop any steps before this step' do
         expect(previous_steps.all?(&:complete?)).to eq(false)
@@ -58,7 +58,7 @@ RSpec.describe 'Steps::Stoppable' do
         expect(step.operations.all?(&:cancelled?)).to eq(true)
       end
       it 'stops this step' do
-        expect(step.pending?).to eq(true)
+        expect(step.stopped?).to eq(true)
       end
     end
   end
@@ -71,7 +71,7 @@ RSpec.describe 'Steps::Stoppable' do
 
     let(:next_steps_stopped) {
       2.times.map{
-        create(:step, state: Step::STATE_PENDING, activity: activity, asset_group: asset_group, step_type: step_type)
+        create(:step, state: Step::STATE_STOPPED, activity: activity, asset_group: asset_group, step_type: step_type)
       }
     }
     let(:next_steps_not_stopped) {
@@ -82,7 +82,7 @@ RSpec.describe 'Steps::Stoppable' do
     let(:next_steps) { [next_steps_stopped, next_steps_not_stopped].flatten}
 
     context 'when the step was stopped before' do
-      let(:previous_state) { Step::STATE_PENDING }
+      let(:previous_state) { Step::STATE_STOPPED }
       before do
         do_action
       end
@@ -107,7 +107,7 @@ RSpec.describe 'Steps::Stoppable' do
       end
 
       it 'does not continue any other stopped steps after this step' do
-        expect(next_steps_stopped.all?(&:pending?)).to eq(true)
+        expect(next_steps_stopped.all?(&:stopped?)).to eq(true)
       end
       it 'does not continue with any not stopped steps after this step' do
         expect(next_steps_not_stopped.all?(&:complete?)).to eq(false)

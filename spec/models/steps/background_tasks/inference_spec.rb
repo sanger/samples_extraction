@@ -15,12 +15,12 @@ RSpec.describe Steps::BackgroundTasks::Inference do
       end
       it 'changes the status to error' do
         expect{
-          inference.run
+          inference.run!
         }.to change{inference.failed?}.from(false).to(true)
       end
       it 'adds an output value explaining the error' do
         expect{
-          inference.run
+          inference.run!
         }.to change{inference.output.nil?}.to(false)
       end
     end
@@ -30,7 +30,7 @@ RSpec.describe Steps::BackgroundTasks::Inference do
   		end
 
   		it 'changes the status to complete' do
-  			inference.run
+  			inference.run!
   			expect(inference.state).to eq('complete')
   		end
 
@@ -41,7 +41,7 @@ RSpec.describe Steps::BackgroundTasks::Inference do
   				step.update_attributes(next_step_id: id)
   				step
   			end
-  			inferences.first.run
+  			inferences.first.run!
   			inferences.each(&:reload)
   			inferences.each {|i| expect(i.state).to eq('complete')}
   		end

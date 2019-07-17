@@ -38,8 +38,8 @@ describe Steps::Task do
 
         step = create_instance(step_type, activity, group)
         expect{
-          step.run
-        }.to change{Asset.all.count}.by(1)
+          step.run!
+        }.to change{Asset.all.count}.by(1).and change{Fact.count}
       end
     end
     context 'when the step type does have a step action' do
@@ -60,8 +60,8 @@ describe Steps::Task do
 
           step = create_instance(step_type, activity, group)
           expect{
-            step.run
-          }.to change{Asset.all.count}.by(2)
+            step.run!
+          }.to change{Asset.all.count}.by(2).and change{Fact.count}
         end
       end
       context 'when the step works fine but the step action fails' do
@@ -75,14 +75,13 @@ describe Steps::Task do
           allow(InferenceEngines::Runner::StepExecution).to receive(:new).and_return(failable_execution)
         end
 
-        it 'does not perform any changes in database' do
+        it 'cancels changes from the step' do
           asset.reload
-
-          expect(Asset.all.count).to eq(1)
-
+          # We don't change asset count because assets are never destroyed, only facts
           step = create_instance(step_type, activity, group)
-          expect{step.perform_job}.not_to change{Asset.count}
-
+          expect{
+            step.run!
+          }.not_to change{Fact.count}
         end
       end
     end

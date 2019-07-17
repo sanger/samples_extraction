@@ -18,7 +18,7 @@ module QueueableJob
   end
 
   def run_next_step
-    next_step.run
+    next_step.run!
   end
 
   def can_run_next_step?

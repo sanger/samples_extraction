@@ -1,7 +1,7 @@
 module Steps::Deprecatable
   def self.included(klass)
     klass.instance_eval do
-      scope :deprecatable, ->() { cancelled.or(pending).or(failed) }
+      scope :deprecatable, ->() { cancelled.or(failed).or(stopped) }
     end
   end
 

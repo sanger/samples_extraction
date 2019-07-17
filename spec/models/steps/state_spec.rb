@@ -29,8 +29,8 @@ RSpec.describe Steps::State do
 
     let(:step) { create :step, state: Step::STATE_RUNNING, activity: activity, step_type: step_type }
     it 'can transition to pending' do
-      expect(step).to transition_from(:failed).to(:pending).on_event(:stop)
-      expect(step).to transition_from(:running).to(:pending).on_event(:stop)
+      expect(step).to transition_from(:failed).to(:stopped).on_event(:stop)
+      expect(step).to transition_from(:running).to(:stopped).on_event(:stop)
       expect(step).to transition_from(:remaking).to(:cancelled).on_event(:stop)
     end
     it 'can transition to complete' do
@@ -108,7 +108,7 @@ RSpec.describe Steps::State do
   context 'when changing state to running' do
     let(:step) { create :step, state: Step::STATE_PENDING, activity: activity, step_type: step_type }
     it 'sets the timestamp for started_at' do
-      step.run
+      step.run!
       expect(step.started_at.nil?).to eq(false)
     end
   end

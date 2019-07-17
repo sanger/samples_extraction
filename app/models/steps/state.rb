@@ -18,8 +18,8 @@ module Steps::State
       scope :pending, ->() { where(state: 'pending')}
       scope :failed, ->() { where(state: 'failed')}
       scope :completed, ->() { where(state: 'complete')}
-      scope :stopped, ->() { where(state: 'pending')}
-      scope :active, ->() { where("state = 'running' OR state = 'failed' OR state = 'pending' OR state IS NULL") }
+      scope :stopped, ->() { where(state: 'stopped')}
+      scope :active, ->() { where("state = 'running' OR state = 'failed' OR state = 'pending' OR state = 'stopped' OR state IS NULL") }
       scope :finished, ->() { includes(:operations, :step_type)}
       scope :in_activity, ->() { where.not(activity_id: nil)}
 
@@ -39,6 +39,7 @@ module Steps::State
         state :remaking, after_enter: :wss_event
         state :failed, after_enter: :wss_event
         state :ignored
+        state :stopped
 
         event :complete do
           transitions from: :cancelled, to: :complete
@@ -52,11 +53,11 @@ module Steps::State
         end
 
         event :run do
-          transitions from: [:pending, :failed], to: :running
+          transitions from: [:pending, :failed, :stopped], to: :running
         end
 
         event :fail do
-          transitions from: [:running, :failed], to: :failed, after: [:cancel_me, :save_error_output]
+          transitions from: [:running, :failed, :stopped], to: :failed, after: [:cancel_me, :save_error_output]
         end
 
         event :cancel do
@@ -71,22 +72,23 @@ module Steps::State
 
         event :continue do
           transitions from: :running, to: :running
-          transitions from: [:failed,:pending], to: :running, after: [:continue_newer_steps, :run]
+          transitions from: [:failed,:stopped], to: :running, after: [:continue_newer_steps, :run]
         end
 
         event :stop do
-          transitions from: :cancelled, to: :cancelled, after: [:stop_newer_steps]
-          transitions from: :pending, to: :pending, after: [:stop_newer_steps]
+          transitions from: :stopped, to: :stopped, after: [:stop_newer_steps]
+          transitions from: :cancelled, to: :stopped, after: [:stop_newer_steps]
+          transitions from: :pending, to: :stopped, after: [:stop_newer_steps]
           transitions from: :complete, to: :complete, after: [:stop_newer_steps]
 
           transitions from: :remaking, to: :cancelled, after: [:stop_job, :stop_newer_steps]
-          transitions from: [:failed, :running], to: :pending,
+          transitions from: [:failed, :running], to: :stopped,
             after: [:stop_job, :stop_newer_steps, :cancel_me]
           transitions from: :cancelling, to: :complete, after: [:stop_job, :stop_newer_steps]
         end
 
         event :deprecate do
-          transitions from: [:failed, :cancelled, :pending], to: :ignored, after: :remove_from_activity
+          transitions from: [:failed, :cancelled, :stopped, :pending], to: :ignored, after: :remove_from_activity
         end
       end
     end

@@ -27,7 +27,7 @@ RSpec.describe Step, type: :model do
       asset_group: @asset_group,
       user: user
     })
-    step.run
+    step.run!
     step
   end
 
@@ -38,7 +38,7 @@ RSpec.describe Step, type: :model do
       asset_group: asset_group,
       user: user
     })
-    step.run
+    step.run!
     step
   end
 
