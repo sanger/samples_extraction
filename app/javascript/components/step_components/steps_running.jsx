@@ -17,7 +17,7 @@ class StepsRunning extends StepsFinished {
   renderHeaders() {
     return(<thead>
             <tr><th>Step id</th><th>Step type</th>
-            <th>Asset Group</th><th>Username</th><th>Ellapsed time</th><th>Status</th></tr>
+            <th>Asset Group</th><th>Username</th><th>Ellapsed time</th><th>Status</th><th>Actions</th></tr>
           </thead>)
   }
   renderStepRow(step,index) {
@@ -42,9 +42,11 @@ class StepsRunning extends StepsFinished {
             <td>{ stepAssetGroup }</td>
             <td>{ stepUsername }</td>
             <td>{ this.renderDuration(step) }</td>
-            <td style={{'textAlign': 'center'}}
-              className={classForState}>
-              { this.imageForState(step.state) } &nbsp;
+            <td className={classForState}>
+              { step.state } &nbsp;
+              { this.imageForState(step.state) }
+            </td>
+            <td>
               <StepControl step={step}
                 onChangeStateStep={this.props.onChangeStateStep}
                 isDisabled={this.props.activityRunning && (!step.state ===null)} />

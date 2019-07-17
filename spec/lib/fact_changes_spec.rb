@@ -175,13 +175,6 @@ RSpec.describe FactChanges do
     end
   end
   describe '#apply' do
-    context 'when using an stopped step' do
-      let(:stopped_step) { create :step, activity: activity, state: Step::STATE_PENDING }
-      it 'raises an exception' do
-        updates1.create_assets(['?p'])
-        expect{updates1.apply(stopped_step)}.to raise_error(StandardError)
-      end
-    end
     context 'when the object contains errors' do
       it 'stores the messages and throws an exception' do
         updates1.set_errors(["hi"])

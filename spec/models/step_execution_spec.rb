@@ -55,7 +55,7 @@ RSpec.describe Condition, type: :model do
       @asset_group = FactoryBot.create(:asset_group, :assets => @assets)
 
       created_assets = {}
-      @step = Step.new(step_type: @step_type, asset_group: @asset_group,
+      @step = Step.create(step_type: @step_type, asset_group: @asset_group,
         wildcard_values: wildcards, state: Step::STATE_RUNNING)
       @step_execution = StepExecution.new({
         :step => @step,

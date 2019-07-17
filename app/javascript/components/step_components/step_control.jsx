@@ -32,7 +32,9 @@ class StepControl extends React.Component {
   }
   eventNameForState(state) {
     switch(state) {
+      case C.STEP_STATE_STOPPED:
       case C.STEP_STATE_PENDING:
+      case C.STEP_STATE_FAILED:
         return C.STEP_EVENT_CONTINUE
       case C.STEP_STATE_FAILED:
       case C.STEP_STATE_RUNNING:
@@ -60,7 +62,7 @@ class StepControl extends React.Component {
         {classNames({
           'Stop?': (state === null) || (state === C.STEP_STATE_FAILED) || (state === C.STEP_STATE_RUNNING),
           'Redo?': (state === C.STEP_STATE_CANCELLED),
-          'Continue?': (state === C.STEP_STATE_PENDING),
+          'Continue?': ((state === C.STEP_STATE_PENDING) || (state == C.STEP_STATE_STOPPED) || (state == C.STEP_STATE_FAILED)),
           'Revert?': (state === C.STEP_STATE_COMPLETED)
         })}
       </button>
@@ -76,13 +78,14 @@ class StepControl extends React.Component {
       case C.STEP_STATE_COMPLETED:
       case C.STEP_STATE_PENDING:
       case C.STEP_STATE_CANCELLED:
+      case C.STEP_STATE_STOPPED:
         return this.renderStepFinishedControl()
       case C.STEP_STATE_RUNNING:
       case C.STEP_STATE_CANCELLING:
       case C.STEP_STATE_REMAKING:
       case C.STEP_STATE_CONTINUING:
         return this.renderStepRunningControl()
-      case C.STEP_STATE_STATE_FAILED:
+      case C.STEP_STATE_FAILED:
         return this.renderStepErrorControl()
       default:
         return null

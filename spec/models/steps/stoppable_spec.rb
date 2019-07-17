@@ -76,7 +76,7 @@ RSpec.describe 'Steps::Stoppable' do
     }
     let(:next_steps_not_stopped) {
       2.times.map{
-        create(:step, state: Step::STATE_RUNNING, activity: activity, asset_group: asset_group, step_type: step_type)
+        create(:step, state: Step::STATE_FAILED, activity: activity, asset_group: asset_group, step_type: step_type)
       }
     }
     let(:next_steps) { [next_steps_stopped, next_steps_not_stopped].flatten}

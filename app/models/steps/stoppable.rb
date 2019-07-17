@@ -1,8 +1,11 @@
 module Steps::Stoppable
   def stop_job
     ActiveRecord::Base.transaction do
-      Delayed::Job.find(self.job_id).destroy if self.job_id
       clear_job
+      if self.job_id
+        job_info = Delayed::Job.find(self.job_id)
+        job_info.destroy unless job_info.locked_at?
+      end
     end
   end
 

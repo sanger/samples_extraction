@@ -176,12 +176,13 @@ class Activity extends React.Component {
     })
   }
 
-  onChangeStateStep(step, asdf) {
+  onChangeStateStep(step, stateEventName) {
     return (e) => {
-      if (this.state.activityRunning === true) {
+      // Do not do anything while the activity is running unless the event is stop
+      /*if ((this.state.activityRunning === true) && (stateEventName !== C.STEP_EVENT_STOP)) {
         return;
-      }
-      const event_name = asdf || (e.target.checked ? C.STEP_EVENT_REMAKE : C.STEP_EVENT_CANCEL)
+      }*/
+      const event_name = stateEventName || (e.target.checked ? C.STEP_EVENT_REMAKE : C.STEP_EVENT_CANCEL)
       this.setState({activityRunning: true})
       this.changeStateStep(step, event_name).then($.proxy(() => { this.setState({activityRunning: false}) }, this))
     }

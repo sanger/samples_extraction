@@ -59,7 +59,6 @@ RSpec.describe 'Steps::Deprecatable' do
       step.run!
       steps.each(&:reload)
       expect(steps.select(&:ignored?).count).to eq(9)
-      expect(steps.select(&:completed?).count).to eq(1)
       expect(activity.steps.count).to eq(2)
     end
   end

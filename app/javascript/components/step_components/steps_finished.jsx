@@ -23,6 +23,7 @@ class StepsFinished extends React.Component {
         return 'success'
       case C.STEP_STATE_FAILED:
       case C.STEP_STATE_CANCELLED:
+      case C.STEP_STATE_STOPPED:
         return 'danger'
       case C.STEP_STATE_RUNNING:
       case C.STEP_STATE_CANCELLING:
@@ -43,6 +44,7 @@ class StepsFinished extends React.Component {
       case C.STEP_STATE_FAILED:
         return 'glyphicon-remove'
       case C.STEP_STATE_PENDING:
+      case C.STEP_STATE_STOPPED:
         return 'glyphicon-warning-sign'
       case C.STEP_STATE_RUNNING:
       case C.STEP_STATE_CANCELLING:
@@ -121,22 +123,23 @@ class StepsFinished extends React.Component {
             <td>{ stepAssetGroup }</td>
             <td>{ stepUsername }</td>
             <td>{ this.renderDuration(step) }</td>
-            <td style={{'textAlign': 'center'}}
-              className={classForState}>{ this.imageForState(step.state) }</td>
+            <td className={classForState}>
+              {step.state} &nbsp;
+              { this.imageForState(step.state) }
+            </td>
           </tr>
           <tr key={"a2"+index}
             className="operations ">
             <td colSpan="7">
               <div id={"step-"+ step.id } className="collapse">
+                <div className="col-md-12" style={{paddingTop: "1em", paddingBottom: "1em"}}>
+                  <StepControl step={step}
+                          onChangeStateStep={this.props.onChangeStateStep}
+                          isDisabled={this.props.activityRunning && (!step.state ===null)} />
+                </div>
                 <table className="table">
                   <thead>
-                    <tr><th>Action</th><th>Barcode</th>
-                    <th>Fact
-                    {step.state}
-                      <StepControl step={step}
-                        onChangeStateStep={this.props.onChangeStateStep}
-                        isDisabled={this.props.activityRunning && (!step.state ===null)} />
-                    </th></tr>
+                    <tr><th>Action</th><th>Barcode</th><th>Fact</th></tr>
                   </thead>
                   <tbody>
                     <Operations operations={step.operations} />

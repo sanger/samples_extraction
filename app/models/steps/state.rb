@@ -19,7 +19,7 @@ module Steps::State
       scope :failed, ->() { where(state: 'failed')}
       scope :completed, ->() { where(state: 'complete')}
       scope :stopped, ->() { where(state: 'stopped')}
-      scope :active, ->() { where("state = 'running' OR state = 'failed' OR state = 'pending' OR state = 'stopped' OR state IS NULL") }
+      scope :active, ->() { where("state = 'running' OR state = 'pending' OR state IS NULL") }
       scope :finished, ->() { includes(:operations, :step_type)}
       scope :in_activity, ->() { where.not(activity_id: nil)}
 
@@ -32,8 +32,8 @@ module Steps::State
 
         state :cancelled, after_enter: :wss_event
         state :complete, after_enter: :wss_event
-        state :running, after_enter: [
-          :assets_compatible_with_step_type, :deprecate_unused_previous_steps!, :set_start_timestamp!, :create_job, :wss_event
+        state :running, before_enter: :assets_compatible_with_step_type, after_enter: [
+          :deprecate_unused_previous_steps!, :set_start_timestamp!, :create_job, :wss_event
         ]
         state :cancelling, after_enter: :wss_event
         state :remaking, after_enter: :wss_event
@@ -72,7 +72,7 @@ module Steps::State
 
         event :continue do
           transitions from: :running, to: :running
-          transitions from: [:failed,:stopped], to: :running, after: [:continue_newer_steps, :run]
+          transitions from: [:failed,:stopped,:pending], to: :running, after: [:continue_newer_steps, :run]
         end
 
         event :stop do

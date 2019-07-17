@@ -192,7 +192,6 @@ class FactChanges
   end
 
   def apply(step, with_operations=true)
-    raise 'Cannot apply changes with an stopped step' if step.pending?
     _handle_errors(step) if errors_added.length > 0
     ActiveRecord::Base.transaction do |t|
       operations = [
