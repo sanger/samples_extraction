@@ -23,4 +23,11 @@ module TokenUtil
     return wildcard if wildcard.nil?
     wildcard.gsub('?', '')
   end
+
+  def self.generate_positions(letters, columns)
+    size=letters.size * columns.size
+    location_for_position = size.times.map do |i|
+      "#{letters[(i/columns.length).floor]}#{(columns[i%columns.length]).to_s}"
+    end
+  end
 end
