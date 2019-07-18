@@ -1,17 +1,17 @@
 require 'rails_helper'
-require 'disjoint_list'
+require 'changes_support/disjoint_list'
 
-RSpec.describe 'DisjointList' do
+RSpec.describe 'ChangesSupport::DisjointList' do
 
   describe '#initialize' do
     it 'adds the elements of the list and caches info' do
-      list = DisjointList.new([1,2,3])
+      list = ChangesSupport::DisjointList.new([1,2,3])
       expect(list.to_a).to eq([1,2,3])
     end
   end
 
   describe '#sum_function_for' do
-    let(:list) { DisjointList.new([]) }
+    let(:list) { ChangesSupport::DisjointList.new([]) }
     it 'generates a sum function for the string provided' do
       expect(list.sum_function_for("123")).to eq(list.sum_function_for(123.to_s))
     end
@@ -24,7 +24,7 @@ RSpec.describe 'DisjointList' do
   end
 
   describe '#unique_id_for_element' do
-    let(:list) { DisjointList.new([]) }
+    let(:list) { ChangesSupport::DisjointList.new([]) }
     it 'does not generate the same value for different inputs' do
       expect(list.unique_id_for_element("abcdef")).not_to eq(list.unique_id_for_element("ABCDEF"))
     end
@@ -33,7 +33,7 @@ RSpec.describe 'DisjointList' do
       expect(list.unique_id_for_element("abcdef")).to eq(list.unique_id_for_element("abcdef"))
     end
     it 'can generate an id for arrays' do
-      expect(list.unique_id_for_element(["1","2", "3"])).to eq(list.unique_id_for_element([1,2,3]))
+      expect(list.unique_id_for_element(["1","2","3"])).to eq(list.unique_id_for_element([1,2,3]))
     end
     it 'can generate an id for hash' do
       expect(list.unique_id_for_element({a: 1, b: 2, c: 3})).to eq(list.unique_id_for_element({a: "1", b: "2", c: "3"}))
@@ -110,8 +110,8 @@ RSpec.describe 'DisjointList' do
     let(:elem) { 'a value' }
     let(:raw_list) {[]}
     let(:raw_list2) {[]}
-    let(:list) { DisjointList.new(raw_list)}
-    let(:list2) { DisjointList.new(raw_list2) }
+    let(:list) { ChangesSupport::DisjointList.new(raw_list)}
+    let(:list2) { ChangesSupport::DisjointList.new(raw_list2) }
 
     before do
       list.add_disjoint_list(list2)
@@ -154,7 +154,7 @@ RSpec.describe 'DisjointList' do
 
     context 'with a group of disjoint lists' do
       let(:lists) {
-        l=5.times.map{DisjointList.new([])}
+        l=5.times.map{ChangesSupport::DisjointList.new([])}
         l[0].add_disjoint_list(l[1])
         l[0].add_disjoint_list(l[2])
         l[0].add_disjoint_list(l[3])
@@ -192,10 +192,10 @@ RSpec.describe 'DisjointList' do
   end
 
   describe '#concat' do
-    let(:disjoint1) { DisjointList.new([])}
-    let(:disjoint2) { DisjointList.new([])}
-    let(:disjoint3) { DisjointList.new([])}
-    let(:disjoint4) { DisjointList.new([])}
+    let(:disjoint1) { ChangesSupport::DisjointList.new([])}
+    let(:disjoint2) { ChangesSupport::DisjointList.new([])}
+    let(:disjoint3) { ChangesSupport::DisjointList.new([])}
+    let(:disjoint4) { ChangesSupport::DisjointList.new([])}
 
     context 'when concatenating disjoint lists' do
       before do
@@ -218,7 +218,7 @@ RSpec.describe 'DisjointList' do
   end
 
   describe '#remove' do
-    let(:list) { DisjointList.new([]) }
+    let(:list) { ChangesSupport::DisjointList.new([]) }
     let(:elem) { 'a value' }
 
     it 'removes the element with id from the list' do
@@ -232,9 +232,9 @@ RSpec.describe 'DisjointList' do
   describe '#add_disjoint_list' do
     let(:elem) { 'a value' }
     let(:elem2) { 'another value' }
-    let(:list) { DisjointList.new([]) }
-    let(:list2) { DisjointList.new([]) }
-    let(:list3) { DisjointList.new([]) }
+    let(:list) { ChangesSupport::DisjointList.new([]) }
+    let(:list2) { ChangesSupport::DisjointList.new([]) }
+    let(:list3) { ChangesSupport::DisjointList.new([]) }
 
     it 'adds the list to the disjoint lists' do
       expect{list.add_disjoint_list(list2)}.to change{list.disjoint_lists}.from([list]).to([list,list2])
@@ -245,7 +245,7 @@ RSpec.describe 'DisjointList' do
       list.add_disjoint_list(list2)
       expect(list.disjoint_lists).to be(list2.disjoint_lists)
 
-      list3 = DisjointList.new([])
+      list3 = ChangesSupport::DisjointList.new([])
       expect{list3.add_disjoint_list(list2)}.to change{list.disjoint_lists}.from([list,list2]).to([list3,list,list2])
     end
 
@@ -280,7 +280,7 @@ RSpec.describe 'DisjointList' do
   end
 
   describe '#include?' do
-    let(:list) { DisjointList.new([]) }
+    let(:list) { ChangesSupport::DisjointList.new([]) }
     let(:elem) { 'a value' }
     it 'returns true if the element was already added' do
       expect{list.add(elem)}.to change{list.include?(elem)}.from(false).to(true)
@@ -293,12 +293,12 @@ RSpec.describe 'DisjointList' do
   end
 
   describe '#merge' do
-    let(:disjoint1) { DisjointList.new([])}
-    let(:disjoint2) { DisjointList.new([])}
-    let(:disjoint3) { DisjointList.new([])}
-    let(:disjoint4) { DisjointList.new([])}
+    let(:disjoint1) { ChangesSupport::DisjointList.new([])}
+    let(:disjoint2) { ChangesSupport::DisjointList.new([])}
+    let(:disjoint3) { ChangesSupport::DisjointList.new([])}
+    let(:disjoint4) { ChangesSupport::DisjointList.new([])}
 
-    let(:list2) { DisjointList.new(facts_to_destroy) }
+    let(:list2) { ChangesSupport::DisjointList.new(facts_to_destroy) }
 
 
     context 'with mutual disjoint' do
@@ -315,9 +315,9 @@ RSpec.describe 'DisjointList' do
       end
 
       it 'merges from different objects' do
-        d1 = DisjointList.new([1])
-        d2 = DisjointList.new([2])
-        d3 = DisjointList.new([3])
+        d1 = ChangesSupport::DisjointList.new([1])
+        d2 = ChangesSupport::DisjointList.new([2])
+        d3 = ChangesSupport::DisjointList.new([3])
 
         d1.merge(d2).merge(d3)
 
@@ -325,13 +325,13 @@ RSpec.describe 'DisjointList' do
       end
 
       it 'merges from different objects that have mutual disjoint' do
-        d1 = DisjointList.new([1])
-        d2 = DisjointList.new([2])
-        d3 = DisjointList.new([3])
+        d1 = ChangesSupport::DisjointList.new([1])
+        d2 = ChangesSupport::DisjointList.new([2])
+        d3 = ChangesSupport::DisjointList.new([3])
 
-        o1 = DisjointList.new([4])
-        o2 = DisjointList.new([5])
-        o3 = DisjointList.new([6])
+        o1 = ChangesSupport::DisjointList.new([4])
+        o2 = ChangesSupport::DisjointList.new([5])
+        o3 = ChangesSupport::DisjointList.new([6])
 
         d1.add_disjoint_list(o1)
         d2.add_disjoint_list(o2)
@@ -343,13 +343,13 @@ RSpec.describe 'DisjointList' do
       end
 
       it 'can disable elements with every merge' do
-        d1 = DisjointList.new([1,2,3])
-        d2 = DisjointList.new([4])
-        d3 = DisjointList.new([5])
+        d1 = ChangesSupport::DisjointList.new([1,2,3])
+        d2 = ChangesSupport::DisjointList.new([4])
+        d3 = ChangesSupport::DisjointList.new([5])
 
-        o1 = DisjointList.new([])
-        o2 = DisjointList.new([1,2])
-        o3 = DisjointList.new([3])
+        o1 = ChangesSupport::DisjointList.new([])
+        o2 = ChangesSupport::DisjointList.new([1,2])
+        o3 = ChangesSupport::DisjointList.new([3])
 
         d1.add_disjoint_list(o1)
         d2.add_disjoint_list(o2)
@@ -362,13 +362,13 @@ RSpec.describe 'DisjointList' do
       end
 
       it 'does not re-enable elements after merge' do
-        d1 = DisjointList.new([1,2,3])
-        d2 = DisjointList.new([4])
-        d3 = DisjointList.new([1,2])
+        d1 = ChangesSupport::DisjointList.new([1,2,3])
+        d2 = ChangesSupport::DisjointList.new([4])
+        d3 = ChangesSupport::DisjointList.new([1,2])
 
-        o1 = DisjointList.new([])
-        o2 = DisjointList.new([1,2])
-        o3 = DisjointList.new([3])
+        o1 = ChangesSupport::DisjointList.new([])
+        o2 = ChangesSupport::DisjointList.new([1,2])
+        o3 = ChangesSupport::DisjointList.new([3])
 
         d1.add_disjoint_list(o1)
         d2.add_disjoint_list(o2)
@@ -392,8 +392,8 @@ RSpec.describe 'DisjointList' do
       end
 
       context 'when merging a chain of objects' do
-        let(:winners) { 6.times.map{DisjointList.new([])} }
-        let(:losers) { 6.times.map{DisjointList.new([])} }
+        let(:winners) { 6.times.map{ChangesSupport::DisjointList.new([])} }
+        let(:losers) { 6.times.map{ChangesSupport::DisjointList.new([])} }
         let(:list) { winners.zip(losers).map{|l|
           l[0].add_disjoint_list(l[1])
           {winner: l[0], loser: l[1]}}
@@ -413,7 +413,7 @@ RSpec.describe 'DisjointList' do
           list[5][:winner] << 'Tottenham'
           list[5][:loser] << 'Ajax'
 
-          winners = 6.times.map.reduce(DisjointList.new([])) do |memo, i|
+          winners = 6.times.map.reduce(ChangesSupport::DisjointList.new([])) do |memo, i|
             memo.merge(list[i][:winner])
             memo
           end

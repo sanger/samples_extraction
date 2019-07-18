@@ -14,22 +14,30 @@ class StepsController < ApplicationController
   end
 
   def create
-    @activity.create_step({ step_type: @step_type,
-                            user: @current_user,
-                            printer: @printer_config,
-                            asset_group: @asset_group})
+    @activity.create_step({
+      step_type: @step_type,
+      user: @current_user,
+      printer: @printer_config,
+      asset_group: @asset_group
+    })
     head :ok
   end
 
   def update
-    @step.activity.editing! if @step.activity
-    @step.update(state: params_step[:state])
-    @step.activity.in_progress! if @step.activity
+    ActiveRecord::Base.transaction do
+      @step.activity.editing! if @step.activity
+      @step.send(event_for_step)
+      @step.activity.in_progress! if @step.activity
+    end
 
     head :ok
   end
 
   private
+
+    def event_for_step
+      "#{params_step[:event_name]}!"
+    end
 
     # Use callbacks to share common setup or constraints between actions.
     def set_activity
@@ -62,7 +70,7 @@ class StepsController < ApplicationController
 
     def params_step
       params.require(:step).permit(:step_type_id, :asset_group_id, :tube_printer_id, :plate_printer_id,
-        :state)
+        :event_name)
     end
 
 end

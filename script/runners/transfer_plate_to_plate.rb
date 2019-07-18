@@ -26,27 +26,22 @@ class TransferPlateToPlate
 
 
   def assets_compatible_with_step_type
-    asset_group.assets.with_predicate('transfer').with_fact('a', 'Plate').count > 0
-  end
-
-  def asset_group_for_execution
-    AssetGroup.create!(:assets => asset_group.assets.with_predicate('transfer').with_fact('a', 'Plate'))
+    asset_group.assets.with_predicate('transferredFrom').count > 0
   end
 
   def process
     FactChanges.new.tap do |updates|
       aliquot_types = []
       if assets_compatible_with_step_type
-        plates = asset_group.assets.with_predicate('transfer').with_fact('a', 'Plate').each do |plate|
-          plate.facts.with_predicate('transfer').each do |f|
-            destination = f.object_asset
-            updates.merge(transfer_plates(plate, destination))
+        plates = asset_group.assets.with_predicate('transferredFrom').each do |plate|
+          plate.facts.with_predicate('transferredFrom').each do |f|
+            source = f.object_asset
+            updates.merge(transfer_plates(source, plate))
           end
         end
       end
     end
   end
-
 end
 return unless ARGV.any?{|s| s.match(".json")}
 

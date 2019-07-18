@@ -14,22 +14,24 @@ class ActivityDescription extends React.Component {
 	}
 	render() {
   	return(
-  		<div>
-				{this.renderCompletedAt()}
-      	<div className="form-group">
-        	<Label htmlFor="activity_type">Activity Type</Label>
-        	<TextField className="form-control" name="activity_type" defaultValue={this.props.activity.activity_type_name} readOnly="readonly" />
-      	</div>
-      	<div className="form-group">
-        	<Label htmlFor="instrument">Instrument</Label>
-        	<TextField className="form-control" name="instrument" defaultValue={this.props.activity.instrument_name} readOnly="readonly" />
-      	</div>
+      <React.Fragment>
+        {this.renderCompletedAt()}
+    		<div className="form-inline activity-desc">
+        	<div className="form-group">
+          	<label htmlFor="activity_type">Activity Type</label>
+          	<input type="text" className="form-control" name="activity_type" defaultValue={this.props.activity.activity_type_name} readOnly="readonly" />
+        	</div>
+        	<div className="form-group">
+          	<label htmlFor="instrument">Instrument</label>
+          	<input type="text" className="form-control" name="instrument" defaultValue={this.props.activity.instrument_name} readOnly="readonly" />
+        	</div>
 
-      	<div className="form-group">
-        	<Label htmlFor="kit">Kit</Label>
-        	<TextField className="form-control" name="kit" defaultValue={this.props.activity.kit_name} readOnly="readonly" />
+        	<div className="form-group">
+          	<label htmlFor="kit">Kit</label>
+          	<input type="text" className="form-control" name="kit" defaultValue={this.props.activity.kit_name} readOnly="readonly" />
+        	</div>
       	</div>
-    	</div>
+      </React.Fragment>
   	)
 	}
 }

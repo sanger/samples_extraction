@@ -12,23 +12,23 @@ module Asset::Export
       SequencescapeClient.update_extraction_attributes(instance, attributes_to_update, user.username)
     end
 
-    update_plate(instance)
-
-    facts.each {|f| f.update_attributes!(:up_to_date => true)}
     old_barcode = barcode
-    previous_asset_group_ids = asset_groups.map(&:id)
+    activities_to_touch = activities_affected
     update_attributes(:uuid => instance.uuid, :barcode => code39_barcode(instance))
 
-    FactChanges.new do |updates|
-      updates.add(self, 'beforeBarcode', old_barcode)
-      updates.add(self, 'purpose', class_name)
+    FactChanges.new.tap do |updates|
+      update_plate(instance, updates)
+
+      updates.add(self, 'beforeBarcode', old_barcode) if old_barcode
+      updates.add_remote(self, 'purpose', class_name) if class_name
       updates.remove(facts.with_predicate('barcodeType'))
       updates.add(self, 'barcodeType', 'SequencescapePlate')
 
       mark_as_updated(updates)
       mark_to_print(updates) if old_barcode != barcode
     end.apply(step)
-    previous_asset_group_ids.each{|a| AssetGroup.find(a).touch }
+    activities_to_touch.each{|a| a.touch }
+    refresh
   end
 
   def mark_to_print(updates)
@@ -41,21 +41,25 @@ module Asset::Export
     SBCF::SangerBarcode.new(prefix:prefix, number:number).human_barcode
   end
 
-  def update_plate(instance)
+  def update_plate(instance, updates)
     instance.wells.each do |well|
-      w = well_at(well.location)
-      if w && w.uuid != well.uuid
-        w.update_attributes(uuid: well.uuid)
+      fact = fact_well_at(well.location)
+      if fact
+        w = fact.object_asset
+        if w && w.uuid != well.uuid
+          w.update_attributes(uuid: well.uuid)
+          fact.update_attributes(is_remote?: true)
+        end
       end
     end
   end
 
-  def well_at(location)
-    f = facts.with_predicate('contains').select do |f|
-      f.object_asset.facts.with_predicate('location').first.object == location
+  def fact_well_at(location)
+    facts.with_predicate('contains').select do |f|
+      if f.object_asset
+        to_sequencescape_location(f.object_asset.facts.with_predicate('location').first.object) == to_sequencescape_location(location)
+      end
     end.first
-    return f.object_asset if f
-    nil
   end
 
   def mark_as_updated(updates)
@@ -82,19 +86,26 @@ module Asset::Export
     end
   end
 
+  def to_sequencescape_location(location)
+    loc = location.match(/(\w)(0*)(\d*)/)
+    loc[1]+loc[3]
+  end
+
   def racking_info(well)
     if well.has_literal?('pushedTo', 'Sequencescape')
       return {
         uuid: well.uuid,
-        location: well.facts.with_predicate('location').first.object
+        location: to_sequencescape_location(well.facts.with_predicate('location').first.object)
       }
     end
     well.facts.reduce({}) do |memo, fact|
       if (['sample_tube'].include?(fact.predicate))
         memo["#{fact.predicate}_uuid".to_sym] = fact.object_asset.uuid
       end
-
-      if (['location', 'aliquotType', 'sanger_sample_id',
+      if (fact.predicate == 'location')
+        memo[fact.predicate.to_sym] = to_sequencescape_location(fact.object)
+      end
+      if (['aliquotType', 'sanger_sample_id',
         'sanger_sample_name', 'sample_uuid'].include?(fact.predicate))
         memo[fact.predicate.to_sym] = fact.object
       end

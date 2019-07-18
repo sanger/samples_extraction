@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom'
 import SVG from 'react-inlinesvg'
 import classNames from 'classnames'
+import ReactTooltip from 'react-tooltip'
 
 class FactsSvg extends React.Component {
   constructor(props) {
@@ -78,6 +79,7 @@ class FactsSvg extends React.Component {
   }
   componentDidUpdate(prevProps) {
     this.onLoadSvg(prevProps)
+    //ReactTooltip.rebuild()
   }
   toggleEnlarge() {
     this.setState({ enlarge: !this.state.enlarge })
@@ -86,13 +88,18 @@ class FactsSvg extends React.Component {
     var data = this.props.dataAssetDisplay[this.props.asset.uuid];
     var ignoreKeys=[];
     for (var key in data) {
-      if (prevProps && prevProps.dataAssetDisplay && prevProps.dataAssetDisplay[this.props.asset.uuid][key]) {
+      if (prevProps && prevProps.dataAssetDisplay &&
+        prevProps.dataAssetDisplay[this.props.asset.uuid] &&
+        prevProps.dataAssetDisplay[this.props.asset.uuid][key]) {
         ignoreKeys.push(key)
       }
       var node = $('.svg-'+this.props.asset.uuid+' .'+key);
       // We want to reset all previous css but we also want to
       // to keep the location, that is represented as a css class (key)
       node.attr('class', key+' '+data[key].cssClass);
+      if (node[0]) {
+        node[0].setAttribute('data-tip', data[key].title);
+      }
     }
     if (prevProps && prevProps.dataAssetDisplay) {
       var oldData = prevProps.dataAssetDisplay[this.props.asset.uuid];
@@ -101,11 +108,15 @@ class FactsSvg extends React.Component {
           var node = $('.svg-'+this.props.asset.uuid+' .'+key);
           // We want to reset all previous css but we also want to
           // to keep the location, that is represented as a css class (key)
-          node.attr('class', '');
+          node.attr('class', key);
+          if (node[0]) {
+            node[0].setAttribute('data-tip', null);
+          }
         }
       }
 
     }
+    ReactTooltip.rebuild()
   }
 
   classesConfig() {

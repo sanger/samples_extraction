@@ -31,14 +31,22 @@ class ActivityChannel < ApplicationCable::Channel
     asset_group = AssetGroup.find(strong_params[:id])
     assets = strong_params[:assets]
     if asset_group && assets
-      received_list = []
+      begin
+        received_list = []
 
-      received_list = assets.map do |uuid_or_barcode|
-        Asset.find_or_import_asset_with_barcode(uuid_or_barcode)
+        received_list = assets.map do |uuid_or_barcode|
+          Asset.find_or_import_asset_with_barcode(uuid_or_barcode)
+        end.compact
+
+        asset_group.update_with_assets(received_list)
+
+        #asset_group.update_attributes(assets: received_list)
+        #asset_group.touch
+      rescue Errno::ECONNREFUSED => e
+        asset_group.activity.send_wss_event({error: {type: 'danger', msg: 'Cannot connect with sequencescape'} })
+      rescue StandardError => e
+        asset_group.activity.send_wss_event({error: {type: 'danger', msg: e.message} })
       end
-
-      asset_group.update_attributes(assets: received_list)
-      asset_group.touch
     end
   end
 

@@ -11,7 +11,6 @@ class AssetGroupsController < ApplicationController
 
   def show
     @assets = @asset_group.assets
-    @assets_grouped = assets_by_fact_group
 
     respond_to do |format|
       format.html { render @asset_group }
@@ -23,7 +22,6 @@ class AssetGroupsController < ApplicationController
 
   def update
     @assets = @asset_group.assets
-    @assets_grouped = assets_by_fact_group
 
     head :ok
     #render json: { asset_group: {assets: @asset_group.assets.map(&:uuid) }}
@@ -51,15 +49,6 @@ class AssetGroupsController < ApplicationController
 
       if @alerts
         render json: {errors: @alerts}
-      end
-    end
-
-    def assets_by_fact_group
-      obj_type = Struct.new(:predicate,:object,:to_add_by, :to_remove_by, :object_asset_id)
-      @assets.group_by do |a|
-        a.facts.map(&:as_json).map do |f|
-          obj_type.new(f["predicate"], f["object"])
-        end
       end
     end
 

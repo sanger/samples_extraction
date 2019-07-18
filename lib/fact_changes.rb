@@ -1,16 +1,21 @@
 require 'token_util'
-require 'disjoint_list'
+require 'changes_support/disjoint_list'
+require 'changes_support/transaction_scope'
 require 'google_hash'
 
 class FactChanges
+  include ChangesSupport::TransactionScope
 
   attr_accessor :facts_to_destroy, :facts_to_add, :assets_to_create, :assets_to_destroy,
     :assets_to_add, :assets_to_remove, :wildcards, :instances_from_uuid,
     :asset_groups_to_create, :asset_groups_to_destroy, :errors_added,
     :already_added_to_list, :instances_by_unique_id
 
+  attr_accessor :operations
+
 
   def initialize(json=nil)
+    @assets_updated=[]
     reset
     parse_json(json) if json
   end
@@ -33,8 +38,8 @@ class FactChanges
   end
 
   def build_disjoint_lists(list, opposite)
-    list1 = DisjointList.new([])
-    list2 = DisjointList.new([])
+    list1 = ChangesSupport::DisjointList.new([])
+    list2 = ChangesSupport::DisjointList.new([])
 
     list1.add_disjoint_list(list2)
 
@@ -199,9 +204,25 @@ class FactChanges
         _detach_asset_groups(step, asset_groups_to_destroy, with_operations),
         _create_facts(step, facts_to_add, with_operations)
       ].flatten.compact
-      Operation.import(operations) unless operations.empty?
+      unless operations.empty?
+        Operation.import(operations)
+        @operations = operations
+      end
       reset
     end
+  end
+
+  def assets_updated
+    return [] unless @operations
+    @assets_updated=Asset.where(id: @operations.pluck(:asset_id).uniq).distinct
+  end
+
+  def assets_for_printing
+    return [] unless @operations
+    asset_ids = @operations.select do |operation|
+      (operation.action_type == 'createAssets')
+    end.pluck(:object).uniq
+    @assets_for_printing=Asset.for_printing.where(uuid: asset_ids)
   end
 
   def find_asset(asset_or_uuid)
@@ -391,9 +412,7 @@ class FactChanges
   def _build_barcode(asset, i)
     barcode_type = values_for_predicate(asset, 'barcodeType').first
 
-    if (barcode_type == 'NoBarcode')
-      asset.barcode = nil
-    else
+    unless (barcode_type == 'NoBarcode')
       barcode = values_for_predicate(asset, 'barcode').first
       if barcode
         asset.barcode = barcode

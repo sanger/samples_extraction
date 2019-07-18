@@ -44,10 +44,10 @@
   ?tube   :sanger_sample_id ?_sample .
   ?dna_tube   :a  :Tube .
   ?dna_tube   :aliquotType  :DNA .
-  ?dna_tube   :maxCardinality   """12""" .
+  ?dna_tube   :maxCardinality   """0""" .
   ?rnap_tube   :a  :Tube .
   ?rnap_tube   :aliquotType  :RNAP .
-  ?rnap_tube   :maxCardinality   """12""" .
+  ?rnap_tube   :maxCardinality   """0""" .
 } => {
   :step  :stepTypeName """Extract DNA and RNA+P from Sample tubes""" .
   :step  :stepTemplate """transfer_tube_to_tube""" .
@@ -67,8 +67,8 @@
   ?tube   :is   :NotStarted .
   ?tube   :sanger_sample_id ?_sample .
   ?tube   :maxCardinality   """12""" .
-  ?dna_tube   :maxCardinality   """12""" .
-  ?rnap_tube   :maxCardinality   """12""" .
+  ?dna_tube   :maxCardinality   """0""" .
+  ?rnap_tube   :maxCardinality   """0""" .
 } => {
   :step  :stepTypeName """(BY POSITION) Create and Extract DNA and RNA+P from Sample tubes""" .
   :step :connectBy """position""" .
@@ -200,7 +200,7 @@
   ?rnap_tube   :aliquotType :RNAP .
   ?rnap_tube   :sanger_sample_id ?_sample .
   ?rnap_tube   :maxCardinality   """12""" .
-  ?rna_tube   :maxCardinality   """12""" .
+  ?rna_tube   :maxCardinality   """0""" .
 } => {
   :step  :stepTypeName """(BY POSITION) Create RNA and extract RNA from RNA+P tubes""" .
   :step :connectBy """position""" .
@@ -218,7 +218,7 @@
   ?rnap_tube   :aliquotType :RNAP .
   ?rnap_tube   :sanger_sample_id ?_sample .
   ?rnap_tube   :maxCardinality   """12""" .
-  ?rna_tube   :maxCardinality   """12""" .
+  ?rna_tube   :maxCardinality   """0""" .
   ?rna_tube   :is :Empty .
 } => {
   :step  :stepTypeName """Extract RNA from RNA+P tubes""" .
@@ -413,6 +413,7 @@
 } => {
   :step :stepTypeName """Upload Extracted TubeRack to Sequencescape""" .
   :step :addFacts { ?tube_rack :pushTo :Sequencescape. }.
+  :step :stepAction """update_sequencescape.rb""" .
 } .
 
 {
@@ -422,6 +423,7 @@
 } => {
   :step :stepTypeName """Upload TubeRack to Sequencescape""" .
   :step :addFacts { ?tube_rack :pushTo :Sequencescape. }.
+  :step :stepAction """update_sequencescape.rb""" .
 } .
 
 

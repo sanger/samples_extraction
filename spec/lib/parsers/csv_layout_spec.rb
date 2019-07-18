@@ -10,6 +10,7 @@ RSpec.describe Parsers::CsvLayout, akeredu: true do
     let(:step_type) {create(:step_type)}
     let(:step) { create :step,
       activity: activity,
+      state: Step::STATE_RUNNING,
       asset_group: asset_group, step_type: step_type }
 
     setup do

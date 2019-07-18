@@ -1,10 +1,11 @@
 import React from 'react'
 import Moment from 'react-moment';
 import Operations from '../step_components/operations'
-import Toggle from 'react-toggle'
-import Togglable from '../lib/togglable'
 import classNames from 'classnames'
 import Text from 'react-format-text'
+import Toggle from 'react-toggle'
+import StepControl from '../step_components/step_control'
+import C from './step_states'
 
 
 class StepsFinished extends React.Component {
@@ -15,26 +16,48 @@ class StepsFinished extends React.Component {
     this.imageForState = this.imageForState.bind(this)
     this.textColorForState = this.textColorForState.bind(this)
     this.renderStepRow = this.renderStepRow.bind(this)
-    this.renderTogglable = this.renderTogglable.bind(this)
   }
   colorForState(state) {
-    if (state == 'complete') return 'success'
-    if (state == 'error') return 'danger'
-    if (state == 'running') return 'warning'
-    if (state == 'stop') return 'warning'
-    if (state == 'retry') return 'info'
-    if (state == 'cancel') return 'danger'
-    if (state == 'in progress') return 'info'
-    return 'primary'
+    switch(state) {
+      case C.STEP_STATE_COMPLETED:
+        return 'success'
+      case C.STEP_STATE_FAILED:
+      case C.STEP_STATE_CANCELLED:
+      case C.STEP_STATE_STOPPED:
+        return 'danger'
+      case C.STEP_STATE_RUNNING:
+      case C.STEP_STATE_CANCELLING:
+      case C.STEP_STATE_CONTINUING:
+      case C.STEP_STATE_REMAKING:
+      case C.STEP_STATE_PENDING:
+        return 'warning'
+      case C.STEP_STATE_IN_PROGRESS:
+        return 'info'
+      default:
+        return 'primary'
+    }
   }
   classImageForState(state) {
-    if (state == 'complete') return 'glyphicon-ok'
-    if (state == 'error') return 'glyphicon-remove'
-    if (state == 'stop') return 'glyphicon-warning-sign'
-    if (state == 'running') return 'glyphicon-refresh fast-right-spinner'
-    if (state == 'retry') return 'glyphicon-repeat'
-    if (state == 'cancel') return 'glyphicon-erase'
-    if (state == 'in progress') return 'glyphicon-repeat'
+    switch(state) {
+      case C.STEP_STATE_COMPLETED:
+        return 'glyphicon-ok'
+      case C.STEP_STATE_FAILED:
+        return 'glyphicon-remove'
+      case C.STEP_STATE_PENDING:
+      case C.STEP_STATE_STOPPED:
+        return 'glyphicon-warning-sign'
+      case C.STEP_STATE_RUNNING:
+      case C.STEP_STATE_CANCELLING:
+      case C.STEP_STATE_CONTINUING:
+      case C.STEP_STATE_REMAKING:
+        return 'glyphicon-refresh fast-right-spinner'
+      case C.STEP_STATE_CANCELLED:
+        return 'glyphicon-erase'
+      case C.STEP_STATE_IN_PROGRESS:
+        return 'glyphicon-repeat'
+      default:
+        return ''
+    }
   }
   imageForState(state) {
     const classToAssign = 'glyphicon ' +
@@ -81,7 +104,7 @@ class StepsFinished extends React.Component {
     const stepActivityId = step.activity ? step.activity.id : ''
     const stepAssetGroup = step.asset_group ? step.asset_group.id : ''
     const stepUsername = step.username
-    const classForState = (step.state == 'running') ? 'spinner' : ''
+    const classForState = (step.state == C.STEP_STATE_RUNNING) ? 'spinner' : ''
 
     const dataTarget = "#step-"+ step.id
     if (step.deprecated == true) {
@@ -100,37 +123,23 @@ class StepsFinished extends React.Component {
             <td>{ stepAssetGroup }</td>
             <td>{ stepUsername }</td>
             <td>{ this.renderDuration(step) }</td>
-            <td style={{'textAlign': 'center'}}
-              className={classForState}>{ this.imageForState(step.state) }</td>
+            <td className={classForState}>
+              {step.state} &nbsp;
+              { this.imageForState(step.state) }
+            </td>
           </tr>
           <tr key={"a2"+index}
             className="operations ">
             <td colSpan="7">
               <div id={"step-"+ step.id } className="collapse">
+                <div className="col-md-12" style={{paddingTop: "1em", paddingBottom: "1em"}}>
+                  <StepControl step={step}
+                          onChangeStateStep={this.props.onChangeStateStep}
+                          isDisabled={this.props.activityRunning && (!step.state ===null)} />
+                </div>
                 <table className="table">
                   <thead>
-                    <tr><th>Action</th><th>Barcode</th>
-                    <th>Fact
-                      <button disabled={this.props.activityRunning && (!step.state ===null)}
-                        onClick={this.props.onChangeStateStep(step, classNames({
-                          'stop': (step.state === null) || (step.state === 'error') || (step.state === 'retry') || (step.state === 'running'),
-                          'complete': (step.state === 'cancel') || (step.state === 'stop'),
-                          'cancel': (step.state === 'complete')
-                        }))}
-                        className={classNames({
-                          "pull-right btn": true,
-                          "btn-danger": (step.state==='complete') || (step.state === null) ||
-                            (step.state === 'error') || (step.state === 'retry') ||(step.state === 'running'),
-                          "btn-primary": (step.state!='complete')
-                          })}>
-                        {classNames({
-                          'Stop?': (step.state === null) || (step.state === 'error') || (step.state === 'retry') || (step.state === 'running'),
-                          'Redo?': (step.state === 'cancel'),
-                          'Continue?': (step.state === 'stop'),
-                          'Revert?': (step.state === 'complete')
-                        })}
-                      </button>
-                    </th></tr>
+                    <tr><th>Action</th><th>Barcode</th><th>Fact</th></tr>
                   </thead>
                   <tbody>
                     <Operations operations={step.operations} />
@@ -168,21 +177,9 @@ class StepsFinished extends React.Component {
       )
     }
   }
-
-  renderTogglable() {
-    return (
-      <div className="panel panel-default">
-        <div className="panel-body">
-          {this.renderSteps()}
-        </div>
-      </div>
-    )
-  }
-
   render() {
-    return Togglable("What happened before?", this.props.steps, this.props.onToggle, this.renderTogglable)
+    return this.renderSteps()
   }
-
 }
 
 export default StepsFinished

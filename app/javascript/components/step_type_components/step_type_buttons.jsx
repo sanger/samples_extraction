@@ -9,7 +9,8 @@ class StepTypeButtons extends React.Component {
 	}
 	renderStepTypeData(stepTypeData, pos) {
 		return(
-			<StepTypeButton key={'step-type-'+pos} stepTypeData={stepTypeData}
+			<StepTypeButton key={'step-type-'+stepTypeData.stepType.id}
+				stepTypeData={stepTypeData}
 				activityRunning={this.props.activityRunning}
 				assetGroupId={this.props.assetGroupId}
 				onExecuteStep={this.props.onExecuteStep}

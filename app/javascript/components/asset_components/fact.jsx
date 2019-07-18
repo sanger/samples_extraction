@@ -1,4 +1,5 @@
 import React from 'react'
+
 class Fact extends React.Component {
 
   constructor(props) {
@@ -7,6 +8,8 @@ class Fact extends React.Component {
     this.classType = this.classType.bind(this)
     this.renderShortDescription = this.renderShortDescription.bind(this)
     this.renderObject = this.renderObject.bind(this)
+    this.tipForPredicate = this.tipForPredicate.bind(this)
+    this.renderRemoveButton = this.renderRemoveButton.bind(this)
   }
 
   valueForPredicate(asset, predicate) {
@@ -42,8 +45,21 @@ class Fact extends React.Component {
         </a>
       )
     } else {
-      return ( fact.object )
+      return ( <span data-tip={this.tipForPredicate(fact.object)}>{ fact.object }</span> )
     }
+  }
+
+  tipForPredicate(predicate) {
+    if (window.ONTOLOGY && window.ONTOLOGY[predicate]) {
+      return (window.ONTOLOGY[predicate].description || null)
+    }
+  }
+
+  renderRemoveButton(fact) {
+    if (this.props.onRemoveFact) {
+      return(<span onClick={() => { this.props.onRemoveFact(fact) }}>×</span>)
+    }
+    return null
   }
 
   render() {
@@ -52,14 +68,17 @@ class Fact extends React.Component {
     return(
       <div className="fact administrator-allowed">
         <span className={"label "+ (fact["is_remote?"] ? 'label-info' : 'label-default')}>
-        <span className="predicate">
+        <span data-tip={this.tipForPredicate(fact.predicate)} className="predicate">
           { fact.predicate }
         </span>
         :
         <span className="object">
         </span>
           {this.renderObject(fact)}
+          &nbsp;
+          {this.renderRemoveButton(fact)}
         </span>
+
       </div>
     )
   }

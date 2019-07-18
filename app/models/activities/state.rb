@@ -8,16 +8,13 @@ module Activities::State
 
   def finish
     ActiveRecord::Base.transaction do
-      update_attributes(:completed_at => DateTime.now)
-      if work_order
-        work_order.complete
-      end
+      update_attributes(:completed_at => DateTime.now, state: 'finish')
     end
   end
 
   def finished?
     !completed_at.nil?
-  end  
+  end
 
   def running?
     (steps.active.count > 0)

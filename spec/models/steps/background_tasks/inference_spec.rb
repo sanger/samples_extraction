@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Steps::BackgroundTasks::Inference do
-  context '#execute_actions' do
+  context '#run' do
     let(:activity) { create(:activity, state: 'running')}
     let(:execution) { double('step_execution') }
     let(:inference) { create :inference, activity: activity }
@@ -14,12 +14,14 @@ RSpec.describe Steps::BackgroundTasks::Inference do
         allow(execution).to receive(:run).and_raise(StandardError)
       end
       it 'changes the status to error' do
-        expect{inference.execute_actions}.to raise_error(StandardError)
-        expect(inference.state).to eq('error')
+        expect{
+          inference.run!
+        }.to change{inference.failed?}.from(false).to(true)
       end
       it 'adds an output value explaining the error' do
-        expect{inference.execute_actions}.to raise_error(StandardError)
-        expect(inference.output.nil?).to eq(false)
+        expect{
+          inference.run!
+        }.to change{inference.output.nil?}.to(false)
       end
     end
   	context 'when there is no error' do
@@ -28,7 +30,7 @@ RSpec.describe Steps::BackgroundTasks::Inference do
   		end
 
   		it 'changes the status to complete' do
-  			inference.execute_actions
+  			inference.run!
   			expect(inference.state).to eq('complete')
   		end
 
@@ -39,7 +41,7 @@ RSpec.describe Steps::BackgroundTasks::Inference do
   				step.update_attributes(next_step_id: id)
   				step
   			end
-  			inferences.first.execute_actions
+  			inferences.first.run!
   			inferences.each(&:reload)
   			inferences.each {|i| expect(i.state).to eq('complete')}
   		end

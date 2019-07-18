@@ -11,10 +11,11 @@ class Step < ActiveRecord::Base
   belongs_to :user
   has_many :uploads
   has_many :operations
-  has_many :step_messages, dependent: :destroy
+  has_many :step_messages #, dependent: :destroy
   has_many :assets, through: :asset_group
-  has_many :assets_modified, -> { distinct }, through: :operations, class_name: 'Asset', source: :asset
-  has_many :asset_groups_affected, -> { distinct }, through: :assets_modified, class_name: 'AssetGroup', source: :asset_groups
+  has_many :assets_affected, -> { distinct }, through: :operations, class_name: 'Asset', source: :asset
+  has_many :asset_groups_affected, -> { distinct }, through: :assets_affected, class_name: 'AssetGroup', source: :asset_groups
+  has_many :activities_affected, -> { distinct }, through: :asset_groups_affected, class_name: 'Activity', source: :activity_owner
   belongs_to :created_asset_group, :class_name => 'AssetGroup', :foreign_key => 'created_asset_group_id'
   belongs_to :next_step, class_name: 'Step', :foreign_key => 'next_step_id'
 
@@ -27,21 +28,30 @@ class Step < ActiveRecord::Base
   include QueueableJob
   include Deprecatable
   include Steps::Job
+  include Steps::Task
+  include Steps::Compatible
   include Steps::Cancellable
   include Steps::Deprecatable
   include Steps::Retryable
   include Steps::Stoppable
   include Steps::State
   include Steps::WebsocketEvents
-  include Steps::ExecutionActions
+
 
   def set_errors(errors)
+    #activity.send_wss_event({error: {type: 'danger', msg: errors.first} })
+    #wss_event
+    #step_messages.delete_all
+    #errors.each do |error|
+    #  step_messages << StepMessage.new(content: error)
+    #end
     ActiveRecord::Base.transaction do
-      step_messages.delete_all
-      errors.each do |error|
-        step_messages.create(content: error)
-      end
+     step_messages.delete_all
+     errors.each do |error|
+       step_messages.create(step_id: self.id, content: error)
+     end
     end
+    wss_event
   end
 
 end

@@ -15,15 +15,8 @@ class Activity < ActiveRecord::Base
   has_many :users, :through => :steps
   has_one :work_order
 
-
-
-  scope :for_assets, ->(assets) { joins(:asset_group => :assets).where(:asset_group => {
-    :asset_groups_assets=> {:asset_id => assets }
-    })
-  }
-
   scope :for_activity_type, ->(activity_type) {
-    where(:activity_type => activity_type)
+    where(activity_type: activity_type)
   }
 
   scope :for_user, ->(user) { joins(:steps).where({:steps => {:user_id => user.id}}).distinct }

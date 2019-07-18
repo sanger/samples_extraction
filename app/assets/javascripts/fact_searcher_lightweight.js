@@ -82,20 +82,21 @@
 
   proto.search = function() {
     var form = this.node;
+    return true;
     $.get({
       url: form.attr('action'),
       data: form.serialize(),
-      dataType: 'html',
-      success: $.proxy(this.displayInSideBar, this)
+      dataType: 'html'
+      //success: $.proxy(this.displayInSideBar, this)
     });
   };
 
   proto.onSubmit = function(e) {
-    e.preventDefault();
+    //e.preventDefault();
     this.resetHiddenInputs();
     this.prepareOutput();
     this.search();
-    return false;
+    return true;
   };
 
   proto.addHiddenInput = function(name, value) {

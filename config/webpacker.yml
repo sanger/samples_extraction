@@ -48,6 +48,9 @@ development:
     watch_options:
       ignored: /node_modules/
 
+next_release:
+  <<: *default
+  compile: true
 
 test:
   <<: *default

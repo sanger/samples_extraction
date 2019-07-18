@@ -1,6 +1,9 @@
 require 'google_hash'
 
-class DisjointList
+module ChangesSupport
+end
+
+class ChangesSupport::DisjointList
   SEED_FOR_UNIQUE_IDS = Random.rand(1000)
   MAX_DEEP_UNIQUE_ID = 3
 
@@ -124,7 +127,7 @@ class DisjointList
   end
 
   def add(element)
-    return concat_disjoint_list(element) if element.kind_of?(DisjointList)
+    return concat_disjoint_list(element) if element.kind_of?(ChangesSupport::DisjointList)
     if enabled_in_other_list?(element)
       disable(element)
     elsif include?(element)

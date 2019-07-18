@@ -16,15 +16,15 @@ RSpec.describe AssetsController, type: :controller do
     it 'searches by barcode' do
       asset = create :asset, barcode: 'S1234'
       search = Asset.where(barcode: 'S1234')
-      send(method, action_name, params: { p0: 'barcode', o0: 'S1234'}, xhr: true)
-      expect(assigns(:assets)).to eq(search)
+      send(method, action_name, params: { p0: 'barcode', o0: 'S1234'})
+      expect(assigns(:assets)[0]).to eq(search[0])
     end
     it 'searches by properties' do
       asset = create :asset, barcode: 'S1234'
       asset.facts << create(:fact, predicate: 'a', object: 'Tube')
       search = Asset.joins(:facts).where(facts: { predicate: 'a', object: 'Tube'}).first
-      send(method, action_name, params: { p0: 'a', o0: 'Tube'}, xhr: true)
-      expect(assigns(:assets)).to eq([search])
+      send(method, action_name, params: { p0: 'a', o0: 'Tube'})
+      expect(assigns(:assets)[0]).to eq(search)
     end
   end
   context '#search' do
@@ -42,10 +42,17 @@ RSpec.describe AssetsController, type: :controller do
 
       asset = create :asset, barcode: 'S1234'
       search = Asset.where(barcode: 'S1234')
-      post :print_search, params: { p0: 'barcode', o0: 'S1234'}, xhr: true
-      expect(assigns(:assets)).to eq(search)
 
-      expect(Printables::Group).to have_received(:print_assets).with(search, {"Plate"=>'Pum', "Tube"=>'Pim'}, 'test')
+      mocked_group = double('asset_group')
+      allow(AssetGroup).to receive(:new).and_return(mocked_group)
+      allow(mocked_group).to receive(:assets).and_return([])
+      allow(mocked_group).to receive(:assets).and_return([])
+      allow(mocked_group).to receive(:print)
+
+      post :print_search, params: { p0: 'barcode', o0: 'S1234'}, xhr: true
+      expect(assigns(:assets).to_a).to eq(search.to_a)
+
+      expect(mocked_group).to have_received(:print).with({"Plate"=>'Pum', "Tube"=>'Pim'}, 'test')
     end
   end
 end

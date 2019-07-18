@@ -1,75 +1,69 @@
 source 'http://rubygems.org'
 
-gem 'rdf-n3'
-gem 'tzinfo-data'
+
+
+# Service libraries
 gem 'puma'
-gem 'ejs'
-gem 'dropzonejs-rails'
-gem 'rest-client'
-gem 'rails-assets-tether', '>= 1.1.0'
+gem 'daemons'
+gem 'redis'
+gem 'delayed_job'
+gem 'delayed_job_active_record'
+gem 'mysql2'
+
+# Rails and framework libraries
+gem 'rails', '~> 5.2.3'
+gem 'tzinfo-data'
+gem 'activerecord-session_store'
+gem 'micro_token'
+gem 'activerecord-import'
+gem 'aasm'
+
+
+# Rails views and UI
+gem 'turbolinks'
 gem 'bootstrap_form'
 gem 'sprockets-rails'
-gem 'ace-rails-ap'
-gem 'daemons'
-gem 'yajl-ruby'#, '>= 1.3'
-
-gem 'rb-readline'
-
-gem 'rails'#, '~> 5.1.4'
-gem 'activerecord-session_store'
-
 gem 'js_cookie_rails'
-
-gem 'redis'
-gem 'micro_token'
-
-gem 'barby'
-
 gem 'webpacker'
 gem 'webpacker-react'
 gem 'jquery-rails'
 gem 'react-rails'
-
-gem 'delayed_job'
-gem 'delayed_job_active_record'
-
-gem 'sequencescape-client-api'
-
-# The client api is not good at all
-gem 'faraday'
-
-# Bulk insert
-gem 'activerecord-import'
-
-
-# Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-#gem 'rails', '>= 5.1'
-# Use mysql as the database for Active Record
-gem 'mysql2', '>= 0.3.13'
-#gem 'sqlite3'
-# Use SCSS for stylesheets
 gem 'sass-rails'
 gem 'bootstrap-sass'
 gem 'will_paginate'
 gem 'will_paginate-bootstrap'
-# Use Uglifier as compressor for JavaScript assets
-gem 'uglifier', '>= 1.3.0'
-gem 'therubyracer'
 
-# Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
+
+# Javascript UI
+gem 'ejs'
+gem 'dropzonejs-rails'
+gem 'rails-assets-tether'#, '>= 1.1.0'
+gem 'ace-rails-ap'
+
+# Serializers
+gem 'rdf-n3'
 gem 'jbuilder'#, '~> 2.0'
-# bundle exec rake doc:rails generates the API under doc/api.
-gem 'sdoc'#, '~> 0.4.0', group: :doc
+gem 'yajl-ruby'#, '>= 1.3'
+gem 'google_hash'
 
-
-# Library to convert barcodes in EAN13 and Sanger human barcodes format
-gem 'sanger_barcode_format', github: 'sanger/sanger_barcode_format'
-
-# Add simple support for print-my barcode)
+# Tools
+gem 'sanger_barcode_format', git: 'https://github.com/sanger/sanger_barcode_format.git'
 gem 'pmb-client', git: 'https://github.com/sanger/pmb-client.git'
 
+# Sequencescspae
+gem 'rest-client'
+gem 'faraday'
+gem 'sequencescape-client-api',
+  git: 'https://github.com/emrojo/sequencescape-client-api.git',
+  branch: 'asset-attribute-update-merged-with-rails-4',
+  :require => 'sequencescape'
 
-gem 'google_hash'
+# Debugging
+gem 'rb-readline'
+
+# Docs
+gem 'sdoc'#, '~> 0.4.0', group: :doc
+
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -102,10 +96,11 @@ group :development do
 
   gem 'rubocop', require: false
   gem 'rubocop-performance'
+  gem 'rubocop-rails'
 end
 
 
 group :deployment do
-  gem 'psd_logger', git: 'https://github.com/sanger/psd_logger.git'
+  gem 'exception_notification'
   gem 'gmetric', '~>0.1.3'
 end

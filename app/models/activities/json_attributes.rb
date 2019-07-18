@@ -5,8 +5,8 @@ module Activities::JsonAttributes
          id: id,
          completed_at: completed_at,
          activity_type_name: activity_type.name,
-         instrument_name: instrument.name || instrument.barcode,
-         kit_name: kit.barcode,
+         instrument_name: instrument ? (instrument.name || instrument.barcode) : nil,
+         kit_name: kit ? kit.barcode : nil,
          selectedAssetGroup: owned_asset_groups.first.id
        },
       tubePrinter: {
@@ -24,14 +24,15 @@ module Activities::JsonAttributes
     running_activity = running? || editing?
     {
       activityRunning: -> { running? || editing? },
+      activityState: -> { state },
       messages: -> { ApplicationController.helpers.messages_for_activity(self) },
       assetGroups: -> { ApplicationController.helpers.asset_groups_data(self) },
       dataAssetDisplay: -> { ApplicationController.helpers.data_asset_display_for_activity(self) },
       stepTypes: -> { ApplicationController.helpers.step_types_control_data(self) },
-      stepsPending: -> { ApplicationController.helpers.steps_data_for_steps(steps.running) },
-      stepsRunning: -> { ApplicationController.helpers.steps_data_for_steps(steps.running) },
-      stepsFailed: -> { ApplicationController.helpers.steps_data_for_steps(steps.failed) },
-      stepsFinished: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.finished.reverse) }
+      stepsPending: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.running) },
+      stepsRunning: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.processing) },
+      stepsFailed: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.finished.select{|s| s.state == 'failed'}) },
+      stepsFinished: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.reload.finished.reverse) }
     }
   end
 end

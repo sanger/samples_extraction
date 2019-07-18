@@ -22,6 +22,28 @@ class AssetGroup < ActiveRecord::Base
     assets.each(&:refresh)
   end
 
+  def update_with_assets(assets_to_update)
+    removed_assets = self.assets - assets_to_update
+    added_assets = assets_to_update - self.assets
+
+    if ((removed_assets.length > 0) || (added_assets.length > 0))
+      updates = FactChanges.new
+      updates.add_assets([[self, added_assets]]) if added_assets
+      updates.remove_assets([[self, removed_assets]]) if removed_assets
+
+      ActiveRecord::Base.transaction do
+        step = Step.create(activity: activity_owner, asset_group: self,
+          in_progress?: true, state: 'complete', step_type: step_type_for_import)
+        updates.apply(step)
+      end
+    end
+    touch
+  end
+
+  def step_type_for_import
+    @step_type_for_import ||= StepType.find_or_create_by(name: 'ChangeGroup')
+  end
+
   def position_for_asset(asset)
     assets.each_with_index{|a, pos| return pos if (asset.id == a.id)}
     return -1
@@ -30,7 +52,6 @@ class AssetGroup < ActiveRecord::Base
   def touch_activity
     if activity_owner
       activity_owner.touch
-      activity_owner.save
     end
   end
 

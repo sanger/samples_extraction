@@ -14,7 +14,7 @@ RSpec.describe FactChanges do
   let(:updates2) { FactChanges.new }
   let(:fact1) { create :fact, asset: asset1, predicate: property, object: value }
   let(:fact2) { create :fact, asset: asset1, predicate: relation, object_asset: asset2 }
-  let(:step) { create :step, activity: activity }
+  let(:step) { create :step, activity: activity, state: Step::STATE_RUNNING }
   let(:json) { {:"create_assets" => ["?p", "?q"], :"add_facts" => [["?p", "a", "Plate"]]}.to_json }
 
   describe '#new' do

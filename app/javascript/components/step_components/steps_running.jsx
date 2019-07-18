@@ -1,7 +1,8 @@
 import React from 'react'
 import Moment from 'react-moment';
 import StepsFinished from '../step_components/steps_finished'
-
+import StepControl from '../step_components/step_control'
+import C from './step_states'
 
 class StepsRunning extends StepsFinished {
   renderDuration(step) {
@@ -16,7 +17,7 @@ class StepsRunning extends StepsFinished {
   renderHeaders() {
     return(<thead>
             <tr><th>Step id</th><th>Step type</th>
-            <th>Asset Group</th><th>Username</th><th>Ellapsed time</th><th>Status</th></tr>
+            <th>Asset Group</th><th>Username</th><th>Ellapsed time</th><th>Status</th><th>Actions</th></tr>
           </thead>)
   }
   renderStepRow(step,index) {
@@ -24,7 +25,7 @@ class StepsRunning extends StepsFinished {
     const stepActivityId = step.activity ? step.activity.id : ''
     const stepAssetGroup = step.asset_group ? step.asset_group.id : ''
     const stepUsername = step.username
-    const classForState = (step.state == 'running') ? 'spinner' : ''
+    const classForState = (step.state == C.STEP_STATE_RUNNING) ? 'spinner' : ''
 
     const dataTarget = "#step-"+ step.id
     if (step.deprecated == true) {
@@ -41,10 +42,14 @@ class StepsRunning extends StepsFinished {
             <td>{ stepAssetGroup }</td>
             <td>{ stepUsername }</td>
             <td>{ this.renderDuration(step) }</td>
-            <td style={{'textAlign': 'center'}}
-              className={classForState}>
-              { this.imageForState(step.state) } &nbsp;
-              <button onClick={this.props.onStopStep(step)} className="btn btn-danger">Stop?</button>
+            <td className={classForState}>
+              { step.state } &nbsp;
+              { this.imageForState(step.state) }
+            </td>
+            <td>
+              <StepControl step={step}
+                onChangeStateStep={this.props.onChangeStateStep}
+                isDisabled={this.props.activityRunning && (!step.state ===null)} />
             </td>
           </tr>
         </React.Fragment>

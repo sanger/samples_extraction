@@ -93,7 +93,7 @@ class StepType < ActiveRecord::Base
     elsif task_type=='runner'
       Steps::BackgroundTasks::Runner
     elsif task_type=='background_step'
-      Steps::BackgroundTasks::BackgroundTask
+      Step
       #["BackgroundSteps::", step_action.gsub(".rb","").classify].join.constantize
     else
       Step

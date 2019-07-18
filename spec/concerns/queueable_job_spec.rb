@@ -25,7 +25,7 @@ shared_examples_for "queueable job" do
         it 'does not execute the next step' do
           step.update_attributes(next_step: another_step)
           allow(another_step).to receive(:execute_actions)
-          expect { step.execute_actions }.to raise_error(StandardError)
+          expect { step.execute_actions }.not_to raise_error
           expect(another_step).not_to have_received(:execute_actions)
         end
       end
@@ -39,7 +39,7 @@ shared_examples_for "queueable job" do
             step
           end
           step.update_attributes(next_step: my_steps.first)
-          expect { step.execute_actions }.to raise_error(StandardError)
+          expect { step.execute_actions }.not_to raise_error
           expect(my_steps.last).not_to have_received(:process)
         end
       end

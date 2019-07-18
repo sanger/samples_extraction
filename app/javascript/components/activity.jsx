@@ -1,15 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import ReactTooltip from 'react-tooltip'
+
+import ActivityControl from './activity_components/activity_control'
 import AlertDisplay from './activity_components/alert_display'
 import ActivityDescription from "./activity_components/activity_description"
 import PrintersSelection from "./activity_components/printers_selection"
 import AssetGroupsEditor from "./asset_group_components/asset_groups_editor"
-import StepsFinished from "./step_components/steps_finished"
+import Steps from "./step_components/steps"
 import StepsRunning from "./step_components/steps_running"
 import StepsFailed from "./step_components/steps_failed"
 import StepTypesControl from "./step_type_components/step_types_control"
-
+import C from "./step_components/step_states"
 
 import {FormFor, HashFields} from "react-rails-form-helpers"
 
@@ -42,14 +45,14 @@ class Activity extends React.Component {
     this.onExecuteStep = this.onExecuteStep.bind(this)
     this.onChangeStateStep = this.onChangeStateStep.bind(this)
     this.changeStateStep = this.changeStateStep.bind(this)
-    this.onStopStep = this.onStopStep.bind(this)
-    this.onRetryStep = this.onRetryStep.bind(this)
+
     this.onCollapseFacts = this.onCollapseFacts.bind(this)
     this.onAddBarcodesToAssetGroup = this.onAddBarcodesToAssetGroup.bind(this)
 
     this.onToggleStepsFinished = this.onToggleStepsFinished.bind(this)
 
     this.renderStepTypesControl = this.renderStepTypesControl.bind(this)
+    this.renderAssetGroupsEditorAndStepTypes = this.renderAssetGroupsEditorAndStepTypes.bind(this)
   }
   componentDidMount() {
     this.listenWebSockets()
@@ -77,22 +80,31 @@ class Activity extends React.Component {
     })
   }
   onWebSocketsMessage(msg) {
-    var selectedGroup = this.state.selectedAssetGroup
-    if (!(msg.assetGroups && msg.assetGroups[selectedGroup])) {
-      selectedGroup = Object.keys(msg.assetGroups)[0]
+    let newState
+
+    if (msg.error) {
+      newState = {messages: [msg.error]}
+    } else {
+      var selectedGroup = this.state.selectedAssetGroup
+      if (!(msg.assetGroups && msg.assetGroups[selectedGroup])) {
+        selectedGroup = Object.keys(msg.assetGroups)[0]
+      }
+      newState = {
+        messages: msg.messages,
+        selectedAssetGroup: selectedGroup,
+        activityRunning: msg.activityRunning,
+        dataAssetDisplay: msg.dataAssetDisplay,
+        assetGroups: msg.assetGroups,
+        stepTypes: msg.stepTypes,
+        stepsRunning: msg.stepsRunning || [],
+        stepsFailed: msg.stepsFailed,
+        stepsPending: msg.stepsPending || [],
+        stepsFinished: msg.stepsFinished
+      }
     }
-    this.setState({
-      messages: msg.messages,
-      selectedAssetGroup: selectedGroup,
-      activityRunning: msg.activityRunning,
-      dataAssetDisplay: msg.dataAssetDisplay,
-      assetGroups: msg.assetGroups,
-      stepTypes: msg.stepTypes,
-      stepsRunning: msg.stepsRunning || [],
-      stepsFailed: msg.stepsFailed,
-      stepsPending: msg.stepsPending || [],
-      stepsFinished: msg.stepsFinished
-    })
+
+    this.setState(newState)
+
     if (this.awaitingPromises) {
       this.awaitingPromises.forEach((args) => {
         const [resolve, reject] = args
@@ -164,43 +176,26 @@ class Activity extends React.Component {
     })
   }
 
-  onChangeStateStep(step, toState) {
+  onChangeStateStep(step, stateEventName) {
     return (e) => {
-      if ((this.state.activityRunning === true) && (!toState === 'stop')) {
+      // Do not do anything while the activity is running unless the event is stop
+      /*if ((this.state.activityRunning === true) && (stateEventName !== C.STEP_EVENT_STOP)) {
         return;
-      }
-      const state = toState || (e.target.checked ? 'complete' : 'cancel')
+      }*/
+      const event_name = stateEventName || (e.target.checked ? C.STEP_EVENT_REMAKE : C.STEP_EVENT_CANCEL)
       this.setState({activityRunning: true})
-      this.changeStateStep(step, state).then($.proxy(() => { this.setState({activityRunning: false}) }, this))
+      this.changeStateStep(step, event_name).then($.proxy(() => { this.setState({activityRunning: false}) }, this))
     }
   }
 
-  changeStateStep(step, state) {
+  changeStateStep(step, event_name) {
     return $.ajax({
       method: 'PUT',
       dataType: 'json',
       contentType: 'application/json; charset=utf-8',
       url: step.stepUpdateUrl,
-      data: JSON.stringify({step: {state}})
+      data: JSON.stringify({step: {event_name}})
     })
-  }
-
-  onStopStep(step) {
-    return (e) => {
-      if (!this.state.activityRunning) {
-        return;
-      }
-      this.changeStateStep(step, 'stop')
-    }
-  }
-
-  onRetryStep(step) {
-    return (e) => {
-      if (!this.state.activityRunning) {
-        return;
-      }
-      this.changeStateStep(step, 'retry')
-    }
   }
 
   onChangeTubePrinter() {
@@ -235,12 +230,11 @@ class Activity extends React.Component {
     const steps = [].concat(this.state.stepsRunning).concat(this.state.stepsPending)
     if ((this.state.stepsFailed) && (this.state.stepsFailed.length > 0)) {
       return(<StepsFailed
-                                       onStopStep={this.onStopStep}
-                      onRetryStep={this.onRetryStep}
+                      onChangeStateStep={this.onChangeStateStep}
                       steps={this.state.stepsFailed} />)
     } else {
       if ((this.state.stepsRunning) && (this.state.stepsRunning.length > 0)) {
-        return(<StepsRunning steps={this.state.stepsRunning} onStopStep={this.onStopStep} />)
+        return(<StepsRunning steps={this.state.stepsRunning} onChangeStateStep={this.onChangeStateStep} />)
       } else {
   	return(
   	  <StepTypesControl
@@ -257,17 +251,48 @@ class Activity extends React.Component {
       }
     }
   }
+
+  renderAssetGroupsEditorAndStepTypes() {
+    if (this.props.activityState=='finish') {
+      return null
+    } else {
+      return(
+        <React.Fragment>
+        {this.renderStepTypesControl("1")}
+        <AssetGroupsEditor
+                dataAssetDisplay={this.state.dataAssetDisplay}
+          activityRunning={this.state.activityRunning}
+                onCollapseFacts={this.onCollapseFacts}
+                collapsedFacts={null} // {this.state.collapsedFacts}
+
+          onExecuteStep={this.onExecuteStep}
+                onAddBarcodesToAssetGroup={this.onAddBarcodesToAssetGroup}
+          onRemoveAssetFromAssetGroup={this.onRemoveAssetFromAssetGroup}
+          onRemoveAllAssetsFromAssetGroup={this.onRemoveAllAssetsFromAssetGroup}
+          onErrorMessage={this.onErrorMessage}
+          onChangeAssetGroup={this.onChangeAssetGroup}
+          selectedAssetGroup={this.state.selectedAssetGroup}
+          onSelectAssetGroup={this.onSelectAssetGroup}
+          assetGroups={this.state.assetGroups} />
+        {this.renderStepTypesControl("2")}
+        </React.Fragment>
+      )
+    }
+  }
+
   render () {
     return (
       <div>
+      <h1>Activity {this.props.activity.id }&nbsp;
+      <ActivityControl activityRunning={this.state.activityRunning} />
+      </h1>
+
+  <ReactTooltip multiline={true} effect="solid" />
 	<AlertDisplay
 	  onRemoveErrorMessage={this.onRemoveErrorMessage}
 	  messages={this.state.messages} />
-	<FormFor url='/edu' className="form-inline activity-desc">
-	  <HashFields name="activity">
-	    <ActivityDescription	activity={this.props.activity} />
-	  </HashFields>
-	</FormFor>
+  <ActivityDescription activity={this.props.activity} />
+
 	<PrintersSelection
 	  selectedTubePrinter={this.state.selectedTubePrinter}
 	  selectedPlatePrinter={this.state.selectedPlatePrinter}
@@ -276,28 +301,12 @@ class Activity extends React.Component {
 	  onChangeTubePrinter={this.onChangeTubePrinter}
 	  onChangePlatePrinter={this.onChangePlatePrinter}
 	/>
-	{this.renderStepTypesControl("1")}
-	<AssetGroupsEditor
-          dataAssetDisplay={this.state.dataAssetDisplay}
-	  activityRunning={this.state.activityRunning}
-          onCollapseFacts={this.onCollapseFacts}
-          collapsedFacts={null} // {this.state.collapsedFacts}
-
-	  onExecuteStep={this.onExecuteStep}
-          onAddBarcodesToAssetGroup={this.onAddBarcodesToAssetGroup}
-	  onRemoveAssetFromAssetGroup={this.onRemoveAssetFromAssetGroup}
-	  onRemoveAllAssetsFromAssetGroup={this.onRemoveAllAssetsFromAssetGroup}
-	  onErrorMessage={this.onErrorMessage}
-	  onChangeAssetGroup={this.onChangeAssetGroup}
-	  selectedAssetGroup={this.state.selectedAssetGroup}
-	  onSelectAssetGroup={this.onSelectAssetGroup}
-	  assetGroups={this.state.assetGroups} />
-	{this.renderStepTypesControl("2")}
-	<StepsFinished
-          onToggle={this.onToggleComponentBuilder('stepsFinished')}
-          steps={this.state.stepsFinished}
-	  activityRunning={this.state.activityRunning}
-	  onChangeStateStep={this.onChangeStateStep}/>
+  {this.renderAssetGroupsEditorAndStepTypes()}
+	<Steps
+      onToggle={this.onToggleComponentBuilder('stepsFinished')}
+      steps={this.state.stepsFinished}
+	    activityRunning={this.state.activityRunning}
+	   onChangeStateStep={this.onChangeStateStep}/>
       </div>
     )
   }

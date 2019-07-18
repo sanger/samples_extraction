@@ -1,17 +1,33 @@
 module Steps::Job
 
-  def execute_actions
-    update_attributes!({
-      :state => 'running',
-      :step_type => step_type,
-      :asset_group => asset_group,
-    })
-    update_attributes!(job_id: delay.perform_job.id)
+  def create_job
+    save_job(delay(queue: 'steps').perform_job)
+  end
+
+  def save_job(delayed_job)
+    delayed_job.save
+    self.job_id = delayed_job.id
+    save!
+  end
+
+  def clear_job
+    self.job_id = nil
+    @error=nil
+    save!
+  end
+
+  def save_error_output
+    self.output = output_error(@error)
+    self.job_id = job ? job.id : nil
+    save!
   end
 
   def output_error(exception)
     return output unless exception
-    [output, exception && exception.message, Rails.backtrace_cleaner.clean(exception && exception.backtrace)].flatten.join("\n")
+    [
+      output, exception && exception.message,
+      Rails.backtrace_cleaner.clean(exception && exception.backtrace)
+    ].flatten.join("\n")
   end
 
   def job
@@ -19,29 +35,19 @@ module Steps::Job
   end
 
   def perform_job
-    return if cancelled? || stopped?
-    assign_attributes(state: 'running', output: nil)
     @error = nil
     begin
       process
     rescue StandardError => e
       @error = e
+      true
     else
-      @error=nil
-      update_attributes!(:state => 'complete', job_id: nil)
+      reload
+      complete! if running?
     end
   ensure
-    # We publish to the clients that there has been a change in these assets
-    asset_group.touch
-    if activity
-      activity.asset_group.touch unless state == 'complete'
-    end
-
-    # TODO:
-    # This update needs to happen AFTER publishing the changes to the clients (touch), although
-    # is not clear for me why at this moment. Need to revisit it.
-    unless state == 'complete'
-      update_attributes!(:state => 'error', output: output_error(@error), job_id: job ? job.id : nil)
+    unless (stopped? || ignored? || completed?)
+      fail!
     end
   end
 

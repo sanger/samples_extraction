@@ -92,7 +92,7 @@ module Asset::Import
         asset_group.touch
       ensure
         @import_step.update_attributes(state: 'error') unless @import_step.state == 'complete'
-        @import_step.asset_group.touch if @import_step.asset_group
+        #@import_step.asset_group.touch if @import_step.asset_group
       end
     end
 
@@ -101,7 +101,7 @@ module Asset::Import
     end
 
     def type_of_asset_for_sequencescape
-      if ((facts.with_predicate('a').first) && (facts.with_predicate('a').first.object.include?("Tube")))
+      if ((facts.with_predicate('a').first) && ["Tube", "SampleTube"].include?(facts.with_predicate('a').first.object))
         :tube
       else
         :plate
