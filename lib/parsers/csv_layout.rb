@@ -57,7 +57,7 @@ module Parsers
       !location.nil? && !!location.match(LOCATION_REGEXP)
     end
 
-    def valid_fluidx_barcode?(barcode)
+    def valid_barcode?(barcode)
       barcode.start_with?('F')
     end
 
@@ -77,8 +77,8 @@ module Parsers
       return nil
     end
 
-    def validate_tube_barcode_format(barcode)
-      unless valid_fluidx_barcode?(barcode) || no_read_barcode?(barcode)
+    def validate_barcode_format(barcode)
+      unless valid_barcode?(barcode) || no_read_barcode?(barcode)
         @errors.push(:msg => "Invalid Fluidx tube barcode format #{barcode}")
       end
     end
@@ -88,13 +88,13 @@ module Parsers
       @data ||= @csv_parser.to_a.map do |line|
         next if line.nil? || line.length == 0
         location, barcode = convert_to_location(line[0].strip), line[1].strip
-        asset = valid_fluidx_barcode?(barcode) ? builder(barcode, updater) : nil
+        asset = valid_barcode?(barcode) ? builder(barcode, updater) : nil
 
-        validate_tube_barcode_format(barcode)
+        validate_barcode_format(barcode)
 
         @errors.push(:msg => "Invalid location") unless valid_location?(location)
 
-        if asset.nil? && valid_fluidx_barcode?(barcode)
+        if asset.nil? && valid_barcode?(barcode)
           @errors.push(:msg => "Cannot find the barcode #{barcode}")
         end
 

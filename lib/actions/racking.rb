@@ -1,5 +1,6 @@
 require 'parsers/csv_layout'
 require 'parsers/csv_layout_with_tube_creation'
+require 'parsers/csv_layout_any_barcode'
 
 require 'fact_changes'
 
@@ -31,6 +32,9 @@ module Actions
       csv_parsing(asset_group, Parsers::CsvLayoutWithTubeCreation)
     end
 
+    def rack_layout_any_barcode(asset_group)
+      csv_parsing(asset_group, Parsers::CsvLayoutAnyBarcode)
+    end
 
     # Support methods and classes
 
