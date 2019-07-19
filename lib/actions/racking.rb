@@ -25,15 +25,18 @@ module Actions
   module Racking
     # Actions
     def rack_layout(asset_group)
-      csv_parsing(asset_group, Parsers::CsvLayout)
+      content = selected_file(asset_group).data
+      csv_parsing(asset_group, Parsers::CsvLayout.new(content))
     end
 
     def rack_layout_creating_tubes(asset_group)
-      csv_parsing(asset_group, Parsers::CsvLayoutWithTubeCreation)
+      content = selected_file(asset_group).data
+      csv_parsing(asset_group, Parsers::CsvLayoutWithTubeCreation.new(content))
     end
 
     def rack_layout_any_barcode(asset_group)
-      csv_parsing(asset_group, Parsers::CsvLayoutAnyBarcode)
+      content = selected_file(asset_group).data
+      csv_parsing(asset_group, Parsers::CsvLayoutAnyBarcode.new(content))
     end
 
     # Support methods and classes
@@ -193,11 +196,9 @@ module Actions
       asset_group.uploaded_files.first
     end
 
-    def csv_parsing(asset_group, class_type)
-      content = selected_file(asset_group).data
+    def csv_parsing(asset_group, parser)
       error_messages = []
       error_locations = []
-      parser = class_type.new(content)
 
       if asset_group.assets.with_fact('a', 'TubeRack').empty?
         error_messages.push("No TubeRacks found to perform the layout process")
