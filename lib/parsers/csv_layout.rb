@@ -83,16 +83,19 @@ module Parsers
       end
     end
 
+    def validate_location(location)
+      @errors.push(:msg => "Invalid location") unless valid_location?(location)
+    end
+
     def parse
       updater = FactChanges.new
       @data ||= @csv_parser.to_a.map do |line|
         next if line.nil? || line.length == 0
         location, barcode = convert_to_location(line[0].strip), line[1].strip
+        next if no_read_barcode?(barcode)
         asset = valid_barcode?(barcode) ? builder(barcode, updater) : nil
-
         validate_barcode_format(barcode)
-
-        @errors.push(:msg => "Invalid location") unless valid_location?(location)
+        validate_location(location)
 
         if asset.nil? && valid_barcode?(barcode)
           @errors.push(:msg => "Cannot find the barcode #{barcode}")

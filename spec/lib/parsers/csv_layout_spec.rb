@@ -65,6 +65,19 @@ RSpec.describe Parsers::CsvLayout, akeredu: true do
         @csv = Parsers::CsvLayout.new('1,2,3,4,5')
         expect(@csv.valid?).to eq(false)
       end
+
+      context 'when some barcodes are not read during scan (no read in layout)' do
+        it 'does not load anything for that location' do
+          asset1 = create :asset, barcode: 'FR000001'
+          asset2 = create :asset, barcode: 'FR000002'
+          content = "A01,#{asset1.barcode}\nB01,No read\nC01,#{asset2.barcode}"
+          csv = Parsers::CsvLayout.new(content)
+          expect(csv.valid?).to eq(true)
+          expect(csv.layout.length).to eq(2)
+          expect(csv.layout[0][:asset]).to eq(asset1)
+          expect(csv.layout[1][:asset]).to eq(asset2)
+        end
+      end
     end
 
     describe "parsing content saved by Excel" do
