@@ -29,6 +29,7 @@ module Parsers
         @parsed = false
         @input = str
         @components = self.class::DEFAULT_COMPONENTS.merge(component_defs)
+        valid?
       end
 
       def parsed?
@@ -36,12 +37,15 @@ module Parsers
       end
 
       def parse
-        @parsed = false
-        @parsed_changes = FactChanges.new
-        @line_reader = components[:line_reader].new(@input)
-        @line_parser = components[:line_parser].new(@line_reader, self)
-        @data ||= @line_parser.parsed_data
-        @parsed = true
+        unless @parsed
+          @parsed = false
+          @parsed_changes = FactChanges.new
+          @line_reader = components[:line_reader].new(@input)
+          @line_parser = components[:line_parser].new(@line_reader, self)
+          @data ||= @line_parser.parsed_data
+          @parsed = true
+        end
+        @parsed
       end
 
       def layout

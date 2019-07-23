@@ -31,12 +31,12 @@ RSpec.describe Parsers::CsvLayout::CsvParser do
         @csv = Parsers::CsvLayout::CsvParser.new(@content)
 
         expect(@csv.parse).to eq(true)
-        expect(@csv.valid?).to eq(true)
+        expect(@csv).to be_valid
       end
 
       it 'recognise incorrect csv files' do
         @csv = Parsers::CsvLayout::CsvParser.new('1,2,3,4,5')
-        expect(@csv.valid?).to eq(false)
+        expect(@csv).to be_invalid
       end
 
       context 'when some barcodes are not read during scan (no read in layout)' do
@@ -45,7 +45,7 @@ RSpec.describe Parsers::CsvLayout::CsvParser do
           asset2 = create :asset, barcode: 'FR000002'
           content = "A01,#{asset1.barcode}\nB01,No read\nC01,#{asset2.barcode}"
           csv = Parsers::CsvLayout::CsvParser.new(content)
-          expect(csv.valid?).to eq(true)
+          expect(csv).to be_valid
           expect(csv.layout.length).to eq(2)
           expect(csv.layout[0][:asset]).to eq(asset1)
           expect(csv.layout[1][:asset]).to eq(asset2)
@@ -56,7 +56,7 @@ RSpec.describe Parsers::CsvLayout::CsvParser do
     describe "parsing content saved by Excel" do
       it 'parses it correctly' do
         @csv = Parsers::CsvLayout::CsvParser.new("A01,FR11200002\rA02,FR11200003\n")
-        expect(@csv.parse).to eq(true)
+        expect(@csv).to be_valid
       end
     end
   end

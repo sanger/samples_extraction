@@ -1,6 +1,6 @@
-require 'parsers/csv_layout'
-require 'parsers/csv_layout_with_tube_creation'
-require 'parsers/csv_layout_any_barcode'
+require 'parsers/csv_layout/csv_parser'
+require 'parsers/csv_layout/barcode_creatable_parser'
+require 'parsers/csv_layout/validators/any_barcode_validator'
 
 require 'fact_changes'
 
@@ -228,7 +228,6 @@ module Actions
       unless error_messages.empty?
         raise InvalidDataParams.new(error_messages)
       end
-
       if parser.valid?
         updates = parser.parsed_changes.merge(reracking_tubes(asset, parser.layout))
 

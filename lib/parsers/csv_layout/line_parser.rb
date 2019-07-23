@@ -10,6 +10,7 @@ module Parsers
         @parsed_content = []
         @parsed=false
         @input_reader = input_reader
+        valid?
       end
 
       def parsed_data
