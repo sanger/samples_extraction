@@ -27,7 +27,11 @@ module TokenUtil
   def self.generate_positions(letters, columns)
     size=letters.size * columns.size
     location_for_position = size.times.map do |i|
-      "#{letters[(i/columns.length).floor]}#{(columns[i%columns.length]).to_s}"
+      "#{letters[(i/columns.length).floor]}#{pad((columns[i%columns.length]).to_s,'0',2)}"
     end
+  end
+
+  def self.pad(str,chr,size)
+    "#{(size-str.size).times.map{chr}.join('')}#{str}"
   end
 end

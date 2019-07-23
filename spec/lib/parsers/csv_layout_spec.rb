@@ -33,6 +33,42 @@ RSpec.describe Parsers::CsvLayout, akeredu: true do
       end
     end
 
+    describe '#filter_empty_lines' do
+      let(:obj) { Parsers::CsvLayout.new("test")}
+      it 'filters nil elements' do
+        lines = [nil,"asdf"]
+        expect(obj.filter_empty_lines(lines).length).to eq(1)
+        expect(obj.filter_empty_lines(lines)).to eq(["asdf"])
+      end
+      it 'filters empty lines' do
+        lines = ["1234","","5678"]
+        expect(obj.filter_empty_lines(lines).length).to eq(2)
+        expect(obj.filter_empty_lines(lines)).to eq(["1234", "5678"])
+      end
+    end
+
+    describe '#filter_no_read_barcodes' do
+      let(:obj) { Parsers::CsvLayout.new("test")}
+      it "filters lines where the layout display \'No Read\'" do
+        lines = [["A01", "1234"],["B01", "No read"], ["C01", "5678"]]
+        expect(obj.filter_no_read_barcodes(lines)).to eq([["A01", "1234"], ["C01", "5678"]])
+      end
+    end
+
+    describe '#barcode_from_line' do
+      let(:obj) { Parsers::CsvLayout.new("test")}
+      it 'returns the barcode part of a line' do
+        expect(obj.barcode_from_line(["A01","F123456"])).to eq("F123456")
+      end
+    end
+
+    describe '#location_from_line' do
+      let(:obj) { Parsers::CsvLayout.new("test")}
+      it 'returns the location part of a line' do
+        expect(obj.location_from_line(["A01","F123456"])).to eq("A01")
+      end
+    end
+
     describe '#no_read_barcode?' do
       let(:obj) { Parsers::CsvLayout.new("test")}
       it 'validates no read strings' do
@@ -88,3 +124,4 @@ RSpec.describe Parsers::CsvLayout, akeredu: true do
     end
   end
 end
+
