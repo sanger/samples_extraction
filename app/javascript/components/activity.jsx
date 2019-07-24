@@ -105,13 +105,6 @@ class Activity extends React.Component {
 
     this.setState(newState)
 
-    /*if (this.awaitingPromises) {
-      this.awaitingPromises.forEach((args) => {
-        const [resolve, reject] = args
-        return resolve(msg)
-      })
-    }
-    this.awaitingPromises = []*/
   }
   onRemoveErrorMessage(msg, pos) {
     this.state.messages.splice(pos,1)
@@ -128,16 +121,7 @@ class Activity extends React.Component {
     return msg
   }
   changeAssetGroup(assetGroup, data) {
-    /*if (!this.awaitingPromises) {
-      this.awaitingPromises = []
-    }
-    let promise = new Promise((resolve, reject) => {
-      this.awaitingPromises.push([resolve, reject])
-    })*/
-
-
     this.activityChannel.send(data)
-    //return promise
   }
   getAssetUuidsForAssetGroup(assetGroup) {
     return assetGroup.assets.map((a) => a.uuid)
