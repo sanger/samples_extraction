@@ -2,6 +2,7 @@ require 'csv'
 module Parsers
   module CsvLayout
     class LineReader
+      BOM_HEADER="\xEF\xBB\xBF"
       def initialize(input)
         @input = input
       end
@@ -11,7 +12,12 @@ module Parsers
 
       protected
       def clean_input(str)
-        str.kind_of?(String) ? str.gsub("\r", "\n") : str
+        clean_bom(str.kind_of?(String) ? str.gsub("\r", "\n") : str)
+      end
+
+      def clean_bom(str)
+        str.force_encoding('UTF-8').sub!(BOM_HEADER, '')
+        str
       end
 
       def csv_convert(str)

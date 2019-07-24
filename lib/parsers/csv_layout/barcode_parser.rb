@@ -17,19 +17,27 @@ module Parsers
 
       def initialize(line, parser)
         @parser = parser
-        @barcode = line[1].strip
+        _parse(line)
 
         valid?
       end
 
       def no_read_barcode?
-        barcode.downcase.start_with?('no read')
+        !barcode.nil? && barcode.downcase.start_with?('no read')
       end
 
       def asset
         Asset.find_by_barcode(barcode)
       end
 
+      protected
+      def _parse(line)
+        begin
+          @barcode = line[1].strip
+        rescue StandardError => e
+          errors.add(:barcode, 'There was an error while parsing the barcode')
+        end
+      end
     end
   end
 end

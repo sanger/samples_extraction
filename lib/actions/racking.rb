@@ -235,7 +235,7 @@ module Actions
         raise InvalidDataParams.new(error_messages) if error_messages.flatten.compact.count > 0
         return updates
       else
-        raise InvalidDataParams.new(parser.errors.map{|e| e[:msg]})
+        raise InvalidDataParams.new(parser.error_list)
       end
     end
 

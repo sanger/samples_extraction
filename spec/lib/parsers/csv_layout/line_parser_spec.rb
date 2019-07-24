@@ -66,6 +66,14 @@ RSpec.describe Parsers::CsvLayout::LineParser do
         {location: "A02", asset: @asset2}
       ])
     end
+    it 'filters nil empty lines' do
+      @input = [["A1","F1234"],[nil, nil],["A2","F5678"]]
+      expect(parser).to be_valid
+      expect(parser.parsed_data).to eq([
+        {location: "A01", asset: @asset1},
+        {location: "A02", asset: @asset2}
+      ])
+    end
     it 'filters no read barcodes' do
       @input = [["A1","F1234"],["B01", "No read"],["A2","F5678"]]
       expect(parser).to be_valid

@@ -18,7 +18,7 @@ RSpec.describe Parsers::CsvLayout::CsvParser do
       asset_group: asset_group, step_type: step_type }
 
     setup do
-      @content = File.open('test/data/layout.csv')
+      @content = File.open('test/data/layout.csv').read
       @assets = 96.times.map do |i|
         FactoryBot.create(:asset, {
           :barcode => 'FR'+(11200002 + i).to_s

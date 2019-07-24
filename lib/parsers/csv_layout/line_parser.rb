@@ -2,7 +2,7 @@ module Parsers
   module CsvLayout
     class LineParser
       include ActiveModel::Validations
-
+      attr_reader :parsed_content
       validate :validate_parsed_content
 
       def initialize(input_reader, parser)
@@ -15,13 +15,28 @@ module Parsers
 
       def parsed_data
         if valid?
-          @parsed_content.map do |entry|
+          @parsed_content.select{|e| !e[:barcode_parser].no_read_barcode? }.map do |entry|
             {
               location: entry[:location_parser].location,
               asset: entry[:barcode_parser].asset
             }
           end
         end
+      end
+
+      def error_list_for_parser(parser, numline)
+        parser.errors.messages.values.map do |msg|
+          "At line #{numline}: #{msg[0]}"
+        end
+      end
+
+      def error_list
+        parsed_content.map do |entry|
+          [
+            error_list_for_parser(entry[:location_parser], entry[:num_line]),
+            error_list_for_parser(entry[:barcode_parser], entry[:num_line])
+          ]
+        end.flatten
       end
 
       protected
@@ -37,7 +52,7 @@ module Parsers
       end
 
       def parse
-        num_line = 0
+        num_line = 1
         @input_reader.lines.reduce(@parsed_content) do |memo, line|
           unless is_empty_line?(line)
             barcode_parser = @parser.components[:barcode_parser].new(line, @parser)
@@ -59,7 +74,7 @@ module Parsers
       end
 
       def is_empty_line?(line)
-        (line.nil? || (line.length == 0))
+        (line.nil? || (line.length == 0) || line.all?(&:nil?))
       end
     end
   end

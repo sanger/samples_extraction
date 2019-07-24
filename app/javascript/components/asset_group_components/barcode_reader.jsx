@@ -26,7 +26,8 @@ class BarcodeReader extends React.Component {
           <input
             ref={(input) => { this.nameInput = input }}
             value={this.props.barcodesInputText}
-            onChange={this.props.handleChange} disabled={this.props.disabledBarcodesInput || this.props.activityRunning}
+            onChange={this.props.handleChange}
+            disabled={this.props.disabledBarcodesInput || this.props.activityRunning}
             autoComplete="off" name="asset_group[assets]"
             className="form-control" type='text' placeholder='Scan a barcode' />
           <span className="input-group-btn">

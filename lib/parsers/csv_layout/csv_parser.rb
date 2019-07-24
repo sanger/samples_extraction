@@ -14,7 +14,7 @@ module Parsers
       validate :validate_location_duplication
       validate :validate_tube_duplication
 
-      attr_reader :data, :parsed, :parsed_changes, :components
+      attr_reader :data, :parsed, :parsed_changes, :components, :line_parser
 
       DEFAULT_COMPONENTS = {
           barcode_parser: Parsers::CsvLayout::BarcodeParser,
@@ -55,6 +55,10 @@ module Parsers
 
       def create_tubes?
         false
+      end
+
+      def error_list
+        line_parser.error_list
       end
 
       protected
