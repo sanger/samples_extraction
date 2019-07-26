@@ -55,8 +55,8 @@ gem 'rest-client'
 gem 'faraday'
 gem 'sequencescape-client-api',
   # Should be switched back to sanger + production for deployment
-  :github => 'emrojo/sequencescape-client-api',
-  :branch  => 'asset-attribute-update-merged-with-rails-4',
+  :github => 'sanger/sequencescape-client-api',
+  :branch  => 'rails_4_support_extraction_attributes',
   :require => 'sequencescape'
 #
 #gem 'sequencescape-client-api', require: 'sequencescape'
