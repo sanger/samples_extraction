@@ -53,7 +53,13 @@ gem 'pmb-client', git: 'https://github.com/sanger/pmb-client.git'
 # Sequencescspae
 gem 'rest-client'
 gem 'faraday'
-gem 'sequencescape-client-api', require: 'sequencescape'
+gem 'sequencescape-client-api',
+  # Should be switched back to sanger + production for deployment
+  :github => 'emrojo/sequencescape-client-api',
+  :branch  => 'asset-attribute-update-merged-with-rails-4',
+  :require => 'sequencescape'
+#
+#gem 'sequencescape-client-api', require: 'sequencescape'
 
 # Debugging
 gem 'rb-readline'
