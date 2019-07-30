@@ -112,12 +112,39 @@ RSpec.describe Actions::Racking do
   describe '#rack_layout' do
     before do
       csv = CSV.new(File.open('test/data/layout.csv').read).to_a
-      csv.each do |line|
+      @tubes = csv.map do |line|
         create(:asset, barcode: line[1])
       end
     end
     let(:method) { :rack_layout }
     it_behaves_like('rack_layout')
+    it 'adds the new inheritable properties of the tubes placed in the rack' do
+      @tubes.each do |tube|
+        tube.facts << create(:fact, predicate: 'aliquotType', object: 'DNA')
+      end
+      expect(asset.facts.with_predicate('aliquotType').map(&:object).first).to eq(nil)
+      updates = rack_layout(asset_group)
+      updates.apply(step)
+      expect(asset.facts.with_predicate('aliquotType').map(&:object).first).to eq('DNA')
+    end
+    it 'removes the inheritable properties from tubes that no longer belong to the rack' do
+      @tubes.each do |tube|
+        tube.facts << create(:fact, predicate: 'aliquotType', object: 'DNA')
+      end
+      updates = rack_layout(asset_group)
+      updates.apply(step)
+
+      new_rack = create(:asset, uploaded_file: file, facts: [fact])
+      new_group = AssetGroup.create(assets: [new_rack])
+
+      expect(new_rack.facts.with_predicate('aliquotType').map(&:object).first).to eq(nil)
+      expect(asset.facts.with_predicate('aliquotType').map(&:object).first).to eq('DNA')
+
+      updates = rack_layout(new_group)
+      updates.apply(step)
+      expect(new_rack.facts.with_predicate('aliquotType').map(&:object).first).to eq('DNA')
+      expect(asset.facts.with_predicate('aliquotType').map(&:object).first).to eq(nil)
+    end
   end
 
   describe '#rack_layout_creating_tubes' do
