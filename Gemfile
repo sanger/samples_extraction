@@ -56,7 +56,7 @@ gem 'faraday'
 gem 'sequencescape-client-api',
   # Should be switched back to sanger + production for deployment
   :github => 'sanger/sequencescape-client-api',
-  :branch  => 'rails_4_support_extraction_attributes',
+  :branch  => 'rails_4',
   :require => 'sequencescape'
 #
 #gem 'sequencescape-client-api', require: 'sequencescape'

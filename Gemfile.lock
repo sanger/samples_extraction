@@ -1,7 +1,7 @@
 GIT
   remote: git://github.com/sanger/sequencescape-client-api.git
-  revision: 55925d061df68c3717e68e0b9e31a1ac921e8c11
-  branch: rails_4_support_extraction_attributes
+  revision: d01a3aeca31a5c8df32996e16f466542bf179609
+  branch: rails_4
   specs:
     sequencescape-client-api (0.3.9)
       activemodel (>= 4.0.0, < 5.2)
