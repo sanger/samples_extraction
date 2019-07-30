@@ -1,5 +1,6 @@
-require 'parsers/csv_layout'
-require 'parsers/csv_layout_with_tube_creation'
+require 'parsers/csv_layout/csv_parser'
+require 'parsers/csv_layout/barcode_creatable_parser'
+require 'parsers/csv_layout/validators/any_barcode_validator'
 
 require 'fact_changes'
 
@@ -27,13 +28,25 @@ module Actions
 
     # Actions
     def rack_layout(asset_group)
-      csv_parsing(asset_group, Parsers::CsvLayout)
+      content = selected_file(asset_group).data
+      csv_parsing(asset_group, Parsers::CsvLayout::CsvParser.new(content))
     end
 
     def rack_layout_creating_tubes(asset_group)
-      csv_parsing(asset_group, Parsers::CsvLayoutWithTubeCreation)
+      content = selected_file(asset_group).data
+      parser = Parsers::CsvLayout::CsvParser.new(content, {
+        barcode_parser: Parsers::CsvLayout::BarcodeCreatableParser
+      })
+      csv_parsing(asset_group, parser)
     end
 
+    def rack_layout_any_barcode(asset_group)
+      content = selected_file(asset_group).data
+      parser = Parsers::CsvLayout::CsvParser.new(content, {
+        barcode_validator: Parsers::CsvLayout::Validators::AnyBarcodeValidator
+      })
+      csv_parsing(asset_group, parser)
+    end
 
     # Support methods and classes
 
@@ -229,11 +242,9 @@ module Actions
       asset_group.uploaded_files.first
     end
 
-    def csv_parsing(asset_group, class_type)
-      content = selected_file(asset_group).data
+    def csv_parsing(asset_group, parser)
       error_messages = []
       error_locations = []
-      parser = class_type.new(content)
 
       if asset_group.assets.with_fact('a', 'TubeRack').empty?
         error_messages.push("No TubeRacks found to perform the layout process")
@@ -257,7 +268,6 @@ module Actions
       unless error_messages.empty?
         raise InvalidDataParams.new(error_messages)
       end
-
       if parser.valid?
         updates = parser.parsed_changes.merge(reracking_tubes(asset, parser.layout))
 
@@ -265,7 +275,7 @@ module Actions
         raise InvalidDataParams.new(error_messages) if error_messages.flatten.compact.count > 0
         return updates
       else
-        raise InvalidDataParams.new(parser.errors.map{|e| e[:msg]})
+        raise InvalidDataParams.new(parser.error_list)
       end
     end
 

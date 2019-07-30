@@ -10,8 +10,11 @@ function uploaderOptions(props) {
   return(
     {
       options: {
+        validation: {
+          sizeLimit: 12000000,
+        },
         chunking: {
-            enabled: true
+            enabled: false
         },
         deleteFile: {
             enabled: true,
@@ -23,6 +26,11 @@ function uploaderOptions(props) {
         },
         retry: {
             enableAuto: true
+        },
+        callbacks: {
+          onError: function(id, name, errorReason, xhrOrXdr) {
+            props.onErrorMessage({type: 'danger', msg: errorReason})
+          }
         }
       }
     }

@@ -11,7 +11,7 @@ gem 'delayed_job_active_record'
 gem 'mysql2'
 
 # Rails and framework libraries
-gem 'rails', '~> 5.2.3'
+gem 'rails', '~> 5.1'
 gem 'tzinfo-data'
 gem 'activerecord-session_store'
 gem 'micro_token'
@@ -54,9 +54,12 @@ gem 'pmb-client', git: 'https://github.com/sanger/pmb-client.git'
 gem 'rest-client'
 gem 'faraday'
 gem 'sequencescape-client-api',
-  git: 'https://github.com/emrojo/sequencescape-client-api.git',
-  branch: 'asset-attribute-update-merged-with-rails-4',
+  # Should be switched back to sanger + production for deployment
+  :github => 'sanger/sequencescape-client-api',
+  :branch  => 'rails_4_support_extraction_attributes',
   :require => 'sequencescape'
+#
+#gem 'sequencescape-client-api', require: 'sequencescape'
 
 # Debugging
 gem 'rb-readline'
