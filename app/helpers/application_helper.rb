@@ -78,49 +78,49 @@ module ApplicationHelper
       asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
   end
 
-  def data_asset_display(facts)
-    f = facts.with_predicate('aliquotType').first
-    if f
-      obj = {:aliquot => {
-        :cssClass => [(f.object || UNKNOWN_ALIQUOT_TYPE), facts.with_predicate('is').map do |f_is|
-          [f_is.predicate, f_is.object].join('-')
-        end].compact.join(' '),
-        :title => "#{f.asset.short_description}",
-        :url => ((f.class==Fact) ? asset_path(f.asset) : '')
-        }}
-
-      return obj
-    end
-
-    unless facts.with_predicate('contains').empty?
-      return facts.with_predicate('contains').map do |fact|
-        [fact.object_asset, fact.object_asset.facts] if (fact.class == Fact) && (fact.object_asset)
-      end.compact.reduce({}) do |memo, list|
-        asset, facts = list[0],list[1]
-        f = facts.with_predicate('location').first
-        unless f.nil?
-          location = f.object
-          location=location[0]+location[2] if location.length==3 && location[1]=="0"
-          f2 = facts.with_predicate('aliquotType').first
-          aliquotType = f2 ? f2.object : nil
-          memo[location] = {
-            :title => "#{asset.short_description}",
-            :cssClass => aliquotType || UNKNOWN_ALIQUOT_TYPE,
-            :url => asset_path(asset)
-          } unless location.nil?
-        end
-        memo
+  def data_asset_display_for_plate(facts)
+    facts.with_predicate('contains').map do |fact|
+      [fact.object_asset, fact.object_asset.facts] if (fact.class == Fact) && (fact.object_asset)
+    end.compact.reduce({}) do |memo, list|
+      asset, facts = list[0],list[1]
+      f = facts.with_predicate('location').first
+      unless f.nil?
+        location = f.object
+        location=location[0]+location[2] if location.length==3 && location[1]=="0"
+        f2 = facts.with_predicate('aliquotType').first
+        aliquotType = f2 ? f2.object : nil
+        memo[location] = {
+          :title => "#{asset.short_description}",
+          :cssClass => aliquotType || UNKNOWN_ALIQUOT_TYPE,
+          :url => asset_path(asset)
+        } unless location.nil?
       end
+      memo
     end
+  end
 
-    return {
-      :aliquot => {
-        :cssClass => facts.with_predicate('is').map do |f|
-          "#{f.predicate}-#{f.object}"
-        end.join(' '),
-        :url => ''
+  def data_asset_display_for_tube(facts)
+    is_facts_values = facts.with_predicate('is').map { |f_is| [f_is.predicate, f_is.object].join('-') }
+    aliquot_fact = facts.with_predicate('aliquotType').first
+    if aliquot_fact
+      css_classes = [(aliquot_fact.object || UNKNOWN_ALIQUOT_TYPE), is_facts_values].compact.join(' ')
+      url = ((aliquot_fact.class==Fact) ? asset_path(aliquot_fact.asset) : '')
+      title = "#{aliquot_fact.asset.short_description}"
+    else
+      css_classes = is_facts_values
+      url=''
+      title=''
+    end
+    {
+      aliquot: {
+        cssClass: css_classes, title: title, url:  url
       }
     }
+  end
+
+  def data_asset_display(facts)
+    return data_asset_display_for_plate(facts) if facts.with_predicate('contains').count > 0
+    data_asset_display_for_tube(facts)
   end
 
   def svg(name)
