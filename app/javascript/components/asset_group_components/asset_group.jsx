@@ -1,6 +1,7 @@
 import React from 'react'
 import AssetDisplay from "../asset_components/asset_display"
 import Facts from '../asset_components/facts'
+import ButtonWithLoading from "../lib/button_with_loading"
 
 class AssetGroup extends React.Component {
   constructor(props) {
@@ -47,7 +48,7 @@ class AssetGroup extends React.Component {
         </td>
         <td>{index+1}</td>
         <td>
-          <button disabled={this.props.activityRunning} onClick={$.proxy(this.removeAsset, this, asset, index) } className="btn btn-primary ">Delete</button>
+          <ButtonWithLoading /*disabled={this.props.activityRunning}*/ onClick={$.proxy(this.removeAsset, this, asset, index) } className="btn btn-primary " text="Delete" />
         </td>
       </tr>
     )
@@ -60,7 +61,7 @@ class AssetGroup extends React.Component {
       return(
         <table className="table table-condensed">
           <thead><tr><th>Barcode</th><th>Facts</th><th>Position</th><th>
-            <button disabled={this.props.activityRunning} onClick={this.removeAllAssets} className="btn btn-primary">Delete all</button>
+            <ButtonWithLoading /*disabled={this.props.activityRunning}*/ onClick={this.removeAllAssets} className="btn btn-primary" text="Delete all" />
           </th></tr></thead>
           <tbody data-psd-asset-group-content="1">
             {this.props.assetGroup.assets.map(this.renderAssetRow)}
