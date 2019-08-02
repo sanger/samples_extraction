@@ -46,7 +46,7 @@ class Step < ActiveRecord::Base
     #  step_messages << StepMessage.new(content: error)
     #end
     ActiveRecord::Base.transaction do
-     step_messages.delete_all
+     step_messages.each(&:destroy)
      errors.each do |error|
        step_messages.create(step_id: self.id, content: error)
      end

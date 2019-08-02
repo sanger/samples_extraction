@@ -96,7 +96,8 @@ RSpec.describe 'Asset::Export' do
         allow(plate).to receive(:barcode).and_return(barcode)
 
         expect(asset.facts.where(predicate: 'contains').count).to eq(0)
-        asset.update_sequencescape(print_config, user, step)
+        asset.update_sequencescape(print_config, user, step).apply(step)
+        asset.refresh
         expect(asset.facts.where(predicate: 'contains').count).to eq(plate.wells.count)
       end
 

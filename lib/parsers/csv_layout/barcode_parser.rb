@@ -27,7 +27,7 @@ module Parsers
       end
 
       def asset
-        Asset.find_by_barcode(barcode)
+        Asset.find_or_import_asset_with_barcode(barcode)
       end
 
       protected

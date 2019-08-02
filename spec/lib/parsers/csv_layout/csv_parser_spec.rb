@@ -18,6 +18,10 @@ RSpec.describe Parsers::CsvLayout::CsvParser do
       asset_group: asset_group, step_type: step_type }
 
     setup do
+      allow(Asset).to receive(:find_or_import_asset_with_barcode) do |barcode|
+        Asset.find_by(barcode: barcode)
+      end
+
       @content = File.open('test/data/layout.csv').read
       @assets = 96.times.map do |i|
         FactoryBot.create(:asset, {
@@ -53,9 +57,9 @@ RSpec.describe Parsers::CsvLayout::CsvParser do
       end
     end
 
-    describe "parsing content saved by Excel" do
+    describe "parsing content saved from Excel" do
       it 'parses it correctly' do
-        @csv = Parsers::CsvLayout::CsvParser.new("A01,FR11200002\rA02,FR11200003\n")
+        @csv = Parsers::CsvLayout::CsvParser.new("A01,FR11200002\rA02,FR11200003")
         expect(@csv).to be_valid
       end
     end

@@ -19,6 +19,12 @@ RSpec.describe Actions::Racking do
 
   include Actions::Racking
 
+  setup do
+    allow(Asset).to receive(:find_or_import_asset_with_barcode) do |barcode|
+      Asset.find_by(barcode: barcode)
+    end
+  end
+
   shared_examples_for 'rack_layout' do
     describe "when linking it with an asset" do
       it 'adds the facts to the asset' do

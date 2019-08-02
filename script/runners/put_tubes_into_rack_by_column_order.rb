@@ -27,7 +27,7 @@ all_locations = 96.times.map{|i| location_for_position(i)}
 available_locations = all_locations - locations_with_tube
 
 if available_locations.length < tubes.length
-  updates.set_error('There are not enough locations available for the tubes')
+  updates.set_errors(['There are not enough locations available for the tubes'])
 else
   layout = tubes.each_with_index.reduce([]) do |memo, list|
     tube = list[0]
@@ -35,6 +35,7 @@ else
     location = available_locations[idx]
     memo.push(asset: tube, location: available_locations[idx])
   end
+  updates.add(rack, 'layout', 'Complete')
   updates.merge(Actions::Racking::reracking_tubes(rack, layout))
 end
 
