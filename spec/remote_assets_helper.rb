@@ -6,7 +6,7 @@ module RemoteAssetsHelper
 			wells: [build_remote_well('A1'), build_remote_well('A4')],
 			plate_purpose: purpose
 		}.merge(opts)
-		my_double = double('remote_asset', obj)		
+		my_double = double('remote_asset', obj)
 		allow(my_double).to receive(:attribute_groups).and_return(obj)
 
 		allow(my_double).to receive(:class).and_return(Sequencescape::Plate)
@@ -27,7 +27,7 @@ module RemoteAssetsHelper
 			aliquots: [build_remote_aliquot]
 			}.merge(opts)
 
-		my_double = double('remote_asset', obj)		
+		my_double = double('remote_asset', obj)
 		allow(my_double).to receive(:attribute_groups).and_return(obj)
 
 		allow(my_double).to receive(:class).and_return(Sequencescape::Tube)
@@ -40,7 +40,7 @@ module RemoteAssetsHelper
 
 	def build_remote_sample(opts={})
 		double('sample', {
-			sanger: double('sanger', { sample_id: 'TEST-123', name: 'a sample name'}), 
+			sanger: double('sanger', { sample_id: 'TEST-123', name: 'a sample name', sample_uuid: SecureRandom.uuid}),
 			supplier: double('supplier', {sample_name: 'a supplier'}),
 			updated_at: Time.now.to_s}.merge(opts)
 			)

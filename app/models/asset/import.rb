@@ -234,6 +234,7 @@ module Asset::Import
           remote_asset.aliquots.each do |aliquot|
             updates.add_remote(asset, 'sample_tube', asset)
             updates.add_remote(asset, 'sanger_sample_id', aliquot&.sample&.sanger&.sample_id)
+            updates.add_remote(asset, 'sample_uuid', aliquot&.sample&.sanger&.sample_uuid, literal: true)
             updates.add_remote(asset, 'sanger_sample_name', aliquot&.sample&.sanger&.name)
             updates.add_remote(asset, 'supplier_sample_name', aliquot&.sample&.supplier&.sample_name)
           end
@@ -245,11 +246,18 @@ module Asset::Import
       sample_id.gsub(/\d*$/,'').gsub('-', '')
     end
 
+    def get_study_uuid(study_name)
+      @study_uuids ||= {}
+      @study_uuids[study_name] ||= SequencescapeClient::get_study_by_name(study_name)&.uuid
+    end
+
     def annotate_study_name_from_aliquots(asset, remote_asset, fact_changes)
       fact_changes.tap do |updates|
         if remote_asset.try(:aliquots, nil)
           if ((remote_asset.aliquots.count == 1) && (remote_asset.aliquots.first.sample))
-            updates.add_remote(asset, 'study_name', sample_id_to_study_name(remote_asset.aliquots.first.sample.sanger.sample_id))
+            study_name = sample_id_to_study_name(remote_asset.aliquots.first.sample.sanger.sample_id)
+            #study_uuid = get_study_uuid(study_name)
+            updates.add_remote(asset, 'study_name', study_name)
           end
         end
       end
