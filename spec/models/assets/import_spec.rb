@@ -141,10 +141,10 @@ RSpec.describe 'Asset::Import' do
           context 'when the asset is a plate' do
             setup do
               wells = [
-                build_remote_well('A1', aliquots: [build_remote_aliquot(sample: build_remote_sample(supplier: nil))]),
-                build_remote_well('B1', aliquots: [build_remote_aliquot(sample: build_remote_sample(supplier: double('supplier', sample_name: nil)))]),
-                build_remote_well('C1', aliquots: [build_remote_aliquot(sample: build_remote_sample(supplier: double('supplier', sample_name: 'a supplier name')))]),
-                build_remote_well('D1', aliquots: [build_remote_aliquot(sample: build_remote_sample(supplier: double('supplier', sample_name: 'a supplier name')))])
+                build_remote_well('A1', aliquots: [build_remote_aliquot(sample: build_remote_sample(sample_metadata: nil))]),
+                build_remote_well('B1', aliquots: [build_remote_aliquot(sample: build_remote_sample(sample_metadata: double('sample_metadata', supplier_name: nil)))]),
+                build_remote_well('C1', aliquots: [build_remote_aliquot(sample: build_remote_sample(sample_metadata: double('sample_metadata', supplier_name: 'a supplier name')))]),
+                build_remote_well('D1', aliquots: [build_remote_aliquot(sample: build_remote_sample(sample_metadata: double('sample_metadata', supplier_name: 'a supplier name')))])
               ]
               @remote_plate_asset_without_supplier = build_remote_plate(barcode: '5', wells: wells)
               stub_client_with_asset(SequencescapeClient, @remote_plate_asset_without_supplier)
@@ -161,7 +161,7 @@ RSpec.describe 'Asset::Import' do
             context 'when the supplier name has not been provided' do
               setup do
                 @remote_tube_asset_without_supplier = build_remote_tube(barcode: '5', aliquots: [
-                  build_remote_aliquot(sample: build_remote_sample({supplier: nil}))
+                  build_remote_aliquot(sample: build_remote_sample(sample_metadata: double('sample_metadata', supplier_name: nil)))
                 ])
                 stub_client_with_asset(SequencescapeClient, @remote_tube_asset_without_supplier)
               end
@@ -216,7 +216,10 @@ RSpec.describe 'Asset::Import' do
 			it 'should create the corresponding facts from the json' do
 				@asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
 				@asset.facts.reload
-				expect(@asset.facts.count).to eq(7)
+        predicates = ["a", "pushTo", "purpose", "is", "contains", "contains", "study_name", "study_uuid"]
+        expect(predicates.all? do |predicate|
+          @asset.facts.where(predicate: predicate).count > 0
+        end).to eq(true)
 			end
 
 		  context 'for the first time' do

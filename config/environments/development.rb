@@ -10,10 +10,10 @@ Rails.application.configure do
   config.cache_classes = false
 
   # Do not eager load code on boot.
-  config.eager_load = false
+  config.eager_load = true
 
   # Show full error reports and disable caching.
-  config.consider_all_requests_local       = true
+  config.consider_all_requests_local       = false
   config.action_controller.perform_caching = false
 
   # Don't care if the mailer can't send.
@@ -46,13 +46,16 @@ Rails.application.configure do
 
   config.pmb_uri = ENV.fetch('PMB_URI','http://localhost:10000/v1')
   config.ss_uri =  ENV.fetch('SS_URI', 'http://localhost:3000/api/1/')
+  config.ss_api_v2_uri = ENV.fetch('SS_API_V2_URI', 'http://localhost:3000')
   config.ss_authorisation =  'development'
   config.searcher_name_by_barcode = 'Find assets by barcode'
+  config.searcher_study_by_name = 'Find study by name'
   config.printing_disabled = true
+  config.redis_enabled=true
 
   config.inference_engine = :default
   config.cwm_path = ENV.fetch('CWM_PATH', '')
-  config.default_n3_resources_url = nil
+  config.default_n3_resources_url = 'http://localhost:9200'
 
   config.enable_reasoning = false
 

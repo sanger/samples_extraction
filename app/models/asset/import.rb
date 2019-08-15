@@ -14,6 +14,7 @@ module Asset::Import
   module InstanceMethods
 
     def json_for_remote(remote_asset)
+      return remote_asset.to_json
       distinct = remote_asset.attribute_groups.to_json
 
       # It would be useful to have a hashcode in the sequencescape client api to know
@@ -207,7 +208,30 @@ module Asset::Import
       find_asset_with_barcode(barcode) || import_barcode(barcode)
     end
 
+
     def update_asset_from_remote_asset(asset, remote_asset, fact_changes)
+      fact_changes.tap do |updates|
+        class_name = sequencescape_type_for_asset(remote_asset)
+        updates.add_remote(asset, 'a', class_name)
+
+        if keep_sync_with_sequencescape?(remote_asset)
+          updates.add_remote(asset, 'pushTo', 'Sequencescape')
+          if remote_asset.try(:plate_purpose)
+            updates.add_remote(asset, 'purpose', remote_asset.plate_purpose.name)
+          end
+        end
+        updates.add_remote(asset, 'is', 'NotStarted')
+
+        annotate_container(asset, remote_asset, updates)
+        annotate_wells(asset, remote_asset, updates)
+        annotate_study_name(asset, remote_asset, updates)
+
+        asset.update_digest_with_remote(remote_asset)
+      end
+    end
+
+
+    def _update_asset_from_remote_asset(asset, remote_asset, fact_changes)
       fact_changes.tap do |updates|
         class_name = sequencescape_type_for_asset(remote_asset)
         updates.add_remote(asset, 'a', class_name)
@@ -229,6 +253,20 @@ module Asset::Import
     end
 
     def annotate_container(asset, remote_asset, fact_changes)
+      fact_changes.tap do |updates|
+        if remote_asset.try(:aliquots)
+          remote_asset.aliquots.each do |aliquot|
+            updates.add_remote(asset, 'sample_tube', asset)
+            updates.add_remote(asset, 'sanger_sample_id', aliquot&.sample&.sanger_sample_id)
+            updates.add_remote(asset, 'sample_uuid', aliquot&.sample&.uuid, literal: true)
+            updates.add_remote(asset, 'sanger_sample_name', aliquot&.sample&.name)
+            updates.add_remote(asset, 'supplier_sample_name', aliquot&.sample&.sample_metadata&.supplier_name)
+          end
+        end
+      end
+    end
+
+    def _annotate_container(asset, remote_asset, fact_changes)
       fact_changes.tap do |updates|
         if remote_asset.try(:aliquots, nil)
           remote_asset.aliquots.each do |aliquot|
@@ -253,6 +291,17 @@ module Asset::Import
 
     def annotate_study_name_from_aliquots(asset, remote_asset, fact_changes)
       fact_changes.tap do |updates|
+        if remote_asset.try(:aliquots)
+          if ((remote_asset.aliquots.count == 1) && (remote_asset.aliquots.first.sample))
+            updates.add_remote(asset, 'study_name', remote_asset.aliquots.first.study.name)
+            updates.add_remote(asset, 'study_uuid', remote_asset.aliquots.first.study.uuid, literal: true)
+          end
+        end
+      end
+    end
+
+    def _annotate_study_name_from_aliquots(asset, remote_asset, fact_changes)
+      fact_changes.tap do |updates|
         if remote_asset.try(:aliquots, nil)
           if ((remote_asset.aliquots.count == 1) && (remote_asset.aliquots.first.sample))
             study_name = sample_id_to_study_name(remote_asset.aliquots.first.sample.sanger.sample_id)
@@ -263,8 +312,9 @@ module Asset::Import
       end
     end
 
+
     def annotate_study_name(asset, remote_asset, fact_changes)
-      if remote_asset.try(:wells, nil)
+      if remote_asset.try(:wells)
         remote_asset.wells.detect do |w|
           annotate_study_name_from_aliquots(asset, w, fact_changes)
         end
@@ -274,6 +324,26 @@ module Asset::Import
     end
 
     def annotate_wells(asset, remote_asset, fact_changes)
+      fact_changes.tap do |updates|
+        if remote_asset.try(:wells)
+          remote_asset.wells.each do |well|
+            local_well = Asset.find_or_create_by!(:uuid => well.uuid)
+            if (well.try(:aliquots)&.first&.sample&.sample_metadata&.supplier_name)
+              updates.add_remote(asset, 'contains', local_well)
+
+              # Updated wells will also mean that the plate is out of date, so we'll set it in the asset
+              updates.add_remote(local_well, 'a', 'Well')
+              updates.add_remote(local_well, 'location', well.position['name'])
+              updates.add_remote(local_well, 'parent', asset)
+
+              annotate_container(local_well, well, fact_changes)
+            end
+          end
+        end
+      end
+    end
+
+    def _annotate_wells(asset, remote_asset, fact_changes)
       fact_changes.tap do |updates|
         if remote_asset.try(:wells, nil)
           remote_asset.wells.each do |well|
@@ -293,7 +363,15 @@ module Asset::Import
       end
     end
 
+
     def sequencescape_type_for_asset(remote_asset)
+      return nil unless remote_asset.type
+      type = remote_asset.type.singularize.classify
+      return 'SampleTube' if type == 'Tube'
+      return type
+    end
+
+    def _sequencescape_type_for_asset(remote_asset)
       type = remote_asset.class.to_s.gsub(/Sequencescape::/,'')
       return 'SampleTube' if type == 'Tube'
       return type

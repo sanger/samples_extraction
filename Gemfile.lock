@@ -397,6 +397,7 @@ DEPENDENCIES
   jquery-rails
   js_cookie_rails
   json-schema
+  json_api_client
   jsonapi-resources
   launchy
   micro_token

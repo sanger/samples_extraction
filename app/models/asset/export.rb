@@ -56,7 +56,7 @@ module Asset::Export
 
   def update_plate(instance, updates)
     instance.wells.each do |well|
-      fact = fact_well_at(well.location)
+      fact = fact_well_at(well.position['name'])
       if fact
         w = fact.object_asset
         if w && w.uuid != well.uuid
