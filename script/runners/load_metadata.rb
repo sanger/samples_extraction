@@ -1,4 +1,5 @@
 require 'actions/racking'
+require 'parsers/csv_metadata/csv_parser'
 
 class LoadMetadata
   attr_reader :asset_group
@@ -68,5 +69,5 @@ begin
 rescue InvalidDataParams => e
   puts ({ set_errors: e.errors }.to_json)
 rescue StandardError => e
-  puts ({ set_errors: ['Unknown error while parsing file'+e]}.to_json)
+  puts ({ set_errors: ['Unknown error while parsing file'+e.to_s]}.to_json)
 end

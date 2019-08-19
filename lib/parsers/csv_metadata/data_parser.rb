@@ -4,12 +4,6 @@ module Parsers
       attr_reader :data
       include ActiveModel::Validations
 
-      validate :validations
-
-      def validations
-        validates_with @parser.components[:data_validator]
-      end
-
       def initialize(line, parser)
         @parser = parser
         _parse(line)

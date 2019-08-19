@@ -2,9 +2,6 @@ require 'parsers/csv_metadata/header_parser'
 require 'parsers/csv_metadata/line_parser'
 require 'parsers/csv_metadata/data_parser'
 require 'parsers/csv_layout/line_reader'
-require 'parsers/csv_layout/validators/any_barcode_validator'
-require 'parsers/csv_layout/validators/location_validator'
-require 'parsers/csv_metadata/validators/data_validator'
 require 'parsers/csv_metadata/validators/header_validator'
 
 module Parsers
@@ -23,20 +20,7 @@ module Parsers
         data_parser: Parsers::CsvMetadata::DataParser,
         line_parser: Parsers::CsvMetadata::LineParser,
         line_reader: Parsers::CsvLayout::LineReader,
-        header_validator: Parsers::CsvMetadata::Validators::HeaderValidator,
-        data_validator: Parsers::CsvMetadata::Validators::DataValidator,
-
-        fields: [
-          { header: 'barcode', validator: Parsers::CsvLayout::Validators::AnyBarcodeValidator },
-          { header: 'location', validator: Parsers::CsvLayout::Validators::LocationValidator }
-          #{ header: 'sample_uuid', validator: Parsers::CsvMetadata::Validators::Uuid },
-          #{ header: 'study_uuid', validator: Parsers::CsvMetadata::Validators::Uuid },
-          #{ header: 'barcode', validator: Parsers::CsvMetadata::Validators::Barcode },
-          #{ header: 'pipeline', validator: Parsers::CsvMetadata::Validators::LongReadPipeline },
-          #{ header: 'estimate_of_gb_required', validator: Parsers::CsvMetadata::Validators::Integer },
-          #{ header: 'number_of_smrt_cells', validator: Parsers::CsvMetadata::Validators::Integer },
-          #{ header: 'cost_code', validator: Parsers::CsvMetadata::Validators::CostCode },
-        ]
+        header_validator: Parsers::CsvMetadata::Validators::HeaderValidator
       }
 
       def initialize(str, component_defs={})
