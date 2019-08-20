@@ -109,10 +109,94 @@ RSpec.describe Actions::Racking do
     end
   end
 
+
+  describe '#fact_changes_for_rack_when_unracking_tubes' do
+    before do
+      @tubes = 15.times.map do |line|
+        create(:asset)
+      end
+      @tubes.each do |tube|
+        asset.facts << create(:fact, predicate: 'contains', object_asset: tube)
+      end
+    end
+    it 'removes all the different studies for this rack when all tubes go out' do
+      @tubes.first.facts << create(:fact, predicate: 'study_name', object: 'STDY2')
+      @tubes.each_with_index do |tube, idx|
+        tube.facts << create(:fact, predicate: 'study_name', object: 'STDY1') unless idx == 0
+      end
+      updates = fact_changes_for_rack_when_unracking_tubes(asset, @tubes)
+      expect(updates.to_h[:remove_facts].select do |triple|
+        triple[1]=='study_name'
+      end.map{|triple| triple[2]}.sort).to eq(['STDY1', 'STDY2'])
+    end
+
+    it 'removes the purpose when all tubes go out' do
+      asset.facts << create(:fact, predicate: 'purpose', object: 'DNA Stock Plate')
+      @tubes.first.facts << create(:fact, predicate: 'aliquotType', object: 'DNA')
+      updates = fact_changes_for_rack_when_unracking_tubes(asset, @tubes)
+      expect(updates.to_h[:remove_facts].select do |triple|
+        triple[1]=='purpose'
+      end.map{|triple| triple[2]}.sort).to eq(['DNA Stock Plate'])
+    end
+
+    it 'only returns the studies of the tubes that are going to be removed' do
+      @tubes.first.facts << create(:fact, predicate: 'study_name', object: 'STDY2')
+      tubes2 = @tubes.each_with_index.map do |tube, idx|
+        unless idx == 0
+          tube.facts << create(:fact, predicate: 'study_name', object: 'STDY1')
+          tube
+        end
+      end.compact
+
+      updates = fact_changes_for_rack_when_unracking_tubes(asset, tubes2)
+      expect(updates.to_h[:remove_facts].select do |triple|
+        triple[1]=='study_name'
+      end.map{|triple| triple[2]}.sort).to eq(['STDY1'])
+    end
+  end
+
+
+  describe '#fact_changes_for_rack_when_racking_tubes' do
+    before do
+      @tubes = 15.times.map do |line|
+        create(:asset)
+      end
+    end
+    it 'returns all the different studies for this rack' do
+      @tubes.first.facts << create(:fact, predicate: 'study_name', object: 'STDY2')
+      @tubes.each_with_index do |tube, idx|
+        tube.facts << create(:fact, predicate: 'study_name', object: 'STDY1') unless idx == 0
+      end
+
+      updates = fact_changes_for_rack_when_racking_tubes(asset, @tubes)
+      expect(updates.to_h[:add_facts].select do |triple|
+        triple[1]=='study_name'
+      end.map{|triple| triple[2]}.sort).to eq(['STDY1', 'STDY2'])
+    end
+    it 'generates the DNA stock plate purpose' do
+      @tubes.each_with_index do |tube, idx|
+        tube.facts << create(:fact, predicate: 'aliquotType', object: 'DNA') unless idx == 0
+      end
+      updates = fact_changes_for_rack_when_racking_tubes(asset, @tubes)
+      expect(updates.to_h[:add_facts].select do |triple|
+        triple[1]=='purpose'
+      end.first[2]).to eq('DNA Stock Plate')
+    end
+    it 'generates the RNA stock plate purpose' do
+      @tubes.each_with_index do |tube, idx|
+        tube.facts << create(:fact, predicate: 'aliquotType', object: 'RNA') unless idx == 0
+      end
+      updates = fact_changes_for_rack_when_racking_tubes(asset, @tubes)
+      expect(updates.to_h[:add_facts].select do |triple|
+        triple[1]=='purpose'
+      end.first[2]).to eq('RNA Stock Plate')
+    end
+  end
+
   describe '#rack_layout' do
     before do
       csv = CSV.new(File.open('test/data/layout.csv').read).to_a
-      csv.each do |line|
+      @tubes = csv.map do |line|
         create(:asset, barcode: line[1])
       end
     end

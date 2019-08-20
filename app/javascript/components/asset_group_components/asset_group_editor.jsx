@@ -75,10 +75,8 @@ class AssetGroupEditor extends React.Component {
   onSubmit(e) {
     e.preventDefault()
     this.setState({disabledBarcodesInput: true})
-    return this.props
-      .onAddBarcodesToAssetGroup(this.props.assetGroup, this.state.barcodesInputText)
-      //.then(this.onAjaxSuccess)
-      .finally(this.onAjaxComplete)
+    this.props.onAddBarcodesToAssetGroup(this.props.assetGroup, this.state.barcodesInputText)
+    this.onAjaxComplete()
   }
   assetsChanging() {
     return Object.keys(this.state.assets_status).filter($.proxy(function(uuid) {

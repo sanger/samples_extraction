@@ -121,7 +121,7 @@ class Activity extends React.Component {
     return msg
   }
   changeAssetGroup(assetGroup, data) {
-    this.activityChannel.send(data)
+    return this.activityChannel.send(data)
   }
   getAssetUuidsForAssetGroup(assetGroup) {
     return assetGroup.assets.map((a) => a.uuid)
