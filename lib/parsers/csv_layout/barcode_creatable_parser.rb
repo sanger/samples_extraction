@@ -15,7 +15,6 @@ module Parsers
           updater.create_assets([@instance])
           updater.add(@instance, 'barcode', barcode)
           updater.add(@instance , 'a', 'Tube')
-          updater.create_asset_groups(["?created_tubes"])
         end
         @instance
       end

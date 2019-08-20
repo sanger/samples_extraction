@@ -53,10 +53,6 @@ module Parsers
         @data
       end
 
-      def create_tubes?
-        false
-      end
-
       def error_list
         line_parser.error_list
       end

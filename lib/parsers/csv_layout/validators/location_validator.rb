@@ -2,9 +2,6 @@ module Parsers
   module CsvLayout
     module Validators
       class LocationValidator < ActiveModel::Validator
-
-        LOCATION_REGEXP = /^([A-H])(\d{1,2})$/
-
         def validate(record)
           unless valid_location?(record)
             record.errors.add(:location, "Invalid location")
@@ -12,8 +9,9 @@ module Parsers
         end
 
         protected
+
         def valid_location?(record)
-          !record.location.nil? && !!record.location.match(self.class::LOCATION_REGEXP)
+          !record.location.nil? && !!record.location.match(TokenUtil.LOCATION_REGEXP)
         end
       end
     end
