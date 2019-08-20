@@ -4,6 +4,9 @@ require 'parsers/csv_layout/validators/fluidx_barcode_validator'
 module Parsers
   module CsvLayout
     class BarcodeParser
+
+      NO_READ_BARCODE = 'no read'
+
       include ActiveModel::Validations
 
       validates :asset, presence: { message: "Cannot find the barcode" }
@@ -23,7 +26,7 @@ module Parsers
       end
 
       def no_read_barcode?
-        !barcode.nil? && barcode.downcase.start_with?('no read')
+        !barcode.nil? && barcode.downcase.start_with?(NO_READ_BARCODE)
       end
 
       def asset

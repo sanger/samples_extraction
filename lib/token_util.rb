@@ -7,6 +7,10 @@ module TokenUtil
     /\?\w*/
   end
 
+  def self.LOCATION_REGEXP
+    /^([A-H])(\d{1,2})$/
+  end
+
   def self.is_uuid?(str)
     str.kind_of?(String) && !str.match(TokenUtil.UUID_REGEXP).nil?
   end
@@ -34,4 +38,14 @@ module TokenUtil
   def self.pad(str,chr,size)
     "#{(size-str.size).times.map{chr}.join('')}#{str}"
   end
+
+  def self.pad_location(location)
+    parts = location.match(TokenUtil.LOCATION_REGEXP)
+    return nil if parts.length == 0
+    letter = parts[1]
+    number = parts[2]
+    number = TokenUtil.pad(number,"0",2) unless number.length == 2
+    "#{letter}#{number}"
+  end
+
 end
