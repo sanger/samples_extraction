@@ -1,5 +1,6 @@
-require 'parsers/csv_layout'
-require 'parsers/csv_layout_with_tube_creation'
+require 'parsers/csv_layout/csv_parser'
+require 'parsers/csv_layout/barcode_creatable_parser'
+require 'parsers/csv_layout/validators/any_barcode_validator'
 
 require 'fact_changes'
 
@@ -22,15 +23,35 @@ end
 
 module Actions
   module Racking
+
+    DNA_STOCK_PLATE_PURPOSE = 'DNA Stock Plate'
+    RNA_STOCK_PLATE_PURPOSE = 'RNA Stock Plate'
+    STOCK_PLATE_PURPOSE = 'Stock Plate'
+    DNA_ALIQUOT = 'DNA'
+    RNA_ALIQUOT = 'RNA'
+    TUBE_TO_PLATE_TRANSFERRABLE_PROPERTIES = [:study_name,:aliquotType]
+
     # Actions
     def rack_layout(asset_group)
-      csv_parsing(asset_group, Parsers::CsvLayout)
+      content = selected_file(asset_group).data
+      csv_parsing(asset_group, Parsers::CsvLayout::CsvParser.new(content))
     end
 
     def rack_layout_creating_tubes(asset_group)
-      csv_parsing(asset_group, Parsers::CsvLayoutWithTubeCreation)
+      content = selected_file(asset_group).data
+      parser = Parsers::CsvLayout::CsvParser.new(content, {
+        barcode_parser: Parsers::CsvLayout::BarcodeCreatableParser
+      })
+      csv_parsing(asset_group, parser)
     end
 
+    def rack_layout_any_barcode(asset_group)
+      content = selected_file(asset_group).data
+      parser = Parsers::CsvLayout::CsvParser.new(content, {
+        barcode_validator: Parsers::CsvLayout::Validators::AnyBarcodeValidator
+      })
+      csv_parsing(asset_group, parser)
+    end
 
     # Support methods and classes
 
@@ -84,29 +105,103 @@ module Actions
               updates.add(rerack, 'previousLocation', location)
               updates.add(rerack, 'location', list_layout[index][:location])
               updates.add(rerackGroup, 'rerack', rerack)
+
+              previous_racks.push(previous_rack)
             end
 
             updates.remove(parent_fact)
           end
         end
-      end
-    end
 
-
-    def fact_changes_for_rack_tubes(list_layout, rack)
-      FactChanges.new.tap do |updates|
-        list_layout.each do |l|
-          location = l[:location]
-          tube = l[:asset]
-          next unless tube
-          updates.remove(tube.facts.with_predicate('location'))
-          updates.add(tube, 'location', location)
-          updates.add(tube, 'parent', rack)
-          updates.add(rack, 'contains', tube)
+        # sync rack property
+        previous_racks.each do |previous_rack|
+          updates.merge(fact_changes_for_rack_when_unracking_tubes(previous_rack, tubes))
         end
       end
     end
 
+    def purpose_for_aliquot(aliquot)
+      if aliquot == DNA_ALIQUOT
+        DNA_STOCK_PLATE_PURPOSE
+      elsif aliquot == RNA_ALIQUOT
+        RNA_STOCK_PLATE_PURPOSE
+      else
+        STOCK_PLATE_PURPOSE
+      end
+    end
+
+    def fact_changes_for_add_purpose(rack, aliquot)
+      FactChanges.new.tap do |updates|
+        updates.add(rack, 'purpose', purpose_for_aliquot(aliquot))
+      end
+    end
+
+    def fact_changes_for_remove_purpose(rack, aliquot)
+      FactChanges.new.tap do |updates|
+        updates.remove_where(rack, 'purpose', purpose_for_aliquot(aliquot))
+      end
+    end
+
+    # For a plate modified (any plate that is losing a tube), it will resync the values of inherited
+    # properties from the plates with the current list of tubes it contains
+    def fact_changes_for_rack_when_unracking_tubes(rack, unracked_tubes)
+      FactChanges.new.tap do |updates|
+        tubes_from_previous_rack = rack.facts.with_predicate('contains').map(&:object_asset)
+        actual_tubes = (tubes_from_previous_rack - unracked_tubes)
+
+        TUBE_TO_PLATE_TRANSFERRABLE_PROPERTIES.each do |transferrable_property|
+          unracked_tubes.map{|tube| tube.facts.with_predicate(transferrable_property).map(&:object)}.flatten.compact.each do |value|
+            updates.remove_where(rack, transferrable_property.to_s, value)
+            updates.merge(fact_changes_for_remove_purpose(rack, value)) if transferrable_property.to_s == 'aliquotType'
+          end
+          actual_tubes.map{|tube| tube.facts.with_predicate(transferrable_property).map(&:object).flatten.compact}.each do |value|
+            updates.add(rack, transferrable_property.to_s, value)
+            updates.merge(fact_changes_for_add_purpose(rack, value)) if transferrable_property.to_s == 'aliquotType'
+          end
+        end
+      end
+    end
+
+    def fact_changes_for_rack_when_racking_tubes(rack, racked_tubes)
+      FactChanges.new.tap do |updates|
+        TUBE_TO_PLATE_TRANSFERRABLE_PROPERTIES.map do |prop|
+          racked_tubes.map{|tube| tube.facts.with_predicate(prop)}
+        end.flatten.compact.each do |fact|
+          updates.add(rack, fact.predicate.to_s, fact.object_value)
+          updates.merge(fact_changes_for_add_purpose(rack, fact.object_value)) if fact.predicate.to_s == 'aliquotType'
+        end
+      end
+    end
+
+    def put_tube_into_rack_position(tube, rack, location)
+      FactChanges.new.tap do |updates|
+        updates.remove(tube.facts.with_predicate('location'))
+        updates.add(tube, 'location', location)
+        updates.add(tube, 'parent', rack)
+        updates.add(rack, 'contains', tube)
+      end
+    end
+
+    def remove_tube_from_rack(tube, rack)
+      FactChanges.new.tap do |updates|
+        updates.remove(tube.facts.with_predicate('location'))
+        updates.remove_where(rack, 'contains', tube)
+      end
+    end
+
+    def fact_changes_for_rack_tubes(list_layout, rack)
+      FactChanges.new.tap do |updates|
+        tubes = []
+        list_layout.each do |l|
+          location = l[:location]
+          tube = l[:asset]
+          next unless tube
+          tubes.push(tube)
+          updates.merge(put_tube_into_rack_position(tube, rack, location))
+        end
+        updates.merge(fact_changes_for_rack_when_racking_tubes(rack, tubes))
+      end
+    end
 
     def params_to_list_layout(params)
       params.map do |location, barcode|
@@ -189,11 +284,9 @@ module Actions
       asset_group.uploaded_files.first
     end
 
-    def csv_parsing(asset_group, class_type)
-      content = selected_file(asset_group).data
+    def csv_parsing(asset_group, parser)
       error_messages = []
       error_locations = []
-      parser = class_type.new(content)
 
       if asset_group.assets.with_fact('a', 'TubeRack').empty?
         error_messages.push("No TubeRacks found to perform the layout process")
@@ -217,7 +310,6 @@ module Actions
       unless error_messages.empty?
         raise InvalidDataParams.new(error_messages)
       end
-
       if parser.valid?
         updates = parser.parsed_changes.merge(reracking_tubes(asset, parser.layout))
 
@@ -225,7 +317,7 @@ module Actions
         raise InvalidDataParams.new(error_messages) if error_messages.flatten.compact.count > 0
         return updates
       else
-        raise InvalidDataParams.new(parser.errors.map{|e| e[:msg]})
+        raise InvalidDataParams.new(parser.error_list)
       end
     end
 
