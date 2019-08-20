@@ -1,8 +1,8 @@
-require 'parsers/csv_metadata/header_parser'
+require 'parsers/csv_metadata/headers_parser'
 require 'parsers/csv_metadata/line_parser'
 require 'parsers/csv_metadata/data_parser'
 require 'parsers/csv_layout/line_reader'
-require 'parsers/csv_metadata/validators/header_validator'
+require 'parsers/csv_metadata/validators/headers_validator'
 
 module Parsers
   module CsvMetadata
@@ -11,16 +11,16 @@ module Parsers
 
       validate :validate_parsed_data
 
-      attr_accessor :header_parser
+      attr_accessor :headers_parser
       attr_reader :data, :parsed, :parsed_changes, :components, :line_parser
 
 
       DEFAULT_COMPONENTS = {
-        header_parser: Parsers::CsvMetadata::HeaderParser,
+        headers_parser: Parsers::CsvMetadata::HeadersParser,
         data_parser: Parsers::CsvMetadata::DataParser,
         line_parser: Parsers::CsvMetadata::LineParser,
         line_reader: Parsers::CsvLayout::LineReader,
-        header_validator: Parsers::CsvMetadata::Validators::HeaderValidator
+        headers_validator: Parsers::CsvMetadata::Validators::HeadersValidator
       }
 
       def initialize(str, component_defs={})

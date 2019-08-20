@@ -1,7 +1,7 @@
 module Parsers
   module CsvMetadata
     module Validators
-      class HeaderValidator < ActiveModel::Validator
+      class HeadersValidator < ActiveModel::Validator
         def validate(record)
           record.headers.each_with_index do |header, index|
             if header.empty?

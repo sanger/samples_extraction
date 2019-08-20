@@ -1,13 +1,13 @@
 module Parsers
   module CsvMetadata
-    class HeaderParser
+    class HeadersParser
       attr_reader :headers
       include ActiveModel::Validations
 
       validate :validations
 
       def validations
-        validates_with @parser.components[:header_validator]
+        validates_with @parser.components[:headers_validator]
       end
 
       def initialize(line, parser)

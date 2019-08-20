@@ -2,7 +2,7 @@ module Parsers
   module CsvMetadata
     class LineParser
       include ActiveModel::Validations
-      attr_reader :parsed_content, :header_parser
+      attr_reader :parsed_content, :headers_parser
       validate :validate_parsed_content
 
       def initialize(input_reader, parser)
@@ -49,7 +49,7 @@ module Parsers
         num_line = 1
         @input_reader.lines.reduce(@parsed_content) do |memo, line|
           if num_line == 1
-            @parser.header_parser = @parser.components[:header_parser].new(line, @parser)
+            @parser.headers_parser = @parser.components[:headers_parser].new(line, @parser)
           else
             unless is_empty_line?(line)
               data_parser = @parser.components[:data_parser].new(line, @parser)

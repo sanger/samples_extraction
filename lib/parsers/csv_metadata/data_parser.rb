@@ -12,7 +12,7 @@ module Parsers
       end
 
       def _parse(line)
-        @data = @parser.header_parser.headers.zip(line).reduce({}) do |memo, data_line|
+        @data = @parser.headers_parser.headers.zip(line).reduce({}) do |memo, data_line|
           header = data_line[0]
           value = data_line[1]
           memo[header] = value
