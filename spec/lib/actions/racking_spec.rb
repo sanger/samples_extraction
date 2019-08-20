@@ -23,9 +23,7 @@ RSpec.describe Actions::Racking do
     describe "when linking it with an asset" do
       it 'adds the facts to the asset' do
         expect(asset.facts.count).to eq(1)
-
         updates = send(method, asset_group)
-
         updates.apply(step)
 
         asset.facts.reload

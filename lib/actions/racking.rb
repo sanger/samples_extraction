@@ -24,6 +24,11 @@ end
 module Actions
   module Racking
 
+    DNA_STOCK_PLATE_PURPOSE = 'DNA Stock Plate'
+    RNA_STOCK_PLATE_PURPOSE = 'RNA Stock Plate'
+    STOCK_PLATE_PURPOSE = 'Stock Plate'
+    DNA_ALIQUOT = 'DNA'
+    RNA_ALIQUOT = 'RNA'
     TUBE_TO_PLATE_TRANSFERRABLE_PROPERTIES = [:study_name,:aliquotType]
 
     # Actions
@@ -115,28 +120,25 @@ module Actions
       end
     end
 
+    def purpose_for_aliquot(aliquot)
+      if aliquot == DNA_ALIQUOT
+        DNA_STOCK_PLATE_PURPOSE
+      elsif aliquot == RNA_ALIQUOT
+        RNA_STOCK_PLATE_PURPOSE
+      else
+        STOCK_PLATE_PURPOSE
+      end
+    end
+
     def fact_changes_for_add_purpose(rack, aliquot)
-      _fact_changes_for_purpose(rack, aliquot, true)
+      FactChanges.new.tap do |updates|
+        updates.add(rack, 'purpose', purpose_for_aliquot(aliquot))
+      end
     end
 
     def fact_changes_for_remove_purpose(rack, aliquot)
-      _fact_changes_for_purpose(rack, aliquot, false)
-    end
-
-    def _fact_changes_for_purpose(rack, aliquot, toggle=true)
       FactChanges.new.tap do |updates|
-        if aliquot == 'DNA'
-          purpose = 'DNA Stock Plate'
-        elsif aliquot == 'RNA'
-          purpose = 'RNA Stock Plate'
-        else
-          purpose = 'Stock Plate'
-        end
-        if toggle
-          updates.add(rack, 'purpose', purpose)
-        else
-          updates.remove_where(rack, 'purpose', purpose)
-        end
+        updates.remove_where(rack, 'purpose', purpose_for_aliquot(aliquot))
       end
     end
 
@@ -171,6 +173,22 @@ module Actions
       end
     end
 
+    def put_tube_into_rack_position(tube, rack, location)
+      FactChanges.new.tap do |updates|
+        updates.remove(tube.facts.with_predicate('location'))
+        updates.add(tube, 'location', location)
+        updates.add(tube, 'parent', rack)
+        updates.add(rack, 'contains', tube)
+      end
+    end
+
+    def remove_tube_from_rack(tube, rack)
+      FactChanges.new.tap do |updates|
+        updates.remove(tube.facts.with_predicate('location'))
+        updates.remove_where(rack, 'contains', tube)
+      end
+    end
+
     def fact_changes_for_rack_tubes(list_layout, rack)
       FactChanges.new.tap do |updates|
         tubes = []
@@ -179,15 +197,11 @@ module Actions
           tube = l[:asset]
           next unless tube
           tubes.push(tube)
-          updates.remove(tube.facts.with_predicate('location'))
-          updates.add(tube, 'location', location)
-          updates.add(tube, 'parent', rack)
-          updates.add(rack, 'contains', tube)
+          updates.merge(put_tube_into_rack_position(tube, rack, location))
         end
         updates.merge(fact_changes_for_rack_when_racking_tubes(rack, tubes))
       end
     end
-
 
     def params_to_list_layout(params)
       params.map do |location, barcode|
