@@ -123,9 +123,9 @@ class FactChanges
     params
   end
 
-  def add(s,p,o, options=nil)
+  def add(s,p,o, options={})
     s = find_asset(s)
-    o = find_asset(o)
+    o = (options[:literal]==true) ? o : find_asset(o)
 
     fact = _build_fact_attributes(s, p, o, options)
 
@@ -143,8 +143,8 @@ class FactChanges
     self
   end
 
-  def add_remote(s,p,o)
-    add(s,p,o,is_remote?: true) if (s && p && o)
+  def add_remote(s,p,o, options={})
+    add(s,p,o, options.merge({is_remote?: true})) if (s && p && o)
   end
 
   def remove(f)

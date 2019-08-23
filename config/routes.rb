@@ -60,8 +60,15 @@ Rails.application.routes.draw do
   # Trying to make fonts work out in poltergeist
   get '/fonts/bootstrap/:name', to: redirect('/assets/bootstrap/%{name}')
 
-  namespace :aker do
-    resources :work_orders, only: [:create, :index]
+
+  namespace :api do
+    namespace :v1 do
+      jsonapi_resources :assets
+    end
   end
+
+  #namespace :aker do
+  #  resources :work_orders, only: [:create, :index]
+  #end
 
 end

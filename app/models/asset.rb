@@ -9,6 +9,7 @@ class Asset < ActiveRecord::Base
   include Asset::Import
   include Asset::Export
   include Assets::FactsManagement
+  include Assets::TractionFields
 
   has_one :uploaded_file
 

@@ -46,6 +46,11 @@ gem 'jbuilder'#, '~> 2.0'
 gem 'yajl-ruby'#, '>= 1.3'
 gem 'google_hash'
 
+# Traction endpoints
+gem 'jsonapi-resources'
+
+gem 'json_api_client'
+
 # Tools
 gem 'sanger_barcode_format', git: 'https://github.com/sanger/sanger_barcode_format.git'
 gem 'pmb-client', git: 'https://github.com/sanger/pmb-client.git'
@@ -78,6 +83,7 @@ group :test do
   gem 'shoulda-matchers'
   gem 'rails-controller-testing'
   gem 'database_cleaner'
+  gem 'json-schema'
 end
 
 group :test do

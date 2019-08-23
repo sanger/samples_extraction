@@ -8,7 +8,7 @@ module Parsers
       end
 
       def asset
-        @instance ||= Asset.find_by_barcode(barcode)
+        @instance ||= Asset.find_or_import_asset_with_barcode(barcode)
         unless @instance
           @instance = Asset.new(barcode: barcode)
           @instance.generate_uuid!

@@ -16,7 +16,7 @@ module Parsers
       protected
 
       def clean_input(str)
-        clean_bom(str.kind_of?(String) ? str.gsub("\r", "\n") : str)
+        clean_bom(str.kind_of?(String) ? str.gsub("\r\n", "\n") : str)
       end
 
       def clean_bom(str)

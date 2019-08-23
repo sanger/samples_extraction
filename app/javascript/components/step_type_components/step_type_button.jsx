@@ -1,17 +1,14 @@
 import React from 'react'
 import {FormFor} from "react-rails-form-helpers"
 import PrintersSelectionHidden from "../activity_components/printers_selection_hidden"
+import ButtonWithLoading from "../lib/button_with_loading"
 
 class StepTypeButton extends React.Component {
-    constructor(props) {
-        super(props)
+  constructor(props) {
+    super(props)
 
-    this.onSubmit = this.onSubmit.bind(this)
+    this.onClick = this.onClick.bind(this)
     this.onAjaxSuccess = this.onAjaxSuccess.bind(this)
-
-    this.state = {
-      disabledButton: false
-    }
   }
   onAjaxSuccess(msg, text) {
     if (msg.errors) {
@@ -20,46 +17,42 @@ class StepTypeButton extends React.Component {
       this.props.onExecuteStep(msg)
     }
   }
-  toggleDisableButton(flag) {
-    this.setState({disabledButton: flag})
-  }
-  onSubmit(e) {
+  onClick(e) {
     e.preventDefault()
-    this.toggleDisableButton(true)
     $.ajax({
       method: 'post',
       url: this.props.stepTypeData.createStepUrl,
       success: this.onAjaxSuccess,
-      data: $(e.target).serializeArray()
+      data: {
+        step: {
+          step_type_id: this.props.stepTypeData.stepType.id,
+          asset_group_id: this.props.assetGroupId,
+          tube_printer_id: this.props.selectedTubePrinter,
+          plate_printer_id: this.props.selectedPlatePrinter
+        }
+      }
     })
   }
   renderButton() {
-    const loadingIcon = (<span className="glyphicon glyphicon-refresh fast-right-spinner" aria-hidden="true"> </span>)
-    const hiddenLoadingIcon = (<span className="glyphicon glyphicon-refresh invisible" aria-hidden="true"> </span>)
-    const isDisabled = this.state.disabledButton
     return(
-      <button disabled={isDisabled}
+      <ButtonWithLoading
+        onClick={this.onClick}
         data-turbolinks="false"
-        type="submit" className='btn btn-primary'>
-        {this.props.stepTypeData.name}
-        {isDisabled ? loadingIcon : hiddenLoadingIcon }
-      </button>
+        type="submit" className='btn btn-primary'
+        text={this.props.stepTypeData.name} />
     )
   }
   render() {
 		return(
 		    <li className="btn-group" style={{top: '6px'}}>
-		      <FormFor
-            onSubmit={this.onSubmit}
-            url={this.props.stepTypeData.createStepUrl} className="form-inline activity-desc">
-		        <PrintersSelectionHidden
-              entityName="step"
-		        	selectedTubePrinter={this.props.selectedTubePrinter}
-		        	selectedPlatePrinter={this.props.selectedPlatePrinter} />
-            <input type="hidden" name="step[step_type_id]" value={this.props.stepTypeData.stepType.id} />
-            <input type="hidden" name="step[asset_group_id]" value={this.props.assetGroupId} />
-            {this.renderButton()}
-		      </FormFor>
+		      <form
+            className="form-inline activity-desc">
+            <ButtonWithLoading
+              onClick={this.onClick}
+              data-turbolinks="false"
+              type="submit" className='btn btn-primary'
+              text={this.props.stepTypeData.name} />
+		      </form>
 			</li>
 		)
   }

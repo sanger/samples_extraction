@@ -5,6 +5,8 @@ require 'pry'
 require 'sequencescape-api'
 require 'sequencescape'
 
+require 'sequencescape_client_v2'
+
 class SequencescapeClient
   @purposes=nil
 
@@ -21,11 +23,11 @@ class SequencescapeClient
     @client ||= Sequencescape::Api.new(self.api_connection_options)
   end
 
-  def self.find_by_uuid(uuid, type=:plate)
-    client.send(type).find(uuid)
-  rescue Sequencescape::Api::ResourceNotFound => exception
-    return nil
-  end
+  #def self.find_by_uuid(uuid, type=:plate)
+  #  client.send(type).find(uuid)
+  #rescue Sequencescape::Api::ResourceNotFound => exception
+  #  return nil
+  #end
 
   def self.update_extraction_attributes(instance, attrs, username='test')
     instance.extraction_attributes.create!(:attributes_update => attrs, :created_by => username)
@@ -41,15 +43,38 @@ class SequencescapeClient
     purpose.plates.create!(attrs)
   end
 
+  def self.get_study_by_name(name)
+    get_study_searcher_by_name.first(name: name)
+  rescue Sequencescape::Api::ResourceNotFound => exception
+    return nil
+  end
+
+  def self.get_study_searcher_by_name
+    @@study_searcher ||= client.search.all.select{|s| s.name == Rails.configuration.searcher_study_by_name}.first
+  end
+
   def self.get_searcher_by_barcode
     @@searcher ||= client.search.all.select{|s| s.name == Rails.configuration.searcher_name_by_barcode}.first
   end
 
   def self.get_remote_asset(barcode)
-    get_searcher_by_barcode.first(:barcode => barcode)
-  rescue Sequencescape::Api::ResourceNotFound => exception
-    return nil
+    find_by(barcode: barcode)
   end
+
+  def self.find_by_uuid(uuid, opts=nil)
+    find_by(uuid: uuid)
+  end
+
+  def self.find_by(search_conditions)
+    search = SequencescapeClientV2::Plate.where(search_conditions)
+    search = search.first if search
+    return search if search
+    search = SequencescapeClientV2::Tube.where(search_conditions)
+    search = search.first if search
+    return search if search
+  end
+
+
 
 end
 

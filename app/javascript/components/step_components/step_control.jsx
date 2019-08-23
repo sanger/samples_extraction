@@ -1,6 +1,7 @@
 import classNames from 'classnames'
 import React from 'react'
 import C from '../step_components/step_states'
+import ButtonWithLoading from "../lib/button_with_loading"
 
 class StepControl extends React.Component {
   constructor(props) {
@@ -19,14 +20,14 @@ class StepControl extends React.Component {
 
   renderStepRunningControl() {
     return(
-      <button onClick={this.buildChangeStateHandler(C.STEP_EVENT_STOP)} className="btn btn-danger">Stop?</button>
+      <ButtonWithLoading onClick={this.buildChangeStateHandler(C.STEP_EVENT_STOP)} className="btn btn-danger" text="Stop?" />
     )
   }
   renderStepErrorControl() {
     return(
       <React.Fragment>
-        <button onClick={this.buildChangeStateHandler(C.STEP_EVENT_RUN)} className="btn btn-success">Retry?</button>&nbsp;
-        <button onClick={this.buildChangeStateHandler(C.STEP_EVENT_STOP)} className="btn btn-danger">Stop?</button>
+        <ButtonWithLoading onClick={this.buildChangeStateHandler(C.STEP_EVENT_RUN)} className="btn btn-success" text="Retry?" />&nbsp;
+        <ButtonWithLoading onClick={this.buildChangeStateHandler(C.STEP_EVENT_STOP)} className="btn btn-danger" text="Stop?" />
       </React.Fragment>
     )
   }
@@ -51,21 +52,21 @@ class StepControl extends React.Component {
     const state = this.props.step.state
 
     return(
-      <button disabled={this.props.isDisabled}
+      <ButtonWithLoading
+        disabled={this.props.isDisabled}
         onClick={this.buildChangeStateHandler(this.eventNameForState(state))}
         className={classNames({
           "pull-right btn": true,
           "btn-danger": (state===C.STEP_STATE_COMPLETED) || (state === C.STEP_STATE_PENDING) ||
             (state === C.STEP_STATE_FAILED) || (state === C.STEP_STATE_RUNNING),
           "btn-primary": (state!=C.STEP_STATE_COMPLETED)
-          })}>
-        {classNames({
+          })}
+        text={classNames({
           'Stop?': (state === null) || (state === C.STEP_STATE_FAILED) || (state === C.STEP_STATE_RUNNING),
           'Redo?': (state === C.STEP_STATE_CANCELLED),
           'Continue?': ((state === C.STEP_STATE_PENDING) || (state == C.STEP_STATE_STOPPED) || (state == C.STEP_STATE_FAILED)),
           'Revert?': (state === C.STEP_STATE_COMPLETED)
-        })}
-      </button>
+        })} />
     )
   }
   render() {

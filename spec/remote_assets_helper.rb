@@ -4,9 +4,10 @@ module RemoteAssetsHelper
 		obj = {
 			uuid: SecureRandom.uuid,
 			wells: [build_remote_well('A1'), build_remote_well('A4')],
-			plate_purpose: purpose
+			plate_purpose: purpose,
+			type: 'plates'
 		}.merge(opts)
-		my_double = double('remote_asset', obj)		
+		my_double = double('remote_asset', obj)
 		allow(my_double).to receive(:attribute_groups).and_return(obj)
 
 		allow(my_double).to receive(:class).and_return(Sequencescape::Plate)
@@ -15,7 +16,7 @@ module RemoteAssetsHelper
 	end
 
 	def build_remote_well(location, opts={})
-		double('well', {aliquots: [build_remote_aliquot], location: location, uuid: SecureRandom.uuid}.merge(opts))
+		double('well', {aliquots: [build_remote_aliquot], position: { "name" => location }, uuid: SecureRandom.uuid}.merge(opts))
 	end
 
 	def build_remote_tube(opts = {})
@@ -23,11 +24,12 @@ module RemoteAssetsHelper
 
 		obj = {
 			uuid: SecureRandom.uuid,
+			type: 'tubes',
 			plate_purpose: purpose,
 			aliquots: [build_remote_aliquot]
 			}.merge(opts)
 
-		my_double = double('remote_asset', obj)		
+		my_double = double('remote_asset', obj)
 		allow(my_double).to receive(:attribute_groups).and_return(obj)
 
 		allow(my_double).to receive(:class).and_return(Sequencescape::Tube)
@@ -35,13 +37,21 @@ module RemoteAssetsHelper
 	end
 
 	def build_remote_aliquot(opts={})
-		double('aliquot', {sample: build_remote_sample}.merge(opts))
+		double('aliquot', {sample: build_remote_sample, study: build_study}.merge(opts))
+	end
+
+	def build_study(opts={})
+		double('study', {name: 'STDY', uuid: SecureRandom.uuid})
 	end
 
 	def build_remote_sample(opts={})
 		double('sample', {
-			sanger: double('sanger', { sample_id: 'TEST-123', name: 'a sample name'}), 
-			supplier: double('supplier', {sample_name: 'a supplier'}),
+			sanger_sample_id: 'TEST-123',
+			name: 'a sample name',
+			sample_metadata: double('sample_metadata', {supplier_name: 'a supplier'}),
+			#sanger: double('sanger', { sample_id: 'TEST-123', name: 'a sample name'}),
+			uuid: SecureRandom.uuid,
+			#supplier: double('supplier', {sample_name: 'a supplier'}),
 			updated_at: Time.now.to_s}.merge(opts)
 			)
 	end
