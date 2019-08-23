@@ -12,7 +12,7 @@ module Asset::Export
   def _update_sequencescape(print_config, user, step)
     FactChanges.new.tap do |updates|
       begin
-        instance = SequencescapeClient.find_by_uuid(uuid)
+        instance = SequencescapeClient.version_1_find_by_uuid(uuid)
         unless instance
           instance = SequencescapeClient.create_plate(class_name, {}) if class_name
         end
@@ -39,7 +39,7 @@ module Asset::Export
       rescue Timeout::Error => e
         updates.set_errors(['Sequencescape connection - Timeout error occurred.'])
       rescue StandardError => err
-        updates.set_errors(['Sequencescape connection - There was an error while updating Sequencescape'])
+        updates.set_errors(['Sequencescape connection - There was an error while updating Sequencescape'+err.backtrace.to_s])
       end
     end
   end
@@ -56,7 +56,7 @@ module Asset::Export
 
   def update_plate(instance, updates)
     instance.wells.each do |well|
-      fact = fact_well_at(well.position['name'])
+      fact = fact_well_at(well.location)
       if fact
         w = fact.object_asset
         if w && w.uuid != well.uuid

@@ -14,12 +14,12 @@ RSpec.describe 'Asset::Import' do
     it 'recognises a plate' do
       asset.facts << create(:fact, predicate: 'a', object: 'TubeRack', is_remote?: true)
       asset.refresh
-      expect(SequencescapeClient).to have_received(:find_by_uuid).with(asset.uuid, :plate)
+      expect(SequencescapeClient).to have_received(:find_by_uuid).with(asset.uuid)
     end
     it 'recognises a tube' do
       asset.facts << create(:fact, predicate: 'a', object: 'Tube', is_remote?: true)
       asset.refresh
-      expect(SequencescapeClient).to have_received(:find_by_uuid).with(asset.uuid, :tube)
+      expect(SequencescapeClient).to have_received(:find_by_uuid).with(asset.uuid)
     end
     context 'when actually updating' do
       before do
@@ -123,7 +123,7 @@ RSpec.describe 'Asset::Import' do
         end
         it 'should try to obtain a tube' do
           @asset = Asset.find_or_import_asset_with_barcode(@remote_tube_asset.barcode)
-          expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_tube_asset.uuid, :tube)
+          expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_tube_asset.uuid)
         end
       end
 
@@ -134,7 +134,7 @@ RSpec.describe 'Asset::Import' do
         end
         it 'should try to obtain a plate' do
           @asset = Asset.find_or_import_asset_with_barcode(@remote_plate_asset.barcode)
-          expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_plate_asset.uuid, :plate)
+          expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_plate_asset.uuid)
         end
 
         context 'when the supplier sample name has not been provided to some samples' do

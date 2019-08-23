@@ -8,7 +8,7 @@ module RemoteAssetsHelper
 			type: 'plates'
 		}.merge(opts)
 		my_double = double('remote_asset', obj)
-		allow(my_double).to receive(:attribute_groups).and_return(obj)
+		allow(my_double).to receive(:attributes).and_return(obj)
 
 		allow(my_double).to receive(:class).and_return(Sequencescape::Plate)
 
@@ -16,7 +16,7 @@ module RemoteAssetsHelper
 	end
 
 	def build_remote_well(location, opts={})
-		double('well', {aliquots: [build_remote_aliquot], position: { "name" => location }, uuid: SecureRandom.uuid}.merge(opts))
+		double('well', {aliquots: [build_remote_aliquot], location: location, position: { "name" => location }, uuid: SecureRandom.uuid}.merge(opts))
 	end
 
 	def build_remote_tube(opts = {})
@@ -30,7 +30,7 @@ module RemoteAssetsHelper
 			}.merge(opts)
 
 		my_double = double('remote_asset', obj)
-		allow(my_double).to receive(:attribute_groups).and_return(obj)
+		allow(my_double).to receive(:attributes).and_return(obj)
 
 		allow(my_double).to receive(:class).and_return(Sequencescape::Tube)
 		my_double
@@ -45,20 +45,24 @@ module RemoteAssetsHelper
 	end
 
 	def build_remote_sample(opts={})
-		double('sample', {
+		attrs_for_sample = {
 			sanger_sample_id: 'TEST-123',
 			name: 'a sample name',
 			sample_metadata: double('sample_metadata', {supplier_name: 'a supplier'}),
 			#sanger: double('sanger', { sample_id: 'TEST-123', name: 'a sample name'}),
 			uuid: SecureRandom.uuid,
 			#supplier: double('supplier', {sample_name: 'a supplier'}),
-			updated_at: Time.now.to_s}.merge(opts)
-			)
+			updated_at: Time.now.to_s
+		}.merge(opts)
+
+		sample = double('sample', attrs_for_sample)
+		allow(sample).to receive(:attributes).and_return(attrs_for_sample)
+		sample
 	end
 
 	def stub_client_with_asset(double, asset)
 		type = (asset.class==Sequencescape::Plate) ? :plate : :tube
-	  	allow(double).to receive(:find_by_uuid).with(asset.uuid, type).and_return(asset)
+	  	allow(double).to receive(:find_by_uuid).with(asset.uuid).and_return(asset)
 	  	allow(double).to receive(:get_remote_asset) { nil }
 		allow(double).to receive(:get_remote_asset).with(asset.barcode).and_return(asset)
 		allow(double).to receive(:get_remote_asset).with(asset.uuid).and_return(asset)

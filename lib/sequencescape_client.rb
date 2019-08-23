@@ -23,11 +23,11 @@ class SequencescapeClient
     @client ||= Sequencescape::Api.new(self.api_connection_options)
   end
 
-  #def self.find_by_uuid(uuid, type=:plate)
-  #  client.send(type).find(uuid)
-  #rescue Sequencescape::Api::ResourceNotFound => exception
-  #  return nil
-  #end
+  def self.version_1_find_by_uuid(uuid, type=:plate)
+    client.send(type).find(uuid)
+  rescue Sequencescape::Api::ResourceNotFound => exception
+    return nil
+  end
 
   def self.update_extraction_attributes(instance, attrs, username='test')
     instance.extraction_attributes.create!(:attributes_update => attrs, :created_by => username)
