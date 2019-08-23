@@ -22,7 +22,7 @@ RSpec.describe TokenUtil do
   context '#generate_positions' do
     it 'generates a padded list of well positions' do
       expect(TokenUtil.generate_positions(('A'..'C').to_a, ('1'..'3').to_a)).to eq(
-        ["A01","A02", "A03", "B01","B02", "B03", "C01","C02", "C03"]
+        ["A01", "B01", "C01", "A02", "B02", "C02", "A03", "B03", "C03"]
       )
     end
   end

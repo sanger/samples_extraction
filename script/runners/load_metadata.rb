@@ -37,6 +37,7 @@ class LoadMetadata
           asset = find_asset(line_parsed)
           data = filter_unneeded_data(line_parsed)
           data.keys.each do |key|
+            updates.remove(asset.facts.with_predicate(key))
             updates.add(asset, key, data[key])
           end
         end
@@ -69,5 +70,5 @@ begin
 rescue InvalidDataParams => e
   puts ({ set_errors: e.errors }.to_json)
 rescue StandardError => e
-  puts ({ set_errors: ['Unknown error while parsing file'+e.to_s]}.to_json)
+  puts ({ set_errors: ['Unknown error while parsing file'+e.backtrace.to_s]}.to_json)
 end
