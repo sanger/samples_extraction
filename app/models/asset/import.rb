@@ -14,8 +14,7 @@ module Asset::Import
   module InstanceMethods
 
     def json_for_remote(remote_asset)
-      return remote_asset.to_json
-      distinct = remote_asset.attribute_groups.to_json
+      distinct = remote_asset.attributes.to_json
 
       # It would be useful to have a hashcode in the sequencescape client api to know
       # if this message is different from a previous one without needing to traverse
@@ -32,7 +31,7 @@ module Asset::Import
           if listal
             listsa = listal.flatten.compact.map{|al| al.sample }
             if listsa
-              distinct+=listsa.compact.map(&:updated_at).uniq.to_s
+              distinct+=listsa.compact.map(&:attributes).to_json
             end
           end
         end
@@ -45,7 +44,7 @@ module Asset::Import
         if listal
           listsa = listal.flatten.compact.map{|al| al.sample }
           if listsa
-            distinct+=listsa.compact.map(&:updated_at).uniq.to_s
+            distinct+=listsa.compact.map(&:attributes).to_json
           end
         end
       end
@@ -111,7 +110,7 @@ module Asset::Import
 
     def refresh(fact_changes=nil)
       if is_remote_asset?
-        remote_asset = SequencescapeClient::find_by_uuid(uuid, type = type_of_asset_for_sequencescape)
+        remote_asset = SequencescapeClient::find_by_uuid(uuid)
         raise RefreshSourceNotFoundAnymore unless remote_asset
         if changed_remote?(remote_asset)
           unless is_refreshing_right_now?
@@ -125,7 +124,7 @@ module Asset::Import
 
     def refresh!(fact_changes=nil)
       @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh!!'), state: 'running')
-      remote_asset = SequencescapeClient::find_by_uuid(uuid, type = type_of_asset_for_sequencescape)
+      remote_asset = SequencescapeClient::find_by_uuid(uuid)
       raise RefreshSourceNotFoundAnymore unless remote_asset
       _process_refresh(remote_asset, fact_changes)
       self
