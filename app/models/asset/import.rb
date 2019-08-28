@@ -158,8 +158,8 @@ module Asset::Import
       if remote_asset
         asset = Asset.create(barcode: barcode, uuid: remote_asset.uuid)
         FactChanges.new.tap do |updates|
-          updates.add_remote(asset, 'a', sequencescape_type_for_asset(remote_asset))
-          updates.add_remote(asset, 'remoteAsset', remote_asset.uuid)
+          updates.replace_remote(asset, 'a', sequencescape_type_for_asset(remote_asset))
+          updates.replace_remote(asset, 'remoteAsset', remote_asset.uuid)
         end.apply(@import_step)
         asset.refresh
         asset.update_compatible_activity_type
@@ -211,15 +211,15 @@ module Asset::Import
     def update_asset_from_remote_asset(asset, remote_asset, fact_changes)
       fact_changes.tap do |updates|
         class_name = sequencescape_type_for_asset(remote_asset)
-        updates.add_remote(asset, 'a', class_name)
+        updates.replace_remote(asset, 'a', class_name)
 
         if keep_sync_with_sequencescape?(remote_asset)
-          updates.add_remote(asset, 'pushTo', 'Sequencescape')
+          updates.replace_remote(asset, 'pushTo', 'Sequencescape')
           if remote_asset.try(:plate_purpose)
-            updates.add_remote(asset, 'purpose', remote_asset.plate_purpose.name)
+            updates.replace_remote(asset, 'purpose', remote_asset.plate_purpose.name)
           end
         end
-        updates.add_remote(asset, 'is', 'NotStarted')
+        updates.replace_remote(asset, 'is', 'NotStarted')
 
         annotate_container(asset, remote_asset, updates)
         annotate_wells(asset, remote_asset, updates)
@@ -233,15 +233,15 @@ module Asset::Import
     def _update_asset_from_remote_asset(asset, remote_asset, fact_changes)
       fact_changes.tap do |updates|
         class_name = sequencescape_type_for_asset(remote_asset)
-        updates.add_remote(asset, 'a', class_name)
+        updates.replace_remote(asset, 'a', class_name)
 
         if keep_sync_with_sequencescape?(remote_asset)
-          updates.add_remote(asset, 'pushTo', 'Sequencescape')
+          updates.replace_remote(asset, 'pushTo', 'Sequencescape')
           if remote_asset.try(:plate_purpose, nil)
-            updates.add_remote(asset, 'purpose', remote_asset.plate_purpose.name)
+            updates.replace_remote(asset, 'purpose', remote_asset.plate_purpose.name)
           end
         end
-        updates.add_remote(asset, 'is', 'NotStarted')
+        updates.replace_remote(asset, 'is', 'NotStarted')
 
         annotate_container(asset, remote_asset, updates)
         annotate_wells(asset, remote_asset, updates)
@@ -255,11 +255,11 @@ module Asset::Import
       fact_changes.tap do |updates|
         if remote_asset.try(:aliquots)
           remote_asset.aliquots.each do |aliquot|
-            updates.add_remote(asset, 'sample_tube', asset)
-            updates.add_remote(asset, 'sanger_sample_id', aliquot&.sample&.sanger_sample_id)
-            updates.add_remote(asset, 'sample_uuid', aliquot&.sample&.uuid, literal: true)
-            updates.add_remote(asset, 'sanger_sample_name', aliquot&.sample&.name)
-            updates.add_remote(asset, 'supplier_sample_name', aliquot&.sample&.sample_metadata&.supplier_name)
+            updates.replace_remote(asset, 'sample_tube', asset)
+            updates.replace_remote(asset, 'sanger_sample_id', aliquot&.sample&.sanger_sample_id)
+            updates.replace_remote(asset, 'sample_uuid', aliquot&.sample&.uuid, literal: true)
+            updates.replace_remote(asset, 'sanger_sample_name', aliquot&.sample&.name)
+            updates.replace_remote(asset, 'supplier_sample_name', aliquot&.sample&.sample_metadata&.supplier_name)
           end
         end
       end
@@ -269,11 +269,11 @@ module Asset::Import
       fact_changes.tap do |updates|
         if remote_asset.try(:aliquots, nil)
           remote_asset.aliquots.each do |aliquot|
-            updates.add_remote(asset, 'sample_tube', asset)
-            updates.add_remote(asset, 'sanger_sample_id', aliquot&.sample&.sanger&.sample_id)
-            updates.add_remote(asset, 'sample_uuid', aliquot&.sample&.sanger&.sample_uuid, literal: true)
-            updates.add_remote(asset, 'sanger_sample_name', aliquot&.sample&.sanger&.name)
-            updates.add_remote(asset, 'supplier_sample_name', aliquot&.sample&.supplier&.sample_name)
+            updates.replace_remote(asset, 'sample_tube', asset)
+            updates.replace_remote(asset, 'sanger_sample_id', aliquot&.sample&.sanger&.sample_id)
+            updates.replace_remote(asset, 'sample_uuid', aliquot&.sample&.sanger&.sample_uuid, literal: true)
+            updates.replace_remote(asset, 'sanger_sample_name', aliquot&.sample&.sanger&.name)
+            updates.replace_remote(asset, 'supplier_sample_name', aliquot&.sample&.supplier&.sample_name)
           end
         end
       end
@@ -292,8 +292,8 @@ module Asset::Import
       fact_changes.tap do |updates|
         if remote_asset.try(:aliquots)
           if ((remote_asset.aliquots.count == 1) && (remote_asset.aliquots.first.sample))
-            updates.add_remote(asset, 'study_name', remote_asset.aliquots.first.study.name)
-            updates.add_remote(asset, 'study_uuid', remote_asset.aliquots.first.study.uuid, literal: true)
+            updates.replace_remote(asset, 'study_name', remote_asset.aliquots.first.study.name)
+            updates.replace_remote(asset, 'study_uuid', remote_asset.aliquots.first.study.uuid, literal: true)
           end
         end
       end
@@ -305,7 +305,7 @@ module Asset::Import
           if ((remote_asset.aliquots.count == 1) && (remote_asset.aliquots.first.sample))
             study_name = sample_id_to_study_name(remote_asset.aliquots.first.sample.sanger.sample_id)
             #study_uuid = get_study_uuid(study_name)
-            updates.add_remote(asset, 'study_name', study_name)
+            updates.replace_remote(asset, 'study_name', study_name)
           end
         end
       end
@@ -328,12 +328,12 @@ module Asset::Import
           remote_asset.wells.each do |well|
             local_well = Asset.find_or_create_by!(:uuid => well.uuid)
             if (well.try(:aliquots)&.first&.sample&.sample_metadata&.supplier_name)
-              updates.add_remote(asset, 'contains', local_well)
+              updates.replace_remote(asset, 'contains', local_well)
 
               # Updated wells will also mean that the plate is out of date, so we'll set it in the asset
-              updates.add_remote(local_well, 'a', 'Well')
-              updates.add_remote(local_well, 'location', well.position['name'])
-              updates.add_remote(local_well, 'parent', asset)
+              updates.replace_remote(local_well, 'a', 'Well')
+              updates.replace_remote(local_well, 'location', well.position['name'])
+              updates.replace_remote(local_well, 'parent', asset)
 
               annotate_container(local_well, well, fact_changes)
             end
@@ -348,12 +348,12 @@ module Asset::Import
           remote_asset.wells.each do |well|
             local_well = Asset.find_or_create_by!(:uuid => well.uuid)
             if (well.try(:aliquots, nil)&.first&.sample&.supplier&.sample_name)
-              updates.add_remote(asset, 'contains', local_well)
+              updates.replace_remote(asset, 'contains', local_well)
 
               # Updated wells will also mean that the plate is out of date, so we'll set it in the asset
-              updates.add_remote(local_well, 'a', 'Well')
-              updates.add_remote(local_well, 'location', well.location)
-              updates.add_remote(local_well, 'parent', asset)
+              updates.replace_remote(local_well, 'a', 'Well')
+              updates.replace_remote(local_well, 'location', well.location)
+              updates.replace_remote(local_well, 'parent', asset)
 
               annotate_container(local_well, well, fact_changes)
             end

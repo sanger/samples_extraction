@@ -56,18 +56,18 @@ RSpec.describe 'Asset::Import' do
         expect{asset.reload}.not_to raise_error
         expect{asset2.reload}.not_to raise_error
       end
-      it 'does not destroy the local facts of the assets linked with remote facts that are changing' do
+      it 'replaces the local facts of the assets linked with remote facts that are changing' do
         asset2 = create(:asset, uuid: plate.wells.first.uuid)
         fact_well = create(:fact, predicate: 'location', object: 'A01', is_remote?: false)
         asset2.facts << fact_well
         fact = create(:fact, predicate: 'contains', object_asset_id: asset2.id, is_remote?: true)
         asset.facts << fact
         asset.refresh
-        expect{fact_well.reload}.not_to raise_error
+        expect{fact_well.reload}.to raise_error(ActiveRecord::RecordNotFound)
         expect{asset2.reload}.not_to raise_error
       end
 
-      it 'destroys the remote facts of the assets linked with remote facts that are changing' do
+      it 'replaces the remote facts of the assets linked with remote facts that are changing' do
         asset2 = create(:asset, uuid: plate.wells.first.uuid)
         fact_well = create(:fact, predicate: 'location', object: 'A01', is_remote?: true)
         asset2.facts << fact_well

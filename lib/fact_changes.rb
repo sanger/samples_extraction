@@ -9,7 +9,8 @@ class FactChanges
   attr_accessor :facts_to_destroy, :facts_to_add, :assets_to_create, :assets_to_destroy,
     :assets_to_add, :assets_to_remove, :wildcards, :instances_from_uuid,
     :asset_groups_to_create, :asset_groups_to_destroy, :errors_added,
-    :already_added_to_list, :instances_by_unique_id
+    :already_added_to_list, :instances_by_unique_id,
+    :facts_to_set_to_remote
 
   attr_accessor :operations
 
@@ -27,6 +28,8 @@ class FactChanges
   def reset
     @parsing_valid = false
     @errors_added = []
+
+    @facts_to_set_to_remote = []
 
     build_disjoint_lists(:facts_to_add, :facts_to_destroy)
     build_disjoint_lists(:assets_to_create, :assets_to_destroy)
@@ -147,6 +150,17 @@ class FactChanges
     add(s,p,o, options.merge({is_remote?: true})) if (s && p && o)
   end
 
+  def replace_remote(asset, p, o, options={})
+    if (asset && p && o)
+      asset.facts.with_predicate(p).each do |fact|
+        remove(fact)
+        # In case they are not removed, at least they will be set as remote
+        facts_to_set_to_remote << fact
+      end
+      add_remote(asset, p, o, options)
+    end
+  end
+
   def remove(f)
     return if f.nil?
     if f.kind_of?(Enumerable)
@@ -194,6 +208,7 @@ class FactChanges
   def apply(step, with_operations=true)
     _handle_errors(step) if errors_added.length > 0
     ActiveRecord::Base.transaction do |t|
+      _set_remote_facts(facts_to_set_to_remote)
       operations = [
         _create_asset_groups(step, asset_groups_to_create, with_operations),
         _create_assets(step, assets_to_create, with_operations),
@@ -369,6 +384,10 @@ class FactChanges
 
   def _produce_error(errors_added)
     raise StandardError.new(message: errors_added.join("\n"))
+  end
+
+  def _set_remote_facts(facts)
+    Fact.where(id: facts.map(&:id).uniq.compact).update_all(is_remote?: true)
   end
 
   def _add_assets(step, asset_group_assets, with_operations = true)

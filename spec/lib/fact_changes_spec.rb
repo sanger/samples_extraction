@@ -214,6 +214,33 @@ RSpec.describe FactChanges do
         expect(asset1.facts.first.is_remote?).to eq(true)
       end
     end
+    context 'with replace_remote' do
+      it 'adds a new remote fact if it does not exist' do
+        updates1.replace_remote(asset1, relation, asset2)
+        expect{
+          updates1.apply(step)
+        }.to change{asset1.facts.count}.by(1)
+        .and change{Operation.count}.by(1)
+        expect(asset1.facts.count).to eq(1)
+        expect(asset1.facts.first.is_remote?).to eq(true)
+      end
+      it 'replaces the previous fact with the remote one if it does exist' do
+        asset3 = create(:asset)
+        asset1.facts << create(:fact, predicate: relation, object_asset: asset3)
+        asset1.save
+
+        updates1.replace_remote(asset1, relation, asset2)
+        asset1.facts.reload
+        expect{
+          updates1.apply(step)
+        }.to change{asset1.facts.count}.by(0)
+        .and change{Operation.count}.by(2)
+        asset1.facts.reload
+
+        expect(asset1.facts.count).to eq(1)
+        expect(asset1.facts.first.is_remote?).to eq(true)
+      end
+    end
     context 'with remove' do
       it 'removes an already existing fact' do
         asset1.facts << fact1
@@ -314,6 +341,21 @@ RSpec.describe FactChanges do
       expect(updates1.facts_to_add.length).to eq(0)
       updates1.add_remote(asset1, relation, asset2)
       expect(updates1.facts_to_add.length).to eq(1)
+    end
+  end
+  describe '#replace_remote' do
+    it 'adds a new remote fact if it does not exist' do
+      expect(updates1.facts_to_add.length).to eq(0)
+      updates1.replace_remote(asset1, relation, asset2)
+      expect(updates1.facts_to_add.length).to eq(1)
+    end
+    it 'replaces the local fact if a fact with the same predicate already exists' do
+      asset3 = create(:asset)
+      asset1.facts << create(:fact, predicate: relation, object_asset: asset3)
+      asset1.save
+      updates1.replace_remote(asset1, relation, asset2)
+      expect(updates1.facts_to_add.length).to eq(1)
+      expect(updates1.facts_to_destroy.length).to eq(1)
     end
   end
   describe '#remove' do
