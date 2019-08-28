@@ -1,5 +1,12 @@
 language: ruby
-cache: bundler
+cache:
+  bundler: true
+  yarn: true
+  directories:
+    - node_modules
+install:
+  - bundle install
+  - yarn install
 before_script:
   - "export SECRET_KEY_BASE=`bundle exec rake secret`"
   - "bundle exec rake db:create RAILS_ENV=test"
