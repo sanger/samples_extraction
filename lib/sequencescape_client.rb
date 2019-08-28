@@ -66,12 +66,15 @@ class SequencescapeClient
   end
 
   def self.find_by(search_conditions)
-    search = SequencescapeClientV2::Plate.where(search_conditions)
-    search = search.first if search
-    return search if search
-    search = SequencescapeClientV2::Tube.where(search_conditions)
-    search = search.first if search
-    return search if search
+    [
+      SequencescapeClientV2::Plate,
+      SequencescapeClientV2::Tube,
+      SequencescapeClientV2::Well
+    ].each do |klass|
+      search = klass.where(search_conditions)
+      search = search.first if search
+      return search if search
+    end
   end
 
 
