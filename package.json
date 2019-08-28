@@ -2,12 +2,12 @@
   "dependencies": {
     "@rails/webpacker": "^3.2.2",
     "ajv": "^6.4.0",
-    "babel-preset-react": "^6.24.1",
     "caniuse-lite": "^1.0.30000830",
     "classnames": "^2.2.6",
     "eslint": "^4.19.1",
     "fine-uploader": "^5.16.2",
     "fine-uploader-wrappers": "^1.0.1",
+    "jquery": "^3.4.1",
     "moment": "^2.22.2",
     "node": "^10.0.0",
     "prop-types": "^15.6.0",
@@ -29,6 +29,39 @@
     "webpacker-react": "^0.3.2"
   },
   "devDependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/preset-react": "^7.0.0",
+    "babel-jest": "^24.9.0",
+    "babel-loader": "^8.0.6",
+    "babel-plugin-react-transform": "^3.0.0",
+    "enzyme": "^3.10.0",
+    "enzyme-adapter-react-16": "^1.14.0",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^24.9.0",
+    "jest-enzyme": "^7.1.0",
+    "regenerator-runtime": "^0.13.3",
     "webpack-dev-server": "^2.11.1"
+  },
+  "scripts": {
+    "test": "jest",
+    "test-watch": "jest --watch"
+  },
+  "jest": {
+    "roots": [
+      "test/javascript",
+      "test/javascript/components"
+    ],
+    "moduleNameMapper": {
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/fileMock.js",
+      "\\.(css|less)$": "identity-obj-proxy"
+    },
+    "moduleDirectories": [
+      "node_modules",
+      "app/javascript/packs",
+      "app/javascript/components"
+    ]
   }
 }

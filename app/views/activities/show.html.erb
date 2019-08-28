@@ -1,5 +1,5 @@
 <p id="notice"><%= notice %></p>
- <%= react_component('Activity',  JSON.generate(@activity.initial_json_attributes(@current_user))) %>
+ <%= react_component('Activity',  @activity.initial_json_attributes(@current_user)) %>
 
   <% unless @activity.finished? %>
     <%= bootstrap_form_for @activity, action: 'update', :html => {:class => 'operator-allowed'} do |f| %>
