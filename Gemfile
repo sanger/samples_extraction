@@ -140,8 +140,6 @@ end
 
 
 group :deployment do
-  gem "psd_logger",
-    :github => "sanger/psd_logger"
   gem "gmetric", "~>0.1.3"
   gem "exception_notification"
 end
