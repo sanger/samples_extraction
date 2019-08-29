@@ -79,6 +79,7 @@ class SequencescapeClient
         # Ignore filter error
       end
     end
+    nil
   end
 
 
