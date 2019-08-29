@@ -71,9 +71,13 @@ class SequencescapeClient
       SequencescapeClientV2::Tube,
       SequencescapeClientV2::Well
     ].each do |klass|
-      search = klass.where(search_conditions)
-      search = search.first if search
-      return search if search
+      begin
+        search = klass.where(search_conditions)
+        search = search.first if search
+        return search if search
+      rescue JsonApiClient::Errors::ClientError => e
+        # Ignore filter error
+      end
     end
   end
 
