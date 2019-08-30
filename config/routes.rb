@@ -5,7 +5,12 @@ require 'bootstrap-sass'
 Rails.application.routes.draw do
 
   resources :printers
-  resources :user_sessions
+  resources :user_sessions do
+    collection do
+      post 'create'
+      post 'destroy'
+    end
+  end
   resources :users
 
   resources :step_types

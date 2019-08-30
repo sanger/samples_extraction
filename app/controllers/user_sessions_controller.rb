@@ -1,12 +1,12 @@
 class UserSessionsController < ApplicationController
-  before_action :set_user, only: :create
+  before_action :set_user, only: [:create]
 
   def create
     session[:token] = @user.generate_token
   end
 
   def destroy
-    @current_user.clean_session
+    @current_user.clean_session if @current_user
     session[:token]=nil
 
     head :no_content
