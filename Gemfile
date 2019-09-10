@@ -1,7 +1,6 @@
 source 'http://rubygems.org'
 
 
-
 # Service libraries
 gem 'puma'
 gem 'daemons'
@@ -102,6 +101,10 @@ group :development do
   gem 'rubocop', require: false
   gem 'rubocop-performance'
   gem 'rubocop-rails'
+
+
+  gem 'travis'
+  gem 'travis-lint'
 end
 
 
