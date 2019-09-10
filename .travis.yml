@@ -13,20 +13,16 @@ before_script:
 script:
 - bundle exec rake
 - yarn test
+after_success:
+  - "./compile-build"
+deploy:
+  provider: releases
+  api_key:
+    secure: lKbumNGod5VCFCVAX3pfnLGbhuBZOtWMMvZcPa2evN7gVeJ7vrEOHZo7oCc/1EvNQHIj28/Oflav/VeRV3KGuJKl2k3XR8jgX1x3R3t7lBWbevuVZZu/wpj/PISPQVpr6W/5nD6irzOC7Pr5UEGFZ294hDIE6muHz/iRaDRLlNuHOa22mTeZTBqChKAK4PIgZmkqaX/M9H9pDSb6ib45dRABFNZ4Du6QIiYsTh/oqmhkSANIHnJIQ63DGVr0SM2XfCZOQUF2tOpWFQ7SsEKPVoFp0K3r2BpPhnS9alK6S90jfap8qTz+nTOz2jvpeblDNZTuvb02R2oVz6aq4iPfzmEoX7zvuWoPnPuFRgm8BipuZAO8pNANMGk7AR7czfTPSk16ss0X+36Uxj389fR4hzqCWYh8fsTsfWDl6FuRZ8LblhPTsRk56mVJzXjqX9CyckYT3qOYMRlxKjdIwJJw8ii6Z4xW3SOlQXONBq3DQJ4e5jzZK3cONG8ngLRVNMgsbh31FQWEuxE161mnM8OBD6+rKp+b4KI43Ymc3CGXZX51Xkp82xU1V2mfIDALHDZfW1FRlS1Q6HztdiOMNTmFEAW8C2xwN7kSiIPcZdcjeYE/4dT4ci95QNtGDg2fZ85fQ0Ncf8Rz8uoe9Vfi+Y7JIOjID4nQEQ/TbYVZrZFLaVw=
+  file: release.tar.gz
+  on:
+    tags: true
 services:
 - redis-server
 - mysql
 
-jobs:
-  include:
-    - stage: build
-      if: tag IS present
-      script: "./compile-build"
-      name: Compile Build
-      deploy:
-        provider: releases
-        api_key:
-          secure: lKbumNGod5VCFCVAX3pfnLGbhuBZOtWMMvZcPa2evN7gVeJ7vrEOHZo7oCc/1EvNQHIj28/Oflav/VeRV3KGuJKl2k3XR8jgX1x3R3t7lBWbevuVZZu/wpj/PISPQVpr6W/5nD6irzOC7Pr5UEGFZ294hDIE6muHz/iRaDRLlNuHOa22mTeZTBqChKAK4PIgZmkqaX/M9H9pDSb6ib45dRABFNZ4Du6QIiYsTh/oqmhkSANIHnJIQ63DGVr0SM2XfCZOQUF2tOpWFQ7SsEKPVoFp0K3r2BpPhnS9alK6S90jfap8qTz+nTOz2jvpeblDNZTuvb02R2oVz6aq4iPfzmEoX7zvuWoPnPuFRgm8BipuZAO8pNANMGk7AR7czfTPSk16ss0X+36Uxj389fR4hzqCWYh8fsTsfWDl6FuRZ8LblhPTsRk56mVJzXjqX9CyckYT3qOYMRlxKjdIwJJw8ii6Z4xW3SOlQXONBq3DQJ4e5jzZK3cONG8ngLRVNMgsbh31FQWEuxE161mnM8OBD6+rKp+b4KI43Ymc3CGXZX51Xkp82xU1V2mfIDALHDZfW1FRlS1Q6HztdiOMNTmFEAW8C2xwN7kSiIPcZdcjeYE/4dT4ci95QNtGDg2fZ85fQ0Ncf8Rz8uoe9Vfi+Y7JIOjID4nQEQ/TbYVZrZFLaVw=
-        file: release.tar.gz
-        on:
-          tags: true
