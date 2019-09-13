@@ -2,10 +2,10 @@
 
 set -e
 echo 'Cleaning up'
-NODE_ENV=production bundle exec rake assets:clobber
+RAILS_ENV=production bundle exec rake assets:clobber
 echo 'Compiling assets'
-NODE_ENV=production bundle exec rake assets:precompile
-NODE_ENV=production bundle exec rake webpacker:compile
+RAILS_ENV=production bundle exec rake assets:precompile
+RAILS_ENV=production bundle exec rake webpacker:compile
 echo 'Generating sha'
 git rev-parse HEAD > REVISION
 git tag -l --points-at HEAD --sort -version:refname | head -1 > TAG
