@@ -19,5 +19,4 @@ import SearchControl from 'components/lib/search_control'
 
 window.React = React;
 
-
 WebpackerReact.setup({React,Activity,SearchControl, ButtonWithLoading,Steps,StepsFinished,FactsSvg,Facts,FactsEditor,ReactTooltip})

@@ -1,6 +1,8 @@
 const CSRF_TOKEN = "1234"
 
-const buildActivityState = () => {
+let ASSET_GROUP_ID = 0
+
+const buildEmptyActivityState = () => {
   return {
     "csrfToken": CSRF_TOKEN,
     "activity":{
@@ -26,55 +28,34 @@ const buildActivityState = () => {
   }
 }
 
-const buildAsset = () => {
-
+const generateAssetGroupId = () => {
+  ASSET_GROUP_ID++
 }
 
-const buildAssetGroup = (obj) => {
-  return Object.assign({"id": generateAssetGroupId()})
+const buildAssets = (numAssets) => {
+  let list = []
+  for (let i=0; i<numAssets; i++) {
+    list.push({uuid: i})
+  }
+  return list
 }
 
-const buildActivityState = (assetGroups, selectedAssetGroup) => {
-  if (!selectedAssetGroup) {
-    selectedAssetGroup = Object.keys(assetGroups)[0]
+const buildAssetGroups = (numGroups, numAssets) => {
+  let obj = {}
+  for (let i=0; i<numGroups; i++) {
+    const assetGroupId = generateAssetGroupId()
+    obj[assetGroupId] = {id: assetGroupId, assets: buildAssets(numAssets), updateUrl: "http://"+assetGroupId}
   }
-  let activityState = buildActivityStateWithoutAssetGroups()
-  activityState.activity.selectedAssetGroup = selectedAssetGroup
-  return Object.assign({}, activityState, { assetGroups })
+  return obj
 }
 
+const buildActivityState = (numGroups, numAssets) => {
+  let state = buildEmptyActivityState()
 
+  state.assetGroups = buildAssetGroups(numGroups, numAssets)
+  state.selectedAssetGroup = Object.keys(state.assetGroups)[0]
 
-test('renders Activity component', () => {
-  global.App = {
-    cable: {
-      subscriptions: {
-        create: jest.fn()
-      }
-    }
-  }
+  return state
+}
 
-  const wrapper = shallow(<Activity {...testing_props} />);
-  expect(wrapper.find('div')).toHaveLength(1);
-});
-
-test('displays the AssetGroupEditor component', () => {
-  global.App = {
-    cable: {
-      subscriptions: {
-        create: jest.fn()
-      }
-    }
-  }
-  let stateWithGroup = Object.assign({}, testing_props, {
-    assetGroups: {
-      123: {"id": 123, updateUrl: 'http://updateUrl/123', assets: []}
-    },
-
-  })
-  stateWithGroup.activity.selectedAssetGroup = 123
-
-  const wrapper = mount(<Activity {...stateWithGroup} />);
-  //const wrapper = mount(<div />);
-  expect(wrapper.find('AssetGroupEditor')).toHaveLength(1);
-});
+export { buildAssets, buildAssetGroups, buildActivityState }
