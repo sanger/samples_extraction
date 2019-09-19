@@ -26,4 +26,18 @@ RSpec.describe TokenUtil do
       )
     end
   end
+
+  context '#kind_of_asset_id?' do
+    it 'detects when an argument is a uuid' do
+      expect(TokenUtil.kind_of_asset_id?(uuid)).to eq(true)
+    end
+    it 'detects when the argument is a wildcard' do
+      expect(TokenUtil.kind_of_asset_id?(wildcard)).to eq(true)
+    end
+    it 'does not fail when the argument is any other value' do
+      [{}, nil, Object.new, "", "abc"].each do |val|
+        expect(TokenUtil.kind_of_asset_id?(val)).to eq(false)
+      end
+    end
+  end
 end

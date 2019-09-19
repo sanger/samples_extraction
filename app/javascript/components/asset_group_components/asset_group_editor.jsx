@@ -6,37 +6,7 @@ import FineUploaderTraditional from 'fine-uploader-wrappers'
 import Dropzone from 'react-fine-uploader/dropzone'
 import 'react-fine-uploader/gallery/gallery.css'
 
-function uploaderOptions(props) {
-  return(
-    {
-      options: {
-        validation: {
-          sizeLimit: 12000000,
-        },
-        chunking: {
-            enabled: false
-        },
-        deleteFile: {
-            enabled: true,
-            endpoint: '/asset_groups/'+props.assetGroup.id+'/upload'
-        },
-        request: {
-            endpoint: '/asset_groups/'+props.assetGroup.id+'/upload',
-            customHeaders: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') }
-        },
-        retry: {
-            enableAuto: true
-        },
-        callbacks: {
-          onError: function(id, name, errorReason, xhrOrXdr) {
-            props.onErrorMessage({type: 'danger', msg: errorReason})
-          }
-        }
-      }
-    }
-  )
-}
-
+import {uploaderOptions, getCsrfToken} from '../lib/uploader_utils'
 
 class AssetGroupEditor extends React.Component {
   constructor(props) {
@@ -89,6 +59,7 @@ class AssetGroupEditor extends React.Component {
         <div className="form-group" data-psd-component-class="AssetGroup"
            data-psd-component-parameters="{}">
            <FormFor
+             csrfToken={this.props.csrfToken || getCsrfToken()}
              url={this.props.assetGroup.updateUrl}
              data-turbolinks="false"
              onSubmit={this.onSubmit}
@@ -106,6 +77,7 @@ class AssetGroupEditor extends React.Component {
                </div>
                <div className="panel-body collapse in" id="collapseAssets">
                  <AssetGroup
+                   uuidsPendingRemoval={this.props.uuidsPendingRemoval}
                    dataAssetDisplay={this.props.dataAssetDisplay}
                    activityRunning={this.props.activityRunning}
                    onCollapseFacts={this.props.onCollapseFacts}

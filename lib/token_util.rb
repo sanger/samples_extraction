@@ -23,6 +23,10 @@ module TokenUtil
     str.kind_of?(String) && !str.match(TokenUtil.WILDCARD_REGEXP).nil?
   end
 
+  def self.kind_of_asset_id?(str)
+    !!(str.kind_of?(String) && (is_wildcard?(str) || is_uuid?(str)))
+  end
+
   def self.to_asset_group_name(wildcard)
     return wildcard if wildcard.nil?
     wildcard.gsub('?', '')

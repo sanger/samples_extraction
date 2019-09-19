@@ -1,7 +1,6 @@
 require 'actions/plate_transfer'
 
 class TransferPlateToPlate
-  include Actions::PlateTransfer
 
   attr_reader :asset_group
   def initialize(params)
@@ -36,7 +35,7 @@ class TransferPlateToPlate
         plates = asset_group.assets.with_predicate('transferredFrom').each do |plate|
           plate.facts.with_predicate('transferredFrom').each do |f|
             source = f.object_asset
-            updates.merge(transfer_plates(source, plate))
+            Actions::PlateTransfer.transfer_plates(source, plate, updates)
           end
         end
       end

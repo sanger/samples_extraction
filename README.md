@@ -1,8 +1,9 @@
 # samples_extraction
 
 A tool to use and customize workflows for tracking information about the
-process for samples extraction and update the relevant information in 
+process for samples extraction and update the relevant information in
 Sequencescape.
+
 
 ## Main Features:
 
@@ -22,7 +23,7 @@ Sequencescape.
 
 ## Data model:
 ```text
-Kits <-- KitTypes <-- ActivityTypes ---> Activities   
+Kits <-- KitTypes <-- ActivityTypes ---> Activities
                           |                |
                           V                V
 Actions <------------ StepTypes -------> Steps -----------> Step Execution
@@ -36,7 +37,7 @@ Conditions             Assets --> Facts
 
 ## Other features:
 
-- Main process is labware type agnostic, any labware description is following 
+- Main process is labware type agnostic, any labware description is following
 the description of the ontology created in app/assets/owls/root-ontology.ttl
 - Web resources are accessible in .n3 format to be able to create external
 scripts for querying the data (see lib/examples)
@@ -44,11 +45,11 @@ scripts for querying the data (see lib/examples)
 could use other external tools to perform the processing
 
 ## To start:
-1. Edit the following information in config/environments/#{RAILS_ENV}.rb 
+1. Edit the following information in config/environments/#{RAILS_ENV}.rb
  - PMB_URI : url for the required instance for print my barcode
  - SS_URI : url for Sequencescape
 
-3. Create the label_templates for PrintMyBarcode 
+3. Create the label_templates for PrintMyBarcode
 ```bash
 rake label_templates:setup
 ```

@@ -22,6 +22,7 @@ class Activity extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
+      uuidsPendingRemoval: [],
       messages: props.messages,
       selectedTubePrinter: props.tubePrinter.defaultValue,
       selectedPlatePrinter: props.platePrinter.defaultValue,
@@ -79,6 +80,9 @@ class Activity extends React.Component {
       received: $.proxy(this.onWebSocketsMessage, this)
     })
   }
+  getAllAssets() {
+    return Object.values(this.state.assetGroups).flat()
+  }
   onWebSocketsMessage(msg) {
     let newState
 
@@ -89,7 +93,12 @@ class Activity extends React.Component {
       if (!(msg.assetGroups && msg.assetGroups[selectedGroup])) {
         selectedGroup = Object.keys(msg.assetGroups)[0]
       }
+
+      let uuidsForAllAssets = this.getAllAssets().map((a) => a.uuid)
+      this.state.uuidsPendingRemoval.filter((uuid) => !uuidsForAllAssets.includes(uuid))
+
       newState = {
+        uuidsPendingRemoval: [],
         messages: msg.messages,
         selectedAssetGroup: selectedGroup,
         activityRunning: msg.activityRunning,
@@ -124,7 +133,8 @@ class Activity extends React.Component {
     return this.activityChannel.send(data)
   }
   getAssetUuidsForAssetGroup(assetGroup) {
-    return assetGroup.assets.map((a) => a.uuid)
+    let uuids = this.state.uuidsPendingRemoval
+    return assetGroup.assets.map((a) => a.uuid).filter((uuid) => !uuids.includes(uuid))
   }
 
   barcodesFromInput(barcodes) {
@@ -142,12 +152,20 @@ class Activity extends React.Component {
                                 )
   }
   onRemoveAssetFromAssetGroup(assetGroup, asset, pos){
+
     let uuids = this.getAssetUuidsForAssetGroup(assetGroup)
-    uuids.splice(pos, 1)
+
+    let removedUuid = asset.uuid
+    let newUuids = uuids.filter((uuid) => (uuid != removedUuid))
+
+    this.state.uuidsPendingRemoval.push(removedUuid)
+    let uuidsPendingRemoval = this.state.uuidsPendingRemoval
+    this.setState({uuidsPendingRemoval})
+
     return this.changeAssetGroup(assetGroup, {
       asset_group: {
         id: assetGroup.id,
-	assets: uuids
+	      assets: newUuids
       }
     })
   }
@@ -244,6 +262,8 @@ class Activity extends React.Component {
         <React.Fragment>
         {this.renderStepTypesControl("1")}
         <AssetGroupsEditor
+          csrfToken={this.props.csrfToken}
+          uuidsPendingRemoval={this.state.uuidsPendingRemoval}
                 dataAssetDisplay={this.state.dataAssetDisplay}
           activityRunning={this.state.activityRunning}
                 onCollapseFacts={this.onCollapseFacts}

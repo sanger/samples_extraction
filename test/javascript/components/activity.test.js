@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import ReactDOM from 'react-dom';
 import $ from 'jquery';
 global.$ = global.jQuery = $;
+global.React = React;
 
-import { shallow, configure } from 'enzyme';
+import { shallow, mount, configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 configure({ adapter: new Adapter() });
 
@@ -43,4 +44,25 @@ test('renders Activity component', () => {
 
   const wrapper = shallow(<Activity {...testing_props} />);
   expect(wrapper.find('div')).toHaveLength(1);
+});
+
+test('displays the AssetGroupEditor component', () => {
+  global.App = {
+    cable: {
+      subscriptions: {
+        create: jest.fn()
+      }
+    }
+  }
+  let stateWithGroup = Object.assign({}, testing_props, {
+    assetGroups: {
+      123: {"id": 123, updateUrl: 'http://updateUrl/123', assets: []}
+    },
+    csrfToken: "1234"
+  })
+  stateWithGroup.activity.selectedAssetGroup = 123
+
+  const wrapper = mount(<Activity {...stateWithGroup} />);
+  //const wrapper = mount(<div />);
+  expect(wrapper.find('AssetGroupEditor')).toHaveLength(1);
 });
