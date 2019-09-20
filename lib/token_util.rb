@@ -52,4 +52,12 @@ module TokenUtil
     "#{letter}#{number}"
   end
 
+  def self.uuid_to_uuid_str(uuid)
+    "UUID:#{uuid}"
+  end
+
+  def self.uuid_str_to_uuid(uuid_str)
+    uuid_str.gsub(/UUID:/,"")
+  end
+
 end

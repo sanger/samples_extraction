@@ -335,6 +335,25 @@ RSpec.describe FactChanges do
       updates1.add(asset1, relation, asset2)
       expect(updates1.facts_to_add.length).to eq(1)
     end
+    context 'when the value is an uuid' do
+      context 'when it represents a local asset' do
+        let(:uuid) { create(:asset).uuid }
+        it 'adds the relation' do
+          expect(updates1.facts_to_add.length).to eq(0)
+          updates1.add(asset1, relation, uuid)
+          expect(updates1.facts_to_add.length).to eq(1)
+        end
+      end
+      context 'when it does not represent a local asset' do
+        let(:uuid) { SecureRandom.uuid }
+        it 'adds the property' do
+          pending
+          expect(updates1.facts_to_add.length).to eq(0)
+          updates1.add(asset1, property, uuid)
+          expect(updates1.facts_to_add.length).to eq(1)
+        end
+      end
+    end
   end
   describe '#add_remote' do
     it 'adds a new fact in the facts to add list' do
@@ -387,6 +406,25 @@ RSpec.describe FactChanges do
       updates1.remove_where(fact1.asset, fact1.predicate, fact1.object)
       updates1.remove_where(fact1.asset, fact1.predicate, fact1.object)
       expect(updates1.facts_to_destroy.length).to eq(1)
+    end
+    context 'when the value object is an uuid' do
+      context 'when it represents a local asset' do
+        let(:uuid) { create(:asset).uuid }
+        it 'adds the relation to remove' do
+          expect(updates1.facts_to_destroy.length).to eq(0)
+          updates1.remove_where(fact1.asset, fact1.predicate, uuid)
+          expect(updates1.facts_to_destroy.length).to eq(1)
+        end
+      end
+      context 'when it does not represent a local asset' do
+        let(:uuid) { SecureRandom.uuid }
+        it 'adds the property to remove' do
+          pending
+          expect(updates1.facts_to_destroy.length).to eq(0)
+          updates1.remove_where(fact1.asset, fact1.predicate, uuid)
+          expect(updates1.facts_to_destroy.length).to eq(1)
+        end
+      end
     end
   end
 

@@ -222,6 +222,14 @@ RSpec.describe 'Asset::Import' do
         end).to eq(true)
 			end
 
+      it 'should store the study uuid in a safe format' do
+        @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
+        study_uuid = @remote_plate_asset.wells.first.aliquots.first.study.uuid
+        @asset.facts.reload
+        asset_study_uuid = @asset.facts.where(predicate: 'study_uuid').first.object
+        expect(asset_study_uuid).to eq(TokenUtil.uuid_to_uuid_str(study_uuid))
+      end
+
 		  context 'for the first time' do
 		  	it 'should create the local asset' do
 		  		expect(Asset.count).to eq(0)

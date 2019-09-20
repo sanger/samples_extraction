@@ -186,6 +186,10 @@ module Asset::Import
       barcode.to_s.match(/^\d+$/)
     end
 
+    def uuid_str(uuid)
+      "UUID:#{uuid}"
+    end
+
     def is_uuid?(str)
       UUID_REGEXP.match(str)
     end
@@ -257,7 +261,7 @@ module Asset::Import
           remote_asset.aliquots.each do |aliquot|
             updates.replace_remote(asset, 'sample_tube', asset)
             updates.replace_remote(asset, 'sanger_sample_id', aliquot&.sample&.sanger_sample_id)
-            updates.replace_remote(asset, 'sample_uuid', aliquot&.sample&.uuid, literal: true)
+            updates.replace_remote(asset, 'sample_uuid', TokenUtil.uuid_to_uuid_str(aliquot&.sample&.uuid), literal: true)
             updates.replace_remote(asset, 'sanger_sample_name', aliquot&.sample&.name)
             updates.replace_remote(asset, 'supplier_sample_name', aliquot&.sample&.sample_metadata&.supplier_name)
           end
@@ -271,7 +275,7 @@ module Asset::Import
           remote_asset.aliquots.each do |aliquot|
             updates.replace_remote(asset, 'sample_tube', asset)
             updates.replace_remote(asset, 'sanger_sample_id', aliquot&.sample&.sanger&.sample_id)
-            updates.replace_remote(asset, 'sample_uuid', aliquot&.sample&.sanger&.sample_uuid, literal: true)
+            updates.replace_remote(asset, 'sample_uuid', TokenUtil.uuid_to_uuid_str(aliquot&.sample&.sanger&.sample_uuid), literal: true)
             updates.replace_remote(asset, 'sanger_sample_name', aliquot&.sample&.sanger&.name)
             updates.replace_remote(asset, 'supplier_sample_name', aliquot&.sample&.supplier&.sample_name)
           end
@@ -293,7 +297,7 @@ module Asset::Import
         if remote_asset.try(:aliquots)
           if ((remote_asset.aliquots.count == 1) && (remote_asset.aliquots.first.sample))
             updates.replace_remote(asset, 'study_name', remote_asset.aliquots.first.study.name)
-            updates.replace_remote(asset, 'study_uuid', remote_asset.aliquots.first.study.uuid, literal: true)
+            updates.replace_remote(asset, 'study_uuid', TokenUtil.uuid_to_uuid_str(remote_asset.aliquots.first.study.uuid), literal: true)
           end
         end
       end
