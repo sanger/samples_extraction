@@ -33,6 +33,18 @@ RSpec.describe Actions::PlateTransfer do
         expect(updates.to_h[:add_facts].select{|t| t[1]=='concentration'}.map{|t| t[2]}).to eq(["1.3"])
         expect(updates.to_h[:add_facts].select{|t| t[1]=='a'}.map{|t| t[2]}).to eq(["Well", "Well"])
       end
+      it 'can copy facts with uuid values' do
+        source = create :asset
+        well = create(:asset)
+
+        source.facts << create(:fact, predicate: 'contains', object_asset: well)
+        well.facts << create(:fact, predicate: 'study', object: SecureRandom.uuid, literal: true)
+
+        destination = create :asset
+        updates = Actions::PlateTransfer.transfer_plates(source,destination)
+        expect(updates.to_h[:set_errors].nil?).to eq(true)
+      end
+
     end
   end
 end

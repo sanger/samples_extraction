@@ -76,7 +76,7 @@ module Actions
           destination_well = Asset.new
           updates.create_assets([destination_well])
           source_well.facts.each do |fact|
-            updates.add(destination_well, fact.predicate, fact.object_value)
+            updates.add(destination_well, fact.predicate, fact.object_value, literal: fact.literal)
           end
           updates.add(destination_well, 'barcodeType', 'NoBarcode')
           updates.add(destination_well, 'aliquotType', aliquot.object) if aliquot && !source_well.has_predicate?('aliquotType')
