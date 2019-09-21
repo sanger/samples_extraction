@@ -1,8 +1,4 @@
-module Asset::Import
-
-  UUID_REGEXP = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
-
-  CREATABLE_PREFIX = 'F'
+module Assets::Import
 
   def self.included(base)
     base.send :include, InstanceMethods
@@ -178,27 +174,15 @@ module Asset::Import
       asset
     end
 
-    def is_local_asset?(barcode)
-      barcode.to_s.starts_with?(CREATABLE_PREFIX)
-    end
-
     def is_digit_barcode?(barcode)
       barcode.to_s.match(/^\d+$/)
-    end
-
-    def uuid_str(uuid)
-      "UUID:#{uuid}"
-    end
-
-    def is_uuid?(str)
-      UUID_REGEXP.match(str)
     end
 
     def find_asset_with_barcode(barcode)
       asset = Asset.find_by_barcode(barcode)
       asset = Asset.find_by_uuid(barcode) unless asset
       updates = FactChanges.new
-      if asset.nil? && is_local_asset?(barcode)
+      if asset.nil? && TokenUtil.is_valid_fluidx_barcode?(barcode)
         asset = Asset.create_local_asset(barcode, updates)
       end
       if asset
@@ -261,7 +245,7 @@ module Asset::Import
           remote_asset.aliquots.each do |aliquot|
             updates.replace_remote(asset, 'sample_tube', asset)
             updates.replace_remote(asset, 'sanger_sample_id', aliquot&.sample&.sanger_sample_id)
-            updates.replace_remote(asset, 'sample_uuid', TokenUtil.uuid_to_uuid_str(aliquot&.sample&.uuid), literal: true)
+            updates.replace_remote(asset, 'sample_uuid', TokenUtil.quote(aliquot&.sample&.uuid), literal: true)
             updates.replace_remote(asset, 'sanger_sample_name', aliquot&.sample&.name)
             updates.replace_remote(asset, 'supplier_sample_name', aliquot&.sample&.sample_metadata&.supplier_name)
           end
@@ -275,7 +259,7 @@ module Asset::Import
           remote_asset.aliquots.each do |aliquot|
             updates.replace_remote(asset, 'sample_tube', asset)
             updates.replace_remote(asset, 'sanger_sample_id', aliquot&.sample&.sanger&.sample_id)
-            updates.replace_remote(asset, 'sample_uuid', TokenUtil.uuid_to_uuid_str(aliquot&.sample&.sanger&.sample_uuid), literal: true)
+            updates.replace_remote(asset, 'sample_uuid', TokenUtil.quote(aliquot&.sample&.sanger&.sample_uuid), literal: true)
             updates.replace_remote(asset, 'sanger_sample_name', aliquot&.sample&.sanger&.name)
             updates.replace_remote(asset, 'supplier_sample_name', aliquot&.sample&.supplier&.sample_name)
           end
@@ -297,7 +281,7 @@ module Asset::Import
         if remote_asset.try(:aliquots)
           if ((remote_asset.aliquots.count == 1) && (remote_asset.aliquots.first.sample))
             updates.replace_remote(asset, 'study_name', remote_asset.aliquots.first.study.name)
-            updates.replace_remote(asset, 'study_uuid', TokenUtil.uuid_to_uuid_str(remote_asset.aliquots.first.study.uuid), literal: true)
+            updates.replace_remote(asset, 'study_uuid', TokenUtil.quote(remote_asset.aliquots.first.study.uuid), literal: true)
           end
         end
       end

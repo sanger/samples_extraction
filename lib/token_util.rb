@@ -1,6 +1,10 @@
 module TokenUtil
   def self.UUID_REGEXP
-    /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+  end
+
+  def self.fluidx_barcode_prefix
+    'F'
   end
 
   def self.WILDCARD_REGEXP
@@ -13,6 +17,10 @@ module TokenUtil
 
   def self.is_uuid?(str)
     str.kind_of?(String) && !str.match(TokenUtil.UUID_REGEXP).nil?
+  end
+
+  def self.is_valid_fluidx_barcode?(barcode)
+    barcode.to_s.starts_with?(fluidx_barcode_prefix)
   end
 
   def self.uuid(str)
@@ -43,7 +51,14 @@ module TokenUtil
     "#{(size-str.size).times.map{chr}.join('')}#{str}"
   end
 
+  def self.unpad_location(location)
+    return location unless location
+    loc = location.match(/(\w)(0*)(\d*)/)
+    loc[1]+loc[3]
+  end
+
   def self.pad_location(location)
+    return location unless location
     parts = location.match(TokenUtil.LOCATION_REGEXP)
     return nil if parts.length == 0
     letter = parts[1]
@@ -52,12 +67,14 @@ module TokenUtil
     "#{letter}#{number}"
   end
 
-  def self.uuid_to_uuid_str(uuid)
-    "UUID:#{uuid}"
+  def self.quote(str)
+    return str unless str
+    "\"#{str}\""
   end
 
-  def self.uuid_str_to_uuid(uuid_str)
-    uuid_str.gsub(/UUID:/,"")
+  def self.unquote(str)
+    return str unless str
+    str.gsub(/\"/,"")
   end
 
 end

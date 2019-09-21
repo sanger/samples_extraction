@@ -5,11 +5,11 @@ module Assets::TractionFields
   end
 
   def sample_uuid
-    TokenUtil.uuid_str_to_uuid(_get_values_for_predicate('sample_tube'))
+    TokenUtil.unquote(_get_values_for_predicate('sample_tube'))
   end
 
   def study_uuid
-    TokenUtil.uuid_str_to_uuid(_get_values_for_predicate('study_uuid'))
+    TokenUtil.unquote(_get_values_for_predicate('study_uuid'))
   end
 
   def pipeline

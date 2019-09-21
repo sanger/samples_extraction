@@ -6,8 +6,8 @@ require 'pry'
 class Asset < ActiveRecord::Base
   include Uuidable
   include Printables::Instance
-  include Asset::Import
-  include Asset::Export
+  include Assets::Import
+  include Assets::Export
   include Assets::FactsManagement
   include Assets::TractionFields
 

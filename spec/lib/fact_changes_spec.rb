@@ -346,10 +346,13 @@ RSpec.describe FactChanges do
       end
       context 'when it does not represent a local asset' do
         let(:uuid) { SecureRandom.uuid }
-        it 'adds the property' do
-          pending
+        it 'does not add the property if the uuid is not quoted because it tries to find it in local' do
           expect(updates1.facts_to_add.length).to eq(0)
-          updates1.add(asset1, property, uuid)
+          expect{updates1.add(asset1, property, uuid)}.to raise_error(StandardError)
+        end
+        it 'adds the property when quoted' do
+          expect(updates1.facts_to_add.length).to eq(0)
+          updates1.add(asset1, property, TokenUtil.quote(uuid))
           expect(updates1.facts_to_add.length).to eq(1)
         end
       end
@@ -418,11 +421,14 @@ RSpec.describe FactChanges do
       end
       context 'when it does not represent a local asset' do
         let(:uuid) { SecureRandom.uuid }
-        it 'adds the property to remove' do
-          pending
+        it 'adds the property to remove if the uuid is quoted' do
           expect(updates1.facts_to_destroy.length).to eq(0)
-          updates1.remove_where(fact1.asset, fact1.predicate, uuid)
+          updates1.remove_where(fact1.asset, fact1.predicate, TokenUtil.quote(uuid))
           expect(updates1.facts_to_destroy.length).to eq(1)
+        end
+        it 'does not add the property to remove if the uuid is not quoted because it tries to find it' do
+          expect(updates1.facts_to_destroy.length).to eq(0)
+          expect{updates1.remove_where(fact1.asset, fact1.predicate, uuid)}.to raise_error(StandardError)
         end
       end
     end

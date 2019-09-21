@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'remote_assets_helper'
 
-RSpec.describe 'Asset::Import' do
+RSpec.describe 'Assets::Import' do
 	include RemoteAssetsHelper
 
   context '#refresh' do
@@ -227,7 +227,7 @@ RSpec.describe 'Asset::Import' do
         study_uuid = @remote_plate_asset.wells.first.aliquots.first.study.uuid
         @asset.facts.reload
         asset_study_uuid = @asset.facts.where(predicate: 'study_uuid').first.object
-        expect(asset_study_uuid).to eq(TokenUtil.uuid_to_uuid_str(study_uuid))
+        expect(asset_study_uuid).to eq(TokenUtil.quote(study_uuid))
       end
 
 		  context 'for the first time' do
@@ -244,7 +244,7 @@ RSpec.describe 'Asset::Import' do
             allow(SequencescapeClient).to receive(:find_by_uuid).and_return(nil)
           end
           it 'should raise an exception' do
-            expect{Asset.find_or_import_asset_with_barcode(@barcode_plate)}.to raise_exception Asset::Import::RefreshSourceNotFoundAnymore
+            expect{Asset.find_or_import_asset_with_barcode(@barcode_plate)}.to raise_exception Assets::Import::RefreshSourceNotFoundAnymore
           end
         end
         context 'when the remote source is present' do

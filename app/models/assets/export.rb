@@ -1,4 +1,4 @@
-module Asset::Export
+module Assets::Export
 
 
   class DuplicateLocations < StandardError ; end
@@ -70,7 +70,7 @@ module Asset::Export
   def fact_well_at(location)
     facts.with_predicate('contains').select do |f|
       if f.object_asset
-        to_sequencescape_location(f.object_asset.facts.with_predicate('location').first.object) == to_sequencescape_location(location)
+        TokenUtil.unpad_location(f.object_asset.facts.with_predicate('location').first.object) == TokenUtil.unpad_location(location)
       end
     end.first
   end
@@ -99,16 +99,12 @@ module Asset::Export
     end
   end
 
-  def to_sequencescape_location(location)
-    loc = location.match(/(\w)(0*)(\d*)/)
-    loc[1]+loc[3]
-  end
 
   def racking_info(well)
     if well.has_literal?('pushedTo', 'Sequencescape')
       return {
         uuid: well.uuid,
-        location: to_sequencescape_location(well.facts.with_predicate('location').first.object)
+        location: TokenUtil.unpad_location(well.facts.with_predicate('location').first.object)
       }
     end
     well.facts.reduce({}) do |memo, fact|
@@ -116,11 +112,11 @@ module Asset::Export
         memo["#{fact.predicate}_uuid".to_sym] = fact.object_asset.uuid
       end
       if (fact.predicate == 'location')
-        memo[fact.predicate.to_sym] = to_sequencescape_location(fact.object)
+        memo[fact.predicate.to_sym] = TokenUtil.unpad_location(fact.object)
       end
       if (['aliquotType', 'sanger_sample_id',
         'sanger_sample_name', 'sample_uuid'].include?(fact.predicate))
-        memo[fact.predicate.to_sym] = fact.object
+        memo[fact.predicate.to_sym] = TokenUtil.unquote(fact.object)
       end
       memo
     end
