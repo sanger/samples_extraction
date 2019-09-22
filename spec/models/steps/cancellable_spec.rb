@@ -18,6 +18,15 @@ RSpec.describe :cancellable, cancellable: true do
     end
   end
 
+  context '#remake_me' do
+    it 'remakes cancelled operations' do
+      @steps[0].operations.first.update(cancelled?: true)
+      @steps[0].remake_me
+      @steps[0].operations.reload
+      expect(@steps[0].operations.all?(&:cancelled?)).to eq(false)
+    end
+  end
+
   it 'cancels all the operations of the step when cancelling the step' do
     expect(@steps[0].operations.any?(&:cancelled?)).to eq(false)
     @steps[0].cancel

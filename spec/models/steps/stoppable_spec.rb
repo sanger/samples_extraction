@@ -84,11 +84,19 @@ RSpec.describe 'Steps::Stoppable' do
     context 'when the step was stopped before' do
       let(:previous_state) { Step::STATE_STOPPED }
       before do
+        asset = create :asset
+        step.operations << create(:operation, action_type: 'create_assets', object: asset.uuid, :cancelled? => false)
+
         do_action
       end
 
       it 'continues this step' do
         expect(step.complete?).to eq(true)
+      end
+      it 'performs remaking of the operations for this step' do
+        step.operations.reload
+
+        expect(step.operations.all?(&:cancelled?)).to eq(false)
       end
       it 'continues with any other stopped steps after this step' do
         expect(next_steps_stopped.all?(&:complete?)).to eq(true)

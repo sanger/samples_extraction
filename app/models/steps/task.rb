@@ -1,9 +1,15 @@
 require 'inference_engines/runner/step_execution'
 module Steps::Task
   def process
-    step_execution = StepExecution.new(step: self, asset_group: asset_group)
-    updates = step_execution.plan
-    return stop! unless apply_changes(updates)
+    if operations.count > 0
+      remake_me
+      updates = FactChanges.new
+    else
+      step_execution = StepExecution.new(step: self, asset_group: asset_group)
+      updates = step_execution.plan
+      return stop! unless apply_changes(updates)
+    end
+
     assets_for_printing = updates.assets_for_printing
 
     unless step_type.step_action.nil? || step_type.step_action.empty?
