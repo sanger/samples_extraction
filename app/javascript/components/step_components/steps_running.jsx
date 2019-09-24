@@ -23,7 +23,7 @@ class StepsRunning extends StepsFinished {
   renderStepRow(step,index) {
     const stepTypeName = step.step_type ? step.step_type.name : ''
     const stepActivityId = step.activity ? step.activity.id : ''
-    const stepAssetGroup = step.asset_group ? step.asset_group.id : ''
+    const stepAssetGroup = step.assetGroup ? step.assetGroup.id : ''
     const stepUsername = step.username
     const classForState = (step.state == C.STEP_STATE_RUNNING) ? 'spinner' : ''
 

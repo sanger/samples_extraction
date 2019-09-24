@@ -40,7 +40,6 @@ class AssetGroupsEditor extends React.Component {
         id={'asset-group-'+assetGroup.id}
         key={'asset-group-'+assetGroup.id}>
         <AssetGroupEditor assetGroup={assetGroup}
-          csrfToken={this.props.csrfToken}
           uuidsPendingRemoval={this.props.uuidsPendingRemoval}
           dataAssetDisplay={this.props.dataAssetDisplay}
           activityRunning={this.props.activityRunning}

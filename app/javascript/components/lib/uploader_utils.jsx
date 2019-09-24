@@ -1,4 +1,5 @@
 const getCsrfToken = () => {
+  debugger
   const csrfMeta = $('meta[name="csrf-token"]')
   if (csrfMeta.length == 1) {
     return csrfMeta.attr('content')

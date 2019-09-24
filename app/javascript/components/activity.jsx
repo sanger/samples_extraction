@@ -262,7 +262,6 @@ class Activity extends React.Component {
         <React.Fragment>
         {this.renderStepTypesControl("1")}
         <AssetGroupsEditor
-          csrfToken={this.props.csrfToken}
           uuidsPendingRemoval={this.state.uuidsPendingRemoval}
                 dataAssetDisplay={this.state.dataAssetDisplay}
           activityRunning={this.state.activityRunning}

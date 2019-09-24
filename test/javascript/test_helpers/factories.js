@@ -4,8 +4,9 @@ let ASSET_GROUP_ID = 0
 
 const buildEmptyActivityState = () => {
   return {
-    "csrfToken": CSRF_TOKEN,
+    //"csrfToken": CSRF_TOKEN,
     "activity":{
+      "id": "1",
       "activity_type_name":"My activity",
       "instrument_name":"My instrument",
       "kit_name":"A selected kit",
@@ -29,7 +30,7 @@ const buildEmptyActivityState = () => {
 }
 
 const generateAssetGroupId = () => {
-  ASSET_GROUP_ID++
+  return ASSET_GROUP_ID++
 }
 
 const buildAssets = (numAssets) => {
@@ -40,11 +41,17 @@ const buildAssets = (numAssets) => {
   return list
 }
 
+const buildAssetGroupData = (assetGroupId, numAssets) => {
+  return({id: assetGroupId, assets: buildAssets(numAssets),
+    assets_running: [],
+    updateUrl: "http://"+assetGroupId})
+}
+
 const buildAssetGroups = (numGroups, numAssets) => {
   let obj = {}
   for (let i=0; i<numGroups; i++) {
     const assetGroupId = generateAssetGroupId()
-    obj[assetGroupId] = {id: assetGroupId, assets: buildAssets(numAssets), updateUrl: "http://"+assetGroupId}
+    obj[assetGroupId] = buildAssetGroupData(assetGroupId, numAssets)
   }
   return obj
 }
@@ -53,9 +60,9 @@ const buildActivityState = (numGroups, numAssets) => {
   let state = buildEmptyActivityState()
 
   state.assetGroups = buildAssetGroups(numGroups, numAssets)
-  state.selectedAssetGroup = Object.keys(state.assetGroups)[0]
+  state.activity.selectedAssetGroup = Object.keys(state.assetGroups)[0]
 
   return state
 }
 
-export { buildAssets, buildAssetGroups, buildActivityState }
+export { buildAssets, buildAssetGroups, buildActivityState, buildAssetGroupData }

@@ -6,8 +6,24 @@ import FineUploaderTraditional from 'fine-uploader-wrappers'
 import Dropzone from 'react-fine-uploader/dropzone'
 import 'react-fine-uploader/gallery/gallery.css'
 
-import {uploaderOptions, getCsrfToken} from '../lib/uploader_utils'
-
+import {uploaderOptions} from '../lib/uploader_utils'
+/**
+ assetGroup {
+    updateUrl: url to update the asset group (not in use for the moment)
+  }
+  activityRunning: boolean saying if there is any process running in the activity
+  isShown: probably not needed
+  uuidsPendingRemoval: list of uuids where the user has click on 'delete' from the group
+  dataAssetDisplay
+  onCollapseFacts: handler when collapsing a list of fields
+  collapsedFacts: hashmap where the keys are fact predicates and the values are a boolean
+  representing if the fact is collapsed or not
+  onRemoveAssetFromAssetGroup
+  onRemoveAllAssetsFromAssetGroup: handler when clearing al assets from a group
+  onErrorMessage: handler for errors
+  onChangeAssetGroup: handler when the asset group changes
+  onAddBarcodesToAssetGroup: handler when adding a new barcode to the group
+**/
 class AssetGroupEditor extends React.Component {
   constructor(props) {
     super(props)
@@ -21,12 +37,6 @@ class AssetGroupEditor extends React.Component {
     this.onAjaxComplete = this.onAjaxComplete.bind(this)
     this.handleBarcodeReaderChange = this.handleBarcodeReaderChange.bind(this)
     this.assetsChanging = this.assetsChanging.bind(this)
-  }
-  listenSSE() {
-    const evtSource = new EventSource(this.props.assetGroup.updateUrl+'/sse', { withCredentials: true })
-    evtSource.addEventListener("asset_group", $.proxy(this.onSSEAssetGroupUpdates, this), false)
-    //evtSource.addEventListener("asset_running", $.proxy(this.onAssetsChanging, this), false)
-    //evtSource.addEventListener("active_step", $.proxy(this.onActiveStepUpdates, this), false)
   }
   handleBarcodeReaderChange(e) {
     this.setState({barcodesInputText: e.target.value})
@@ -56,10 +66,8 @@ class AssetGroupEditor extends React.Component {
   render() {
     return(
       <Dropzone uploader={ new FineUploaderTraditional(uploaderOptions(this.props)) }>
-        <div className="form-group" data-psd-component-class="AssetGroup"
-           data-psd-component-parameters="{}">
+        <div className="form-group">
            <FormFor
-             csrfToken={this.props.csrfToken || getCsrfToken()}
              url={this.props.assetGroup.updateUrl}
              data-turbolinks="false"
              onSubmit={this.onSubmit}

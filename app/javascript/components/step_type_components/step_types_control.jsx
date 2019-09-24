@@ -4,7 +4,6 @@ import Togglable from '../lib/togglable'
 const renderTogglable = (props) => {
   const assetGroupId=props.selectedAssetGroup
   const stepTypes = props.stepTypes[assetGroupId]
-
   return (<StepTypesActive
         instanceId={props.instanceId}
         key={assetGroupId}
