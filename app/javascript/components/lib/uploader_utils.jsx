@@ -7,7 +7,6 @@ const getCsrfToken = () => {
 }
 
 const uploaderOptions = (props) => {
-  return ({options: {}})
   return(
     {
       options: {
