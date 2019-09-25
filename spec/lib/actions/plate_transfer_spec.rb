@@ -53,7 +53,7 @@ RSpec.describe Actions::PlateTransfer do
         source.facts << create(:fact, predicate: 'contains', object_asset: well)
 
         updates = FactChanges.new
-        updates.add(source, 'aliquotType', 'DNA')
+        updates.add(destination, 'aliquotType', 'DNA')
         updates = Actions::PlateTransfer.transfer_plates(source, destination, updates)
 
         created_well = updates.to_h[:add_facts].select{|t| (t[1] == 'location')}.first[0]
