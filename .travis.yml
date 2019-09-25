@@ -4,8 +4,9 @@ cache:
   yarn: true
   directories:
   - node_modules
+  - vendor/bundle
 install:
-- bundle install
+- bundle install --deployment
 - yarn install
 before_script:
 - export SECRET_KEY_BASE=`bundle exec rake secret`
