@@ -32,7 +32,7 @@ module Steps::State
 
         state :cancelled, after_enter: :wss_event
         state :complete, after_enter: :wss_event
-        state :running, before_enter: :assets_compatible_with_step_type, after_enter: [
+        state :running, after_enter: [
           :deprecate_unused_previous_steps!, :set_start_timestamp!, :create_job, :wss_event
         ]
         state :cancelling, after_enter: :wss_event
@@ -52,7 +52,7 @@ module Steps::State
           transitions from: [:cancelling,:complete], to: :cancelled
         end
 
-        event :run do
+        event :run, guards: [:assets_compatible_with_step_type] do
           transitions from: [:pending, :failed, :stopped], to: :running
         end
 
@@ -70,7 +70,7 @@ module Steps::State
             after: :remake_me_and_any_older_cancelled_steps
         end
 
-        event :continue do
+        event :continue, guards: [:assets_compatible_with_step_type]  do
           transitions from: :running, to: :running
           transitions from: [:failed,:stopped,:pending], to: :running, after: [:continue_newer_steps, :run]
         end
@@ -85,6 +85,10 @@ module Steps::State
           transitions from: [:failed, :running], to: :stopped,
             after: [:stop_job, :stop_newer_steps, :cancel_me]
           transitions from: :cancelling, to: :complete, after: [:stop_job, :stop_newer_steps]
+        end
+
+        event :ignore do
+          transitions from: [:pending], to: :ignored
         end
 
         event :deprecate do

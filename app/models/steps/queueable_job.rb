@@ -1,9 +1,10 @@
-module QueueableJob
-  extend ActiveSupport::Concern
+module Steps::QueueableJob
 
-  included do
-    after_update :run_next_step, if: :can_run_next_step?
-    after_commit :perform_error, if: :has_error?
+  def self.included(klass)
+    klass.instance_eval do
+      after_update :run_next_step, if: :can_run_next_step?
+      after_commit :perform_error, if: :has_error?
+    end
   end
 
   class ErrorOnQueuedJobProcess < StandardError
@@ -18,7 +19,11 @@ module QueueableJob
   end
 
   def run_next_step
-    next_step.run!
+    if next_step.assets_compatible_with_step_type
+      next_step.run!
+    else
+      next_step.ignore!
+    end
   end
 
   def can_run_next_step?

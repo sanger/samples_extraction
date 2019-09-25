@@ -102,7 +102,7 @@ RSpec.describe Step, type: :model do
         @cg1.update_attributes(:cardinality => 1)
         expect{
           @step = create_step
-          }.to raise_error(StandardError)
+          }.to raise_error(AASM::InvalidTransition)
       end
     end
 
