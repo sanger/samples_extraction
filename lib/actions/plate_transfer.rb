@@ -68,7 +68,7 @@ module Actions
     end
 
     def self.transfer_with_asset_creation(plate, destination, updates=nil)
-      aliquot = plate.facts.where(predicate: 'aliquotType').first
+      aliquot_value = updates.values_for_predicate(plate, 'aliquotType').first
       updates ||= FactChanges.new
       updates.tap do |updates|
         contains_facts = plate.facts.with_predicate('contains').map do |contain_fact|
@@ -79,7 +79,9 @@ module Actions
             updates.add(destination_well, fact.predicate, fact.object_value, literal: fact.literal)
           end
           updates.add(destination_well, 'barcodeType', 'NoBarcode')
-          updates.add(destination_well, 'aliquotType', aliquot.object) if aliquot && !source_well.has_predicate?('aliquotType')
+          if aliquot_value && !source_well.has_predicate?('aliquotType')
+            updates.add(destination_well, 'aliquotType', aliquot_value)
+          end
           updates.add(destination, 'contains', destination_well)
         end
       end

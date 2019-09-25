@@ -44,7 +44,21 @@ RSpec.describe Actions::PlateTransfer do
         updates = Actions::PlateTransfer.transfer_plates(source,destination)
         expect(updates.to_h[:set_errors].nil?).to eq(true)
       end
+      it 'copies the aliquot type of the plate into the wells' do
+        source = create :asset
+        well = create(:asset)
+        destination = create :asset
 
+        well.facts << create(:fact, predicate: 'location', object: 'A01')
+        source.facts << create(:fact, predicate: 'contains', object_asset: well)
+
+        updates = FactChanges.new
+        updates.add(source, 'aliquotType', 'DNA')
+        updates = Actions::PlateTransfer.transfer_plates(source, destination, updates)
+
+        created_well = updates.to_h[:add_facts].select{|t| (t[1] == 'location')}.first[0]
+        expect(updates.to_h[:add_facts].select{|t| (t[0]==created_well) && (t[1]=='aliquotType')}.first[2]).to eq('DNA')
+      end
     end
   end
 end
