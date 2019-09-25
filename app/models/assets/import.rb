@@ -315,14 +315,15 @@ module Assets::Import
         if remote_asset.try(:wells)
           remote_asset.wells.each do |well|
             local_well = Asset.find_or_create_by!(:uuid => well.uuid)
+
+            updates.replace_remote(asset, 'contains', local_well)
+
+            # Updated wells will also mean that the plate is out of date, so we'll set it in the asset
+            updates.replace_remote(local_well, 'a', 'Well')
+            updates.replace_remote(local_well, 'location', well.position['name'])
+            updates.replace_remote(local_well, 'parent', asset)
+
             if (well.try(:aliquots)&.first&.sample&.sample_metadata&.supplier_name)
-              updates.replace_remote(asset, 'contains', local_well)
-
-              # Updated wells will also mean that the plate is out of date, so we'll set it in the asset
-              updates.replace_remote(local_well, 'a', 'Well')
-              updates.replace_remote(local_well, 'location', well.position['name'])
-              updates.replace_remote(local_well, 'parent', asset)
-
               annotate_container(local_well, well, fact_changes)
             end
           end
