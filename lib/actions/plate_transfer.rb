@@ -5,8 +5,12 @@ module Actions
       loc[1]+loc[3]
     end
 
-    def self.ignored_predicates
-      ['a', 'parent']
+    def self.ignored_predicates_for_existing_well
+      ['a', 'parent', 'pushedTo']
+    end
+
+    def self.ignored_predicates_for_new_well
+      ['pushedTo']
     end
 
     def self.validate_plate_is_compatible_with_aliquot(updates, plate, aliquotType)
@@ -58,7 +62,7 @@ module Actions
             return updates unless validate_tube_is_compatible_with_aliquot(updates, asset2, aliquot.object) if aliquot
             updates.add(asset2, 'aliquotType', aliquot.object) if aliquot && !asset2.has_predicate?('aliquotType')
             asset1.facts.each do |fact|
-              unless ignored_predicates.include?(fact.predicate)
+              unless ignored_predicates_for_existing_well.include?(fact.predicate)
                 updates.add(asset2, fact.predicate, fact.object_value)
               end
             end
@@ -76,7 +80,9 @@ module Actions
           destination_well = Asset.new
           updates.create_assets([destination_well])
           source_well.facts.each do |fact|
-            updates.add(destination_well, fact.predicate, fact.object_value, literal: fact.literal)
+            unless ignored_predicates_for_new_well.include?(fact.predicate)
+              updates.add(destination_well, fact.predicate, fact.object_value, literal: fact.literal)
+            end
           end
           updates.add(destination_well, 'barcodeType', 'NoBarcode')
           if aliquot_value && !source_well.has_predicate?('aliquotType')

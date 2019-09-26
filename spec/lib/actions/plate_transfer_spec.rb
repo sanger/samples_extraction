@@ -59,6 +59,23 @@ RSpec.describe Actions::PlateTransfer do
         created_well = updates.to_h[:add_facts].select{|t| (t[1] == 'location')}.first[0]
         expect(updates.to_h[:add_facts].select{|t| (t[0]==created_well) && (t[1]=='aliquotType')}.first[2]).to eq('DNA')
       end
+      it 'does not copy ignored predicates' do
+        source = create :asset
+        well = create(:asset)
+        destination = create :asset
+
+        well.facts << create(:fact, predicate: 'location', object: 'A01')
+
+        # pushedTo is an ignored predicate
+        well.facts << create(:fact, predicate: 'pushedTo', object: 'Sequencescape')
+
+        source.facts << create(:fact, predicate: 'contains', object_asset: well)
+
+        updates = Actions::PlateTransfer.transfer_plates(source, destination, FactChanges.new)
+
+        expect(updates.to_h[:add_facts].select{|t| (t[1] == 'pushedTo')}.length).to eq(0)
+        expect(updates.to_h[:add_facts].select{|t| (t[1] == 'location')}.length>0).to eq(true)
+      end
     end
   end
 end
