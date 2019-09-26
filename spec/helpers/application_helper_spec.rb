@@ -36,6 +36,27 @@ RSpec.describe ApplicationHelper, type: :helper do
       expect(val.keys).to eq(obj.keys)
       expect(val.values.pluck(:cssClass)).to eq(obj.values.pluck(:cssClass))
     end
+    it 'does not filter out wells with location and barcode' do
+      well5 = create_well('E1', nil, 'DNA')
+      well6 = create_well(nil, 'sample6', 'DNA')
+
+      well5.update_attributes(barcode: 'S1234')
+
+      facts = [
+        create(:fact, predicate: 'contains', object_asset: well5),
+        create(:fact, predicate: 'contains', object_asset: well6)
+      ]
+      asset = create(:asset, facts: facts)
+
+      obj = {
+        "E1" => {cssClass: 'DNA'},
+      }
+
+      val = helper.data_asset_display_for_plate(asset.facts)
+
+      expect(val.keys).to eq(obj.keys)
+      expect(val.values.pluck(:cssClass)).to eq(obj.values.pluck(:cssClass))
+    end
     it 'filters out wells without samples or location' do
       well5 = create_well('E1', nil, 'DNA')
       well6 = create_well(nil, 'sample6', 'DNA')

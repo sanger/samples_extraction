@@ -84,7 +84,7 @@ module ApplicationHelper
     facts.with_predicate('contains').map(&:object_asset).reduce({}) do |memo, asset|
       location = TokenUtil.unpad_location(asset.first_value_for('location'))
       supplier_sample_name = asset.first_value_for('supplier_sample_name')
-      if location && supplier_sample_name
+      if (location && (supplier_sample_name || !asset.barcode.nil?))
         aliquotType = asset.first_value_for('aliquotType')
         memo[location] = {
           title: "#{asset.short_description}",
