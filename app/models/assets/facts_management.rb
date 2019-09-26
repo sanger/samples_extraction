@@ -24,6 +24,14 @@ module Assets::FactsManagement
     facts.any?{|f| f.predicate == predicate}
   end
 
+  def has_predicate_with_value?(predicate)
+    facts.any?{|f| (f.predicate == predicate) && !f.object.nil?}
+  end
+
+  def has_relation_with_value?(predicate)
+    facts.any?{|f| (f.predicate == predicate) && !f.object_asset_id.nil?}
+  end
+
   def has_fact?(fact)
     facts.any? do |f|
       if f.object.nil?

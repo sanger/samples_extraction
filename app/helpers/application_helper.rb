@@ -3,6 +3,10 @@ module ApplicationHelper
     'unknown-aliquot'
   end
 
+  def empty_well_aliquot_type
+    'empty-well-aliquot'
+  end
+
   def bootstrap_link_to(name = nil, options = nil, html_options = nil, &block)
     modified_options = {:class => 'btn btn-default'}
     modified_options.merge!(html_options) if html_options
@@ -83,12 +87,15 @@ module ApplicationHelper
   def data_asset_display_for_plate(facts)
     facts.with_predicate('contains').map(&:object_asset).reduce({}) do |memo, asset|
       location = TokenUtil.unpad_location(asset.first_value_for('location'))
-      supplier_sample_name = asset.first_value_for('supplier_sample_name')
-      if (location && (supplier_sample_name || !asset.barcode.nil?))
-        aliquotType = asset.first_value_for('aliquotType')
+      if (location && (asset.has_sample? || !asset.barcode.nil?))
+        if asset.has_sample?
+          aliquotType = asset.first_value_for('aliquotType') || unknown_aliquot_type
+        else
+          aliquotType = empty_well_aliquot_type
+        end
         memo[location] = {
           title: "#{asset.short_description}",
-          cssClass: aliquotType || unknown_aliquot_type,
+          cssClass: aliquotType,
           url: asset_path(asset)
         } unless location.nil?
       end

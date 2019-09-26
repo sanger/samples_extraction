@@ -11,64 +11,69 @@ RSpec.describe ApplicationHelper, type: :helper do
   end
 
   context '#data_asset_display_for_plate' do
-    it 'generates the right output for wells with samples' do
-      well1 = create_well('A1', 'sample1', 'DNA')
-      well2 = create_well('B1', 'sample2', 'RNA')
-      well3 = create_well('C1', 'sample3', 'bubidibu')
-      well4 = create_well('D1', 'sample4', nil)
+    let(:well) {
+      w = create_well(location, sample, aliquot)
+      w.update_attributes(barcode: barcode)
+      w
+    }
+    let(:sample) { nil }
+    let(:aliquot) { nil }
+    let(:location) { nil }
+    let(:barcode) { nil }
 
-      facts = [
-        create(:fact, predicate: 'contains', object_asset: well1),
-        create(:fact, predicate: 'contains', object_asset: well2),
-        create(:fact, predicate: 'contains', object_asset: well3),
-        create(:fact, predicate: 'contains', object_asset: well4)
-      ]
+    let(:facts) { [create(:fact, predicate: 'contains', object_asset: well)] }
+    let(:asset) { create :asset, facts: facts}
+    context 'when the well has no location' do
+      let(:location) { nil}
+      it 'does not display the well' do
+        obj = {}
+        val = helper.data_asset_display_for_plate(asset.facts)
 
-      asset = create(:asset, facts: facts)
-
-      obj = {
-        "A1" => {cssClass: 'DNA'},
-        "B1" => {cssClass: 'RNA'},
-        "C1" => {cssClass: 'bubidibu'},
-        "D1" => {cssClass: helper.unknown_aliquot_type},
-      }
-      val = helper.data_asset_display_for_plate(asset.facts)
-      expect(val.keys).to eq(obj.keys)
-      expect(val.values.pluck(:cssClass)).to eq(obj.values.pluck(:cssClass))
+        expect(val).to eq(obj)
+      end
     end
-    it 'does not filter out wells with location and barcode' do
-      well5 = create_well('E1', nil, 'DNA')
-      well6 = create_well(nil, 'sample6', 'DNA')
+    context 'when the well has a location' do
+      let(:location){"A1"}
+      context 'when the well does not have a barcode or a sample' do
+        let(:barcode) { nil }
+        let(:sample) { nil }
+        it 'does not display the well' do
+          obj = {}
+          val = helper.data_asset_display_for_plate(asset.facts)
 
-      well5.update_attributes(barcode: 'S1234')
-
-      facts = [
-        create(:fact, predicate: 'contains', object_asset: well5),
-        create(:fact, predicate: 'contains', object_asset: well6)
-      ]
-      asset = create(:asset, facts: facts)
-
-      obj = {
-        "E1" => {cssClass: 'DNA'},
-      }
-
-      val = helper.data_asset_display_for_plate(asset.facts)
-
-      expect(val.keys).to eq(obj.keys)
-      expect(val.values.pluck(:cssClass)).to eq(obj.values.pluck(:cssClass))
-    end
-    it 'filters out wells without samples or location' do
-      well5 = create_well('E1', nil, 'DNA')
-      well6 = create_well(nil, 'sample6', 'DNA')
-
-      facts = [
-        create(:fact, predicate: 'contains', object_asset: well5),
-        create(:fact, predicate: 'contains', object_asset: well6)
-      ]
-      asset = create(:asset, facts: facts)
-
-      val = helper.data_asset_display_for_plate(asset.facts)
-      expect(val).to eq({})
+          expect(val).to eq(obj)
+        end
+      end
+      context 'when the well has a barcode or a sample' do
+        let(:barcode) { "S1234"}
+        context 'when the well does not have a sample' do
+          let(:sample) { nil }
+          it 'displays an empty well' do
+            val = helper.data_asset_display_for_plate(asset.facts)
+            expect(val.keys).to eq(["A1"])
+            expect(val.values.first[:cssClass]).to eq(helper.empty_well_aliquot_type)
+          end
+        end
+        context 'when the well has a sample' do
+          let(:sample) { "sample1" }
+          context 'when the well has an aliquot' do
+            let(:aliquot) { "DNA" }
+            it 'displays the aliquot' do
+              val = helper.data_asset_display_for_plate(asset.facts)
+              expect(val.keys).to eq(["A1"])
+              expect(val.values.first[:cssClass]).to eq("DNA")
+            end
+          end
+          context 'when the well does not have an aliquot' do
+            let(:aliquot) { nil }
+            it 'displays unknown aliquot' do
+              val = helper.data_asset_display_for_plate(asset.facts)
+              expect(val.keys).to eq(["A1"])
+              expect(val.values.first[:cssClass]).to eq(helper.unknown_aliquot_type)
+            end
+          end
+        end
+      end
     end
   end
 end

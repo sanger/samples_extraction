@@ -7,7 +7,7 @@ RSpec.describe 'Assets::Export' do
   describe 'Export' do
     context '#racking_info' do
       it 'unquotes sample uuid and sample_tube, ignoring unrelated attributes' do
-        uuid = uuid
+        uuid = SecureRandom.uuid
         asset = create(:asset)
         well1 = create(:asset)
         well2 = create(:asset)

@@ -101,7 +101,9 @@ module Assets::Export
 
 
   def has_sample?
-    has_predicate?('supplier_sample_name') || has_predicate?('sample_tube') || has_predicate?('sample_uuid')
+    has_predicate_with_value?('supplier_sample_name') ||
+    has_relation_with_value?('sample_tube') ||
+    has_predicate_with_value?('sample_uuid')
   end
 
   def racking_info(well)
