@@ -55,7 +55,8 @@ module Assets::FactsManagement
   end
 
   def first_value_for(predicate)
-    facts.with_predicate(predicate).first.object
+    f = facts.with_predicate(predicate).first
+    f ? f.object : nil
   end
 
   def facts_with_triples(triples)

@@ -1,5 +1,7 @@
 module ApplicationHelper
-  UNKNOWN_ALIQUOT_TYPE = 'unknown-aliquot'
+  def unknown_aliquot_type
+    'unknown-aliquot'
+  end
 
   def bootstrap_link_to(name = nil, options = nil, html_options = nil, &block)
     modified_options = {:class => 'btn btn-default'}
@@ -79,20 +81,15 @@ module ApplicationHelper
   end
 
   def data_asset_display_for_plate(facts)
-    facts.with_predicate('contains').map do |fact|
-      [fact.object_asset, fact.object_asset.facts] if (fact.class == Fact) && (fact.object_asset)
-    end.compact.reduce({}) do |memo, list|
-      asset, facts = list[0],list[1]
-      f = facts.with_predicate('location').first
-      unless f.nil?
-        location = f.object
-        location=location[0]+location[2] if location.length==3 && location[1]=="0"
-        f2 = facts.with_predicate('aliquotType').first
-        aliquotType = f2 ? f2.object : nil
+    facts.with_predicate('contains').map(&:object_asset).reduce({}) do |memo, asset|
+      location = TokenUtil.unpad_location(asset.first_value_for('location'))
+      supplier_sample_name = asset.first_value_for('supplier_sample_name')
+      if location && supplier_sample_name
+        aliquotType = asset.first_value_for('aliquotType')
         memo[location] = {
-          :title => "#{asset.short_description}",
-          :cssClass => aliquotType || UNKNOWN_ALIQUOT_TYPE,
-          :url => asset_path(asset)
+          title: "#{asset.short_description}",
+          cssClass: aliquotType || unknown_aliquot_type,
+          url: asset_path(asset)
         } unless location.nil?
       end
       memo
@@ -103,7 +100,7 @@ module ApplicationHelper
     is_facts_values = facts.with_predicate('is').map { |f_is| [f_is.predicate, f_is.object].join('-') }
     aliquot_fact = facts.with_predicate('aliquotType').first
     if aliquot_fact
-      css_classes = [(aliquot_fact.object || UNKNOWN_ALIQUOT_TYPE), is_facts_values].compact.join(' ')
+      css_classes = [(aliquot_fact.object || unknown_aliquot_type), is_facts_values].compact.join(' ')
       url = ((aliquot_fact.class==Fact) ? asset_path(aliquot_fact.asset) : '')
       title = "#{aliquot_fact.asset.short_description}"
     else
