@@ -27,7 +27,9 @@ RSpec.describe FactChanges do
   describe '#parse_json' do
     let(:updates) { FactChanges.new }
     it 'raises exception when the parsed object is not right' do
-      expect{updates.parse_json("something went wrong!")}.to raise_error(StandardError)
+      expect{
+        updates.parse_json("something went wrong!")
+      }.to raise_error(StandardError)
     end
     it 'parses a json and loads the changes from it' do
       expect(updates.facts_to_add.length).to eq(0)
