@@ -96,17 +96,26 @@ module Assets::Export
     raise DuplicateLocations if duplicate_locations_in_plate?
     facts.with_predicate('contains').map(&:object_asset).map do |well|
       racking_info(well)
-    end
+    end.compact
   end
 
 
+  def has_sample?
+    has_predicate?('supplier_sample_name') || has_predicate?('sample_tube') || has_predicate?('sample_uuid')
+  end
+
   def racking_info(well)
+    # If it was already in SS, always export it
     if well.has_literal?('pushedTo', 'Sequencescape')
       return {
         uuid: well.uuid,
         location: TokenUtil.unpad_location(well.facts.with_predicate('location').first.object)
       }
     end
+
+    # Do not export any well information unless it has a sample defined for it
+    return nil unless well.has_sample?
+
     well.facts.reduce({}) do |memo, fact|
       if (['sample_tube'].include?(fact.predicate))
         memo["#{fact.predicate}_uuid".to_sym] = fact.object_asset.uuid
@@ -120,6 +129,7 @@ module Assets::Export
       end
       memo
     end
+
   end
 
 end

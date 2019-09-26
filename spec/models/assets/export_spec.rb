@@ -218,6 +218,36 @@ RSpec.describe 'Assets::Export' do
         @rack2 = Asset.find_by(uuid: 'rack2')
         expect{@rack2.attributes_to_update}.to raise_exception Assets::Export::DuplicateLocations
       end
+
+      it 'does not export locations without a sample in it' do
+        facts = %Q{
+          :s1 :a :SampleTube .
+          :s2 :a :SampleTube .
+          :s3 :a :SampleTube .
+          :s4 :a :SampleTube .
+          :rack2   :a                 :TubeRack ;
+                   :contains          :tube1, :tube2, :tube3, :tube4 .
+
+          :tube1   :a                 :Tube ;
+                   :location          "A1" ;
+                   :sample_tube       :s1 .
+          :tube2   :a                 :Tube ;
+                   :location          "B1" ;
+                   :sample_tube       :s2 .
+          :tube3   :a                 :Tube ;
+                   :location          "C1" ;
+                   :aliquotType       "DNA" .
+          :tube4   :a                 :Tube ;
+                   :location          "D1" ;
+                   :sample_tube       :s4 .
+        }
+        @assets = SupportN3::parse_facts(facts)
+        @rack2 = Asset.find_by(uuid: 'rack2')
+        expect(@rack2.attributes_to_update).to eq([
+          {sample_tube_uuid: "s1", location: "A1"},
+          {sample_tube_uuid: "s2", location: "B1"},
+          {sample_tube_uuid: "s4", location: "D1"}])
+      end
     end
   end
 end
