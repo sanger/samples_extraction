@@ -4,6 +4,50 @@ require 'remote_assets_helper'
 RSpec.describe 'Assets::Import' do
 	include RemoteAssetsHelper
 
+
+  context '#refresh!' do
+    let(:asset) { create :asset }
+    let(:plate) { build_remote_plate }
+
+    before do
+      allow(asset).to receive(:_process_refresh)
+      allow(SequencescapeClient).to receive(:find_by_uuid).and_return(true)
+    end
+
+    context 'when it is not a remote asset' do
+      before do
+        allow(asset).to receive(:is_remote_asset?).and_return(false)
+      end
+
+      it 'does not refresh' do
+        asset.refresh!
+        expect(asset).not_to have_received(:_process_refresh)
+      end
+    end
+    context 'when it is a remote asset' do
+      before do
+        allow(asset).to receive(:is_remote_asset?).and_return(true)
+      end
+      context 'when the asset has changed' do
+        before do
+          allow(asset).to receive(:changed_remote?).and_return(true)
+        end
+        it 'refreshes the asset' do
+          asset.refresh!
+          expect(asset).to have_received(:_process_refresh)
+        end
+      end
+      context 'when the asset has not changed' do
+        before do
+          allow(asset).to receive(:changed_remote?).and_return(false)
+        end
+        it 'refreshes the asset' do
+          asset.refresh!
+          expect(asset).to have_received(:_process_refresh)
+        end
+      end
+    end
+  end
   context '#refresh' do
     let(:asset) { create :asset }
     let(:plate) { build_remote_plate }

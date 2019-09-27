@@ -119,10 +119,12 @@ module Assets::Import
     end
 
     def refresh!(fact_changes=nil)
-      @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh!!'), state: 'running')
-      remote_asset = SequencescapeClient::find_by_uuid(uuid)
-      raise RefreshSourceNotFoundAnymore unless remote_asset
-      _process_refresh(remote_asset, fact_changes)
+      if is_remote_asset?
+        @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh!!'), state: 'running')
+        remote_asset = SequencescapeClient::find_by_uuid(uuid)
+        raise RefreshSourceNotFoundAnymore unless remote_asset
+        _process_refresh(remote_asset, fact_changes)
+      end
       self
     end
 
