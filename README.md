@@ -1,27 +1,145 @@
 # samples_extraction
 
-A tool to use and customize workflows for tracking information about the
-process for samples extraction and update the relevant information in
-Sequencescape.
+A workflow processor and management tool supported in metadata annotations that allows a user to specifiy the decisions to make during the process of a group of labware. Actions can be specified as metadata changes definition or as external scripts, allowing it to interact with external persistance applications.
 
 
 ## Main Features:
 
-- Inbox of Started and Non started samples
-- Worflows creation using the GUI with the browser
-- Selection of the workflow to use by providing a kit barcode
-- Imports and exports labware by barcode from Sequencescape LIMS
-- Historical view of the operations performed during an activity.
-- Print barcodes using PrintMyBarcode service
-- Admin view to manage users, printers and labware
-- Functionality for searching of labwares by metadata criteria
-
-## TODO:
-
-- Sequencial execution of delayed jobs / steps
+- UI for workflows creation and process
+- Background jobs management for the actions of the workflow
+- JSON API available for external services to access the metadata
+- External applications required: Sequencescape (storage), PrintMyBarcode (printing)
+- Searching facilities for labware based on metadata
+- Kits, kit types, users, printers
 
 
-## Data model:
+## Requirements
+
+- Sequencescape
+- PrintMyBarcode
+- Redis
+- Mysql
+
+## To start:
+
+First, start all the required service applications and configure their endpoints by defining
+the following environment variables:
+
+- SE_SS_URI: Sequencescape API V1 (Defaults: http://localhost:3000/api/1/)
+- SE_SS_API_V2_URI: Sequencescape API V2 (Defaults: http://localhost:3000)
+- SE_PMB_URI: PrintMyBarcode URI (Defaults: http://localhost:10000/v1)
+- SE_REDIS_URI: Redis DB (Defaults: redis://127.0.0.1:6379)
+
+Additionally you may require to configure the database connection  and credentials for mysql from database.yml.
+
+Second, start the background jobs processor:
+
+```bash
+rake jobs:work
+```
+
+Finally, start the main server:
+
+```bash
+bundle exec puma
+```
+
+## Running Javascript tests
+```
+  yarn test
+```
+## Running tests in watch mode
+
+```
+  yarn test-watch
+```
+
+## Debugging Javascript with Chrome DevTools
+
+- Add a line 'debugger' in the JS code where we want to add a breakpoint
+
+- Then in Chrome type this URL: about://inspect.
+
+- Click the Open dedicated DevTools for Node
+
+- Run the tests in debug mode:
+
+```
+  yarn test:debug
+```
+
+## Description
+
+### Selection of workflows
+
+Workflows are selected by using one of the instruments from the instruments view at /instruments and scanning for them a kit barcode. The kit barcode is linked with one of the available workflows so it will create a new Activity to start processing labware with that workflow.
+
+
+### Brief description of the workflow process
+
+When inside an activity, labware from Sequencescape can be imported by scanning the barcode of
+the labware in the box of a group of labware. At the beginning only one group is available, but
+may change during process. Depending on the selected group of labware the interface will show
+different information.
+
+#### Annotations stage
+
+With the information from Sequencescape a new asset will be created in Extraction lims, and annotated with metadata with the relevant information for the activity type. Asset and Metadata information are stored in the tables Assets and Facts. If the scanned labware already existed,
+the metadata will be refreshed from Sequencescape to reflect the changes. Before the rules
+matching stage, all assets metadata will be refreshed from Sequencescape.
+
+#### Rules matching stage
+
+A rule system that works with this metadata annotation is used afterwards to show the user the available actions that can be performed with the group of labware scanned. The rule system is represented in the tables ActivityTypes (group of all rules available), StepTypes (each individual rule, that represents a possible interaction for the user), ConditionGroups (a group pattern that represents the antecedent of the rule) and Conditions (each individual condition a group should match).
+
+#### User interaction stage
+
+The user can then select one of the options available and run that rule. Every step can have
+a different interaction control defined by the step template. By default, the step template
+will be a button. When clicking the button the user runs the action for that rule in the
+selected group.
+
+#### Rules execution stage
+
+The actions of the rule to ran are queued in a table in the database. A background processor
+(delayed_jobs) will load this changes to apply and run the associated action for the rule.
+Actions can be a combination of external scripts and metadata changes definitions. All metadata
+ changes are gathered to be applied in a single commit in the database.
+
+
+### User interface sections
+
+#### Groups of assets
+
+A tab-based control table will allow to change the selection of the group of assets to work with.
+Each panel contains a list of labware.
+
+#### Rules compatible
+
+A set of controls to allow the user to run the available rules
+
+#### Rules running
+
+A table showing the background jobs already running, with a control allowing to stop the job if
+needed. Stopping the job will revert all metadata changes.
+
+#### Rules applied
+
+All applied changes from past rules are stored in the Operations table and displayed in this
+view.
+A set of controls is provided so the user can perform the following actions:
+  - Cancel applied rules by reverting all metadata changes, which it would allow to revert history
+  - Re-apply cancelled rules
+  - Continue with already stopped jobs (this is really a re-run, as the changes
+  from a stopped job are always reverted)
+
+#### User feedback
+
+Changes are broadcasted to the user interface by websockets with the support of a Redis database. The interface is updated with the changes in the database. All changes in available groups, assets, metadata and rules to apply are updated in the user interface automatically.
+
+
+#### Data model:
+
 ```text
 Kits <-- KitTypes <-- ActivityTypes ---> Activities
                           |                |
@@ -35,25 +153,3 @@ ConditionGroups <--/   AssetGroups        Operations
 Conditions             Assets --> Facts
 ```
 
-## Other features:
-
-- Main process is labware type agnostic, any labware description is following
-the description of the ontology created in app/assets/owls/root-ontology.ttl
-- Web resources are accessible in .n3 format to be able to create external
-scripts for querying the data (see lib/examples)
-- Any rules processing is delegated to the delayed job in a background job that
-could use other external tools to perform the processing
-
-## To start:
-1. Edit the following information in config/environments/#{RAILS_ENV}.rb
- - PMB_URI : url for the required instance for print my barcode
- - SS_URI : url for Sequencescape
-
-3. Create the label_templates for PrintMyBarcode
-```bash
-rake label_templates:setup
-```
-4. Start the server
-```bash
-rails server
-```
