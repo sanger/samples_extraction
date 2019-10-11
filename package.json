@@ -42,8 +42,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^24.9.0",
     "jest-enzyme": "^7.1.0",
-    "regenerator-runtime": "^0.13.3",
-    "webpack-dev-server": "^2.11.1"
+    "regenerator-runtime": "^0.13.3"
   },
   "scripts": {
     "test": "jest",
