@@ -27,7 +27,9 @@ RSpec.describe FactChanges do
   describe '#parse_json' do
     let(:updates) { FactChanges.new }
     it 'raises exception when the parsed object is not right' do
-      expect{updates.parse_json("something went wrong!")}.to raise_error(StandardError)
+      expect{
+        updates.parse_json("something went wrong!")
+      }.to raise_error(StandardError)
     end
     it 'parses a json and loads the changes from it' do
       expect(updates.facts_to_add.length).to eq(0)
@@ -214,6 +216,33 @@ RSpec.describe FactChanges do
         expect(asset1.facts.first.is_remote?).to eq(true)
       end
     end
+    context 'with replace_remote' do
+      it 'adds a new remote fact if it does not exist' do
+        updates1.replace_remote(asset1, relation, asset2)
+        expect{
+          updates1.apply(step)
+        }.to change{asset1.facts.count}.by(1)
+        .and change{Operation.count}.by(1)
+        expect(asset1.facts.count).to eq(1)
+        expect(asset1.facts.first.is_remote?).to eq(true)
+      end
+      it 'replaces the previous fact with the remote one if it does exist' do
+        asset3 = create(:asset)
+        asset1.facts << create(:fact, predicate: relation, object_asset: asset3)
+        asset1.save
+
+        updates1.replace_remote(asset1, relation, asset2)
+        asset1.facts.reload
+        expect{
+          updates1.apply(step)
+        }.to change{asset1.facts.count}.by(0)
+        .and change{Operation.count}.by(2)
+        asset1.facts.reload
+
+        expect(asset1.facts.count).to eq(1)
+        expect(asset1.facts.first.is_remote?).to eq(true)
+      end
+    end
     context 'with remove' do
       it 'removes an already existing fact' do
         asset1.facts << fact1
@@ -308,12 +337,49 @@ RSpec.describe FactChanges do
       updates1.add(asset1, relation, asset2)
       expect(updates1.facts_to_add.length).to eq(1)
     end
+    context 'when the value is an uuid' do
+      context 'when it represents a local asset' do
+        let(:uuid) { create(:asset).uuid }
+        it 'adds the relation' do
+          expect(updates1.facts_to_add.length).to eq(0)
+          updates1.add(asset1, relation, uuid)
+          expect(updates1.facts_to_add.length).to eq(1)
+        end
+      end
+      context 'when it does not represent a local asset' do
+        let(:uuid) { SecureRandom.uuid }
+        it 'does not add the property if the uuid is not quoted because it tries to find it in local' do
+          expect(updates1.facts_to_add.length).to eq(0)
+          expect{updates1.add(asset1, property, uuid)}.to raise_error(StandardError)
+        end
+        it 'adds the property when quoted' do
+          expect(updates1.facts_to_add.length).to eq(0)
+          updates1.add(asset1, property, TokenUtil.quote(uuid))
+          expect(updates1.facts_to_add.length).to eq(1)
+        end
+      end
+    end
   end
   describe '#add_remote' do
     it 'adds a new fact in the facts to add list' do
       expect(updates1.facts_to_add.length).to eq(0)
       updates1.add_remote(asset1, relation, asset2)
       expect(updates1.facts_to_add.length).to eq(1)
+    end
+  end
+  describe '#replace_remote' do
+    it 'adds a new remote fact if it does not exist' do
+      expect(updates1.facts_to_add.length).to eq(0)
+      updates1.replace_remote(asset1, relation, asset2)
+      expect(updates1.facts_to_add.length).to eq(1)
+    end
+    it 'replaces the local fact if a fact with the same predicate already exists' do
+      asset3 = create(:asset)
+      asset1.facts << create(:fact, predicate: relation, object_asset: asset3)
+      asset1.save
+      updates1.replace_remote(asset1, relation, asset2)
+      expect(updates1.facts_to_add.length).to eq(1)
+      expect(updates1.facts_to_destroy.length).to eq(1)
     end
   end
   describe '#remove' do
@@ -345,6 +411,28 @@ RSpec.describe FactChanges do
       updates1.remove_where(fact1.asset, fact1.predicate, fact1.object)
       updates1.remove_where(fact1.asset, fact1.predicate, fact1.object)
       expect(updates1.facts_to_destroy.length).to eq(1)
+    end
+    context 'when the value object is an uuid' do
+      context 'when it represents a local asset' do
+        let(:uuid) { create(:asset).uuid }
+        it 'adds the relation to remove' do
+          expect(updates1.facts_to_destroy.length).to eq(0)
+          updates1.remove_where(fact1.asset, fact1.predicate, uuid)
+          expect(updates1.facts_to_destroy.length).to eq(1)
+        end
+      end
+      context 'when it does not represent a local asset' do
+        let(:uuid) { SecureRandom.uuid }
+        it 'adds the property to remove if the uuid is quoted' do
+          expect(updates1.facts_to_destroy.length).to eq(0)
+          updates1.remove_where(fact1.asset, fact1.predicate, TokenUtil.quote(uuid))
+          expect(updates1.facts_to_destroy.length).to eq(1)
+        end
+        it 'does not add the property to remove if the uuid is not quoted because it tries to find it' do
+          expect(updates1.facts_to_destroy.length).to eq(0)
+          expect{updates1.remove_where(fact1.asset, fact1.predicate, uuid)}.to raise_error(StandardError)
+        end
+      end
     end
   end
 

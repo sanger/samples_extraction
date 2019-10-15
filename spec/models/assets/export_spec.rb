@@ -1,11 +1,40 @@
 require 'rails_helper'
 require 'remote_assets_helper'
 
-RSpec.describe 'Asset::Export' do
+RSpec.describe 'Assets::Export' do
   include RemoteAssetsHelper
 
   describe 'Export' do
     context '#racking_info' do
+      it 'unquotes sample uuid and sample_tube, ignoring unrelated attributes' do
+        uuid = SecureRandom.uuid
+        asset = create(:asset)
+        well1 = create(:asset)
+        well2 = create(:asset)
+
+        sample_tube = create(:asset)
+        well1.facts << [
+          create(:fact, predicate: 'sample_uuid', object: TokenUtil.quote(uuid)),
+          create(:fact, predicate: 'this will be ignored', object: 'for sure')
+        ]
+        well2.facts << [
+          create(:fact, predicate: 'sample_tube', object_asset: sample_tube),
+          create(:fact, predicate: 'study_uuid', object: TokenUtil.quote(uuid)),
+          create(:fact, predicate: 'sanger_sample_name', object: "name1")
+        ]
+
+        asset.facts << [
+          create(:fact, predicate: 'contains', object_asset: well1),
+          create(:fact, predicate: 'contains', object_asset: well2)
+        ]
+
+        expect(asset.racking_info(well1)).to eq({sample_uuid: TokenUtil.unquote(uuid)})
+        expect(asset.racking_info(well2)).to eq({
+          sample_tube_uuid: sample_tube.uuid,
+          sanger_sample_name: 'name1'
+        })
+      end
+
       it 'generates an attribute object for a well' do
         facts = %Q{
           :s1 :a :SampleTube .
@@ -38,15 +67,6 @@ RSpec.describe 'Asset::Export' do
           {sample_tube_uuid: "s4", location: "D1"}])
       end
 
-    end
-    context '#to_sequencescape_location' do
-      it 'converts SE locations to sequencescape' do
-        a = create :asset
-        expect(a.to_sequencescape_location("A01")).to eq("A1")
-        expect(a.to_sequencescape_location("F01")).to eq("F1")
-        expect(a.to_sequencescape_location("A1")).to eq("A1")
-        expect(a.to_sequencescape_location("E1")).to eq("E1")
-      end
     end
     context '#update_plate' do
       let(:step_type) { create :step_type }
@@ -87,8 +107,10 @@ RSpec.describe 'Asset::Export' do
       let(:asset) { create :asset }
 
       it 'updates a plate in sequencescape' do
+        allow(SequencescapeClient).to receive(:version_1_find_by_uuid).with(asset.uuid).and_return(nil)
+        allow(SequencescapeClient).to receive(:version_1_find_by_uuid).with(plate.uuid).and_return(plate)
         allow(SequencescapeClient).to receive(:find_by_uuid).with(asset.uuid).and_return(nil)
-        allow(SequencescapeClient).to receive(:find_by_uuid).with(plate.uuid, :plate).and_return(plate)
+        allow(SequencescapeClient).to receive(:find_by_uuid).with(plate.uuid).and_return(plate)
         allow(SequencescapeClient).to receive(:create_plate).and_return(plate)
         barcode = double('barcode')
         allow(barcode).to receive(:prefix).and_return('DN')
@@ -194,7 +216,37 @@ RSpec.describe 'Asset::Export' do
         }
         @assets = SupportN3::parse_facts(facts)
         @rack2 = Asset.find_by(uuid: 'rack2')
-        expect{@rack2.attributes_to_update}.to raise_exception Asset::Export::DuplicateLocations
+        expect{@rack2.attributes_to_update}.to raise_exception Assets::Export::DuplicateLocations
+      end
+
+      it 'does not export locations without a sample in it' do
+        facts = %Q{
+          :s1 :a :SampleTube .
+          :s2 :a :SampleTube .
+          :s3 :a :SampleTube .
+          :s4 :a :SampleTube .
+          :rack2   :a                 :TubeRack ;
+                   :contains          :tube1, :tube2, :tube3, :tube4 .
+
+          :tube1   :a                 :Tube ;
+                   :location          "A1" ;
+                   :sample_tube       :s1 .
+          :tube2   :a                 :Tube ;
+                   :location          "B1" ;
+                   :sample_tube       :s2 .
+          :tube3   :a                 :Tube ;
+                   :location          "C1" ;
+                   :aliquotType       "DNA" .
+          :tube4   :a                 :Tube ;
+                   :location          "D1" ;
+                   :sample_tube       :s4 .
+        }
+        @assets = SupportN3::parse_facts(facts)
+        @rack2 = Asset.find_by(uuid: 'rack2')
+        expect(@rack2.attributes_to_update).to eq([
+          {sample_tube_uuid: "s1", location: "A1"},
+          {sample_tube_uuid: "s2", location: "B1"},
+          {sample_tube_uuid: "s4", location: "D1"}])
       end
     end
   end

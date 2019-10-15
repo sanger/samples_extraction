@@ -1,10 +1,5 @@
 import React from 'react'
 class BarcodeReader extends React.Component {
-  componentDidUpdate() {
-    if ((!this.props.disabledBarcodesInput) && (this.props.isShown)) {
-      this.nameInput.focus()
-    }
-  }
   renderIcon() {
     if (this.props.disabledBarcodesInput) {
       return(

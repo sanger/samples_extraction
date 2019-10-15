@@ -11,9 +11,8 @@ module Parsers
         protected
 
         def valid_fluidx_barcode?(record)
-          record.barcode.start_with?('F')
+          TokenUtil.is_valid_fluidx_barcode?(record.barcode)
         end
-
       end
     end
   end

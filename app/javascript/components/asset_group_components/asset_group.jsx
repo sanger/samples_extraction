@@ -2,6 +2,7 @@ import React from 'react'
 import AssetDisplay from "../asset_components/asset_display"
 import Facts from '../asset_components/facts'
 import ButtonWithLoading from "../lib/button_with_loading"
+import classNames from 'classnames'
 
 class AssetGroup extends React.Component {
   constructor(props) {
@@ -33,7 +34,12 @@ class AssetGroup extends React.Component {
       <tr data-asset-uuid={asset.uuid} data-psd-component-class="LoadingIcon"
         data-psd-component-parameters='{ "iconClass": "glyphicon",
         "containerIconClass": "spinner", "loadingClass":
-        "fast-right-spinner"}' key={index}>
+        "fast-right-spinner"}' key={asset.uuid}
+        className={classNames({
+          'bg-warning': this.props.uuidsPendingRemoval.includes(asset.uuid)
+          }
+        )}
+        >
         <td>
           {this.runningAsset(asset)}
           <input type="hidden" name="asset_group[assets]" value={asset.uuid} />
@@ -48,7 +54,9 @@ class AssetGroup extends React.Component {
         </td>
         <td>{index+1}</td>
         <td>
-          <ButtonWithLoading /*disabled={this.props.activityRunning}*/ onClick={$.proxy(this.removeAsset, this, asset, index) } className="btn btn-primary " text="Delete" />
+          <ButtonWithLoading /*disabled={this.props.activityRunning}*/
+            onClick={$.proxy(this.removeAsset, this, asset, index) }
+            className="btn btn-primary " text="Delete" />
         </td>
       </tr>
     )

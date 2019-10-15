@@ -6,38 +6,24 @@ import FineUploaderTraditional from 'fine-uploader-wrappers'
 import Dropzone from 'react-fine-uploader/dropzone'
 import 'react-fine-uploader/gallery/gallery.css'
 
-function uploaderOptions(props) {
-  return(
-    {
-      options: {
-        validation: {
-          sizeLimit: 12000000,
-        },
-        chunking: {
-            enabled: false
-        },
-        deleteFile: {
-            enabled: true,
-            endpoint: '/asset_groups/'+props.assetGroup.id+'/upload'
-        },
-        request: {
-            endpoint: '/asset_groups/'+props.assetGroup.id+'/upload',
-            customHeaders: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') }
-        },
-        retry: {
-            enableAuto: true
-        },
-        callbacks: {
-          onError: function(id, name, errorReason, xhrOrXdr) {
-            props.onErrorMessage({type: 'danger', msg: errorReason})
-          }
-        }
-      }
-    }
-  )
-}
-
-
+import {uploaderOptions} from '../lib/uploader_utils'
+/**
+ assetGroup {
+    updateUrl: url to update the asset group (not in use for the moment)
+  }
+  activityRunning: boolean saying if there is any process running in the activity
+  isShown: probably not needed
+  uuidsPendingRemoval: list of uuids where the user has click on 'delete' from the group
+  dataAssetDisplay
+  onCollapseFacts: handler when collapsing a list of fields
+  collapsedFacts: hashmap where the keys are fact predicates and the values are a boolean
+  representing if the fact is collapsed or not
+  onRemoveAssetFromAssetGroup
+  onRemoveAllAssetsFromAssetGroup: handler when clearing al assets from a group
+  onErrorMessage: handler for errors
+  onChangeAssetGroup: handler when the asset group changes
+  onAddBarcodesToAssetGroup: handler when adding a new barcode to the group
+**/
 class AssetGroupEditor extends React.Component {
   constructor(props) {
     super(props)
@@ -51,12 +37,6 @@ class AssetGroupEditor extends React.Component {
     this.onAjaxComplete = this.onAjaxComplete.bind(this)
     this.handleBarcodeReaderChange = this.handleBarcodeReaderChange.bind(this)
     this.assetsChanging = this.assetsChanging.bind(this)
-  }
-  listenSSE() {
-    const evtSource = new EventSource(this.props.assetGroup.updateUrl+'/sse', { withCredentials: true })
-    evtSource.addEventListener("asset_group", $.proxy(this.onSSEAssetGroupUpdates, this), false)
-    //evtSource.addEventListener("asset_running", $.proxy(this.onAssetsChanging, this), false)
-    //evtSource.addEventListener("active_step", $.proxy(this.onActiveStepUpdates, this), false)
   }
   handleBarcodeReaderChange(e) {
     this.setState({barcodesInputText: e.target.value})
@@ -86,8 +66,7 @@ class AssetGroupEditor extends React.Component {
   render() {
     return(
       <Dropzone uploader={ new FineUploaderTraditional(uploaderOptions(this.props)) }>
-        <div className="form-group" data-psd-component-class="AssetGroup"
-           data-psd-component-parameters="{}">
+        <div className="form-group">
            <FormFor
              url={this.props.assetGroup.updateUrl}
              data-turbolinks="false"
@@ -106,6 +85,7 @@ class AssetGroupEditor extends React.Component {
                </div>
                <div className="panel-body collapse in" id="collapseAssets">
                  <AssetGroup
+                   uuidsPendingRemoval={this.props.uuidsPendingRemoval}
                    dataAssetDisplay={this.props.dataAssetDisplay}
                    activityRunning={this.props.activityRunning}
                    onCollapseFacts={this.props.onCollapseFacts}

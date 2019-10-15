@@ -71,6 +71,26 @@ class TransferTubesToTubeRackByPosition
     true
   end
 
+  def validate_same_aliquot_between_tubes_and_destination_plate(tubes, rack, updates)
+    aliquot_tubes = Fact.where(asset_id: tubes.map(&:id), predicate: 'aliquotType').map(&:object).uniq
+    if aliquot_tubes.length > 1
+      updates.set_errors(["More that one different aliquot in the source tubes"])
+      return false
+    end
+    aliquot_plate = rack.facts.where(predicate: 'aliquotType').map(&:object).uniq
+    if aliquot_plate.length > 1
+      updates.set_errors(["More thatn one aliquot in the destination plate"])
+      return false
+    end
+    if aliquot_plate.length > 0
+      if aliquot_tubes.first != aliquot_plate.first
+        updates.set_errors(["Aliquot for tubes #{aliquot_tubes.first} is different from aliquot at rack #{aliquot_plate.first}"])
+        return false
+      end
+    end
+    true
+  end
+
   def process
     FactChanges.new.tap do |updates|
       aliquot_types = []
@@ -102,6 +122,7 @@ class TransferTubesToTubeRackByPosition
         if aliquot_types
 
           return updates unless validate_all_tubes_have_aliquot(tubes, updates)
+          return updates unless validate_same_aliquot_between_tubes_and_destination_plate(tubes, rack, updates)
 
           if (((aliquot_types.uniq.length) == 1) && (aliquot_types.uniq.first == 'DNA'))
             purpose_name = 'DNA Stock Plate'

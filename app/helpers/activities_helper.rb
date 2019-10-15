@@ -43,7 +43,7 @@ module ActivitiesHelper
       {
         stepUpdateUrl: Rails.application.routes.url_helpers.step_path(step),
         activity: step.activity,
-        asset_group: step.asset_group,
+        assetGroup: step.asset_group,
         step_type: step.step_type,
         operations: operations_data(step.operations.joins(:asset)),
         username: username
@@ -144,7 +144,7 @@ module ActivitiesHelper
   def step_type_templates_data_for_step_types(activity, step_types, asset_group)
     step_types.select{|s| !s.step_template.blank? }.map do |st|
       {
-        asset_group: asset_group,
+        assetGroup: asset_group,
         createStepUrl: Rails.application.routes.url_helpers.activity_steps_path(activity),
         stepType: st,
         name: st.name,

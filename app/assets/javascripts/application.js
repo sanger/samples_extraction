@@ -20,8 +20,6 @@
 //= require turbolinks
 
 //= require component_builder
-//= require upload_file
-//= require activities
 //= require asset_facts
 //= require barcode_reader
 //= require condition_groups
@@ -37,7 +35,6 @@
 //= require fact_reader
 //= require finish_step_button
 //= require user_status
-//= require activity_real_time_updates
 //= require add_fact_to_searchbox
 //= require tube_into_rack
 //= require ace-rails-ap

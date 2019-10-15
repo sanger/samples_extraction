@@ -1,9 +1,53 @@
 require 'rails_helper'
 require 'remote_assets_helper'
 
-RSpec.describe 'Asset::Import' do
+RSpec.describe 'Assets::Import' do
 	include RemoteAssetsHelper
 
+
+  context '#refresh!' do
+    let(:asset) { create :asset }
+    let(:plate) { build_remote_plate }
+
+    before do
+      allow(asset).to receive(:_process_refresh)
+      allow(SequencescapeClient).to receive(:find_by_uuid).and_return(true)
+    end
+
+    context 'when it is not a remote asset' do
+      before do
+        allow(asset).to receive(:is_remote_asset?).and_return(false)
+      end
+
+      it 'does not refresh' do
+        asset.refresh!
+        expect(asset).not_to have_received(:_process_refresh)
+      end
+    end
+    context 'when it is a remote asset' do
+      before do
+        allow(asset).to receive(:is_remote_asset?).and_return(true)
+      end
+      context 'when the asset has changed' do
+        before do
+          allow(asset).to receive(:changed_remote?).and_return(true)
+        end
+        it 'refreshes the asset' do
+          asset.refresh!
+          expect(asset).to have_received(:_process_refresh)
+        end
+      end
+      context 'when the asset has not changed' do
+        before do
+          allow(asset).to receive(:changed_remote?).and_return(false)
+        end
+        it 'refreshes the asset' do
+          asset.refresh!
+          expect(asset).to have_received(:_process_refresh)
+        end
+      end
+    end
+  end
   context '#refresh' do
     let(:asset) { create :asset }
     let(:plate) { build_remote_plate }
@@ -14,12 +58,12 @@ RSpec.describe 'Asset::Import' do
     it 'recognises a plate' do
       asset.facts << create(:fact, predicate: 'a', object: 'TubeRack', is_remote?: true)
       asset.refresh
-      expect(SequencescapeClient).to have_received(:find_by_uuid).with(asset.uuid, :plate)
+      expect(SequencescapeClient).to have_received(:find_by_uuid).with(asset.uuid)
     end
     it 'recognises a tube' do
       asset.facts << create(:fact, predicate: 'a', object: 'Tube', is_remote?: true)
       asset.refresh
-      expect(SequencescapeClient).to have_received(:find_by_uuid).with(asset.uuid, :tube)
+      expect(SequencescapeClient).to have_received(:find_by_uuid).with(asset.uuid)
     end
     context 'when actually updating' do
       before do
@@ -56,18 +100,18 @@ RSpec.describe 'Asset::Import' do
         expect{asset.reload}.not_to raise_error
         expect{asset2.reload}.not_to raise_error
       end
-      it 'does not destroy the local facts of the assets linked with remote facts that are changing' do
+      it 'replaces the local facts of the assets linked with remote facts that are changing' do
         asset2 = create(:asset, uuid: plate.wells.first.uuid)
         fact_well = create(:fact, predicate: 'location', object: 'A01', is_remote?: false)
         asset2.facts << fact_well
         fact = create(:fact, predicate: 'contains', object_asset_id: asset2.id, is_remote?: true)
         asset.facts << fact
         asset.refresh
-        expect{fact_well.reload}.not_to raise_error
+        expect{fact_well.reload}.to raise_error(ActiveRecord::RecordNotFound)
         expect{asset2.reload}.not_to raise_error
       end
 
-      it 'destroys the remote facts of the assets linked with remote facts that are changing' do
+      it 'replaces the remote facts of the assets linked with remote facts that are changing' do
         asset2 = create(:asset, uuid: plate.wells.first.uuid)
         fact_well = create(:fact, predicate: 'location', object: 'A01', is_remote?: true)
         asset2.facts << fact_well
@@ -123,7 +167,7 @@ RSpec.describe 'Asset::Import' do
         end
         it 'should try to obtain a tube' do
           @asset = Asset.find_or_import_asset_with_barcode(@remote_tube_asset.barcode)
-          expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_tube_asset.uuid, :tube)
+          expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_tube_asset.uuid)
         end
       end
 
@@ -134,7 +178,7 @@ RSpec.describe 'Asset::Import' do
         end
         it 'should try to obtain a plate' do
           @asset = Asset.find_or_import_asset_with_barcode(@remote_plate_asset.barcode)
-          expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_plate_asset.uuid, :plate)
+          expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_plate_asset.uuid)
         end
 
         context 'when the supplier sample name has not been provided to some samples' do
@@ -149,12 +193,12 @@ RSpec.describe 'Asset::Import' do
               @remote_plate_asset_without_supplier = build_remote_plate(barcode: '5', wells: wells)
               stub_client_with_asset(SequencescapeClient, @remote_plate_asset_without_supplier)
             end
-            it 'imports the information of the wells that have a supplier name ignoring the others' do
+            it 'imports the information of the wells that have a supplier name' do
               @asset = Asset.find_or_import_asset_with_barcode(@remote_plate_asset_without_supplier.barcode)
-              expect(@asset.facts.with_predicate('contains').count).to eq(2)
-              expect(@asset.facts.with_predicate('contains').map(&:object_asset).map do |w|
-                w.facts.with_predicate('location').map(&:object)
-              end.flatten).to eq(['C1','D1'])
+              wells = @asset.facts.with_predicate('contains').map(&:object_asset)
+              wells_with_info = wells.select{|w| w.facts.where(predicate: 'supplier_sample_name').count > 0}
+              locations_with_info = wells_with_info.map{|w| w.facts.with_predicate('location').first.object}
+              expect(locations_with_info).to eq(['C1','D1'])
             end
           end
           context 'when the asset is a tube' do
@@ -222,6 +266,14 @@ RSpec.describe 'Asset::Import' do
         end).to eq(true)
 			end
 
+      it 'should store the study uuid in a safe format' do
+        @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
+        study_uuid = @remote_plate_asset.wells.first.aliquots.first.study.uuid
+        @asset.facts.reload
+        asset_study_uuid = @asset.facts.where(predicate: 'study_uuid').first.object
+        expect(asset_study_uuid).to eq(TokenUtil.quote(study_uuid))
+      end
+
 		  context 'for the first time' do
 		  	it 'should create the local asset' do
 		  		expect(Asset.count).to eq(0)
@@ -236,7 +288,7 @@ RSpec.describe 'Asset::Import' do
             allow(SequencescapeClient).to receive(:find_by_uuid).and_return(nil)
           end
           it 'should raise an exception' do
-            expect{Asset.find_or_import_asset_with_barcode(@barcode_plate)}.to raise_exception Asset::Import::RefreshSourceNotFoundAnymore
+            expect{Asset.find_or_import_asset_with_barcode(@barcode_plate)}.to raise_exception Assets::Import::RefreshSourceNotFoundAnymore
           end
         end
         context 'when the remote source is present' do

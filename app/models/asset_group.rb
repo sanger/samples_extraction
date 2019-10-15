@@ -18,8 +18,8 @@ class AssetGroup < ActiveRecord::Base
 
   after_touch :touch_activity
 
-  def refresh
-    assets.each(&:refresh)
+  def refresh!
+    assets.each(&:refresh!)
   end
 
   def update_with_assets(assets_to_update)
@@ -30,6 +30,8 @@ class AssetGroup < ActiveRecord::Base
       updates = FactChanges.new
       updates.add_assets([[self, added_assets]]) if added_assets
       updates.remove_assets([[self, removed_assets]]) if removed_assets
+
+      refresh!
 
       ActiveRecord::Base.transaction do
         step = Step.create(activity: activity_owner, asset_group: self,

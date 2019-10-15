@@ -1,15 +1,12 @@
 require 'actions/racking'
+require 'token_util'
 include Actions::Racking
 
 return unless ARGV.any?{|s| s.match(".json")}
 
 updates = FactChanges.new
 
-def location_for_position(i)
-  letters = ("A".."H").to_a
-  columns = (1..12).to_a
-  "#{letters[(i%letters.length).floor]}#{(columns[i/letters.length]).to_s}"
-end
+
 
 args = ARGV[0]
 out({}) unless args
@@ -23,8 +20,11 @@ locations_with_tube = Fact.where(predicate: 'location', asset_id: tube_ids_in_ra
 
 tubes = asset_group.assets.joins(:facts).where(facts: { predicate: 'a', object: 'Tube'})
 
-all_locations = 96.times.map{|i| location_for_position(i)}
-available_locations = all_locations - locations_with_tube
+LETTERS = ("A".."H").to_a
+COLUMNS = (1..12).to_a
+POSITIONS = TokenUtil.generate_positions(LETTERS, COLUMNS)
+
+available_locations = POSITIONS - locations_with_tube
 
 if available_locations.length < tubes.length
   updates.set_errors(['There are not enough locations available for the tubes'])

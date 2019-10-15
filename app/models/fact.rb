@@ -8,6 +8,9 @@ class Fact < ActiveRecord::Base
   scope :with_fact, -> (predicate, object) { where(:predicate => predicate, :object => object)}
   scope :from_remote_asset, ->() { where(:is_remote? => true) }
 
+  validates :object_asset_id, presence: true, unless: :literal?
+  validates :object_asset_id, presence: false, if: :literal?
+
   def set_to_remove_by(step)
     update_attributes!(:to_remove_by => step)
   end

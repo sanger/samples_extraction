@@ -1,16 +1,19 @@
 module Actions
   module PlateTransfer
-
-    def to_sequencescape_location(location)
+    def self.to_sequencescape_location(location)
       loc = location.match(/(\w)(0*)(\d*)/)
       loc[1]+loc[3]
     end
 
-    def ignored_predicates
-      ['a', 'parent']
+    def self.ignored_predicates_for_existing_well
+      ['a', 'parent', 'pushedTo']
     end
 
-    def validate_plate_is_compatible_with_aliquot(updates, plate, aliquotType)
+    def self.ignored_predicates_for_new_well
+      ['pushedTo']
+    end
+
+    def self.validate_plate_is_compatible_with_aliquot(updates, plate, aliquotType)
       aliquots = plate.facts.with_predicate('aliquotType').map(&:object).uniq
       return true if aliquots.empty?
       if ((aliquots.size != 1) || (aliquots.first != aliquotType))
@@ -23,7 +26,7 @@ module Actions
     end
 
 
-    def validate_tube_is_compatible_with_aliquot(updates, tube, aliquotType)
+    def self.validate_tube_is_compatible_with_aliquot(updates, tube, aliquotType)
       aliquots = tube.facts.with_predicate('aliquotType').map(&:object).uniq
       return true if aliquots.empty?
       if ((aliquots.size != 1) || (aliquots.first != aliquotType))
@@ -35,9 +38,10 @@ module Actions
       true
     end
 
-    def transfer_by_location(plate, destination)
+    def self.transfer_by_location(plate, destination, updates=nil)
       aliquot = plate.facts.where(predicate: 'aliquotType').first
-      FactChanges.new.tap do |updates|
+      updates ||= FactChanges.new
+      updates.tap do |updates|
         return updates unless validate_plate_is_compatible_with_aliquot(updates, destination, aliquot.object) if aliquot
         updates.add(destination, 'aliquotType', aliquot.object) if aliquot
         value = plate.facts.with_predicate('contains').reduce({}) do |memo, f|
@@ -58,7 +62,7 @@ module Actions
             return updates unless validate_tube_is_compatible_with_aliquot(updates, asset2, aliquot.object) if aliquot
             updates.add(asset2, 'aliquotType', aliquot.object) if aliquot && !asset2.has_predicate?('aliquotType')
             asset1.facts.each do |fact|
-              unless ignored_predicates.include?(fact.predicate)
+              unless ignored_predicates_for_existing_well.include?(fact.predicate)
                 updates.add(asset2, fact.predicate, fact.object_value)
               end
             end
@@ -67,31 +71,38 @@ module Actions
       end
     end
 
-    def transfer_with_asset_creation(plate, destination)
-      aliquot = plate.facts.where(predicate: 'aliquotType').first
-      FactChanges.new.tap do |updates|
+    def self.transfer_with_asset_creation(plate, destination, updates=nil)
+      aliquot_value = updates.values_for_predicate(destination, 'aliquotType').first
+      updates ||= FactChanges.new
+      updates.tap do |updates|
         contains_facts = plate.facts.with_predicate('contains').map do |contain_fact|
-          well = contain_fact.object_asset.dup
-          well.uuid = nil
-          well.barcode = contain_fact.object_asset.barcode
-          well.facts = contain_fact.object_asset.facts.map(&:dup)
-          updates.create_assets([well])
-          contain_fact.object_asset.facts.each do |fact|
-            updates.add(well, fact.predicate, fact.object_value)
+          source_well = contain_fact.object_asset
+          destination_well = Asset.new
+          updates.create_assets([destination_well])
+          source_well.facts.each do |fact|
+            unless ignored_predicates_for_new_well.include?(fact.predicate)
+              updates.add(destination_well, fact.predicate, fact.object_value, literal: fact.literal)
+            end
           end
-          updates.add(well, 'barcodeType', 'NoBarcode')
-          updates.add(well, 'aliquotType', aliquot.object) if aliquot && !well.has_predicate?('aliquotType')
-          updates.add(destination, 'contains', well)
+          updates.add(destination_well, 'barcodeType', 'NoBarcode')
+          if aliquot_value && !source_well.has_predicate?('aliquotType')
+            updates.add(destination_well, 'aliquotType', aliquot_value)
+          end
+          updates.add(destination, 'contains', destination_well)
         end
       end
     end
 
-    def transfer_plates(plate, destination)
-      FactChanges.new.tap do |updates|
-        if (destination.facts.with_predicate('contains').count > 0)
-          updates.merge(transfer_by_location(plate, destination))
+    #
+    # plate: Asset
+    # destimation: Asset or String representing a uuid or a wildcard
+    def self.transfer_plates(plate, destination, updates=nil)
+      updates ||= FactChanges.new
+      updates.tap do |updates|
+        if destination.kind_of?(Asset) && (destination.has_wells?)
+          transfer_by_location(plate, destination, updates)
         else
-          updates.merge(transfer_with_asset_creation(plate, destination))
+          transfer_with_asset_creation(plate, destination, updates)
         end
       end
     end

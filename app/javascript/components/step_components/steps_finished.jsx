@@ -102,7 +102,7 @@ class StepsFinished extends React.Component {
   renderStepRow(step,index) {
     const stepTypeName = step.step_type ? step.step_type.name : ''
     const stepActivityId = step.activity ? step.activity.id : ''
-    const stepAssetGroup = step.asset_group ? step.asset_group.id : ''
+    const stepAssetGroup = step.assetGroup ? step.assetGroup.id : ''
     const stepUsername = step.username
     const classForState = (step.state == C.STEP_STATE_RUNNING) ? 'spinner' : ''
 
@@ -119,10 +119,11 @@ class StepsFinished extends React.Component {
             className={"clickable  "+ this.colorForState(step.state)}>
             <td>{ step.id }</td>
             <td>{ stepTypeName }</td>
-            <td>{ step.operations.length }</td>
+            <td>{ stepActivityId }</td>
             <td>{ stepAssetGroup }</td>
-            <td>{ stepUsername }</td>
+            <td>{ step.operations.length }</td>
             <td>{ this.renderDuration(step) }</td>
+            <td>{ stepUsername }</td>
             <td className={classForState}>
               {step.state} &nbsp;
               { this.imageForState(step.state) }
@@ -134,8 +135,8 @@ class StepsFinished extends React.Component {
               <div id={"step-"+ step.id } className="collapse">
                 <div className="col-md-12" style={{paddingTop: "1em", paddingBottom: "1em"}}>
                   <StepControl step={step}
-                          onChangeStateStep={this.props.onChangeStateStep}
-                          isDisabled={this.props.activityRunning && (!step.state ===null)} />
+                    onChangeStateStep={this.props.onChangeStateStep}
+                    isDisabled={this.props.activityRunning && (!step.state ===null)} />
                 </div>
                 <table className="table">
                   <thead>
@@ -155,8 +156,10 @@ class StepsFinished extends React.Component {
   }
   renderHeaders() {
     return(<thead>
-            <tr><th>Step id</th><th>Step type</th><th>Num. operations</th>
-            <th>Asset Group</th><th>Username</th><th>Duration</th><th>Status</th></tr>
+            <tr>
+              <th>Step id</th><th>Step type</th><th>Activity</th><th>Asset Group</th>
+              <th>Num. operations</th> <th>Duration</th> <th>Username</th><th>Status</th>
+            </tr>
           </thead>)
   }
   renderSteps() {

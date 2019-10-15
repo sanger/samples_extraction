@@ -144,7 +144,7 @@
     proto.readUserBarcode = function(e, data) {
     	e.stopPropagation();
     	$(this.node).trigger('load_start.loading_spinner', {});
-    	$.ajax({method: 'post', cache: false, 
+    	$.ajax({method: 'post', cache: false,
         dataType: "json",
         url: this.userServiceUrl,
         data:{user_session: data}, dataType: 'json',

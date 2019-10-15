@@ -1,4 +1,4 @@
-module Asset::Export
+module Assets::Export
 
 
   class DuplicateLocations < StandardError ; end
@@ -12,7 +12,7 @@ module Asset::Export
   def _update_sequencescape(print_config, user, step)
     FactChanges.new.tap do |updates|
       begin
-        instance = SequencescapeClient.find_by_uuid(uuid)
+        instance = SequencescapeClient.version_1_find_by_uuid(uuid)
         unless instance
           instance = SequencescapeClient.create_plate(class_name, {}) if class_name
         end
@@ -39,7 +39,7 @@ module Asset::Export
       rescue Timeout::Error => e
         updates.set_errors(['Sequencescape connection - Timeout error occurred.'])
       rescue StandardError => err
-        updates.set_errors(['Sequencescape connection - There was an error while updating Sequencescape'])
+        updates.set_errors(['Sequencescape connection - There was an error while updating Sequencescape'+err.backtrace.to_s])
       end
     end
   end
@@ -56,7 +56,7 @@ module Asset::Export
 
   def update_plate(instance, updates)
     instance.wells.each do |well|
-      fact = fact_well_at(well.position['name'])
+      fact = fact_well_at(well.location)
       if fact
         w = fact.object_asset
         if w && w.uuid != well.uuid
@@ -70,7 +70,7 @@ module Asset::Export
   def fact_well_at(location)
     facts.with_predicate('contains').select do |f|
       if f.object_asset
-        to_sequencescape_location(f.object_asset.facts.with_predicate('location').first.object) == to_sequencescape_location(location)
+        TokenUtil.unpad_location(f.object_asset.facts.with_predicate('location').first.object) == TokenUtil.unpad_location(location)
       end
     end.first
   end
@@ -96,34 +96,42 @@ module Asset::Export
     raise DuplicateLocations if duplicate_locations_in_plate?
     facts.with_predicate('contains').map(&:object_asset).map do |well|
       racking_info(well)
-    end
+    end.compact
   end
 
-  def to_sequencescape_location(location)
-    loc = location.match(/(\w)(0*)(\d*)/)
-    loc[1]+loc[3]
+
+  def has_sample?
+    has_predicate_with_value?('supplier_sample_name') ||
+    has_relation_with_value?('sample_tube') ||
+    has_predicate_with_value?('sample_uuid')
   end
 
   def racking_info(well)
+    # If it was already in SS, always export it
     if well.has_literal?('pushedTo', 'Sequencescape')
       return {
         uuid: well.uuid,
-        location: to_sequencescape_location(well.facts.with_predicate('location').first.object)
+        location: TokenUtil.unpad_location(well.facts.with_predicate('location').first.object)
       }
     end
+
+    # Do not export any well information unless it has a sample defined for it
+    return nil unless well.has_sample?
+
     well.facts.reduce({}) do |memo, fact|
       if (['sample_tube'].include?(fact.predicate))
         memo["#{fact.predicate}_uuid".to_sym] = fact.object_asset.uuid
       end
       if (fact.predicate == 'location')
-        memo[fact.predicate.to_sym] = to_sequencescape_location(fact.object)
+        memo[fact.predicate.to_sym] = TokenUtil.unpad_location(fact.object)
       end
       if (['aliquotType', 'sanger_sample_id',
         'sanger_sample_name', 'sample_uuid'].include?(fact.predicate))
-        memo[fact.predicate.to_sym] = fact.object
+        memo[fact.predicate.to_sym] = TokenUtil.unquote(fact.object)
       end
       memo
     end
+
   end
 
 end

@@ -18,6 +18,10 @@ module Steps::Cancellable
     save_job(delay(queue: 'steps')._cancel_me)
   end
 
+  def remake_me
+    save_job(delay(queue: 'steps')._remake_me)
+  end
+
   def cancellable?
     true
   end
@@ -38,6 +42,14 @@ module Steps::Cancellable
       operations.update_all(cancelled?: true)
     end
   end
+
+  def _remake_me
+    ActiveRecord::Base.transaction do
+      fact_changes_for_option(:remake).apply(self, false)
+      operations.update_all(cancelled?: false)
+    end
+  end
+
 
   def _cancel_me_and_any_newer_completed_steps(change_state=true)
     changes = [

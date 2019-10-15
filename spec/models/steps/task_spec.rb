@@ -64,6 +64,21 @@ describe Steps::Task do
           }.to change{Asset.all.count}.by(2).and change{Fact.count}
         end
       end
+      context 'when it has cancelled operations from previous failed executions' do
+        let(:step) { create_instance(step_type, activity, group) }
+        before do
+          step.operations << create(:operation, action_type: 'add_facts', asset: asset, predicate: 'a', object: 'tube', cancelled?: true)
+        end
+        it 'does not run the default step execution' do
+          allow(InferenceEngines::Default::StepExecution).to receive(:new)
+          step.run!
+          expect(InferenceEngines::Default::StepExecution).not_to have_received(:new)
+        end
+        it 'remakes the operations' do
+          expect(step).to receive(:remake_me)
+          step.run!
+        end
+      end
       context 'when the step works fine but the step action fails' do
         let(:failable_execution) {
           execution = double('step_execution')

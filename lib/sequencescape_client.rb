@@ -23,11 +23,11 @@ class SequencescapeClient
     @client ||= Sequencescape::Api.new(self.api_connection_options)
   end
 
-  #def self.find_by_uuid(uuid, type=:plate)
-  #  client.send(type).find(uuid)
-  #rescue Sequencescape::Api::ResourceNotFound => exception
-  #  return nil
-  #end
+  def self.version_1_find_by_uuid(uuid, type=:plate)
+    client.send(type).find(uuid)
+  rescue Sequencescape::Api::ResourceNotFound => exception
+    return nil
+  end
 
   def self.update_extraction_attributes(instance, attrs, username='test')
     instance.extraction_attributes.create!(:attributes_update => attrs, :created_by => username)
@@ -66,12 +66,20 @@ class SequencescapeClient
   end
 
   def self.find_by(search_conditions)
-    search = SequencescapeClientV2::Plate.where(search_conditions)
-    search = search.first if search
-    return search if search
-    search = SequencescapeClientV2::Tube.where(search_conditions)
-    search = search.first if search
-    return search if search
+    [
+      SequencescapeClientV2::Plate,
+      SequencescapeClientV2::Tube,
+      SequencescapeClientV2::Well
+    ].each do |klass|
+      begin
+        search = klass.where(search_conditions)
+        search = search.first if search
+        return search if search
+      rescue JsonApiClient::Errors::ClientError => e
+        # Ignore filter error
+      end
+    end
+    nil
   end
 
 

@@ -6,8 +6,8 @@ require 'pry'
 class Asset < ActiveRecord::Base
   include Uuidable
   include Printables::Instance
-  include Asset::Import
-  include Asset::Export
+  include Assets::Import
+  include Assets::Export
   include Assets::FactsManagement
   include Assets::TractionFields
 
@@ -167,7 +167,7 @@ class Asset < ActiveRecord::Base
 
   def printable_object(username = 'unknown')
     return nil if barcode.nil?
-    if ((class_type=='Plate')||(class_type=='TubeRack'))
+    if (kind_of_plate?)
       return {
         :label => {
           :barcode => barcode,
@@ -238,6 +238,14 @@ class Asset < ActiveRecord::Base
     return 'SampleTube' if class_types.include?('SampleTube')
     return facts.select{|f| f[:predicate] == 'a'}.first.object if facts.select{|f| f[:predicate] == 'a'}.first
     return ""
+  end
+
+  def kind_of_plate?
+    (class_type=='Plate')||(class_type=='TubeRack')
+  end
+
+  def has_wells?
+    (kind_of_plate? && (facts.with_predicate('contains').count > 0))
   end
 
   def class_type

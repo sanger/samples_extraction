@@ -119,6 +119,28 @@ RSpec.describe 'TransferTubesToTubeRackByPosition' do
               expect(purposes.first[2]).to eq("RNA Stock Plate")
             end
           end
+
+          context 'when the plate has already an aliquot set' do
+            before do
+              rack.facts << create(:fact, predicate: 'aliquotType', object: aliquot_rack)
+            end
+            context 'when the aliquot at source tubes is different from the aliquot already in the plate' do
+              let(:aliquot) { aliquot_dna }
+              let(:aliquot_rack) { aliquot_rna }
+              it 'produces an error' do
+                set_errors = instance.process.to_h[:set_errors]
+                expect(set_errors.count).not_to eq(0)
+              end
+            end
+            context 'when the aliquot at source tubes is equal to the aliquot already in the plate' do
+              let(:aliquot) { aliquot_dna }
+              let(:aliquot_rack) { aliquot_dna }
+              it 'does not produce an error' do
+                set_errors = instance.process.to_h[:set_errors]
+                expect(set_errors.nil?).to eq(true)
+              end
+            end
+          end
         end
       end
 
