@@ -16,6 +16,10 @@ module Assets::TractionFields
     _get_values_for_predicate('pipeline')
   end
 
+  def species
+    _get_values_for_predicate('sample_common_name')
+  end
+
   def library_type
     _get_values_for_predicate('library_type')
   end

@@ -48,7 +48,7 @@ module RemoteAssetsHelper
 		attrs_for_sample = {
 			sanger_sample_id: 'TEST-123',
 			name: 'a sample name',
-			sample_metadata: double('sample_metadata', {supplier_name: 'a supplier'}),
+			sample_metadata: double('sample_metadata', {supplier_name: 'a supplier', sample_common_name: 'specie'}),
 			#sanger: double('sanger', { sample_id: 'TEST-123', name: 'a sample name'}),
 			uuid: SecureRandom.uuid,
 			#supplier: double('supplier', {sample_name: 'a supplier'}),

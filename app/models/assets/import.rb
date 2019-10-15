@@ -250,6 +250,7 @@ module Assets::Import
             updates.replace_remote(asset, 'sample_uuid', TokenUtil.quote(aliquot&.sample&.uuid), literal: true)
             updates.replace_remote(asset, 'sanger_sample_name', aliquot&.sample&.name)
             updates.replace_remote(asset, 'supplier_sample_name', aliquot&.sample&.sample_metadata&.supplier_name)
+            updates.replace_remote(asset, 'sample_common_name', aliquot&.sample&.sample_metadata&.sample_common_name)
           end
         end
       end
