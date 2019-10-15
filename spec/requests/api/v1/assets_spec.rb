@@ -9,13 +9,18 @@ RSpec.describe 'Api::V1::Sets', type: :request do
     }
   end
 
+  def key_for_attribute(attr_key)
+    # Because some Traction attributes has been stored with a different predicate in extraction
+    return :sample_common_name if attr_key == :species
+    return attr_key
+  end
 
   let(:asset) do
     asset = create(:asset, barcode: 'F02')
     sample_tube = create(:asset, uuid: test_attrs_for_asset[:sample_uuid])
 
     facts = test_attrs_for_asset.keys.map do |k|
-      create(:fact, predicate: k.to_s, object: test_attrs_for_asset[k])
+      create(:fact, predicate: key_for_attribute(k).to_s, object: test_attrs_for_asset[k])
     end
     asset.facts << facts
     asset.facts << create(:fact, predicate: 'sample_tube', object_asset: sample_tube, literal: false)
@@ -26,7 +31,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
     {
       barcode: 'F02', sample_uuid: 'uuid1', study_uuid: 'uuid2',
       pipeline: 'saphyr', library_type: 'lib1', estimate_of_gb_required: '1',
-      number_of_smrt_cells: '1', cost_code: 'S1234'
+      number_of_smrt_cells: '1', cost_code: 'S1234', species: 'Homo sapiens'
     }
   end
 
