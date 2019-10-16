@@ -73,6 +73,17 @@ RSpec.describe Step, type: :model do
     num.times.map { create_asset(type) }
   end
 
+  describe '#create' do
+    context 'when creating a step with a specific printer config' do
+      let(:printer_data_config) { {"Tube"=>"1234", "Plate"=>"6789"} }
+      it 'stores the printer config in the database' do
+        s = create(:step, printer_config: printer_data_config)
+        s2 = Step.find_by(id: s.id)
+        expect(s2.printer_config).to eq(printer_data_config)
+      end
+    end
+  end
+
   describe '#run' do
     setup do
       @step_type = FactoryBot.create :step_type

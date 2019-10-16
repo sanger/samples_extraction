@@ -3,13 +3,20 @@ require 'rails_helper'
 describe Steps::Task do
 
   let(:user) { create :user, username: 'test'}
+  let(:printer_config) {
+    {
+      "Plate" => "plates",
+      "Tube" => "tubes",
+      "TubeRack" => "plates"
+    }
+  }
   def build_instance
     asset_group = build :asset_group
-    build :step, asset_group: asset_group
+    build :step, asset_group: asset_group, printer_config: printer_config
   end
 
   def create_instance(step_type, activity, group)
-    create(:step, step_type: step_type, activity: activity, asset_group: group, user: user)
+    create(:step, step_type: step_type, activity: activity, asset_group: group, user: user, printer_config: printer_config)
   end
 
   #it_behaves_like 'background task'

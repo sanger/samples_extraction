@@ -47,6 +47,9 @@ class Activity extends React.Component {
     this.onChangeStateStep = this.onChangeStateStep.bind(this)
     this.changeStateStep = this.changeStateStep.bind(this)
 
+    this.onChangeTubePrinter = this.onChangeTubePrinter.bind(this)
+    this.onChangePlatePrinter = this.onChangePlatePrinter.bind(this)
+
     this.onCollapseFacts = this.onCollapseFacts.bind(this)
     this.onAddBarcodesToAssetGroup = this.onAddBarcodesToAssetGroup.bind(this)
 
@@ -200,10 +203,10 @@ class Activity extends React.Component {
     })
   }
 
-  onChangeTubePrinter() {
+  onChangeTubePrinter(e) {
     this.setState({selectedTubePrinter: e.target.value})
   }
-  onChangePlatePrinter() {
+  onChangePlatePrinter(e) {
     this.setState({selectedPlatePrinter: e.target.value})
   }
   onExecuteStep(msg) {

@@ -13,16 +13,18 @@ class PrintersSelection extends React.Component {
       <div className="row">
         <div className="form-group col-xs-6">
           <LabelTag htmlFor="tube_printer_select">Tube Printer</LabelTag>
-          <SelectTag name="tube_printer_select" className="form-control" 
+          <SelectTag name="tube_printer_select" className="form-control"
             defaultValue={this.props.tubePrinter.defaultValue}
+            onChange={this.props.onChangeTubePrinter}
             >
             {this.renderOptions(this.props.tubePrinter.optionsData)}
           </SelectTag>
         </div>
         <div className="form-group col-xs-6">
           <LabelTag htmlFor="plate_printer_select">Plate Printer</LabelTag>
-          <SelectTag name="plate_printer_select" className="form-control" 
+          <SelectTag name="plate_printer_select" className="form-control"
             defaultValue={this.props.platePrinter.defaultValue}
+            onChange={this.props.onChangePlatePrinter}
             >
             {this.renderOptions(this.props.platePrinter.optionsData)}
           </SelectTag>
