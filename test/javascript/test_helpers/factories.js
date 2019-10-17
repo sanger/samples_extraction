@@ -13,14 +13,16 @@ const buildEmptyActivityState = () => {
     },
     "tubePrinter":{
       "optionsData":[
-        ["printer 1",1]
+        ["printer 1",1],
+        ["printer 2",8]
       ],
       "defaultValue":8
     },"platePrinter":{
       "optionsData":[
-        ["printer 2",2]
+        ["printer 3",2],
+        ["printer 14",14]
       ],
-      "defaultValue":2
+      "defaultValue":14
     },
     "shownComponents":{},
     "activityRunning":false,
