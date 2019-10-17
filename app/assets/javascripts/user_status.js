@@ -104,7 +104,7 @@
    };
 
    proto.logoutUrl = function() {
-    return this.userServiceUrl+'/'+this.getBarcode()
+    return this.userServiceUrl.replace('create', 'delete')
    };
 
    proto.logout = function(e) {
