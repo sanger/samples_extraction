@@ -30,7 +30,7 @@ class AssetGroupsController < ApplicationController
   def upload
     @file = UploadedFile.create(filename: params[:qqfilename], data: params[:qqfile].read)
     asset = @file.build_asset(content_type: params[:qqfile].content_type)
-    @asset_group.assets << asset
+    @asset_group.update_with_assets([].concat(@asset_group.assets).concat([asset]))
     @asset_group.touch
 
     render json: {success: true}
