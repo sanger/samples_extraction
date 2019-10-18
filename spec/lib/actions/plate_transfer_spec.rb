@@ -21,6 +21,7 @@ RSpec.describe Actions::PlateTransfer do
         well.facts << create(:fact, predicate: 'a', object: 'Well')
         well.facts << create(:fact, predicate: 'location', object: 'A01')
         well.facts << create(:fact, predicate: 'aliquotType', object: 'DNA')
+        well.facts << create(:fact, predicate: 'sample_common_name', object: 'species')
 
         source.facts << create(:fact, predicate: 'contains', object_asset: well2)
         well2.facts << create(:fact, predicate: 'a', object: 'Well')
@@ -31,6 +32,7 @@ RSpec.describe Actions::PlateTransfer do
         updates = Actions::PlateTransfer.transfer_plates(source,destination)
         expect(updates.to_h[:add_facts].select{|t| t[1]=='location'}.map{|t| t[2]}).to eq(["A01", "B01"])
         expect(updates.to_h[:add_facts].select{|t| t[1]=='concentration'}.map{|t| t[2]}).to eq(["1.3"])
+        expect(updates.to_h[:add_facts].select{|t| t[1]=='sample_common_name'}.map{|t| t[2]}).to eq(["species"])
         expect(updates.to_h[:add_facts].select{|t| t[1]=='a'}.map{|t| t[2]}).to eq(["Well", "Well"])
       end
       it 'can copy facts with uuid values' do

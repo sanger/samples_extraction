@@ -2,7 +2,7 @@ module Actions
   module TubeTransfer
     def transfer_tubes(asset, modified_asset)
       FactChanges.new.tap do |updates|
-        ['study_uuid', 'sample_uuid', 'sanger_sample_name', 'supplier_sample_name'].each do |field|
+        ['study_uuid', 'sample_uuid', 'sanger_sample_name', 'supplier_sample_name', 'sample_common_name'].each do |field|
           if (asset.has_predicate?(field))
             updates.add(modified_asset, field, asset.facts.with_predicate(field).first.object)
           end
