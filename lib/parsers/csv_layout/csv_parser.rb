@@ -58,13 +58,6 @@ module Parsers
         self_error_list.concat(line_parser.error_list)
       end
 
-
-      def error_list_for_parser(parser, numline)
-        parser.errors.messages.values.map do |msg|
-          "At line #{numline}: #{msg[0]}"
-        end
-      end
-
       protected
 
       def validate_parsed_data
