@@ -17,7 +17,7 @@ class StepsController < ApplicationController
     @activity.create_step({
       step_type: @step_type,
       user: @current_user,
-      printer: @printer_config,
+      printer_config: @printer_config,
       asset_group: @asset_group
     })
     head :ok

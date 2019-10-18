@@ -24,7 +24,7 @@ module Steps::Task
       assets_for_printing = assets_for_printing.to_a.concat(updates.assets_for_printing)
     end
     if assets_for_printing.length > 0
-      AssetGroup.new(assets: assets_for_printing).print(user.printer_config, user.username)
+      AssetGroup.new(assets: assets_for_printing).print(printer_config, user.username)
     end
   end
 
