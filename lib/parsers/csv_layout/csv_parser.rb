@@ -54,7 +54,8 @@ module Parsers
       end
 
       def error_list
-        line_parser.error_list
+        self_error_list = errors.messages.values.flatten
+        self_error_list.concat(line_parser.error_list)
       end
 
       protected
