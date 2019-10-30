@@ -24,6 +24,37 @@ RSpec.describe FactChanges do
     end
   end
 
+  describe '#assets_for_printing' do
+    let(:updates) { FactChanges.new }
+    context 'with assets created with barcode' do
+      it 'returns assets created' do
+        uuid = SecureRandom.uuid
+        updates.create_assets([uuid]).apply(step)
+        asset = Asset.find_by(uuid: uuid)
+        expect(updates.assets_for_printing).to eq([asset])
+      end
+      it 'returns assets ready for print' do
+        asset = create(:asset, barcode: '1234')
+        updates.add(asset, 'is', 'readyForPrint')
+        updates.apply(step)
+        expect(updates.assets_for_printing).to eq([asset])
+      end
+      it 'does not print assets not for printing' do
+        asset2 = create(:asset, barcode: '1234')
+        asset3 = create :asset
+        uuid = SecureRandom.uuid
+        updates.create_assets([uuid])
+        updates.add(asset2, 'is', 'readyForPrint')
+        updates.add(asset3, 'color', 'Red')
+        updates.apply(step)
+
+        asset = Asset.find_by(uuid: uuid)
+
+        expect(updates.assets_for_printing.sort).to eq([asset, asset2].sort)
+      end
+    end
+  end
+
   describe '#parse_json' do
     let(:updates) { FactChanges.new }
     it 'raises exception when the parsed object is not right' do
