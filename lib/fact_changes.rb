@@ -234,10 +234,19 @@ class FactChanges
 
   def assets_for_printing
     return [] unless @operations
+
     asset_ids = @operations.select do |operation|
       (operation.action_type == 'createAssets')
     end.pluck(:object).uniq
-    @assets_for_printing=Asset.for_printing.where(uuid: asset_ids)
+
+    ready_for_print_ids = @operations.select do |operation|
+      ((operation.action_type == 'addFacts') &&
+      (operation.predicate == 'is') &&
+      (operation.object == 'readyForPrint'))
+    end.map(&:asset).compact.uniq.map(&:uuid)
+
+    ids_for_print = asset_ids.concat(ready_for_print_ids).flatten.uniq
+    @assets_for_printing=Asset.for_printing.where(uuid: ids_for_print)
   end
 
   def find_asset(asset_or_uuid)

@@ -70,6 +70,16 @@ describe Steps::Task do
             step.run!
           }.to change{Asset.all.count}.by(2).and change{Fact.count}
         end
+
+        it 'prints the selected list of assets' do
+          asset.reload
+
+          step = create_instance(step_type, activity, group)
+
+          expect_any_instance_of(AssetGroup).to receive(:print).with(printer_config, user.username)
+
+          step.run!
+        end
       end
       context 'when it has cancelled operations from previous failed executions' do
         let(:step) { create_instance(step_type, activity, group) }
