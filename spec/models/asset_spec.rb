@@ -25,4 +25,42 @@ RSpec.describe Asset do
       expect(something_else.has_wells?).to eq(false)
     end
   end
+
+  context '#study_name' do
+    let(:study) { 'A STUDY'}
+    context 'if it is a tube' do
+      it 'returns the study name of the tube' do
+        tube = create :asset
+        tube.facts << create(:fact, predicate: 'a', object: 'Tube')
+        tube.facts << create(:fact, predicate: 'study_name', object: study)
+        expect(tube.study_name).to eq(study)
+      end
+    end
+    context 'if it is a plate' do
+      context 'if the plate has a study name property' do
+        it 'returns the study name of the tube' do
+          plate = create :asset
+          plate.facts << create(:fact, predicate: 'a', object: 'Plate')
+          plate.facts << create(:fact, predicate: 'study_name', object: study)
+          expect(plate.study_name).to eq(study)
+        end
+      end
+      context 'if the plate do not have study name' do
+        context 'when the plate has tubes' do
+          context 'when the tubes have a study name' do
+            it 'returns the study name of the first tube' do
+              tube = create :asset
+              tube.facts << create(:fact, predicate: 'a', object: 'Tube')
+              tube.facts << create(:fact, predicate: 'study_name', object: study)
+
+              plate = create :asset
+              plate.facts << create(:fact, predicate: 'a', object: 'Plate')
+              plate.facts << create(:fact, predicate: 'contains', object_asset: tube)
+              expect(plate.study_name).to eq(study)
+            end
+          end
+        end
+      end
+    end
+  end
 end
