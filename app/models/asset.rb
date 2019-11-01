@@ -161,6 +161,13 @@ class Asset < ActiveRecord::Base
   def study_name
     if has_predicate?('study_name')
       return facts.with_predicate('study_name').first.object
+    else
+      if (kind_of_plate?)
+        tubes = facts.with_predicate('contains').map(&:object_asset)
+        if tubes.length > 0
+          return tubes.first.facts.with_predicate('study_name').first.object
+        end
+      end
     end
     return ''
   end
