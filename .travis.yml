@@ -1,6 +1,7 @@
 language: ruby
 before_install:
-  - gem install -v 1.16.2 bundler --no-rdoc --no-ri
+  - gem uninstall -v '>= 2' -i $(rvm gemdir)@global -ax bundler || true
+  - gem install bundler -v '< 2'
 before_script:
   - "export SECRET_KEY_BASE=`bundle exec rake secret`"
   - "bundle exec rake db:create RAILS_ENV=test"
