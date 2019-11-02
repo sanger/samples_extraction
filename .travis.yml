@@ -1,4 +1,6 @@
 language: ruby
+before_install:
+  - gem install -v 1.16.2 bundler --no-rdoc --no-ri
 before_script:
   - "export SECRET_KEY_BASE=`bundle exec rake secret`"
   - "bundle exec rake db:create RAILS_ENV=test"
