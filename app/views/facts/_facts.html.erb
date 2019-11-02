@@ -1,5 +1,5 @@
 <span class="facts-list ">
-  <span data-psd-component-class="RackWellDisplay" data-psd-component-parameters="<%= data_rack_display(facts) %>">
+  <span data-psd-component-class="RackWellDisplay" data-psd-component-parameters="<%= data_asset_display(facts) %>">
     <div class='svg '><%= svg Asset.class_type(facts) %></div>
     <div class="col-xs-10">
   <% facts.uniq.each do |fact| %>

@@ -1,11 +1,14 @@
 module StepExecutionProcess
-
   def run
-  	refresh
-
-  	inference
-    
-  	export
+    return false unless compatible?
+    plan
+    step.reload
+    if step.stopped?
+      return stop!
+    else
+      apply
+    end
   end
 
 end
+

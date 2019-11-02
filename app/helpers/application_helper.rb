@@ -1,11 +1,17 @@
 module ApplicationHelper
+  def unknown_aliquot_type
+    'unknown-aliquot'
+  end
+
+  def empty_well_aliquot_type
+    'empty-well-aliquot'
+  end
+
   def bootstrap_link_to(name = nil, options = nil, html_options = nil, &block)
     modified_options = {:class => 'btn btn-default'}
     modified_options.merge!(html_options) if html_options
     link_to(name, options, modified_options)
   end
-
-  UNKNOW_ALIQUOT_TYPE = 'unknown-aliquot'
 
   def default_ontologies
     [
@@ -48,42 +54,77 @@ module ApplicationHelper
     end
   end
 
-  def data_rack_display(facts)
-    #return '' unless facts.first.class == Fact
-    f = facts.select{|f| f.predicate == 'aliquotType'}.first
-    if f
-      return {:aliquot => {
-        :cssClass => [(f.object || UNKNOW_ALIQUOT_TYPE), facts.select{|f2| f2.predicate == 'is'}.map do |f_is|
-          [f_is.predicate, f_is.object].join('-')
-        end].compact.join(' '),
-        :url => ((f.class==Fact) ? asset_path(f.asset) : '')
-        }}.to_json
-    end
+  def render_react_display_for_asset(asset)
+    data_asset_display = {}.tap {|o| o[asset.uuid]=data_asset_display(asset.facts) }
+    react_component('FactsSvg',  { asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
+  end
 
-    unless facts.select{|f| f.predicate == 'contains'}.empty?
-      return facts.select{|f| f.predicate == 'contains'}.map do |fact|
-        [fact.object_asset, fact.object_asset.facts] if (fact.class == Fact) && (fact.object_asset)
-      end.compact.reduce({}) do |memo, list|
-        asset, facts = list[0],list[1]
-        f = facts.select{|f| f.predicate == 'location'}.first
-        unless f.nil?
-          location = f.object
-          f2 = facts.select{|f| f.predicate == 'aliquotType'}.first
-          aliquotType = f2 ? f2.object : nil
-          memo[location] = {:title => "#{asset.short_description}", :cssClass => aliquotType || UNKNOW_ALIQUOT_TYPE, :url => asset_path(asset)} unless location.nil?
+  def render_react_tooltip
+    react_component('ReactTooltip', {multiline: true, effect: 'solid'})
+  end
+
+  def facts_with_object_asset(facts)
+    facts.left_outer_joins(:object_asset).to_a.map {|f| f.attributes.merge({object_asset: object_with_facts(f.object_asset)})}
+  end
+
+  def object_with_facts(object)
+    return nil if object.nil?
+    object.attributes.merge(facts: object.facts)
+  end
+
+  def render_react_display_and_facts_for_asset(asset)
+    data_asset_display = {}.tap {|o| o[asset.uuid]=data_asset_display(asset.facts) }
+    react_component('Facts',  { asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
+  end
+
+  def render_react_edit_asset(asset, readonly=false)
+    data_asset_display = {}.tap {|o| o[asset.uuid]=data_asset_display(asset.facts) }
+    react_component('FactsEditor',  {
+      changesUrl: readonly ? nil : changes_url,
+      asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
+  end
+
+  def data_asset_display_for_plate(facts)
+    facts.with_predicate('contains').map(&:object_asset).reduce({}) do |memo, asset|
+      location = TokenUtil.unpad_location(asset.first_value_for('location'))
+      if (location && (asset.has_sample? || !asset.barcode.nil?))
+        if asset.has_sample?
+          aliquotType = asset.first_value_for('aliquotType') || unknown_aliquot_type
+        else
+          aliquotType = empty_well_aliquot_type
         end
-        memo
-      end.to_json
+        memo[location] = {
+          title: "#{asset.short_description}",
+          cssClass: aliquotType,
+          url: asset_path(asset)
+        } unless location.nil?
+      end
+      memo
     end
+  end
 
-    return {
-      :aliquot => {
-        :cssClass => facts.select{|f| f.predicate == 'is'}.map do |f|
-          "#{f.predicate}-#{f.object}"
-        end.join(' '),
-        :url => ''
+  def data_asset_display_for_tube(facts)
+    is_facts_values = facts.with_predicate('is').map { |f_is| [f_is.predicate, f_is.object].join('-') }
+    aliquot_fact = facts.with_predicate('aliquotType').first
+    if aliquot_fact
+      css_classes = [(aliquot_fact.object || unknown_aliquot_type), is_facts_values].compact.join(' ')
+      url = ((aliquot_fact.class==Fact) ? asset_path(aliquot_fact.asset) : '')
+      title = "#{aliquot_fact.asset.short_description}"
+    else
+      css_classes = is_facts_values
+      url=''
+      title=''
+    end
+    {
+      aliquot: {
+        cssClass: css_classes, title: title, url:  url
       }
-    }.to_json
+    }
+  end
+
+  def data_asset_display(facts)
+    return data_asset_display_for_plate(facts) if facts.with_predicate('contains').count > 0
+    data_asset_display_for_tube(facts)
   end
 
   def svg(name)

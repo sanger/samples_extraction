@@ -1,14 +1,10 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :step do
   end
 
-  factory :background_step, :class => 'BackgroundSteps::BackgroundStep' do
+  factory :background_task, :class => 'Steps::BackgroundTasks::BackgroundTask' do
     step_type { create :step_type }
   end
 
-  factory :inference, :class => 'BackgroundSteps::Inference' do
-    step_type { create :step_type }
-    asset_group { create :asset_group }
-  end
 
 end

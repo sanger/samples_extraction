@@ -1,17 +1,5 @@
 class StepTypesController < ApplicationController
   before_action :set_step_type, only: [:show, :edit, :update, :destroy]
-  before_action :set_activity, only: [:active]
-
-  before_action :nested_step_types, only: [:index]
-
-  def nested_step_types
-    if params[:activity_id]
-      @activity = Activity.find(params[:activity_id])
-      @step_types = @activity.step_types_active
-    else
-      @step_types = StepType.not_deprecated
-    end
-  end
 
   # GET /step_types
   # GET /step_types.json
@@ -29,7 +17,7 @@ class StepTypesController < ApplicationController
     respond_to do |format|
       format.html { render :show }
       format.n3 { render :show }
-    end    
+    end
   end
 
   # GET /step_types/new
@@ -41,24 +29,11 @@ class StepTypesController < ApplicationController
   def edit
   end
 
-  def active
-    @assets = @activity.asset_group.assets
-    @step_types = @activity.step_types_for(@assets)
-
-    respond_to do |format|
-      format.html {
-        render 'steps/_active', :locals => {
-          :step_types => @step_types,
-          :activity => @activity
-        }, :layout => false
-      }
-    end
-  end
 
   # POST /step_types
   # POST /step_types.json
   def create
-    @step_type = StepType.new(step_type_params)
+    @step_type = StepType.new(empty_options_set_to_nil(step_type_params))
 
     respond_to do |format|
       if @step_type.save
@@ -75,7 +50,7 @@ class StepTypesController < ApplicationController
   # PATCH/PUT /step_types/1.json
   def update
     respond_to do |format|
-      if @step_type.update(step_type_params)
+      if @step_type.update(empty_options_set_to_nil(step_type_params))
         format.html { redirect_to @step_type, notice: 'Step type was successfully updated.' }
         format.json { render :show, status: :ok, location: @step_type }
       else
@@ -101,14 +76,19 @@ class StepTypesController < ApplicationController
       @step_type = StepType.find(params[:id])
     end
 
-    def set_activity
-      @activity = Activity.find(params[:activity_id])
+    def empty_options_set_to_nil(params)
+      params_copy = params.dup
+      if params
+        [:step_template, :connect_by, :step_action].each do |key|
+          params_copy[key] = nil if params[key] && params[key].empty?
+        end
+      end
+      params_copy
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def step_type_params
-      params.require(:step_type).permit(:n3_definition,:name, :step_template, :connect_by, :for_reasoning)
+      params.require(:step_type).permit(:n3_definition,:name, :step_template, :connect_by, :for_reasoning, :step_action, :priority)
     end
-
 
 end

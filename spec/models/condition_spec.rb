@@ -4,13 +4,13 @@ require 'support_n3'
 RSpec.describe Condition, type: :model do
   describe '#compatible_with' do
     setup do
-      @wildcard = FactoryGirl.create(:condition_group)
-      @cond = FactoryGirl.create(:condition, {
+      @wildcard = FactoryBot.create(:condition_group)
+      @cond = FactoryBot.create(:condition, {
         :predicate => 'aliquotType', :object_condition_group => @wildcard})
-      @fact = FactoryGirl.create(:fact, {
+      @fact = FactoryBot.create(:fact, {
         :predicate => 'aliquotType', :object => 'DNA'
         })
-      @asset = FactoryGirl.create(:asset, {:facts => [@fact]})
+      @asset = FactoryBot.create(:asset, {:facts => [@fact]})
     end
 
     it 'is compatible with a wildcard' do
@@ -23,28 +23,28 @@ RSpec.describe Condition, type: :model do
     setup do
       @assets = 5.times.map do |i|
         facts = [
-          FactoryGirl.create(:fact, {:predicate => 'a', :object => 'Tube'})
+          FactoryBot.create(:fact, {:predicate => 'a', :object => 'Tube'})
         ]
         aliquot = ((i % 2) == 0) ? 'DNA' : 'RNA'
-        facts.push(FactoryGirl.create(:fact, {:predicate => 'aliquotType', :object => aliquot}))
-        FactoryGirl.create(:asset, :facts => facts)
+        facts.push(FactoryBot.create(:fact, {:predicate => 'aliquotType', :object => aliquot}))
+        FactoryBot.create(:asset, :facts => facts)
       end
 
       @wells = 5.times.map do |i|
         facts = [
-          FactoryGirl.create(:fact, {:predicate => 'a', :object => 'Well'})
+          FactoryBot.create(:fact, {:predicate => 'a', :object => 'Well'})
         ]
         aliquot = ((i % 2) == 0) ? 'DNA' : 'RNA'
-        facts.push(FactoryGirl.create(:fact, {:predicate => 'aliquotType', :object => aliquot}))
-        FactoryGirl.create(:asset, :facts => facts)
+        facts.push(FactoryBot.create(:fact, {:predicate => 'aliquotType', :object => aliquot}))
+        FactoryBot.create(:asset, :facts => facts)
       end      
-      @rack = FactoryGirl.create :asset
-      @rack.add_facts(FactoryGirl.create(:fact, {:predicate => 'a', :object => 'Rack'}))
-      @rack.add_facts(@wells.map {|well| FactoryGirl.create(:fact, {:predicate => 'contains', :object_asset => well})})
+      @rack = FactoryBot.create :asset
+      @rack.facts << (FactoryBot.create(:fact, {:predicate => 'a', :object => 'Rack'}))
+      @rack.facts << (@wells.map {|well| FactoryBot.create(:fact, {:predicate => 'contains', :object_asset => well})})
 
       @assets = @assets.concat([@wells, @rack]).flatten
 
-      @step_type = FactoryGirl.create :step_type
+      @step_type = FactoryBot.create :step_type
     end
     it 'generates the right wildcards' do
       rule = "{ \
@@ -66,8 +66,8 @@ RSpec.describe Condition, type: :model do
       wildcards = {}
       expect(@step_type.compatible_with?(@assets, nil, checked, wildcards)).to eq(true)
 
-      @asset_group = FactoryGirl.create(:asset_group, :assets => @assets)
-      @step = FactoryGirl.create(:step, {:step_type => @step_type, :asset_group => @asset_group})
+      @asset_group = FactoryBot.create(:asset_group, :assets => @assets)
+      @step = FactoryBot.create(:step, {:step_type => @step_type, :asset_group => @asset_group})
 
       {210=>{1737=>["DNA"], 1738=>["RNA"], 
         1739=>["DNA"], 1740=>["RNA"], 1741=>["DNA"], 

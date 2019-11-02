@@ -4,6 +4,7 @@ class ActivityTypesController < ApplicationController
   # GET /activity_types
   # GET /activity_types.json
   def index
+    @activity = Activity.new
     @activity_types = ActivityType.all
   end
 
@@ -13,7 +14,7 @@ class ActivityTypesController < ApplicationController
     respond_to do |format|
       format.html { render :show }
       format.n3 { render :show }
-    end    
+    end
   end
 
   # GET /activity_types/new

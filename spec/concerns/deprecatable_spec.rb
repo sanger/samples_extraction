@@ -1,8 +1,8 @@
-require 'spec_helper'
+require 'rails_helper'
 
 shared_examples_for "deprecatable" do
   def build_instance
-    FactoryGirl.create(model.to_s.underscore.to_sym)
+    FactoryBot.create(model.to_s.underscore.to_sym)
   end
 
   

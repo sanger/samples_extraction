@@ -1,4 +1,4 @@
-<form data-psd-component-class="FactSearcherLightweight" role="search" 
+<form data-psd-component-class="FactSearcherLightweight" role="search"
   class="input-group"
   method='get' action='<%= search_assets_path %>'>
   <input id="fact_searcher" name="fact_searcher" class="form-control searcher" type="text" autocomplete="off" />
@@ -7,3 +7,6 @@
     <button type="submit" class="btn btn-primary"><%= t('.search') %></button>
   </span>
 </form>
+<!--  react_component('SearchControl',  {
+  type: 'submit', className: 'btn btn-primary', text: "Search", searchUrl: search_assets_path
+}) -->

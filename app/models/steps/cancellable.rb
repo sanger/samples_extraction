@@ -1,54 +1,93 @@
 module Steps::Cancellable
   def self.included(klass)
     klass.instance_eval do
-      scope :newer_than, ->(step) { where("id > #{step.id}")}
-      scope :older_than, ->(step) { where("id < #{step.id}")}
-
-      before_update :modify_related_steps
+      scope :newer_than, ->(step) { where("id > #{step.id}").includes(:operations, :step_type)}
+      scope :older_than, ->(step) { where("id < #{step.id}").includes(:operations, :step_type)}
     end
   end
 
-  def modify_related_steps
-    if state == 'cancel' && state_was == 'complete'
-      on_cancel
-    elsif state == 'complete' && state_was =='cancel'
-      on_remake
-    end
+  def cancel_me_and_any_newer_completed_steps
+    save_job(delay(queue: 'steps')._cancel_me_and_any_newer_completed_steps)
+  end
+
+  def remake_me_and_any_older_cancelled_steps
+    save_job(delay(queue: 'steps')._remake_me_and_any_older_cancelled_steps)
+  end
+
+  def cancel_me
+    save_job(delay(queue: 'steps')._cancel_me)
+  end
+
+  def remake_me
+    save_job(delay(queue: 'steps')._remake_me)
+  end
+
+  def cancellable?
+    true
   end
 
   def steps_newer_than_me
+    return Step.none unless activity
     activity.steps.newer_than(self)
   end
 
   def steps_older_than_me
+    return Step.none unless activity
     activity.steps.older_than(self)
-  end  
+  end
 
-  def on_cancel
+  def _cancel_me
     ActiveRecord::Base.transaction do
-      steps_newer_than_me.each{|s| s.cancel unless s.cancelled?}
-      operations.each(&:cancel)
+      fact_changes_for_option(:cancel).apply(self, false)
+      operations.update_all(cancelled?: true)
     end
   end
 
-  def cancelled?
-    state == 'cancel'
-  end
-
-  def on_remake
+  def _remake_me
     ActiveRecord::Base.transaction do
-      steps_older_than_me.each do |s|
-        s.remake if s.cancelled?
-      end
-      operations.each(&:remake)
+      fact_changes_for_option(:remake).apply(self, false)
+      operations.update_all(cancelled?: false)
     end
   end
 
-  def cancel
-    update_attributes(:state => 'cancel')
+
+  def _cancel_me_and_any_newer_completed_steps(change_state=true)
+    changes = [
+      fact_changes_for_option(:cancel),
+      steps_newer_than_me.completed.map{|s| s.fact_changes_for_option(:cancel)}
+    ].flatten.compact.reduce(FactChanges.new) do |memo, updates|
+      memo.merge(updates)
+    end
+
+    ActiveRecord::Base.transaction do
+      changes.apply(self, false)
+      steps_newer_than_me.completed.each(&:cancelled!)
+      operations.update_all(cancelled?: true)
+      cancelled! if change_state
+    end
   end
 
-  def remake
-    update_attributes(:state => 'complete')
+  def _remake_me_and_any_older_cancelled_steps
+    changes = [
+      steps_older_than_me.cancelled.map{|s| s.fact_changes_for_option(:remake)},
+      fact_changes_for_option(:remake)
+    ].flatten.compact.reduce(FactChanges.new) do |memo, updates|
+      memo.merge(updates)
+    end
+
+    ActiveRecord::Base.transaction do
+      changes.apply(self, false)
+      steps_older_than_me.cancelled.each(&:complete!)
+      operations.update_all(cancelled?: false)
+      complete!
+    end
   end
+
+  def fact_changes_for_option(option_name)
+    operations.reduce(FactChanges.new) do |updates, operation|
+      operation.generate_changes_for(option_name, updates)
+      updates
+    end
+  end
+
 end

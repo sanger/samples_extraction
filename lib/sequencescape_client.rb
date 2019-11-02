@@ -5,6 +5,8 @@ require 'pry'
 require 'sequencescape-api'
 require 'sequencescape'
 
+require 'sequencescape_client_v2'
+
 class SequencescapeClient
   @purposes=nil
 
@@ -21,7 +23,7 @@ class SequencescapeClient
     @client ||= Sequencescape::Api.new(self.api_connection_options)
   end
 
-  def self.find_by_uuid(uuid, type=:plate)
+  def self.version_1_find_by_uuid(uuid, type=:plate)
     client.send(type).find(uuid)
   rescue Sequencescape::Api::ResourceNotFound => exception
     return nil
@@ -41,15 +43,46 @@ class SequencescapeClient
     purpose.plates.create!(attrs)
   end
 
+  def self.get_study_by_name(name)
+    get_study_searcher_by_name.first(name: name)
+  rescue Sequencescape::Api::ResourceNotFound => exception
+    return nil
+  end
+
+  def self.get_study_searcher_by_name
+    @@study_searcher ||= client.search.all.select{|s| s.name == Rails.configuration.searcher_study_by_name}.first
+  end
+
   def self.get_searcher_by_barcode
     @@searcher ||= client.search.all.select{|s| s.name == Rails.configuration.searcher_name_by_barcode}.first
   end
 
   def self.get_remote_asset(barcode)
-    get_searcher_by_barcode.first(:barcode => barcode)
-  rescue Sequencescape::Api::ResourceNotFound => exception
-    return nil
+    find_by(barcode: barcode)
   end
+
+  def self.find_by_uuid(uuid, opts=nil)
+    find_by(uuid: uuid)
+  end
+
+  def self.find_by(search_conditions)
+    [
+      SequencescapeClientV2::Plate,
+      SequencescapeClientV2::Tube,
+      SequencescapeClientV2::Well
+    ].each do |klass|
+      begin
+        search = klass.where(search_conditions)
+        search = search.first if search
+        return search if search
+      rescue JsonApiClient::Errors::ClientError => e
+        # Ignore filter error
+      end
+    end
+    nil
+  end
+
+
 
 end
 

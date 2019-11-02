@@ -2,7 +2,7 @@ module InferencesHelper
   def assets_equal?(expected, obtained)
     return false if expected.nil? || obtained.nil?
 
-    [[expected, obtained], 
+    [[expected, obtained],
       [obtained, expected]].all? do |expected_assets, obtained_assets|
       expected_assets.all? do |expected_asset|
         obtained_assets.any? do |obtained_asset|
@@ -27,7 +27,7 @@ module InferencesHelper
       asset.facts.map do |fact|
         ":#{asset.name}\t:#{fact.predicate}\t#{fact.object_asset.nil? ? fact.object: ':'+fact.object_asset.name} ."
       end
-    end.flatten.join("\n")+"\n"
+    end.flatten.sort.join("\n")+"\n"
   end
 
   def assets_are_equal(expected_assets, obtained_assets)
@@ -39,16 +39,19 @@ module InferencesHelper
   end
 
   def build_step(rule, input_facts, options = {})
-    step_type = FactoryGirl.create(:step_type, :n3_definition => rule)
+    step_type = FactoryBot.create(:step_type, :n3_definition => rule)
 
     input_assets = SupportN3::parse_facts(input_facts, {}, false)
     reload_assets(input_assets)
     fail if input_assets.nil?
-    asset_group = FactoryGirl.create(:asset_group, {:assets => input_assets})
+    asset_group = FactoryBot.create(:asset_group, {:assets => input_assets})
 
-    FactoryGirl.create(:step, {
-      :step_type => step_type,
-      :asset_group => asset_group
+    user = FactoryBot.create :user, username: 'test'
+
+    FactoryBot.create(:step, {
+      step_type: step_type,
+      asset_group: asset_group,
+      user_id: user.id
     }.merge(options))
   end
 
@@ -58,29 +61,30 @@ module InferencesHelper
 
     lines_expected.all? do |line|
       lines_obtained.include?(line)
-    end   
+    end
   end
 
   def reload_assets(assets)
-    assets.each do |a| 
+    assets.each do |a|
       a.reload
       a.facts.reload
-    end    
+    end
   end
 
   def check_inference(rule, input_facts, output_facts)
     fail if input_facts.nil? || output_facts.nil? || rule.nil?
 
     step = build_step(rule, input_facts)
+    step.run!
 
     asset_group = step.asset_group
-    asset_group.assets.reload    
+    asset_group.assets.reload
     reload_assets(asset_group.assets)
     obtained_n3 = assets_to_n3(asset_group.assets)
     asset_group.assets.each{|a| a.facts.each(&:destroy)}
 
     expected_output_assets = SupportN3::parse_facts(output_facts, {}, false)
-    fail if expected_output_assets.nil?    
+    fail if expected_output_assets.nil?
 
     reload_assets(expected_output_assets)
     expected_n3 = assets_to_n3(expected_output_assets)

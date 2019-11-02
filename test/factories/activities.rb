@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :activity do
     activity_type { create :activity_type }
     asset_group { create :asset_group }

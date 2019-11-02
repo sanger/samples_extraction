@@ -12,8 +12,8 @@ def inferences_data
   :rule => %Q{ { ?x :t ?_y .} => { :step :addFacts {?x :t ?_y .}. }. },
   :inputs => %Q{ :a :t "1" . :b :t "2".},
   :outputs => %Q{ :a :t "1" . :b :t "2".}
-  },  
-  
+  },
+
   {
   :it => %Q{keeps elements the way they are when there is no changes},
   :rule => %Q{ { ?x :relation_r ?_y .} => { :step :addFacts { ?x :relation_r ?_y . }. }. },
@@ -24,7 +24,7 @@ def inferences_data
   :it => %Q{relates elements with wildcard and with literal},
   :rule => %Q{
         {
-          ?x :s """1""" .          
+          ?x :s """1""" .
           ?y :t ?_val .
         } => {
           :step :addFacts {?x :val ?_val }.
@@ -32,22 +32,22 @@ def inferences_data
 
     },
   :inputs => %Q{
-        :tube1 :s """1""" .        
-        :tube2 :t """2""" .        
-        :tube3 :s """1""" .        
-        :tube4 :t """2""" .        
+        :tube1 :s """1""" .
+        :tube2 :t """2""" .
+        :tube3 :s """1""" .
+        :tube4 :t """2""" .
 
     },
   :outputs => %Q{
-        :tube1 :s """1""" .        
-        :tube1 :val """2""" .        
-        :tube2 :t """2""" .        
+        :tube1 :s """1""" .
+        :tube1 :val """2""" .
+        :tube2 :t """2""" .
 
-        :tube3 :s """1""" .        
-        :tube3 :val """2""" .        
-        :tube4 :t """2""" .        
+        :tube3 :s """1""" .
+        :tube3 :val """2""" .
+        :tube4 :t """2""" .
   }
-}, 
+},
 {
   :it => %Q{relates elements with wildcard},
   :rule => %Q{
@@ -59,10 +59,10 @@ def inferences_data
         }
     },
   :inputs => %Q{
-        :tube1 :t """1""" .        
-        :tube2 :t """2""" .        
-        :tube3 :t """1""" .        
-        :tube4 :t """2""" .        
+        :tube1 :t """1""" .
+        :tube2 :t """2""" .
+        :tube3 :t """1""" .
+        :tube4 :t """2""" .
 
     },
   :outputs => %Q{
@@ -101,7 +101,7 @@ def inferences_data
     },
   :outputs => %Q{
         :tube1 :a """TubeA""" .
-        :tube2 :a """TubeB""" .        
+        :tube2 :a """TubeB""" .
 
         :tube1 :transfer :tube2 .
         :tube2 :transferredFrom :tube1 .
@@ -110,18 +110,18 @@ def inferences_data
   {
   :it => %Q{set the value if the destination does not have the value},
   :unless => :cwm_engine?,
-  :rule => %Q{ 
-    { 
+  :rule => %Q{
+    {
       ?x :a :Tube .
       ?y :a :Tube .
       ?x :transfer ?y .
       ?x :aliquotType ?_aliquot .
       ?y :hasNotPredicate :aliquotType .
-    } => { 
-      :step :addFacts {?y :aliquotType ?_aliquot .}. 
-    }. 
+    } => {
+      :step :addFacts {?y :aliquotType ?_aliquot .}.
+    }.
   },
-  :inputs => %Q{ 
+  :inputs => %Q{
         :tube1 :a :Tube .
         :tube1 :transfer :tube2 .
         :tube2 :a :Tube .
@@ -137,18 +137,18 @@ def inferences_data
   },
   {
   :it => %Q{only set the value if the destination does not have the value already},
-  :rule => %Q{ 
-    { 
+  :rule => %Q{
+    {
       ?x :a :Tube .
       ?y :a :Tube .
       ?x :transfer ?y .
       ?x :aliquotType ?_aliquot .
       ?y :hasNotPredicate :aliquotType .
-    } => { 
+    } => {
       :step :addFacts {?y :aliquotType ?_aliquot .}.
-    }. 
+    }.
   },
-  :inputs => %Q{ 
+  :inputs => %Q{
         :tube1 :a :Tube .
         :tube1 :transfer :tube2 .
         :tube2 :a :Tube .
@@ -166,8 +166,8 @@ def inferences_data
   {
   :it => %Q{transfer between plates},
   :unless => :cwm_engine?,
-  :rule => %Q{ 
-    { 
+  :rule => %Q{
+    {
       ?plate :a :Plate .
       ?plate2 :a :Plate .
       ?plate :transfer ?plate2 .
@@ -180,11 +180,11 @@ def inferences_data
       ?tube1 :location ?_location .
       ?tube2 :location ?_location .
       ?tube1 log:notEqualTo ?tube2 .
-    } => { 
+    } => {
       :step :addFacts {?tube1 :transfer ?tube2 .}.
-    }. 
+    }.
   },
-  :inputs => %Q{ 
+  :inputs => %Q{
       :plate1 :a :Plate .
       :plate2 :a :Plate .
       :tube1 :a :Tube .
@@ -220,8 +220,8 @@ def inferences_data
 
   {
   :xit => %Q{perform math operations},
-  :rule => %Q{ 
-    { 
+  :rule => %Q{
+    {
       ?plate :a :Plate .
 
       ?plate :contains ?well .
@@ -230,12 +230,12 @@ def inferences_data
       ?aliquot :a :Aliquot .
       ?aliquot :currentVolume ?_volume .
       (?_volume 10) math:sum ?_newVolume .
-    } => { 
+    } => {
       :step :removeFacts {?aliquot :currentVolume ?_volume .}.
       :step :addFacts {?aliquot :currentVolume ?newVolume .}.
-    }. 
+    }.
   },
-  :inputs => %Q{ 
+  :inputs => %Q{
       :plate1 :a """Plate""" .
       :well1 :a """Well""" .
 

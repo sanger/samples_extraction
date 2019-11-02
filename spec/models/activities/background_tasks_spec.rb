@@ -2,12 +2,18 @@ require 'rails_helper'
 
 RSpec.describe 'BackgroundTasks' do
   class DummyBackgroundStep
-    def self.create(params)
-      FactoryGirl.create(:background_step)
+    def self.create!(params)
+      @instance = FactoryBot.create(:step, params)
+    end
+    def self.update_attributes!(params)
+      @instance.update_attributes!(params)
     end
   end
 
   let(:activity) { create :activity }
+  let(:step_type) { create :step_type}
+  let(:asset_group) { create :asset_group}
+  let(:step) { create :step, step_type: step_type }
 
   context '#create_background_steps' do
     let(:list_of_tasks) { 5.times.map{ DummyBackgroundStep }}
@@ -26,35 +32,33 @@ RSpec.describe 'BackgroundTasks' do
     end
   end
 
-  context '#do_background_tasks' do
+  context '#create_connected_tasks' do
     let(:list_of_tasks) { 5.times.map{ DummyBackgroundStep }}
 
+    let(:other_step) { create :step, step_type: step_type }
     context 'when it does not have any background task defined' do
       it 'does not raise an error' do
         allow(activity).to receive(:background_tasks).and_return([])
-        expect{ activity.do_background_tasks }.not_to raise_exception
+        expect{ activity.create_connected_tasks(step, asset_group) }.not_to raise_exception
       end
     end
     context 'when it has background tasks' do
-      it 'executes all the background tasks' do
-        my_double = double('step')
-        other_double = double('step')
-        allow(activity).to receive(:create_background_steps).and_return([my_double, other_double])
-        expect(my_double).to receive(:execute_actions)
-        expect(other_double).not_to receive(:execute_actions)
-        activity.do_background_tasks
+      it 'creates a list of connected tasks' do
+        allow(activity).to receive(:background_tasks).and_return([Step])
+        expect(activity.create_connected_tasks(step, asset_group).length).to eq(2)
       end
     end
   end
 
-  context '#inference_tasks' do
+  context '#background_tasks' do
 
-    it 'returns the list of inference tasks' do
-      step_types = 5.times.map { create :step_type}
-      reasoning_step_types = 4.times.map { create :step_type, { for_reasoning: true} }
+    it 'returns the list of inference tasks sorted by priority' do
+      step_types = 5.times.each_with_index.map {|i| create :step_type}
+      reasoning_step_types = 4.times.each_with_index.map {|i| create :step_type, { for_reasoning: true, priority: i } }
       activity.activity_type.update_attributes(step_types: step_types.concat(reasoning_step_types))
-      
-      expect(activity.inference_tasks.count).to eq(reasoning_step_types.count)
+
+      expect(activity.background_tasks.count).to eq(reasoning_step_types.count)
+      expect(activity.background_tasks.map(&:step_type)).to eq(reasoning_step_types.reverse)
     end
   end
 end

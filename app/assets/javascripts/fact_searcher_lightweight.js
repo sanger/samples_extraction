@@ -31,7 +31,7 @@
     if (this.input.val().length>0) {
       this.input.val(this.input.val()+' ');
     }
-    this.input.val(this.input.val()+predicate+':'+object);    
+    this.input.val(this.input.val()+predicate+':'+object);
   };
 
   proto.prepareOutput = function() {
@@ -59,7 +59,7 @@
 
   proto.displayInSideBar = function(html) {
     this.input.val('');
-    
+
     var containerSearchBox = $(this.sidebarTemplate());
     var nodeSearch = $("<div></div>");
     nodeSearch.html(html);
@@ -82,19 +82,21 @@
 
   proto.search = function() {
     var form = this.node;
-
+    return true;
     $.get({
       url: form.attr('action'),
       data: form.serialize(),
-      success: $.proxy(this.displayInSideBar, this)
+      dataType: 'html'
+      //success: $.proxy(this.displayInSideBar, this)
     });
   };
 
   proto.onSubmit = function(e) {
-    e.preventDefault();
+    //e.preventDefault();
     this.resetHiddenInputs();
     this.prepareOutput();
     this.search();
+    return true;
   };
 
   proto.addHiddenInput = function(name, value) {

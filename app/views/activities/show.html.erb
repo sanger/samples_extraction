@@ -1,60 +1,11 @@
 <p id="notice"><%= notice %></p>
-
-<h1>Activity <%= @activity.id %></h1>
-
-<div data-psd-component-class="ActivityRealTimeUpdates" data-psd-component-parameters='{"url" : "<%= activity_real_time_updates_path(@activity) %>"}'>
-</div>
-<%= bootstrap_form_for @activity, action: 'show', :html => { :class => 'form-inline activity-desc' } do |f| %>
-  <%= f.text_field :activity_type, :value => @activity.activity_type.name,:readonly => true %>
-  <%= f.text_field :instrument, :value => @activity.instrument.name || @activity.instrument.barcode,:readonly => true %>
-  <%= f.text_field :kit, :value => @activity.kit.barcode,:readonly => true %>
-  <!-- %= f.text_field :tube_printer, :value => @current_user.tube_printer_name,:readonly => true %>
-  < % = f.text_field :plate_printer, :value => @current_user.plate_printer_name,:readonly => true % -->
-<% end %>
-<%= render :partial => 'printers_selection' %>
-<% if @assets && !@activity.finished? %>
-  <div class="firststeptype"><%= render :template => 'step_types/active' %></div>
-<% end %>
-
-<% if @activity.finished? %>
-<div class="panel">
-  This activity was finished at <%= @activity.completed_at %>
-</div>
-<% else %>
-
-<div>
-
-<!-- Tab panes -->
-  <div class="tab-content asset-groups">
-      <label class="control-label">What do I have?</label>
-
-    <!-- Nav tabs -->
-    <ul class="nav nav-tabs" role="tablist">
-      <% @activity.owned_asset_groups.each do |asset_group| %>
-        <li role="presentation" class="<%= 'active' if asset_group == @activity.asset_group %>"><a href="<%= activity_asset_group_path(@activity, asset_group) unless asset_group == @activity.asset_group %>" aria-controls="<%= asset_group.condition_group_name %>" role="tab" ><%= asset_group.condition_group_name %></a></li>
-      <% end %>
-    </ul>
-
-    <div role="tabpanel" class="tab-pane active"  id="asset-group-container">
-    <%= render :template => 'asset_groups/show' %>
-    </div>
-  </div>
-
-</div>
-
-<% end %>
-<% if @assets && !@activity.finished? %>
-  <div class="laststeptype"><%= render :template => 'step_types/active' %></div>
-<% end %>
-
-  <div id="steps_finished">
-  <%= render :template =>'steps/finished' %>
-  </div>
+ <%= react_component('Activity',  @activity.initial_json_attributes(@current_user)) %>
 
   <% unless @activity.finished? %>
     <%= bootstrap_form_for @activity, action: 'update', :html => {:class => 'operator-allowed'} do |f| %>
-      <input type="hidden" name="user_barcode" value="" />
-      <button name="finish" class='btn btn-danger'>Finish activity?</button> &nbsp;
+      <div class="hidden">
+        <%= f.text_field(:state, :value => "finish", :readonly => true) %>
+      </div>
+      <input type="submit" class='btn btn-danger' value="Finish activity?" /> &nbsp;
     <% end %>
   <% end %>
-<%= bootstrap_link_to 'Back', :back %>

@@ -1,3 +1,4 @@
-<% asset_group.assets.each do |asset| %>
+<% asset_group.assets.each_with_index do |asset, pos| %>
   <%= render asset %>
+  <<%= n3_url_resource_for(asset.uuid) %>> se:assetGroupPosition """<%= pos+1 %>""" .
 <% end %>

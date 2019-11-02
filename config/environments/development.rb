@@ -1,4 +1,7 @@
 Rails.application.configure do
+  # Verifies that versions and hashed value of the package contents in the project's package.json
+  config.webpacker.check_yarn_integrity = true
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # In the development environment your application's code is reloaded on
@@ -7,10 +10,10 @@ Rails.application.configure do
   config.cache_classes = false
 
   # Do not eager load code on boot.
-  config.eager_load = false
+  config.eager_load = true
 
   # Show full error reports and disable caching.
-  config.consider_all_requests_local       = true
+  config.consider_all_requests_local       = false
   config.action_controller.perform_caching = false
 
   # Don't care if the mailer can't send.
@@ -31,6 +34,8 @@ Rails.application.configure do
   # yet still be able to expire them through the digest params.
   config.assets.digest = true
 
+  config.allow_concurrency = true
+
   # Adds additional error checking when serving assets at runtime.
   # Checks for improperly declared sprockets dependencies.
   # Raises helpful error messages.
@@ -39,15 +44,19 @@ Rails.application.configure do
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 
-  config.pmb_uri = ENV.fetch('PMB_URI','http://localhost:10000/v1')
-  config.ss_uri =  ENV.fetch('SS_URI', 'http://localhost:3000/api/1/')
+  config.pmb_uri = ENV.fetch('SE_PMB_URI','http://localhost:10000/v1')
+  config.redis_url = ENV.fetch('SE_REDIS_URI', 'redis://127.0.0.1:6379')
+  config.ss_uri =  ENV.fetch('SE_SS_URI', 'http://localhost:3000/api/1/')
+  config.ss_api_v2_uri = ENV.fetch('SE_SS_API_V2_URI', 'http://localhost:3000')
   config.ss_authorisation =  'development'
   config.searcher_name_by_barcode = 'Find assets by barcode'
+  config.searcher_study_by_name = 'Find study by name'
   config.printing_disabled = true
+  config.redis_enabled=true
 
   config.inference_engine = :default
   config.cwm_path = ENV.fetch('CWM_PATH', '')
-  config.default_n3_resources_url = nil
+  config.default_n3_resources_url = 'http://localhost:9200'
 
   config.enable_reasoning = false
 

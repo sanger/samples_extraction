@@ -1,4 +1,65 @@
 module SupportN3
+
+  def self.ontology_to_json(ontology_file)
+    reading_instance = nil
+    data = {}
+    definitions = {}
+    inheritance = {}
+    ontology = RDF::N3::Reader.new(ontology_file, {
+      validate: false,
+      canonicalize: false,
+    }).quads.reduce({}) do |memo, quad|
+      subject = quad[0].pname
+      predicate = quad[1].pname
+      object = quad[2].to_s
+
+      if reading_instance != subject
+        if (data["rdfs:label"])
+          memo[data["rdfs:label"]]=data
+          definitions[reading_instance]=data["rdfs:label"]
+        end
+        data={ uri: subject }
+        reading_instance = subject
+      end
+
+      if (predicate == "rdfs:subClassOf")
+        inheritance[subject]=[subject] unless inheritance[subject]
+        inheritance[subject].push(object)
+      end
+
+      if (predicate == "http://purl.org/dc/elements/1.1/description")
+        predicate = "description"
+      end
+      data[predicate]=object
+      memo
+    end
+
+    ontology.keys.each do |key|
+      if ontology[key]["rdfs:domain"]
+        if inheritance[ontology[key]["rdfs:domain"]]
+          ontology[key]["rdfs:domain"] = inheritance[ontology[key]["rdfs:domain"]].reduce([]) do |memo, uri|
+            memo.push(definitions[uri])
+            memo
+          end
+        else
+          definitions[ontology[key]["rdfs:domain"]]
+        end
+      end
+      if ontology[key]["rdfs:range"]
+        if inheritance[ontology[key]["rdfs:range"]]
+          ontology[key]["rdfs:range"] = inheritance[ontology[key]["rdfs:range"]].reduce([]) do |memo, uri|
+            memo.push(definitions[uri])
+            memo
+          end
+        else
+          definitions[ontology[key]["rdfs:range"]]
+        end
+      end
+    end
+    ontology
+  end
+
+
   def self.parse_string(input, options = {}, step_type=nil)
     options = {
       validate: false,
@@ -64,15 +125,15 @@ module SupportN3
   def self.create_fact(quad, quads, create_assets=true, created_assets=[])
     asset = build_asset(SupportN3::fragment(quad[0]), create_assets, created_assets)
     if is_literal?(quad[2], quads)
-      asset.add_facts([Fact.create(
+      asset.facts << Fact.create(
         :predicate => SupportN3::fragment(quad[1]),
-        :object => SupportN3::fragment(quad[2]))])
+        :object => SupportN3::fragment(quad[2]))
     else
       related_asset = build_asset(SupportN3::fragment(quad[2]), create_assets, created_assets)
-      asset.add_facts([Fact.create(:predicate => SupportN3::fragment(quad[1]),
-        :object_asset => related_asset, :literal => false)])
+      asset.facts << Fact.create(:predicate => SupportN3::fragment(quad[1]),
+        :object_asset => related_asset, :literal => false)
     end
-    asset    
+    asset
   end
 
   def self.parse_facts(input, options = {}, create_assets=true)
@@ -117,7 +178,7 @@ module SupportN3
 
     def self.deprecate_class_by_name(class_type, name, new_instance, &block)
       if name && !name.empty?
-        old_instances = class_type.where(:name => name)
+        old_instances = class_type.where(:name => name).not_deprecated
         old_instances = nil if (old_instances.count > 1) && (old_instances.first == new_instance)
       end
 
@@ -170,11 +231,11 @@ module SupportN3
     end
 
     def fragment(k)
-      k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/,'')
+      k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/,'').gsub(/_[0-9][0-9][0-9][0-9][0-9][0-9].*$/,'')
     end
 
     def self.fragment(k)
-      k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/,'')
+      k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/,'').gsub(/_[0-9][0-9][0-9][0-9][0-9][0-9].*$/,'')
     end
 
 
@@ -286,6 +347,7 @@ module SupportN3
       config[:name] = name_for_step_type if name_for_step_type
       config[:connect_by] = connect_by if connect_by
       config[:step_template] = step_template if step_template
+      config[:step_action] = step_action if step_action
       config[:n3_definition] = nil
       config
     end
@@ -302,6 +364,11 @@ module SupportN3
 
     def step_template
       value = actions.select{|quad| fragment(quad[1]) == 'stepTemplate'}.flatten[2]
+      fragment(value) unless value.nil?
+    end
+
+    def step_action
+      value = actions.select{|quad| fragment(quad[1]) == 'stepAction'}.flatten[2]
       fragment(value) unless value.nil?
     end
 

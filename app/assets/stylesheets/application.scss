@@ -13,11 +13,13 @@
  *= require_tree .
  *= require_self
  *= require dropzone/dropzone
+ *= require react-fine-uploader/gallery/gallery.css
  * require peek
  * require peek/views/performance_bar
  */
 @import "bootstrap-sprockets";
 @import "bootstrap";
+
 
 /*.navbar .nav .underlined {
     border-color: #e7e7e7;
@@ -54,9 +56,9 @@ div#error_explanation {
 p#notice { display:none;}
 p#danger { display:none;}
 
-form.activity-desc {margin-top: 1em; margin-bottom: 1em;}
-form.activity-desc label { margin-right: 1em; }
-form.activity-desc .form-group {margin-right: 0.5em; }
+.activity-desc {margin-top: 1em; margin-bottom: 1em;}
+.activity-desc label { margin-right: 1em; }
+.activity-desc .form-group {margin-right: 0.5em; }
 
 .file-row div.upload-buttons { margin-bottom: 0.5em; }
 .previews { margin-top: 0.5em;}
@@ -242,9 +244,10 @@ header, .blurheader {
 
 /* images */
 
-.facts-list svg { width: 50px; height: 50px; float:left; }
-.facts-list svg.enlarge { width: 300px; height: 300px;}
+.facts-list .svg svg { width: 50px; height: 50px; float:left; cursor: -webkit-zoom-in;}
+.facts-list .svg.enlarge svg { width: 300px; height: 300px; cursor: -webkit-zoom-out;}
 
+.aliquot { fill: gray;}
 
 svg {
   .is-used,.is-Used             { fill-opacity: 0.7 !important; background-color: #f5f5f5 !important;  }
@@ -271,6 +274,8 @@ svg {
 
   }
   .unknown-aliquot { fill: gray;}
+  .empty-well-aliquot { fill: white;}
+
 
   ellipse.error { stroke: red !important;}
   .editing { fill: lightblue; }
@@ -290,7 +295,7 @@ svg {
 
 @media (max-width: 767px){
   body nav .navbar-right .user-status { display:none;}
-  body nav .navbar-header .user-status { 
+  body nav .navbar-header .user-status {
     display:block; position:relative; float:right;
     margin-top: 8px; margin-right: 0.5em;
     .user-status-description-text { display:none;}
@@ -351,8 +356,6 @@ div.fact a.active.object-reference  {color:orange;}
 #asset-group-container ul.nav-pills a { color: #666;}
 
 
-svg { cursor: -webkit-zoom-in; }
-svg.enlarge { cursor: -webkit-zoom-out; }
 
 .step_types_active svg ellipse { cursor: pointer;}
 .step_types_active svg { cursor: default;}
@@ -363,3 +366,5 @@ svg.enlarge { cursor: -webkit-zoom-out; }
 .fact {cursor: pointer;}
 
 .max-svg-size { max-width: 500px;}
+
+.svg-small-size { height: 150px; }

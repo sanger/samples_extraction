@@ -28,7 +28,7 @@
                   <tr>
                     <td><%= asset.barcode %></td>
                     <td>
-                      <%= render :partial => 'facts/facts', :locals => { :facts => asset.facts} %>
+                      <%= render_react_display_and_facts_for_asset(asset) %>
                     </td>
                   </tr>
                 <% end %>

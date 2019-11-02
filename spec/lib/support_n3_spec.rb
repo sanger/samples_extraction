@@ -9,10 +9,13 @@ RSpec.describe SupportN3 do
 
   def validates_parsed(obj)
     obj.each do |class_instance, instances_list|
-      assert_equal instances_list.length, class_instance.send(:count)
-      class_instance.send(:all).each_with_index do |instance, i|
-        instances_list[i].each do |k,v|
-          expect(v).to eq(instance.send(k))
+      compare_total = class_instance.send(:count)
+      if class_instance != Action
+        assert_equal instances_list.length, compare_total
+        class_instance.send(:all).each_with_index do |instance, i|
+          instances_list[i].each do |k,v|
+            expect(v).to eq(instance.send(k))
+          end
         end
       end
     end
@@ -33,12 +36,12 @@ RSpec.describe SupportN3 do
   end
 
   it 'parses correct N3 files' do
-    SupportN3.parse_file("lib/assets/graph3.n3")
+    SupportN3.parse_file("test/data/graph.n3")
   end
 
   it "does not create multiple activitytypes" do
     testing_name = 'testing_name'
-    @activity_type = FactoryGirl.create :activity_type, {:name => testing_name}
+    @activity_type = FactoryBot.create :activity_type, {:name => testing_name}
     @activity_type.reload
     expect(@activity_type.deprecated?).to eq(false)
     SupportN3.parse_string(%Q{
@@ -54,7 +57,7 @@ RSpec.describe SupportN3 do
 
   it "deprecates old activity_types" do
     testing_name = 'testing_name'
-    @activity_type = FactoryGirl.create :activity_type, {:name => testing_name}
+    @activity_type = FactoryBot.create :activity_type, {:name => testing_name}
     @activity_type.reload
     expect(@activity_type.deprecated?).to eq(false)
     SupportN3.parse_string(":activity :activityTypeName \"\"\"#{testing_name}\"\"\" .")
@@ -65,18 +68,18 @@ RSpec.describe SupportN3 do
 
   it "deprecates old step_types" do
     testing_name = 'testing_name'
-    @step_type = FactoryGirl.create :step_type, {:name => testing_name}
+    @step_type = FactoryBot.create :step_type, {:name => testing_name}
     @step_type.reload
     expect(@step_type.deprecated?).to eq(false)
     SupportN3.parse_string("{} => {:step :stepTypeName \"\"\"#{testing_name}\"\"\" .}.")
     @step_type.reload
     expect(@step_type.deprecated?).to eq(true)
     expect(StepType.where(:name => testing_name).count).to eq(2)
-  end  
+  end
 
   describe "parses individual rules generating the right content" do
     setup do
-      @step_type = FactoryGirl.create :step_type
+      @step_type = FactoryBot.create :step_type
     end
 
     describe "with rules that remove facts" do

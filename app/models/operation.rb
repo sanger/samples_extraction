@@ -7,47 +7,56 @@ class Operation < ApplicationRecord
 
   scope :for_presenting, ->() { includes(:asset, :action) }
 
-  def action_type
-    return action.action_type if action
-    return attributes["action_type"]
+  #def action_type
+  #  return action.action_type if action
+  #  return attributes["action_type"]
+  #end
+
+  def object_value
+    object || object_asset
   end
 
   def opposites
     {
-      add_facts: :remove_facts, remove_facts: :add_facts, 
-      create_asset: :remove_facts, delete_asset: :add_facts
+      add_facts: :remove_facts, remove_facts: :add_facts,
+      create_assets: :delete_assets, delete_assets: :create_assets,
+      create_asset_groups: :delete_asset_groups, delete_asset_groups: :create_asset_groups,
+      add_assets: :remove_assets, remove_assets: :add_assets
     }
   end
 
-  def synonims
-    {
-      add_facts: :add_facts, remove_facts: :remove_facts, 
-      create_asset: :add_facts, delete_asset: :remove_facts
-    }
-  end  
-
-  def cancel
-    send(opposites[action_type.underscore.to_sym].to_s)
-    update_attributes(:cancelled? => true)
+  def action_type_for_option(option)
+    if (option == :remake)
+      action_type.underscore.to_sym
+    elsif (option == :cancel)
+      opposites[action_type.underscore.to_sym]
+    end
   end
 
-  def remake
-    send(synonims[action_type.underscore.to_sym].to_s)
-    update_attributes(:cancelled? => false)
+  def generate_changes_for(option_name, updates=nil)
+    updates ||= FactChanges.new
+    type = action_type_for_option(option_name)
+    if (type == :add_facts)
+      updates.add(self.asset, self.predicate, object_value)
+    elsif (type == :remove_facts)
+      updates.remove_where(self.asset, self.predicate, object_value)
+    elsif (type == :create_assets)
+      #asset = Asset.create(uuid: object)
+      #update_attributes(asset: asset)
+      #updates.create_assets([asset.uuid])
+      updates.create_assets([object])
+    elsif (type == :delete_assets)
+      updates.delete_assets([object])
+    elsif (type == :add_assets)
+      updates.add_assets([[AssetGroup.find_by(uuid: object), [self.asset]]])
+    elsif (type == :remove_assets)
+      updates.remove_assets([[AssetGroup.find_by(uuid: object), [self.asset]]])
+    elsif (type == :create_asset_groups)
+      updates.create_asset_groups([object])
+    elsif (type == :delete_asset_groups)
+      updates.delete_asset_groups([object])
+    end
+    updates
   end
-
-  def add_facts
-    asset.add_facts(Fact.new(predicate: predicate, object: object, object_asset: object_asset))
-    asset.touch
-  end
-
-  alias_method :create_asset, :add_facts
-
-  def remove_facts
-    asset.remove_facts(Fact.new(predicate: predicate, object: object, object_asset: object_asset))
-    asset.touch
-  end
-
-  alias_method :delete_asset, :remove_facts
 
 end
