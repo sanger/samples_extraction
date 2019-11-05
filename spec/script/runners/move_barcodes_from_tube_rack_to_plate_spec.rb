@@ -11,6 +11,10 @@ RSpec.describe 'MoveBarcodesFromTubeRackToPlate' do
   let(:barcodes) {
     NUM_WELLS.times.map{|i| "FR00#{i}"}
   }
+  let(:padded_locations) {
+    NUM_WELLS.times.map{|i| "A0#{i}"}
+  }
+
   let(:locations) {
     NUM_WELLS.times.map{|i| "A#{i}"}
   }
@@ -18,7 +22,7 @@ RSpec.describe 'MoveBarcodesFromTubeRackToPlate' do
     NUM_WELLS.times.map do |i|
       asset = create(:asset, barcode: barcodes[i])
       asset.facts << create(:fact, predicate: 'a', object: 'Tube')
-      asset.facts << create(:fact, predicate: 'location', object: locations[i])
+      asset.facts << create(:fact, predicate: 'location', object: padded_locations[i])
       asset
     end
   }
