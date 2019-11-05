@@ -83,8 +83,6 @@ begin
   json = updates.to_json
   JSON.parse(json)
   puts json
-rescue InvalidDataParams => e
-  puts ({ set_errors: e.errors }.to_json)
 rescue StandardError => e
   puts ({ set_errors: ['Unknown error while parsing file'+e.backtrace.to_s]}.to_json)
 end

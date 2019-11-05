@@ -5,6 +5,9 @@ require Rails.root.to_s+'/script/runners/move_barcodes_from_tube_rack_to_plate'
 RSpec.describe 'MoveBarcodesFromTubeRackToPlate' do
   NUM_WELLS = 3
 
+  let(:activity) { create :activity }
+  let(:step) { create :step, activity: activity, state: Step::STATE_RUNNING }
+
   let(:barcodes) {
     NUM_WELLS.times.map{|i| "FR00#{i}"}
   }
@@ -43,7 +46,8 @@ RSpec.describe 'MoveBarcodesFromTubeRackToPlate' do
   context 'when run with a tube rack and a plate' do
     it 'adds the barcodes of the tube rack into the wells of the plate' do
       group = create(:asset_group, assets: [plate, tube_rack])
-      changes = MoveBarcodesFromTubeRackToPlate.new(asset_group: group).process.to_h
+      updates = MoveBarcodesFromTubeRackToPlate.new(asset_group: group).process
+      changes = updates.to_h
 
       expect(changes[:add_facts].select{|t| t[1] == 'barcode'}.count).to eq(NUM_WELLS)
 
@@ -51,10 +55,15 @@ RSpec.describe 'MoveBarcodesFromTubeRackToPlate' do
         expect(changes[:add_facts]).to include(
           [w.uuid, 'barcode', barcodes[pos]])
       end
+      expect{
+        updates.apply(step)
+        wells_for_plate.each(&:reload)
+      }.to change{wells_for_plate.first.barcode}.from(nil).to(barcodes.first)
     end
     it 'removes the barcodes from the tubes of the tube rack' do
       group = create(:asset_group, assets: [plate, tube_rack])
-      changes = MoveBarcodesFromTubeRackToPlate.new(asset_group: group).process.to_h
+      updates = MoveBarcodesFromTubeRackToPlate.new(asset_group: group).process
+      changes = updates.to_h
 
       expect(changes[:remove_facts].select{|t| t[1] == 'barcode'}.count).to eq(NUM_WELLS)
 
@@ -62,6 +71,10 @@ RSpec.describe 'MoveBarcodesFromTubeRackToPlate' do
         expect(changes[:remove_facts]).to include(
           [w.uuid, 'barcode', barcodes[pos]])
       end
+      expect{
+        updates.apply(step)
+        wells_for_rack.each(&:reload)
+      }.to change{wells_for_rack.first.barcode}.from(barcodes.first).to(nil)
     end
 
   end
