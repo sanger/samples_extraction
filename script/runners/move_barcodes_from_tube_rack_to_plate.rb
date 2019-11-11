@@ -44,13 +44,19 @@ class MoveBarcodesFromTubeRackToPlate
   end
 
   def well_at_location(asset, location)
-    wells_for(asset).select{|w| w.facts.where(predicate: 'location', object: location).count > 0}.first
+    wells_for(asset).select do |w|
+      location_facts = w.facts.where(predicate: 'location')
+      if (location_facts.count == 1)
+        location_fact = location_facts.first
+        (TokenUtil.pad_location(location_fact.object) ==  TokenUtil.pad_location(location))
+      end
+    end.first
   end
 
   def traverse_wells(asset, &block)
     wells_for(asset).each do |w|
       location = w.facts.where(predicate: 'location').first.object
-      yield w, location
+      yield w, TokenUtil.pad_location(location)
     end
   end
 
@@ -83,8 +89,6 @@ begin
   json = updates.to_json
   JSON.parse(json)
   puts json
-rescue InvalidDataParams => e
-  puts ({ set_errors: e.errors }.to_json)
 rescue StandardError => e
   puts ({ set_errors: ['Unknown error while parsing file'+e.backtrace.to_s]}.to_json)
 end

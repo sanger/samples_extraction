@@ -1,10 +1,12 @@
 require 'token_util'
 require 'changes_support/disjoint_list'
 require 'changes_support/transaction_scope'
+require 'changes_support/callbacks'
 require 'google_hash'
 
 class FactChanges
   include ChangesSupport::TransactionScope
+  include ChangesSupport::Callbacks
 
   attr_accessor :facts_to_destroy, :facts_to_add, :assets_to_create, :assets_to_destroy,
     :assets_to_add, :assets_to_remove, :wildcards, :instances_from_uuid,
@@ -208,6 +210,7 @@ class FactChanges
   def apply(step, with_operations=true)
     _handle_errors(step) if errors_added.length > 0
     ActiveRecord::Base.transaction do |t|
+      _on_apply if respond_to?(:_on_apply)
       _set_remote_facts(facts_to_set_to_remote)
       operations = [
         _create_asset_groups(step, asset_groups_to_create, with_operations),
