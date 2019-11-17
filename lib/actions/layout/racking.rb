@@ -18,7 +18,7 @@ module Actions
 
       def changes_for_rack_when_racking_tubes(rack, racked_tubes)
         FactChanges.new.tap do |updates|
-          TUBE_TO_PLATE_TRANSFERRABLE_PROPERTIES.map do |prop|
+          Actions::LayoutProcessor::TUBE_TO_PLATE_TRANSFERRABLE_PROPERTIES.map do |prop|
             racked_tubes.map{|tube| tube.facts.with_predicate(prop)}
           end.flatten.compact.each do |fact|
             updates.add(rack, fact.predicate.to_s, fact.object_value)

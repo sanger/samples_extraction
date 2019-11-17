@@ -54,6 +54,11 @@ RSpec.describe 'Actions::Layout::Unracking' do
           [tubes_rack_2[2].uuid, 'location', positions[2]]
         )
       end
+
+      it 'adds a new reracking record in the destination rack' do
+      end
+      it 'updates the information of the original racks from the tubes' do
+      end
     end
   end
 

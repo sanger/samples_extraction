@@ -35,7 +35,7 @@ module Actions
         return updates unless tubes.length > 0
         updates.merge(changes_for_tubes_on_unrack(tubes))
         updates.merge(changes_for_racks_on_unrack(tubes))
-        updates.merge(fact_changes_for_rack_tubes(list_layout, rack))
+        updates.merge(changes_for_rack_tubes(list_layout, rack))
       end
     end
 
@@ -80,7 +80,7 @@ module Actions
       if asset_group.assets.with_fact('a', 'TubeRack').count > 1
         error_messages.push("Too many TubeRacks found to perform the layout process")
       end
-      raise InvalidDataParams.new(error_messages) if error_messages.count > 0
+      raise Actions::Layout::InvalidDataParams.new(error_messages) if error_messages.count > 0
 
       asset = asset_group.assets.with_fact('a', 'TubeRack').first
 
@@ -94,16 +94,16 @@ module Actions
       end
 
       unless error_messages.empty?
-        raise InvalidDataParams.new(error_messages)
+        raise Actions::Layout::InvalidDataParams.new(error_messages)
       end
       if parser.valid?
         updates = parser.parsed_changes.merge(reracking_tubes(asset, parser.layout))
 
         error_messages.push(asset.validate_rack_content)
-        raise InvalidDataParams.new(error_messages) if error_messages.flatten.compact.count > 0
+        raise Actions::Layout::InvalidDataParams.new(error_messages) if error_messages.flatten.compact.count > 0
         return updates
       else
-        raise InvalidDataParams.new(parser.error_list)
+        raise Actions::Layout::InvalidDataParams.new(parser.error_list)
       end
     end
 
