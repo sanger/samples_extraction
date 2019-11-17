@@ -193,10 +193,10 @@ module Assets::Import
       asset
     end
 
+
     def find_or_import_asset_with_barcode(barcode)
       find_asset_with_barcode(barcode) || import_barcode(barcode)
     end
-
 
     def update_asset_from_remote_asset(asset, remote_asset, fact_changes)
       fact_changes.tap do |updates|

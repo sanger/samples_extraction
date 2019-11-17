@@ -23,6 +23,11 @@ RSpec.describe Actions::Racking do
     allow(Asset).to receive(:find_or_import_asset_with_barcode) do |barcode|
       Asset.find_by(barcode: barcode)
     end
+    allow(Asset).to receive(:find_or_import_assets_with_barcodes) do |barcodes|
+      Asset.where(barcode: barcodes)
+      #barcodes.map{|barcode| Asset.find_by(barcode: barcode)}
+    end
+
   end
 
   shared_examples_for 'rack_layout' do
@@ -113,8 +118,68 @@ RSpec.describe Actions::Racking do
     end
   end
 
+  describe '#changes_for_tubes_on_unrack' do
+    context 'when receiving a layout' do
+      let(:positions) { TokenUtil.generate_positions(('A'..'F').to_a, (1..12).to_a) }
+      let(:tubes_rack_1) {
+        3.times.map do |pos|
+          create(:tube, :inside_rack, location: positions[pos], parent: rack1)
+        end
+      }
+      let(:tubes_rack_2) {
+        3.times.map do |pos|
+          create(:tube, :inside_rack, location: positions[pos], parent: rack2)
+        end
+      }
+      let(:tubes) { [tubes_rack_1, tubes_rack_2].flatten }
+      let!(:rack1) { create :tube_rack }
+      let!(:rack2) { create :tube_rack }
+      let(:layout) {
+        all_tubes.each_with_index.map{|tube, i| {asset: tube, location: positions[i]}}
+      }
 
-  describe '#fact_changes_for_rack_when_unracking_tubes' do
+      it 'removes all tubes from the layout from its previous parent' do
+        expect(changes_for_tubes_on_unrack(tubes).to_h[:remove_facts]).to include(
+          [rack1.uuid, 'contains', tubes_rack_1[0].uuid],
+          [rack1.uuid, 'contains', tubes_rack_1[1].uuid],
+          [rack1.uuid, 'contains', tubes_rack_1[2].uuid],
+          [rack2.uuid, 'contains', tubes_rack_2[0].uuid],
+          [rack2.uuid, 'contains', tubes_rack_2[1].uuid],
+          [rack2.uuid, 'contains', tubes_rack_2[2].uuid]
+        )
+      end
+      it 'removes the parent from the reracked tubes' do
+        expect(changes_for_tubes_on_unrack(tubes).to_h[:remove_facts]).to include(
+          [tubes_rack_1[0].uuid, 'parent', rack1.uuid],
+          [tubes_rack_1[1].uuid, 'parent', rack1.uuid],
+          [tubes_rack_1[2].uuid, 'parent', rack1.uuid],
+          [tubes_rack_2[0].uuid, 'parent', rack2.uuid],
+          [tubes_rack_2[1].uuid, 'parent', rack2.uuid],
+          [tubes_rack_2[2].uuid, 'parent', rack2.uuid]
+        )
+      end
+      it 'removes all previous locations from the tubes of the layout' do
+        expect(changes_for_tubes_on_unrack(tubes).to_h[:remove_facts]).to include(
+          [tubes_rack_1[0].uuid, 'location', positions[0]],
+          [tubes_rack_1[1].uuid, 'location', positions[1]],
+          [tubes_rack_1[2].uuid, 'location', positions[2]],
+          [tubes_rack_2[0].uuid, 'location', positions[0]],
+          [tubes_rack_2[1].uuid, 'location', positions[1]],
+          [tubes_rack_2[2].uuid, 'location', positions[2]]
+        )
+      end
+    end
+  end
+
+  describe '#changes_for_destination_rack_on_unrack' do
+    it 'adds a new reracking record in the destination rack' do
+    end
+    it 'updates the information of the original racks from the tubes' do
+    end
+  end
+
+
+  describe '#changes_for_rack_on_unrack' do
     before do
       @tubes = 15.times.map do |line|
         create(:asset)
@@ -128,7 +193,7 @@ RSpec.describe Actions::Racking do
       @tubes.each_with_index do |tube, idx|
         tube.facts << create(:fact, predicate: 'study_name', object: 'STDY1') unless idx == 0
       end
-      updates = fact_changes_for_rack_when_unracking_tubes(asset, @tubes)
+      updates = changes_for_rack_on_unrack(asset, @tubes)
       expect(updates.to_h[:remove_facts].select do |triple|
         triple[1]=='study_name'
       end.map{|triple| triple[2]}.sort).to eq(['STDY1', 'STDY2'])
@@ -137,7 +202,7 @@ RSpec.describe Actions::Racking do
     it 'removes the purpose when all tubes go out' do
       asset.facts << create(:fact, predicate: 'purpose', object: 'DNA Stock Plate')
       @tubes.first.facts << create(:fact, predicate: 'aliquotType', object: 'DNA')
-      updates = fact_changes_for_rack_when_unracking_tubes(asset, @tubes)
+      updates = changes_for_rack_on_unrack(asset, @tubes)
       expect(updates.to_h[:remove_facts].select do |triple|
         triple[1]=='purpose'
       end.map{|triple| triple[2]}.sort).to eq(['DNA Stock Plate'])
@@ -152,7 +217,7 @@ RSpec.describe Actions::Racking do
         end
       end.compact
 
-      updates = fact_changes_for_rack_when_unracking_tubes(asset, tubes2)
+      updates = changes_for_rack_on_unrack(asset, tubes2)
       expect(updates.to_h[:remove_facts].select do |triple|
         triple[1]=='study_name'
       end.map{|triple| triple[2]}.sort).to eq(['STDY1'])

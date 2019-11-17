@@ -15,7 +15,7 @@ module Parsers
         @parser = parser
         _parse(line)
 
-        valid?
+        #valid?
       end
 
       protected

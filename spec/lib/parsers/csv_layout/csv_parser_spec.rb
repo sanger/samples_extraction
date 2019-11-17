@@ -18,8 +18,8 @@ RSpec.describe Parsers::CsvLayout::CsvParser do
       asset_group: asset_group, step_type: step_type }
 
     setup do
-      allow(Asset).to receive(:find_or_import_asset_with_barcode) do |barcode|
-        Asset.find_by(barcode: barcode)
+      allow(Asset).to receive(:find_or_import_assets_with_barcodes) do |barcodes|
+        barcodes.map{|barcode| Asset.find_by(barcode: barcode) }
       end
 
       @content = File.open('test/data/layout.csv').read

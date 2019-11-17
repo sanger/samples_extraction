@@ -11,6 +11,8 @@ class Asset < ActiveRecord::Base
   include Assets::FactsManagement
   include Assets::TractionFields
 
+  include Assets::Import::Facts
+
   has_one :uploaded_file
 
   alias_attribute :name, :uuid

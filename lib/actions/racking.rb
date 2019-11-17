@@ -61,61 +61,75 @@ module Actions
     end
 
     def reracking_tubes(rack, list_layout)
-      fact_changes_unrack = fact_changes_for_unrack_tubes(list_layout, rack)
-      fact_changes_rack = fact_changes_for_rack_tubes(list_layout, rack)
-      fact_changes_unrack.merge(fact_changes_rack)
+      FactChanges.new.tap do |updates|
+        tubes = list_layout.map{|o| o[:asset]}.compact
+        return updates unless tubes.length > 0
+        updates.merge(changes_for_tubes_on_unrack(tubes))
+        updates.merge(changes_for_racks_on_unrack(tubes))
+        updates.merge(fact_changes_for_rack_tubes(list_layout, rack))
+      end
     end
 
-    def fact_changes_for_unrack_tubes(list_layout, destination_rack=nil)
+    def _metadata_changes_for_tubes_on_unrack(tubes, parents_facts, locations_facts)
       FactChanges.new.tap do |updates|
-        rerackGroup=nil
-
-        previous_racks = []
-        tubes = list_layout.map{|obj| obj[:asset]}.compact
-        return updates if tubes.empty?
-        tubes_ids = tubes.map(&:id)
-        tubes_list = Asset.where(id: tubes_ids).includes(:facts)
-        tubes_list.each_with_index do |tube, index|
-          location_facts = tube.facts.with_predicate('location')
-          unless location_facts.empty?
-            location = location_facts.first.object
-            updates.remove(tube.facts.with_predicate('location'))
-          end
-          tube.facts.with_predicate('parent').each do |parent_fact|
-            previous_rack = parent_fact.object_asset
-            unless (previous_racks.include?(previous_rack))
-              previous_racks.push(previous_rack)
-              updates.remove(previous_rack.facts.with_predicate('contains').where(object_asset_id: tubes_ids))
-            end
-
-            if destination_rack
-              unless rerackGroup
-                rerackGroup = Asset.new
-                updates.create_assets([rerackGroup])
-                updates.add(rerackGroup, 'barcodeType', 'NoBarcode')
-                updates.add(destination_rack, 'rerackGroup', rerackGroup)
-              end
-
-              rerack = Asset.new
-              updates.create_assets([rerack])
-              updates.add(rerack, 'a', 'Rerack')
-              updates.add(rerack, 'tube', tube)
-              updates.add(rerack, 'barcodeType', 'NoBarcode')
-              updates.add(rerack, 'previousParent', previous_rack)
-              updates.add(rerack, 'previousLocation', location)
-              updates.add(rerack, 'location', list_layout[index][:location])
-              updates.add(rerackGroup, 'rerack', rerack)
-
-              previous_racks.push(previous_rack)
-            end
-
-            updates.remove(parent_fact)
-          end
+        tubes.each do |tube|
+          parent_fact = parents_facts.detect{|f| f.asset_id == tube.id}
+          location_fact = locations_facts.detect{|f| f.asset_id == tube.id}
+          next unless parent_fact || location_fact
+          rerack = Asset.new
+          updates.create_assets([rerack])
+          updates.add(rerack, 'a', 'Rerack')
+          updates.add(rerack, 'barcodeType', 'NoBarcode')
+          updates.add(rerack, 'previousParent', parent_fact.object_asset)
+          updates.add(rerack, 'previousLocation', location_fact.object)
+          updates.add(tube, 'rerack', rerack)
         end
+      end
+    end
 
-        # sync rack property
-        previous_racks.each do |previous_rack|
-          updates.merge(fact_changes_for_rack_when_unracking_tubes(previous_rack, tubes))
+    def changes_for_tubes_on_unrack(tubes)
+      FactChanges.new.tap do |updates|
+        return unless tubes.length > 0
+        contains_facts = Fact.where(predicate: 'contains', object_asset_id: tubes.map(&:id))
+        parents_facts = Fact.where(asset_id: tubes.map(&:id), predicate: 'parent')
+        locations_facts = Fact.where(asset_id: tubes.map(&:id), predicate: 'location')
+        updates.remove(contains_facts)
+        updates.remove(parents_facts)
+        updates.remove(locations_facts)
+        updates.merge(_metadata_changes_for_tubes_on_unrack(tubes, parents_facts, locations_facts))
+      end
+    end
+
+    def racks_for_tubes(tubes)
+      rack_ids = Fact.where(predicate: 'contains', object_asset_id: tubes.map(&:id)).pluck(:asset_id)
+      Asset.where(id: rack_ids)
+    end
+
+    def changes_for_racks_on_unrack(tubes)
+      FactChanges.new.tap do |updates|
+        racks_for_tubes(tubes).each do |rack|
+          updates.merge(changes_for_rack_on_unrack(rack, tubes))
+        end
+      end
+    end
+
+
+    # For a plate modified (any plate that is losing a tube), it will resync the values of inherited
+    # properties from the plates with the current list of tubes it contains
+    def changes_for_rack_on_unrack(rack, tubes)
+      FactChanges.new.tap do |updates|
+        tubes_from_previous_rack = rack.facts.with_predicate('contains').map(&:object_asset)
+        actual_tubes = (tubes_from_previous_rack - tubes)
+
+        TUBE_TO_PLATE_TRANSFERRABLE_PROPERTIES.each do |transferrable_property|
+          tubes.map{|tube| tube.facts.with_predicate(transferrable_property).map(&:object)}.flatten.compact.each do |value|
+            updates.remove_where(rack, transferrable_property.to_s, value)
+            updates.merge(fact_changes_for_remove_purpose(rack, value)) if transferrable_property.to_s == 'aliquotType'
+          end
+          actual_tubes.map{|tube| tube.facts.with_predicate(transferrable_property).map(&:object).flatten.compact}.each do |value|
+            updates.add(rack, transferrable_property.to_s, value)
+            updates.merge(fact_changes_for_add_purpose(rack, value)) if transferrable_property.to_s == 'aliquotType'
+          end
         end
       end
     end
@@ -142,26 +156,6 @@ module Actions
       end
     end
 
-    # For a plate modified (any plate that is losing a tube), it will resync the values of inherited
-    # properties from the plates with the current list of tubes it contains
-    def fact_changes_for_rack_when_unracking_tubes(rack, unracked_tubes)
-      FactChanges.new.tap do |updates|
-        tubes_from_previous_rack = rack.facts.with_predicate('contains').map(&:object_asset)
-        actual_tubes = (tubes_from_previous_rack - unracked_tubes)
-
-        TUBE_TO_PLATE_TRANSFERRABLE_PROPERTIES.each do |transferrable_property|
-          unracked_tubes.map{|tube| tube.facts.with_predicate(transferrable_property).map(&:object)}.flatten.compact.each do |value|
-            updates.remove_where(rack, transferrable_property.to_s, value)
-            updates.merge(fact_changes_for_remove_purpose(rack, value)) if transferrable_property.to_s == 'aliquotType'
-          end
-          actual_tubes.map{|tube| tube.facts.with_predicate(transferrable_property).map(&:object).flatten.compact}.each do |value|
-            updates.add(rack, transferrable_property.to_s, value)
-            updates.merge(fact_changes_for_add_purpose(rack, value)) if transferrable_property.to_s == 'aliquotType'
-          end
-        end
-      end
-    end
-
     def fact_changes_for_rack_when_racking_tubes(rack, racked_tubes)
       FactChanges.new.tap do |updates|
         TUBE_TO_PLATE_TRANSFERRABLE_PROPERTIES.map do |prop|
@@ -175,7 +169,6 @@ module Actions
 
     def put_tube_into_rack_position(tube, rack, location)
       FactChanges.new.tap do |updates|
-        updates.remove(tube.facts.with_predicate('location'))
         updates.add(tube, 'location', location)
         updates.add(tube, 'parent', rack)
         updates.add(rack, 'contains', tube)
