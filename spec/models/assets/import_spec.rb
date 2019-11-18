@@ -10,8 +10,7 @@ RSpec.describe 'Assets::Import' do
     let(:plate) { build_remote_plate }
 
     before do
-      allow(asset).to receive(:_process_refresh)
-      allow(SequencescapeClient).to receive(:find_by_uuid).and_return(true)
+      allow(SequencescapeClient).to receive(:find_by_uuid).and_return(plate)
     end
 
     context 'when it is not a remote asset' do
@@ -20,8 +19,7 @@ RSpec.describe 'Assets::Import' do
       end
 
       it 'does not refresh' do
-        asset.refresh!
-        expect(asset).not_to have_received(:_process_refresh)
+        expect{asset.refresh!}.not_to change{asset.facts.count}
       end
     end
     context 'when it is a remote asset' do
@@ -33,8 +31,7 @@ RSpec.describe 'Assets::Import' do
           allow(asset).to receive(:changed_remote?).and_return(true)
         end
         it 'refreshes the asset' do
-          asset.refresh!
-          expect(asset).to have_received(:_process_refresh)
+          expect{asset.refresh!}.to change{asset.facts.count}
         end
       end
       context 'when the asset has not changed' do
@@ -42,8 +39,8 @@ RSpec.describe 'Assets::Import' do
           allow(asset).to receive(:changed_remote?).and_return(false)
         end
         it 'refreshes the asset' do
-          asset.refresh!
-          expect(asset).to have_received(:_process_refresh)
+          asset.facts << create(:fact, predicate: 'a', object: 'TubeRack', is_remote?: true)
+          expect{asset.refresh!}.to change{asset.facts.count}
         end
       end
     end
@@ -167,7 +164,7 @@ RSpec.describe 'Assets::Import' do
         end
         it 'should try to obtain a tube' do
           @asset = Asset.find_or_import_asset_with_barcode(@remote_tube_asset.barcode)
-          expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_tube_asset.uuid)
+          expect(SequencescapeClient).to have_received(:get_remote_asset).with(@remote_tube_asset.barcode)
         end
       end
 
@@ -178,7 +175,7 @@ RSpec.describe 'Assets::Import' do
         end
         it 'should try to obtain a plate' do
           @asset = Asset.find_or_import_asset_with_barcode(@remote_plate_asset.barcode)
-          expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_plate_asset.uuid)
+          expect(SequencescapeClient).to have_received(:get_remote_asset).with(@remote_plate_asset.barcode)
         end
 
         context 'when the supplier sample name has not been provided to some samples' do
