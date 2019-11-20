@@ -2,14 +2,6 @@ module Actions
   module Layout
     module Unracking
 
-      def remove_tube_from_rack(tube, rack)
-        FactChanges.new.tap do |updates|
-          updates.remove(tube.facts.with_predicate('location'))
-          updates.remove_where(rack, 'contains', tube)
-        end
-      end
-
-
       def changes_for_tubes_on_unrack(tubes)
         FactChanges.new.tap do |updates|
           return unless tubes.length > 0
@@ -55,14 +47,14 @@ module Actions
           tubes_from_previous_rack = rack.facts.with_predicate('contains').map(&:object_asset)
           actual_tubes = (tubes_from_previous_rack - tubes)
 
-          Actions::LayoutProcessor::TUBE_TO_PLATE_TRANSFERRABLE_PROPERTIES.each do |transferrable_property|
+          Actions::LayoutProcessor::TUBE_TO_RACK_TRANSFERRABLE_PROPERTIES.each do |transferrable_property|
             tubes.map{|tube| tube.facts.with_predicate(transferrable_property).map(&:object)}.flatten.compact.each do |value|
               updates.remove_where(rack, transferrable_property.to_s, value)
-              updates.merge(changes_for_remove_purpose(rack, value)) if transferrable_property.to_s == 'aliquotType'
+              #updates.merge(changes_for_remove_purpose(rack, value)) if transferrable_property.to_s == 'aliquotType'
             end
             actual_tubes.map{|tube| tube.facts.with_predicate(transferrable_property).map(&:object).flatten.compact}.each do |value|
               updates.add(rack, transferrable_property.to_s, value)
-              updates.merge(changes_for_add_purpose(rack, value)) if transferrable_property.to_s == 'aliquotType'
+              #updates.merge(changes_for_add_purpose(rack, value)) if transferrable_property.to_s == 'aliquotType'
             end
           end
         end

@@ -18,16 +18,16 @@ module Actions
 
       def changes_for_rack_when_racking_tubes(rack, racked_tubes)
         FactChanges.new.tap do |updates|
-          Actions::LayoutProcessor::TUBE_TO_PLATE_TRANSFERRABLE_PROPERTIES.map do |prop|
+          Actions::LayoutProcessor::TUBE_TO_RACK_TRANSFERRABLE_PROPERTIES.map do |prop|
             racked_tubes.map{|tube| tube.facts.with_predicate(prop)}
           end.flatten.compact.each do |fact|
             updates.add(rack, fact.predicate.to_s, fact.object_value)
-            updates.merge(changes_for_add_purpose(rack, fact.object_value)) if fact.predicate.to_s == 'aliquotType'
+            #updates.merge(changes_for_add_purpose(rack, fact.object_value)) if fact.predicate.to_s == 'aliquotType'
           end
         end
       end
 
-      def put_tube_into_rack_position(tube, rack, location)
+      def changes_for_put_tube_into_rack_position(tube, rack, location)
         FactChanges.new.tap do |updates|
           updates.add(tube, 'location', location)
           updates.add(tube, 'parent', rack)
@@ -43,7 +43,7 @@ module Actions
             tube = l[:asset]
             next unless tube
             tubes.push(tube)
-            updates.merge(put_tube_into_rack_position(tube, rack, location))
+            updates.merge(changes_for_put_tube_into_rack_position(tube, rack, location))
           end
           updates.merge(changes_for_rack_when_racking_tubes(rack, tubes))
         end

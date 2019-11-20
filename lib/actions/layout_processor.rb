@@ -8,12 +8,7 @@ require 'actions/layout/unracking'
 
 module Actions
   class LayoutProcessor
-    DNA_STOCK_PLATE_PURPOSE = 'DNA Stock Plate'
-    RNA_STOCK_PLATE_PURPOSE = 'RNA Stock Plate'
-    STOCK_PLATE_PURPOSE = 'Stock Plate'
-    DNA_ALIQUOT = 'DNA'
-    RNA_ALIQUOT = 'RNA'
-    TUBE_TO_PLATE_TRANSFERRABLE_PROPERTIES = [:study_name,:aliquotType]
+    TUBE_TO_RACK_TRANSFERRABLE_PROPERTIES = [:study_name,:aliquotType]
 
     include Actions::Layout::Racking
     include Actions::Layout::Unracking
@@ -41,28 +36,6 @@ module Actions
 
     def changes
       csv_parsing(asset_group, parser)
-    end
-
-    def purpose_for_aliquot(aliquot)
-      if aliquot == DNA_ALIQUOT
-        DNA_STOCK_PLATE_PURPOSE
-      elsif aliquot == RNA_ALIQUOT
-        RNA_STOCK_PLATE_PURPOSE
-      else
-        STOCK_PLATE_PURPOSE
-      end
-    end
-
-    def changes_for_add_purpose(rack, aliquot)
-      FactChanges.new.tap do |updates|
-        updates.add(rack, 'purpose', purpose_for_aliquot(aliquot))
-      end
-    end
-
-    def changes_for_remove_purpose(rack, aliquot)
-      FactChanges.new.tap do |updates|
-        updates.remove_where(rack, 'purpose', purpose_for_aliquot(aliquot))
-      end
     end
 
     def racks_for_tubes(tubes)

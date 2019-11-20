@@ -56,54 +56,40 @@ RSpec.describe 'Actions::Layout::Unracking' do
       end
 
       it 'adds a new reracking record in the destination rack' do
-      end
-      it 'updates the information of the original racks from the tubes' do
+        updates = layout_processor.changes_for_tubes_on_unrack(tubes)
+        triples = updates.to_h[:add_facts].select{|t| t[1] == 'rerack'}
+        expect(triples.count).to eq(6)
+        expect(updates.to_h[:add_facts]).to include(
+          *(triples.map{|t| [t[2], 'a', 'Rerack']})
+        )
       end
     end
   end
 
   describe '#changes_for_rack_on_unrack' do
     let(:rack) { create :tube_rack }
+    let(:tube1) { create(:tube, :inside_rack, location: "A01", parent: rack) }
+    let(:tube2) { create(:tube, :inside_rack, location: "B01", parent: rack) }
+    let(:tubes) {[tube1, tube2]}
 
-    let(:tubes) {
-      15.times.map do |pos|
-        create(:tube, :inside_rack, location: positions[pos], parent: rack)
-      end
-    }
+    it 'removes the relevant properties when removing tubes from the racks' do
+      Actions::LayoutProcessor::TUBE_TO_RACK_TRANSFERRABLE_PROPERTIES.push('country')
+      tube1.facts << create(:fact, predicate: 'country', object: 'Spain', literal: true)
+      tube2.facts << create(:fact, predicate: 'country', object: 'Portugal', literal: true)
 
-    it 'removes all the different studies for this rack when all tubes go out' do
-      tubes.first.facts << create(:fact, predicate: 'study_name', object: 'STDY2')
-      tubes.each_with_index do |tube, idx|
-        tube.facts << create(:fact, predicate: 'study_name', object: 'STDY1') unless idx == 0
-      end
       updates = layout_processor.changes_for_rack_on_unrack(rack, tubes)
-      expect(updates.to_h[:remove_facts].select do |triple|
-        triple[1]=='study_name'
-      end.map{|triple| triple[2]}.sort).to eq(['STDY1', 'STDY2'])
+      expect(updates.to_h[:remove_facts]).to eq(
+        [[rack.uuid, 'country', 'Spain'],
+        [rack.uuid, 'country', 'Portugal']]
+      )
     end
-
-    it 'removes the purpose when all tubes go out' do
-      rack.facts << create(:fact, predicate: 'purpose', object: 'DNA Stock Plate')
-      tubes.first.facts << create(:fact, predicate: 'aliquotType', object: 'DNA')
+    it 'does not remove non-relevant properties when removing tubes from the rack' do
+      property = SecureRandom.uuid
+      tube2.facts << create(:fact, predicate: property, object: 'Orange', literal: true)
       updates = layout_processor.changes_for_rack_on_unrack(rack, tubes)
-      expect(updates.to_h[:remove_facts].select do |triple|
-        triple[1]=='purpose'
-      end.map{|triple| triple[2]}.sort).to eq(['DNA Stock Plate'])
+      expect(updates.to_h[:remove_facts]).to be_nil
     end
 
-    it 'only returns the studies of the tubes that are going to be removed' do
-      tubes.first.facts << create(:fact, predicate: 'study_name', object: 'STDY2')
-      tubes2 = tubes.each_with_index.map do |tube, idx|
-        unless idx == 0
-          tube.facts << create(:fact, predicate: 'study_name', object: 'STDY1')
-          tube
-        end
-      end.compact
-      updates = layout_processor.changes_for_rack_on_unrack(rack, tubes2)
-      expect(updates.to_h[:remove_facts].select do |triple|
-        triple[1]=='study_name'
-      end.map{|triple| triple[2]}.sort).to eq(['STDY1'])
-    end
   end
 
 end
