@@ -22,7 +22,6 @@ module Actions
             racked_tubes.map{|tube| tube.facts.with_predicate(prop)}
           end.flatten.compact.each do |fact|
             updates.add(rack, fact.predicate.to_s, fact.object_value)
-            #updates.merge(changes_for_add_purpose(rack, fact.object_value)) if fact.predicate.to_s == 'aliquotType'
           end
         end
       end

@@ -50,11 +50,9 @@ module Actions
           Actions::LayoutProcessor::TUBE_TO_RACK_TRANSFERRABLE_PROPERTIES.each do |transferrable_property|
             tubes.map{|tube| tube.facts.with_predicate(transferrable_property).map(&:object)}.flatten.compact.each do |value|
               updates.remove_where(rack, transferrable_property.to_s, value)
-              #updates.merge(changes_for_remove_purpose(rack, value)) if transferrable_property.to_s == 'aliquotType'
             end
             actual_tubes.map{|tube| tube.facts.with_predicate(transferrable_property).map(&:object).flatten.compact}.each do |value|
               updates.add(rack, transferrable_property.to_s, value)
-              #updates.merge(changes_for_add_purpose(rack, value)) if transferrable_property.to_s == 'aliquotType'
             end
           end
         end
