@@ -355,6 +355,14 @@ class FactChanges
     self
   end
 
+  def add_assets_to_group(group, assets)
+    add_assets([[group, assets]])
+  end
+
+  def remove_assets_from_group(group, assets)
+    remove_assets([[group, assets]])
+  end
+
   def add_assets(list)
     list.each do |elem|
       if ((elem.length > 0) && elem[1].kind_of?(Array))
