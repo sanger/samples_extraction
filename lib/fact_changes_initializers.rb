@@ -8,9 +8,13 @@
 module FactChangesInitializers
   def self.included(klass)
     klass.instance_eval do
-      Callbacks.initialize_barcode_callbacks
-      Callbacks.initialize_aliquot_type_callbacks
+      FactChangesInitializers.setup_changes_callbacks!
     end
+  end
+
+  def self.setup_changes_callbacks!
+    Callbacks.initialize_barcode_callbacks
+    Callbacks.initialize_aliquot_type_callbacks
   end
 
   module Callbacks

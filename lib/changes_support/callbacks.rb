@@ -28,6 +28,12 @@ module ChangesSupport
         @changes_callbacks[change_type][predicate].push(proc)
       end
 
+      #
+      # Resets the callbacks so they won't be run anymore
+      def clear_all_callbacks!
+        @changes_callbacks = {}
+      end
+
       def _changes_callbacks
         @changes_callbacks
       end
