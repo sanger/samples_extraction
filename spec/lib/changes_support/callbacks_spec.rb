@@ -30,12 +30,29 @@ RSpec.describe 'ChangesSuppport::Callbacks' do
             expect(spy_instance).to have_received(:my_method).with({
               asset: asset, predicate: 'color', object: 'Red', literal: true}, updates)
           end
-          it 'also runs the callback again if I make another change' do
+          it 'also runs the callback again if I change using other object' do
             updates.apply(step)
             updates2 = FactChanges.new
             updates2.add(asset, 'color', 'Blue')
             updates2.apply(step)
             expect(spy_instance).to have_received(:my_method).twice
+          end
+
+          it 'runs as many times as the event happens' do
+            updates.add(asset, 'color', 'Green')
+            updates.add(asset, 'name', 'Hulk')
+            updates.add(asset, 'is', 'Not happy')
+            updates.add(asset, 'color', 'Yellow')
+            updates.add(asset, 'is', 'Angry')
+            updates.apply(step)
+            expect(spy_instance).to have_received(:my_method).with({
+              asset: asset, predicate: 'color', object: 'Green', literal: true}, updates).exactly(1).times
+            expect(spy_instance).to have_received(:my_method).with({
+              asset: asset, predicate: 'color', object: 'Red', literal: true}, updates).exactly(1).times
+            expect(spy_instance).to have_received(:my_method).with({
+              asset: asset, predicate: 'color', object: 'Yellow', literal: true}, updates).exactly(1).times
+            expect(spy_instance).to have_received(:my_method).exactly(3).times
+
           end
         end
       end
