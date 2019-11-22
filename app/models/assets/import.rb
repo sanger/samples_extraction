@@ -185,7 +185,8 @@ module Assets::Import
       asset = Asset.find_by_uuid(barcode) unless asset
       updates = FactChanges.new
       if asset.nil? && TokenUtil.is_valid_fluidx_barcode?(barcode)
-        asset = Asset.create_local_asset(barcode, updates)
+        asset = import_barcode(barcode)
+        asset = Asset.create_local_asset(barcode, updates) unless asset
       end
       if asset
         asset.refresh(updates)
