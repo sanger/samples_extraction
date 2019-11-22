@@ -92,20 +92,18 @@ RSpec.describe AssetGroupsController, type: :controller do
               :id => asset_group.id, :activity_id => activity.id}
           expect(asset_group.assets.count).to eq(0)
         end
-      end
-
-      context "when it is a creatable barcode" do
-        let(:creatable_barcode) { generate :barcode_creatable }
-
-        it "creates a new asset" do
+        it "does not create a new asset" do
+          barcode = generate :barcode_creatable
           expect{
             post :update, params: {:asset_group => {
-              :assets => [creatable_barcode]
+              :assets => [barcode]
               },
               :id => asset_group.id, :activity_id => activity.id}
-          }.to change{asset_group.assets.count}.by(1)
+          }.not_to change{Asset.count}
         end
+
       end
+
     end
   end
 end

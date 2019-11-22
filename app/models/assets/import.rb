@@ -45,13 +45,11 @@ module Assets::Import
     def find_or_import_assets_with_barcodes(barcodes)
       updates = changes_for_refresh_or_import_assets_with_barcodes(barcodes)
       updates.apply(create_refresh_step)
-
       _find_assets_with_barcodes(barcodes)
     end
 
     def changes_for_refresh_or_import_assets_with_barcodes(barcodes)
       FactChanges.new.tap do |updates|
-        updates.merge(changes_for_new_fluidx_tubes(barcodes))
         updates.merge(changes_for_refresh_from_barcodes(barcodes))
         updates.merge(changes_for_import_new_barcodes(barcodes))
       end
