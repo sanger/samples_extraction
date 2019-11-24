@@ -374,8 +374,6 @@ class FactChanges
       end
       assets = validate_instances(find_assets(asset_ids))
       assets_to_add << assets.map{|asset| { asset_group: asset_group, asset: asset} }
-      #add_to_list_keep_unique(assets.map{|asset| { asset_group: asset_group, asset: asset} }, :assets_to_add, :assets_to_remove)
-      #assets_to_add.concat(assets.map{|asset| { asset_group: asset_group, asset: asset} })
     end
     self
   end

@@ -8,6 +8,12 @@ require 'sequencescape'
 require 'sequencescape_client_v2'
 
 class SequencescapeClient
+  RESOURCES = [
+      SequencescapeClientV2::Plate,
+      SequencescapeClientV2::Tube,
+      SequencescapeClientV2::Well
+  ]
+
   @purposes=nil
 
   def self.api_connection_options
@@ -58,22 +64,40 @@ class SequencescapeClient
   end
 
   def self.get_remote_asset(barcode)
-    find_by(barcode: barcode)
+    barcodes = [barcode].flatten
+    return find_first(barcode: barcodes) if barcodes.length==1
+    results = find_by(barcode: barcodes)
+    barcodes.each_with_index.map do |barcode|
+      results.detect{|r| r.labware_barcode.human_barcode == barcode}
+    end
   end
 
   def self.find_by_uuid(uuid, opts=nil)
-    find_by(uuid: uuid)
+    uuids = [uuid].flatten
+    return find_first(uuid: uuids) if uuids.length==1
+    results = find_by(uuid: uuids)
+    uuids.each_with_index.map do |uuid|
+      results.detect{|r| r.uuid == uuid}
+    end
   end
 
   def self.find_by(search_conditions)
-    [
-      SequencescapeClientV2::Plate,
-      SequencescapeClientV2::Tube,
-      SequencescapeClientV2::Well
-    ].each do |klass|
+    RESOURCES.map do |klass|
       begin
         search = klass.where(search_conditions)
-        search = search.first if search
+        search
+      rescue JsonApiClient::Errors::ClientError => e
+        # Ignore filter error
+      end
+    end.flatten
+  end
+
+
+  def self.find_first(search_conditions)
+    RESOURCES.each do |klass|
+      begin
+        search = klass.where(search_conditions)
+        search = search.first if search.length == 1
         return search if search
       rescue JsonApiClient::Errors::ClientError => e
         # Ignore filter error
