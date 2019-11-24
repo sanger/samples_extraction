@@ -2,7 +2,7 @@ module Importers
   module Concerns
     module Changes
 
-      def refresh_assets(assets)
+      def refresh_assets(assets, opts={})
         FactChanges.new.tap do |updates|
           remote_assets = SequencescapeClient::find_by_uuid(assets.map(&:uuid))
           assets.zip(remote_assets).each do |asset, remote_asset|
@@ -14,7 +14,7 @@ module Importers
                 end
 
                 # Loads new state
-                update_asset_from_remote_asset(asset, remote_asset)
+                updates.merge(update_asset_from_remote_asset(asset, remote_asset))
               end
             end
           end
@@ -30,7 +30,7 @@ module Importers
               updates.create_assets([asset])
               updates.replace_remote(asset, 'a', sequencescape_type_for_asset(remote_asset))
               updates.replace_remote(asset, 'remoteAsset', asset)
-              update_asset_from_remote_asset(asset, remote_asset)
+              updates.merge(update_asset_from_remote_asset(asset, remote_asset))
             end
           end
         end

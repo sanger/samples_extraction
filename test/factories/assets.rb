@@ -23,6 +23,10 @@ FactoryBot.define do
       end
     end
 
+    factory :well, class: Asset do
+      facts { [ create(:well_fact) ] }
+    end
+
     factory :plate, class: Asset do
       facts { [ create(:plate_fact) ] }
     end

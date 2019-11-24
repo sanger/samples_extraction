@@ -17,6 +17,12 @@ FactoryBot.define do
     literal  { true }
   end
 
+  factory :well_fact, class: Fact do
+    predicate   { 'a' }
+    object      { 'Well' }
+    literal  { true }
+  end
+
   factory :tube_rack_fact, class: Fact do
     predicate   { 'a' }
     object      { 'TubeRack' }
