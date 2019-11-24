@@ -208,6 +208,13 @@ RSpec.describe FactChanges do
     end
   end
   describe '#apply' do
+    context 'when using a changed step' do
+      it 'will save the step during the transaction' do
+        changes = FactChanges.new
+        changes.add(asset1, property, value)
+        expect{changes.apply(Step.new)}.to change{Step.count}.from(0).to(1)
+      end
+    end
     context 'when the object contains errors' do
       it 'stores the messages and throws an exception' do
         updates1.set_errors(["hi"])

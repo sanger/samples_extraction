@@ -4,17 +4,19 @@ module Importers
 
       def refresh_assets(assets, opts={})
         FactChanges.new.tap do |updates|
-          remote_assets = SequencescapeClient::find_by_uuid(assets.map(&:uuid))
-          assets.zip(remote_assets).each do |asset, remote_asset|
-            raise Assets::Import::RefreshSourceNotFoundAnymore unless remote_asset
-            if ((opts[:forceRefresh]==true) || changed_remote?(asset, remote_asset))
-              unless asset.is_refreshing_right_now?
-                asset.assets_to_refresh.each do |asset|
-                  updates.remove(asset.facts.from_remote_asset)
-                end
+          if assets.length > 0
+            remote_assets = SequencescapeClient::find_by_uuid(assets.map(&:uuid))
+            assets.zip(remote_assets).each do |asset, remote_asset|
+              raise Assets::Import::RefreshSourceNotFoundAnymore unless remote_asset
+              if ((opts[:forceRefresh]==true) || changed_remote?(asset, remote_asset))
+                unless asset.is_refreshing_right_now?
+                  asset.assets_to_refresh.each do |asset|
+                    updates.remove(asset.facts.from_remote_asset)
+                  end
 
-                # Loads new state
-                updates.merge(update_asset_from_remote_asset(asset, remote_asset))
+                  # Loads new state
+                  updates.merge(update_asset_from_remote_asset(asset, remote_asset))
+                end
               end
             end
           end

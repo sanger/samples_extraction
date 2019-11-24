@@ -228,6 +228,7 @@ class FactChanges
         Operation.import(operations)
         @operations = operations
       end
+      step.save if step.changed?
       reset
     end
   end

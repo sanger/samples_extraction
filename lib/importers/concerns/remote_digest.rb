@@ -7,7 +7,10 @@ module Importers
       end
 
       def update_digest_with_remote(asset, remote_asset)
-        asset.update_attributes(remote_digest: digest_for_remote_asset(remote_asset))
+        FactChanges.new.tap do |updates|
+          updates.add(asset, 'remote_digest', digest_for_remote_asset(remote_asset))
+        end
+        #asset.update_attributes(remote_digest: digest_for_remote_asset(remote_asset))
       end
 
       def digest_for_remote_asset(remote_asset)

@@ -15,6 +15,7 @@ module FactChangesInitializers
   def self.setup_changes_callbacks!
     Callbacks.initialize_barcode_callbacks
     Callbacks.initialize_aliquot_type_callbacks
+    Callbacks.initialize_digest_update_callbacks
   end
 
   module Callbacks
@@ -41,6 +42,12 @@ module FactChangesInitializers
 
       FactChanges.on_change_predicate('remove_facts', 'barcode', Proc.new do |t|
         t[:asset].update_attributes(barcode: nil)
+      end)
+    end
+
+    def self.initialize_digest_update_callbacks
+      FactChanges.on_change_predicate('add_facts', 'remote_digest', Proc.new do |t, updates|
+        t[:asset].update_attributes(remote_digest: t[:object])
       end)
     end
 

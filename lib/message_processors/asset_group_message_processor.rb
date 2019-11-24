@@ -14,19 +14,26 @@ module MessageProcessors
       asset_group = AssetGroup.find(strong_params[:id])
       assets = strong_params[:assets]
       if asset_group && assets
-        debugger
-        begin
-          FactChanges.new.tap do |updates|
-            updates.remove_assets_from_group(asset_group, asset_group.assets)
-            Asset.changes_for_refresh_or_import_assets_with_barcodes(assets)
-            updates.merge()
-            updates.add_assets_to_group(asset_group, assets)
-          end.apply(step_for_changing_group)
-        rescue Errno::ECONNREFUSED => e
-          asset_group.activity.send_wss_event({error: {type: 'danger', msg: 'Cannot connect with sequencescape'} })
-        rescue StandardError => e
-          asset_group.activity.send_wss_event({error: {type: 'danger', msg: e.message} })
-        end
+        importer = Importers::BarcodesImporter.new(barcodes)
+        updates = importer.process
+        updates.remove_assets_from_group(asset_group, asset_group.assets)
+        updates.add_assets_to_group(importer.uuids_for_barcodes)
+        updates.apply(step_for_changing_group)
+        #debugger
+        #begin
+        #  FactChanges.new.tap do |updates|
+        #    updates.remove_assets_from_group(asset_group, asset_group.assets)
+        #    Asset.changes_for_refresh_or_import_assets_with_barcodes(assets)
+        #    updates.merge()
+        #    updates.add_assets_to_group(asset_group, assets)
+        #  end.apply(step_for_changing_group)
+
+
+        #rescue Errno::ECONNREFUSED => e
+        #  asset_group.activity.send_wss_event({error: {type: 'danger', msg: 'Cannot connect with sequencescape'} })
+        #rescue StandardError => e
+        #  asset_group.activity.send_wss_event({error: {type: 'danger', msg: e.message} })
+        #end
       end
     end
 

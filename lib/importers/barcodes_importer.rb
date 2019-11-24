@@ -21,8 +21,8 @@ module Importers
     end
 
     def process
-      @updates.merge(refresh_assets(local_assets.from_sequencescape))
-      @updates.merge(import_barcodes(filter_barcodes_not_in_assets(barcodes, assets)))
+      @updates.merge(refresh_assets(local_assets.from_remote_service))
+      @updates.merge(import_barcodes(filter_barcodes_not_in_assets(barcodes, local_assets)))
     end
 
     def process!
@@ -31,6 +31,10 @@ module Importers
 
     def local_assets
       Asset.where(barcode: barcodes).or(Asset.where(uuid: barcodes))
+    end
+
+    def step
+      Step.new(step_type: StepType.find_or_create_by(name: 'BarcodesImporter'))
     end
 
     private

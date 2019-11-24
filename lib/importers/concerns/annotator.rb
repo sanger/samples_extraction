@@ -18,7 +18,7 @@ module Importers
           updates.merge(annotate_wells(asset, remote_asset))
           updates.merge(annotate_study_name(asset, remote_asset))
 
-          update_digest_with_remote(asset, remote_asset)
+          updates.merge(update_digest_with_remote(asset, remote_asset))
         end
       end
 

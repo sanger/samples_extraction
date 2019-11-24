@@ -41,9 +41,8 @@ RSpec.describe 'Importers::Concerns::RemoteDigest' do
     it 'updates the digest with the remote asset provided' do
       plate = create :plate, remote_digest: nil
       digest = instance.digest_for_remote_asset(remote_asset)
-      expect{
-        instance.update_digest_with_remote(plate, remote_asset)
-      }.to change{plate.remote_digest}.from(nil).to(digest)
+      updates = instance.update_digest_with_remote(plate, remote_asset)
+      expect(updates.to_h[:add_facts].select{|t| t[1]=='remote_digest'}).to eq([[plate.uuid, 'remote_digest', digest]])
     end
   end
 end
