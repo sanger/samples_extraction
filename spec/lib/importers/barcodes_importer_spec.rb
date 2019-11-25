@@ -18,6 +18,17 @@ RSpec.describe Importers::BarcodesImporter do
       expect(instance.barcodes).to eq(barcodes)
     end
   end
+  context '#uuids_for_barcodes' do
+    let(:asset1) { create(:asset, barcode: generate(:barcode)) }
+    let(:uuids) { remote_assets.map(&:uuid).concat([asset1.uuid])}
+
+    it 'returns the list of uuids corresponding the original barcodes requested' do
+      barcodes_and_local = [barcodes, asset1.barcode].flatten
+      instance = Importers::BarcodesImporter.new(barcodes_and_local)
+      instance.process
+      expect(instance.uuids_for_barcodes).to eq(uuids)
+    end
+  end
   context '#process' do
     it 'returns a FactChanges instance' do
       instance = Importers::BarcodesImporter.new(barcodes)

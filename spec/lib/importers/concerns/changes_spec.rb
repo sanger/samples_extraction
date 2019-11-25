@@ -23,6 +23,13 @@ RSpec.describe 'Importers::Concerns::Changes' do
       expect(updates.to_h[:add_facts].detect{|t|t[1]=='sample_uuid'}).not_to be_nil
       expect(updates.to_h[:add_facts].map{|t| t[0]}.uniq).to include(*uuids)
     end
+
+    context 'when receiving an empty list' do
+      it 'does nothing' do
+        updates = instance.refresh_assets([])
+        expect(updates.to_h).to eq({})
+      end
+    end
   end
 
   context '#import_barcodes' do
@@ -53,5 +60,13 @@ RSpec.describe 'Importers::Concerns::Changes' do
       expect(updates.to_h[:add_facts].detect{|t|t[1]=='sample_uuid'}).not_to be_nil
       expect(updates.to_h[:create_assets]).to include(*uuids)
     end
+
+    context 'when receiving an empty list' do
+      it 'does nothing' do
+        updates = instance.import_barcodes([])
+        expect(updates.to_h).to eq({})
+      end
+    end
+
   end
 end

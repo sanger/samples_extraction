@@ -31,9 +31,13 @@ RSpec.describe MessageProcessors::AssetGroupMessageProcessor do
         let(:previous_list) { [removed, kept].flatten}
         let(:assets) { new_list }
         let(:asset_group) {create(:asset_group, assets: previous_list) }
-        let(:barcodes) { previous_list.map(&:barcode) }
+        let(:barcodes) { assets.map(&:barcode) }
+
         it 'updates the contents of the group' do
-          expect{instance.process(good_message)}.to change{asset_group.assets}.from(previous_list).to(new_list)
+          expect{instance.process(good_message)}.to change{
+            asset_group.assets.reload
+            asset_group.assets.map(&:barcode)
+          }.from(previous_list.map(&:barcode)).to(new_list.map(&:barcode))
         end
       end
     end

@@ -1,7 +1,9 @@
 require 'message_processor'
-
+require 'importers/barcodes_importer'
 module MessageProcessors
   class AssetGroupMessageProcessor < MessageProcessor
+    attr_reader :asset_group
+
     def interested_in?(message)
       !!(message["asset_group"])
     end
@@ -11,13 +13,13 @@ module MessageProcessors
     end
 
     def _process_asset_group(strong_params)
-      asset_group = AssetGroup.find(strong_params[:id])
+      @asset_group = AssetGroup.find(strong_params[:id])
       assets = strong_params[:assets]
       if asset_group && assets
-        importer = Importers::BarcodesImporter.new(barcodes)
+        importer = Importers::BarcodesImporter.new(assets)
         updates = importer.process
-        updates.remove_assets_from_group(asset_group, asset_group.assets)
-        updates.add_assets_to_group(importer.uuids_for_barcodes)
+        updates.remove_assets_from_group(asset_group, asset_group.assets.to_a)
+        updates.add_assets_to_group(asset_group, importer.assets_for_barcodes)
         updates.apply(step_for_changing_group)
         #debugger
         #begin
@@ -38,7 +40,7 @@ module MessageProcessors
     end
 
     def step_for_changing_group
-      Step.new(activity: asset_group.activity_id, asset_group: asset_group)
+      Step.new(activity_id: asset_group.activity_owner_id, asset_group: asset_group)
     end
 
     def params_for_asset_group(params)

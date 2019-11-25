@@ -25,14 +25,19 @@ module Importers
 
       def import_barcodes(barcodes)
         FactChanges.new.tap do |updates|
-          remote_assets = SequencescapeClient::get_remote_asset(barcodes)
-          barcodes.zip(remote_assets).each do |barcode, remote_asset|
-            if remote_asset
-              asset = Asset.new(barcode: barcode, uuid: remote_asset.uuid)
-              updates.create_assets([asset])
-              updates.replace_remote(asset, 'a', sequencescape_type_for_asset(remote_asset))
-              updates.replace_remote(asset, 'remoteAsset', asset)
-              updates.merge(update_asset_from_remote_asset(asset, remote_asset))
+          if barcodes.length > 0
+            remote_assets = SequencescapeClient::get_remote_asset(barcodes)
+            barcodes.zip(remote_assets).each do |barcode, remote_asset|
+              if remote_asset
+                # Needed in order to identify the imported elements
+                @imported_uuids_by_barcode[barcode] = remote_asset.uuid
+
+                asset = Asset.new(barcode: barcode, uuid: remote_asset.uuid)
+                updates.create_assets([asset])
+                updates.replace_remote(asset, 'a', sequencescape_type_for_asset(remote_asset))
+                updates.replace_remote(asset, 'remoteAsset', asset)
+                updates.merge(update_asset_from_remote_asset(asset, remote_asset))
+              end
             end
           end
         end

@@ -12,12 +12,27 @@ module Importers
 
     def initialize(barcodes)
       @barcodes = barcodes
+      @imported_uuids_by_barcode = {}
       @updates = FactChanges.new
     end
 
     def updates
       process unless processed?
       @updates
+    end
+
+    def imported_asset_for_barcode(barcode)
+      updates.instances_from_uuid[@imported_uuids_by_barcode[barcode]]
+    end
+
+    def local_asset_for_barcode(barcode)
+      local_assets.detect {|a| (a.barcode == barcode) || (a.uuid == barcode) }
+    end
+
+    def assets_for_barcodes
+      barcodes.map do |barcode|
+        local_asset_for_barcode(barcode) || imported_asset_for_barcode(barcode) || nil
+      end
     end
 
     def process

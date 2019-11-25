@@ -644,6 +644,14 @@ RSpec.describe FactChanges do
         updates.add_assets_to_group(asset_group, [asset1, asset2])
       }.to change{updates.assets_to_add.to_a}.from([]).to(expectancy)
     end
+
+    context 'when receiving an empty list' do
+      it 'does nothing' do
+        expect{
+          updates.add_assets_to_group(asset_group, [])
+        }.not_to change{updates.assets_to_add.to_a}
+      end
+    end
   end
 
   describe '#remove_assets_from_group' do
@@ -660,6 +668,14 @@ RSpec.describe FactChanges do
       expect{
         updates.remove_assets_from_group(asset_group, [asset1, asset2])
       }.to change{updates.assets_to_remove.to_a}.from([]).to(expectancy)
+    end
+
+    context 'when receiving an empty list' do
+      it 'does nothing' do
+        expect{
+          updates.remove_assets_from_group(asset_group, [])
+        }.not_to change{updates.assets_to_remove.to_a}
+      end
     end
   end
 
