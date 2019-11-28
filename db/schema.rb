@@ -170,6 +170,7 @@ ActiveRecord::Schema.define(version: 2019_07_17_130805) do
     t.integer "activity_type_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "abbreviation"
     t.index ["activity_type_id"], name: "index_kit_types_on_activity_type_id"
   end
 
