@@ -189,9 +189,14 @@ class Asset < ActiveRecord::Base
       :barcode => barcode,
       :barcode2d => barcode,
       :top_line => barcode,
+      :middle_line => kit_type,
       :bottom_line => info_line
       }
     }
+  end
+
+  def kit_type
+    activities_affected&.last&.kit&.kit_type&.abbreviation
   end
 
   def position_value

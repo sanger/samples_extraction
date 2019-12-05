@@ -74,6 +74,6 @@ class KitTypesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def kit_type_params
-      params.require(:kit_type).permit(:name, :target_type, :activity_type_id)
+      params.require(:kit_type).permit(:name, :target_type, :activity_type_id, :abbreviation)
     end
 end

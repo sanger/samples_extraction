@@ -19,6 +19,9 @@
       :selected => @kit_type.activity_type ? @kit_type.activity_type.id : nil), {},
     :disabled => readonly %>
   </div>
+  <div class="field">
+    <%= f.text_field :abbreviation, :readonly => readonly %>
+  </div>
   <% unless readonly %>
     <div class="actions">
       <%= f.submit class: 'btn btn-primary' %>
