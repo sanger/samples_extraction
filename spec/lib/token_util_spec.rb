@@ -27,6 +27,15 @@ RSpec.describe TokenUtil do
       expect(TokenUtil.is_valid_fluidx_barcode?("12345678")).to eq(false)
     end
   end
+  context '#is_valid_cgap_barcode?' do
+    it 'detects a valid cgap barcode' do
+      expect(TokenUtil.is_valid_cgap_barcode?("CGAP123456")).to eq(true)
+    end
+    it 'rejects invalid cgap barcode' do
+      expect(TokenUtil.is_valid_cgap_barcode?("12345678")).to eq(false)
+    end
+  end
+
   context '#pad' do
     it 'pads a string with a character using a length' do
       expect(TokenUtil.pad("1234", "0", 8)).to eq("00001234")

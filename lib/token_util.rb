@@ -7,6 +7,10 @@ module TokenUtil
     'F'
   end
 
+  def self.cgap_barcode_prefix
+    'CGAP'
+  end
+
   def self.WILDCARD_REGEXP
     /\?\w*/
   end
@@ -17,6 +21,10 @@ module TokenUtil
 
   def self.is_uuid?(str)
     str.kind_of?(String) && !str.match(TokenUtil.UUID_REGEXP).nil?
+  end
+
+  def self.is_valid_cgap_barcode?(barcode)
+    barcode.to_s.starts_with?(cgap_barcode_prefix)
   end
 
   def self.is_valid_fluidx_barcode?(barcode)
