@@ -19,6 +19,11 @@ module TokenUtil
     str.kind_of?(String) && !str.match(TokenUtil.UUID_REGEXP).nil?
   end
 
+  def self.quote_if_uuid(str)
+    return quote(str) if is_uuid?(str)
+    return str
+  end
+
   def self.is_valid_fluidx_barcode?(barcode)
     barcode.to_s.starts_with?(fluidx_barcode_prefix)
   end
