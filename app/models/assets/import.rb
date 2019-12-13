@@ -247,11 +247,11 @@ module Assets::Import
         if remote_asset.try(:aliquots)
           remote_asset.aliquots.each do |aliquot|
             updates.replace_remote(asset, 'sample_tube', asset)
-            updates.replace_remote(asset, 'sanger_sample_id', aliquot&.sample&.sanger_sample_id)
+            updates.replace_remote(asset, 'sanger_sample_id', TokenUtil.quote_if_uuid(aliquot&.sample&.sanger_sample_id))
             updates.replace_remote(asset, 'sample_uuid', TokenUtil.quote(aliquot&.sample&.uuid), literal: true)
-            updates.replace_remote(asset, 'sanger_sample_name', aliquot&.sample&.name)
-            updates.replace_remote(asset, 'supplier_sample_name', aliquot&.sample&.sample_metadata&.supplier_name)
-            updates.replace_remote(asset, 'sample_common_name', aliquot&.sample&.sample_metadata&.sample_common_name)
+            updates.replace_remote(asset, 'sanger_sample_name', TokenUtil.quote_if_uuid(aliquot&.sample&.name))
+            updates.replace_remote(asset, 'supplier_sample_name', TokenUtil.quote_if_uuid(aliquot&.sample&.sample_metadata&.supplier_name))
+            updates.replace_remote(asset, 'sample_common_name', TokenUtil.quote_if_uuid(aliquot&.sample&.sample_metadata&.sample_common_name))
           end
         end
       end
@@ -265,6 +265,7 @@ module Assets::Import
             updates.replace_remote(asset, 'sanger_sample_id', aliquot&.sample&.sanger&.sample_id)
             updates.replace_remote(asset, 'sample_uuid', TokenUtil.quote(aliquot&.sample&.sanger&.sample_uuid), literal: true)
             updates.replace_remote(asset, 'sanger_sample_name', aliquot&.sample&.sanger&.name)
+
             updates.replace_remote(asset, 'supplier_sample_name', aliquot&.sample&.supplier&.sample_name)
           end
         end

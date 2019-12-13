@@ -72,6 +72,18 @@ RSpec.describe TokenUtil do
     end
   end
 
+  context '#quote_if_uuid' do
+    it 'quotes the string if is an uuid' do
+      expect(TokenUtil.quote_if_uuid(uuid)).to eq("\"#{uuid}\"")
+    end
+    it 'does not quote the string if is not an uuid' do
+      expect(TokenUtil.quote_if_uuid("text")).to eq("text")
+    end
+    it 'returns nil if the string is nil' do
+      expect(TokenUtil.quote_if_uuid(nil)).to eq(nil)
+    end
+  end
+
   context '#kind_of_asset_id?' do
     it 'detects when an argument is a uuid' do
       expect(TokenUtil.kind_of_asset_id?(uuid)).to eq(true)
