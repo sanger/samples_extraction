@@ -16,7 +16,15 @@ module RemoteAssetsHelper
 	end
 
 	def build_remote_well(location, opts={})
-		double('well', {aliquots: [build_remote_aliquot], location: location, position: { "name" => location }, uuid: SecureRandom.uuid}.merge(opts))
+		obj = {
+			type: 'wells',
+			aliquots: [build_remote_aliquot], location: location,
+			position: { "name" => location }, uuid: SecureRandom.uuid
+		}.merge(opts)
+		well=double('well', obj)
+		allow(well).to receive(:attributes).and_return(obj)
+		allow(well).to receive(:class).and_return(Sequencescape::Well)
+		well
 	end
 
 	def build_remote_tube(opts = {})

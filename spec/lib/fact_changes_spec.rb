@@ -208,6 +208,13 @@ RSpec.describe FactChanges do
     end
   end
   describe '#apply' do
+    context 'when using a changed step' do
+      it 'will save the step during the transaction' do
+        changes = FactChanges.new
+        changes.add(asset1, property, value)
+        expect{changes.apply(Step.new)}.to change{Step.count}.from(0).to(1)
+      end
+    end
     context 'when the object contains errors' do
       it 'stores the messages and throws an exception' do
         updates1.set_errors(["hi"])
@@ -619,6 +626,57 @@ RSpec.describe FactChanges do
       expect{updates1.remove_assets([[SecureRandom.uuid, [asset1.uuid, asset2.uuid]]])}.to raise_error(StandardError)
     end
 
+  end
+
+  describe '#add_assets_to_group' do
+    let(:asset1) { create(:asset) }
+    let(:asset2) { create(:asset) }
+    let(:asset_group) { create :asset_group }
+    let(:updates) { FactChanges.new }
+    let(:expectancy) {
+      [{asset_group: asset_group, asset: asset1},
+        {asset_group: asset_group, asset: asset2}
+      ]
+    }
+
+    it 'add assets to a group' do
+      expect{
+        updates.add_assets_to_group(asset_group, [asset1, asset2])
+      }.to change{updates.assets_to_add.to_a}.from([]).to(expectancy)
+    end
+
+    context 'when receiving an empty list' do
+      it 'does nothing' do
+        expect{
+          updates.add_assets_to_group(asset_group, [])
+        }.not_to change{updates.assets_to_add.to_a}
+      end
+    end
+  end
+
+  describe '#remove_assets_from_group' do
+    let(:list) { 4.times.map{ create(:asset, :with_barcode) } }
+    let(:asset_group) { create(:asset_group, assets: list) }
+    let(:updates) { FactChanges.new }
+    let(:expectancy) {
+      [{asset_group: asset_group, asset: asset1},
+        {asset_group: asset_group, asset: asset2}
+      ]
+    }
+
+    it 'remove assets from a group' do
+      expect{
+        updates.remove_assets_from_group(asset_group, [asset1, asset2])
+      }.to change{updates.assets_to_remove.to_a}.from([]).to(expectancy)
+    end
+
+    context 'when receiving an empty list' do
+      it 'does nothing' do
+        expect{
+          updates.remove_assets_from_group(asset_group, [])
+        }.not_to change{updates.assets_to_remove.to_a}
+      end
+    end
   end
 
 

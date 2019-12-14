@@ -228,6 +228,7 @@ class FactChanges
         Operation.import(operations)
         @operations = operations
       end
+      step.save if step.changed?
       reset
     end
   end
@@ -355,6 +356,14 @@ class FactChanges
     self
   end
 
+  def add_assets_to_group(group, assets)
+    add_assets([[group, assets]])
+  end
+
+  def remove_assets_from_group(group, assets)
+    remove_assets([[group, assets]])
+  end
+
   def add_assets(list)
     list.each do |elem|
       if ((elem.length > 0) && elem[1].kind_of?(Array))
@@ -366,8 +375,6 @@ class FactChanges
       end
       assets = validate_instances(find_assets(asset_ids))
       assets_to_add << assets.map{|asset| { asset_group: asset_group, asset: asset} }
-      #add_to_list_keep_unique(assets.map{|asset| { asset_group: asset_group, asset: asset} }, :assets_to_add, :assets_to_remove)
-      #assets_to_add.concat(assets.map{|asset| { asset_group: asset_group, asset: asset} })
     end
     self
   end

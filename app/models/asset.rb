@@ -37,6 +37,8 @@ class Asset < ActiveRecord::Base
 
   has_many :activities, -> { distinct }, :through => :steps
 
+  scope :from_remote_service, ->() { where.not(remote_digest: nil) }
+
   scope :currently_changing, ->() {
     joins(:asset_groups, :steps).where(:steps => {:state => 'running'})
   }
