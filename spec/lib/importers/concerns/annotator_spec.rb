@@ -1,36 +1,47 @@
 require 'rails_helper'
 require 'remote_assets_helper'
-require 'importers/barcodes_importer'
+require 'importers/concerns/annotator'
 
 RSpec.describe 'Importers::Concerns::Annotator' do
   include RemoteAssetsHelper
-
+  let(:plate) { create :plate }
   let(:remote_asset) { build_remote_plate }
-
   let(:barcodes) { ['1', '2']}
-  let(:instance) { Importers::BarcodesImporter.new(barcodes) }
+  let(:instance) { Importers::Concerns::Annotator.new(plate, remote_asset) }
 
   context '#update_asset_from_remote_asset' do
     let(:remote_asset) { build_remote_plate }
-    let(:plate) { create :plate }
+
 
     it 'updates the information from the remote asset into the local asset' do
-      updates = instance.update_asset_from_remote_asset(plate, remote_asset)
+      updates = instance.update_asset_from_remote_asset
       expect(updates.to_h[:add_facts].select{|t| t[1]=='a' && t[2]=='Well'}.length).not_to eq(0)
+    end
+  end
+
+  context '#update_digest_with_remote' do
+    it 'updates the digest with the remote asset provided' do
+      digest = instance.digest_for_remote_asset
+      updates = instance.update_digest_with_remote
+      expect(updates.to_h[:add_facts].select{|t| t[1]=='remote_digest'}).to eq([[plate.uuid, 'remote_digest', digest]])
     end
   end
 
   context '#sequencescape_type_for_asset' do
     it 'returns the class from the Sequencescape remote asset' do
-      expect(instance.sequencescape_type_for_asset(remote_asset)).to eq('Plate')
+      expect(instance.sequencescape_type_for_asset).to eq('Plate')
     end
   end
 
-  context '#keep_sync_with_sequencescape?' do
+  context '#is_not_a_sample_tube?' do
     let(:remote_tube) { build_remote_tube }
-    it 'returns true if the element is not a Tube' do
-      expect(instance.keep_sync_with_sequencescape?(remote_asset)).to be_truthy
-      expect(instance.keep_sync_with_sequencescape?(remote_tube)).to be_falsy
+    it 'returns false if the element is a sample tube' do
+      instance = Importers::Concerns::Annotator.new(plate, remote_tube)
+      expect(instance.is_not_a_sample_tube?).to be_falsy
+    end
+    it 'returns true if the element is not a sample Tube' do
+      instance = Importers::Concerns::Annotator.new(plate, remote_asset)
+      expect(instance.is_not_a_sample_tube?).to be_truthy
     end
   end
 
@@ -93,4 +104,5 @@ RSpec.describe 'Importers::Concerns::Annotator' do
       expect(updates.to_h[:add_facts].select{|t| t[1]=='sample_uuid'}.length).not_to eq(0)
     end
   end
+
 end

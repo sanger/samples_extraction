@@ -132,12 +132,16 @@ class FactChanges
 
   def add(s,p,o, options={})
     s = find_asset(s)
-    o = (options[:literal]==true) ? o : find_asset(o)
+    o = (options[:literal]==true) ? literal_token(o) : find_asset(o)
 
     fact = _build_fact_attributes(s, p, o, options)
 
     facts_to_add << fact if fact
     #facts_to_add.push(track_object(params)) unless detected
+  end
+
+  def literal_token(str)
+    TokenUtil.quote_if_uuid(str)
   end
 
   def add_facts(listOfLists)
@@ -154,11 +158,20 @@ class FactChanges
     add(s,p,o, options.merge({is_remote?: true})) if (s && p && o)
   end
 
+  def replace_remote_relation(asset, predicate, object_asset, options={})
+    replace_remote(asset,predicate,object_asset, options.merge({literal: false}))
+  end
+
+  def replace_remote_property(asset, predicate, value, options={})
+    replace_remote(asset,predicate,value, options.merge({literal: true}))
+  end
+
   def replace_remote(asset, p, o, options={})
     if (asset && p && o)
       asset.facts.with_predicate(p).each do |fact|
+        # The value is updated from the remote instance so we remove the previous value
         remove(fact)
-        # In case they are not removed, at least they will be set as remote
+        # In any case they will be set as Remote, even if they are not removed in this update
         facts_to_set_to_remote << fact
       end
       add_remote(asset, p, o, options)

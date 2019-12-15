@@ -2,22 +2,15 @@ module Importers
   module Concerns
     module RemoteDigest
 
-      def changed_remote?(asset, remote_asset)
-        digest_for_remote_asset(remote_asset) != asset.remote_digest
+      def digest_for_remote_asset
+        Digest::MD5::hexdigest(signature_for_remote)
       end
 
-      def update_digest_with_remote(asset, remote_asset)
-        FactChanges.new.tap do |updates|
-          updates.add(asset, 'remote_digest', digest_for_remote_asset(remote_asset))
-        end
-        #asset.update_attributes(remote_digest: digest_for_remote_asset(remote_asset))
+      def has_changes_between_local_and_remote?
+        digest_for_remote_asset != asset.remote_digest
       end
 
-      def digest_for_remote_asset(remote_asset)
-        Digest::MD5::hexdigest(signature_for_remote(remote_asset))
-      end
-
-      def signature_for_remote(remote_asset)
+      def signature_for_remote
         distinct = remote_asset.attributes.to_json
 
         # It would be useful to have a hashcode in the sequencescape client api to know
@@ -56,6 +49,5 @@ module Importers
         distinct
       end
     end
-
   end
 end

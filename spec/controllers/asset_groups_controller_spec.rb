@@ -26,7 +26,7 @@ RSpec.describe AssetGroupsController, type: :controller do
     it 'creates a new step to track the change in the asset group' do
       expect{
         post :upload, params: { id: asset_group.id,  qqfilename: 'myfile.csv', qqfile:  file}
-      }.to change{Step.all.count}.by(1)
+      }.to change{Step.all.count}
     end
   end
 

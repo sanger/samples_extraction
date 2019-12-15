@@ -5,11 +5,11 @@ require 'fact_changes'
 
 RSpec.describe Importers::BarcodesImporter do
   include RemoteAssetsHelper
-  let(:barcodes) { 4.times.map{generate(:barcode)}}
+  let(:barcodes) { 4.times.map{generate(:barcode).to_s}}
   let(:remote_assets) { barcodes.map{|barcode| build_remote_tube(barcode: barcode)}}
 
   before do
-    allow(SequencescapeClient).to receive(:get_remote_asset).with(barcodes).and_return(remote_assets)
+    stub_client_with_assets(SequencescapeClient, remote_assets)
   end
 
   context '#initialize' do
@@ -18,17 +18,17 @@ RSpec.describe Importers::BarcodesImporter do
       expect(instance.barcodes).to eq(barcodes)
     end
   end
-  context '#uuids_for_barcodes' do
-    let(:asset1) { create(:asset, barcode: generate(:barcode)) }
-    let(:uuids) { remote_assets.map(&:uuid).concat([asset1.uuid])}
+  #context '#uuids_for_barcodes' do
+  #  let(:asset1) { create(:asset, barcode: generate(:barcode)) }
+  #  let(:uuids) { remote_assets.map(&:uuid).concat([asset1.uuid])}
 
-    it 'returns the list of uuids corresponding the original barcodes requested' do
-      barcodes_and_local = [barcodes, asset1.barcode].flatten
-      instance = Importers::BarcodesImporter.new(barcodes_and_local)
-      instance.process
-      expect(instance.uuids_for_barcodes).to eq(uuids)
-    end
-  end
+  #  it 'returns the list of uuids corresponding the original barcodes requested' do
+  #    barcodes_and_local = [barcodes, asset1.barcode].flatten
+  #    instance = Importers::BarcodesImporter.new(barcodes_and_local)
+  #    instance.process
+  #    expect(instance.uuids_for_barcodes).to eq(uuids)
+  #  end
+  #end
   context '#process' do
     it 'returns a FactChanges instance' do
       instance = Importers::BarcodesImporter.new(barcodes)
@@ -40,17 +40,20 @@ RSpec.describe Importers::BarcodesImporter do
       instance = Importers::BarcodesImporter.new(barcodes_and_local)
       allow(instance).to receive(:refresh_assets)
       instance.process
-      expect(instance).to have_received(:refresh_assets) do |args|
-        expect(args.to_a).to eq([asset1])
-      end
+      expect(instance).to have_received(:refresh_assets).with([asset1])
+      #expect(instance).to have_received(:refresh_assets) do |args|
+      #  expect(args.to_a).to eq([asset1])
+      #end
     end
     it 'imports all barcodes not present in database' do
-      asset1 = create(:asset, barcode: generate(:barcode))
+      asset1 = create(:asset, barcode: generate(:barcode), remote_digest: '1234')
       barcodes_and_local = [barcodes, asset1.barcode].flatten
       instance = Importers::BarcodesImporter.new(barcodes_and_local)
       allow(instance).to receive(:import_barcodes)
+      allow(instance).to receive(:refresh_assets)
       instance.process
       expect(instance).to have_received(:import_barcodes).with(barcodes)
+      expect(instance).to have_received(:refresh_assets).with([asset1])
     end
   end
 
@@ -62,4 +65,26 @@ RSpec.describe Importers::BarcodesImporter do
       }.to change{Asset.count}.from(0).to(4)
     end
   end
+
+  context '#changed_remote?' do
+    let(:instance) { Importers::BarcodesImporter.new([barcodes.first]) }
+    let(:remote_asset) { remote_assets.first }
+    it 'returns false when the asset is not remote' do
+      plate = create :plate, remote_digest: nil, uuid: remote_asset.uuid, barcode: barcodes.first
+      expect(instance.changed_remote?(plate)).to be_truthy
+    end
+    it 'detects the change when the stored digest is different from the actual' do
+      plate = create :plate, remote_digest: "1234", uuid: remote_asset.uuid, barcode: barcodes.first
+      expect(instance.changed_remote?(plate)).to be_truthy
+      #expect(instance.changed_remote?(plate, remote_asset)).to be_truthy
+    end
+    it 'does not detect change when stored digest is equal to the actual' do
+      plate = create :plate, uuid: remote_asset.uuid, barcode: barcodes.first
+      digest = Importers::Concerns::Annotator.new(plate, remote_asset).digest_for_remote_asset
+      plate.update_attributes(remote_digest: digest)
+      expect(instance.changed_remote?(plate)).to be_falsy
+      #expect(instance.changed_remote?(plate, remote_asset)).to be_falsy
+    end
+  end
+
 end

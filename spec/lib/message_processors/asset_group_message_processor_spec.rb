@@ -27,7 +27,7 @@ RSpec.describe MessageProcessors::AssetGroupMessageProcessor do
         let(:added) { 2.times.map{create(:tube, :with_barcode) } }
         let(:removed) { 2.times.map{create(:tube, :with_barcode) } }
         let(:kept) { 2.times.map{create(:tube, :with_barcode) } }
-        let(:new_list) {[added, kept].flatten}
+        let(:new_list) {[kept, added].flatten}
         let(:previous_list) { [removed, kept].flatten}
         let(:assets) { new_list }
         let(:asset_group) {create(:asset_group, assets: previous_list) }
