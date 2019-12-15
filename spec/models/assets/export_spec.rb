@@ -110,7 +110,12 @@ RSpec.describe 'Assets::Export' do
         allow(SequencescapeClient).to receive(:version_1_find_by_uuid).with(asset.uuid).and_return(nil)
         allow(SequencescapeClient).to receive(:version_1_find_by_uuid).with(plate.uuid).and_return(plate)
         allow(SequencescapeClient).to receive(:find_by_uuid).with(asset.uuid).and_return(nil)
-        allow(SequencescapeClient).to receive(:find_by_uuid).with(plate.uuid).and_return(plate)
+        allow(SequencescapeClient).to receive(:find_by_uuid).with([asset.uuid]).and_return(nil)
+
+        stub_client_with_asset(SequencescapeClient, plate)
+
+        #allow(SequencescapeClient).to receive(:find_by_uuid).with(plate.uuid).and_return(plate)
+        #allow(SequencescapeClient).to receive(:find_by_uuid).with([plate.uuid]).and_return(plate)
         allow(SequencescapeClient).to receive(:create_plate).and_return(plate)
         barcode = double('barcode')
         allow(barcode).to receive(:prefix).and_return('DN')

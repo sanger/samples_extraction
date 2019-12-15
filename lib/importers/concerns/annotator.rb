@@ -29,6 +29,7 @@ module Importers
       def update_asset_from_remote_asset
         FactChanges.new.tap do |updates|
           class_name = sequencescape_type_for_asset
+          updates.remove(asset.facts.from_remote_asset)
           updates.replace_remote_property(asset, 'a', class_name)
 
           if is_not_a_sample_tube?
@@ -93,6 +94,8 @@ module Importers
 
       def annotate_wells(asset, remote_asset)
         FactChanges.new.tap do |updates|
+          # Remove any old wells
+          updates.remove(asset.facts.with_predicate('contains').from_remote_asset)
           if remote_asset.try(:wells)
             remote_asset.wells.each do |well|
               local_well = Asset.find_by(uuid: well.uuid)
@@ -100,8 +103,11 @@ module Importers
                 local_well = Asset.new(uuid: well.uuid)
                 updates.create_assets([local_well])
               end
+              # Remove any old fact information from the well
+              updates.remove(local_well.facts.from_remote_asset)
 
-              updates.replace_remote_relation(asset, 'contains', local_well)
+              # Add the new info
+              updates.add_remote(asset, 'contains', local_well)
 
               # Updated wells will also mean that the plate is out of date, so we'll set it in the asset
               updates.replace_remote_property(local_well, 'a', 'Well')

@@ -63,6 +63,34 @@ RSpec.describe 'Importers::Concerns::Annotator' do
       updates = instance.annotate_wells(plate, remote_asset)
       expect(updates.to_h[:create_assets]).to be_nil
     end
+
+    it 'removes any remote wells not present anymore in the remote asset' do
+      well1 = create :well
+      plate.facts << create(:fact, predicate: 'contains', object_asset: well1, is_remote?: true, literal: false)
+      updates = instance.annotate_wells(plate, remote_asset)
+      expect(updates.to_h[:remove_facts]).to include([plate.uuid, 'contains', well1.uuid])
+    end
+
+    it 'does not remove any well that is not remote' do
+      well1 = create :well
+      plate.facts << create(:fact, predicate: 'contains', object_asset: well1, is_remote?: false, literal: false)
+      updates = instance.annotate_wells(plate, remote_asset)
+      expect(updates.to_h[:remove_facts]).to be_nil
+    end
+
+    it 'does not remove old local facts not present in the well info' do
+      well1 = create :well, uuid: remote_asset.wells.first.uuid
+      well1.facts << create(:fact, predicate: 'speed', object: 'quick', literal: true, is_remote?: false)
+      updates = instance.annotate_wells(plate, remote_asset)
+      expect(updates.to_h[:remove_facts]).to be_nil
+    end
+
+    it 'removes old remote facts not present anymore in the new well info' do
+      well1 = create :well, uuid: remote_asset.wells.first.uuid
+      well1.facts << create(:fact, predicate: 'speed', object: 'quick', literal: true, is_remote?: true)
+      updates = instance.annotate_wells(plate, remote_asset)
+      expect(updates.to_h[:remove_facts]).to include([well1.uuid, 'speed', 'quick'])
+    end
   end
 
   context '#annotate_study_name' do

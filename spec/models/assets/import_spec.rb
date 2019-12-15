@@ -324,19 +324,21 @@ RSpec.describe 'Assets::Import' do
   		  	context 'when the local copy is out of date' do
   		  		before do
   		  			@asset.update_attributes(remote_digest: 'RANDOM')
+              assetchanged2 = create :asset
+              @fact_changed2 = create(:fact, predicate: 'contains', object_asset: assetchanged2, is_remote?: true, literal: false)
+              @asset.facts << @fact_changed2
               @fact_changed = @asset.facts.from_remote_asset.where(predicate: 'contains').first
 
-              @well_changed = create :asset
+              @well_changed = @fact_changed.object_asset
               @dependant_fact = create :fact, predicate: 'some', object: 'Moredata', is_remote?: true, literal: true
               @well_changed.facts << @dependant_fact
-              @fact_changed.update_attributes(object_asset_id: @well_changed.id)
   		  		end
   		  		it 'should destroy any remote facts that has changed' do
   		  			Asset.find_or_import_asset_with_barcode(@barcode_plate)
-  		  			expect{@fact_changed.reload}.to raise_exception ActiveRecord::RecordNotFound
+  		  			expect{@fact_changed2.reload}.to raise_exception ActiveRecord::RecordNotFound
   		  		end
 
-            xit 'should destroy any contains dependant remote facts' do
+            it 'should destroy any contains dependant remote facts' do
               Asset.find_or_import_asset_with_barcode(@barcode_plate)
               expect{@dependant_fact.reload}.to raise_exception ActiveRecord::RecordNotFound
             end

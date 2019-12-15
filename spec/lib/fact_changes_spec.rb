@@ -280,6 +280,23 @@ RSpec.describe FactChanges do
         expect(asset1.facts.count).to eq(1)
         expect(asset1.facts.first.is_remote?).to eq(true)
       end
+      context 'when there are more than one value of the previous fact' do
+        it 'removes the previous facts and adds the new one' do
+          test1 = create :asset
+          test2 = create :asset
+          test3 = create :asset
+          test4 = create :asset
+          test1.facts << create(:fact, predicate: relation, object_asset: test2, literal: false)
+          test1.facts << create(:fact, predicate: relation, object_asset: test3, literal: false)
+          updates1.replace_remote(test1, relation, test4)
+          expect{
+            updates1.apply(step)
+          }.to change{test1.facts.count}.by(-1)
+          .and change{Operation.count}.by(3)
+          expect(test1.facts.count).to eq(1)
+          expect(test1.facts.first.is_remote?).to eq(true)
+        end
+      end
     end
     context 'with remove' do
       it 'removes an already existing fact' do
