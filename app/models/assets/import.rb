@@ -10,7 +10,7 @@ module Assets::Import
   module InstanceMethods
 
     def refresh
-      Importers::BarcodesImporter.new([self.uuid]).process!
+      Importers::BarcodesImporter.new([self.uuid]).process! if is_remote_asset?
       #updates = self.class.changes_for_refresh_asset(self, forceRefresh: false)
       #updates.apply(self.class.create_refresh_step)
     end

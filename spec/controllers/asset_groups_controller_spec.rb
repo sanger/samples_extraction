@@ -11,6 +11,9 @@ RSpec.describe AssetGroupsController, type: :controller do
 
 
   context '#upload' do
+    before do
+      allow(SequencescapeClient).to receive(:get_remote_asset).and_return(nil)
+    end
     let(:file) { fixture_file_upload('test/data/layout.csv', 'text/csv') }
 
     it 'creates a new uploaded file' do
@@ -34,6 +37,9 @@ RSpec.describe AssetGroupsController, type: :controller do
 
     let(:barcode) { generate :barcode }
     let(:asset) { create :asset, barcode: barcode }
+    before do
+      allow(SequencescapeClient).to receive(:get_remote_asset).and_return(nil)
+    end
 
     context "when the asset is in the database" do
       context 'finding by uuid' do

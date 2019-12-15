@@ -82,7 +82,10 @@ module RemoteAssetsHelper
 
 	def stub_client_with_assets(client, assets)
 		assets.each {|asset| stub_client_with_asset(client, asset) }
-    allow(client).to receive(:get_remote_asset).with(assets.map(&:barcode)).and_return(assets)
+		if (assets.first.respond_to?(:barcode))
+    	allow(client).to receive(:get_remote_asset).with(assets.map(&:barcode)).and_return(assets)
+    end
+    allow(client).to receive(:get_remote_asset).with(assets.map(&:uuid)).and_return(assets)
     allow(client).to receive(:find_by_uuid).with(assets.map(&:uuid)).and_return(assets)
 	end
 
