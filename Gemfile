@@ -29,6 +29,7 @@ gem 'jquery-rails'
 gem 'react-rails'
 gem 'sass-rails'
 gem 'bootstrap-sass'
+gem 'sass'
 gem 'will_paginate'
 gem 'will_paginate-bootstrap'
 
@@ -83,6 +84,7 @@ group :test do
   gem 'rails-controller-testing'
   gem 'database_cleaner'
   gem 'json-schema'
+  gem 'capybara'
 end
 
 group :test do

@@ -11,14 +11,10 @@ module Assets::Import
 
     def refresh
       Importers::BarcodesImporter.new([self.uuid]).process! if is_remote_asset?
-      #updates = self.class.changes_for_refresh_asset(self, forceRefresh: false)
-      #updates.apply(self.class.create_refresh_step)
     end
 
     def refresh!
       Importers::BarcodesImporter.new([self.uuid]).process!
-      #updates = self.class.changes_for_refresh_asset(self, forceRefresh: true)
-      #updates.apply(self.class.create_refresh_step)
     end
 
     def assets_to_refresh
@@ -28,17 +24,9 @@ module Assets::Import
       end].flatten
     end
 
-#    def is_refreshing_right_now?
-#      Step.running_with_asset(self).count > 0
-#    end
-
     def is_remote_asset?
       !remote_digest.nil?
     end
-
-#    def is_remote_asset?
-#      facts.from_remote_asset.count > 0
-#    end
 
     def changed_remote?
       Importers::BarcodesImporter.new([self.uuid]).changed_remote?(self)
