@@ -23,9 +23,13 @@ module Activities::WebsocketEvents
 
   def websockets_attributes(attrs)
     attrs.keys.reduce({shownComponents: {}}) do |memo, key|
-      memo[key] = attrs[key].call unless (ActivityChannel.activity_attributes(id)[key.to_s] == false)
+      memo[key] = attrs[key].call unless (activity_channel_attributes(id)[key.to_s] == false)
       memo
     end
+  end
+
+  def activity_channel_attributes(id)
+    MessageProcessors::ActivityMessageProcessor.activity_attributes(id)
   end
 
   def initial_websockets_attributes(attrs)

@@ -5,8 +5,6 @@ module ChangesSupport
       klass.instance_eval do
         extend ClassMethods
         include InstanceMethods
-
-        initialize_barcode_callbacks
       end
     end
 
@@ -30,20 +28,15 @@ module ChangesSupport
         @changes_callbacks[change_type][predicate].push(proc)
       end
 
+      #
+      # Resets the callbacks so they won't be run anymore
+      def clear_all_callbacks!
+        @changes_callbacks = {}
+      end
+
       def _changes_callbacks
         @changes_callbacks
       end
-
-      def initialize_barcode_callbacks
-        FactChanges.on_change_predicate('add_facts', 'barcode', Proc.new do |t|
-          t[:asset].update_attributes(barcode: t[:object])
-        end)
-
-        FactChanges.on_change_predicate('remove_facts', 'barcode', Proc.new do |t|
-          t[:asset].update_attributes(barcode: nil)
-        end)
-      end
-
     end
 
     module InstanceMethods
@@ -63,7 +56,7 @@ module ChangesSupport
           facts_with_callback.each do |fact|
             callbacks = _changes_callbacks[change_type][fact[:predicate]]
             callbacks.each do |proc|
-              proc.call(fact)
+              proc.call(fact, self)
             end
           end
         end

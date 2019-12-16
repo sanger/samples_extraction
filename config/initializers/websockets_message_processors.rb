@@ -1,0 +1,4 @@
+require 'message_processors/asset_group_message_processor'
+require 'message_processors/activity_message_processor'
+ActivityChannel.register_message_processor(MessageProcessors::AssetGroupMessageProcessor)
+ActivityChannel.register_message_processor(MessageProcessors::ActivityMessageProcessor)

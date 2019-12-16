@@ -1,4 +1,3 @@
-require 'actions/racking'
 require 'parsers/csv_metadata/csv_parser'
 
 class LoadMetadata

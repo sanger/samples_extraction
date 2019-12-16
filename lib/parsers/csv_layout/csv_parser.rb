@@ -2,6 +2,7 @@ require 'parsers/csv_layout/line_parser'
 require 'parsers/csv_layout/line_reader'
 require 'parsers/csv_layout/barcode_parser'
 require 'parsers/csv_layout/location_parser'
+require 'parsers/csv_layout/assets_cache'
 require 'parsers/csv_layout/validators/fluidx_barcode_validator'
 require 'parsers/csv_layout/validators/location_validator'
 
@@ -9,6 +10,7 @@ module Parsers
   module CsvLayout
     class CsvParser
       include ActiveModel::Validations
+      include Parsers::CsvLayout::AssetsCache
 
       validate :validate_parsed_data
       validate :validate_location_duplication
@@ -58,7 +60,9 @@ module Parsers
         self_error_list.concat(line_parser.error_list)
       end
 
+
       protected
+
 
       def validate_parsed_data
         parse unless @parsed

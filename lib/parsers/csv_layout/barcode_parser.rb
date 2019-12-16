@@ -22,7 +22,9 @@ module Parsers
         @parser = parser
         _parse(line)
 
-        valid?
+        @parser.register_barcode_parser(self) if @parser.respond_to?(:register_barcode_parser)
+
+        #valid?
       end
 
       def no_read_barcode?
@@ -30,7 +32,7 @@ module Parsers
       end
 
       def asset
-        Asset.find_or_import_asset_with_barcode(barcode)
+        @parser.get_asset_for_barcode(barcode)
       end
 
       protected

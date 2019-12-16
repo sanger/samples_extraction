@@ -5,13 +5,11 @@ require 'parsers/csv_layout/validators/fluidx_barcode_validator'
 
 
 RSpec.describe Parsers::CsvLayout::BarcodeCreatableParser do
-  before do
-    allow(Asset).to receive(:find_or_import_asset_with_barcode) do |barcode|
-      Asset.find_by(barcode: barcode)
-    end
-  end
   let(:main_parser) {
     main = double('parser')
+    allow(main).to receive(:get_asset_for_barcode) do |barcode|
+      Asset.find_by(barcode: barcode)
+    end
     allow(main).to receive(:add_error)
     allow(main).to receive(:parsed_changes).and_return(FactChanges.new)
     allow(main).to receive(:components).and_return({

@@ -1,6 +1,10 @@
-require 'actions/racking'
+require 'actions/layout/racking'
+require 'actions/layout/unracking'
+require 'actions/layout_processor'
 require 'token_util'
-include Actions::Racking
+
+include Actions::Layout::Unracking
+include Actions::Layout::Racking
 
 return unless ARGV.any?{|s| s.match(".json")}
 
@@ -36,7 +40,7 @@ else
     memo.push(asset: tube, location: available_locations[idx])
   end
   updates.add(rack, 'layout', 'Complete')
-  updates.merge(Actions::Racking::reracking_tubes(rack, layout))
+  updates.merge(Actions::Layout::Racking::reracking_tubes(rack, layout))
 end
 
 puts updates.to_json

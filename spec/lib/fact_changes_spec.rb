@@ -208,6 +208,13 @@ RSpec.describe FactChanges do
     end
   end
   describe '#apply' do
+    context 'when using a changed step' do
+      it 'will save the step during the transaction' do
+        changes = FactChanges.new
+        changes.add(asset1, property, value)
+        expect{changes.apply(Step.new)}.to change{Step.count}.from(0).to(1)
+      end
+    end
     context 'when the object contains errors' do
       it 'stores the messages and throws an exception' do
         updates1.set_errors(["hi"])
@@ -272,6 +279,23 @@ RSpec.describe FactChanges do
 
         expect(asset1.facts.count).to eq(1)
         expect(asset1.facts.first.is_remote?).to eq(true)
+      end
+      context 'when there are more than one value of the previous fact' do
+        it 'removes the previous facts and adds the new one' do
+          test1 = create :asset
+          test2 = create :asset
+          test3 = create :asset
+          test4 = create :asset
+          test1.facts << create(:fact, predicate: relation, object_asset: test2, literal: false)
+          test1.facts << create(:fact, predicate: relation, object_asset: test3, literal: false)
+          updates1.replace_remote(test1, relation, test4)
+          expect{
+            updates1.apply(step)
+          }.to change{test1.facts.count}.by(-1)
+          .and change{Operation.count}.by(3)
+          expect(test1.facts.count).to eq(1)
+          expect(test1.facts.first.is_remote?).to eq(true)
+        end
       end
     end
     context 'with remove' do
@@ -619,6 +643,57 @@ RSpec.describe FactChanges do
       expect{updates1.remove_assets([[SecureRandom.uuid, [asset1.uuid, asset2.uuid]]])}.to raise_error(StandardError)
     end
 
+  end
+
+  describe '#add_assets_to_group' do
+    let(:asset1) { create(:asset) }
+    let(:asset2) { create(:asset) }
+    let(:asset_group) { create :asset_group }
+    let(:updates) { FactChanges.new }
+    let(:expectancy) {
+      [{asset_group: asset_group, asset: asset1},
+        {asset_group: asset_group, asset: asset2}
+      ]
+    }
+
+    it 'add assets to a group' do
+      expect{
+        updates.add_assets_to_group(asset_group, [asset1, asset2])
+      }.to change{updates.assets_to_add.to_a}.from([]).to(expectancy)
+    end
+
+    context 'when receiving an empty list' do
+      it 'does nothing' do
+        expect{
+          updates.add_assets_to_group(asset_group, [])
+        }.not_to change{updates.assets_to_add.to_a}
+      end
+    end
+  end
+
+  describe '#remove_assets_from_group' do
+    let(:list) { 4.times.map{ create(:asset, :with_barcode) } }
+    let(:asset_group) { create(:asset_group, assets: list) }
+    let(:updates) { FactChanges.new }
+    let(:expectancy) {
+      [{asset_group: asset_group, asset: asset1},
+        {asset_group: asset_group, asset: asset2}
+      ]
+    }
+
+    it 'remove assets from a group' do
+      expect{
+        updates.remove_assets_from_group(asset_group, [asset1, asset2])
+      }.to change{updates.assets_to_remove.to_a}.from([]).to(expectancy)
+    end
+
+    context 'when receiving an empty list' do
+      it 'does nothing' do
+        expect{
+          updates.remove_assets_from_group(asset_group, [])
+        }.not_to change{updates.assets_to_remove.to_a}
+      end
+    end
   end
 
 

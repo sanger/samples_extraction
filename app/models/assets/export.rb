@@ -21,7 +21,8 @@ module Assets::Export
         end
 
         old_barcode = barcode
-        update_attributes(:uuid => instance.uuid, :barcode => code39_barcode(instance))
+        update_attributes(:uuid => instance.uuid, :barcode => code39_barcode(instance),
+          remote_digest: 'initial_digest')
 
         update_plate(instance, updates)
 

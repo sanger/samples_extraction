@@ -18,10 +18,6 @@ class AssetGroup < ActiveRecord::Base
 
   after_touch :touch_activity
 
-  def refresh!
-    assets.each(&:refresh!)
-  end
-
   def update_with_assets(assets_to_update)
     removed_assets = self.assets - assets_to_update
     added_assets = assets_to_update - self.assets
@@ -31,7 +27,7 @@ class AssetGroup < ActiveRecord::Base
       updates.add_assets([[self, added_assets]]) if added_assets
       updates.remove_assets([[self, removed_assets]]) if removed_assets
 
-      refresh!
+      updates.merge(Importers::BarcodesImporter.new(added_assets.map(&:uuid)).process)
 
       ActiveRecord::Base.transaction do
         step = Step.create(activity: activity_owner, asset_group: self,
