@@ -19,8 +19,6 @@ module Importers
 
     def changed_remote?(asset)
       annotator_for(asset).has_changes_between_local_and_remote?
-      #process unless processed?
-      #annotator_for(asset.uuid).has_changes_between_local_and_remote?
     end
 
     def annotator_for(asset)

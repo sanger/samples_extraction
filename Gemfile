@@ -85,6 +85,7 @@ group :test do
   gem 'database_cleaner'
   gem 'json-schema'
   gem 'capybara'
+  gem 'selenium-webdriver'
 end
 
 group :test do

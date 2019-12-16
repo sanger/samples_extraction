@@ -21,21 +21,6 @@ module MessageProcessors
         updates.remove_assets_from_group(asset_group, asset_group.assets.to_a)
         updates.add_assets_to_group(asset_group, importer.assets_for_barcodes)
         updates.apply(step_for_changing_group)
-        #debugger
-        #begin
-        #  FactChanges.new.tap do |updates|
-        #    updates.remove_assets_from_group(asset_group, asset_group.assets)
-        #    Asset.changes_for_refresh_or_import_assets_with_barcodes(assets)
-        #    updates.merge()
-        #    updates.add_assets_to_group(asset_group, assets)
-        #  end.apply(step_for_changing_group)
-
-
-        #rescue Errno::ECONNREFUSED => e
-        #  asset_group.activity.send_wss_event({error: {type: 'danger', msg: 'Cannot connect with sequencescape'} })
-        #rescue StandardError => e
-        #  asset_group.activity.send_wss_event({error: {type: 'danger', msg: e.message} })
-        #end
       end
     end
 

@@ -26,6 +26,7 @@ RSpec.describe MessageProcessors::ActivityMessageProcessor do
       it 'updates the configuration of elements to generate for each server message' do
         allow(channel.redis).to receive(:hget).and_return(nil)
         allow(channel.redis).to receive(:hset)
+        allow(channel).to receive(:params).and_return({activity_id: activity.id})
         instance.process(good_message)
         expect(mocked_redis).to have_received(:hset).with('activities', activity.id,
           good_message['activity'].except('id').to_json)

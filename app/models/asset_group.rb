@@ -18,10 +18,6 @@ class AssetGroup < ActiveRecord::Base
 
   after_touch :touch_activity
 
-  #def refresh!
-  #    assets.each(&:refresh!)
-  #end
-
   def update_with_assets(assets_to_update)
     removed_assets = self.assets - assets_to_update
     added_assets = assets_to_update - self.assets

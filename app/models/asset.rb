@@ -213,7 +213,7 @@ class Asset < ActiveRecord::Base
 
   def class_name
     purposes_facts = facts.with_predicate('purpose')
-    if purposes_facts.count > 0
+    if purposes_facts.length > 0
       return purposes_facts.first.object
     end
     return ''
@@ -221,7 +221,7 @@ class Asset < ActiveRecord::Base
 
   def aliquot
     purposes_facts = facts.with_predicate('aliquotType')
-    if purposes_facts.count > 0
+    if purposes_facts.length > 0
       return purposes_facts.first.object
     end
     return ''

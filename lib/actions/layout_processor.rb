@@ -38,11 +38,6 @@ module Actions
       csv_parsing(asset_group, parser)
     end
 
-    def racks_for_tubes(tubes)
-      rack_ids = Fact.where(predicate: 'contains', object_asset_id: tubes.map(&:id)).pluck(:asset_id)
-      Asset.where(id: rack_ids)
-    end
-
     def csv_parsing(asset_group, parser)
       error_messages = []
       error_locations = []

@@ -3,11 +3,6 @@ JSONAPI.configure do |config|
   config.json_key_format = :underscored_key
   config.resource_key_type = :uuid
 
-  # optional request features
-  #config.allow_include = true
-  #config.default_allow_include_to_one = true
-  #config.default_allow_include_to_many = true
-
   config.default_page_size = 25
   config.maximum_page_size = 1000
 end

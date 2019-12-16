@@ -14,8 +14,6 @@ module Parsers
       def initialize(line, parser)
         @parser = parser
         _parse(line)
-
-        #valid?
       end
 
       protected

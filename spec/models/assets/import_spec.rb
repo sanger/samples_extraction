@@ -11,15 +11,10 @@ RSpec.describe 'Assets::Import' do
     let(:digest) { nil }
     before do
       stub_client_with_asset(SequencescapeClient, plate)
-      #allow(SequencescapeClient).to receive(:find_by_uuid).and_return(plate)
     end
 
     context 'when it is not a remote asset' do
       let(:uuid) { SecureRandom.uuid }
-      #before do
-      #  allow(asset).to receive(:is_remote_asset?).and_return(false)
-      #end
-
       it 'does not refresh' do
         allow(SequencescapeClient).to receive(:get_remote_asset).with([uuid]).and_return(nil)
         expect{asset.refresh!}.not_to change{asset.facts.count}
@@ -60,12 +55,6 @@ RSpec.describe 'Assets::Import' do
       expect(SequencescapeClient).to have_received(:find_by_uuid).with([asset.uuid])
     end
     context 'when actually updating' do
-      before do
-        #stub_client_with_asset(SequencescapeClient, plate)
-        #allow(SequencescapeClient).to receive(:find_by_uuid).and_return(plate)
-        #allow(SequencescapeClient).to receive(:get_remote_asset).with(asset.uuid).and_return(plate)
-        #allow(asset).to receive(:changed_remote?).and_return(true)
-      end
       it 'does not destroy remote facts that have not changed' do
         fact = create(:fact, predicate: 'a', object: 'Plate', is_remote?: true)
         asset.facts << fact
@@ -139,7 +128,6 @@ RSpec.describe 'Assets::Import' do
   			@barcode_plate = "1"
   			@asset = Asset.create!(barcode: @barcode_plate)
         allow(SequencescapeClient).to receive(:get_remote_asset).and_return(nil)
-        #stub_client_with_asset(SequencescapeClient, plate)
   		end
   		it 'should return the local asset when looking by its barcode' do
   			expect(Asset.find_or_import_asset_with_barcode(@barcode_plate)).to eq(@asset)

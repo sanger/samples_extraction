@@ -24,6 +24,10 @@ class ActivityChannel < ApplicationCable::Channel
   end
 
   def redis
+    self.class.redis
+  end
+
+  def self.redis
     ActionCable.server.pubsub.redis_connection_for_subscriptions
   end
 

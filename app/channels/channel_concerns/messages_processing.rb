@@ -8,6 +8,11 @@ module ChannelConcerns
     end
 
     module InstanceMethods
+
+      def message_processors
+        @message_processors
+      end
+
       def process_message(message_from_frontend)
         message_processors.each do |processor|
           if processor.interested_in?(message_from_frontend)
@@ -17,7 +22,9 @@ module ChannelConcerns
       end
 
       def create_message_processors!
-        @message_processors ||= self.class.registered_message_processor_classes.map{|p| p.new(self) }
+        @message_processors ||= self.class.registered_message_processor_classes.map do |p|
+          p.new(channel: self)
+        end
       end
     end
 

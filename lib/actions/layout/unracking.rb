@@ -2,6 +2,12 @@ module Actions
   module Layout
     module Unracking
 
+      def racks_for_tubes(tubes)
+        rack_ids = Fact.where(predicate: 'contains', object_asset_id: tubes.map(&:id)).pluck(:asset_id)
+        Asset.where(id: rack_ids)
+      end
+
+
       def changes_for_tubes_on_unrack(tubes)
         FactChanges.new.tap do |updates|
           return unless tubes.length > 0
