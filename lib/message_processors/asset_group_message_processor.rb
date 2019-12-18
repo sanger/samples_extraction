@@ -16,16 +16,14 @@ module MessageProcessors
       @asset_group = AssetGroup.find(strong_params[:id])
       assets = strong_params[:assets]
       if asset_group && assets
+        step_for_import = Step.new(activity_id: asset_group.activity_owner_id, asset_group: asset_group, state: 'complete')
         importer = Importers::BarcodesImporter.new(assets)
         updates = importer.process
         updates.remove_assets_from_group(asset_group, asset_group.assets.to_a)
         updates.add_assets_to_group(asset_group, importer.assets_for_barcodes)
-        updates.apply(step_for_changing_group)
+        updates.apply(step_for_import)
+        step_for_import.wss_event
       end
-    end
-
-    def step_for_changing_group
-      Step.new(activity_id: asset_group.activity_owner_id, asset_group: asset_group)
     end
 
     def params_for_asset_group(params)

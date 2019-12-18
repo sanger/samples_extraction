@@ -86,6 +86,7 @@ group :test do
   gem 'json-schema'
   gem 'capybara'
   gem 'selenium-webdriver'
+  gem 'mock_redis'
 end
 
 group :test do

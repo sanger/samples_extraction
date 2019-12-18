@@ -61,6 +61,18 @@ RSpec.describe Actions::PlateTransfer do
         created_well = updates.to_h[:add_facts].select{|t| (t[1] == 'location')}.first[0]
         expect(updates.to_h[:add_facts].select{|t| (t[0]==created_well) && (t[1]=='aliquotType')}.first[2]).to eq('DNA')
       end
+      it 'copies all the study names at source into the plate' do
+        source = create :plate
+        destination = create :plate
+        study = 'A study'
+        study2 = 'Another study'
+        source.facts << create(:fact, predicate: 'study_name', object: study, literal: true)
+        source.facts << create(:fact, predicate: 'study_name', object: study2, literal: true)
+
+        updates = Actions::PlateTransfer.transfer_plates(source, destination, FactChanges.new)
+        expect(updates.to_h[:add_facts]).to include([destination.uuid, 'study_name', study])
+        expect(updates.to_h[:add_facts]).to include([destination.uuid, 'study_name', study2])
+      end
       it 'does not copy ignored predicates' do
         source = create :asset
         well = create(:asset)
