@@ -5,7 +5,7 @@ module Assets::TractionFields
   end
 
   def sample_uuid
-    TokenUtil.unquote(_get_values_for_predicate('sample_tube'))
+    TokenUtil.unquote(_get_values_for_predicate('sample_uuid'))
   end
 
   def study_uuid
