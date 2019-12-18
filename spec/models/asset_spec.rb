@@ -47,6 +47,17 @@ RSpec.describe Asset do
       end
       context 'if the plate do not have study name' do
         context 'when the plate has tubes' do
+          context 'when the tube does not have a study name' do
+            it 'returns empty string' do
+              tube = create :asset
+              tube.facts << create(:fact, predicate: 'a', object: 'Tube')
+              plate = create :asset
+              plate.facts << create(:fact, predicate: 'a', object: 'Plate')
+              plate.facts << create(:fact, predicate: 'contains', object_asset: tube)
+              expect(plate.study_name).to eq('')
+            end
+          end
+
           context 'when the tubes have a study name' do
             it 'returns the study name of the first tube' do
               tube = create :asset
