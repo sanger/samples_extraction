@@ -24,7 +24,7 @@ RSpec.describe 'TractionFields' do
     end
   end
   context '#sample_uuid' do
-    let(:predicate) { 'sample_tube' }
+    let(:predicate) { 'sample_uuid' }
     let(:method) { :sample_uuid }
     it_behaves_like 'a method that converts from quoted to unquoted uuid'
   end
