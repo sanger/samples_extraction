@@ -55,7 +55,7 @@ Rails.application.configure do
   config.ss_authorisation =  'test'
   config.printing_disabled = true
   config.default_n3_resources_url = nil
-  config.redis_enabled = true
+  config.redis_enabled = false
 
   config.inference_engine = :default
   config.cwm_path = ENV.fetch('CWM_PATH', '')

@@ -60,9 +60,12 @@ RSpec.feature 'Activity Management', type: :feature, js: true do
   include RemoteAssetsHelper
   before do
     @mocked_redis = MockRedis.new
+
+    Rails.configuration.redis_enabled = true
+
     ActionController::Base.allow_forgery_protection = true
     allow(ActivityChannel).to receive(:redis).and_return(@mocked_redis)
-    Capybara.current_driver = :selenium_chrome
+    Capybara.current_driver = :selenium_chrome_headless
   end
 
   def user_login(user)
