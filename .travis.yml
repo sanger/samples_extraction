@@ -7,6 +7,8 @@ cache:
   directories:
   - node_modules
   - vendor/bundle
+before_install:
+- google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
 install:
 - bundle install --deployment
 - yarn install
