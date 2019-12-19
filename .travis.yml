@@ -14,7 +14,7 @@ before_script:
 - export SECRET_KEY_BASE=`bundle exec rake secret`
 - bundle exec rake db:create RAILS_ENV=test
 script:
-- bundle exec rake
+- xvfb-run -a bundle exec rake
 - yarn test
 after_success:
 - chmod +x ./compile-build
@@ -22,6 +22,7 @@ after_success:
 services:
 - redis-server
 - mysql
+- xvfb
 deploy:
   provider: releases
   api_key:
