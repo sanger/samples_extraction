@@ -20,7 +20,10 @@ before_script:
 - RAILS_ENV=test bundle exec rails webdrivers:chromedriver:update -r webdrivers
 - ln -s /usr/lib/chromium-browser/chromedriver ~/bin/chromedriver
 - export PATH=~/bin:$PATH
-- which chromedriver
+- wget http://chromedriver.storage.googleapis.com/2.27/chromedriver_linux64.zip
+- unzip chromedriver_linux64.zip
+- sudo cp chromedriver /usr/local/bin/.
+- sudo chmod +x /usr/local/bin/chromedriver
 - find / -name chromedriver
 script:
 - bundle exec rspec
