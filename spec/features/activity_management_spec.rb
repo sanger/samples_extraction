@@ -1,6 +1,6 @@
 require 'rails_helper'
 require 'remote_assets_helper'
-RSpec.feature 'Activity Management', type: :feature, js: true do
+RSpec.feature 'Activity Management', type: :feature, js: true, browser: true do
   let!(:activity_type) { create(:activity_type, name: 'Test') }
   let!(:instrument) { create(:instrument, barcode: '1', activity_types: [activity_type]) }
   let!(:kit_type) { create :kit_type, activity_type: activity_type }
