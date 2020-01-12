@@ -19,8 +19,10 @@ before_script:
 - bundle exec rake db:create RAILS_ENV=test
 - RAILS_ENV=test bundle exec rails webdrivers:chromedriver:update -r webdrivers
 - ln -s /usr/lib/chromium-browser/chromedriver ~/bin/chromedriver
+- export PATH=~/bin:$PATH
 script:
-- xvfb-run -a bundle exec rake
+- bundle exec rspec
+- xvfb-run -a bundle exec rspec --tag browser
 - yarn test
 after_success:
 - chmod +x ./compile-build
