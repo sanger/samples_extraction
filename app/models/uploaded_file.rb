@@ -5,7 +5,7 @@ class UploadedFile < ApplicationRecord
   belongs_to :asset
 
   def step
-    @step ||= Step.new(step_type: StepType.find_or_create_by(name: 'Refresh'), state: 'running')
+    @step ||= Step.new(step_type: StepType.find_or_create_by(name: 'Refresh'))
   end
 
   def file_type(content_type)

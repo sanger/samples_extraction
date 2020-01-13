@@ -1,5 +1,13 @@
 require 'rails_helper'
 RSpec.describe Asset do
+  context 'SCOPE ::from_remote_service' do
+    it 'filters to select only remote assets that are up to date with Sequencescape' do
+      seq1 = create(:plate, remote_digest: '1')
+      seq2 = create(:plate)
+      seq3 = create(:plate, remote_digest: '2')
+      expect(Asset.from_remote_service).to eq([seq1, seq3])
+    end
+  end
   context '#has_wells?' do
     it 'returns true when it is a plate with wells' do
       plate = create(:asset)

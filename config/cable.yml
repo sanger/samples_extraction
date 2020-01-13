@@ -2,3 +2,6 @@ development:
   adapter: redis
   url: <%= Rails.configuration.redis_url %>
   channel_prefix: samples_extraction_development
+
+test:
+  adapter: async

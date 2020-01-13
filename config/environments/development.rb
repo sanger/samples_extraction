@@ -41,6 +41,8 @@ Rails.application.configure do
   # Raises helpful error messages.
   config.assets.raise_runtime_errors = true
 
+  config.delayed_job_max_minutes_run_time = ENV.fetch('SE_JOBS_MAX_MINUTES','20')
+
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 

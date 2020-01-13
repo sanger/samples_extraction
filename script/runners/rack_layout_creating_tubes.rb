@@ -1,4 +1,4 @@
-require 'actions/racking'
+require 'actions/layout_processor'
 
 class RackLayoutCreatingTubes
   attr_reader :asset_group
@@ -13,11 +13,13 @@ class RackLayoutCreatingTubes
     asset_group.uploaded_files
   end
 
-
   def process
     FactChanges.new.tap do |updates|
       if assets_compatible_with_step_type.count > 0
-        updates.merge(rack_layout_creating_tubes(@asset_group))
+        updates.merge(Actions::LayoutProcessor.new({
+          asset_group: @asset_group,
+          barcode_parser: Parsers::CsvLayout::BarcodeCreatableParser
+        }).changes)
         updates.remove_assets([[asset_group.uploaded_files.first.asset.uuid]])
       end
     end
