@@ -3,6 +3,7 @@ dist: xenial
 sudo: required
 addons:
   chrome: stable
+  node_js: v11.0.0
 cache:
   bundler: true
   yarn: true
