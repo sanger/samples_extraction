@@ -5,10 +5,12 @@ module Importers
     module Changes
 
       def refresh_assets(assets, opts={})
+        assets = [assets].flatten
         FactChanges.new.tap do |updates|
           if assets.length > 0
             remote_assets = SequencescapeClient::find_by_uuid(assets.map(&:uuid))
             remote_assets = [] if remote_assets.nil?
+            remote_assets = [remote_assets].flatten
             assets.zip(remote_assets).each do |asset, remote_asset|
               annotator = Importers::Concerns::Annotator.new(asset, remote_asset)
               annotator.validate!
@@ -22,10 +24,12 @@ module Importers
       end
 
       def import_barcodes(barcodes)
+        barcodes = [barcodes].flatten
         FactChanges.new.tap do |updates|
           if barcodes.length > 0
             remote_assets = SequencescapeClient::get_remote_asset(barcodes)
             remote_assets = [] if remote_assets.nil?
+            remote_assets = [remote_assets].flatten
             barcodes.zip(remote_assets).each do |barcode, remote_asset|
               if remote_asset
                 # Needed in order to identify the imported elements
