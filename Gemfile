@@ -86,6 +86,9 @@ group :test do
   gem 'json-schema'
   gem 'capybara'
   gem 'selenium-webdriver'
+  gem 'mock_redis'
+  # Keep webdriver in sync with chrome to prevent frustrating CI failures
+  gem 'webdrivers', require: false
 end
 
 group :test do

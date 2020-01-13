@@ -1,18 +1,28 @@
 language: ruby
+dist: xenial
+sudo: required
+addons:
+  chrome: stable
 cache:
   bundler: true
   yarn: true
   directories:
   - node_modules
   - vendor/bundle
+before_install:
+- google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
 install:
 - bundle install --deployment
 - yarn install
 before_script:
 - export SECRET_KEY_BASE=`bundle exec rake secret`
 - bundle exec rake db:create RAILS_ENV=test
+- RAILS_ENV=test bundle exec rails webdrivers:chromedriver:update -r webdrivers
+- ln -s /home/travis/.webdrivers/chromedriver ~/bin/chromedriver
+- export PATH=~/bin:$PATH
 script:
-- bundle exec rake
+- bundle exec rspec
+- xvfb-run -a bundle exec rspec --tag browser
 - yarn test
 after_success:
 - chmod +x ./compile-build
@@ -20,6 +30,7 @@ after_success:
 services:
 - redis-server
 - mysql
+- xvfb
 deploy:
   provider: releases
   api_key:
