@@ -43,7 +43,7 @@ module ChangesSupport
       def _changes_callbacks
         self.class._changes_callbacks
       end
-      def _on_apply
+      def _on_apply(step)
         return unless _changes_callbacks
         _changes_callbacks.keys.each do |change_type|
           predicates = _changes_callbacks[change_type].keys
@@ -56,7 +56,7 @@ module ChangesSupport
           facts_with_callback.each do |fact|
             callbacks = _changes_callbacks[change_type][fact[:predicate]]
             callbacks.each do |proc|
-              proc.call(fact, self)
+              proc.call(fact, self, step)
             end
           end
         end

@@ -225,8 +225,16 @@ class FactChanges
   def apply(step, with_operations=true)
     _handle_errors(step) if errors_added.length > 0
     ActiveRecord::Base.transaction do |t|
-      _on_apply if respond_to?(:_on_apply)
+      # We need step to have an allocated id to be able to link it with the operations
+      # so we have to create a new record if is not already stored
+      step.save unless step.persisted?
+
+      # Callbacks execution
+      _on_apply(step) if respond_to?(:_on_apply)
+
       _set_remote_facts(facts_to_set_to_remote)
+
+      # Creates the facts and generate from it the list of operations
       operations = [
         _create_asset_groups(step, asset_groups_to_create, with_operations),
         _create_assets(step, assets_to_create, with_operations),
@@ -237,6 +245,8 @@ class FactChanges
         _detach_asset_groups(step, asset_groups_to_destroy, with_operations),
         _create_facts(step, facts_to_add, with_operations)
       ].flatten.compact
+
+      # Writes all operations in a single call
       unless operations.empty?
         Operation.import(operations)
         @operations = operations

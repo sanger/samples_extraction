@@ -40,8 +40,13 @@ module FactChangesInitializers
         t[:asset].update_attributes(barcode: t[:object])
       end)
 
-      FactChanges.on_change_predicate('remove_facts', 'barcode', Proc.new do |t|
+      FactChanges.on_change_predicate('remove_facts', 'barcode', Proc.new do |t, updates, step|
         t[:asset].update_attributes(barcode: nil)
+
+        if(t[:asset].facts.with_predicate('barcode').length == 0)
+          Operation.create(action_type: 'removeFacts', step: step, asset: t[:asset],
+            predicate: 'barcode', object: t[:object], object_asset: nil)
+        end
       end)
     end
 
