@@ -27,7 +27,7 @@ module Assets::Export
         update_plate(instance, updates)
 
         updates.add(self, 'beforeBarcode', old_barcode) if old_barcode
-        updates.add_remote(self, 'purpose', class_name) if class_name
+        updates.add_remote(self, 'purpose', class_name) if class_name && !class_name.empty?
         updates.remove(facts.with_predicate('barcodeType'))
         updates.add(self, 'barcodeType', 'SequencescapePlate')
 

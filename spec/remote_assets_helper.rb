@@ -71,12 +71,18 @@ module RemoteAssetsHelper
 	def stub_client_with_asset(client, asset)
 		type = (asset.class==Sequencescape::Plate) ? :plate : :tube
 	  allow(client).to receive(:find_by_uuid).with(asset.uuid).and_return(asset)
+	  allow(client).to receive(:find_by_uuid).with(asset.uuid, []).and_return(asset)
 	  allow(client).to receive(:find_by_uuid).with([asset.uuid]).and_return([asset])
+	  allow(client).to receive(:find_by_uuid).with([asset.uuid], []).and_return([asset])
 		allow(client).to receive(:get_remote_asset).with(asset.uuid).and_return(asset)
+		allow(client).to receive(:get_remote_asset).with(asset.uuid, []).and_return(asset)
 		allow(client).to receive(:get_remote_asset).with([asset.uuid]).and_return([asset])
+		allow(client).to receive(:get_remote_asset).with([asset.uuid], []).and_return([asset])
 	  if asset.respond_to?(:barcode)
 			allow(client).to receive(:get_remote_asset).with(asset.barcode).and_return(asset)
+			allow(client).to receive(:get_remote_asset).with(asset.barcode, []).and_return(asset)
 			allow(client).to receive(:get_remote_asset).with([asset.barcode]).and_return([asset])
+			allow(client).to receive(:get_remote_asset).with([asset.barcode], []).and_return([asset])
 		end
 	end
 
@@ -84,9 +90,12 @@ module RemoteAssetsHelper
 		assets.each {|asset| stub_client_with_asset(client, asset) }
 		if (assets.first.respond_to?(:barcode))
     	allow(client).to receive(:get_remote_asset).with(assets.map(&:barcode)).and_return(assets)
+    	allow(client).to receive(:get_remote_asset).with(assets.map(&:barcode),[]).and_return(assets)
     end
     allow(client).to receive(:get_remote_asset).with(assets.map(&:uuid)).and_return(assets)
+    allow(client).to receive(:get_remote_asset).with(assets.map(&:uuid),[]).and_return(assets)
     allow(client).to receive(:find_by_uuid).with(assets.map(&:uuid)).and_return(assets)
+    allow(client).to receive(:find_by_uuid).with(assets.map(&:uuid),[]).and_return(assets)
 	end
 
 end

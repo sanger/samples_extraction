@@ -17,6 +17,7 @@ RSpec.describe 'Assets::Import' do
       let(:uuid) { SecureRandom.uuid }
       it 'does not refresh' do
         allow(SequencescapeClient).to receive(:get_remote_asset).with([uuid]).and_return(nil)
+        allow(SequencescapeClient).to receive(:get_remote_asset).with([uuid], []).and_return(nil)
         expect{asset.refresh!}.not_to change{asset.facts.count}
       end
     end
@@ -47,12 +48,12 @@ RSpec.describe 'Assets::Import' do
     it 'recognises a plate' do
       asset.facts << create(:fact, predicate: 'a', object: 'TubeRack', is_remote?: true)
       asset.refresh
-      expect(SequencescapeClient).to have_received(:find_by_uuid).with([asset.uuid])
+      expect(SequencescapeClient).to have_received(:find_by_uuid).with([asset.uuid],[])
     end
     it 'recognises a tube' do
       asset.facts << create(:fact, predicate: 'a', object: 'Tube', is_remote?: true)
       asset.refresh
-      expect(SequencescapeClient).to have_received(:find_by_uuid).with([asset.uuid])
+      expect(SequencescapeClient).to have_received(:find_by_uuid).with([asset.uuid],[])
     end
     context 'when actually updating' do
       it 'does not destroy remote facts that have not changed' do
@@ -153,7 +154,7 @@ RSpec.describe 'Assets::Import' do
         end
         it 'should try to obtain a tube' do
           @asset = Asset.find_or_import_asset_with_barcode(@remote_tube_asset.barcode)
-          expect(SequencescapeClient).to have_received(:get_remote_asset).with([@remote_tube_asset.barcode])
+          expect(SequencescapeClient).to have_received(:get_remote_asset).with([@remote_tube_asset.barcode],[])
         end
       end
 
@@ -164,7 +165,7 @@ RSpec.describe 'Assets::Import' do
         end
         it 'should try to obtain a plate' do
           @asset = Asset.find_or_import_asset_with_barcode(@remote_plate_asset.barcode)
-          expect(SequencescapeClient).to have_received(:get_remote_asset).with([@remote_plate_asset.barcode])
+          expect(SequencescapeClient).to have_received(:get_remote_asset).with([@remote_plate_asset.barcode],[])
         end
 
         context 'when the supplier sample name has not been provided to some samples' do

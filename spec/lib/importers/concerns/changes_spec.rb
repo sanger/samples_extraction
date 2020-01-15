@@ -16,7 +16,7 @@ RSpec.describe 'Importers::Concerns::Changes' do
         assets.zip(remote_assets) do |a, remote|
           allow(remote).to receive(:uuid).and_return(a.uuid)
         end
-        allow(SequencescapeClient).to receive(:find_by_uuid).with(assets.map(&:uuid)).and_return(remote_assets)
+        allow(SequencescapeClient).to receive(:find_by_uuid).with(assets.map(&:uuid),[]).and_return(remote_assets)
       end
 
       it 'refreshes the contents of the assets' do
@@ -31,6 +31,19 @@ RSpec.describe 'Importers::Concerns::Changes' do
           expect(updates.to_h).to eq({})
         end
       end
+
+      context 'when receiving a list that contains an asset that does not exist anymore' do
+        let(:errored_asset_uuid) { SecureRandom.uuid }
+        before do
+          assets.first.update_attributes(uuid: errored_asset_uuid)
+
+          allow(SequencescapeClient).to receive(:find_by_uuid).with(assets.map(&:uuid),[]).and_return([nil].concat(remote_assets[1..-1]).flatten)
+        end
+        it 'displays an error about the asset' do
+          updates = instance.refresh_assets(assets)
+          expect(updates.to_h[:set_errors].detect{|str| str.include?(errored_asset_uuid)})
+        end
+      end
     end
 
     context 'when refreshing a single asset' do
@@ -38,7 +51,7 @@ RSpec.describe 'Importers::Concerns::Changes' do
         assets.zip(remote_assets) do |a, remote|
           allow(remote).to receive(:uuid).and_return(a.uuid)
         end
-        allow(SequencescapeClient).to receive(:find_by_uuid).with([assets.map(&:uuid).first]).and_return(remote_assets.first)
+        allow(SequencescapeClient).to receive(:find_by_uuid).with([assets.map(&:uuid).first],[]).and_return(remote_assets.first)
       end
 
       it 'refreshes the contents of the asset' do
@@ -76,7 +89,7 @@ RSpec.describe 'Importers::Concerns::Changes' do
 
     context 'when scanning a list of barcodes' do
       before do
-        allow(SequencescapeClient).to receive(:get_remote_asset).with(barcodes).and_return(remote_assets)
+        allow(SequencescapeClient).to receive(:get_remote_asset).with(barcodes,[]).and_return(remote_assets)
       end
 
       it 'imports the assets' do
@@ -91,11 +104,25 @@ RSpec.describe 'Importers::Concerns::Changes' do
           expect(updates.to_h).to eq({})
         end
       end
+
+      context 'when receiving a list that contains a barcode that does not exist' do
+        let(:errored_barcode) { 'error' }
+        let(:barcodes_with_error){ [errored_barcode].concat(barcodes[1..-1]).flatten}
+        let(:remote_without_missing) { [nil].concat(remote_assets[1..-1]) }
+        before do
+          allow(SequencescapeClient).to receive(:get_remote_asset).with(barcodes_with_error,[]).and_return(remote_without_missing)
+        end
+        it 'displays an error about the asset' do
+          updates = instance.import_barcodes(barcodes_with_error)
+          expect(updates.to_h[:set_errors].detect{|str| str.include?(errored_barcode)})
+        end
+
+      end
     end
 
     context 'when scanning a single barcode' do
       before do
-        allow(SequencescapeClient).to receive(:get_remote_asset).with([barcodes.first]).and_return(remote_assets.first)
+        allow(SequencescapeClient).to receive(:get_remote_asset).with([barcodes.first],[]).and_return(remote_assets.first)
       end
 
       it 'imports the asset' do

@@ -23,6 +23,11 @@ RSpec.describe Importers::BarcodesImporter do
       instance = Importers::BarcodesImporter.new(barcodes)
       expect(instance.process.class).to eq(FactChanges)
     end
+    it 'sets an error if any of the barcodes do not exist' do
+      allow(SequencescapeClient).to receive(:get_remote_asset).with(['unknown'],[]).and_return([nil])
+      instance = Importers::BarcodesImporter.new(['unknown'])
+      expect(instance.process.to_h.has_key?(:set_errors)).to eq(true)
+    end
     it 'refreshes all barcodes that are remote' do
       asset1 = create(:asset, barcode: generate(:barcode), remote_digest: '1234')
       barcodes_and_local = [barcodes, asset1.barcode].flatten

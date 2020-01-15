@@ -85,7 +85,11 @@ RSpec.feature 'Activity Management', type: :feature, js: true, browser: true do
   end
 
   def scan_asset(asset)
-    fill_in('Scan a barcode', with: asset.barcode+"\n")
+    scan_barcode(asset.barcode)
+  end
+
+  def scan_barcode(barcode)
+    fill_in('Scan a barcode', with: barcode+"\n")
   end
 
   context 'with an unlogged user' do
@@ -122,6 +126,18 @@ RSpec.feature 'Activity Management', type: :feature, js: true, browser: true do
         click_on("Delete")
 
         expect(page).not_to have_content(plate1.barcode, wait: 10)
+      end
+
+      context 'if we scan an asset that does not exist' do
+        let(:error_barcode) { 'error'}
+        before do
+          allow(SequencescapeClient).to receive(:find_by_uuid).with([error_barcode]).and_return([nil])
+        end
+        scenario "we have an error message" do
+          scan_barcode(error_barcode)
+
+          expect(page).to have_content("Cannot find the barcode", wait: 20)
+        end
       end
 
       scenario "we can run a workflow on it" do

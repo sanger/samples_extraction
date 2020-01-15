@@ -49,6 +49,25 @@ RSpec.describe 'SequencescapeClient' do
       it 'returns the matched elements in response sorted in the same order of the query' do
         expect(SequencescapeClient.find_by_uuid(uuids)).to eq(assets)
       end
+
+      context 'when there is an error while accessing a resource' do
+        let(:errors) {[]}
+        before do
+          allow(SequencescapeClientV2::Tube).to receive(:where) do
+            raise 'boom!'
+          end
+        end
+        it 'write an error message' do
+          expect{
+            SequencescapeClient.find_by_uuid(uuids, errors)
+          }.to change{errors.length}.from(0).to(1)
+        end
+        it 'returns the assets result of the operation' do
+          expect(
+            SequencescapeClient.find_by_uuid(uuids, errors)
+          ).to eq([nil, assets[1], nil, assets[3]])
+        end
+      end
     end
   end
 
@@ -73,6 +92,29 @@ RSpec.describe 'SequencescapeClient' do
       expect(plate_resource).to have_received(:where).with(params)
       expect(well_resource).to have_received(:where).with(params)
     end
+
+    context 'when there is an error while accessing a resource' do
+      let(:good_klass) { double('resource')}
+      let(:failing_klass) { double('resource') }
+      let(:resources) { [failing_klass, tube_resource, failing_klass]}
+      let(:errors) {[]}
+      before do
+        allow(failing_klass).to receive(:where) do
+          raise 'boom!'
+        end
+      end
+      it 'write an error message' do
+        expect{
+          SequencescapeClient.find_by(resources, params, errors)
+        }.to change{errors.length}.from(0).to(2)
+      end
+      it 'returns the assets result of the operation' do
+        expect(
+          SequencescapeClient.find_by(resources, params, errors)
+        ).to eq(assets)
+      end
+    end
+
   end
 
   context '#find_first' do
@@ -90,11 +132,34 @@ RSpec.describe 'SequencescapeClient' do
       allow(well_resource).to receive(:where)
     end
 
-    it 'stops performing subsequente requests when the element is found' do
+    it 'stops performing subsequent requests when the element is found' do
       expect(SequencescapeClient.find_first(resources, params)).to eq(asset)
       expect(plate_resource).to have_received(:where).with(params)
       expect(tube_resource).to have_received(:where).with(params)
       expect(well_resource).not_to have_received(:where).with(params)
+    end
+
+    context 'when there is an error while accessing a resource' do
+      let(:good_klass) { double('resource')}
+      let(:failing_klass) { double('resource') }
+      let(:resources) { [good_klass, failing_klass] }
+      let(:errors) {[]}
+      before do
+        allow(good_klass).to receive(:where).and_return(nil)
+        allow(failing_klass).to receive(:where) do
+          raise 'boom!'
+        end
+      end
+      it 'write an error message' do
+        expect{
+          SequencescapeClient.find_first(resources, params, errors)
+        }.to change{errors.length}.from(0).to(1)
+      end
+      it 'returns nil as result of the operation' do
+        expect(
+          SequencescapeClient.find_first(resources, params, errors)
+        ).to eq(nil)
+      end
     end
   end
 

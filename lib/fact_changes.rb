@@ -196,6 +196,10 @@ class FactChanges
     facts_to_destroy << fact if fact
   end
 
+  def has_errors?
+    to_h.has_key?(:set_errors)
+  end
+
   def merge_hash(h1, h2)
     h2.keys.each do |k|
       h1[k]=h2[k]
