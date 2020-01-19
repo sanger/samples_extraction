@@ -39,6 +39,36 @@ RSpec.describe MessageProcessors::AssetGroupMessageProcessor do
             asset_group.assets.map(&:barcode)
           }.from(previous_list.map(&:barcode)).to(new_list.map(&:barcode))
         end
+
+        context 'when there is an error while refreshing one of the barcodes' do
+          before do
+            allow(SequencescapeClient).to receive(:find_by_uuid) do |uuid, errors|
+              errors.push('big boom!!')
+              nil
+            end
+            added.first.update_attributes(remote_digest: 'initial')
+          end
+          it 'stores the message error in the step' do
+            expect{instance.process(good_message)}.to change{
+              StepMessage.all.count
+            }.from(0).to(1)
+          end
+        end
+        context 'when there is an error while importing one of the barcodes' do
+          let(:good_message) { { asset_group: { id: asset_group.id, assets: barcodes.concat(['unknown']) }}.as_json}
+          before do
+            allow(SequencescapeClient).to receive(:get_remote_asset) do |uuid, errors|
+              errors.push('big boom!!')
+              nil
+            end
+          end
+          it 'stores the message error in the step' do
+            expect{instance.process(good_message)}.to change{
+              StepMessage.all.count
+            }.from(0).to(1)
+          end
+        end
+
       end
     end
   end

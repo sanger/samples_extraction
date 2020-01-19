@@ -288,7 +288,7 @@ RSpec.describe 'Assets::Import' do
             allow(SequencescapeClient).to receive(:find_by_uuid).and_return(nil)
           end
           it 'should raise an exception' do
-            expect{Asset.find_or_import_asset_with_barcode(@barcode_plate)}.to raise_exception Assets::Import::RefreshSourceNotFoundAnymore
+            expect{a=Asset.find_or_import_asset_with_barcode(@barcode_plate)}.to raise_exception Assets::Import::RefreshSourceNotFoundAnymore
           end
         end
         context 'when the remote source is present' do
@@ -296,9 +296,9 @@ RSpec.describe 'Assets::Import' do
   		  		@asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
   		  	end
   		  	it 'should not create a new local asset' do
-  		  		count = Asset.count
-  					Asset.find_or_import_asset_with_barcode(@barcode_plate)
-  		  		expect(Asset.count).to eq(count)
+            expect{
+  					 Asset.find_or_import_asset_with_barcode(@barcode_plate)
+            }.not_to change{Asset.count}
   		  	end
 
   		  	context 'when the local copy is up to date' do

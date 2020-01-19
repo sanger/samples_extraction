@@ -28,6 +28,10 @@ module Importers
 
       def update_asset_from_remote_asset
         FactChanges.new.tap do |updates|
+          if remote_asset.respond_to?(:barcode) && remote_asset.barcode
+            updates.replace_remote_property(asset, 'barcode', remote_asset.barcode)
+          end
+
           class_name = sequencescape_type_for_asset
           updates.remove(asset.facts.from_remote_asset)
           updates.replace_remote_property(asset, 'a', class_name)

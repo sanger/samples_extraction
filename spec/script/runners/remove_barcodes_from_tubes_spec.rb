@@ -45,10 +45,6 @@ RSpec.describe 'RemoveBarcodesFromTubes' do
         expect(changes[:remove_facts]).to include(
           [w.uuid, 'barcode', barcodes[pos]])
       end
-      expect{
-        updates.apply(step)
-        wells_for_rack.each(&:reload)
-      }.to change{wells_for_rack.first.barcode}.from(barcodes.first).to(nil)
     end
   end
 end

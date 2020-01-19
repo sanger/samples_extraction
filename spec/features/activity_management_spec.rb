@@ -131,12 +131,12 @@ RSpec.feature 'Activity Management', type: :feature, js: true, browser: true do
       context 'if we scan an asset that does not exist' do
         let(:error_barcode) { 'error'}
         before do
-          allow(SequencescapeClient).to receive(:find_by_uuid).with([error_barcode]).and_return([nil])
+          allow(SequencescapeClient).to receive(:get_remote_asset).with([error_barcode], []).and_return([nil],['error'])
         end
         scenario "we have an error message" do
           scan_barcode(error_barcode)
 
-          expect(page).to have_content("Cannot find the barcode", wait: 20)
+          expect(page).to have_content("Cannot find the barcode", wait: 10)
         end
       end
 

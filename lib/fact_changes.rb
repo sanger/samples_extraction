@@ -3,12 +3,12 @@ require 'changes_support/disjoint_list'
 require 'changes_support/transaction_scope'
 require 'changes_support/callbacks'
 require 'google_hash'
-require 'fact_changes_initializers'
+#require 'fact_changes_initializers'
 
 class FactChanges
   include ChangesSupport::TransactionScope
   include ChangesSupport::Callbacks
-  include FactChangesInitializers
+  #include FactChangesInitializers
 
   attr_accessor :facts_to_destroy, :facts_to_add, :assets_to_create, :assets_to_destroy,
     :assets_to_add, :assets_to_remove, :wildcards, :instances_from_uuid,

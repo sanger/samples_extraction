@@ -114,11 +114,12 @@ RSpec.describe 'Assets::Export' do
 
         stub_client_with_asset(SequencescapeClient, plate)
 
-        allow(SequencescapeClient).to receive(:create_plate).and_return(plate)
+        created_plate = double('created_plate')
+        allow(SequencescapeClient).to receive(:create_plate).and_return(created_plate)
         barcode = double('barcode')
         allow(barcode).to receive(:prefix).and_return('DN')
         allow(barcode).to receive(:number).and_return('123')
-        allow(plate).to receive(:barcode).and_return(barcode)
+        allow(created_plate).to receive(:barcode).and_return(barcode)
 
         expect(asset.facts.where(predicate: 'contains').count).to eq(0)
         asset.update_sequencescape(print_config, user, step).apply(step)

@@ -137,6 +137,14 @@ A set of controls is provided so the user can perform the following actions:
 
 Changes are broadcasted to the user interface by websockets with the support of a Redis database. The interface is updated with the changes in the database. All changes in available groups, assets, metadata and rules to apply are updated in the user interface automatically.
 
+To do it, the browser joins a websockets channel that is broadcasting from the specific activity it is being displayed. It can emit 2 different types of messages to the channel:
+
+  - AssetGroup message : this message modifies the contents of the asset group. It is sent whenever the user changes the contents of the asset group in the UI.
+  - Activity message: this message modifies the selected information that is returned by a server update. It is sent when the user clicks on Show/Hide links.
+
+The server can emit 1 type of message into the channel:
+
+  - Activity React state message : this message renders the UI state as it should be displayed by React. It is sent every time the activity updated_at timestamp has changed (when the activity is saved).
 
 #### Data model:
 

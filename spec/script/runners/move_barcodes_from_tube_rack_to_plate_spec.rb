@@ -59,11 +59,8 @@ RSpec.describe 'MoveBarcodesFromTubeRackToPlate' do
         expect(changes[:add_facts]).to include(
           [w.uuid, 'barcode', barcodes[pos]])
       end
-      expect{
-        updates.apply(step)
-        wells_for_plate.each(&:reload)
-      }.to change{wells_for_plate.first.barcode}.from(nil).to(barcodes.first)
     end
+
     it 'removes the barcodes from the tubes of the tube rack' do
       group = create(:asset_group, assets: [plate, tube_rack])
       updates = MoveBarcodesFromTubeRackToPlate.new(asset_group: group).process
@@ -75,10 +72,6 @@ RSpec.describe 'MoveBarcodesFromTubeRackToPlate' do
         expect(changes[:remove_facts]).to include(
           [w.uuid, 'barcode', barcodes[pos]])
       end
-      expect{
-        updates.apply(step)
-        wells_for_rack.each(&:reload)
-      }.to change{wells_for_rack.first.barcode}.from(barcodes.first).to(nil)
     end
 
   end
