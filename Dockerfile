@@ -7,9 +7,6 @@ RUN gem install bundler
 RUN bundle install
 RUN yarn install
 
-#  Cleaning up
-RUN RAILS_ENV=production bundle exec rake assets:clobber
-
 # Compiling assets
 RUN RAILS_ENV=production bundle exec rake assets:precompile
 RUN RAILS_ENV=production bundle exec rake webpacker:compile
