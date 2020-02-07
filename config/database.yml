@@ -35,7 +35,7 @@ selenium: &test
 test: &test
   <<: *default
   database: samples_extraction_test
-  host: localhost
+  host: mysql
   port: 3306
   username: root
   password: password
