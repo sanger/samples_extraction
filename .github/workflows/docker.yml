@@ -26,6 +26,12 @@ jobs:
 
     steps:
     - run: env
+    - uses: actions/cache@v1
+      with:
+        path: /var/lib/docker
+        key: ${{ runner.os }}-docker-
+        restore-keys: |
+          ${{ runner.os }}-docker-
     - uses: actions/checkout@v1
     - name: Build and tag the Docker image
       run: docker build . --file Dockerfile --tag docker.pkg.github.com/${IMAGE_NAME}:${GITHUB_REF##*/}
@@ -33,9 +39,9 @@ jobs:
       run: docker tag docker.pkg.github.com/${IMAGE_NAME}:${GITHUB_REF##*/} docker.pkg.github.com/${IMAGE_NAME}:latest
       if: github.ref == 'refs/heads/master'
     - name: Run Rspec tests against the image
-      run: docker run docker.pkg.github.com/${IMAGE_NAME}:${GITHUB_REF##*/} RAILS_ENV=test bundle exec rspec
+      run: docker run docker.pkg.github.com/${IMAGE_NAME}:${GITHUB_REF##*/} --env RAILS_ENV=test bundle exec rspec
     - name: Run JS tests against the image
-      run: docker run docker.pkg.github.com/${IMAGE_NAME}:${GITHUB_REF##*/} RAILS_ENV=test yarn test
+      run: docker run docker.pkg.github.com/${IMAGE_NAME}:${GITHUB_REF##*/} --env RAILS_ENV=test yarn test
 
     - name: Login to registry
       run: docker login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} docker.pkg.github.com
