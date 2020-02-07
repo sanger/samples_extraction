@@ -17,9 +17,9 @@ jobs:
         image: mariadb:latest
         env:
           MYSQL_USER: root
-          MYSQL_PASSWORD: ""
+          MYSQL_PASSWORD: password
           MYSQL_DATABASE: samples_extraction_test
-          MYSQL_ROOT_PASSWORD: ""
+          MYSQL_ROOT_PASSWORD: password
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
