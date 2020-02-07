@@ -6,22 +6,22 @@ on:
       - master
       - test-github-actions
 
-  services:
-    mysql:
-      image: mariadb:latest
-      env:
-        MYSQL_USER: root
-        MYSQL_PASSWORD:
-        MYSQL_DATABASE: samples_extraction_test
-        MYSQL_ROOT_PASSWORD:
-      options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
-
 env:
   IMAGE_NAME: ${{ github.repository }}/${{ github.event.repository.name }}
 
 jobs:
   build_and_publish:
     runs-on: ubuntu-18.04
+    services:
+      mysql:
+        image: mariadb:latest
+        env:
+          MYSQL_USER: root
+          MYSQL_PASSWORD:
+          MYSQL_DATABASE: samples_extraction_test
+          MYSQL_ROOT_PASSWORD:
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+
     steps:
     - run: env
     - uses: actions/checkout@v1
