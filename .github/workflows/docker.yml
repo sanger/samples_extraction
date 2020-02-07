@@ -1,10 +1,20 @@
 name: Build and publish Docker image
-
 on:
   push:
     branches:
       - develop
       - master
+      - test-github-actions
+
+  services:
+    mysql:
+      image: mariadb:latest
+      env:
+        MYSQL_USER: root
+        MYSQL_PASSWORD:
+        MYSQL_DATABASE: samples_extraction_test
+        MYSQL_ROOT_PASSWORD:
+      options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
 env:
   IMAGE_NAME: ${{ github.repository }}/${{ github.event.repository.name }}
