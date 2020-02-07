@@ -14,15 +14,13 @@ jobs:
     runs-on: ubuntu-18.04
     services:
       mysql:
-        image: mariadb:latest
+        image: mysql
         env:
           MYSQL_USER: root
           MYSQL_PASSWORD: password
           MYSQL_DATABASE: samples_extraction_test
           MYSQL_ROOT_PASSWORD: password
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
-        volumes:
-          - /var/run/mysqld:/var/run/mysqld
 
     steps:
     - run: env
