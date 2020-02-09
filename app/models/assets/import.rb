@@ -10,11 +10,11 @@ module Assets::Import
   module InstanceMethods
 
     def refresh
-      Importers::BarcodesImporter.new([self.uuid]).process! if is_remote_asset?
+      Importers::BarcodesImporter.new([self.uuid]).refresh
     end
 
     def refresh!
-      Importers::BarcodesImporter.new([self.uuid]).process!
+      Importers::BarcodesImporter.new([self.uuid]).refresh!
     end
 
     def assets_to_refresh

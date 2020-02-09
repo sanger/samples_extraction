@@ -45,10 +45,26 @@ module Importers
       end
     end
 
+    def refresh
+      refresh_assets(local_assets.from_remote_service)
+    end
+
+    def refresh!
+      refresh.apply(step)
+    end
+
+    def import
+      import_barcodes(filter_barcodes_not_in_assets(barcodes, local_assets.from_remote_service))
+    end
+
+    def import!
+      import.apply(step)
+    end
+
     def process
       @updates = FactChanges.new
-      @updates.merge(refresh_assets(local_assets.from_remote_service))
-      @updates.merge(import_barcodes(filter_barcodes_not_in_assets(barcodes, local_assets.from_remote_service)))
+      @updates.merge(refresh)
+      @updates.merge(import)
     end
 
     def process!
