@@ -7,7 +7,6 @@ class Asset < ActiveRecord::Base
   include Uuidable
   include Printables::Instance
   include Assets::Import
-  include Assets::Export
   include Assets::FactsManagement
   include Assets::TractionFields
 
@@ -229,6 +228,11 @@ class Asset < ActiveRecord::Base
     return ''
   end
 
+  def has_sample?
+    has_predicate_with_value?('supplier_sample_name') ||
+    has_relation_with_value?('sample_tube') ||
+    has_predicate_with_value?('sample_uuid')
+  end
 
   def position_name_for_symphony
     str = first_value_for('location')

@@ -83,11 +83,6 @@ module InferenceEngines
       end
 
       def apply
-        if asset_group.assets.with_fact('pushTo', 'Sequencescape').count > 0
-          asset_group.assets.with_fact('pushTo', 'Sequencescape').each do |asset|
-            @updates.merge(asset.update_sequencescape(step.printer_config, step.user, step))
-          end
-        end
         @updates.apply(step)
       end
 
