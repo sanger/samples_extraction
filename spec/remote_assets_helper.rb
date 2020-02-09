@@ -68,8 +68,19 @@ module RemoteAssetsHelper
 		sample
 	end
 
+	def asset_version_1(asset)
+		cloned = asset.clone
+		allow(cloned).to receive(:barcode).and_return(barcode_version_1(asset)) if asset.respond_to?(:barcode)
+		cloned
+	end
+
+	def barcode_version_1(asset)
+		double('barcode', prefix: asset.barcode[0..1], number: asset.barcode[2..-1])
+	end
+
 	def stub_client_with_asset(client, asset)
 		type = (asset.class==Sequencescape::Plate) ? :plate : :tube
+		allow(client).to receive(:version_1_find_by_uuid).with(asset.uuid).and_return(asset_version_1(asset))
 	  allow(client).to receive(:find_by_uuid).with(asset.uuid).and_return(asset)
 	  allow(client).to receive(:find_by_uuid).with(asset.uuid, []).and_return(asset)
 	  allow(client).to receive(:find_by_uuid).with([asset.uuid]).and_return([asset])

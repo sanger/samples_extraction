@@ -1,16 +1,22 @@
 module Callbacks
   class UpdateSequencescapeCallbacks < Callback
-    on_keep_property('pushTo', :update_sequencescape)
-    on_add_property('pushTo', :pushed_to_callback)
+    on_keep_property('pushTo', :fact_callback)
+    on_add_property('pushTo', :tuple_callback)
 
-    def self.pushed_to_callback(tuple, updates, step)
+    def self.tuple_callback(tuple, updates, step)
       if tuple[:object] == 'Sequencescape'
         update_sequencescape(tuple[:asset], updates, step)
       end
     end
 
+    def self.fact_callback(fact, updates, step)
+      if fact.object == 'Sequencescape'
+        update_sequencescape(fact.asset, updates, step)
+      end
+    end
+
     def self.update_sequencescape(asset, updates, step)
-      instance = _update_remote!(asset, updates)
+      instance = _update_remote!(asset, updates, step)
 
       if instance
         updates.merge(_update_uuid(asset, instance))
@@ -54,7 +60,7 @@ module Callbacks
       end
     end
 
-    def self._update_remote!(asset, updates)
+    def self._update_remote!(asset, updates, step)
       instance = nil
       begin
         instance = SequencescapeClient.version_1_find_by_uuid(asset.uuid)

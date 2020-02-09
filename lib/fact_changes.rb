@@ -256,8 +256,10 @@ class FactChanges
         @operations = operations
       end
       step.save if step.changed?
+      _handle_errors(step) if errors_added.length > 0
       reset
     end
+
   end
 
   def assets_updated

@@ -54,7 +54,7 @@ Rails.application.configure do
   config.searcher_name_by_barcode = 'Find assets by barcode'
   config.ss_authorisation =  'test'
   config.printing_disabled = true
-  config.default_n3_resources_url = nil
+  config.default_n3_resources_url = 'http://localhost:9200'
   config.redis_enabled = false
 
   config.inference_engine = :default

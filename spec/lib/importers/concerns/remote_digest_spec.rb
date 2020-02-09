@@ -9,26 +9,28 @@ RSpec.describe 'Importers::Concerns::RemoteDigest' do
   let(:asset) { create :asset }
   let(:instance) { Importers::Concerns::Annotator.new(asset, remote_asset) }
 
-  context '#digest_for_remote_asset' do
-    it 'returns a string with the digest hash of the remote asset' do
-      expect(instance.digest_for_remote_asset.kind_of?(String)).to be_truthy
+  context 'with the InstanceMethods' do
+    context '#digest_for_remote_asset' do
+      it 'returns a string with the digest hash of the remote asset' do
+        expect(instance.digest_for_remote_asset.kind_of?(String)).to be_truthy
+      end
+    end
+    context '#has_changes_between_local_and_remote?' do
+      it 'returns true if there are changes' do
+        expect(instance.has_changes_between_local_and_remote?).to be_truthy
+      end
+      it 'returns false if there are no changes' do
+        asset.update_attributes(remote_digest: instance.digest_for_remote_asset)
+        expect(instance.has_changes_between_local_and_remote?).to be_falsy
+      end
     end
   end
 
-  context '#signature_for_remote' do
-    it 'returns a string' do
-      expect(instance.signature_for_remote.kind_of?(String)).to be_truthy
+  context 'with the ClassMethods' do
+    context '#signature_for_remote' do
+      it 'returns a string' do
+        expect(Importers::Concerns::Annotator.signature_for_remote(instance.remote_asset).kind_of?(String)).to be_truthy
+      end
     end
   end
-
-  context '#has_changes_between_local_and_remote?' do
-    it 'returns true if there are changes' do
-      expect(instance.has_changes_between_local_and_remote?).to be_truthy
-    end
-    it 'returns false if there are no changes' do
-      asset.update_attributes(remote_digest: instance.digest_for_remote_asset)
-      expect(instance.has_changes_between_local_and_remote?).to be_falsy
-    end
-  end
-
 end
