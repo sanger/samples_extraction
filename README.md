@@ -44,7 +44,7 @@ This installation procedure is prepared for a MacOS environment:
 
   # rake label_templates:setup
 
-1. Install Print_my_barcode
+1. Start Print_my_barcode
 
   # rails s -p10000
 
@@ -71,6 +71,8 @@ This installation procedure is prepared for a MacOS environment:
   # gem install bundler
 
   # bundle install
+
+  # bundle exec rake db:setup
 
   # yarn
 
