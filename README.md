@@ -44,16 +44,16 @@ This installation procedure is prepared for a MacOS environment:
   > Printer.create(name: PRINTER_NAME)
 ```
 
-3. In Samples Extraction project folder, run the following command to create the required label templates into print_my_barcode:
-
-```bash
-  # rake label_templates:setup
-```
-
-4. Start Print_my_barcode
+3. In print_my_barcode folder, start the server
 
 ```
   # rails s -p10000
+```
+
+4. In Samples Extraction project folder, run the following command to create the required label templates into print_my_barcode:
+
+```bash
+  # rake label_templates:setup
 ```
 
 ### mysql
