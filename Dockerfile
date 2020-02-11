@@ -1,5 +1,6 @@
 FROM starefossen/ruby-node
 RUN apt-get update -qq && apt-get install -y
+RUN apt-get -y install git vim
 WORKDIR /samples_extraction
 ADD Gemfile /samples_extraction
 ADD Gemfile.lock /samples_extraction
@@ -8,7 +9,7 @@ ADD yarn.lock /samples_extraction
 RUN gem install bundler
 RUN bundle install
 RUN yarn install
-RUN apt-get -y install git vim
+
 ADD . /samples_extraction/
 
 # Compiling assets
