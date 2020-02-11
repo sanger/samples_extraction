@@ -11,6 +11,9 @@ RSpec.describe AssetGroupsController, type: :controller do
 
 
   context '#upload' do
+    before do
+      allow(SequencescapeClient).to receive(:get_remote_asset).and_return(nil)
+    end
     let(:file) { fixture_file_upload('test/data/layout.csv', 'text/csv') }
 
     it 'creates a new uploaded file' do
@@ -26,7 +29,7 @@ RSpec.describe AssetGroupsController, type: :controller do
     it 'creates a new step to track the change in the asset group' do
       expect{
         post :upload, params: { id: asset_group.id,  qqfilename: 'myfile.csv', qqfile:  file}
-      }.to change{Step.all.count}.by(1)
+      }.to change{Step.all.count}
     end
   end
 
@@ -34,6 +37,9 @@ RSpec.describe AssetGroupsController, type: :controller do
 
     let(:barcode) { generate :barcode }
     let(:asset) { create :asset, barcode: barcode }
+    before do
+      allow(SequencescapeClient).to receive(:get_remote_asset).and_return(nil)
+    end
 
     context "when the asset is in the database" do
       context 'finding by uuid' do
@@ -92,20 +98,18 @@ RSpec.describe AssetGroupsController, type: :controller do
               :id => asset_group.id, :activity_id => activity.id}
           expect(asset_group.assets.count).to eq(0)
         end
-      end
-
-      context "when it is a creatable barcode" do
-        let(:creatable_barcode) { generate :barcode_creatable }
-
-        it "creates a new asset" do
+        it "does not create a new asset" do
+          barcode = generate :barcode_creatable
           expect{
             post :update, params: {:asset_group => {
-              :assets => [creatable_barcode]
+              :assets => [barcode]
               },
               :id => asset_group.id, :activity_id => activity.id}
-          }.to change{asset_group.assets.count}.by(1)
+          }.not_to change{Asset.count}
         end
+
       end
+
     end
   end
 end

@@ -98,6 +98,11 @@ module Actions
     # destimation: Asset or String representing a uuid or a wildcard
     def self.transfer_plates(plate, destination, updates=nil)
       updates ||= FactChanges.new
+      if (plate.has_predicate?('study_name'))
+        plate.facts.with_predicate('study_name').each do |fact|
+          updates.add(destination, 'study_name', fact.object)
+        end
+      end
       updates.tap do |updates|
         if destination.kind_of?(Asset) && (destination.has_wells?)
           transfer_by_location(plate, destination, updates)

@@ -1,8 +1,7 @@
-
 # # This rule applies the barcodes from a rack into a plate
 # {
-#   ?plate se:a Plate .
-#   ?rack se:a TubeRack .
+#   ?plate se:a """Plate""" .
+#   ?rack se:a """TubeRack""" .
 #   ?rack se:mergeInto ?plate .
 #   ?rack se:contains ?tube .
 #   ?plate se:contains ?well .
@@ -12,7 +11,7 @@
 #   } => {
 #     :step :addFacts { ?well se:barcode ?barcode . } .
 #     :step :removeFacts { ?tube se:barcode ?barcode . } .
-#     :step :addFacts { ?tube se:barcode  . } .
+#     :step :addFacts { ?tube se:barcode """""" . } .
 #     :step :addFacts { ?tube se:previousBarcode ?barcode . } .
 #     :step :addFacts { ?tube se:appliedBarcodeTo ?well . } .
 #     :step :addFacts { ?rack se:mergedInto ?plate .}.
@@ -81,7 +80,6 @@ class MoveBarcodesFromTubeRackToPlate
     end
   end
 end
-
 
 args = ARGV[0]
 asset_group_id = args.match(/(\d*)\.json/)[1]

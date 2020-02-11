@@ -42,6 +42,7 @@ Rails.application.configure do
 
   config.middleware.use RackSessionAccess::Middleware
 
+  config.delayed_job_max_minutes_run_time = ENV.fetch('SE_JOBS_MAX_MINUTES','20')
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true

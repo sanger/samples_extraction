@@ -1,4 +1,4 @@
-require 'actions/racking'
+require 'actions/layout_processor'
 
 class RackLayout
   attr_reader :asset_group
@@ -17,7 +17,7 @@ class RackLayout
   def process
     FactChanges.new.tap do |updates|
       if assets_compatible_with_step_type.count > 0
-        updates.merge(rack_layout(@asset_group))
+        updates.merge(Actions::LayoutProcessor.new(asset_group: @asset_group).changes)
       end
     end
   end

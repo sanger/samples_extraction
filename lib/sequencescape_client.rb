@@ -8,6 +8,22 @@ require 'sequencescape'
 require 'sequencescape_client_v2'
 
 class SequencescapeClient
+
+  def self.RESOURCES_FOR_UUID_SEARCH
+    [
+      SequencescapeClientV2::Plate,
+      SequencescapeClientV2::Tube,
+      SequencescapeClientV2::Well
+    ]
+  end
+
+  def self.RESOURCES_FOR_BARCODE_SEARCH
+    [
+      SequencescapeClientV2::Plate,
+      SequencescapeClientV2::Tube
+    ]
+  end
+
   @purposes=nil
 
   def self.api_connection_options
@@ -43,37 +59,39 @@ class SequencescapeClient
     purpose.plates.create!(attrs)
   end
 
-  def self.get_study_by_name(name)
-    get_study_searcher_by_name.first(name: name)
-  rescue Sequencescape::Api::ResourceNotFound => exception
-    return nil
-  end
-
-  def self.get_study_searcher_by_name
-    @@study_searcher ||= client.search.all.select{|s| s.name == Rails.configuration.searcher_study_by_name}.first
-  end
-
-  def self.get_searcher_by_barcode
-    @@searcher ||= client.search.all.select{|s| s.name == Rails.configuration.searcher_name_by_barcode}.first
-  end
-
   def self.get_remote_asset(barcode)
-    find_by(barcode: barcode)
+    barcodes = [barcode].flatten
+    return find_first(self.RESOURCES_FOR_BARCODE_SEARCH, barcode: barcodes) if barcodes.length==1
+    results = find_by(self.RESOURCES_FOR_BARCODE_SEARCH, barcode: barcodes)
+    barcodes.each_with_index.map do |barcode|
+      results.detect{|r| r.labware_barcode['human_barcode'] == barcode}
+    end
   end
 
   def self.find_by_uuid(uuid, opts=nil)
-    find_by(uuid: uuid)
+    uuids = [uuid].flatten
+    return find_first(self.RESOURCES_FOR_UUID_SEARCH, uuid: uuids) if uuids.length==1
+    results = find_by(self.RESOURCES_FOR_UUID_SEARCH, uuid: uuids)
+    uuids.each_with_index.map do |uuid|
+      results.detect{|r| r.uuid == uuid}
+    end
   end
 
-  def self.find_by(search_conditions)
-    [
-      SequencescapeClientV2::Plate,
-      SequencescapeClientV2::Tube,
-      SequencescapeClientV2::Well
-    ].each do |klass|
+  def self.find_by(resources, search_conditions)
+    resources.map do |klass|
+      begin
+        klass.where(search_conditions)
+      rescue JsonApiClient::Errors::ClientError => e
+        # Ignore filter error
+      end
+    end.flatten.compact
+  end
+
+  def self.find_first(resources, search_conditions)
+    resources.each do |klass|
       begin
         search = klass.where(search_conditions)
-        search = search.first if search
+        search = search.first if search && search.length == 1
         return search if search
       rescue JsonApiClient::Errors::ClientError => e
         # Ignore filter error
