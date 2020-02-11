@@ -34,6 +34,13 @@ This installation procedure is prepared for a MacOS environment:
     # brew install redis
 ```
 
+2. Start redis
+
+```
+    # redis-server
+```
+
+
 ### Print_my_barcode config
 
 1. Add the barcode printers that you would like to use in the server. In a MacOS environment open Settings/Printers & Scanners and add the barcode printers making sure they are defined with protocol LPD.
