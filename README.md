@@ -50,7 +50,7 @@ This installation procedure is prepared for a MacOS environment:
   # rake label_templates:setup
 ```
 
-4. Install Print_my_barcode
+4. Start Print_my_barcode
 
 ```
   # rails s -p10000
