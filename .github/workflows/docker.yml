@@ -4,7 +4,6 @@ on:
     branches:
       - develop
       - master
-      - release-2.0.8-docker
 
 env:
   IMAGE_NAME: ${{ github.repository }}/latest
