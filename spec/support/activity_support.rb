@@ -12,7 +12,7 @@ module ActivitySupport
         ActionController::Base.allow_forgery_protection = true
         allow(ActivityChannel).to receive(:redis).and_return(@mocked_redis)
         Capybara.current_driver = :selenium_chrome_headless
-        Capybara.current_driver = :selenium_chrome
+        #Capybara.current_driver = :selenium_chrome
       end
     end
   end
