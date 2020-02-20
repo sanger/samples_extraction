@@ -46,6 +46,7 @@ module InferenceEngines
       end
 
       def generate_plan
+        return run_from_class if !!Rails.configuration.run_step_actions_from_class
         if @step.step_type.step_action.match(/\.rb$/)
           cmd = ["bin/rails", "runner", "#{Rails.root}/script/runners/#{@step.step_type.step_action}"]
         else

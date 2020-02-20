@@ -6,6 +6,10 @@ RSpec.feature 'Sequencescape Updates', type: :feature, js: true, browser: true d
   include RemoteAssetsHelper
   include ActivitySupport
 
+  setup do
+    Rails.configuration.run_step_actions_from_class = true
+  end
+
   let!(:activity_type) { create(:activity_type, name: 'Test') }
   let!(:instrument) { create(:instrument, barcode: '1', activity_types: [activity_type]) }
   let!(:kit_type) { create :kit_type, activity_type: activity_type }
