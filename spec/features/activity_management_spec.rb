@@ -96,7 +96,7 @@ RSpec.feature 'Activity Management', type: :feature, js: true, browser: true do
 
         click_on("Delete")
 
-        expect(page).not_to have_content(plate1.barcode, wait: 10)
+        expect(page).not_to have_content(plate1.barcode, wait: 100)
       end
 
       context 'if we scan an asset that does not exist' do

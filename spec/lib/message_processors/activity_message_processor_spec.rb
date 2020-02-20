@@ -4,6 +4,7 @@ require 'message_processors/activity_message_processor'
 RSpec.describe MessageProcessors::ActivityMessageProcessor do
   context 'an instance of ActivityMessageProcessor' do
     let(:activity) { create(:activity)}
+    let(:user) { create :user }
     let(:good_message) { { activity: { id: activity.id, stepTypes: false,
         stepsPending: false, stepsRunning: false, stepsFailed: false, stepsFinished: true
         }
@@ -11,7 +12,7 @@ RSpec.describe MessageProcessors::ActivityMessageProcessor do
     }
     let(:bad_message) { { asset_group: {} } }
     let(:mocked_redis) { double('redis') }
-    let(:channel) { double('channel', redis: mocked_redis )}
+    let(:channel) { double('channel', redis: mocked_redis, current_user: user )}
     let(:instance) { MessageProcessors::ActivityMessageProcessor.new(channel: channel)}
 
     context '#interested_in?' do

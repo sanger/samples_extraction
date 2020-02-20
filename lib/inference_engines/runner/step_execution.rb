@@ -37,8 +37,7 @@ module InferenceEngines
         @updates = FactChanges.new(@content)
       end
 
-      def generate_plan
-        return generate_plan2 unless ENV['RAILS_ENV']=='test'
+      def generate_plan2
         if @step.step_type.actions.length > 0
           run_from_class
         else
@@ -46,7 +45,7 @@ module InferenceEngines
         end
       end
 
-      def generate_plan2
+      def generate_plan
         if @step.step_type.step_action.match(/\.rb$/)
           cmd = ["bin/rails", "runner", "#{Rails.root}/script/runners/#{@step.step_type.step_action}"]
         else

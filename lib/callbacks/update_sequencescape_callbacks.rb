@@ -70,7 +70,7 @@ module Callbacks
         if duplicate_locations_in_plate?(asset)
           updates.set_errors(["Duplicate locations in asset #{asset.uuid}"])
         else
-          attrs = attributes_to_update(asset)
+          attrs = attributes_to_update(asset, instance)
           unless attrs.empty?
             SequencescapeClient.update_extraction_attributes(instance, attrs, step.user.username)
           end
@@ -117,7 +117,8 @@ module Callbacks
       (locations.uniq.length != locations.length)
     end
 
-    def self.attributes_to_update(asset)
+    def self.attributes_to_update(asset, instance=nil)
+      return [] unless instance.nil? || Importers::Concerns::Annotator.has_changes_between_local_and_remote?(asset, instance)
       asset.facts.with_predicate('contains').map(&:object_asset).map do |well|
         racking_info(well)
       end.compact

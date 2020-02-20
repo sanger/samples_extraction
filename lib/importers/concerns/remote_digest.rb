@@ -13,11 +13,15 @@ module Importers
         end
 
         def has_changes_between_local_and_remote?
-          digest_for_remote_asset != asset.remote_digest
+          self.class.has_changes_between_local_and_remote?(asset, remote_asset)
         end
       end
 
       module ClassMethods
+        def has_changes_between_local_and_remote?(local, remote)
+          digest_for_remote_asset(remote) != local.remote_digest
+        end
+
         def digest_for_remote_asset(remote_asset)
           Digest::MD5::hexdigest(signature_for_remote(remote_asset))
         end

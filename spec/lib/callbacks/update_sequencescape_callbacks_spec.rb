@@ -71,7 +71,7 @@ RSpec.describe Callbacks::UpdateSequencescapeCallbacks do
   context '#update_sequencescape' do
     let(:step) { create :step }
     let(:barcode) { double('barcode', { prefix: 'DN', number: '123' }) }
-    let(:created_plate) { double('created_plate', wells: [], barcode: barcode, uuid: uuid) }
+    let(:created_plate) { double('created_plate', wells: [], barcode: barcode, uuid: uuid, attributes: {}) }
 
 
     let(:asset) { create :asset }
@@ -117,6 +117,8 @@ RSpec.describe Callbacks::UpdateSequencescapeCallbacks do
   end
 
   context '#attributes_to_update' do
+    let(:digest) { '1234' }
+    let(:remote) { double('remote', remote_digest: digest) }
     it 'can convert location to Sequencescape location format' do
       %Q{
         I have a tube rack that contains 4 tubes with names tube1, tube2,

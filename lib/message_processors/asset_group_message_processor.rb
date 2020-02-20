@@ -27,11 +27,11 @@ module MessageProcessors
 
         step_for_import = Step.new(
           step_type: StepType.find_or_create_by(name: 'AssetGroupMessageProcessor'),
+          user: current_user,
           activity_id: asset_group.activity_owner_id,
           asset_group: asset_group,
           state: 'complete'
         )
-
         return applied_errors(step_for_import, updates) if updates.has_errors?
 
         updates.remove_assets_from_group(asset_group, asset_group.assets.to_a)

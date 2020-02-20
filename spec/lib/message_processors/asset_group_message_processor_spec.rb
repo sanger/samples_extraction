@@ -3,7 +3,8 @@ require 'message_processors/asset_group_message_processor'
 
 RSpec.describe MessageProcessors::AssetGroupMessageProcessor do
   context 'an instance of AssetGroupMessageProcessor' do
-    let(:channel) { double('channel')}
+    let(:user) { create :user }
+    let(:channel) { double('channel', current_user: user)}
     let(:barcodes) { 2.times.map{create(:tube, :with_barcode) }.map(&:barcode) }
     let(:asset_group) { create(:asset_group)}
     let(:good_message) { { asset_group: { id: asset_group.id, assets: barcodes }}.as_json}

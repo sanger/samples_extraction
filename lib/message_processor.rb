@@ -3,6 +3,8 @@ class MessageProcessor
 
   attr_reader :channel
 
+  delegate :current_user, to: :@channel
+
   def initialize(params)
     @channel = params[:channel]
   end
@@ -18,4 +20,5 @@ class MessageProcessor
   def process(message)
     false
   end
+
 end
