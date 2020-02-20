@@ -34,6 +34,13 @@ This installation procedure is prepared for a MacOS environment:
     # brew install redis
 ```
 
+2. Start redis
+
+```
+    # redis-server
+```
+
+
 ### Print_my_barcode config
 
 1. Add the barcode printers that you would like to use in the server. In a MacOS environment open Settings/Printers & Scanners and add the barcode printers making sure they are defined with protocol LPD.
@@ -44,16 +51,16 @@ This installation procedure is prepared for a MacOS environment:
   > Printer.create(name: PRINTER_NAME)
 ```
 
-3. In Samples Extraction project folder, run the following command to create the required label templates into print_my_barcode:
-
-```bash
-  # rake label_templates:setup
-```
-
-4. Start Print_my_barcode
+3. In print_my_barcode folder, start the server
 
 ```
   # rails s -p10000
+```
+
+4. In Samples Extraction project folder, run the following command to create the required label templates into print_my_barcode:
+
+```bash
+  # rake label_templates:setup
 ```
 
 ### mysql
