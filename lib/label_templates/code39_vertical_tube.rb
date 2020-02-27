@@ -1,7 +1,5 @@
 require './lib/label_template_setup'
 
-# Label template currently defined for sqsc_1dtube_label_template (20/Jan/2017)
-
 def tube_barcode_definition(name, type_id, barcode_type)
   {
     name: name,
