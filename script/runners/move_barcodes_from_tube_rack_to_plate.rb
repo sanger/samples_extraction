@@ -65,10 +65,13 @@ class MoveBarcodesFromTubeRackToPlate
       if assets_compatible_with_step_type
         traverse_wells(tube_rack) do |well_from_tube_rack, location|
           well_from_plate = well_at_location(plate, location)
-          updates.remove_where(well_from_tube_rack, 'barcode', well_from_tube_rack.barcode)
-          updates.add(well_from_tube_rack, 'previousBarcode', well_from_tube_rack.barcode)
+	  barcode = well_from_tube_rack.barcode
+          updates.remove_where(well_from_tube_rack, 'barcode', barcode)
+          updates.add(well_from_tube_rack, 'previousBarcode', barcode)
           updates.add(well_from_tube_rack, 'appliedBarcodeTo', well_from_plate)
-          updates.add(well_from_plate, 'barcode', well_from_tube_rack.barcode)
+	  well_from_tube_rack.update_attributes(barcode: nil)
+	  well_from_plate.update_attributes(barcode: barcode)
+          updates.add(well_from_plate, 'barcode', barcode)
         end
 
         updates.add(tube_rack, 'mergedInto', plate)
@@ -83,14 +86,15 @@ return unless ARGV.any?{|s| s.match(".json")}
 args = ARGV[0]
 asset_group_id = args.match(/(\d*)\.json/)[1]
 asset_group = AssetGroup.find(asset_group_id)
-
 begin
-  updates = MoveBarcodesFromTubeRackToPlate.new(asset_group: asset_group).process
+  updates = nil
+  ActiveRecord::Base.transaction do
+    updates = MoveBarcodesFromTubeRackToPlate.new(asset_group: asset_group).process
+  end
   json = updates.to_json
   JSON.parse(json)
   puts json
 rescue StandardError => e
-  puts ({ set_errors: ['Unknown error while parsing file'+e.backtrace.to_s]}.to_json)
+  puts ({ set_errors: ['Unknown error while applying barcodes'+e.backtrace.to_s]}.to_json)
 end
-
 
