@@ -4,6 +4,10 @@ on:
     branches:
       - develop
       - master
+    tags:
+      - release-*
+      - uat-*
+      - dev-*
 
 env:
   IMAGE_NAME: ${{ github.repository }}/${{ github.event.repository.name }}
