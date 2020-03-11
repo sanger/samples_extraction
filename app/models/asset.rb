@@ -174,6 +174,18 @@ class Asset < ActiveRecord::Base
     return ''
   end
 
+  def machine_barcode?
+    asset.facts.where(predicate: 'barcodeFormat', object: 'machine_barcode').count > 0
+  end
+
+  def barcode_formatted_for_printing
+    if machine_barcode?
+      mbarcode = SBCF::SangerBarcode.from_human(barcode).machine_barcode
+      return mbarcode if mbarcode
+    end
+    barcode
+  end
+
   def printable_object(username = 'unknown')
     return nil if barcode.nil?
     if (kind_of_plate?)
@@ -188,8 +200,8 @@ class Asset < ActiveRecord::Base
       }
     end
     return {:label => {
-      :barcode => barcode,
-      :barcode2d => barcode,
+      :barcode => barcode_formatted_for_printing,
+      :barcode2d => barcode_formatted_for_printing,
       :top_line => barcode,
       :middle_line => kit_type,
       :bottom_line => info_line
