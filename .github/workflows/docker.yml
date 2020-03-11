@@ -4,10 +4,9 @@ on:
     branches:
       - develop
       - master
-      - release-2.0.8-docker
 
 env:
-  IMAGE_NAME: ${{ github.repository }}/latest
+  IMAGE_NAME: ${{ github.repository }}/${{ github.event.repository.name }}
 
 jobs:
   build_and_publish:
