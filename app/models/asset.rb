@@ -175,7 +175,7 @@ class Asset < ActiveRecord::Base
   end
 
   def machine_barcode?
-    asset.facts.where(predicate: 'barcodeFormat', object: 'machine_barcode').count > 0
+    facts.where(predicate: 'barcodeFormat', object: 'machine_barcode').count > 0
   end
 
   def barcode_formatted_for_printing
