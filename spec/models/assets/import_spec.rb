@@ -140,7 +140,7 @@ RSpec.describe 'Assets::Import' do
   	end
   	context 'when importing a local asset' do
   		setup do
-  			@barcode_plate = "DN1"
+  			@barcode_plate = generate(:barcode)
   			@asset = Asset.create!(barcode: @barcode_plate)
   		end
   		it 'should return the local asset when looking by its barcode' do
