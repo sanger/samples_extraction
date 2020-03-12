@@ -1,6 +1,6 @@
 FactoryBot.define do
   sequence :barcode do |n|
-    n
+    "DN#{n}"
   end
 
   sequence :barcode_creatable do |n|

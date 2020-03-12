@@ -195,6 +195,7 @@ module Assets::Import
     end
 
     def find_or_import_asset_with_barcode(barcode)
+      barcode = TokenUtil.human_barcode(barcode) if TokenUtil.machine_barcode?(barcode)
       find_asset_with_barcode(barcode) || import_barcode(barcode)
     end
 

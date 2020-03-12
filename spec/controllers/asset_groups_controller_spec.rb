@@ -55,7 +55,7 @@ RSpec.describe AssetGroupsController, type: :controller do
     end
 
     context "when the asset is not in the database" do
-      let(:barcode) { '1234' }
+      let(:barcode) { generate :barcode }
       let(:uuid) { SecureRandom.uuid }
       let(:SequencescapeClient) { double('sequencescape_client')}
       let(:remote_asset) { build_remote_tube(barcode: barcode, uuid: uuid) }
