@@ -26,15 +26,15 @@ RSpec.describe Asset do
     end
   end
 
-  context '#machine_barcode?' do
+  context '#print_machine_barcode?' do
     let(:asset) { create(:asset)}
     it 'returns true when the asset has a barcode format of machine barcode' do
       asset.facts << create(:fact, predicate: 'barcodeFormat', object: 'machine_barcode',
         literal: true)
-      expect(asset.machine_barcode?).to be_truthy
+      expect(asset.print_machine_barcode?).to be_truthy
     end
     it 'returns false when the asset does not have a setting' do
-      expect(asset.machine_barcode?).to be_falsy
+      expect(asset.print_machine_barcode?).to be_falsy
     end
   end
 
@@ -55,7 +55,7 @@ RSpec.describe Asset do
       end
       context 'when we can generate the machine barcode' do
         it 'returns the machine barcode' do
-          expect(asset.barcode_formatted_for_printing).to eq(machine_barcode)
+          expect(asset.barcode_formatted_for_printing).to eq(machine_barcode.to_s)
         end
       end
     end
@@ -95,10 +95,10 @@ RSpec.describe Asset do
           expect(asset.printable_object[:label][:top_line]).to eq(human_barcode)
         end
         it 'prints the machine barcode as barcode' do
-          expect(asset.printable_object[:label][:barcode]).to eq(machine_barcode)
+          expect(asset.printable_object[:label][:barcode]).to eq(machine_barcode.to_s)
         end
         it 'prints the machine barcode as barcode 2d' do
-          expect(asset.printable_object[:label][:barcode2d]).to eq(machine_barcode)
+          expect(asset.printable_object[:label][:barcode2d]).to eq(machine_barcode.to_s)
         end
       end
     end

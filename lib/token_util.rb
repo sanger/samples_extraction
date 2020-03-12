@@ -7,6 +7,39 @@ module TokenUtil
     'F'
   end
 
+  def self.MACHINE_BARCODE
+    /^\d*$/
+  end
+
+  def self.HUMAN_BARCODE
+    /^\w*$/
+  end
+
+  def self.invalid_barcode?(barcode)
+    barcode.nil? || (barcode.kind_of?(String) && barcode.to_s.empty?)
+  end
+
+  def self.machine_barcode?(barcode)
+    return false if invalid_barcode?(barcode)
+    barcode.to_s.match?(TokenUtil.MACHINE_BARCODE)
+  end
+
+  def self.human_barcode?(barcode)
+    return false if invalid_barcode?(barcode)
+    # If we change the next line, we should change it to check the regexp
+    !machine_barcode?(barcode)
+  end
+
+  def self.machine_barcode(barcode)
+    return SBCF::SangerBarcode.from_human(barcode).machine_barcode.to_s if human_barcode?(barcode)
+    barcode.to_s
+  end
+
+  def self.human_barcode(barcode)
+    return SBCF::SangerBarcode.from_machine(barcode).human_barcode.to_s if machine_barcode?(barcode)
+    barcode.to_s
+  end
+
   def self.WILDCARD_REGEXP
     /\?\w*/
   end
