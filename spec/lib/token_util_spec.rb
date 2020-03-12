@@ -97,4 +97,52 @@ RSpec.describe TokenUtil do
       end
     end
   end
+
+  context '#machine_barcode' do
+    it 'returns the barcode to_s if the barcode is already machine barcode' do
+      expect(TokenUtil.machine_barcode(3981337734769)).to eq("3981337734769")
+    end
+    it 'returns the barcode if the barcode is already machine barcode' do
+      expect(TokenUtil.machine_barcode("3981337734769")).to eq("3981337734769")
+    end
+    it 'returns the converted barcode if is not a machine barcode' do
+      expect(TokenUtil.machine_barcode("NT1337734L")).to eq("3981337734769")
+    end
+  end
+
+  context '#human_barcode' do
+    it 'returns the human barcode if the barcode is already human barcode' do
+      expect(TokenUtil.human_barcode("D12345678")).to eq("D12345678")
+    end
+    it 'returns the converted barcode from numeric machine barcode' do
+      expect(TokenUtil.human_barcode(3981337734769)).to eq("NT1337734L")
+    end
+    it 'returns the converted barcode from string machine barcode' do
+      expect(TokenUtil.human_barcode("3981337734769")).to eq("NT1337734L")
+    end
+  end
+
+  context '#machine_barcode?' do
+    it 'returns true if the barcode is machine barcode numeric' do
+      expect(TokenUtil.machine_barcode?(12345678)).to eq(true)
+    end
+    it 'returns true if the barcode is machine barcode string' do
+      expect(TokenUtil.machine_barcode?("12345678")).to eq(true)
+    end
+    it 'returns false any other case' do
+      expect(TokenUtil.machine_barcode?("D12345678")).to eq(false)
+    end
+  end
+
+  context '#human_barcode?' do
+    it 'returns true if the barcode is human barcode' do
+      expect(TokenUtil.human_barcode?("D12345678")).to eq(true)
+    end
+    it 'returns false if machine barcode numeric' do
+      expect(TokenUtil.human_barcode?(12345678)).to eq(false)
+    end
+    it 'returns false if machine barcode string' do
+      expect(TokenUtil.human_barcode?("12345678")).to eq(false)
+    end
+  end
 end

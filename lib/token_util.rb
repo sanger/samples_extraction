@@ -7,6 +7,30 @@ module TokenUtil
     'F'
   end
 
+  def self.MACHINE_BARCODE
+    /^\d*$/
+  end
+
+  def self.machine_barcode?(barcode)
+    return false if barcode.nil?
+    barcode.to_s.match?(TokenUtil.MACHINE_BARCODE)
+  end
+
+  def self.human_barcode?(barcode)
+    return false if barcode.nil?
+    !barcode.to_s.match?(TokenUtil.MACHINE_BARCODE)
+  end
+
+  def self.machine_barcode(barcode)
+    return barcode.to_s if machine_barcode?(barcode)
+    SBCF::SangerBarcode.from_human(barcode).machine_barcode.to_s
+  end
+
+  def self.human_barcode(barcode)
+    return SBCF::SangerBarcode.from_machine(barcode).human_barcode if machine_barcode?(barcode)
+    barcode
+  end
+
   def self.WILDCARD_REGEXP
     /\?\w*/
   end
