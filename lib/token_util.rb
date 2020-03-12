@@ -16,8 +16,7 @@ module TokenUtil
   end
 
   def self.invalid_barcode?(barcode)
-    barcode.nil? || (barcode.kind_of?(String) && barcode.to_s.empty?) ||
-    barcode.to_s.empty?
+    barcode.nil? || (barcode.kind_of?(String) && barcode.to_s.empty?)
   end
 
   def self.machine_barcode?(barcode)
