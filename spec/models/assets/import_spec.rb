@@ -140,7 +140,7 @@ RSpec.describe 'Assets::Import' do
   	end
   	context 'when importing a local asset' do
   		setup do
-  			@barcode_plate = "1"
+  			@barcode_plate = "DN1"
   			@asset = Asset.create!(barcode: @barcode_plate)
   		end
   		it 'should return the local asset when looking by its barcode' do
@@ -155,14 +155,14 @@ RSpec.describe 'Assets::Import' do
 
 			setup do
 
-        @remote_plate_asset = build_remote_plate(barcode: '2')
+        @remote_plate_asset = build_remote_plate(barcode: generate(:barcode))
         @barcode_plate = @remote_plate_asset.barcode
         stub_client_with_asset(SequencescapeClient, @remote_plate_asset)
 			end
 
       context 'when the asset is a tube' do
         setup do
-          @remote_tube_asset = build_remote_tube(barcode: '1')
+          @remote_tube_asset = build_remote_tube(barcode: generate(:barcode))
           stub_client_with_asset(SequencescapeClient, @remote_tube_asset)
         end
         it 'should try to obtain a tube' do
@@ -173,7 +173,7 @@ RSpec.describe 'Assets::Import' do
 
       context 'when the asset is a plate' do
         setup do
-          @remote_plate_asset = build_remote_plate(barcode: '2')
+          @remote_plate_asset = build_remote_plate(barcode: generate(:barcode))
           stub_client_with_asset(SequencescapeClient, @remote_plate_asset)
         end
         it 'should try to obtain a plate' do
@@ -197,7 +197,7 @@ RSpec.describe 'Assets::Import' do
                   build_remote_sample(sample_metadata: double('sample_metadata',
                     sample_common_name: 'species', supplier_name: 'a supplier name')))])
               ]
-              @remote_plate_asset_without_supplier = build_remote_plate(barcode: '5', wells: wells)
+              @remote_plate_asset_without_supplier = build_remote_plate(barcode: generate(:barcode), wells: wells)
               stub_client_with_asset(SequencescapeClient, @remote_plate_asset_without_supplier)
             end
             it 'imports the information of the wells that have a supplier name' do
@@ -211,7 +211,7 @@ RSpec.describe 'Assets::Import' do
           context 'when the asset is a tube' do
             context 'when the supplier name has not been provided' do
               setup do
-                @remote_tube_asset_without_supplier = build_remote_tube(barcode: '5', aliquots: [
+                @remote_tube_asset_without_supplier = build_remote_tube(barcode: generate(:barcode), aliquots: [
                   build_remote_aliquot(sample: build_remote_sample(sample_metadata:
                     double('sample_metadata', supplier_name: nil, sample_common_name: 'species')))
                 ])
@@ -226,7 +226,7 @@ RSpec.describe 'Assets::Import' do
             end
             context 'when the supplier name has been provided' do
               setup do
-                @remote_tube_asset_with_supplier = build_remote_tube(barcode: '5')
+                @remote_tube_asset_with_supplier = build_remote_tube(barcode: generate(:barcode))
                 stub_client_with_asset(SequencescapeClient, @remote_tube_asset_with_supplier)
               end
 
@@ -247,7 +247,7 @@ RSpec.describe 'Assets::Import' do
         context 'when the plate does not have aliquots in its wells' do
           setup do
             wells = ['A1','B1'].map {|l| build_remote_well(l, aliquots: []) }
-            @remote_plate_asset_without_aliquots = build_remote_plate(barcode: '3', wells: wells)
+            @remote_plate_asset_without_aliquots = build_remote_plate(barcode: generate(:barcode), wells: wells)
             stub_client_with_asset(SequencescapeClient, @remote_plate_asset_without_aliquots)
           end
           it 'creates the wells with the same uuid as in the remote asset' do
@@ -259,7 +259,7 @@ RSpec.describe 'Assets::Import' do
         context 'when the plate does not have samples in its wells' do
           setup do
             wells = ['A1','B1'].map {|l| build_remote_well(l, aliquots: [build_remote_aliquot(sample: nil)]) }
-            @remote_plate_asset_without_samples = build_remote_plate(barcode: '4', wells: wells)
+            @remote_plate_asset_without_samples = build_remote_plate(barcode: generate(:barcode), wells: wells)
             stub_client_with_asset(SequencescapeClient, @remote_plate_asset_without_samples)
           end
           it 'creates the wells with the same uuid as in the remote asset' do
