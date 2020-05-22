@@ -17,6 +17,10 @@ module SequencescapeClientV2
     has_one :plate_purpose
   end
 
+  class SequencescapeClientV2::TubeRack < SequencescapeClientV2::Model
+    has_one :plate_purpose
+  end
+
   class SequencescapeClientV2::Well < SequencescapeClientV2::Model
     has_many :aliquots
     has_many :studies, through: :aliquot
