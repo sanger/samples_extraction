@@ -18,6 +18,7 @@ module SequencescapeClientV2
   end
 
   class SequencescapeClientV2::TubeRack < SequencescapeClientV2::Model
+    has_many :racked_tubes
     has_one :purpose
   end
 
@@ -34,6 +35,9 @@ module SequencescapeClientV2
     has_many :aliquots
     has_many :studies, through: :aliquot
     has_many :samples, through: :aliquot
+  end
+
+  class SequencescapeClientV2::RackedTube < SequencescapeClientV2::Model
   end
 
   class SequencescapeClientV2::Aliquot < SequencescapeClientV2::Model

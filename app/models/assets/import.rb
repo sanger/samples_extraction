@@ -215,6 +215,7 @@ module Assets::Import
 
         annotate_container(asset, remote_asset, updates)
         annotate_wells(asset, remote_asset, updates)
+        annotate_tubes(asset, remote_asset, updates)
         annotate_study_name(asset, remote_asset, updates)
 
         asset.update_digest_with_remote(remote_asset)
@@ -357,6 +358,26 @@ module Assets::Import
       end
     end
 
+    def annotate_tubes(asset, remote_asset, fact_changes)
+      fact_changes.tap do |updates|
+        if remote_asset.try(:tubes)
+          remote_asset.tubes.each do |tube|
+            local_tube = Asset.find_or_create_by!(:uuid => tube.uuid)
+
+            updates.replace_remote(asset, 'contains', local_tube)
+
+            # Updated wells will also mean that the plate is out of date, so we'll set it in the asset
+            updates.replace_remote(local_tube, 'a', 'SampleTube')
+            # updates.replace_remote(local_tube, 'location', tube.position['name']) # should come from racked tube - sort out
+            updates.replace_remote(local_tube, 'parent', asset)
+
+            if (tube.try(:aliquots)&.first&.sample&.sample_metadata&.supplier_name)
+              annotate_container(local_tube, tube, fact_changes)
+            end
+          end
+        end
+      end
+    end
 
     def sequencescape_type_for_asset(remote_asset)
       return nil unless remote_asset.type
