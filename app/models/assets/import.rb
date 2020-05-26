@@ -312,6 +312,10 @@ module Assets::Import
         remote_asset.wells.detect do |w|
           annotate_study_name_from_aliquots(asset, w, fact_changes)
         end
+      elsif remote_asset.try(:racked_tubes)
+        remote_asset.racked_tubes.detect do |rt|
+          annotate_study_name_from_aliquots(asset, rt.tube, fact_changes)
+        end
       else
         annotate_study_name_from_aliquots(asset, remote_asset, fact_changes)
       end
