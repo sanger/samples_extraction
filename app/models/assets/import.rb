@@ -207,8 +207,8 @@ module Assets::Import
 
         if keep_sync_with_sequencescape?(remote_asset)
           updates.replace_remote(asset, 'pushTo', 'Sequencescape')
-          if remote_asset.try(:plate_purpose)
-            updates.replace_remote(asset, 'purpose', remote_asset.plate_purpose.name)
+          if remote_asset.try(:purpose)
+            updates.replace_remote(asset, 'purpose', remote_asset.purpose.name)
           end
         end
         updates.replace_remote(asset, 'is', 'NotStarted')

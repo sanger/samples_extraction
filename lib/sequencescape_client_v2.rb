@@ -14,11 +14,14 @@ module SequencescapeClientV2
     has_many :wells
     has_many :studies, through: :well
     has_many :samples, through: :well
-    has_one :plate_purpose
+    has_one :purpose
   end
 
   class SequencescapeClientV2::TubeRack < SequencescapeClientV2::Model
-    has_one :plate_purpose
+    has_one :purpose
+  end
+
+  class SequencescapeClientV2::Purpose < SequencescapeClientV2::Model
   end
 
   class SequencescapeClientV2::Well < SequencescapeClientV2::Model
@@ -51,6 +54,4 @@ module SequencescapeClientV2
   class SequencescapeClientV2::SampleMetadatum < SequencescapeClientV2::Model
     belongs_to :sample
   end
-
-
 end
