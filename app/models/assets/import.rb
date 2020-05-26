@@ -360,19 +360,20 @@ module Assets::Import
 
     def annotate_tubes(asset, remote_asset, fact_changes)
       fact_changes.tap do |updates|
-        if remote_asset.try(:tubes)
-          remote_asset.tubes.each do |tube|
-            local_tube = Asset.find_or_create_by!(:uuid => tube.uuid)
+        if remote_asset.try(:racked_tubes)
+          remote_asset.racked_tubes.each do |racked_tube|
+            remote_tube = racked_tube.tube
+            local_tube = Asset.find_or_create_by!(:uuid => remote_tube.uuid)
 
             updates.replace_remote(asset, 'contains', local_tube)
 
-            # Updated wells will also mean that the plate is out of date, so we'll set it in the asset
+            # Updated tubes will also mean that the plate is out of date, so we'll set it in the asset
             updates.replace_remote(local_tube, 'a', 'SampleTube')
-            # updates.replace_remote(local_tube, 'location', tube.position['name']) # should come from racked tube - sort out
+            updates.replace_remote(local_tube, 'location', racked_tube.coordinate)
             updates.replace_remote(local_tube, 'parent', asset)
 
-            if (tube.try(:aliquots)&.first&.sample&.sample_metadata&.supplier_name)
-              annotate_container(local_tube, tube, fact_changes)
+            if (remote_tube.try(:aliquots)&.first&.sample&.sample_metadata&.supplier_name)
+              annotate_container(local_tube, remote_tube, fact_changes)
             end
           end
         end

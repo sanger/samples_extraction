@@ -38,6 +38,8 @@ module SequencescapeClientV2
   end
 
   class SequencescapeClientV2::RackedTube < SequencescapeClientV2::Model
+    has_one :tube
+    has_one :tube_rack
   end
 
   class SequencescapeClientV2::Aliquot < SequencescapeClientV2::Model
