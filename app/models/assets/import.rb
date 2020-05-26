@@ -241,28 +241,6 @@ module Assets::Import
       end
     end
 
-
-    def _update_asset_from_remote_asset(asset, remote_asset, fact_changes)
-      fact_changes.tap do |updates|
-        class_name = sequencescape_type_for_asset(remote_asset)
-        updates.replace_remote(asset, 'a', class_name)
-
-        if keep_sync_with_sequencescape?(remote_asset)
-          updates.replace_remote(asset, 'pushTo', 'Sequencescape')
-          if remote_asset.try(:plate_purpose, nil)
-            updates.replace_remote(asset, 'purpose', remote_asset.plate_purpose.name)
-          end
-        end
-        updates.replace_remote(asset, 'is', 'NotStarted')
-
-        annotate_container(asset, remote_asset, updates)
-        annotate_wells(asset, remote_asset, updates)
-        annotate_study_name(asset, remote_asset, updates)
-
-        asset.update_digest_with_remote(remote_asset)
-      end
-    end
-
     def annotate_container(asset, remote_asset, fact_changes)
       fact_changes.tap do |updates|
         if remote_asset.try(:aliquots)
@@ -273,21 +251,6 @@ module Assets::Import
             updates.replace_remote(asset, 'sanger_sample_name', TokenUtil.quote_if_uuid(aliquot&.sample&.name))
             updates.replace_remote(asset, 'supplier_sample_name', TokenUtil.quote_if_uuid(aliquot&.sample&.sample_metadata&.supplier_name))
             updates.replace_remote(asset, 'sample_common_name', TokenUtil.quote_if_uuid(aliquot&.sample&.sample_metadata&.sample_common_name))
-          end
-        end
-      end
-    end
-
-    def _annotate_container(asset, remote_asset, fact_changes)
-      fact_changes.tap do |updates|
-        if remote_asset.try(:aliquots, nil)
-          remote_asset.aliquots.each do |aliquot|
-            updates.replace_remote(asset, 'sample_tube', asset)
-            updates.replace_remote(asset, 'sanger_sample_id', aliquot&.sample&.sanger&.sample_id)
-            updates.replace_remote(asset, 'sample_uuid', TokenUtil.quote(aliquot&.sample&.sanger&.sample_uuid), literal: true)
-            updates.replace_remote(asset, 'sanger_sample_name', aliquot&.sample&.sanger&.name)
-
-            updates.replace_remote(asset, 'supplier_sample_name', aliquot&.sample&.supplier&.sample_name)
           end
         end
       end
@@ -312,19 +275,6 @@ module Assets::Import
         end
       end
     end
-
-    def _annotate_study_name_from_aliquots(asset, remote_asset, fact_changes)
-      fact_changes.tap do |updates|
-        if remote_asset.try(:aliquots, nil)
-          if ((remote_asset.aliquots.count == 1) && (remote_asset.aliquots.first.sample))
-            study_name = sample_id_to_study_name(remote_asset.aliquots.first.sample.sanger.sample_id)
-            #study_uuid = get_study_uuid(study_name)
-            updates.replace_remote(asset, 'study_name', study_name)
-          end
-        end
-      end
-    end
-
 
     def annotate_study_name(asset, remote_asset, fact_changes)
       if remote_asset.try(:wells)
@@ -361,26 +311,6 @@ module Assets::Import
       end
     end
 
-    def _annotate_wells(asset, remote_asset, fact_changes)
-      fact_changes.tap do |updates|
-        if remote_asset.try(:wells, nil)
-          remote_asset.wells.each do |well|
-            local_well = Asset.find_or_create_by!(:uuid => well.uuid)
-            if (well.try(:aliquots, nil)&.first&.sample&.supplier&.sample_name)
-              updates.replace_remote(asset, 'contains', local_well)
-
-              # Updated wells will also mean that the plate is out of date, so we'll set it in the asset
-              updates.replace_remote(local_well, 'a', 'Well')
-              updates.replace_remote(local_well, 'location', well.location)
-              updates.replace_remote(local_well, 'parent', asset)
-
-              annotate_container(local_well, well, fact_changes)
-            end
-          end
-        end
-      end
-    end
-
     def annotate_tubes(asset, remote_asset, fact_changes)
       fact_changes.tap do |updates|
         if remote_asset.try(:racked_tubes)
@@ -406,12 +336,6 @@ module Assets::Import
     def sequencescape_type_for_asset(remote_asset)
       return nil unless remote_asset.type
       type = remote_asset.type.singularize.classify
-      return 'SampleTube' if type == 'Tube'
-      return type
-    end
-
-    def _sequencescape_type_for_asset(remote_asset)
-      type = remote_asset.class.to_s.gsub(/Sequencescape::/,'')
       return 'SampleTube' if type == 'Tube'
       return type
     end
