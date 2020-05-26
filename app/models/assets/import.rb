@@ -45,6 +45,25 @@ module Assets::Import
         end
       end
 
+      # FOR A TUBE RACK
+      if remote_asset.respond_to?(:racked_tubes) && remote_asset.racked_tubes
+        # to_a because racked_tubes relation does not act as an array
+        list_tubes = remote_asset.racked_tubes.map do |racked_tube|
+          racked_tube.tube
+        end.to_a
+
+        if list_tubes
+          # aliquots.to_a, same reason
+          listal = list_tubes.compact.map(&:aliquots).map(&:to_a)
+          if listal
+            listsa = listal.flatten.compact.map{|al| al.sample }
+            if listsa
+              distinct+=listsa.compact.map(&:attributes).to_json
+            end
+          end
+        end
+      end
+
       distinct
     end
 
