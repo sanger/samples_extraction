@@ -138,6 +138,100 @@ RSpec.describe 'Assets::Import' do
     end
   end
 
+  shared_examples 'a plate or tube rack' do
+    it 'should create the corresponding facts from the json' do
+      @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
+      @asset.facts.reload
+
+      predicates = ["a", "pushTo", "purpose", "is", "contains", "contains", "study_name", "study_uuid"]
+
+      expect(predicates.all? do |predicate|
+        puts "DEBUG: predicate: #{predicate}" if @asset.facts.where(predicate: predicate).count == 0
+        @asset.facts.where(predicate: predicate).count > 0
+      end).to eq(true)
+    end
+
+    it 'should store the study uuid in a safe format' do
+      @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
+      study_uuid = @remote_plate_asset.wells.first.aliquots.first.study.uuid
+      @asset.facts.reload
+
+      asset_study_uuid = @asset.facts.where(predicate: 'study_uuid').first.object
+      expect(asset_study_uuid).to eq(TokenUtil.quote(study_uuid))
+    end
+
+    context 'for the first time' do
+      it 'should create the local asset' do
+        expect(Asset.count).to eq(0)
+        Asset.find_or_import_asset_with_barcode(@barcode_plate)
+
+        expect(Asset.count>0).to eq(true)
+      end
+    end
+
+    context 'when is already imported' do
+      context 'when the remote source is not present anymore' do
+        setup do
+          @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
+          allow(SequencescapeClient).to receive(:find_by_uuid).and_return(nil)
+        end
+
+        it 'should raise an exception' do
+          expect{Asset.find_or_import_asset_with_barcode(@barcode_plate)}.to raise_exception Assets::Import::RefreshSourceNotFoundAnymore
+        end
+      end
+
+      context 'when the remote source is present' do
+        setup do
+          @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
+        end
+
+        it 'should not create a new local asset' do
+          count = Asset.count
+          Asset.find_or_import_asset_with_barcode(@barcode_plate)
+          expect(Asset.count).to eq(count)
+        end
+
+        context 'when the local copy is up to date' do
+          it 'should not destroy any remote facts' do
+            remote_facts = @asset.facts.from_remote_asset
+            remote_facts.each(&:reload)
+            Asset.find_or_import_asset_with_barcode(@barcode_plate)
+            expect{remote_facts.each(&:reload)}.not_to raise_error
+          end
+        end
+
+        context 'when the local copy is out of date' do
+          before do
+            @asset.update_attributes(remote_digest: 'RANDOM')
+            @fact_changed = @asset.facts.from_remote_asset.where(predicate: 'contains').first
+
+            @well_changed = create :asset
+            @dependant_fact = create :fact, predicate: 'some', object: 'Moredata', is_remote?: true
+            @well_changed.facts << @dependant_fact
+            @fact_changed.update_attributes(object_asset_id: @well_changed.id)
+          end
+
+          it 'should destroy any remote facts that has changed' do
+            Asset.find_or_import_asset_with_barcode(@barcode_plate)
+            expect{@fact_changed.reload}.to raise_exception ActiveRecord::RecordNotFound
+          end
+
+          it 'should destroy any contains dependant remote facts' do
+            Asset.find_or_import_asset_with_barcode(@barcode_plate)
+            expect{@dependant_fact.reload}.to raise_exception ActiveRecord::RecordNotFound
+          end
+
+          it 'should re-create new remote facts' do
+            @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
+            @asset.facts.reload
+            expect(@asset.facts.from_remote_asset.all?{|f| f.object_asset != @well_changed})
+          end
+        end
+      end
+    end
+  end
+
   context '#find_or_import_asset_with_barcode' do
   	context 'when importing an asset that does not exist' do
   		setup do
@@ -297,92 +391,18 @@ RSpec.describe 'Assets::Import' do
         end
       end
 
-			it 'should create the corresponding facts from the json' do
-				@asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
-				@asset.facts.reload
-        predicates = ["a", "pushTo", "purpose", "is", "contains", "contains", "study_name", "study_uuid"]
-        expect(predicates.all? do |predicate|
-          @asset.facts.where(predicate: predicate).count > 0
-        end).to eq(true)
-			end
-
-      it 'should store the study uuid in a safe format' do
-        @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
-        study_uuid = @remote_plate_asset.wells.first.aliquots.first.study.uuid
-        @asset.facts.reload
-        asset_study_uuid = @asset.facts.where(predicate: 'study_uuid').first.object
-        expect(asset_study_uuid).to eq(TokenUtil.quote(study_uuid))
-      end
-
-		  context 'for the first time' do
-		  	it 'should create the local asset' do
-		  		expect(Asset.count).to eq(0)
-		  		Asset.find_or_import_asset_with_barcode(@barcode_plate)
-		  		expect(Asset.count>0).to eq(true)
-		  	end
-      end
-
-		  context 'when is already imported' do
-        context 'when the remote source is not present anymore' do
-          setup do
-            @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
-            allow(SequencescapeClient).to receive(:find_by_uuid).and_return(nil)
-          end
-
-          it 'should raise an exception' do
-            expect{Asset.find_or_import_asset_with_barcode(@barcode_plate)}.to raise_exception Assets::Import::RefreshSourceNotFoundAnymore
-          end
+      context 'when the asset is a tube rack' do
+        setup do
+          @remote_rack_asset = build_remote_tube_rack(barcode: generate(:barcode))
+          @barcode_plate = @remote_rack_asset.barcode
+          stub_client_with_asset(SequencescapeClient, @remote_rack_asset)
         end
 
-        context 'when the remote source is present' do
-  		  	setup do
-  		  		@asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
-          end
+        it_behaves_like 'a plate or tube rack'
+      end
 
-  		  	it 'should not create a new local asset' do
-  		  		count = Asset.count
-  					Asset.find_or_import_asset_with_barcode(@barcode_plate)
-  		  		expect(Asset.count).to eq(count)
-  		  	end
+      it_behaves_like 'a plate or tube rack'
 
-  		  	context 'when the local copy is up to date' do
-  		  		it 'should not destroy any remote facts' do
-  		  			remote_facts = @asset.facts.from_remote_asset
-  		  			remote_facts.each(&:reload)
-  		  			Asset.find_or_import_asset_with_barcode(@barcode_plate)
-  		  			expect{remote_facts.each(&:reload)}.not_to raise_error
-  		  		end
-  		  	end
-
-  		  	context 'when the local copy is out of date' do
-  		  		before do
-  		  			@asset.update_attributes(remote_digest: 'RANDOM')
-              @fact_changed = @asset.facts.from_remote_asset.where(predicate: 'contains').first
-
-              @well_changed = create :asset
-              @dependant_fact = create :fact, predicate: 'some', object: 'Moredata', is_remote?: true
-              @well_changed.facts << @dependant_fact
-              @fact_changed.update_attributes(object_asset_id: @well_changed.id)
-            end
-
-  		  		it 'should destroy any remote facts that has changed' do
-  		  			Asset.find_or_import_asset_with_barcode(@barcode_plate)
-  		  			expect{@fact_changed.reload}.to raise_exception ActiveRecord::RecordNotFound
-  		  		end
-
-            it 'should destroy any contains dependant remote facts' do
-              Asset.find_or_import_asset_with_barcode(@barcode_plate)
-              expect{@dependant_fact.reload}.to raise_exception ActiveRecord::RecordNotFound
-            end
-
-  		  		it 'should re-create new remote facts' do
-  		  			@asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
-  		  			@asset.facts.reload
-              expect(@asset.facts.from_remote_asset.all?{|f| f.object_asset != @well_changed})
-  		  		end
-  		  	end
-        end
-		  end
   	end
   end
 end
