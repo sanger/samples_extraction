@@ -4,7 +4,7 @@ module RemoteAssetsHelper
 		obj = {
 			uuid: SecureRandom.uuid,
 			wells: [build_remote_well('A1'), build_remote_well('A4')],
-			plate_purpose: purpose,
+			purpose: purpose,
 			type: 'plates'
 		}.merge(opts)
 		my_double = double('remote_asset', obj)
@@ -62,10 +62,9 @@ module RemoteAssetsHelper
 
 	def stub_client_with_asset(double, asset)
 		type = (asset.class==Sequencescape::Plate) ? :plate : :tube
-	  	allow(double).to receive(:find_by_uuid).with(asset.uuid).and_return(asset)
-	  	allow(double).to receive(:get_remote_asset) { nil }
+		allow(double).to receive(:find_by_uuid).with(asset.uuid).and_return(asset)
+		allow(double).to receive(:get_remote_asset) { nil }
 		allow(double).to receive(:get_remote_asset).with(asset.barcode).and_return(asset)
 		allow(double).to receive(:get_remote_asset).with(asset.uuid).and_return(asset)
 	end
-
 end
