@@ -256,6 +256,7 @@ class Asset < ActiveRecord::Base
     return names + ' ' + types
   end
 
+  # difference between 'Tube' and 'SampleTube'?
   def self.class_type(facts)
     class_types = facts.select{|f| f[:predicate] == 'a'}.map(&:object)
     return 'TubeRack' if class_types.include?('TubeRack')
@@ -266,6 +267,7 @@ class Asset < ActiveRecord::Base
     return ""
   end
 
+  # probably need to change this, to separate them out again
   def kind_of_plate?
     (class_type=='Plate')||(class_type=='TubeRack')
   end

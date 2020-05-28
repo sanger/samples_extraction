@@ -4,6 +4,7 @@ module Assets::FactsManagement
       scope :with_fact, ->(predicate, object) {
         joins(:facts).where(:facts => {:predicate => predicate, :object => object})
       }
+
       scope :with_field, ->(predicate, object) {
         where(predicate => object)
       }
@@ -11,8 +12,6 @@ module Assets::FactsManagement
       scope :with_predicate, ->(predicate) {
         joins(:facts).where(:facts => {:predicate => predicate})
       }
-
-
     end
   end
 
@@ -47,7 +46,6 @@ module Assets::FactsManagement
     end
   end
 
-
   def facts_to_s
     facts.each do |fact|
       render :partial => fact
@@ -75,5 +73,4 @@ module Assets::FactsManagement
       asset.facts.where(predicate: predicate, object_asset: object)
     end
   end
-
 end

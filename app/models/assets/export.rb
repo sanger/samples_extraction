@@ -1,37 +1,32 @@
+# Used in the assets model
 module Assets::Export
-
-
   class DuplicateLocations < StandardError ; end
 
-  def update_sequencescape(print_config, user, step)
-    _update_sequencescape(print_config, user, step) #.apply(step)
-    #activities_affected.each{|a| a.touch }
-    #refresh
-  end
-
-  def _update_sequencescape(print_config, user, step)
+  # print_config and step arguments don't seem to be used in this method
+  def update_sequencescape(_print_config, user, _step)
     FactChanges.new.tap do |updates|
       begin
-        instance = SequencescapeClient.version_1_find_by_uuid(uuid)
-        unless instance
-          instance = SequencescapeClient.create_plate(class_name, {}) if class_name
-        end
-        unless attributes_to_update.empty?
-          SequencescapeClient.update_extraction_attributes(instance, attributes_to_update, user.username)
-        end
+        instance = find_remote_record
+        instance = create_remote_record unless instance
+
+        # unless attributes_to_update.empty?
+        #   SequencescapeClient.update_extraction_attributes(instance, attributes_to_update, user.username)
+        # end
 
         old_barcode = barcode
+
+        # TODO: barcode is being set to blank because Sequencescape isn't creating a barcode for the tube rack on creation
         update_attributes(:uuid => instance.uuid, :barcode => code39_barcode(instance))
 
-        update_plate(instance, updates)
+        # update_plate(instance, updates)
 
-        updates.add(self, 'beforeBarcode', old_barcode) if old_barcode
-        updates.add_remote(self, 'purpose', class_name) if class_name
-        updates.remove(facts.with_predicate('barcodeType'))
-        updates.add(self, 'barcodeType', 'SequencescapePlate')
+        # updates.add(self, 'beforeBarcode', old_barcode) if old_barcode
+        # updates.add_remote(self, 'purpose', class_name) if class_name
+        # updates.remove(facts.with_predicate('barcodeType'))
+        # updates.add(self, 'barcodeType', 'SequencescapePlate')
 
-        mark_as_updated(updates)
-        mark_to_print(updates) if old_barcode != barcode
+        # mark_as_updated(updates)
+        # mark_to_print(updates) if old_barcode != barcode
       rescue SocketError
         updates.set_errors(['Sequencescape connection - Network connectivity issue'])
       rescue Errno::ECONNREFUSED => e
@@ -44,14 +39,41 @@ module Assets::Export
     end
   end
 
+  def find_remote_record
+    if class_type == 'TubeRack'
+      SequencescapeClient.find_by_uuid(uuid)
+    else
+      SequencescapeClient.version_1_find_by_uuid(uuid)
+    end
+  end
+
+  def create_remote_record
+    if class_type == 'TubeRack'
+      SequencescapeClient.create_tube_rack(class_name, {})
+    else
+      SequencescapeClient.create_plate(class_name, {}) if class_name
+    end
+  end
+
+  def has_sample?
+    has_predicate_with_value?('supplier_sample_name') ||
+    has_relation_with_value?('sample_tube') ||
+    has_predicate_with_value?('sample_uuid')
+  end
+
+  # Below are helper methods used internally in this module
   def mark_to_print(updates)
     updates.add(self, 'is', 'readyForPrint')
   end
 
   def code39_barcode(instance)
-    prefix = instance.barcode.prefix
-    number = instance.barcode.number
-    SBCF::SangerBarcode.new(prefix:prefix, number:number).human_barcode
+    if class_type == 'TubeRack'
+      instance.labware_barcode['human_barcode']
+    else
+      prefix = instance.barcode.prefix
+      number = instance.barcode.number
+      SBCF::SangerBarcode.new(prefix:prefix, number:number).human_barcode
+    end
   end
 
   def update_plate(instance, updates)
@@ -84,7 +106,6 @@ module Assets::Export
     end
   end
 
-
   def duplicate_locations_in_plate?
     locations = facts.with_predicate('contains').map(&:object_asset).map do |a|
       a.facts.with_predicate('location').map(&:object)
@@ -99,13 +120,6 @@ module Assets::Export
     end.compact
   end
 
-
-  def has_sample?
-    has_predicate_with_value?('supplier_sample_name') ||
-    has_relation_with_value?('sample_tube') ||
-    has_predicate_with_value?('sample_uuid')
-  end
-
   def racking_info(well)
     # If it was already in SS, always export it
     if well.has_literal?('pushedTo', 'Sequencescape')
@@ -113,7 +127,7 @@ module Assets::Export
         uuid: well.uuid,
         location: TokenUtil.unpad_location(well.facts.with_predicate('location').first.object)
       }
-    end
+    end # ...and don't update sample or anything?
 
     # Do not export any well information unless it has a sample defined for it
     return nil unless well.has_sample?
@@ -131,7 +145,5 @@ module Assets::Export
       end
       memo
     end
-
   end
-
 end

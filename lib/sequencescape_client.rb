@@ -43,6 +43,11 @@ class SequencescapeClient
     purpose.plates.create!(attrs)
   end
 
+  def self.create_tube_rack(purpose_name, attrs)
+    purpose = SequencescapeClientV2::Purpose.where(name: purpose_name).first || SequencescapeClientV2::Purpose.where(name: 'TR Stock 96').first
+    SequencescapeClientV2::TubeRack.create(purpose: purpose)
+  end
+
   def self.get_study_by_name(name)
     get_study_searcher_by_name.first(name: name)
   rescue Sequencescape::Api::ResourceNotFound => exception
@@ -83,4 +88,3 @@ class SequencescapeClient
     nil
   end
 end
-
