@@ -242,6 +242,17 @@ RSpec.describe 'Assets::Import' do
     end
   end
 
+  shared_examples 'a partial import of samples' do
+    it 'imports the information of the tubes that have a supplier name' do
+      @asset = Asset.find_or_import_asset_with_barcode(@remote_asset_without_supplier.barcode)
+      tubes = @asset.facts.with_predicate('contains').map(&:object_asset)
+      tubes_with_info = tubes.select{|t| t.facts.where(predicate: 'supplier_sample_name').count > 0}
+      locations_with_info = tubes_with_info.map{|t| t.facts.with_predicate('location').first.object}
+
+      expect(locations_with_info).to eq(['C1','D1'])
+    end
+  end
+
   context '#find_or_import_asset_with_barcode' do
   	context 'when importing an asset that does not exist' do
   		setup do
@@ -350,14 +361,7 @@ RSpec.describe 'Assets::Import' do
             stub_client_with_asset(SequencescapeClient, @remote_asset_without_supplier)
           end
 
-          it 'imports the information of the wells that have a supplier name' do
-            @asset = Asset.find_or_import_asset_with_barcode(@remote_asset_without_supplier.barcode)
-            wells = @asset.facts.with_predicate('contains').map(&:object_asset)
-            wells_with_info = wells.select{|w| w.facts.where(predicate: 'supplier_sample_name').count > 0}
-            locations_with_info = wells_with_info.map{|w| w.facts.with_predicate('location').first.object}
-
-            expect(locations_with_info).to eq(['C1','D1'])
-          end
+          it_behaves_like 'a partial import of samples'
         end
 
         context 'when the plate does not have aliquots in its wells' do
@@ -418,14 +422,7 @@ RSpec.describe 'Assets::Import' do
             stub_client_with_asset(SequencescapeClient, @remote_asset_without_supplier)
           end
 
-          it 'imports the information of the tubes that have a supplier name' do
-            @asset = Asset.find_or_import_asset_with_barcode(@remote_asset_without_supplier.barcode)
-            tubes = @asset.facts.with_predicate('contains').map(&:object_asset)
-            tubes_with_info = tubes.select{|t| t.facts.where(predicate: 'supplier_sample_name').count > 0}
-            locations_with_info = tubes_with_info.map{|t| t.facts.with_predicate('location').first.object}
-
-            expect(locations_with_info).to eq(['C1','D1'])
-          end
+          it_behaves_like 'a partial import of samples'
         end
       end
   	end
