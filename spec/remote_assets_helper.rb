@@ -44,7 +44,8 @@ module RemoteAssetsHelper
 	end
 
 	def build_remote_tube(opts = {})
-		my_double = double('remote_asset', tube_standard_options(opts))
+		obj = tube_standard_options(opts)
+		my_double = double('remote_asset', obj)
 
 		allow(my_double).to receive(:attributes).and_return(obj)
 		allow(my_double).to receive(:class).and_return(Sequencescape::Tube)
