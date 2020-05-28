@@ -146,18 +146,21 @@ RSpec.describe 'Assets::Import' do
       predicates = ["a", "pushTo", "purpose", "is", "contains", "contains", "study_name", "study_uuid"]
 
       expect(predicates.all? do |predicate|
-        puts "DEBUG: predicate: #{predicate}" if @asset.facts.where(predicate: predicate).count == 0
         @asset.facts.where(predicate: predicate).count > 0
       end).to eq(true)
     end
 
     it 'should store the study uuid in a safe format' do
       @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
-      study_uuid = @remote_plate_asset.wells.first.aliquots.first.study.uuid
+      expected_study_uuid = if @remote_asset.respond_to?(:wells)
+        @remote_asset.wells.first.aliquots.first.study.uuid
+      else
+        @remote_asset.racked_tubes.first.tube.aliquots.first.study.uuid
+      end
       @asset.facts.reload
 
       asset_study_uuid = @asset.facts.where(predicate: 'study_uuid').first.object
-      expect(asset_study_uuid).to eq(TokenUtil.quote(study_uuid))
+      expect(asset_study_uuid).to eq(TokenUtil.quote(expected_study_uuid))
     end
 
     context 'for the first time' do
@@ -268,9 +271,9 @@ RSpec.describe 'Assets::Import' do
       let(:SequencescapeClient) { double('sequencescape_client') }
 
 			setup do
-        @remote_plate_asset = build_remote_plate(barcode: generate(:barcode))
-        @barcode_plate = @remote_plate_asset.barcode
-        stub_client_with_asset(SequencescapeClient, @remote_plate_asset)
+        @remote_asset = build_remote_plate(barcode: generate(:barcode))
+        @barcode_plate = @remote_asset.barcode
+        stub_client_with_asset(SequencescapeClient, @remote_asset)
 			end
 
       context 'when the asset is a tube' do
@@ -287,13 +290,13 @@ RSpec.describe 'Assets::Import' do
 
       context 'when the asset is a plate' do
         setup do
-          @remote_plate_asset = build_remote_plate(barcode: generate(:barcode))
-          stub_client_with_asset(SequencescapeClient, @remote_plate_asset)
+          @remote_asset = build_remote_plate(barcode: generate(:barcode))
+          stub_client_with_asset(SequencescapeClient, @remote_asset)
         end
 
         it 'should try to obtain a plate' do
-          @asset = Asset.find_or_import_asset_with_barcode(@remote_plate_asset.barcode)
-          expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_plate_asset.uuid)
+          @asset = Asset.find_or_import_asset_with_barcode(@remote_asset.barcode)
+          expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_asset.uuid)
         end
 
         context 'when the supplier sample name has not been provided to some samples' do
@@ -312,12 +315,12 @@ RSpec.describe 'Assets::Import' do
                   build_remote_sample(sample_metadata: double('sample_metadata',
                     sample_common_name: 'species', supplier_name: 'a supplier name')))])
               ]
-              @remote_plate_asset_without_supplier = build_remote_plate(barcode: generate(:barcode), wells: wells)
-              stub_client_with_asset(SequencescapeClient, @remote_plate_asset_without_supplier)
+              @remote_asset_without_supplier = build_remote_plate(barcode: generate(:barcode), wells: wells)
+              stub_client_with_asset(SequencescapeClient, @remote_asset_without_supplier)
             end
 
             it 'imports the information of the wells that have a supplier name' do
-              @asset = Asset.find_or_import_asset_with_barcode(@remote_plate_asset_without_supplier.barcode)
+              @asset = Asset.find_or_import_asset_with_barcode(@remote_asset_without_supplier.barcode)
               wells = @asset.facts.with_predicate('contains').map(&:object_asset)
               wells_with_info = wells.select{|w| w.facts.where(predicate: 'supplier_sample_name').count > 0}
               locations_with_info = wells_with_info.map{|w| w.facts.with_predicate('location').first.object}
@@ -365,37 +368,37 @@ RSpec.describe 'Assets::Import' do
         context 'when the plate does not have aliquots in its wells' do
           setup do
             wells = ['A1','B1'].map {|l| build_remote_well(l, aliquots: []) }
-            @remote_plate_asset_without_aliquots = build_remote_plate(barcode: generate(:barcode), wells: wells)
-            stub_client_with_asset(SequencescapeClient, @remote_plate_asset_without_aliquots)
+            @remote_asset_without_aliquots = build_remote_plate(barcode: generate(:barcode), wells: wells)
+            stub_client_with_asset(SequencescapeClient, @remote_asset_without_aliquots)
           end
 
           it 'creates the wells with the same uuid as in the remote asset' do
-            @asset = Asset.find_or_import_asset_with_barcode(@remote_plate_asset_without_aliquots.barcode)
+            @asset = Asset.find_or_import_asset_with_barcode(@remote_asset_without_aliquots.barcode)
             wells = @asset.facts.with_predicate('contains').map(&:object_asset)
-            expect(wells.zip(@remote_plate_asset_without_aliquots.wells).all?{|w,w2| w.uuid == w2.uuid}).to eq(true)
+            expect(wells.zip(@remote_asset_without_aliquots.wells).all?{|w,w2| w.uuid == w2.uuid}).to eq(true)
           end
         end
 
         context 'when the plate does not have samples in its wells' do
           setup do
             wells = ['A1','B1'].map {|l| build_remote_well(l, aliquots: [build_remote_aliquot(sample: nil)]) }
-            @remote_plate_asset_without_samples = build_remote_plate(barcode: generate(:barcode), wells: wells)
-            stub_client_with_asset(SequencescapeClient, @remote_plate_asset_without_samples)
+            @remote_asset_without_samples = build_remote_plate(barcode: generate(:barcode), wells: wells)
+            stub_client_with_asset(SequencescapeClient, @remote_asset_without_samples)
           end
 
           it 'creates the wells with the same uuid as in the remote asset' do
-            @asset = Asset.find_or_import_asset_with_barcode(@remote_plate_asset_without_samples.barcode)
+            @asset = Asset.find_or_import_asset_with_barcode(@remote_asset_without_samples.barcode)
             wells = @asset.facts.with_predicate('contains').map(&:object_asset)
-            expect(wells.zip(@remote_plate_asset_without_samples.wells).all?{|w,w2| w.uuid == w2.uuid}).to eq(true)
+            expect(wells.zip(@remote_asset_without_samples.wells).all?{|w,w2| w.uuid == w2.uuid}).to eq(true)
           end
         end
       end
 
       context 'when the asset is a tube rack' do
         setup do
-          @remote_rack_asset = build_remote_tube_rack(barcode: generate(:barcode))
-          @barcode_plate = @remote_rack_asset.barcode
-          stub_client_with_asset(SequencescapeClient, @remote_rack_asset)
+          @remote_asset = build_remote_tube_rack(barcode: generate(:barcode))
+          @barcode_plate = @remote_asset.barcode
+          stub_client_with_asset(SequencescapeClient, @remote_asset)
         end
 
         it_behaves_like 'a plate or tube rack'
