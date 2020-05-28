@@ -398,6 +398,35 @@ RSpec.describe 'Assets::Import' do
 
         it_behaves_like 'a plate or tube rack'
         it_behaves_like 'an attempted import'
+
+        context 'when the supplier sample name has not been provided to some samples' do
+          setup do
+            racked_tubes = [
+              build_remote_racked_tube('A1', build_remote_tube(aliquots: [build_remote_aliquot(sample:
+                build_remote_sample(sample_metadata: nil))])),
+              build_remote_racked_tube('B1', build_remote_tube(aliquots: [build_remote_aliquot(sample:
+                build_remote_sample(sample_metadata: double('sample_metadata',
+                  sample_common_name: 'species', supplier_name: nil)))])),
+              build_remote_racked_tube('C1', build_remote_tube(aliquots: [build_remote_aliquot(sample:
+                build_remote_sample(sample_metadata: double('sample_metadata',
+                  sample_common_name: 'species', supplier_name: 'a supplier name')))])),
+              build_remote_racked_tube('D1', build_remote_tube(aliquots: [build_remote_aliquot(sample:
+                build_remote_sample(sample_metadata: double('sample_metadata',
+                  sample_common_name: 'species', supplier_name: 'a supplier name')))]))
+            ]
+            @remote_asset_without_supplier = build_remote_tube_rack(barcode: generate(:barcode), racked_tubes: racked_tubes)
+            stub_client_with_asset(SequencescapeClient, @remote_asset_without_supplier)
+          end
+
+          it 'imports the information of the tubes that have a supplier name' do
+            @asset = Asset.find_or_import_asset_with_barcode(@remote_asset_without_supplier.barcode)
+            tubes = @asset.facts.with_predicate('contains').map(&:object_asset)
+            tubes_with_info = tubes.select{|t| t.facts.where(predicate: 'supplier_sample_name').count > 0}
+            locations_with_info = tubes_with_info.map{|t| t.facts.with_predicate('location').first.object}
+
+            expect(locations_with_info).to eq(['C1','D1'])
+          end
+        end
       end
   	end
   end

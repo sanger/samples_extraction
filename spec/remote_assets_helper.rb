@@ -37,30 +37,26 @@ module RemoteAssetsHelper
 	def build_remote_racked_tube(coordinate, tube = nil)
 		obj = {
 			coordinate: coordinate,
-			tube: tube || double('tube', tube_standard_options)
+			tube: tube || build_remote_tube
 		}
 
 		my_double = double('racked_tube', obj)
 	end
 
 	def build_remote_tube(opts = {})
-		obj = tube_standard_options(opts)
+		purpose = double('purpose', name: 'A purpose')
+		obj = {
+			uuid: SecureRandom.uuid,
+			type: 'tubes',
+			plate_purpose: purpose,
+			aliquots: [build_remote_aliquot]
+		}.merge(opts)
 		my_double = double('remote_asset', obj)
 
 		allow(my_double).to receive(:attributes).and_return(obj)
 		allow(my_double).to receive(:class).and_return(Sequencescape::Tube)
 
 		my_double
-	end
-
-	def tube_standard_options(opts = {})
-		purpose = double('purpose', name: 'A purpose')
-		{
-			uuid: SecureRandom.uuid,
-			type: 'tubes',
-			plate_purpose: purpose,
-			aliquots: [build_remote_aliquot]
-		}.merge(opts)
 	end
 
 	def build_remote_aliquot(opts={})
