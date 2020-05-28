@@ -138,9 +138,16 @@ RSpec.describe 'Assets::Import' do
     end
   end
 
+  shared_examples 'an attempted import' do
+    it 'should try to obtain the asset through the Sequencescape API' do
+      @asset = Asset.find_or_import_asset_with_barcode(@remote_asset.barcode)
+      expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_asset.uuid)
+    end
+  end
+
   shared_examples 'a plate or tube rack' do
     it 'should create the corresponding facts from the json' do
-      @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
+      @asset = Asset.find_or_import_asset_with_barcode(@barcode_asset)
       @asset.facts.reload
 
       predicates = ["a", "pushTo", "purpose", "is", "contains", "contains", "study_name", "study_uuid"]
@@ -151,7 +158,7 @@ RSpec.describe 'Assets::Import' do
     end
 
     it 'should store the study uuid in a safe format' do
-      @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
+      @asset = Asset.find_or_import_asset_with_barcode(@barcode_asset)
       expected_study_uuid = if @remote_asset.respond_to?(:wells)
         @remote_asset.wells.first.aliquots.first.study.uuid
       else
@@ -166,7 +173,7 @@ RSpec.describe 'Assets::Import' do
     context 'for the first time' do
       it 'should create the local asset' do
         expect(Asset.count).to eq(0)
-        Asset.find_or_import_asset_with_barcode(@barcode_plate)
+        Asset.find_or_import_asset_with_barcode(@barcode_asset)
 
         expect(Asset.count>0).to eq(true)
       end
@@ -175,23 +182,23 @@ RSpec.describe 'Assets::Import' do
     context 'when is already imported' do
       context 'when the remote source is not present anymore' do
         setup do
-          @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
+          @asset = Asset.find_or_import_asset_with_barcode(@barcode_asset)
           allow(SequencescapeClient).to receive(:find_by_uuid).and_return(nil)
         end
 
         it 'should raise an exception' do
-          expect{Asset.find_or_import_asset_with_barcode(@barcode_plate)}.to raise_exception Assets::Import::RefreshSourceNotFoundAnymore
+          expect{Asset.find_or_import_asset_with_barcode(@barcode_asset)}.to raise_exception Assets::Import::RefreshSourceNotFoundAnymore
         end
       end
 
       context 'when the remote source is present' do
         setup do
-          @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
+          @asset = Asset.find_or_import_asset_with_barcode(@barcode_asset)
         end
 
         it 'should not create a new local asset' do
           count = Asset.count
-          Asset.find_or_import_asset_with_barcode(@barcode_plate)
+          Asset.find_or_import_asset_with_barcode(@barcode_asset)
           expect(Asset.count).to eq(count)
         end
 
@@ -199,7 +206,7 @@ RSpec.describe 'Assets::Import' do
           it 'should not destroy any remote facts' do
             remote_facts = @asset.facts.from_remote_asset
             remote_facts.each(&:reload)
-            Asset.find_or_import_asset_with_barcode(@barcode_plate)
+            Asset.find_or_import_asset_with_barcode(@barcode_asset)
             expect{remote_facts.each(&:reload)}.not_to raise_error
           end
         end
@@ -216,17 +223,17 @@ RSpec.describe 'Assets::Import' do
           end
 
           it 'should destroy any remote facts that has changed' do
-            Asset.find_or_import_asset_with_barcode(@barcode_plate)
+            Asset.find_or_import_asset_with_barcode(@barcode_asset)
             expect{@fact_changed.reload}.to raise_exception ActiveRecord::RecordNotFound
           end
 
           it 'should destroy any contains dependant remote facts' do
-            Asset.find_or_import_asset_with_barcode(@barcode_plate)
+            Asset.find_or_import_asset_with_barcode(@barcode_asset)
             expect{@dependant_fact.reload}.to raise_exception ActiveRecord::RecordNotFound
           end
 
           it 'should re-create new remote facts' do
-            @asset = Asset.find_or_import_asset_with_barcode(@barcode_plate)
+            @asset = Asset.find_or_import_asset_with_barcode(@barcode_asset)
             @asset.facts.reload
             expect(@asset.facts.from_remote_asset.all?{|f| f.object_asset != @well_changed})
           end
@@ -254,15 +261,15 @@ RSpec.describe 'Assets::Import' do
 
   	context 'when importing a local asset' do
   		setup do
-  			@barcode_plate = generate(:barcode)
-  			@asset = Asset.create!(barcode: @barcode_plate)
+  			@barcode_asset = generate(:barcode)
+  			@asset = Asset.create!(barcode: @barcode_asset)
       end
 
   		it 'should return the local asset when looking by its barcode' do
-  			expect(Asset.find_or_import_asset_with_barcode(@barcode_plate)).to eq(@asset)
+  			expect(Asset.find_or_import_asset_with_barcode(@barcode_asset)).to eq(@asset)
       end
 
-  		it 'should return the local asset when looking by its barcode' do
+  		it 'should return the local asset when looking by its uuid' do
   			expect(Asset.find_or_import_asset_with_barcode(@asset.uuid)).to eq(@asset)
   		end
     end
@@ -270,98 +277,86 @@ RSpec.describe 'Assets::Import' do
   	context 'when importing a remote asset' do
       let(:SequencescapeClient) { double('sequencescape_client') }
 
-			setup do
-        @remote_asset = build_remote_plate(barcode: generate(:barcode))
-        @barcode_plate = @remote_asset.barcode
-        stub_client_with_asset(SequencescapeClient, @remote_asset)
-			end
-
       context 'when the asset is a tube' do
         setup do
-          @remote_tube_asset = build_remote_tube(barcode: generate(:barcode))
-          stub_client_with_asset(SequencescapeClient, @remote_tube_asset)
+          @remote_asset = build_remote_tube(barcode: generate(:barcode))
+          @asset_barcode = @remote_asset.barcode
+          stub_client_with_asset(SequencescapeClient, @remote_asset)
         end
 
-        it 'should try to obtain a tube' do
-          @asset = Asset.find_or_import_asset_with_barcode(@remote_tube_asset.barcode)
-          expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_tube_asset.uuid)
+        it_behaves_like 'an attempted import'
+
+        context 'when the supplier name has not been provided' do
+          setup do
+            sample_no_supplier_name = build_remote_sample(
+              sample_metadata: double('sample_metadata',
+                supplier_name: nil,
+                sample_common_name: 'species'
+              )
+            )
+            @remote_tube_asset_without_supplier = build_remote_tube(
+              barcode: generate(:barcode),
+              aliquots: [build_remote_aliquot(sample: sample_no_supplier_name)]
+            )
+            stub_client_with_asset(SequencescapeClient, @remote_tube_asset_without_supplier)
+          end
+
+          it 'imports the information of the tube but does not set any supplier name' do
+            @asset = Asset.find_or_import_asset_with_barcode(@remote_tube_asset_without_supplier.barcode)
+            @asset.facts.reload
+            expect(@asset.facts.with_predicate('supplier_sample_name').count).to eq(0)
+          end
+        end
+
+        context 'when the supplier name has been provided' do
+          it 'imports the supplier name' do
+            @asset = Asset.find_or_import_asset_with_barcode(@asset_barcode)
+            expect(@asset.facts.with_predicate('supplier_sample_name').count).to eq(1)
+          end
+
+          it 'imports the common name' do
+            @asset = Asset.find_or_import_asset_with_barcode(@asset_barcode)
+            expect(@asset.facts.with_predicate('sample_common_name').count).to eq(1)
+          end
         end
       end
 
       context 'when the asset is a plate' do
         setup do
           @remote_asset = build_remote_plate(barcode: generate(:barcode))
+          @barcode_asset = @remote_asset.barcode
           stub_client_with_asset(SequencescapeClient, @remote_asset)
         end
 
-        it 'should try to obtain a plate' do
-          @asset = Asset.find_or_import_asset_with_barcode(@remote_asset.barcode)
-          expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_asset.uuid)
-        end
+        it_behaves_like 'a plate or tube rack'
+        it_behaves_like 'an attempted import'
 
         context 'when the supplier sample name has not been provided to some samples' do
-          context 'when the asset is a plate' do
-            setup do
-              wells = [
-                build_remote_well('A1', aliquots: [build_remote_aliquot(sample:
-                  build_remote_sample(sample_metadata: nil))]),
-                build_remote_well('B1', aliquots: [build_remote_aliquot(sample:
-                  build_remote_sample(sample_metadata: double('sample_metadata',
-                    sample_common_name: 'species', supplier_name: nil)))]),
-                build_remote_well('C1', aliquots: [build_remote_aliquot(sample:
-                  build_remote_sample(sample_metadata: double('sample_metadata',
-                    sample_common_name: 'species', supplier_name: 'a supplier name')))]),
-                build_remote_well('D1', aliquots: [build_remote_aliquot(sample:
-                  build_remote_sample(sample_metadata: double('sample_metadata',
-                    sample_common_name: 'species', supplier_name: 'a supplier name')))])
-              ]
-              @remote_asset_without_supplier = build_remote_plate(barcode: generate(:barcode), wells: wells)
-              stub_client_with_asset(SequencescapeClient, @remote_asset_without_supplier)
-            end
-
-            it 'imports the information of the wells that have a supplier name' do
-              @asset = Asset.find_or_import_asset_with_barcode(@remote_asset_without_supplier.barcode)
-              wells = @asset.facts.with_predicate('contains').map(&:object_asset)
-              wells_with_info = wells.select{|w| w.facts.where(predicate: 'supplier_sample_name').count > 0}
-              locations_with_info = wells_with_info.map{|w| w.facts.with_predicate('location').first.object}
-              expect(locations_with_info).to eq(['C1','D1'])
-            end
+          setup do
+            wells = [
+              build_remote_well('A1', aliquots: [build_remote_aliquot(sample:
+                build_remote_sample(sample_metadata: nil))]),
+              build_remote_well('B1', aliquots: [build_remote_aliquot(sample:
+                build_remote_sample(sample_metadata: double('sample_metadata',
+                  sample_common_name: 'species', supplier_name: nil)))]),
+              build_remote_well('C1', aliquots: [build_remote_aliquot(sample:
+                build_remote_sample(sample_metadata: double('sample_metadata',
+                  sample_common_name: 'species', supplier_name: 'a supplier name')))]),
+              build_remote_well('D1', aliquots: [build_remote_aliquot(sample:
+                build_remote_sample(sample_metadata: double('sample_metadata',
+                  sample_common_name: 'species', supplier_name: 'a supplier name')))])
+            ]
+            @remote_asset_without_supplier = build_remote_plate(barcode: generate(:barcode), wells: wells)
+            stub_client_with_asset(SequencescapeClient, @remote_asset_without_supplier)
           end
 
-          context 'when the asset is a tube' do
-            context 'when the supplier name has not been provided' do
-              setup do
-                @remote_tube_asset_without_supplier = build_remote_tube(barcode: generate(:barcode), aliquots: [
-                  build_remote_aliquot(sample: build_remote_sample(sample_metadata:
-                    double('sample_metadata', supplier_name: nil, sample_common_name: 'species')))
-                ])
-                stub_client_with_asset(SequencescapeClient, @remote_tube_asset_without_supplier)
-              end
+          it 'imports the information of the wells that have a supplier name' do
+            @asset = Asset.find_or_import_asset_with_barcode(@remote_asset_without_supplier.barcode)
+            wells = @asset.facts.with_predicate('contains').map(&:object_asset)
+            wells_with_info = wells.select{|w| w.facts.where(predicate: 'supplier_sample_name').count > 0}
+            locations_with_info = wells_with_info.map{|w| w.facts.with_predicate('location').first.object}
 
-              it 'imports the information of the tube but does not set any supplier name' do
-                @asset = Asset.find_or_import_asset_with_barcode(@remote_tube_asset_without_supplier.barcode)
-                @asset.facts.reload
-                expect(@asset.facts.with_predicate('supplier_sample_name').count).to eq(0)
-              end
-            end
-
-            context 'when the supplier name has been provided' do
-              setup do
-                @remote_tube_asset_with_supplier = build_remote_tube(barcode: generate(:barcode))
-                stub_client_with_asset(SequencescapeClient, @remote_tube_asset_with_supplier)
-              end
-
-              it 'imports the supplier name' do
-                @asset = Asset.find_or_import_asset_with_barcode(@remote_tube_asset_with_supplier.barcode)
-                expect(@asset.facts.with_predicate('supplier_sample_name').count).to eq(1)
-              end
-
-              it 'imports the common name' do
-                @asset = Asset.find_or_import_asset_with_barcode(@remote_tube_asset_with_supplier.barcode)
-                expect(@asset.facts.with_predicate('sample_common_name').count).to eq(1)
-              end
-            end
-
+            expect(locations_with_info).to eq(['C1','D1'])
           end
         end
 
@@ -397,15 +392,13 @@ RSpec.describe 'Assets::Import' do
       context 'when the asset is a tube rack' do
         setup do
           @remote_asset = build_remote_tube_rack(barcode: generate(:barcode))
-          @barcode_plate = @remote_asset.barcode
+          @barcode_asset = @remote_asset.barcode
           stub_client_with_asset(SequencescapeClient, @remote_asset)
         end
 
         it_behaves_like 'a plate or tube rack'
+        it_behaves_like 'an attempted import'
       end
-
-      it_behaves_like 'a plate or tube rack'
-
   	end
   end
 end
