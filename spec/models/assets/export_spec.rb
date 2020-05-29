@@ -69,7 +69,7 @@ RSpec.describe 'Assets::Export' do
     end
   end
 
-  context '#update_plate' do
+  context '#update_wells' do
     let(:step_type) { create :step_type }
     let(:step) { create :step, step_type: step_type, state: Step::STATE_RUNNING }
     let(:updates) { FactChanges.new }
@@ -87,7 +87,7 @@ RSpec.describe 'Assets::Export' do
       expect(well.uuid).not_to eq(plate.wells.first.uuid)
       expect(well2.uuid).not_to eq(plate.wells.last.uuid)
 
-      asset.update_plate(plate, updates)
+      asset.update_wells(plate)
       updates.apply(step)
       expect(asset.facts.with_predicate('contains').count).to eq(plate.wells.count)
       well.reload

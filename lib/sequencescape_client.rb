@@ -30,7 +30,11 @@ class SequencescapeClient
   end
 
   def self.update_extraction_attributes(instance, attrs, username='test')
-    instance.extraction_attributes.create!(:attributes_update => attrs, :created_by => username)
+    if class_type == 'TubeRack'
+      SequencescapeClientV2::ExtractionAttribute.create(target_id: instance.id, attributes_update: attrs, created_by: username)
+    else
+      instance.extraction_attributes.create!(attributes_update: attrs, created_by: username)
+    end
   end
 
   def self.purpose_by_name(name)

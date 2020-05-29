@@ -19,7 +19,11 @@ module SequencescapeClientV2
 
   class SequencescapeClientV2::TubeRack < SequencescapeClientV2::Model
     has_many :racked_tubes
+    has_many :extraction_attributes
     has_one :purpose
+  end
+
+  class SequencescapeClientV2::ExtractionAttribute < SequencescapeClientV2::Model
   end
 
   class SequencescapeClientV2::Purpose < SequencescapeClientV2::Model

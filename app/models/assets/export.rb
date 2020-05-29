@@ -9,24 +9,25 @@ module Assets::Export
         instance = find_remote_record
         instance = create_remote_record unless instance
 
-        # unless attributes_to_update.empty?
-        #   SequencescapeClient.update_extraction_attributes(instance, attributes_to_update, user.username)
-        # end
+        unless attributes_to_update.empty?
+          SequencescapeClient.update_extraction_attributes(instance, attributes_to_update, user.username)
+        end
 
         old_barcode = barcode
 
         # TODO: barcode is being set to blank because Sequencescape isn't creating a barcode for the tube rack on creation
         update_attributes(:uuid => instance.uuid, :barcode => code39_barcode(instance))
 
-        # update_plate(instance, updates)
+        update_wells(instance) if class_type != 'TubeRack'
+        update_racked_tubes(instance) if class_type == 'TubeRack'
 
-        # updates.add(self, 'beforeBarcode', old_barcode) if old_barcode
-        # updates.add_remote(self, 'purpose', class_name) if class_name
-        # updates.remove(facts.with_predicate('barcodeType'))
-        # updates.add(self, 'barcodeType', 'SequencescapePlate')
+        updates.add(self, 'beforeBarcode', old_barcode) if old_barcode
+        updates.add_remote(self, 'purpose', class_name) if class_name
+        updates.remove(facts.with_predicate('barcodeType'))
+        updates.add(self, 'barcodeType', 'SequencescapePlate') # should this change for tube racks?
 
-        # mark_as_updated(updates)
-        # mark_to_print(updates) if old_barcode != barcode
+        mark_as_updated(updates)
+        mark_to_print(updates) if old_barcode != barcode
       rescue SocketError
         updates.set_errors(['Sequencescape connection - Network connectivity issue'])
       rescue Errno::ECONNREFUSED => e
@@ -76,16 +77,36 @@ module Assets::Export
     end
   end
 
-  def update_plate(instance, updates)
+  def update_wells(instance)
+    # for each remote well
     instance.wells.each do |well|
+      # find the fact on the asset which corresponds to that well's location
       fact = fact_well_at(well.location)
-      if fact
-        w = fact.object_asset
-        if w && w.uuid != well.uuid
-          w.update_attributes(uuid: well.uuid)
-          fact.update_attributes(is_remote?: true)
-        end
-      end
+      continue unless fact
+
+      # get the equivalent local well
+      asset = fact.object_asset
+      continue unless asset && asset.uuid != well.uuid
+
+      # update the local well's uuid (when would it have changed?)
+      asset.update_attributes(uuid: well.uuid)
+      # update fact with is_remote?: true
+      fact.update_attributes(is_remote?: true)
+    end
+  end
+
+  # DRY this and method above?
+  # test below manually
+  def update_racked_tubes(instance)
+    instance.racked_tubes.each do |racked_tube|
+      fact = fact_well_at(racked_tube.coordinate)
+      continue unless fact
+
+      asset = fact.object_asset
+      continue unless asset && asset.uuid != racked_tube.uuid
+
+      asset.update_attributes(uuid: racked_tube.uuid)
+      fact.update_attributes(is_remote?: true)
     end
   end
 
@@ -115,24 +136,25 @@ module Assets::Export
 
   def attributes_to_update
     raise DuplicateLocations if duplicate_locations_in_plate?
-    facts.with_predicate('contains').map(&:object_asset).map do |well|
-      racking_info(well)
+
+    facts.with_predicate('contains').map(&:object_asset).map do |contained_asset|
+      racking_info(contained_asset)
     end.compact
   end
 
-  def racking_info(well)
+  def racking_info(contained_asset)
     # If it was already in SS, always export it
-    if well.has_literal?('pushedTo', 'Sequencescape')
+    if contained_asset.has_literal?('pushedTo', 'Sequencescape')
       return {
-        uuid: well.uuid,
-        location: TokenUtil.unpad_location(well.facts.with_predicate('location').first.object)
+        uuid: contained_asset.uuid,
+        location: TokenUtil.unpad_location(contained_asset.facts.with_predicate('location').first.object)
       }
     end # ...and don't update sample or anything?
 
     # Do not export any well information unless it has a sample defined for it
-    return nil unless well.has_sample?
+    return nil unless contained_asset.has_sample?
 
-    well.facts.reduce({}) do |memo, fact|
+    contained_asset.facts.reduce({}) do |memo, fact|
       if (['sample_tube'].include?(fact.predicate))
         memo["#{fact.predicate}_uuid".to_sym] = fact.object_asset.uuid
       end
