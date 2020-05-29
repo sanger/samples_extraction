@@ -45,7 +45,7 @@ class SequencescapeClient
 
   def self.create_tube_rack(purpose_name, attrs)
     purpose = SequencescapeClientV2::Purpose.where(name: purpose_name).first || SequencescapeClientV2::Purpose.where(name: 'TR Stock 96').first
-    SequencescapeClientV2::TubeRack.create(purpose: purpose)
+    SequencescapeClientV2::TubeRack.create(purpose: purpose, size: purpose.size)
   end
 
   def self.get_study_by_name(name)
