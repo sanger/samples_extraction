@@ -29,6 +29,8 @@ class SequencescapeClient
     return nil
   end
 
+  # below creates a record in the 'extraction_attributes' table in Sequencescape
+  # this, in turn, triggers creation of aliquots against the plate
   def self.update_extraction_attributes(instance, attrs, username='test')
     instance.extraction_attributes.create!(:attributes_update => attrs, :created_by => username)
   end

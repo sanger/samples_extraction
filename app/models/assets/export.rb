@@ -1,29 +1,19 @@
 module Assets::Export
-
-
   class DuplicateLocations < StandardError ; end
 
-  def update_sequencescape(print_config, user, step)
-    _update_sequencescape(print_config, user, step) #.apply(step)
-    #activities_affected.each{|a| a.touch }
-    #refresh
-  end
-
-  def _update_sequencescape(print_config, user, step)
+  def update_sequencescape(_print_config, user, _step)
     FactChanges.new.tap do |updates|
       begin
+        # remote (Sequencescape) updates
         instance = SequencescapeClient.version_1_find_by_uuid(uuid)
-        unless instance
-          instance = SequencescapeClient.create_plate(class_name, {}) if class_name
-        end
-        unless attributes_to_update.empty?
-          SequencescapeClient.update_extraction_attributes(instance, attributes_to_update, user.username)
-        end
+        instance = create_remote_asset unless instance
+        create_or_update_remote_contained_assets unless attributes_to_send.empty?
 
+        # local (Samples Extraction) updates
         old_barcode = barcode
         update_attributes(:uuid => instance.uuid, :barcode => code39_barcode(instance))
 
-        update_plate(instance, updates)
+        update_wells(instance, updates)
 
         updates.add(self, 'beforeBarcode', old_barcode) if old_barcode
         updates.add_remote(self, 'purpose', class_name) if class_name
@@ -44,6 +34,15 @@ module Assets::Export
     end
   end
 
+  def create_remote_asset
+    SequencescapeClient.create_plate(class_name, {}) if class_name
+  end
+
+  def create_or_update_remote_contained_assets
+    # create the (remote) aliquots against the wells created above, or rearrange them (re-racking)
+    SequencescapeClient.update_extraction_attributes(instance, attributes_to_send, user.username)
+  end
+
   def mark_to_print(updates)
     updates.add(self, 'is', 'readyForPrint')
   end
@@ -54,7 +53,7 @@ module Assets::Export
     SBCF::SangerBarcode.new(prefix:prefix, number:number).human_barcode
   end
 
-  def update_plate(instance, updates)
+  def update_wells(instance, updates)
     instance.wells.each do |well|
       fact = fact_well_at(well.location)
       if fact
@@ -84,7 +83,6 @@ module Assets::Export
     end
   end
 
-
   def duplicate_locations_in_plate?
     locations = facts.with_predicate('contains').map(&:object_asset).map do |a|
       a.facts.with_predicate('location').map(&:object)
@@ -92,13 +90,13 @@ module Assets::Export
     (locations.uniq.length != locations.length)
   end
 
-  def attributes_to_update
+  def attributes_to_send
     raise DuplicateLocations if duplicate_locations_in_plate?
+
     facts.with_predicate('contains').map(&:object_asset).map do |well|
-      racking_info(well)
+      attributes_to_send_for_well(well)
     end.compact
   end
-
 
   def has_sample?
     has_predicate_with_value?('supplier_sample_name') ||
@@ -106,7 +104,7 @@ module Assets::Export
     has_predicate_with_value?('sample_uuid')
   end
 
-  def racking_info(well)
+  def attributes_to_send_for_well(well)
     # If it was already in SS, always export it
     if well.has_literal?('pushedTo', 'Sequencescape')
       return {
@@ -118,6 +116,7 @@ module Assets::Export
     # Do not export any well information unless it has a sample defined for it
     return nil unless well.has_sample?
 
+    # extract the 'facts' that we want to send to Sequencescape for creation of wells
     well.facts.reduce({}) do |memo, fact|
       if (['sample_tube'].include?(fact.predicate))
         memo["#{fact.predicate}_uuid".to_sym] = fact.object_asset.uuid
@@ -131,7 +130,5 @@ module Assets::Export
       end
       memo
     end
-
   end
-
 end

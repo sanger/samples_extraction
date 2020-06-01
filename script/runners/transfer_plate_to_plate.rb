@@ -1,5 +1,11 @@
 require 'actions/plate_transfer'
 
+# Stamps an Asset (plate or tube rack) to another Asset
+# In the step type config, there should be:
+# A condition group, with addFacts 'transfer:q', where 'q' is
+# A new asset, with addFacts 'transferredFrom:p', where 'p' is above group
+# If the new asset is destined for export for Sequencescape...
+# ...add fact 'barcodeType:NoBarcode', and Samples Extraction won't create a barcode
 class TransferPlateToPlate
 
   attr_reader :asset_group
