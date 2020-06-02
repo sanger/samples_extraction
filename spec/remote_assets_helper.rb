@@ -49,7 +49,8 @@ module RemoteAssetsHelper
 			uuid: SecureRandom.uuid,
 			type: 'tubes',
 			plate_purpose: purpose,
-			aliquots: [build_remote_aliquot]
+			aliquots: [build_remote_aliquot],
+			labware_barcode: { 'human_barcode' => 'test' }
 		}.merge(opts)
 		my_double = double('remote_asset', obj)
 
