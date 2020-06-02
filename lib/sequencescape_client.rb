@@ -69,7 +69,8 @@ class SequencescapeClient
     [
       SequencescapeClientV2::Plate,
       SequencescapeClientV2::Tube,
-      SequencescapeClientV2::Well
+      SequencescapeClientV2::Well,
+      SequencescapeClientV2::TubeRack
     ].each do |klass|
       begin
         search = klass.where(search_conditions)
@@ -81,8 +82,5 @@ class SequencescapeClient
     end
     nil
   end
-
-
-
 end
 
