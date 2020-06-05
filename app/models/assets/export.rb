@@ -7,7 +7,7 @@ module Assets::Export
         # remote (Sequencescape) updates
         instance = SequencescapeClient.version_1_find_by_uuid(uuid)
         instance = create_remote_asset unless instance
-        create_or_update_remote_contained_assets unless attributes_to_send.empty?
+        create_or_update_remote_contained_assets(instance) unless attributes_to_send.empty?
 
         # local (Samples Extraction) updates
         old_barcode = barcode
@@ -38,7 +38,7 @@ module Assets::Export
     SequencescapeClient.create_plate(class_name, {}) if class_name
   end
 
-  def create_or_update_remote_contained_assets
+  def create_or_update_remote_contained_assets(instance)
     # create the (remote) aliquots against the wells created above, or rearrange them (re-racking)
     SequencescapeClient.update_extraction_attributes(instance, attributes_to_send, user.username)
   end
