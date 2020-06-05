@@ -317,6 +317,7 @@ module Assets::Import
           remote_asset.racked_tubes.each do |racked_tube|
             remote_tube = racked_tube.tube
             local_tube = Asset.find_or_create_by!(:uuid => remote_tube.uuid)
+            local_tube.update!(barcode: remote_tube.labware_barcode['human_barcode'])
 
             updates.replace_remote(asset, 'contains', local_tube)
 
