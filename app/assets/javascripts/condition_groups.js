@@ -59,7 +59,7 @@
     };
 
     proto.checkFactToN3 = function(group, fact) {
-      return ["?"+group.getName(), ":"+fact.predicate, fact.object? ":"+fact.object : fact.literal].join("\t ")+" .";
+      return ["?"+group.getName(), ":"+fact.predicate, fact.object?'"""'+fact.object+ '"""': fact.literal].join("\t ")+" .";
     };
 
     proto.actionFactToN3 = function(group, fact) {
