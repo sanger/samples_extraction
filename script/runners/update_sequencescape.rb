@@ -1,3 +1,8 @@
+# Creates or updates a plate in Sequencescape corresponding to the Samples Extraction Asset
+# At time of writing, 'update' function is limited to 're-racking'
+# Only works if the Asset has a fact 'pushTo:Sequencescape'
+# Above fact can be pre-existing on the asset, or created in the same step that calls this class
+# Calls the update_sequencescape method in export.rb
 class UpdateSequencescape
   attr_reader :asset_group, :step
   def initialize(params)
@@ -25,7 +30,6 @@ class UpdateSequencescape
       end
     end
   end
-
 end
 
 def out(val)
