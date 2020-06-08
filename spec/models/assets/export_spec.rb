@@ -4,7 +4,7 @@ require 'remote_assets_helper'
 RSpec.describe 'Assets::Export' do
   include RemoteAssetsHelper
 
-  context '#racking_info' do
+  context '#attributes_to_send_for_well' do
     it 'unquotes sample_uuid and sample_tube, ignoring unrelated attributes' do
       uuid = SecureRandom.uuid
       asset = create(:asset)
@@ -27,8 +27,8 @@ RSpec.describe 'Assets::Export' do
         create(:fact, predicate: 'contains', object_asset: well2)
       ]
 
-      expect(asset.racking_info(well1)).to eq({sample_uuid: TokenUtil.unquote(uuid)})
-      expect(asset.racking_info(well2)).to eq({
+      expect(asset.attributes_to_send_for_well(well1)).to eq({sample_uuid: TokenUtil.unquote(uuid)})
+      expect(asset.attributes_to_send_for_well(well2)).to eq({
         sample_tube_uuid: sample_tube.uuid,
         sanger_sample_name: 'name1'
       })
@@ -59,7 +59,7 @@ RSpec.describe 'Assets::Export' do
       @assets = SupportN3::parse_facts(facts)
 
       @rack1 = Asset.find_by(uuid: 'rack1')
-      expect(@rack1.attributes_to_update).to eq([
+      expect(@rack1.attributes_to_send).to eq([
         {sample_tube_uuid: "s1", location: "A1"},
         {sample_tube_uuid: "s2", location: "B1"},
         {sample_tube_uuid: "s3", location: "C1"},
@@ -67,7 +67,7 @@ RSpec.describe 'Assets::Export' do
     end
   end
 
-  context '#update_plate' do
+  context '#update_wells' do
     let(:step_type) { create :step_type }
     let(:step) { create :step, step_type: step_type, state: Step::STATE_RUNNING }
     let(:updates) { FactChanges.new }
@@ -85,7 +85,7 @@ RSpec.describe 'Assets::Export' do
       expect(well.uuid).not_to eq(plate.wells.first.uuid)
       expect(well2.uuid).not_to eq(plate.wells.last.uuid)
 
-      asset.update_plate(plate, updates)
+      asset.update_wells(plate, updates)
       updates.apply(step)
       expect(asset.facts.with_predicate('contains').count).to eq(plate.wells.count)
       well.reload
@@ -121,7 +121,7 @@ RSpec.describe 'Assets::Export' do
     end
   end
 
-  context '#attributes_to_update' do
+  context '#attributes_to_send' do
     it 'can convert location to Sequencescape location format' do
       %Q{
         I have a tube rack that contains 4 tubes with names tube1, tube2,
@@ -152,7 +152,7 @@ RSpec.describe 'Assets::Export' do
       }
       @assets = SupportN3::parse_facts(facts)
       @rack2 = Asset.find_by(uuid: 'rack2')
-      expect(@rack2.attributes_to_update).to eq([
+      expect(@rack2.attributes_to_send).to eq([
         {sample_tube_uuid: "s1", location: "A1"},
         {sample_tube_uuid: "s2", location: "B1"},
         {sample_tube_uuid: "s3", location: "C1"},
@@ -183,7 +183,7 @@ RSpec.describe 'Assets::Export' do
       }
       @assets = SupportN3::parse_facts(facts)
       @rack2 = Asset.find_by(uuid: 'rack2')
-      expect(@rack2.attributes_to_update).to eq([
+      expect(@rack2.attributes_to_send).to eq([
         {sample_tube_uuid: "s1", location: "A1"},
         {sample_tube_uuid: "s2", location: "B1"},
         {sample_tube_uuid: "s3", location: "C1"},
@@ -213,7 +213,7 @@ RSpec.describe 'Assets::Export' do
       }
       @assets = SupportN3::parse_facts(facts)
       @rack2 = Asset.find_by(uuid: 'rack2')
-      expect{@rack2.attributes_to_update}.to raise_exception Assets::Export::DuplicateLocations
+      expect{@rack2.attributes_to_send}.to raise_exception Assets::Export::DuplicateLocations
     end
 
     it 'does not export locations without a sample in it' do
@@ -240,7 +240,7 @@ RSpec.describe 'Assets::Export' do
       }
       @assets = SupportN3::parse_facts(facts)
       @rack2 = Asset.find_by(uuid: 'rack2')
-      expect(@rack2.attributes_to_update).to eq([
+      expect(@rack2.attributes_to_send).to eq([
         {sample_tube_uuid: "s1", location: "A1"},
         {sample_tube_uuid: "s2", location: "B1"},
         {sample_tube_uuid: "s4", location: "D1"}])
