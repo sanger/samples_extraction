@@ -6,5 +6,33 @@ FactoryBot.define do
       end
     end
 
+    factory :plate do
+      transient do
+        well_attributes do
+          []
+        end
+      end
+
+      barcode
+
+      facts do
+        well_attributes.map do |attributes|
+          well = build :well_with_samples, attributes
+          build :fact, predicate: 'contains', object_asset: well
+        end
+      end
+    end
+
+    factory :well_with_samples do
+      transient do
+        supplier_sample_name { 'Sample Name' }
+      end
+
+      barcode { nil }
+
+      facts do
+        build_list :fact, 1, predicate: 'supplier_sample_name', object: 'Example'
+      end
+    end
   end
 end
