@@ -6,7 +6,7 @@ ADD Gemfile /samples_extraction
 ADD Gemfile.lock /samples_extraction
 ADD package.json /samples_extraction
 ADD yarn.lock /samples_extraction
-RUN gem install bundler
+RUN gem install bundler -v `tail -n 1 Gemfile.lock`
 RUN bundle install
 RUN yarn install
 
