@@ -1,4 +1,5 @@
 FROM starefossen/ruby-node
+ENV BUNDLER_VERSION=2.1.4
 RUN apt-get update -qq && apt-get install -y
 RUN apt-get -y install git vim
 WORKDIR /samples_extraction
@@ -6,7 +7,7 @@ ADD Gemfile /samples_extraction
 ADD Gemfile.lock /samples_extraction
 ADD package.json /samples_extraction
 ADD yarn.lock /samples_extraction
-RUN gem install bundler -v `tail -n 1 Gemfile.lock`
+RUN gem install bundler
 RUN bundle install
 RUN yarn install
 
