@@ -1,3 +1,3 @@
-class StepMessage < ActiveRecord::Base
+class StepMessage < ApplicationRecord
   belongs_to :step
 end

@@ -1,4 +1,4 @@
-class Condition < ActiveRecord::Base
+class Condition < ApplicationRecord
   belongs_to :condition_group
   has_many :activity_types, :through => :condition_group
   belongs_to :object_condition_group, :class_name => 'ConditionGroup'
@@ -69,7 +69,7 @@ class Condition < ActiveRecord::Base
     end
     if (predicate == 'sum')
       return asset.facts.with_predicate(object).count == 0
-    end    
+    end
   end
 
   def is_runtime_evaluable_condition?

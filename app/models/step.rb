@@ -1,5 +1,5 @@
 
-class Step < ActiveRecord::Base
+class Step < ApplicationRecord
 
   self.inheritance_column = :sti_type
 

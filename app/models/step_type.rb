@@ -1,6 +1,6 @@
 require 'support_n3'
 
-class StepType < ActiveRecord::Base
+class StepType < ApplicationRecord
 
   before_update :remove_previous_conditions
   after_save :create_next_conditions #, :unless => :for_reasoning?

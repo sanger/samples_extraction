@@ -37,7 +37,7 @@ module ChangesSupport::TransactionScope
     end
 
     def _result_set_from_database(opts)
-      if (result_set.respond_to?(:superclass) && (result_set.superclass == ActiveRecord::Base))
+      if (result_set.respond_to?(:superclass) && (result_set.superclass == ApplicationRecord))
         @result_set = result_set.where(opts)
       else
         @result_set = result_set.to_a.concat(@klass.where(opts))

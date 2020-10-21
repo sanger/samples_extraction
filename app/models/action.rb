@@ -1,4 +1,4 @@
-class Action < ActiveRecord::Base
+class Action < ApplicationRecord
   belongs_to :subject_condition_group, :class_name => 'ConditionGroup'
   belongs_to :object_condition_group, :class_name => 'ConditionGroup'
 

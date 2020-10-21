@@ -1,4 +1,4 @@
-class ActivityType < ActiveRecord::Base
+class ActivityType < ApplicationRecord
   has_many :activities
   has_many :kit_types
   has_many :activity_type_step_types

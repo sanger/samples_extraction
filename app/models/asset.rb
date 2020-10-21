@@ -3,7 +3,7 @@ require 'date'
 
 require 'pry'
 
-class Asset < ActiveRecord::Base
+class Asset < ApplicationRecord
   include Uuidable
   include Printables::Instance
   include Assets::Import

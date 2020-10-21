@@ -1,4 +1,4 @@
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   has_many :steps
 
   belongs_to :tube_printer, :class_name => 'Printer', :foreign_key => 'tube_printer_id'
