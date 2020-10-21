@@ -31,7 +31,7 @@ FactoryBot.define do
       barcode { nil }
 
       facts do
-        build_list :fact, 1, predicate: 'supplier_sample_name', object: 'Example'
+        build_list :fact, 1, predicate: 'supplier_sample_name', object: supplier_sample_name
       end
     end
   end

@@ -15,13 +15,11 @@ class Asset < ActiveRecord::Base
 
   alias_attribute :name, :uuid
 
-  has_many :facts, :dependent => :delete_all
+  has_many :facts, dependent: :delete_all
   has_many :asset_groups_assets, dependent: :destroy
   has_many :asset_groups, through: :asset_groups_assets
-  has_many :steps, :through => :asset_groups
-
+  has_many :steps, through: :asset_groups
   has_many :activities_affected, -> { distinct }, through: :asset_groups, class_name: 'Activity', source: :activity_owner
-
 
 
   def update_compatible_activity_type
@@ -89,6 +87,29 @@ class Asset < ActiveRecord::Base
     f ? f.object : ""
   end
 
+  # Returns all facts with the predicate 'supplier_sample_name'
+  # associated with the asset. This can either be those associated
+  # directly with the asset (such as for tubes) or
+  # via contained assets (for a plate)
+  def supplier_sample_name_facts
+    if has_predicate?('supplier_sample_name')
+      facts.with_predicate('supplier_sample_name')
+    else
+      facts.with_predicate('contains').flat_map do |fact|
+        fact.object_asset.supplier_sample_name_facts
+      end
+    end
+  end
+
+  def walk_transfers
+    parent_fact = facts.with_predicate('transferredFrom').last
+    if parent_fact&.object_asset
+      parent_fact.object_asset.walk_transfers
+    else
+      self
+    end
+  end
+
   def relation_id
     uuid
   end
@@ -144,7 +165,7 @@ class Asset < ActiveRecord::Base
   end
 
   def study_and_barcode
-    [study_name, barcode_sequencescaped].join(' ')
+    "#{study_name} #{barcode_sequencescaped}"
   end
 
   def barcode_sequencescaped
@@ -220,7 +241,7 @@ class Asset < ActiveRecord::Base
   end
 
   def info_line
-    ["#{class_name}", "#{aliquot}","#{position_value}"].join(' ').strip
+    "#{class_name} #{aliquot} #{position_value}".strip
   end
 
   def class_name

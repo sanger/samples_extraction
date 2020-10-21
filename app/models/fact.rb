@@ -1,3 +1,4 @@
+# A Fact stores information about an {Asset}
 class Fact < ActiveRecord::Base
   belongs_to :asset, :counter_cache => true
   belongs_to :object_asset, :class_name => 'Asset'
@@ -45,4 +46,3 @@ class Fact < ActiveRecord::Base
   end
 
 end
-

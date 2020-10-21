@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'heron_activities_view' do
+RSpec.describe Messages::Activity do
   let(:activity_type) { FactoryBot.create :activity_type, name: 'Illumina Extraction' }
   let(:instrument) { FactoryBot.create :instrument, name: 'Instument' }
   let(:kit_type) { FactoryBot.create :kit_type, name: 'Kit type' }
@@ -59,37 +59,51 @@ RSpec.describe 'heron_activities_view' do
                     to: target_plate
   end
 
-  let(:results) do
-    ApplicationRecord.connection.execute('SELECT * FROM heron_activities_view')
+  subject(:results) do
+    described_class.new(activity).as_json
   end
 
   it 'lists finished activities at the sample level' do
-    expect(results.size).to eq 2
+    expect(results[:sample_extraction_activity][:samples].length).to eq 2
   end
 
-  it 'has the expected columns' do
-    expect(results.fields).to eq [
-      'Supplier sample name',
-      'Input barcode',
-      'Output barcode',
-      'Activity type',
-      'Instrument',
-      'Kit barcode',
-      'Kit type',
-      'Date',
-      'User',
-      '_activity_id_'
+  it 'has the expected keys' do
+    expect(results[:sample_extraction_activity].keys).to eq [
+      :samples,
+      :activity_type,
+      :instrument,
+      :kit_barcode,
+      :kit_type,
+      :date,
+      :user,
+      :_activity_id_
     ]
   end
 
   it 'lists the correct information' do
-    expect(results.to_a).to include(
-      ['Sample A', source_plate.barcode, target_plate.barcode,
-       'Illumina Extraction', 'Instument', kit.barcode,
-       'Kit type', activity.completed_at, 'Users name', activity.id],
-      ['Sample B', source_plate.barcode, target_plate.barcode,
-       'Illumina Extraction', 'Instument', kit.barcode,
-       'Kit type', activity.completed_at, 'Users name', activity.id]
-    )
+    expect(results).to eq({
+                            sample_extraction_activity: {
+                              samples: [
+                                {
+                                  supplier_sample_name: 'Sample A',
+                                  input_barcode: source_plate.barcode,
+                                  output_barcode: target_plate.barcode
+                                },
+                                {
+                                  supplier_sample_name: 'Sample B',
+                                  input_barcode: source_plate.barcode,
+                                  output_barcode: target_plate.barcode
+                                }
+                              ],
+                              activity_type: 'Illumina Extraction',
+                              instrument: 'Instument',
+                              kit_barcode: kit.barcode,
+                              kit_type: 'Kit type',
+                              date: activity.completed_at,
+                              user: 'Users name',
+                              _activity_id_: activity.id
+                            },
+                            lims: 'samples_extraction'
+                          })
   end
 end
