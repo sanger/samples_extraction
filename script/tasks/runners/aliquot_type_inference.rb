@@ -1,8 +1,10 @@
 class AliquotTypeInference
   attr_reader :asset_group
+
   def initialize(params)
     @asset_group = params[:asset_group]
   end
+  # rubocop:todo Naming/MethodName
   def _CODE
     %Q{
       {
@@ -14,6 +16,8 @@ class AliquotTypeInference
       }
     }
   end
+  # rubocop:enable Naming/MethodName
+
   def assets_compatible_with_step_type
     asset_group.assets.with_predicate('aliquotType').select { |a| a.has_predicate?('contains') }
   end

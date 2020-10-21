@@ -5,6 +5,7 @@ RSpec.describe Parsers::CsvLayout::Validators::AnyBarcodeValidator do
   let(:klass) {
     Class.new {
       attr_accessor :barcode
+
       include ActiveModel::Validations
       validates_with Parsers::CsvLayout::Validators::AnyBarcodeValidator
     }

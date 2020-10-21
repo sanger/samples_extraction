@@ -22,7 +22,7 @@ module Activities::WebsocketEvents
   end
 
   def websockets_attributes(attrs)
-    attrs.keys.reduce({shownComponents: {}}) do |memo, key|
+    attrs.keys.reduce({ shownComponents: {} }) do |memo, key|
       memo[key] = attrs[key].call unless (ActivityChannel.activity_attributes(id)[key.to_s] == false)
       memo
     end
@@ -35,12 +35,12 @@ module Activities::WebsocketEvents
     end
   end
 
-  def wss_event(opts={})
+  def wss_event(opts = {})
     _wss_event(opts)
     #delay(queue: 'websockets')._wss_event(opts)
   end
 
-  def _wss_event(opts={})
+  def _wss_event(opts = {})
     if Rails.configuration.redis_enabled && is_being_listened?
       data = websockets_attributes(json_attributes).merge(opts)
       #debugger if data[:stepsFinished][0]['state']=='error'

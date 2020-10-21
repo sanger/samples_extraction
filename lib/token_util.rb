@@ -1,4 +1,5 @@
 module TokenUtil
+  # rubocop:todo Naming/MethodName
   def self.UUID_REGEXP
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
   end
@@ -86,7 +87,7 @@ module TokenUtil
   end
 
   def self.pad(str,chr,size)
-    "#{(size-str.size).times.map{chr}.join('')}#{str}"
+    "#{(size-str.size).times.map { chr }.join('')}#{str}"
   end
 
   def self.unpad_location(location)
@@ -114,5 +115,5 @@ module TokenUtil
     return str unless str
     str.gsub(/\"/,"")
   end
-
+  # rubocop:enable Naming/MethodName
 end

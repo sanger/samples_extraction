@@ -3,12 +3,12 @@ require 'actions/racking'
 
 RSpec.describe Actions::Racking do
   let(:content) { File.open('test/data/layout.csv').read }
-  let(:file) { create(:uploaded_file, data: content )}
+  let(:file) { create(:uploaded_file, data: content ) }
   let(:activity) { create(:activity) }
   let(:asset_group) { create(:asset_group, assets: [asset]) }
-  let(:fact) { create(:fact, predicate: 'a', object: 'TubeRack')}
+  let(:fact) { create(:fact, predicate: 'a', object: 'TubeRack') }
   let(:asset) { create :asset, uploaded_file: file, facts: [fact] }
-  let(:step_type) {create(:step_type, condition_groups: [condition_group]) }
+  let(:step_type) { create(:step_type, condition_groups: [condition_group]) }
   let(:step) { create :step,
     activity: activity,
     state: Step::STATE_RUNNING,
@@ -82,7 +82,7 @@ RSpec.describe Actions::Racking do
         let(:content) {
           add_empty_slots(File.open('test/data/layout.csv').read, num_empty, start_pos)
         }
-        def add_empty_slots(content, num_empty, start_pos=0)
+        def add_empty_slots(content, num_empty, start_pos = 0)
           csv = CSV.new(content).to_a
           num_empty.times do |i|
             csv[start_pos + i][1] = 'No Read'
@@ -131,7 +131,7 @@ RSpec.describe Actions::Racking do
       updates = fact_changes_for_rack_when_unracking_tubes(asset, @tubes)
       expect(updates.to_h[:remove_facts].select do |triple|
         triple[1]=='study_name'
-      end.map{|triple| triple[2]}.sort).to eq(['STDY1', 'STDY2'])
+      end.map { |triple| triple[2] }.sort).to eq(['STDY1', 'STDY2'])
     end
 
     it 'removes the purpose when all tubes go out' do
@@ -140,7 +140,7 @@ RSpec.describe Actions::Racking do
       updates = fact_changes_for_rack_when_unracking_tubes(asset, @tubes)
       expect(updates.to_h[:remove_facts].select do |triple|
         triple[1]=='purpose'
-      end.map{|triple| triple[2]}.sort).to eq(['DNA Stock Plate'])
+      end.map { |triple| triple[2] }.sort).to eq(['DNA Stock Plate'])
     end
 
     it 'only returns the studies of the tubes that are going to be removed' do
@@ -155,7 +155,7 @@ RSpec.describe Actions::Racking do
       updates = fact_changes_for_rack_when_unracking_tubes(asset, tubes2)
       expect(updates.to_h[:remove_facts].select do |triple|
         triple[1]=='study_name'
-      end.map{|triple| triple[2]}.sort).to eq(['STDY1'])
+      end.map { |triple| triple[2] }.sort).to eq(['STDY1'])
     end
   end
 
@@ -175,7 +175,7 @@ RSpec.describe Actions::Racking do
       updates = fact_changes_for_rack_when_racking_tubes(asset, @tubes)
       expect(updates.to_h[:add_facts].select do |triple|
         triple[1]=='study_name'
-      end.map{|triple| triple[2]}.sort).to eq(['STDY1', 'STDY2'])
+      end.map { |triple| triple[2] }.sort).to eq(['STDY1', 'STDY2'])
     end
     it 'generates the DNA stock plate purpose' do
       @tubes.each_with_index do |tube, idx|

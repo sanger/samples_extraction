@@ -10,13 +10,17 @@ require 'actions/plate_transfer'
 class TransferPlateToPlate
 
   attr_reader :asset_group
+
   def initialize(params)
     @asset_group = params[:asset_group]
   end
 
+  # rubocop:todo Naming/MethodName
   def _CODE
 
   end
+  # rubocop:enable Naming/MethodName
+
   #
   #  {
   #    ?p :a :Plate .
@@ -49,10 +53,9 @@ class TransferPlateToPlate
     end
   end
 end
-return unless ARGV.any?{|s| s.match(".json")}
+return unless ARGV.any? { |s| s.match(".json") }
 
 args = ARGV[0]
 asset_group_id = args.match(/(\d*)\.json/)[1]
 asset_group = AssetGroup.find(asset_group_id)
 puts TransferPlateToPlate.new(asset_group: asset_group).process.to_json
-

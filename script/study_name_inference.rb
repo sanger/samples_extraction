@@ -1,9 +1,11 @@
 class StudyNameInference
   attr_reader :asset_group
+
   def initialize(params)
     @asset_group = params[:asset_group]
   end
 
+  # rubocop:todo Naming/MethodName
   def _CODE
     %Q{
       {
@@ -14,6 +16,7 @@ class StudyNameInference
       }.
     }
   end
+  # rubocop:enable Naming/MethodName
 
   def assets_compatible_with_step_type
     asset_group.assets.with_predicate('contains').select do |a|
@@ -42,10 +45,9 @@ class StudyNameInference
   end
 
 end
-return unless ARGV.any?{|s| s.match(".json")}
+return unless ARGV.any? { |s| s.match(".json") }
 
 args = ARGV[0]
 asset_group_id = args.match(/(\d*)\.json/)[1]
 asset_group = AssetGroup.find(asset_group_id)
 puts StudyNameInference.new(asset_group: asset_group).process.to_json
-

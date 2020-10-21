@@ -1,8 +1,8 @@
 module Activities::State
   def self.included(klass)
     klass.instance_eval do
-      scope :in_progress, ->() { where('completed_at is null')}
-      scope :finished, ->() { where('completed_at is not null')}
+      scope :in_progress, ->() { where('completed_at is null') }
+      scope :finished, ->() { where('completed_at is not null') }
     end
   end
 

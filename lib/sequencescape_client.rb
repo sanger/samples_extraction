@@ -23,7 +23,7 @@ class SequencescapeClient
     @client ||= Sequencescape::Api.new(self.api_connection_options)
   end
 
-  def self.version_1_find_by_uuid(uuid, type=:plate)
+  def self.version_1_find_by_uuid(uuid, type = :plate)
     client.send(type).find(uuid)
   rescue Sequencescape::Api::ResourceNotFound => exception
     return nil
@@ -31,12 +31,12 @@ class SequencescapeClient
 
   # below creates a record in the 'extraction_attributes' table in Sequencescape
   # this, in turn, triggers creation of aliquots against the plate
-  def self.update_extraction_attributes(instance, attrs, username='test')
+  def self.update_extraction_attributes(instance, attrs, username = 'test')
     instance.extraction_attributes.create!(:attributes_update => attrs, :created_by => username)
   end
 
   def self.purpose_by_name(name)
-    client.plate_purpose.all.select{|p| p.name===name}.first
+    client.plate_purpose.all.select { |p| p.name===name }.first
   end
 
   def self.create_plate(purpose_name, attrs)
@@ -52,18 +52,18 @@ class SequencescapeClient
   end
 
   def self.get_study_searcher_by_name
-    @@study_searcher ||= client.search.all.select{|s| s.name == Rails.configuration.searcher_study_by_name}.first
+    @@study_searcher ||= client.search.all.select { |s| s.name == Rails.configuration.searcher_study_by_name }.first
   end
 
   def self.get_searcher_by_barcode
-    @@searcher ||= client.search.all.select{|s| s.name == Rails.configuration.searcher_name_by_barcode}.first
+    @@searcher ||= client.search.all.select { |s| s.name == Rails.configuration.searcher_name_by_barcode }.first
   end
 
   def self.get_remote_asset(barcode)
     find_by(barcode: barcode)
   end
 
-  def self.find_by_uuid(uuid, opts=nil)
+  def self.find_by_uuid(uuid, opts = nil)
     find_by(uuid: uuid)
   end
 

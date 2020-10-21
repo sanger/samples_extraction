@@ -2,6 +2,7 @@ require 'actions/tube_transfer'
 
 class TransferTubesToTubeRackByPosition
   attr_reader :asset_group
+
   include Actions::TubeTransfer
   def initialize(params)
     @asset_group = params[:asset_group]
@@ -95,7 +96,7 @@ class TransferTubesToTubeRackByPosition
     FactChanges.new.tap do |updates|
       aliquot_types = []
       if assets_compatible_with_step_type
-        tubes = asset_group.assets.joins(:facts).where(facts: {predicate: 'transferToTubeRackByPosition'}).uniq
+        tubes = asset_group.assets.joins(:facts).where(facts: { predicate: 'transferToTubeRackByPosition' }).uniq
         rack = tubes.first.facts.with_predicate('transferToTubeRackByPosition').first.object_asset
 
         return updates unless validate_tube_are_not_in_rack(rack, tubes, updates)
@@ -103,7 +104,7 @@ class TransferTubesToTubeRackByPosition
         wells = rack.facts.with_predicate('contains').map(&:object_asset).sort_by do |elem|
           location = elem.facts.with_predicate('location').first.object
           location_to_pos(location)
-        end.reject{|w| w.has_predicate?('transferredFrom')}.uniq
+        end.reject { |w| w.has_predicate?('transferredFrom') }.uniq
 
         return updates unless validate_enough_tubes_for_all_wells(tubes, wells, updates)
 
@@ -139,7 +140,7 @@ class TransferTubesToTubeRackByPosition
 
 end
 
-return unless ARGV.any?{|s| s.match(".json")}
+return unless ARGV.any? { |s| s.match(".json") }
 
 args = ARGV[0]
 asset_group_id = args.match(/(\d*)\.json/)[1]

@@ -33,11 +33,11 @@ class MoveBarcodesFromTubeRackToPlate
 
 
   def plate
-    asset_group.assets.select{|a| a.facts.where(predicate: 'a', object: 'Plate').count > 0 }.first
+    asset_group.assets.select { |a| a.facts.where(predicate: 'a', object: 'Plate').count > 0 }.first
   end
 
   def tube_rack
-    asset_group.assets.select{|a| a.facts.where(predicate: 'a', object: 'TubeRack').count > 0}.first
+    asset_group.assets.select { |a| a.facts.where(predicate: 'a', object: 'TubeRack').count > 0 }.first
   end
 
   def wells_for(asset)
@@ -95,6 +95,6 @@ begin
   JSON.parse(json)
   puts json
 rescue StandardError => e
-  puts ({ set_errors: ['Unknown error while applying barcodes'+e.backtrace.to_s]}.to_json)
+  puts ({ set_errors: ['Unknown error while applying barcodes'+e.backtrace.to_s] }.to_json)
 end
 

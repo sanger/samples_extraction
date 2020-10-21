@@ -1,9 +1,11 @@
 class PurposeNameInference
   attr_reader :asset_group
+
   def initialize(params)
     @asset_group = params[:asset_group]
   end
 
+  # rubocop:todo Naming/MethodName
   def _CODE
     %Q{
       {
@@ -29,6 +31,7 @@ class PurposeNameInference
       }
     }
   end
+  # rubocop:enable Naming/MethodName
 
   def containers2
     asset_group.assets.with_predicate('contains')
@@ -73,7 +76,7 @@ def out(val)
   return
 end
 
-return unless ARGV.any?{|s| s.match(".json")}
+return unless ARGV.any? { |s| s.match(".json") }
 
 args = ARGV[0]
 out({}) unless args
@@ -82,4 +85,3 @@ out({}) unless matches
 asset_group_id = matches[1]
 asset_group = AssetGroup.find(asset_group_id)
 out(PurposeNameInference.new(asset_group: asset_group).process)
-

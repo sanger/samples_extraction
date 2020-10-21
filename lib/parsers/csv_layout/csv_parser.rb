@@ -25,7 +25,7 @@ module Parsers
           line_reader: Parsers::CsvLayout::LineReader
       }
 
-      def initialize(str, component_defs={})
+      def initialize(str, component_defs = {})
         @parsed = false
         @input = str
         @components = self.class::DEFAULT_COMPONENTS.merge(component_defs)
@@ -90,7 +90,7 @@ module Parsers
       end
 
       def duplicated(sym)
-        all_elems = layout.map{|obj| obj[sym]}
+        all_elems = layout.map { |obj| obj[sym] }
         all_elems.select do |element|
           (!element.nil?) && (all_elems.count(element) > 1)
         end.uniq.compact

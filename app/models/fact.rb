@@ -3,9 +3,9 @@ class Fact < ActiveRecord::Base
   belongs_to :object_asset, :class_name => 'Asset'
 
   scope :not_to_remove, ->() { where(:to_remove_by => nil) }
-  scope :with_predicate, ->(predicate) { where(:predicate => predicate)}
-  scope :with_ns_predicate, ->(namespace) { where(:ns_predicate => namespace)}
-  scope :with_fact, -> (predicate, object) { where(:predicate => predicate, :object => object)}
+  scope :with_predicate, ->(predicate) { where(:predicate => predicate) }
+  scope :with_ns_predicate, ->(namespace) { where(:ns_predicate => namespace) }
+  scope :with_fact, -> (predicate, object) { where(:predicate => predicate, :object => object) }
   scope :from_remote_asset, ->() { where(:is_remote? => true) }
 
   validates :object_asset_id, presence: true, unless: :literal?

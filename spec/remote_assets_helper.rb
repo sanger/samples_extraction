@@ -15,8 +15,8 @@ module RemoteAssetsHelper
 		my_double
 	end
 
-	def build_remote_well(location, opts={})
-		double('well', {aliquots: [build_remote_aliquot], location: location, position: { "name" => location }, uuid: SecureRandom.uuid}.merge(opts))
+	def build_remote_well(location, opts = {})
+		double('well', { aliquots: [build_remote_aliquot], location: location, position: { "name" => location }, uuid: SecureRandom.uuid }.merge(opts))
 	end
 
 	def build_remote_tube_rack(opts = {})
@@ -60,19 +60,19 @@ module RemoteAssetsHelper
 		my_double
 	end
 
-	def build_remote_aliquot(opts={})
-		double('aliquot', {sample: build_remote_sample, study: build_study}.merge(opts))
+	def build_remote_aliquot(opts = {})
+		double('aliquot', { sample: build_remote_sample, study: build_study }.merge(opts))
 	end
 
-	def build_study(opts={})
-		double('study', {name: 'STDY', uuid: SecureRandom.uuid})
+	def build_study(opts = {})
+		double('study', { name: 'STDY', uuid: SecureRandom.uuid })
 	end
 
-	def build_remote_sample(opts={})
+	def build_remote_sample(opts = {})
 		attrs_for_sample = {
 			sanger_sample_id: 'TEST-123',
 			name: 'a sample name',
-			sample_metadata: double('sample_metadata', {supplier_name: 'a supplier', sample_common_name: 'species'}),
+			sample_metadata: double('sample_metadata', { supplier_name: 'a supplier', sample_common_name: 'species' }),
 			#sanger: double('sanger', { sample_id: 'TEST-123', name: 'a sample name'}),
 			uuid: SecureRandom.uuid,
 			#supplier: double('supplier', {sample_name: 'a supplier'}),

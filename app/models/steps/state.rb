@@ -8,20 +8,20 @@ module Steps::State
 
   def self.included(klass)
     klass.instance_eval do
-      scope :in_progress, ->() { where(:in_progress? => true)}
-      scope :cancelled, ->() {where(:state => 'cancelled')}
-      scope :deprecated, ->() {where(:state => 'ignored')}
+      scope :in_progress, ->() { where(:in_progress? => true) }
+      scope :cancelled, ->() { where(:state => 'cancelled') }
+      scope :deprecated, ->() { where(:state => 'ignored') }
       scope :processing, ->() {
         where("state = 'running' OR state = 'cancelling' OR  state = 'remaking' OR state = 'retrying'").includes(:operations, :step_type)
       }
-      scope :running, ->() { where(state: 'running').includes(:operations, :step_type)}
-      scope :pending, ->() { where(state: 'pending')}
-      scope :failed, ->() { where(state: 'failed')}
-      scope :completed, ->() { where(state: 'complete')}
-      scope :stopped, ->() { where(state: 'stopped')}
+      scope :running, ->() { where(state: 'running').includes(:operations, :step_type) }
+      scope :pending, ->() { where(state: 'pending') }
+      scope :failed, ->() { where(state: 'failed') }
+      scope :completed, ->() { where(state: 'complete') }
+      scope :stopped, ->() { where(state: 'stopped') }
       scope :active, ->() { where("state = 'running' OR state = 'pending' OR state IS NULL") }
-      scope :finished, ->() { includes(:operations, :step_type)}
-      scope :in_activity, ->() { where.not(activity_id: nil)}
+      scope :finished, ->() { includes(:operations, :step_type) }
+      scope :in_activity, ->() { where.not(activity_id: nil) }
 
 
       include AASM

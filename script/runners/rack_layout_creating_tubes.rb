@@ -24,7 +24,7 @@ class RackLayoutCreatingTubes
   end
 end
 
-return unless ARGV.any?{|s| s.match(".json")}
+return unless ARGV.any? { |s| s.match(".json") }
 
 args = ARGV[0]
 asset_group_id = args.match(/(\d*)\.json/)[1]
@@ -39,5 +39,5 @@ rescue InvalidDataParams => e
   puts ({ set_errors: e.errors }.to_json)
 rescue StandardError => e
 
-  puts ({ set_errors: ['Unknown error while parsing file'+e.to_json+e.backtrace.join('')]}.to_json)
+  puts ({ set_errors: ['Unknown error while parsing file'+e.to_json+e.backtrace.join('')] }.to_json)
 end

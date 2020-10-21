@@ -2,7 +2,7 @@ require 'actions/racking'
 require 'token_util'
 include Actions::Racking
 
-return unless ARGV.any?{|s| s.match(".json")}
+return unless ARGV.any? { |s| s.match(".json") }
 
 updates = FactChanges.new
 
@@ -14,11 +14,11 @@ matches = args.match(/(\d*)\.json/)
 out({}) unless matches
 asset_group_id = matches[1]
 asset_group = AssetGroup.find(asset_group_id)
-rack = asset_group.assets.joins(:facts).where(facts: { predicate: 'a', object: 'TubeRack'}).first
+rack = asset_group.assets.joins(:facts).where(facts: { predicate: 'a', object: 'TubeRack' }).first
 tube_ids_in_rack = rack.facts.with_predicate('contains').map(&:object_asset_id)
 locations_with_tube = Fact.where(predicate: 'location', asset_id: tube_ids_in_rack).map(&:object)
 
-tubes = asset_group.assets.joins(:facts).where(facts: { predicate: 'a', object: 'Tube'})
+tubes = asset_group.assets.joins(:facts).where(facts: { predicate: 'a', object: 'Tube' })
 
 LETTERS = ("A".."H").to_a
 COLUMNS = (1..12).to_a

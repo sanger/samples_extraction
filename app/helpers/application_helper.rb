@@ -8,7 +8,7 @@ module ApplicationHelper
   end
 
   def bootstrap_link_to(name = nil, options = nil, html_options = nil, &block)
-    modified_options = {:class => 'btn btn-default'}
+    modified_options = { :class => 'btn btn-default' }
     modified_options.merge!(html_options) if html_options
     link_to(name, options, modified_options)
   end
@@ -55,16 +55,16 @@ module ApplicationHelper
   end
 
   def render_react_display_for_asset(asset)
-    data_asset_display = {}.tap {|o| o[asset.uuid]=data_asset_display(asset.facts) }
+    data_asset_display = {}.tap { |o| o[asset.uuid]=data_asset_display(asset.facts) }
     react_component('FactsSvg',  { asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
   end
 
   def render_react_tooltip
-    react_component('ReactTooltip', {multiline: true, effect: 'solid'})
+    react_component('ReactTooltip', { multiline: true, effect: 'solid' })
   end
 
   def facts_with_object_asset(facts)
-    facts.left_outer_joins(:object_asset).to_a.map {|f| f.attributes.merge({object_asset: object_with_facts(f.object_asset)})}
+    facts.left_outer_joins(:object_asset).to_a.map { |f| f.attributes.merge({ object_asset: object_with_facts(f.object_asset) }) }
   end
 
   def object_with_facts(object)
@@ -73,12 +73,12 @@ module ApplicationHelper
   end
 
   def render_react_display_and_facts_for_asset(asset)
-    data_asset_display = {}.tap {|o| o[asset.uuid]=data_asset_display(asset.facts) }
+    data_asset_display = {}.tap { |o| o[asset.uuid]=data_asset_display(asset.facts) }
     react_component('Facts',  { asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
   end
 
-  def render_react_edit_asset(asset, readonly=false)
-    data_asset_display = {}.tap {|o| o[asset.uuid]=data_asset_display(asset.facts) }
+  def render_react_edit_asset(asset, readonly = false)
+    data_asset_display = {}.tap { |o| o[asset.uuid]=data_asset_display(asset.facts) }
     react_component('FactsEditor',  {
       changesUrl: readonly ? nil : changes_url,
       asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
@@ -135,7 +135,7 @@ module ApplicationHelper
   end
 
   def svg_for_facts(facts)
-    svg(facts.select{|f| f.predicate == 'a'}.pluck(:object).first)
+    svg(facts.select { |f| f.predicate == 'a' }.pluck(:object).first)
   end
 
   def show_alert(data)

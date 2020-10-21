@@ -13,7 +13,7 @@ class Action < ActiveRecord::Base
   # Given the current action (that defines a relation between 2 conditional groups)
   # and the list of assets classified into 2 groups: sources or destinations, this method
   # will generate a list of pairs [source, destination] that can be connected.
-  def each_connected_asset(sources, destinations, wildcard_values={}, &block)
+  def each_connected_asset(sources, destinations, wildcard_values = {}, &block)
     unless (wildcard_values.nil? || wildcard_values.empty?)
       if (object_condition_group)
         if (wildcard_values[object_condition_group.id])
@@ -44,7 +44,7 @@ class Action < ActiveRecord::Base
       end
     end
     if step_type.connect_by == 'position'
-      sources.zip(destinations).each {|s,d| yield s,d if d}
+      sources.zip(destinations).each { |s,d| yield s,d if d }
     else
       sources.each do |s|
         destinations.each do |d|
@@ -66,13 +66,13 @@ class Action < ActiveRecord::Base
     end
   end
 
-  def run(asset_group, wildcard_values={})
+  def run(asset_group, wildcard_values = {})
     FactChanges.new.tap do |updates|
       if action_type == 'createAsset'
         if (asset_group.classified_by_condition_group(subject_condition_group).length > 0)
           assets = asset_group.classified_by_condition_group(subject_condition_group)
         else
-          assets = num_assets_to_create(asset_group).times.map{ Asset.new }
+          assets = num_assets_to_create(asset_group).times.map { Asset.new }
           updates.create_assets(assets)
           updates.add_assets([[asset_group, assets]])
           #asset_group.assets << assets

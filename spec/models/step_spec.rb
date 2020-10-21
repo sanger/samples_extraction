@@ -11,7 +11,7 @@ end
 RSpec.describe Step, type: :model do
 
   let(:activity) { create :activity }
-  let(:user) { create :user, username: 'test'}
+  let(:user) { create :user, username: 'test' }
   before do
     Delayed::Worker.delay_jobs = false
   end
@@ -63,7 +63,7 @@ RSpec.describe Step, type: :model do
     create(:condition, predicate: 'a', object: asset_type)
   end
 
-  def create_condition_group_to_select_asset_type(asset_type, name=nil)
+  def create_condition_group_to_select_asset_type(asset_type, name = nil)
     create(:condition_group, name: name, conditions: [create_condition_to_select_asset_type(asset_type)])
   end
 
@@ -75,7 +75,7 @@ RSpec.describe Step, type: :model do
 
   describe '#create' do
     context 'when creating a step with a specific printer config' do
-      let(:printer_data_config) { {"Tube"=>"1234", "Plate"=>"6789"} }
+      let(:printer_data_config) { { "Tube"=>"1234", "Plate"=>"6789" } }
       it 'stores the printer config in the database' do
         s = create(:step, printer_config: printer_data_config)
         s2 = Step.find_by(id: s.id)
@@ -88,30 +88,30 @@ RSpec.describe Step, type: :model do
     setup do
       @step_type = FactoryBot.create :step_type
 
-      @cg1 = FactoryBot.create(:condition_group,{:name => 'p'})
+      @cg1 = FactoryBot.create(:condition_group,{ :name => 'p' })
       @cg1.conditions << FactoryBot.create(:condition,{
-        :predicate => 'is', :object => 'Tube'})
-      @cg2 = FactoryBot.create(:condition_group,{:name => 'q'})
+        :predicate => 'is', :object => 'Tube' })
+      @cg2 = FactoryBot.create(:condition_group,{ :name => 'q' })
       @cg2.conditions << FactoryBot.create(:condition,{
-        :predicate => 'is', :object => 'Rack'})
+        :predicate => 'is', :object => 'Rack' })
       @step_type.condition_groups << @cg1
       @step_type.condition_groups << @cg2
-      @tubes = 7.times.map{|i| FactoryBot.create(:asset, {:facts =>[
+      @tubes = 7.times.map { |i| FactoryBot.create(:asset, { :facts =>[
         FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
         FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
-        ]})}
-      @racks = 5.times.map{|i| FactoryBot.create(:asset, {:facts =>[
+        ] })}
+      @racks = 5.times.map { |i| FactoryBot.create(:asset, { :facts =>[
         FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
         FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
-        ]})}
+        ] })}
       @assets = [@tubes, @racks].flatten
-      @asset_group = FactoryBot.create(:asset_group, {:assets => @assets})
+      @asset_group = FactoryBot.create(:asset_group, { :assets => @assets })
     end
 
     describe 'when creating a new step' do
       it 'raises an exception if assets are not compatible with step_type' do
         @cg1.update_attributes(:cardinality => 1)
-        expect{
+        expect {
           @step = create_step
           }.to raise_error(AASM::InvalidTransition)
       end
@@ -120,10 +120,10 @@ RSpec.describe Step, type: :model do
     describe 'with related assets in conditions' do
       setup do
         @cg2.conditions << FactoryBot.create(:condition, {
-          :predicate => 'contains', :object_condition_group_id => @cg1.id})
+          :predicate => 'contains', :object_condition_group_id => @cg1.id })
 
-        @action = FactoryBot.create(:action, {:action_type => 'addFacts',
-          :predicate => 'is', :object => 'TubeRack', :subject_condition_group => @cg2})
+        @action = FactoryBot.create(:action, { :action_type => 'addFacts',
+          :predicate => 'is', :object => 'TubeRack', :subject_condition_group => @cg2 })
         @step_type.actions << @action
 
         @racks.each_with_index do |r, i|
@@ -146,8 +146,8 @@ RSpec.describe Step, type: :model do
       describe 'with wildcards' do
         setup do
           @wildcard = FactoryBot.create :condition_group
-          condition = FactoryBot.create :condition, {:predicate => 'position',
-            :object_condition_group => @wildcard}
+          condition = FactoryBot.create :condition, { :predicate => 'position',
+            :object_condition_group => @wildcard }
           @cg2.conditions << condition
         end
 
@@ -155,7 +155,7 @@ RSpec.describe Step, type: :model do
           it 'does not execute the rule when the wildcard condition is not met' do
             previous_num = @asset_group.assets.count
 
-            expect{
+            expect {
               @step = create_step
             }.to raise_error(StandardError)
 
@@ -195,7 +195,7 @@ RSpec.describe Step, type: :model do
           it 'uses the value of the condition group evaluated for the same cg' do
             previous_num = @asset_group.assets.count
 
-            @action = FactoryBot.create(:action, {:action_type => 'addFacts',
+            @action = FactoryBot.create(:action, { :action_type => 'addFacts',
               :predicate => 'value', :object_condition_group => @wildcard,
               :subject_condition_group => @cg2
             })
@@ -216,11 +216,11 @@ RSpec.describe Step, type: :model do
 
 
             previous_num = @asset_group.assets.count
-            @cg1.conditions << FactoryBot.create(:condition, {:predicate => 'location',
-            :object_condition_group => @wildcard})
-            @cg2.conditions << FactoryBot.create(:condition, {:predicate => 'location',
-            :object_condition_group => @wildcard})
-            @action = FactoryBot.create(:action, {:action_type => 'addFacts',
+            @cg1.conditions << FactoryBot.create(:condition, { :predicate => 'location',
+            :object_condition_group => @wildcard })
+            @cg2.conditions << FactoryBot.create(:condition, { :predicate => 'location',
+            :object_condition_group => @wildcard })
+            @action = FactoryBot.create(:action, { :action_type => 'addFacts',
               :predicate => 'relates', :object_condition_group => @cg1,
               :subject_condition_group => @cg2
             })
@@ -264,17 +264,17 @@ RSpec.describe Step, type: :model do
 
     describe 'with createAsset action type' do
       setup do
-        @cg3 = FactoryBot.create(:condition_group, {:name => 'r'})
+        @cg3 = FactoryBot.create(:condition_group, { :name => 'r' })
         @cg3.conditions << FactoryBot.create(:condition, {
           :predicate => 'is', :object => 'NewTube'
         })
-        @action = FactoryBot.create(:action, {:action_type => 'createAsset',
-          :predicate => 'is', :object => 'NewTube', :subject_condition_group => @cg3})
+        @action = FactoryBot.create(:action, { :action_type => 'createAsset',
+          :predicate => 'is', :object => 'NewTube', :subject_condition_group => @cg3 })
         if cwm_engine?
-          @action2 = FactoryBot.create(:action, {:action_type => 'createAsset',
-            :predicate => 'createdBy', :object_condition_group => @cg1, :subject_condition_group => @cg3})
-          @action3 = FactoryBot.create(:action, {:action_type => 'createAsset',
-            :predicate => 'createdBy', :object_condition_group => @cg2, :subject_condition_group => @cg3})
+          @action2 = FactoryBot.create(:action, { :action_type => 'createAsset',
+            :predicate => 'createdBy', :object_condition_group => @cg1, :subject_condition_group => @cg3 })
+          @action3 = FactoryBot.create(:action, { :action_type => 'createAsset',
+            :predicate => 'createdBy', :object_condition_group => @cg2, :subject_condition_group => @cg3 })
 
           @step_type.actions << [@action, @action2, @action3]
         else
@@ -295,7 +295,7 @@ RSpec.describe Step, type: :model do
           expect(Operation.all.count).to eq(assets_created.count*3)
         else
           expect(assets_created.length).to eq(previous_num)
-          expect(Operation.all.select{|o| o.action_type=='createAssets'}.count).to eq(assets_created.count)
+          expect(Operation.all.select { |o| o.action_type=='createAssets' }.count).to eq(assets_created.count)
         end
         expect(assets_created.length+previous_num).to eq(@asset_group.assets.count)
       end
@@ -312,7 +312,7 @@ RSpec.describe Step, type: :model do
           expect(assets_created.length).to eq(6)
           expect(assets_created.length+previous_num).to eq(@asset_group.assets.count)
 
-          expect(Operation.all.select{|o| o.action_type=='createAssets'}.count).to eq(assets_created.count)
+          expect(Operation.all.select { |o| o.action_type=='createAssets' }.count).to eq(assets_created.count)
         end
 
         it 'cardinality does not restrict the number of assets created when it is over the number of inputs' do
@@ -327,14 +327,14 @@ RSpec.describe Step, type: :model do
           expect(assets_created.length).to eq(cardinality)
           #expect(assets_created.length+previous_num).to eq(@asset_group.assets.count)
 
-          expect(Operation.all.select{|o| o.action_type=='createAssets'}.count).to eq(assets_created.count)
+          expect(Operation.all.select { |o| o.action_type=='createAssets' }.count).to eq(assets_created.count)
         end
       end
 
       it 'adds facts to all the assets created' do
         previous_num = @asset_group.assets.count
         action = FactoryBot.create(:action, { :action_type => 'createAsset',
-          :predicate => 'has', :object => "MoreData", :subject_condition_group => @cg3})
+          :predicate => 'has', :object => "MoreData", :subject_condition_group => @cg3 })
         @step_type.actions << action
 
         @step = create_step
@@ -355,12 +355,12 @@ RSpec.describe Step, type: :model do
 
       it 'is able to execute addFacts and createFacts referring to the same condition group' do
         previous_num = @asset_group.assets.count
-        action = FactoryBot.create(:action, {:action_type => 'addFacts',
-          :predicate => 'has', :object => 'MoreData', :subject_condition_group => @cg3})
+        action = FactoryBot.create(:action, { :action_type => 'addFacts',
+          :predicate => 'has', :object => 'MoreData', :subject_condition_group => @cg3 })
         @step_type.actions << action
         @step = create_step
         expect(@asset_group.assets.count).to eq(previous_num*2)
-        expect(Operation.all.select{|o| o.action_type == 'addFacts'}.count).to eq(2*previous_num)
+        expect(Operation.all.select { |o| o.action_type == 'addFacts' }.count).to eq(2*previous_num)
       end
 
       describe 'with overlapping assets' do
@@ -369,7 +369,7 @@ RSpec.describe Step, type: :model do
             FactoryBot.create(:asset, { :facts => [
               FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
               FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube')
-              ]})
+              ] })
           end
           @asset_group.assets << @tubes_and_racks
         end
@@ -403,8 +403,8 @@ RSpec.describe Step, type: :model do
 
     describe 'with unselectAsset action type' do
       setup do
-        @action = FactoryBot.create(:action, {:action_type => 'addFacts',
-          :predicate => 'is', :object => 'Empty', :subject_condition_group => @cg1})
+        @action = FactoryBot.create(:action, { :action_type => 'addFacts',
+          :predicate => 'is', :object => 'Empty', :subject_condition_group => @cg1 })
         @step_type.actions << @action
       end
 
@@ -412,14 +412,14 @@ RSpec.describe Step, type: :model do
         @cg1.update_attributes(:keep_selected => false)
 
         @asset_group.assets.reload
-        assert_equal true, @tubes.all?{|tube| @asset_group.assets.include?(tube)}
+        assert_equal true, @tubes.all? { |tube| @asset_group.assets.include?(tube) }
 
         @step = create_step
         @asset_group.reload
         @asset_group.assets.reload
         @asset_group.assets.each(&:reload)
 
-        assert_equal false, @tubes.any?{|tube| @asset_group.assets.include?(tube)}
+        assert_equal false, @tubes.any? { |tube| @asset_group.assets.include?(tube) }
 
         #expect(Operation.all.count).to eq(@tubes.length)
       end
@@ -430,7 +430,7 @@ RSpec.describe Step, type: :model do
             FactoryBot.create(:asset, { :facts => [
               FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
               FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube')
-              ]})
+              ] })
           end
           @asset_group.assets << @tubes_and_racks
         end
@@ -439,7 +439,7 @@ RSpec.describe Step, type: :model do
           @cg1.update_attributes(:keep_selected => false)
 
           @asset_group.assets.reload
-          assert_equal true, [@tubes, @tubes_and_racks].flatten.all?{|tube| @asset_group.assets.include?(tube)}
+          assert_equal true, [@tubes, @tubes_and_racks].flatten.all? { |tube| @asset_group.assets.include?(tube) }
 
           @step = create_step
 
@@ -447,7 +447,7 @@ RSpec.describe Step, type: :model do
           @asset_group.assets.reload
           @asset_group.assets.each(&:reload)
 
-          assert_equal false, [@tubes, @tubes_and_racks].flatten.all?{|tube| @asset_group.assets.include?(tube)}
+          assert_equal false, [@tubes, @tubes_and_racks].flatten.all? { |tube| @asset_group.assets.include?(tube) }
         end
       end
 
@@ -455,7 +455,7 @@ RSpec.describe Step, type: :model do
     end
 
     describe 'when using different values of connect_by' do
-      let(:asset_group) {create(:asset_group, assets: [origins, targets].flatten)}
+      let(:asset_group) { create(:asset_group, assets: [origins, targets].flatten) }
 
       shared_examples 'a step type that can connect by position' do
         let(:step_type) {
@@ -481,7 +481,7 @@ RSpec.describe Step, type: :model do
           s = run_step_type(step_type, asset_group)
           origins.each(&:reload)
           destinations.each(&:reload)
-          transfers = origins.map(&:facts).map{|facts| facts.with_predicate('transfer')}.flatten.sort do |a,b|
+          transfers = origins.map(&:facts).map { |facts| facts.with_predicate('transfer') }.flatten.sort do |a,b|
             if (a.asset.id == b.asset.id)
               (a.object_asset.id <=> b.object_asset.id)
             else
@@ -546,7 +546,7 @@ RSpec.describe Step, type: :model do
         let(:origins) { create_assets(5, 'Tube') }
         let(:targets) { [] }
 
-        let(:destinations) { []}
+        let(:destinations) { [] }
         let(:num_destinations) { 5 }
 
         it_should_behave_like 'a step type that can connect by position'
@@ -557,8 +557,8 @@ RSpec.describe Step, type: :model do
     describe 'with addFacts action_type' do
       describe 'with one action' do
         setup do
-          @action = FactoryBot.create(:action, {:action_type => 'addFacts',
-            :predicate => 'is', :object => 'Empty', :subject_condition_group => @cg1})
+          @action = FactoryBot.create(:action, { :action_type => 'addFacts',
+            :predicate => 'is', :object => 'Empty', :subject_condition_group => @cg1 })
           @step_type.actions << @action
         end
 
@@ -657,7 +657,7 @@ RSpec.describe Step, type: :model do
                 FactoryBot.create(:asset, { :facts => [
                   FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
                   FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube')
-                  ]})
+                  ] })
               end
               @asset_group.assets << @tubes_and_racks
             end
@@ -687,10 +687,10 @@ RSpec.describe Step, type: :model do
 
       describe 'with several actions' do
         setup do
-          @action = FactoryBot.create(:action, {:action_type => 'addFacts',
-            :predicate => 'is', :object => 'Empty'})
-          @action2 = FactoryBot.create(:action, {:action_type => 'addFacts',
-            :predicate => 'is', :object => 'Red'})
+          @action = FactoryBot.create(:action, { :action_type => 'addFacts',
+            :predicate => 'is', :object => 'Empty' })
+          @action2 = FactoryBot.create(:action, { :action_type => 'addFacts',
+            :predicate => 'is', :object => 'Red' })
 
           @step_type.actions << @action
           @step_type.actions << @action2
@@ -747,8 +747,8 @@ RSpec.describe Step, type: :model do
     describe 'with removeFacts action_type' do
       describe 'with one action' do
         setup do
-          @action = FactoryBot.create(:action, {:action_type => 'removeFacts',
-            :predicate => 'is', :object => 'Tube', :subject_condition_group => @cg1})
+          @action = FactoryBot.create(:action, { :action_type => 'removeFacts',
+            :predicate => 'is', :object => 'Tube', :subject_condition_group => @cg1 })
           @step_type.actions << @action
         end
 
@@ -772,9 +772,9 @@ RSpec.describe Step, type: :model do
       describe 'relating different condition groups' do
         setup do
           # Something like removeFact(?tube :relatesTo ?rack)
-          @action = FactoryBot.create(:action, {:action_type => 'removeFacts',
+          @action = FactoryBot.create(:action, { :action_type => 'removeFacts',
             :predicate => 'relatesTo', :subject_condition_group => @cg1,
-            :object_condition_group => @cg2})
+            :object_condition_group => @cg2 })
           @step_type.actions << @action
         end
 
@@ -782,16 +782,16 @@ RSpec.describe Step, type: :model do
           @tubes.first.facts << FactoryBot.create(:fact, {
             :predicate => 'relatesTo', :object => @racks.first.relation_id,
             :object_asset => @racks.first,
-            :literal => false})
+            :literal => false })
 
-          assert_equal 1, @tubes.first.facts.select{|f| f.predicate == 'relatesTo'}.length
+          assert_equal 1, @tubes.first.facts.select { |f| f.predicate == 'relatesTo' }.length
 
           @asset_group.update_attributes(:assets => [@tubes.first, @racks.first].flatten)
           create_step
 
           @tubes.each(&:reload)
           @racks.each(&:reload)
-          assert_equal 0, @tubes.first.facts.select{|f| f.predicate == 'relatesTo'}.length
+          assert_equal 0, @tubes.first.facts.select { |f| f.predicate == 'relatesTo' }.length
           expect(Operation.all.count).to eq(1)
         end
         describe 'relating several assets' do
@@ -801,7 +801,7 @@ RSpec.describe Step, type: :model do
                 tube.facts << FactoryBot.create(:fact, {
                   :predicate => 'relatesTo', :object => rack.relation_id,
                   :object_asset => rack,
-                  :literal => false})
+                  :literal => false })
               end
             end
 
@@ -809,7 +809,7 @@ RSpec.describe Step, type: :model do
             @racks.each(&:reload)
 
             @tubes.each do |tube|
-              assert_equal true, (tube.facts.select{|f| f.predicate == 'relatesTo'}.length>0)
+              assert_equal true, (tube.facts.select { |f| f.predicate == 'relatesTo' }.length>0)
             end
 
             create_step
@@ -818,7 +818,7 @@ RSpec.describe Step, type: :model do
             @racks.each(&:reload)
 
             @tubes.each do |tube|
-              assert_equal 0, tube.facts.select{|f| f.predicate == 'relatesTo'}.length
+              assert_equal 0, tube.facts.select { |f| f.predicate == 'relatesTo' }.length
             end
             expect(Operation.all.count).to eq(@racks.length*@tubes.length)
           end
@@ -828,25 +828,25 @@ RSpec.describe Step, type: :model do
               tube.facts << FactoryBot.create(:fact, {
                :predicate => 'relatesTo', :object => @tubes.first.relation_id,
                :object_asset => @racks.first,
-               :literal => false})
+               :literal => false })
             end
 
             @racks.each do |rack|
               rack.facts << FactoryBot.create(:fact, {
                :predicate => 'relatesTo', :object => @racks.first.relation_id,
                :object_asset => @racks.first,
-               :literal => false})
+               :literal => false })
             end
 
             @tubes.each(&:reload)
             @racks.each(&:reload)
 
             @tubes.each do |tube|
-              assert_equal true, (tube.facts.select{|f| f.predicate == 'relatesTo'}.length>0)
+              assert_equal true, (tube.facts.select { |f| f.predicate == 'relatesTo' }.length>0)
             end
 
             @racks.each do |rack|
-              assert_equal true, (rack.facts.select{|f| f.predicate == 'relatesTo'}.length>0)
+              assert_equal true, (rack.facts.select { |f| f.predicate == 'relatesTo' }.length>0)
             end
 
             create_step
@@ -855,11 +855,11 @@ RSpec.describe Step, type: :model do
             @racks.each(&:reload)
 
             @tubes.each do |tube|
-              assert_equal 0, tube.facts.select{|f| f.predicate == 'relatesTo'}.length
+              assert_equal 0, tube.facts.select { |f| f.predicate == 'relatesTo' }.length
             end
 
             @racks.each do |rack|
-              assert_equal 1, rack.facts.select{|f| f.predicate == 'relatesTo'}.length
+              assert_equal 1, rack.facts.select { |f| f.predicate == 'relatesTo' }.length
             end
 
             expect(Operation.all.count).to eq(@tubes.length)
@@ -869,10 +869,10 @@ RSpec.describe Step, type: :model do
       end
       describe 'with several actions' do
         setup do
-          @action = FactoryBot.create(:action, {:action_type => 'removeFacts',
-            :predicate => 'is', :object => 'Tube'})
-          @action2 = FactoryBot.create(:action, {:action_type => 'removeFacts',
-            :predicate => 'is', :object => 'Full'})
+          @action = FactoryBot.create(:action, { :action_type => 'removeFacts',
+            :predicate => 'is', :object => 'Tube' })
+          @action2 = FactoryBot.create(:action, { :action_type => 'removeFacts',
+            :predicate => 'is', :object => 'Full' })
 
           @step_type.actions << @action
           @step_type.actions << @action2

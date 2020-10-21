@@ -14,7 +14,7 @@ RSpec.describe 'TransferPlateToPlate' do
   def create_rack
     create(:asset, facts: [
       create(:fact, predicate: 'a', object: 'TubeRack'),
-      create_wells.map{|w| create(:fact, predicate: 'contains', object_asset_id: w.id, literal: false)}
+      create_wells.map { |w| create(:fact, predicate: 'contains', object_asset_id: w.id, literal: false) }
       ].flatten)
   end
 
@@ -41,8 +41,8 @@ RSpec.describe 'TransferPlateToPlate' do
         destination_rack.facts << create(:fact, predicate: 'transferredFrom', object_asset_id: source_rack.id)
       end
 
-      let(:source_wells) {source_rack.facts.with_predicate('contains').map(&:object_asset)}
-      let(:destination_wells) {destination_rack.facts.with_predicate('contains').map(&:object_asset)}
+      let(:source_wells) { source_rack.facts.with_predicate('contains').map(&:object_asset) }
+      let(:destination_wells) { destination_rack.facts.with_predicate('contains').map(&:object_asset) }
 
       context 'when the destination is an empty rack' do
 
@@ -54,11 +54,11 @@ RSpec.describe 'TransferPlateToPlate' do
         end
         it 'transfers the contents of all wells' do
           added_facts = instance.process.to_h[:add_facts]
-          destination_well_uuids = added_facts.select{|triple| triple[1] == 'contains'}.map{|t| t[2]}
-          added_samples = added_facts.select{|triple| triple[1] == 'sample_id'}.map{|triple| [triple[0], triple[2]]}
-          expect(added_samples).to eq(destination_well_uuids.each_with_index.map{|uuid,i| [uuid, "Sample #{i}"]})
-          added_sample_tubes = added_facts.select{|triple| triple[1] == 'sample_tube'}.map{|triple| [triple[0], triple[2]]}
-          expect(added_sample_tubes).to eq(destination_well_uuids.map{|uuid| [uuid, sample_tube.uuid]})
+          destination_well_uuids = added_facts.select { |triple| triple[1] == 'contains' }.map { |t| t[2] }
+          added_samples = added_facts.select { |triple| triple[1] == 'sample_id' }.map { |triple| [triple[0], triple[2]] }
+          expect(added_samples).to eq(destination_well_uuids.each_with_index.map { |uuid,i| [uuid, "Sample #{i}"] })
+          added_sample_tubes = added_facts.select { |triple| triple[1] == 'sample_tube' }.map { |triple| [triple[0], triple[2]] }
+          expect(added_sample_tubes).to eq(destination_well_uuids.map { |uuid| [uuid, sample_tube.uuid] })
         end
 
         context 'with the aliquot defined at destination rack' do
@@ -67,8 +67,8 @@ RSpec.describe 'TransferPlateToPlate' do
           end
           it 'transfers the aliquot across plates into rack and wells' do
             added_facts = instance.process.to_h[:add_facts]
-            destination_well_uuids = added_facts.select{|triple| triple[1] == 'contains'}.map{|t| t[2]}
-            added_aliquots = added_facts.select{|triple| triple[1] == 'aliquotType'}.map{|triple| [triple[0], triple[2]]}
+            destination_well_uuids = added_facts.select { |triple| triple[1] == 'contains' }.map { |t| t[2] }
+            added_aliquots = added_facts.select { |triple| triple[1] == 'aliquotType' }.map { |triple| [triple[0], triple[2]] }
             expect(added_aliquots.sort).to eq(destination_well_uuids.map do |uuid|
               [uuid, 'DNA']
             end.sort)
@@ -87,10 +87,10 @@ RSpec.describe 'TransferPlateToPlate' do
         end
         it 'transfers the contents of all wells' do
           added_facts = instance.process.to_h[:add_facts]
-          added_samples = added_facts.select{|triple| triple[1] == 'sample_id'}.map{|triple| [triple[0], triple[2]]}
-          expect(added_samples).to eq(destination_wells.each_with_index.map{|w,i| [w.uuid, "Sample #{i}"]})
-          added_sample_tubes = added_facts.select{|triple| triple[1] == 'sample_tube'}.map{|triple| [triple[0], triple[2]]}
-          expect(added_sample_tubes).to eq(destination_wells.map{|w| [w.uuid, sample_tube.uuid]})
+          added_samples = added_facts.select { |triple| triple[1] == 'sample_id' }.map { |triple| [triple[0], triple[2]] }
+          expect(added_samples).to eq(destination_wells.each_with_index.map { |w,i| [w.uuid, "Sample #{i}"] })
+          added_sample_tubes = added_facts.select { |triple| triple[1] == 'sample_tube' }.map { |triple| [triple[0], triple[2]] }
+          expect(added_sample_tubes).to eq(destination_wells.map { |w| [w.uuid, sample_tube.uuid] })
         end
 
         context 'with aliquot defined at source' do
@@ -99,7 +99,7 @@ RSpec.describe 'TransferPlateToPlate' do
           end
           it 'transfers the aliquot across plates into rack and wells' do
             added_facts = instance.process.to_h[:add_facts]
-            added_aliquots = added_facts.select{|triple| triple[1] == 'aliquotType'}.map{|triple| [triple[0], triple[2]]}
+            added_aliquots = added_facts.select { |triple| triple[1] == 'aliquotType' }.map { |triple| [triple[0], triple[2]] }
             expect(added_aliquots.sort).to eq([destination_rack.uuid].concat(destination_wells.map(&:uuid)).map do |uuid|
               [uuid, 'DNA']
             end.sort)
@@ -112,7 +112,7 @@ RSpec.describe 'TransferPlateToPlate' do
 
               it 'transfers the aliquot' do
                 added_facts = instance.process.to_h[:add_facts]
-                added_aliquots = added_facts.select{|triple| triple[1] == 'aliquotType'}.map{|triple| [triple[0], triple[2]]}
+                added_aliquots = added_facts.select { |triple| triple[1] == 'aliquotType' }.map { |triple| [triple[0], triple[2]] }
                 expect(added_aliquots.sort).to eq([destination_rack.uuid].concat(destination_wells.map(&:uuid)).map do |uuid|
                   [uuid, 'DNA']
                 end.sort)

@@ -15,7 +15,7 @@ class AssetGroupsController < ApplicationController
     respond_to do |format|
       format.html { render @asset_group }
       format.n3 { render :show }
-      format.json { head :ok}
+      format.json { head :ok }
     end
   end
 
@@ -33,7 +33,7 @@ class AssetGroupsController < ApplicationController
     @asset_group.update_with_assets([].concat(@asset_group.assets).concat([asset]))
     @asset_group.touch
 
-    render json: {success: true}
+    render json: { success: true }
   end
 
   def print
@@ -48,7 +48,7 @@ class AssetGroupsController < ApplicationController
       perform_assets_update
 
       if @alerts
-        render json: {errors: @alerts}
+        render json: { errors: @alerts }
       end
     end
 

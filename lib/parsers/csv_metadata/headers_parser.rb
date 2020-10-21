@@ -2,6 +2,7 @@ module Parsers
   module CsvMetadata
     class HeadersParser
       attr_reader :headers
+
       include ActiveModel::Validations
 
       validate :validations
@@ -18,7 +19,7 @@ module Parsers
       end
 
       def _parse(line)
-        @headers=line.map{|header| header.strip }
+        @headers=line.map { |header| header.strip }
       end
     end
   end

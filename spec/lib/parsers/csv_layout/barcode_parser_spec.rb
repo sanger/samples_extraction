@@ -25,12 +25,12 @@ RSpec.describe Parsers::CsvLayout::BarcodeParser do
   end
 
   let(:barcode) { '1234' }
-  let(:location) { 'A10'}
-  let(:input) {[location, barcode]}
+  let(:location) { 'A10' }
+  let(:input) { [location, barcode] }
   context '#initialize' do
     let(:parser) { Parsers::CsvLayout::BarcodeParser.new(input, main_parser) }
     it 'can be initialized' do
-      expect{parser.barcode}.not_to raise_error
+      expect { parser.barcode }.not_to raise_error
     end
     it 'returns the barcode' do
       expect(parser.barcode).to eq(barcode)

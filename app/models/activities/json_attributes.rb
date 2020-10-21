@@ -1,5 +1,5 @@
 module Activities::JsonAttributes
-  def initial_json_attributes(current_user=nil)
+  def initial_json_attributes(current_user = nil)
     {
        activity: {
          id: id,
@@ -10,11 +10,11 @@ module Activities::JsonAttributes
          selectedAssetGroup: owned_asset_groups.first.id
        },
       tubePrinter: {
-        optionsData: Printer.for_tube.map{|a| [a.name, a.id]},
+        optionsData: Printer.for_tube.map { |a| [a.name, a.id] },
         defaultValue: current_user && current_user.tube_printer ? current_user.tube_printer.id : nil
       },
       platePrinter: {
-        optionsData: Printer.for_plate.map{|a| [a.name, a.id]},
+        optionsData: Printer.for_plate.map { |a| [a.name, a.id] },
         defaultValue: current_user && current_user.plate_printer ? current_user.plate_printer.id : nil
       }
     }.merge(websockets_attributes(json_attributes))
@@ -31,7 +31,7 @@ module Activities::JsonAttributes
       stepTypes: -> { ApplicationController.helpers.step_types_control_data(self) },
       stepsPending: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.running) },
       stepsRunning: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.processing) },
-      stepsFailed: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.finished.select{|s| s.state == 'failed'}) },
+      stepsFailed: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.finished.select { |s| s.state == 'failed' }) },
       stepsFinished: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.reload.finished.reverse) }
     }
   end

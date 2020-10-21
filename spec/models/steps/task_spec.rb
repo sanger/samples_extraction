@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Steps::Task do
 
-  let(:user) { create :user, username: 'test'}
+  let(:user) { create :user, username: 'test' }
   let(:printer_config) {
     {
       "Plate" => "plates",
@@ -44,15 +44,15 @@ describe Steps::Task do
         asset.reload
 
         step = create_instance(step_type, activity, group)
-        expect{
+        expect {
           step.run!
-        }.to change{Asset.all.count}.by(1).and change{Fact.count}
+        }.to change { Asset.all.count }.by(1).and change { Fact.count }
       end
     end
     context 'when the step type does have a step action' do
       let(:step_action) { 'some_action' }
       context 'when the step action runs correctly' do
-        let(:valid_changes) { FactChanges.new.tap{|update| update.create_assets(["?p"])}}
+        let(:valid_changes) { FactChanges.new.tap { |update| update.create_assets(["?p"]) } }
         let(:correct_execution) {
           execution = double('step_execution')
           allow(execution).to receive(:plan).and_return(valid_changes)
@@ -66,9 +66,9 @@ describe Steps::Task do
           asset.reload
 
           step = create_instance(step_type, activity, group)
-          expect{
+          expect {
             step.run!
-          }.to change{Asset.all.count}.by(2).and change{Fact.count}
+          }.to change { Asset.all.count }.by(2).and change { Fact.count }
         end
 
         it 'prints the selected list of assets' do
@@ -111,9 +111,9 @@ describe Steps::Task do
           asset.reload
           # We don't change asset count because assets are never destroyed, only facts
           step = create_instance(step_type, activity, group)
-          expect{
+          expect {
             step.run!
-          }.not_to change{Fact.count}
+          }.not_to change { Fact.count }
         end
       end
     end

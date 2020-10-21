@@ -1,5 +1,6 @@
 class PrintBarcodes
   attr_reader :asset_group, :step
+
   def initialize(params)
     @asset_group = params[:asset_group]
     @step = params[:step]
@@ -36,7 +37,7 @@ class PrintBarcodes
 
 end
 
-return unless ARGV.any?{|s| s.match(".json")}
+return unless ARGV.any? { |s| s.match(".json") }
 
 args = ARGV[0]
 asset_group_id = args.match(/(\d*)\.json/)[1]

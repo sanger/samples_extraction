@@ -20,21 +20,21 @@ RSpec.describe "Inference" do
         obtained_assets = SupportN3::parse_facts(code)
 
         f1 = [
-            FactoryBot.create(:fact, {:predicate => 'name', :object => 'a name'}),
-            FactoryBot.create(:fact, {:predicate => 'volume', :object => '17'})]
+            FactoryBot.create(:fact, { :predicate => 'name', :object => 'a name' }),
+            FactoryBot.create(:fact, { :predicate => 'volume', :object => '17' })]
         tube2 = FactoryBot.create(:asset, :name => 'tube2', :facts => f1)
         f2 = [
-          FactoryBot.create(:fact, {:predicate => 'relates', :object_asset => tube2})
+          FactoryBot.create(:fact, { :predicate => 'relates', :object_asset => tube2 })
         ]
         tube1 = FactoryBot.create(:asset, :name => 'tube1', :facts=> f2)
         tube3 = FactoryBot.create(:asset)
         f3 = [
-          FactoryBot.create(:fact, {:predicate => 'relates', :object_asset => tube2})
+          FactoryBot.create(:fact, { :predicate => 'relates', :object_asset => tube2 })
         ]
         tube4 = FactoryBot.create(:asset, :name => 'tube4',
           :facts => f3
         )
-        f4 = [FactoryBot.create(:fact, {:predicate => 'volume', :object => '17'})]
+        f4 = [FactoryBot.create(:fact, { :predicate => 'volume', :object => '17' })]
         tube5 = FactoryBot.create(:asset, :name => 'tube2',
           :facts => f4)
 

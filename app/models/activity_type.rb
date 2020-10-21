@@ -30,7 +30,7 @@ class ActivityType < ActiveRecord::Base
       group = AssetGroup.create
       activity = Activity.create({
         kit: params[:kit], instrument: params[:instrument],
-        activity_type: self, asset_group: group})
+        activity_type: self, asset_group: group })
       activities << activity
       group.update_attributes!(activity_owner: activity)
     end
@@ -59,7 +59,7 @@ class ActivityType < ActiveRecord::Base
 
 
   def compatible_with?(assets)
-    condition_groups.any?{|c| c.compatible_with?(assets)}
+    condition_groups.any? { |c| c.compatible_with?(assets) }
   end
 
   def to_n3

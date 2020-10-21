@@ -2,6 +2,7 @@ module Parsers
   module CsvMetadata
     class DataParser
       attr_reader :data
+
       include ActiveModel::Validations
 
       def initialize(line, parser)

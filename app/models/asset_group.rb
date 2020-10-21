@@ -47,7 +47,7 @@ class AssetGroup < ActiveRecord::Base
   end
 
   def position_for_asset(asset)
-    assets.each_with_index{|a, pos| return pos if (asset.id == a.id)}
+    assets.each_with_index { |a, pos| return pos if (asset.id == a.id) }
     return -1
   end
 
@@ -101,7 +101,7 @@ class AssetGroup < ActiveRecord::Base
 
   def select_barcodes(barcodes)
     barcodes.each do |barcode|
-      if assets.select{|a| a.barcode == barcode}.empty?
+      if assets.select { |a| a.barcode == barcode }.empty?
         asset = Asset.find_or_import_asset_with_barcode(barcode)
         return false if asset.nil?
         add_assets(asset)
@@ -112,7 +112,7 @@ class AssetGroup < ActiveRecord::Base
 
   def unselect_barcodes(barcodes)
     barcodes.each do |barcode|
-      selection = assets.select{|a| (a.barcode == barcode) || (a.uuid == barcode)}
+      selection = assets.select { |a| (a.barcode == barcode) || (a.uuid == barcode) }
       assets.delete(selection)
     end
   end

@@ -38,11 +38,11 @@ class Asset < ActiveRecord::Base
   has_many :activities, -> { distinct }, :through => :steps
 
   scope :currently_changing, ->() {
-    joins(:asset_groups, :steps).where(:steps => {:state => 'running'})
+    joins(:asset_groups, :steps).where(:steps => { :state => 'running' })
   }
 
   scope :for_activity_type, ->(activity_type) {
-    joins(:activities).where(:activities => { :activity_type_id => activity_type.id})
+    joins(:activities).where(:activities => { :activity_type_id => activity_type.id })
   }
 
   scope :not_started, ->() {
@@ -199,7 +199,7 @@ class Asset < ActiveRecord::Base
         }
       }
     end
-    return {:label => {
+    return { :label => {
       :barcode => barcode_formatted_for_printing,
       :barcode2d => barcode_formatted_for_printing,
       :top_line => TokenUtil.human_barcode(barcode),
@@ -257,12 +257,12 @@ class Asset < ActiveRecord::Base
   end
 
   def self.class_type(facts)
-    class_types = facts.select{|f| f[:predicate] == 'a'}.map(&:object)
+    class_types = facts.select { |f| f[:predicate] == 'a' }.map(&:object)
     return 'TubeRack' if class_types.include?('TubeRack')
     return 'Plate' if class_types.include?('Plate')
     return 'Tube' if class_types.include?('Tube')
     return 'SampleTube' if class_types.include?('SampleTube')
-    return facts.select{|f| f[:predicate] == 'a'}.first.object if facts.select{|f| f[:predicate] == 'a'}.first
+    return facts.select { |f| f[:predicate] == 'a' }.first.object if facts.select { |f| f[:predicate] == 'a' }.first
     return ""
   end
 
@@ -292,7 +292,7 @@ class Asset < ActiveRecord::Base
   end
 
   def remove_from_parent(parent)
-    facts.with_predicate('parent').select{|f| f.object_asset==parent}.each(&:destroy)
+    facts.with_predicate('parent').select { |f| f.object_asset==parent }.each(&:destroy)
     facts.with_predicate('location').each(&:destroy)
   end
 

@@ -11,11 +11,11 @@ class LabelTemplateSetup
     end
 
     def find_label_template_by_name(name)
-      label_templates.detect {|t| t.name == name }
+      label_templates.detect { |t| t.name == name }
     end
 
     def label_type_id_for(type_name)
-      label_types.detect {|lt| lt.name == type_name }.id
+      label_types.detect { |lt| lt.name == type_name }.id
     end
 
     def templates
@@ -23,7 +23,7 @@ class LabelTemplateSetup
     end
 
     def register_label_type(name, data)
-      ltype = PMB::LabelType.all.detect {|lt| lt.name == name }
+      ltype = PMB::LabelType.all.detect { |lt| lt.name == name }
       if ltype.nil?
         PMB::LabelType.new(data).save
       end

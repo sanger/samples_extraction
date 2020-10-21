@@ -33,8 +33,8 @@ class User < ActiveRecord::Base
   end
 
   def session_info
-    {:username => username, :fullname => fullname, :barcode => barcode, :role => role,
-      :tube_printer_name => tube_printer_name, :plate_printer_name => plate_printer_name}
+    { :username => username, :fullname => fullname, :barcode => barcode, :role => role,
+      :tube_printer_name => tube_printer_name, :plate_printer_name => plate_printer_name }
   end
 
   def printer_config

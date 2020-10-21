@@ -21,12 +21,12 @@ module Printables::Group
 
     classify_for_printing(assets, printer_config).each do |printer_name, info_for_template|
       info_for_template.each do |label_template, assets|
-        body_print = assets.map{|a| a.printable_object(user)}.compact.reverse
+        body_print = assets.map { |a| a.printable_object(user) }.compact.reverse
         next if body_print.empty?
         PMB::PrintJob.new(
         printer_name:printer_name,
         label_template_id: label_template.external_id,
-        labels:{body: body_print}
+        labels:{ body: body_print }
       ).save
       end
     end

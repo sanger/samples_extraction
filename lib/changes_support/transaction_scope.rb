@@ -48,7 +48,7 @@ module ChangesSupport::TransactionScope
     def _filter_removed_entries(opts)
       if (@klass==Asset)
         if @updates.to_h[:delete_assets]
-          selected_elements=result_set.to_a.select{|a| @updates.to_h[:delete_assets].include?(a.uuid)}
+          selected_elements=result_set.to_a.select { |a| @updates.to_h[:delete_assets].include?(a.uuid) }
           @result_set=result_set.to_a - selected_elements
         end
         if @updates.to_h[:remove_facts]
@@ -104,7 +104,7 @@ module ChangesSupport::TransactionScope
       _disjoint_lists[model][type]
     end
 
-    def _join_condition(elem, default_fkey_name=nil)
+    def _join_condition(elem, default_fkey_name = nil)
       default_fkey_name ||= @klass.to_s.downcase.to_sym
       rel={}
       rel[default_fkey_name] = elem
