@@ -38,7 +38,16 @@ Dir.chdir APP_ROOT do
   end
 
   puts "\n== Preparing database =="
-  system "bin/rake db:setup"
+  if ENV['RAILS_ENV'] == 'test'
+    # If the RAILS_ENV is already set to test (such as on the CI server) then
+    # not only will rake db:setup generate the test database, but will also seed
+    # it. This differs from the test database created when an environment is
+    # unspecified, which is unseeded. We avoid using rake db:setup in this case
+    # and just create the database and load the schema instead.
+    system "bin/rake db:create db:schema:load"
+  else
+    system "bin/rake db:setup"
+  end
 
   puts "\n== Removing old logs and tempfiles =="
   system "rm -f log/*"
