@@ -33,12 +33,26 @@ class Activity < ApplicationRecord
   include Activities::State
   include Activities::WebsocketEvents
 
-  delegate :name, to: :activity_type, prefix: true
-  delegate :barcode, :type, to: :kit, prefix: true
-  delegate :name, to: :instrument, prefix: true
-  delegate :fullname, to: :last_user, prefix: true
+  delegate :name, to: :activity_type, prefix: true, allow_nil: true
+  delegate :barcode, :type, to: :kit, prefix: true, allow_nil: true
+  delegate :name, to: :instrument, prefix: true, allow_nil: true
+  delegate :fullname, to: :last_user, prefix: true, allow_nil: true
+
+
+  # Called following state transition to finish
+  # Broadcasts the activity to the ML warehouse
+  def after_finish
+    send_message
+  end
 
   def last_user
     users.order('steps.created_at, steps.id DESC').first
+  end
+
+  private
+
+  def send_message
+    message = Messages::Activity.new(self)
+    Warren.handler << message
   end
 end

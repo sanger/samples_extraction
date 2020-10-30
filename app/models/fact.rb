@@ -8,6 +8,7 @@ class Fact < ApplicationRecord
   scope :with_ns_predicate, ->(namespace) { where(:ns_predicate => namespace) }
   scope :with_fact, -> (predicate, object) { where(:predicate => predicate, :object => object) }
   scope :from_remote_asset, ->() { where(:is_remote? => true) }
+  scope :created_before, ->(date) { date.nil? ? all : where('created_at < ?', date) }
 
   validates :object_asset_id, presence: true, unless: :literal?
   validates :object_asset_id, presence: false, if: :literal?

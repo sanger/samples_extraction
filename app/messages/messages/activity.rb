@@ -8,40 +8,53 @@ module Messages
     # The {::Activity} that is being rendered
     attr_reader :activity
 
-    def initialize(activity)
+    def initialize(activity, state: 'finished')
       @activity = activity
+      @state = state
+    end
+
+    # Used by warren to generate the routing key
+    def routing_key
+      "activity.#{@state}.#{activity.id}"
+    end
+
+    # Interface for warren. Avoids the need to wrap our message in one
+    # of warren's onw Warren::Message classes
+    def payload
+      to_json
     end
 
     # Hash object used by #to_json to render the message
-    def as_json
+    def as_json(_args = {})
       {
-        sample_extraction_activity: payload,
-        lims: 'samples_extraction'
+        samples_extraction_activity: samples_extraction_activity,
+        lims: 'SAMPEXT'
       }
     end
 
     private
 
     # Main payload of the message
-    def payload
+    def samples_extraction_activity
       {
         samples: sample_payload,
         activity_type: activity.activity_type_name,
         instrument: activity.instrument_name,
         kit_barcode: activity.kit_barcode,
         kit_type: activity.kit_type,
-        date: activity.completed_at,
+        completed_at: activity.completed_at,
+        updated_at: activity.updated_at,
         user: activity.last_user_fullname,
-        _activity_id_: activity.id
+        activity_id: activity.id
       }
     end
 
     def sample_payload
       activity.assets.flat_map do |asset|
         input_barcode = asset.walk_transfers.barcode
-        asset.supplier_sample_name_facts.map do |fact|
+        asset.sample_uuid_facts.map do |fact|
           {
-            supplier_sample_name: fact.object,
+            sample_uuid: TokenUtil.unquote(fact.object),
             input_barcode: input_barcode,
             output_barcode: asset.barcode
           }

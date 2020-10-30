@@ -2,6 +2,7 @@ source 'http://rubygems.org'
 
 
 # Service libraries
+gem 'sanger_warren' # Wraps bunny and manages connection pools and configuration
 gem 'puma'
 gem 'daemons'
 gem 'redis'
@@ -16,7 +17,6 @@ gem 'activerecord-session_store'
 gem 'micro_token'
 gem 'activerecord-import'
 gem 'aasm'
-
 
 # Rails views and UI
 gem 'turbolinks'
@@ -36,18 +36,17 @@ gem 'will_paginate-bootstrap'
 # Javascript UI
 gem 'ejs'
 gem 'dropzonejs-rails'
-gem 'rails-assets-tether'#, '>= 1.1.0'
+gem 'rails-assets-tether'
 gem 'ace-rails-ap'
 
 # Serializers
 gem 'rdf-n3'
-gem 'jbuilder'#, '~> 2.0'
-gem 'yajl-ruby'#, '>= 1.3'
+gem 'jbuilder'
+gem 'yajl-ruby'
 gem 'google_hash'
 
 # Traction endpoints
 gem 'jsonapi-resources'
-
 gem 'json_api_client'
 
 # Tools

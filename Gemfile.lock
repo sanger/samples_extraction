@@ -64,6 +64,7 @@ GEM
       tzinfo (~> 1.1)
     addressable (2.6.0)
       public_suffix (>= 2.0.2, < 4.0)
+    amq-protocol (2.3.2)
     arel (8.0.0)
     ast (2.4.1)
     autoprefixer-rails (9.6.0)
@@ -81,6 +82,8 @@ GEM
       actionpack (>= 5.0)
       activemodel (>= 5.0)
     builder (3.2.3)
+    bunny (2.17.0)
+      amq-protocol (~> 2.3, >= 2.3.1)
     byebug (11.0.1)
     coderay (1.1.2)
     concurrent-ruby (1.1.5)
@@ -185,7 +188,7 @@ GEM
       connection_pool (~> 2.2)
     net-http-pipeline (1.0.1)
     netrc (0.11.0)
-    nio4r (2.4.0)
+    nio4r (2.5.4)
     nokogiri (1.10.3)
       mini_portile2 (~> 2.4.0)
     os (0.9.6)
@@ -308,6 +311,10 @@ GEM
     ruby-progressbar (1.10.1)
     sane (0.25.8)
       os (~> 0)
+    sanger_warren (0.1.0)
+      bunny (~> 2.17.0)
+      connection_pool (~> 2.2.0)
+      multi_json (~> 1.0)
     sass (3.7.4)
       sass-listen (~> 4.0.0)
     sass-listen (4.0.0)
@@ -452,6 +459,7 @@ DEPENDENCIES
   rubocop-rails
   ruby-growl
   sanger_barcode_format!
+  sanger_warren
   sass-rails
   sdoc
   sequencescape-client-api

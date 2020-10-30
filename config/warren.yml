@@ -1,0 +1,15 @@
+development:
+  type: broadcast
+  config: # Useful to allow easy switching to broadcast in development
+    routing_key_prefix: development
+    server:
+      host: localhost
+      port: 5672
+      username: guest
+      password: guest
+      vhost: /
+      frame_max: 0
+      heartbeat: 30
+    exchange: psd.sequencescape
+test:
+  type: test

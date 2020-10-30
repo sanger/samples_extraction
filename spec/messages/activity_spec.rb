@@ -8,10 +8,13 @@ RSpec.describe Messages::Activity do
   let(:kit_type) { FactoryBot.create :kit_type, name: 'Kit type' }
   let(:kit) { FactoryBot.create :kit, kit_type: kit_type }
   let(:user) { FactoryBot.create :user, fullname: 'Users name' }
+  let(:sample_a_uuid) { SecureRandom.uuid }
+  let(:sample_b_uuid) { SecureRandom.uuid }
   let(:well_attributes) do
     [
-      { supplier_sample_name: 'Sample A' },
-      { supplier_sample_name: 'Sample B' }
+      # Quotes around UUID reflect what I'm actually seeing in the DB.
+      { supplier_sample_name: 'Sample A', sample_uuid: "\"#{sample_a_uuid}\"" },
+      { supplier_sample_name: 'Sample B', sample_uuid: "\"#{sample_b_uuid}\"" }
     ]
   end
   let(:target_plate) { FactoryBot.create :plate, well_attributes: well_attributes }
@@ -64,33 +67,34 @@ RSpec.describe Messages::Activity do
   end
 
   it 'lists finished activities at the sample level' do
-    expect(results[:sample_extraction_activity][:samples].length).to eq 2
+    expect(results[:samples_extraction_activity][:samples].length).to eq 2
   end
 
   it 'has the expected keys' do
-    expect(results[:sample_extraction_activity].keys).to eq [
+    expect(results[:samples_extraction_activity].keys).to eq [
       :samples,
       :activity_type,
       :instrument,
       :kit_barcode,
       :kit_type,
-      :date,
+      :completed_at,
+      :updated_at,
       :user,
-      :_activity_id_
+      :activity_id
     ]
   end
 
   it 'lists the correct information' do
     expect(results).to eq({
-                            sample_extraction_activity: {
+                            samples_extraction_activity: {
                               samples: [
                                 {
-                                  supplier_sample_name: 'Sample A',
+                                  sample_uuid: sample_a_uuid,
                                   input_barcode: source_plate.barcode,
                                   output_barcode: target_plate.barcode
                                 },
                                 {
-                                  supplier_sample_name: 'Sample B',
+                                  sample_uuid: sample_b_uuid,
                                   input_barcode: source_plate.barcode,
                                   output_barcode: target_plate.barcode
                                 }
@@ -99,11 +103,24 @@ RSpec.describe Messages::Activity do
                               instrument: 'Instument',
                               kit_barcode: kit.barcode,
                               kit_type: 'Kit type',
-                              date: activity.completed_at,
+                              # created_at: activity.created_at, # Don't really want this
+                              updated_at: activity.updated_at,
+                              completed_at: activity.completed_at,
                               user: 'Users name',
-                              _activity_id_: activity.id
+                              activity_id: activity.id
                             },
-                            lims: 'samples_extraction'
+                            lims: 'SAMPEXT'
                           })
+  end
+
+  describe '#routing_key' do
+    subject { described_class.new(activity).routing_key }
+    it { is_expected.to eq "activity.finished.#{activity.id}" }
+  end
+
+  describe '#payload' do
+    subject { described_class.new(activity).payload }
+    it { puts JSON.parse(described_class.new(activity).send(:samples_extraction_activity).to_json) }
+    it { is_expected.to eq results.to_json }
   end
 end

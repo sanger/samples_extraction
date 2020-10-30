@@ -10,6 +10,7 @@ module Activities::State
     ActiveRecord::Base.transaction do
       update_attributes(:completed_at => DateTime.now, state: 'finish')
     end
+    after_finish if respond_to?(:after_finish)
   end
 
   def finished?
