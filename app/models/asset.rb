@@ -4,6 +4,8 @@ require 'date'
 require 'pry'
 
 class Asset < ApplicationRecord
+  DataIntegrityError = Class.new(StandardError)
+
   include Uuidable
   include Printables::Instance
   include Assets::Import
@@ -15,7 +17,18 @@ class Asset < ApplicationRecord
 
   alias_attribute :name, :uuid
 
-  has_many :facts, dependent: :delete_all
+  has_many :facts, dependent: :delete_all do
+    # If we've already loaded our facts, avoid hitting the database a
+    # second time.
+    def with_predicate(predicate)
+      if loaded?
+        select { |fact| fact.predicate.casecmp?(predicate) }
+      else
+        super
+      end
+    end
+  end
+
   has_many :asset_groups_assets, dependent: :destroy
   has_many :asset_groups, through: :asset_groups_assets
   has_many :steps, through: :asset_groups
@@ -87,24 +100,29 @@ class Asset < ApplicationRecord
     f ? f.object : ""
   end
 
-  # Returns all facts with the predicate 'supplier_sample_name'
+  # Returns all facts with the predicate 'sample_uuid'
   # associated with the asset. This can either be those associated
   # directly with the asset (such as for tubes) or
   # via contained assets (for a plate)
-  def supplier_sample_name_facts
-    if has_predicate?('supplier_sample_name')
-      facts.with_predicate('supplier_sample_name')
+  def sample_uuid_facts
+    if has_predicate?('sample_uuid')
+      facts.with_predicate('sample_uuid')
     else
       facts.with_predicate('contains').flat_map do |fact|
-        fact.object_asset.supplier_sample_name_facts
+        fact.object_asset.sample_uuid_facts
       end
     end
   end
 
-  def walk_transfers
-    parent_fact = facts.with_predicate('transferredFrom').last
+  # Walk back down the transfers, until you find the oldest.
+  # The created_before filter prevents us from an infinite
+  # loop in the event asset_a > asset_b > asset_a
+  def walk_transfers(before = nil)
+    parent_fact = facts.with_predicate('transferredFrom')
+                       .created_before(before)
+                       .last
     if parent_fact&.object_asset
-      parent_fact.object_asset.walk_transfers
+      parent_fact.object_asset.walk_transfers(parent_fact.created_at)
     else
       self
     end
