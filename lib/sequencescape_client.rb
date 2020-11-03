@@ -85,4 +85,3 @@ class SequencescapeClient
     nil
   end
 end
-

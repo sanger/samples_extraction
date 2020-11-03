@@ -500,6 +500,7 @@ class FactChanges
       memo.concat(elems) if elems
       memo
     end.concat(Fact.where(id: ids))
+
     _instances_deletion(Fact, modified_list) do
       _fact_operations('removeFacts', step, modified_list) if with_operations
     end
@@ -536,6 +537,7 @@ class FactChanges
       Operation.new(:action_type => action_type, :step => step,
         :asset=> fact.asset, :predicate => fact.predicate, :object => fact.object, object_asset: fact.object_asset)
     end
+
     modified_assets.flatten.compact.uniq.each(&:touch)
     operations
   end

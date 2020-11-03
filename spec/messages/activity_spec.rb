@@ -123,7 +123,6 @@ RSpec.describe Messages::Activity do
 
   describe '#payload' do
     subject { described_class.new(activity).payload }
-    it { puts JSON.parse(described_class.new(activity).send(:samples_extraction_activity).to_json) }
     it { is_expected.to eq results.to_json }
   end
 end
