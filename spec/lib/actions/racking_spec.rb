@@ -63,10 +63,10 @@ RSpec.describe Actions::Racking do
           )
           send(method, asset_group).apply(another_step)
 
-          assets = asset.facts.with_predicate('contains').map(&:object_asset)
+          assets = asset.reload.facts.with_predicate('contains').map(&:object_asset)
           expect(assets.count).to eq(0)
 
-          assets = actual_parent.facts.with_predicate('contains').map(&:object_asset)
+          assets = actual_parent.reload.facts.with_predicate('contains').map(&:object_asset)
           expect(assets.count).to eq(96)
           assets.each do |a|
             expect(a.facts.with_predicate('location').count).to eq(1)

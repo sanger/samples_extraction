@@ -302,7 +302,7 @@ class FactChanges
   end
 
   def wildcard_for_uuid(uuid)
-    wildcards.keys.select { |key| wildcards[key] == uuid }.first
+    wildcards.keys.detect { |key| wildcards[key] == uuid }
   end
 
   def find_instance_from_uuid(klass, uuid)

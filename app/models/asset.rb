@@ -118,9 +118,12 @@ class Asset < ApplicationRecord
   # The created_before filter prevents us from an infinite
   # loop in the event asset_a > asset_b > asset_a
   def walk_transfers(before = nil)
-    parent_fact = facts.with_predicate('transferredFrom')
-                       .created_before(before)
-                       .last
+    transfers = facts.with_predicate('transferredFrom')
+    parent_fact = if transfers.respond_to?(:created_before)
+                    transfers.created_before(before).last
+                  else
+                    transfers.reverse.detect { |t| before.nil? || (t.created_at < before) }
+                  end
     if parent_fact&.object_asset
       parent_fact.object_asset.walk_transfers(parent_fact.created_at)
     else

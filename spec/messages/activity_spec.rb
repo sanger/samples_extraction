@@ -42,10 +42,11 @@ RSpec.describe Messages::Activity do
                       steps: [first_transfer, second_transfer]
   end
 
-  def create_transfer(step:, from:, to:)
+  def create_transfer(step:, from:, to:, created_at:)
     FactoryBot.create :fact, predicate: 'transferredFrom',
                              asset: to,
-                             object_asset: from
+                             object_asset: from,
+                             created_at: created_at
     FactoryBot.create :operation, predicate: 'transferredFrom',
                                   asset: to,
                                   step: step,
@@ -56,10 +57,12 @@ RSpec.describe Messages::Activity do
     activity
     create_transfer step: first_transfer,
                     from: source_plate,
-                    to: intermediate_plate
+                    to: intermediate_plate,
+                    created_at: 1.day.ago
     create_transfer step: second_transfer,
                     from: intermediate_plate,
-                    to: target_plate
+                    to: target_plate,
+                    created_at: 1.hour.ago
   end
 
   subject(:results) do

@@ -67,16 +67,16 @@ class SequencescapeClient
     find_by(uuid: uuid)
   end
 
+  # TODO: In most cases we should know what type of record we're looking up.
   def self.find_by(search_conditions)
     [
-      SequencescapeClientV2::Plate,
-      SequencescapeClientV2::Tube,
-      SequencescapeClientV2::Well,
-      SequencescapeClientV2::TubeRack
+      SequencescapeClientV2::Plate.includes('wells.aliquots.sample'),
+      SequencescapeClientV2::Tube.includes('aliquots.sample'),
+      SequencescapeClientV2::Well.includes('aliquots.sample'),
+      SequencescapeClientV2::TubeRack.includes('racked_tubes.tube.aliquots.sample')
     ].each do |klass|
       begin
-        search = klass.where(search_conditions)
-        search = search.first if search
+        search = klass.where(search_conditions).first
         return search if search
       rescue JsonApiClient::Errors::ClientError => e
         # Ignore filter error
