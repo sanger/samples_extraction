@@ -1,5 +1,5 @@
 development:
-  type: broadcast
+  type: log
   config: # Useful to allow easy switching to broadcast in development
     routing_key_prefix: development
     server:
