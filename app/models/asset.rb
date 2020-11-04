@@ -1,8 +1,6 @@
 require 'sequencescape_client'
 require 'date'
 
-require 'pry'
-
 class Asset < ApplicationRecord
   DataIntegrityError = Class.new(StandardError)
 
