@@ -1,4 +1,3 @@
-require 'pry'
 
 class StepsController < ApplicationController
   before_action :set_step, only: [:update]
