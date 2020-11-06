@@ -38,7 +38,7 @@ module Actions
       true
     end
 
-    def self.transfer_by_location(plate, destination, updates=nil)
+    def self.transfer_by_location(plate, destination, updates = nil)
       aliquot = plate.facts.where(predicate: 'aliquotType').first
       updates ||= FactChanges.new
       updates.tap do |updates|
@@ -71,7 +71,7 @@ module Actions
       end
     end
 
-    def self.transfer_with_asset_creation(plate, destination, updates=nil)
+    def self.transfer_with_asset_creation(plate, destination, updates = nil)
       aliquot_value = updates.values_for_predicate(destination, 'aliquotType').first
       updates ||= FactChanges.new
       updates.tap do |updates|
@@ -96,7 +96,7 @@ module Actions
     #
     # plate: Asset
     # destimation: Asset or String representing a uuid or a wildcard
-    def self.transfer_plates(plate, destination, updates=nil)
+    def self.transfer_plates(plate, destination, updates = nil)
       updates ||= FactChanges.new
       updates.tap do |updates|
         if destination.kind_of?(Asset) && (destination.has_wells?)

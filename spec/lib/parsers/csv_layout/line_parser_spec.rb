@@ -35,7 +35,7 @@ RSpec.describe Parsers::CsvLayout::LineParser do
   context '#initialize' do
     it 'can be initialized' do
       @input = [["A1", @asset1.barcode]]
-      expect{parser}.not_to raise_error
+      expect { parser }.not_to raise_error
     end
   end
 
@@ -49,40 +49,40 @@ RSpec.describe Parsers::CsvLayout::LineParser do
       @input = [["A1","F1234"],["A2","F5678"]]
       expect(parser).to be_valid
       expect(parser.parsed_data).to eq([
-        {location: "A01", asset: @asset1},
-        {location: "A02", asset: @asset2}
+        { location: "A01", asset: @asset1 },
+        { location: "A02", asset: @asset2 }
       ])
     end
     it 'filters empty lines' do
       @input = [["A1","F1234"],[],["A2","F5678"]]
       expect(parser).to be_valid
       expect(parser.parsed_data).to eq([
-        {location: "A01", asset: @asset1},
-        {location: "A02", asset: @asset2}
+        { location: "A01", asset: @asset1 },
+        { location: "A02", asset: @asset2 }
       ])
     end
     it 'filters nil lines' do
       @input = [["A1","F1234"],nil,["A2","F5678"]]
       expect(parser).to be_valid
       expect(parser.parsed_data).to eq([
-        {location: "A01", asset: @asset1},
-        {location: "A02", asset: @asset2}
+        { location: "A01", asset: @asset1 },
+        { location: "A02", asset: @asset2 }
       ])
     end
     it 'filters nil empty lines' do
       @input = [["A1","F1234"],[nil, nil],["A2","F5678"]]
       expect(parser).to be_valid
       expect(parser.parsed_data).to eq([
-        {location: "A01", asset: @asset1},
-        {location: "A02", asset: @asset2}
+        { location: "A01", asset: @asset1 },
+        { location: "A02", asset: @asset2 }
       ])
     end
     it 'filters no read barcodes' do
       @input = [["A1","F1234"],["B01", "No read"],["A2","F5678"]]
       expect(parser).to be_valid
       expect(parser.parsed_data).to eq([
-        {location: "A01", asset: @asset1},
-        {location: "A02", asset: @asset2}
+        { location: "A01", asset: @asset1 },
+        { location: "A02", asset: @asset2 }
       ])
     end
   end

@@ -11,14 +11,14 @@ RSpec.describe ActivitiesController, type: :controller do
   setup do
     @activity_type = FactoryBot.create :activity_type
     @kit_type = FactoryBot.create :kit_type, :activity_type => @activity_type
-    @kit = FactoryBot.create :kit, {:kit_type => @kit_type}
+    @kit = FactoryBot.create :kit, { :kit_type => @kit_type }
     @instrument = FactoryBot.create :instrument
 
   end
 
   context "when updating an activity" do
     before do
-      @activity = @kit.kit_type.activity_type.create_activity({kit: @kit, instrument: @instrument})
+      @activity = @kit.kit_type.activity_type.create_activity({ kit: @kit, instrument: @instrument })
     end
     it 'can finish the activity' do
       post :update,  params: { id: @activity.id, activity: { state: 'finish' } }
@@ -29,7 +29,7 @@ RSpec.describe ActivitiesController, type: :controller do
   context "when scanning a new kit" do
     context 'when the kit does not exist' do
       let(:subject) {
-        post :create,  params: { activity: { :kit_barcode => '11850', :instrument_barcode => @instrument.barcode} }
+        post :create,  params: { activity: { :kit_barcode => '11850', :instrument_barcode => @instrument.barcode } }
       }
       it 'fails creating the activity' do
         count = @kit.kit_type.activity_type.activities.count
@@ -45,7 +45,7 @@ RSpec.describe ActivitiesController, type: :controller do
     context 'when the kit exists' do
       context 'when the instrument does not support the activity type' do
         let(:subject) {
-          post :create,  params: { activity: { :kit_barcode => @kit.barcode, :instrument_barcode => @instrument.barcode} }
+          post :create,  params: { activity: { :kit_barcode => @kit.barcode, :instrument_barcode => @instrument.barcode } }
         }
         it 'fails creating the activity' do
           count = @kit.kit_type.activity_type.activities.count
@@ -64,7 +64,7 @@ RSpec.describe ActivitiesController, type: :controller do
         end
         it "creates a new activity" do
           count = @kit.kit_type.activity_type.activities.count
-          post :create,  params: { activity:  { :kit_barcode => @kit.barcode, :instrument_barcode => @instrument.barcode} }
+          post :create,  params: { activity:  { :kit_barcode => @kit.barcode, :instrument_barcode => @instrument.barcode } }
           @kit.kit_type.activity_type.activities.reload
           assert_equal @kit.kit_type.activity_type.activities.count, count + 1
           assert_equal @activity_type.activities.count, count + 1

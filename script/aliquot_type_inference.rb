@@ -1,8 +1,10 @@
 class AliquotTypeInference
   attr_reader :asset_group
+
   def initialize(params)
     @asset_group = params[:asset_group]
   end
+  # rubocop:todo Naming/MethodName
   def _CODE
     %Q{
       {
@@ -47,7 +49,7 @@ def out(val)
   return
 end
 
-return unless ARGV.any?{|s| s.match(".json")}
+return unless ARGV.any? { |s| s.match(".json") }
 args = ARGV[0]
 out({}) unless args
 
@@ -57,4 +59,4 @@ asset_group_id = matches[1]
 asset_group = AssetGroup.find(asset_group_id)
 
 out(AliquotTypeInference.new(asset_group: asset_group).process)
-
+# rubocop:enable Naming/MethodName

@@ -1,9 +1,9 @@
 require 'sequencescape_client'
 require 'date'
 
-require 'pry'
+class Asset < ApplicationRecord
+  DataIntegrityError = Class.new(StandardError)
 
-class Asset < ActiveRecord::Base
   include Uuidable
   include Printables::Instance
   include Assets::Import
@@ -15,13 +15,22 @@ class Asset < ActiveRecord::Base
 
   alias_attribute :name, :uuid
 
-  has_many :facts, :dependent => :delete_all
+  has_many :facts, dependent: :delete_all do
+    # If we've already loaded our facts, avoid hitting the database a
+    # second time.
+    def with_predicate(predicate)
+      if loaded?
+        select { |fact| fact.predicate.casecmp?(predicate) }
+      else
+        super
+      end
+    end
+  end
+
   has_many :asset_groups_assets, dependent: :destroy
   has_many :asset_groups, through: :asset_groups_assets
-  has_many :steps, :through => :asset_groups
-
+  has_many :steps, through: :asset_groups
   has_many :activities_affected, -> { distinct }, through: :asset_groups, class_name: 'Activity', source: :activity_owner
-
 
 
   def update_compatible_activity_type
@@ -38,11 +47,11 @@ class Asset < ActiveRecord::Base
   has_many :activities, -> { distinct }, :through => :steps
 
   scope :currently_changing, ->() {
-    joins(:asset_groups, :steps).where(:steps => {:state => 'running'})
+    joins(:asset_groups, :steps).where(:steps => { :state => 'running' })
   }
 
   scope :for_activity_type, ->(activity_type) {
-    joins(:activities).where(:activities => { :activity_type_id => activity_type.id})
+    joins(:activities).where(:activities => { :activity_type_id => activity_type.id })
   }
 
   scope :not_started, ->() {
@@ -87,6 +96,37 @@ class Asset < ActiveRecord::Base
   def aliquot_type
     f = facts.with_predicate('aliquotType').first
     f ? f.object : ""
+  end
+
+  # Returns all facts with the predicate 'sample_uuid'
+  # associated with the asset. This can either be those associated
+  # directly with the asset (such as for tubes) or
+  # via contained assets (for a plate)
+  def sample_uuid_facts
+    if has_predicate?('sample_uuid')
+      facts.with_predicate('sample_uuid')
+    else
+      facts.with_predicate('contains').flat_map do |fact|
+        fact.object_asset.sample_uuid_facts
+      end
+    end
+  end
+
+  # Walk back down the transfers, until you find the oldest.
+  # The created_before filter prevents us from an infinite
+  # loop in the event asset_a > asset_b > asset_a
+  def walk_transfers(before = nil)
+    transfers = facts.with_predicate('transferredFrom')
+    parent_fact = if transfers.respond_to?(:created_before)
+                    transfers.created_before(before).last
+                  else
+                    transfers.reverse.detect { |t| before.nil? || (t.created_at < before) }
+                  end
+    if parent_fact&.object_asset
+      parent_fact.object_asset.walk_transfers(parent_fact.created_at)
+    else
+      self
+    end
   end
 
   def relation_id
@@ -144,7 +184,7 @@ class Asset < ActiveRecord::Base
   end
 
   def study_and_barcode
-    [study_name, barcode_sequencescaped].join(' ')
+    "#{study_name} #{barcode_sequencescaped}"
   end
 
   def barcode_sequencescaped
@@ -199,7 +239,7 @@ class Asset < ActiveRecord::Base
         }
       }
     end
-    return {:label => {
+    return { :label => {
       :barcode => barcode_formatted_for_printing,
       :barcode2d => barcode_formatted_for_printing,
       :top_line => TokenUtil.human_barcode(barcode),
@@ -220,7 +260,7 @@ class Asset < ActiveRecord::Base
   end
 
   def info_line
-    ["#{class_name}", "#{aliquot}","#{position_value}"].join(' ').strip
+    "#{class_name} #{aliquot} #{position_value}".strip
   end
 
   def class_name
@@ -257,12 +297,12 @@ class Asset < ActiveRecord::Base
   end
 
   def self.class_type(facts)
-    class_types = facts.select{|f| f[:predicate] == 'a'}.map(&:object)
+    class_types = facts.select { |f| f[:predicate] == 'a' }.map(&:object)
     return 'TubeRack' if class_types.include?('TubeRack')
     return 'Plate' if class_types.include?('Plate')
     return 'Tube' if class_types.include?('Tube')
     return 'SampleTube' if class_types.include?('SampleTube')
-    return facts.select{|f| f[:predicate] == 'a'}.first.object if facts.select{|f| f[:predicate] == 'a'}.first
+    return facts.select { |f| f[:predicate] == 'a' }.first.object if facts.select { |f| f[:predicate] == 'a' }.first
     return ""
   end
 
@@ -292,7 +332,7 @@ class Asset < ActiveRecord::Base
   end
 
   def remove_from_parent(parent)
-    facts.with_predicate('parent').select{|f| f.object_asset==parent}.each(&:destroy)
+    facts.with_predicate('parent').select { |f| f.object_asset==parent }.each(&:destroy)
     facts.with_predicate('location').each(&:destroy)
   end
 

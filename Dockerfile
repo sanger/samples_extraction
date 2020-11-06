@@ -1,21 +1,23 @@
-FROM starefossen/ruby-node
+FROM ruby:2.6
 ENV BUNDLER_VERSION=2.1.4
 RUN apt-get update -qq && apt-get install -y
-RUN apt-get -y install git vim
+# Install node and Yarn
+RUN curl -sL https://deb.nodesource.com/setup_15.x | bash -
+RUN apt-get install -y nodejs
+RUN npm install -g yarn
 WORKDIR /samples_extraction
 ADD Gemfile /samples_extraction
 ADD Gemfile.lock /samples_extraction
 ADD package.json /samples_extraction
 ADD yarn.lock /samples_extraction
 RUN gem install bundler
-RUN bundle install
+RUN bundle install --jobs=5 --deployment --without development test
 RUN yarn install
 
 ADD . /samples_extraction/
 
 # Compiling assets
 RUN RAILS_ENV=production bundle exec rake assets:precompile
-RUN RAILS_ENV=production bundle exec rake webpacker:compile
 
 # Generating sha
 RUN git rev-parse HEAD > REVISION

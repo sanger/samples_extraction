@@ -23,7 +23,7 @@ module Parsers
         headers_validator: Parsers::CsvMetadata::Validators::HeadersValidator
       }
 
-      def initialize(str, component_defs={})
+      def initialize(str, component_defs = {})
         @parsed = false
         @input = str
         @components = self.class::DEFAULT_COMPONENTS.merge(component_defs)

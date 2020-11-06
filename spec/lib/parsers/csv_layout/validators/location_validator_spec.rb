@@ -6,6 +6,7 @@ RSpec.describe Parsers::CsvLayout::Validators::LocationValidator do
   let(:klass) {
     Class.new {
       attr_accessor :location
+
       include ActiveModel::Validations
       validates_with Parsers::CsvLayout::Validators::LocationValidator
     }

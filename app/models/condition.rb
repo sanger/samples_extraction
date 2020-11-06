@@ -1,16 +1,16 @@
-class Condition < ActiveRecord::Base
+class Condition < ApplicationRecord
   belongs_to :condition_group
   has_many :activity_types, :through => :condition_group
   belongs_to :object_condition_group, :class_name => 'ConditionGroup'
 
-  def check_wildcard_condition(asset, wildcard_values={})
+  def check_wildcard_condition(asset, wildcard_values = {})
     cg = object_condition_group
 
     # If the condition group is a wildcard, we'll cache all the possible
     # values and check compatibility with other definitions of the same
     # wildcard.
     if asset.facts.kind_of? Array
-      facts = asset.facts.select{|f| f.predicate == predicate}
+      facts = asset.facts.select { |f| f.predicate == predicate }
     else
       facts = asset.facts.with_predicate(predicate)
     end
@@ -34,7 +34,7 @@ class Condition < ActiveRecord::Base
     end
   end
 
-  def check_related_condition_group(cg, fact, related_assets = [], checked_condition_groups=[], wildcard_values={})
+  def check_related_condition_group(cg, fact, related_assets = [], checked_condition_groups = [], wildcard_values = {})
     related_asset = Asset.find(fact.object_asset_id)
 
     # This condition does not support evaluating relations like:
@@ -69,14 +69,14 @@ class Condition < ActiveRecord::Base
     end
     if (predicate == 'sum')
       return asset.facts.with_predicate(object).count == 0
-    end    
+    end
   end
 
   def is_runtime_evaluable_condition?
     (predicate == 'equalTo') || (predicate == 'notEqualTo') || (predicate == 'hasNotPredicate') || (predicate == 'sum')
   end
 
-  def compatible_with?(asset, related_assets = [], checked_condition_groups=[], wildcard_values = {})
+  def compatible_with?(asset, related_assets = [], checked_condition_groups = [], wildcard_values = {})
     return true if is_runtime_evaluable_condition?
     return false if asset.nil?
     return check_wildcard_condition(asset, wildcard_values) if is_wildcard_condition?

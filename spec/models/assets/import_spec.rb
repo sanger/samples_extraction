@@ -84,7 +84,7 @@ RSpec.describe 'Assets::Import' do
         fact = create(:fact, predicate: 'a', object: 'Plate', is_remote?: true)
         asset.facts << fact
         asset.refresh
-        expect{fact.reload}.not_to raise_error
+        expect { fact.reload }.not_to raise_error
         expect(asset.facts.with_predicate('a').first.object).to eq('Plate')
       end
 
@@ -92,7 +92,7 @@ RSpec.describe 'Assets::Import' do
         fact = create(:fact, predicate: 'a', object: 'Tube', is_remote?: true)
         asset.facts << fact
         asset.refresh
-        expect{fact.reload}.to raise_error(ActiveRecord::RecordNotFound)
+        expect { fact.reload }.to raise_error(ActiveRecord::RecordNotFound)
         expect(asset.facts.with_predicate('a').first.object).to eq('Plate')
       end
 
@@ -100,7 +100,7 @@ RSpec.describe 'Assets::Import' do
         fact = create(:fact, predicate: 'is', object: 'Red', is_remote?: false)
         asset.facts << fact
         asset.refresh
-        expect{fact.reload}.not_to raise_error
+        expect { fact.reload }.not_to raise_error
         expect(asset.facts.with_predicate('is').first.object).to eq('Red')
       end
 
@@ -109,9 +109,9 @@ RSpec.describe 'Assets::Import' do
         fact = create(:fact, predicate: 'contains', object_asset_id: asset2.id, is_remote?: true)
         asset.facts << fact
         asset.refresh
-        expect{fact.reload}.to raise_error(ActiveRecord::RecordNotFound)
-        expect{asset.reload}.not_to raise_error
-        expect{asset2.reload}.not_to raise_error
+        expect { fact.reload }.to raise_error(ActiveRecord::RecordNotFound)
+        expect { asset.reload }.not_to raise_error
+        expect { asset2.reload }.not_to raise_error
       end
 
       it 'replaces the local facts of the assets linked with remote facts that are changing' do
@@ -121,8 +121,8 @@ RSpec.describe 'Assets::Import' do
         fact = create(:fact, predicate: 'contains', object_asset_id: asset2.id, is_remote?: true)
         asset.facts << fact
         asset.refresh
-        expect{fact_well.reload}.to raise_error(ActiveRecord::RecordNotFound)
-        expect{asset2.reload}.not_to raise_error
+        expect { fact_well.reload }.to raise_error(ActiveRecord::RecordNotFound)
+        expect { asset2.reload }.not_to raise_error
       end
 
       it 'replaces the remote facts of the assets linked with remote facts that are changing' do
@@ -132,8 +132,8 @@ RSpec.describe 'Assets::Import' do
         fact = create(:fact, predicate: 'contains', object_asset_id: asset2.id, is_remote?: true)
         asset.facts << fact
         asset.refresh
-        expect{fact_well.reload}.to raise_error(ActiveRecord::RecordNotFound)
-        expect{asset2.reload}.not_to raise_error
+        expect { fact_well.reload }.to raise_error(ActiveRecord::RecordNotFound)
+        expect { asset2.reload }.not_to raise_error
       end
     end
   end
@@ -187,7 +187,7 @@ RSpec.describe 'Assets::Import' do
         end
 
         it 'should raise an exception' do
-          expect{Asset.find_or_import_asset_with_barcode(@barcode_asset)}.to raise_exception Assets::Import::RefreshSourceNotFoundAnymore
+          expect { Asset.find_or_import_asset_with_barcode(@barcode_asset) }.to raise_exception Assets::Import::RefreshSourceNotFoundAnymore
         end
       end
 
@@ -207,7 +207,7 @@ RSpec.describe 'Assets::Import' do
             remote_facts = @asset.facts.from_remote_asset
             remote_facts.each(&:reload)
             Asset.find_or_import_asset_with_barcode(@barcode_asset)
-            expect{remote_facts.each(&:reload)}.not_to raise_error
+            expect { remote_facts.each(&:reload) }.not_to raise_error
           end
         end
 
@@ -224,18 +224,18 @@ RSpec.describe 'Assets::Import' do
 
           it 'should destroy any remote facts that has changed' do
             Asset.find_or_import_asset_with_barcode(@barcode_asset)
-            expect{@fact_changed.reload}.to raise_exception ActiveRecord::RecordNotFound
+            expect { @fact_changed.reload }.to raise_exception ActiveRecord::RecordNotFound
           end
 
           it 'should destroy any contains dependant remote facts' do
             Asset.find_or_import_asset_with_barcode(@barcode_asset)
-            expect{@dependant_fact.reload}.to raise_exception ActiveRecord::RecordNotFound
+            expect { @dependant_fact.reload }.to raise_exception ActiveRecord::RecordNotFound
           end
 
           it 'should re-create new remote facts' do
             @asset = Asset.find_or_import_asset_with_barcode(@barcode_asset)
             @asset.facts.reload
-            expect(@asset.facts.from_remote_asset.all?{|f| f.object_asset != @well_changed})
+            expect(@asset.facts.from_remote_asset.all? { |f| f.object_asset != @well_changed })
           end
         end
       end
@@ -246,8 +246,8 @@ RSpec.describe 'Assets::Import' do
     it 'imports the information of the tubes that have a supplier name' do
       @asset = Asset.find_or_import_asset_with_barcode(@remote_asset_without_supplier.barcode)
       tubes = @asset.facts.with_predicate('contains').map(&:object_asset)
-      tubes_with_info = tubes.select{|t| t.facts.where(predicate: 'supplier_sample_name').count > 0}
-      locations_with_info = tubes_with_info.map{|t| t.facts.with_predicate('location').first.object}
+      tubes_with_info = tubes.select { |t| t.facts.where(predicate: 'supplier_sample_name').count > 0 }
+      locations_with_info = tubes_with_info.map { |t| t.facts.with_predicate('location').first.object }
 
       expect(locations_with_info).to eq(['C1','D1'])
     end
@@ -366,7 +366,7 @@ RSpec.describe 'Assets::Import' do
 
         context 'when the plate does not have aliquots in its wells' do
           setup do
-            wells = ['A1','B1'].map {|l| build_remote_well(l, aliquots: []) }
+            wells = ['A1','B1'].map { |l| build_remote_well(l, aliquots: []) }
             @remote_asset_without_aliquots = build_remote_plate(barcode: generate(:barcode), wells: wells)
             stub_client_with_asset(SequencescapeClient, @remote_asset_without_aliquots)
           end
@@ -374,13 +374,13 @@ RSpec.describe 'Assets::Import' do
           it 'creates the wells with the same uuid as in the remote asset' do
             @asset = Asset.find_or_import_asset_with_barcode(@remote_asset_without_aliquots.barcode)
             wells = @asset.facts.with_predicate('contains').map(&:object_asset)
-            expect(wells.zip(@remote_asset_without_aliquots.wells).all?{|w,w2| w.uuid == w2.uuid}).to eq(true)
+            expect(wells.zip(@remote_asset_without_aliquots.wells).all? { |w,w2| w.uuid == w2.uuid }).to eq(true)
           end
         end
 
         context 'when the plate does not have samples in its wells' do
           setup do
-            wells = ['A1','B1'].map {|l| build_remote_well(l, aliquots: [build_remote_aliquot(sample: nil)]) }
+            wells = ['A1','B1'].map { |l| build_remote_well(l, aliquots: [build_remote_aliquot(sample: nil)]) }
             @remote_asset_without_samples = build_remote_plate(barcode: generate(:barcode), wells: wells)
             stub_client_with_asset(SequencescapeClient, @remote_asset_without_samples)
           end
@@ -388,7 +388,7 @@ RSpec.describe 'Assets::Import' do
           it 'creates the wells with the same uuid as in the remote asset' do
             @asset = Asset.find_or_import_asset_with_barcode(@remote_asset_without_samples.barcode)
             wells = @asset.facts.with_predicate('contains').map(&:object_asset)
-            expect(wells.zip(@remote_asset_without_samples.wells).all?{|w,w2| w.uuid == w2.uuid}).to eq(true)
+            expect(wells.zip(@remote_asset_without_samples.wells).all? { |w,w2| w.uuid == w2.uuid }).to eq(true)
           end
         end
       end

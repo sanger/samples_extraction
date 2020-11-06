@@ -1,6 +1,6 @@
 group = AssetGroup.find(26968)
 
-rack = group.assets.joins(:facts).where(facts: {predicate: 'a', object: 'TubeRack'}).first
+rack = group.assets.joins(:facts).where(facts: { predicate: 'a', object: 'TubeRack' }).first
 
 facts = rack.facts.with_predicate('contains')
 

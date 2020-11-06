@@ -8,25 +8,25 @@ RSpec.describe Condition, type: :model do
     setup do
       @assets = 5.times.map do |i|
         facts = [
-          FactoryBot.create(:fact, {:predicate => 'a', :object => 'Tube'})
+          FactoryBot.create(:fact, { :predicate => 'a', :object => 'Tube' })
         ]
         aliquot = ((i % 2) == 0) ? 'DNA' : 'RNA'
-        facts.push(FactoryBot.create(:fact, {:predicate => 'aliquotType', :object => aliquot}))
+        facts.push(FactoryBot.create(:fact, { :predicate => 'aliquotType', :object => aliquot }))
         FactoryBot.create(:asset, :facts => facts)
       end
 
       @wells = 5.times.map do |i|
         facts = [
-          FactoryBot.create(:fact, {:predicate => 'a', :object => 'Well'})
+          FactoryBot.create(:fact, { :predicate => 'a', :object => 'Well' })
         ]
         aliquot = ((i % 2) == 0) ? 'DNA' : 'RNA'
         aliquot = 'RNA'
-        facts.push(FactoryBot.create(:fact, {:predicate => 'aliquotType', :object => aliquot}))
+        facts.push(FactoryBot.create(:fact, { :predicate => 'aliquotType', :object => aliquot }))
         FactoryBot.create(:asset, :facts => facts)
       end
       @rack = FactoryBot.create :asset
-      @rack.facts << (FactoryBot.create(:fact, {:predicate => 'a', :object => 'Rack'}))
-      @rack.facts << (@wells.map {|well| FactoryBot.create(:fact, {:predicate => 'contains', :object_asset => well})})
+      @rack.facts << (FactoryBot.create(:fact, { :predicate => 'a', :object => 'Rack' }))
+      @rack.facts << (@wells.map { |well| FactoryBot.create(:fact, { :predicate => 'contains', :object_asset => well }) })
 
       @assets = @assets.concat([@wells, @rack]).flatten
 
@@ -59,17 +59,17 @@ RSpec.describe Condition, type: :model do
         wildcard_values: wildcards, state: Step::STATE_RUNNING)
       @step_execution = StepExecution.new({
         :step => @step,
-        :asset_group => @asset_group, :created_assets => created_assets})
+        :asset_group => @asset_group, :created_assets => created_assets })
       @step_execution.run
 
-      {210=>{1737=>["DNA"], 1738=>["RNA"],
+      { 210=>{ 1737=>["DNA"], 1738=>["RNA"],
         1739=>["DNA"], 1740=>["RNA"], 1741=>["DNA"],
         1742=>["DNA"], 1743=>["RNA"], 1744=>["DNA"],
-        1745=>["RNA"], 1746=>["DNA"]},
-      211=>{1737=>["DNA"],
+        1745=>["RNA"], 1746=>["DNA"] },
+      211=>{ 1737=>["DNA"],
         1738=>["RNA"], 1739=>["DNA"], 1740=>["RNA"],
         1741=>["DNA"], 1742=>["DNA"], 1743=>["RNA"],
-        1744=>["DNA"], 1745=>["RNA"], 1746=>["DNA"]}}
+        1744=>["DNA"], 1745=>["RNA"], 1746=>["DNA"] } }
 
     end
 

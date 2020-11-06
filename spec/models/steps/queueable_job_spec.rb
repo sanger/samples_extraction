@@ -5,7 +5,7 @@ RSpec.describe "Steps::QueuableJob" do
   let(:activity) { create :activity }
   let(:step_type) { create :step_type }
   let(:asset_group) { create :asset_group }
-  let(:user) { create :user, username: 'test'}
+  let(:user) { create :user, username: 'test' }
 
 
   def build_instance_with_activity
@@ -38,7 +38,7 @@ RSpec.describe "Steps::QueuableJob" do
       end
 
       context 'when it has several steps configured' do
-        let(:my_steps) { 5.times.map{build_instance_with_activity }}
+        let(:my_steps) { 5.times.map { build_instance_with_activity } }
         it 'does not execute any of the steps' do
           my_steps.reverse.reduce(nil) do |memo, step|
             step.update_attributes(next_step: memo)
@@ -113,7 +113,7 @@ RSpec.describe "Steps::QueuableJob" do
         end
       end
       context 'when it has several steps configured' do
-        let(:my_steps) { 5.times.map{build_instance_with_activity}}
+        let(:my_steps) { 5.times.map { build_instance_with_activity } }
 
         context 'when all the steps are correct' do
           it 'executes all steps until the last one' do
@@ -167,7 +167,7 @@ RSpec.describe "Steps::QueuableJob" do
         end
         it 'does not raise an error' do
           step.update_attributes(next_step: nil)
-          expect{step.run!}.not_to raise_error
+          expect { step.run! }.not_to raise_error
         end
       end
     end

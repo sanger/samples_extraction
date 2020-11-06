@@ -1,8 +1,8 @@
 module Steps::Cancellable
   def self.included(klass)
     klass.instance_eval do
-      scope :newer_than, ->(step) { where("id > #{step.id}").includes(:operations, :step_type)}
-      scope :older_than, ->(step) { where("id < #{step.id}").includes(:operations, :step_type)}
+      scope :newer_than, ->(step) { where("id > #{step.id}").includes(:operations, :step_type) }
+      scope :older_than, ->(step) { where("id < #{step.id}").includes(:operations, :step_type) }
     end
   end
 
@@ -51,10 +51,10 @@ module Steps::Cancellable
   end
 
 
-  def _cancel_me_and_any_newer_completed_steps(change_state=true)
+  def _cancel_me_and_any_newer_completed_steps(change_state = true)
     changes = [
       fact_changes_for_option(:cancel),
-      steps_newer_than_me.completed.map{|s| s.fact_changes_for_option(:cancel)}
+      steps_newer_than_me.completed.map { |s| s.fact_changes_for_option(:cancel) }
     ].flatten.compact.reduce(FactChanges.new) do |memo, updates|
       memo.merge(updates)
     end
@@ -69,7 +69,7 @@ module Steps::Cancellable
 
   def _remake_me_and_any_older_cancelled_steps
     changes = [
-      steps_older_than_me.cancelled.map{|s| s.fact_changes_for_option(:remake)},
+      steps_older_than_me.cancelled.map { |s| s.fact_changes_for_option(:remake) },
       fact_changes_for_option(:remake)
     ].flatten.compact.reduce(FactChanges.new) do |memo, updates|
       memo.merge(updates)

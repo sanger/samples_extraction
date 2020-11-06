@@ -28,10 +28,10 @@ RSpec.describe Action, type: :model do
     end
 
     context 'when there are equal number of sources and destinations' do
-      let(:sources) {[:a, :b, :c]}
-      let(:destinations){[:alpha, :beta, :gamma]}
-      let(:pairs_by_position){[[:a, :alpha], [:b, :beta], [:c, :gamma]]}
-      let(:pairs){[
+      let(:sources) { [:a, :b, :c] }
+      let(:destinations) { [:alpha, :beta, :gamma] }
+      let(:pairs_by_position) { [[:a, :alpha], [:b, :beta], [:c, :gamma]] }
+      let(:pairs) { [
                     [:a, :alpha], [:a, :beta], [:a, :gamma],
                     [:b, :alpha], [:b, :beta], [:b, :gamma],
                     [:c, :alpha], [:c, :beta], [:c, :gamma]
@@ -41,10 +41,10 @@ RSpec.describe Action, type: :model do
       it_behaves_like 'a connector of all to all'        
     end
     context 'when there are less sources than destinations' do
-      let(:sources) {[:a, :b]}
-      let(:destinations){[:alpha, :beta, :gamma]}
-      let(:pairs_by_position){[[:a, :alpha], [:b, :beta]]}
-      let(:pairs){[
+      let(:sources) { [:a, :b] }
+      let(:destinations) { [:alpha, :beta, :gamma] }
+      let(:pairs_by_position) { [[:a, :alpha], [:b, :beta]] }
+      let(:pairs) { [
                     [:a, :alpha], [:a, :beta], [:a, :gamma],
                     [:b, :alpha], [:b, :beta], [:b, :gamma]
                   ]}      
@@ -52,10 +52,10 @@ RSpec.describe Action, type: :model do
       it_behaves_like 'a connector of all to all'        
     end
     context 'when there are less destinations than sources' do
-      let(:sources) {[:a, :b, :c]}
-      let(:destinations){[:alpha, :beta]}
-      let(:pairs_by_position){[[:a, :alpha], [:b, :beta]]}
-      let(:pairs){[
+      let(:sources) { [:a, :b, :c] }
+      let(:destinations) { [:alpha, :beta] }
+      let(:pairs_by_position) { [[:a, :alpha], [:b, :beta]] }
+      let(:pairs) { [
                     [:a, :alpha], [:a, :beta],
                     [:b, :alpha], [:b, :beta],
                     [:c, :alpha], [:c, :beta]

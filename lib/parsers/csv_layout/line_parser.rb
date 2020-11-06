@@ -3,6 +3,7 @@ module Parsers
     class LineParser
       include ActiveModel::Validations
       attr_reader :parsed_content
+
       validate :validate_parsed_content
 
       def initialize(input_reader, parser)
@@ -15,7 +16,7 @@ module Parsers
 
       def parsed_data
         if valid?
-          @parsed_content.select{|e| !e[:barcode_parser].no_read_barcode? }.map do |entry|
+          @parsed_content.select { |e| !e[:barcode_parser].no_read_barcode? }.map do |entry|
             {
               location: entry[:location_parser].location,
               asset: entry[:barcode_parser].asset

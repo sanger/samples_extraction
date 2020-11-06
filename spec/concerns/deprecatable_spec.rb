@@ -16,7 +16,7 @@ shared_examples_for "deprecatable" do
 
     active_instance = build_instance
 
-    deprecatable_list.each{|old| old.deprecate_with(active_instance)}
+    deprecatable_list.each { |old| old.deprecate_with(active_instance) }
 
     expect(model.visible.count).to eq(1)
     expect(model.all.count).to eq(deprecatable_list.count+1)

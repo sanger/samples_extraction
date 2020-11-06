@@ -1,4 +1,4 @@
-return unless ARGV.any?{|s| s.match(".json")}
+return unless ARGV.any? { |s| s.match(".json") }
 
 args = ARGV[0]
 out({}) unless args
@@ -6,13 +6,13 @@ matches = args.match(/(\d*)\.json/)
 out({}) unless matches
 asset_group_id = matches[1]
 asset_group = AssetGroup.find(asset_group_id)
-rack = asset_group.assets.joins(:facts).where(facts: { predicate: 'a', object: 'TubeRack'}).first
+rack = asset_group.assets.joins(:facts).where(facts: { predicate: 'a', object: 'TubeRack' }).first
 
 current_tubes = rack.facts.where(predicate: 'contains').map(&:object_asset)
 facts_from_tubes = current_tubes.pluck(:facts)
 locations_with_tube = facts_from_tubes.empty? ? [] : facts_from_tubes.where(predicate: 'location').pluck(:object)
 
-tubes = 96.times.map{|i| "?tube#{i}"}
+tubes = 96.times.map { |i| "?tube#{i}" }
 letters = ("A".."H").to_a
 columns = (1..12).to_a
 location_for_position = 96.times.map do |i|

@@ -104,13 +104,13 @@ module InferenceEngines
 
       def add_facts(list)
         FactChanges.new.tap do |updates|
-          list.each {|l| updates.add(l[0], l[1], l[2])}
+          list.each { |l| updates.add(l[0], l[1], l[2]) }
         end
       end
 
       def remove_facts(list)
         FactChanges.new.tap do |updates|
-          list.each {|l| updates.remove_where(l[0], l[1], l[2]) }
+          list.each { |l| updates.remove_where(l[0], l[1], l[2]) }
         end
       end
 
@@ -128,7 +128,7 @@ module InferenceEngines
 
       def select_asset(uuids)
         FactChanges.new.tap do |updates|
-          assets = uuids.map{|uuid| Asset.find_by(uuid: uuid)}
+          assets = uuids.map { |uuid| Asset.find_by(uuid: uuid) }
           updates.add_assets(@step.asset_group.id, uuids)
           #@step.asset_group.add_assets(assets)
         end
@@ -136,7 +136,7 @@ module InferenceEngines
 
       def unselect_asset(uuids)
         FactChanges.new.tap do |updates|
-          assets = uuids.map{|uuid| Asset.find_by(uuid: uuid)}
+          assets = uuids.map { |uuid| Asset.find_by(uuid: uuid) }
           updates.remove_assets(@step.asset_group.id, uuids)
           #@step.asset_group.remove_assets(assets)
         end

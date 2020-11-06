@@ -12,9 +12,9 @@ class SamplesStatusController < ApplicationController
 
   def pagination_params_for_activity_type(activity_type)
     if samples_started_params[:activity_type_id].to_i==activity_type.id
-      {:page => samples_started_params[:page], :per_page => 5}
+      { :page => samples_started_params[:page], :per_page => 5 }
     else
-      {:page => 1, :per_page => 5}
+      { :page => 1, :per_page => 5 }
     end
   end
 
@@ -27,7 +27,7 @@ class SamplesStatusController < ApplicationController
   end
 
   def set_activity_types
-    @activity_types = ActivityType.all.visible.sort{|a,b| a.name <=> b.name}.uniq
+    @activity_types = ActivityType.all.visible.sort { |a,b| a.name <=> b.name }.uniq
   end
 
   def set_assets_for_activity_types

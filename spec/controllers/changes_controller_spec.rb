@@ -10,7 +10,7 @@ RSpec.describe ChangesController, type: :controller do
             add_facts: [["?p", "a", "Tube"]]
           }
         }, as: :json
-      }.to change{Step.all.count}.and change{Asset.all.count}.by(1)
+      }.to change { Step.all.count }.and change { Asset.all.count }.by(1)
       change = JSON.parse(response.body)
       expect(change['assets'].count).to eq(1)
       expect(change['assets'][0]['uuid']).not_to eq(nil)

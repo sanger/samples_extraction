@@ -4,7 +4,7 @@ RSpec.describe Steps::State do
 
   let(:activity) { create :activity }
   let(:step_type) { create :step_type }
-  let(:job) { double('a job', id: 'an id')}
+  let(:job) { double('a job', id: 'an id') }
 
   it 'creates a step in pending state' do
     step = create :step, activity: activity, step_type: step_type

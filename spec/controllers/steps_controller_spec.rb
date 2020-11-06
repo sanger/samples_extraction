@@ -1,9 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe StepsController, type: :controller do
-  let(:activity) { create(:activity)}
+  let(:activity) { create(:activity) }
   let(:asset_group) { create(:asset_group) }
-  let(:step_type) {create(:step_type)}
+  let(:step_type) { create(:step_type) }
 
   before do
     session[:token] = 'mytoken'
@@ -18,12 +18,12 @@ RSpec.describe StepsController, type: :controller do
             asset_group_id: asset_group.id, step_type_id: step_type.id
           }
         }
-      }.to change{Step.all.count}
+      }.to change { Step.all.count }
     end
 
     context 'when receiving a specific printer config' do
-      let(:tube_printer) { create :printer, name: 'tubes'}
-      let(:plate_printer) { create :printer, name: 'plates'}
+      let(:tube_printer) { create :printer, name: 'tubes' }
+      let(:plate_printer) { create :printer, name: 'plates' }
       it 'stores the printer_config provided as parameter' do
         post :create, params: {
             activity_id: activity.id, step: {
@@ -47,7 +47,7 @@ RSpec.describe StepsController, type: :controller do
     let(:event_name) { Step::EVENT_RUN }
 
     it 'changes the state for the step' do
-      post :update, params: { id: step.id, step: {event_name: event_name} }
+      post :update, params: { id: step.id, step: { event_name: event_name } }
       step.reload
       expect(step.state).to eq('complete')
       expect(response.status).to eq(200)
@@ -92,12 +92,12 @@ RSpec.describe StepsController, type: :controller do
             expect(step.operations.length > 0).to eq(true)
             post :update, params: { id: step_id, step: { event_name: 'stop' } }
           end
-          expect(step.operations.all?{|op| !op.cancelled?}).to eq(true)
+          expect(step.operations.all? { |op| !op.cancelled? }).to eq(true)
 
           run_step
 
           step.reload
-          expect(step.operations.all?{|op| op.cancelled?}).to eq(true)
+          expect(step.operations.all? { |op| op.cancelled? }).to eq(true)
           expect(step.stopped?).to eq(true)
         end
       end

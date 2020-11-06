@@ -11,12 +11,12 @@ RSpec.describe 'BackgroundTasks' do
   end
 
   let(:activity) { create :activity }
-  let(:step_type) { create :step_type}
-  let(:asset_group) { create :asset_group}
+  let(:step_type) { create :step_type }
+  let(:asset_group) { create :asset_group }
   let(:step) { create :step, step_type: step_type }
 
   context '#create_background_steps' do
-    let(:list_of_tasks) { 5.times.map{ DummyBackgroundStep }}
+    let(:list_of_tasks) { 5.times.map { DummyBackgroundStep } }
     it 'creates the list of steps' do
       activity.create_background_steps(list_of_tasks, {})
       expect(Step.all.count).to eq(5)
@@ -33,13 +33,13 @@ RSpec.describe 'BackgroundTasks' do
   end
 
   context '#create_connected_tasks' do
-    let(:list_of_tasks) { 5.times.map{ DummyBackgroundStep }}
+    let(:list_of_tasks) { 5.times.map { DummyBackgroundStep } }
 
     let(:other_step) { create :step, step_type: step_type }
     context 'when it does not have any background task defined' do
       it 'does not raise an error' do
         allow(activity).to receive(:background_tasks).and_return([])
-        expect{ activity.create_connected_tasks(step, asset_group) }.not_to raise_exception
+        expect { activity.create_connected_tasks(step, asset_group) }.not_to raise_exception
       end
     end
     context 'when it has background tasks' do
@@ -53,8 +53,8 @@ RSpec.describe 'BackgroundTasks' do
   context '#background_tasks' do
 
     it 'returns the list of inference tasks sorted by priority' do
-      step_types = 5.times.each_with_index.map {|i| create :step_type}
-      reasoning_step_types = 4.times.each_with_index.map {|i| create :step_type, { for_reasoning: true, priority: i } }
+      step_types = 5.times.each_with_index.map { |i| create :step_type }
+      reasoning_step_types = 4.times.each_with_index.map { |i| create :step_type, { for_reasoning: true, priority: i } }
       activity.activity_type.update_attributes(step_types: step_types.concat(reasoning_step_types))
 
       expect(activity.background_tasks.count).to eq(reasoning_step_types.count)

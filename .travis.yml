@@ -6,11 +6,7 @@ cache:
   - node_modules
   - vendor/bundle
 install:
-- bundle install --deployment
-- yarn install
-before_script:
-- export SECRET_KEY_BASE=`bundle exec rake secret`
-- bundle exec rake db:create RAILS_ENV=test
+- bin/setup
 script:
 - bundle exec rake
 - yarn test

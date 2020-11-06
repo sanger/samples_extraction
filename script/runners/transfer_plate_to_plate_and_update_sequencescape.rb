@@ -1,4 +1,4 @@
-return unless ARGV.any?{|s| s.match(".json")}
+return unless ARGV.any? { |s| s.match(".json") }
 
 args = ARGV[0]
 matches = args.match(/(\d*)\.json/)

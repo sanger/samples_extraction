@@ -17,32 +17,32 @@ RSpec.describe KitsController, type: :controller do
   end
 
   it "should create kit" do
-    expect{
-      post :create, params: { kit: @kit.attributes}
-      }.to change{Kit.count}.by(1)
+    expect {
+      post :create, params: { kit: @kit.attributes }
+      }.to change { Kit.count }.by(1)
 
     assert_redirected_to kit_path(assigns(:kit))
   end
 
   it "should show kit" do
-    get :show,  params:{ id: @kit}
+    get :show,  params:{ id: @kit }
     assert_response :success
   end
 
   it "should get edit" do
-    get :edit,  params:{ id: @kit}
+    get :edit,  params:{ id: @kit }
     assert_response :success
   end
 
   it "should update kit" do
-    patch :update,  params:{ id: @kit, kit: @kit.attributes}
+    patch :update,  params:{ id: @kit, kit: @kit.attributes }
     assert_redirected_to kit_path(assigns(:kit))
   end
 
   it "should destroy kit" do
-    expect{
-      delete :destroy, params: { id: @kit}
-      }.to change{Kit.count}.by(-1)
+    expect {
+      delete :destroy, params: { id: @kit }
+      }.to change { Kit.count }.by(-1)
 
     assert_redirected_to kits_path
   end

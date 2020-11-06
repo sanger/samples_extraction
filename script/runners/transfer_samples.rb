@@ -4,6 +4,7 @@ class TransferSamples
   include Actions::TubeTransfer
 
   attr_reader :asset_group
+
   def initialize(params)
     @asset_group = params[:asset_group]
   end
@@ -46,7 +47,7 @@ class TransferSamples
   end
 
 end
-return unless ARGV.any?{|s| s.match(".json")}
+return unless ARGV.any? { |s| s.match(".json") }
 
 args = ARGV[0]
 asset_group_id = args.match(/(\d*)\.json/)[1]
