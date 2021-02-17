@@ -15,6 +15,18 @@ jobs:
     env:
       RAILS_ENV: test
 
+    services:
+      mysql:
+        # Use the Mysql docker image https://hub.docker.com/_/mysql
+        image: mysql:5.7
+        ports:
+         - 3306 # Default port mappings
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        env:
+            MYSQL_ALLOW_EMPTY_PASSWORD: yes
+            MYSQL_ROOT_PASSWORD: ''
+            MYSQL_DATABASE: samples_extraction_test
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Ruby
@@ -22,6 +34,11 @@ jobs:
       with:
         bundler-cache: true # Runs bundle install and caches gems. See the ruby_test.yml
                             # example if you need more control over bundler.
+    - name: Set up environment
+      env:
+        DBPORT: ${{ job.services.mysql.ports[3306] }}
+      run: bin/setup
+
     - name: Run tests
       run: bundle exec rake
 
@@ -38,6 +55,6 @@ jobs:
 
     - name: Install
       run: yarn install
-      
+
     - name: Run yarn test
       run: yarn test
