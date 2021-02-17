@@ -1,0 +1,43 @@
+name: Tests
+
+env:
+  TZ: Europe/London
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  ruby:
+
+    runs-on: ubuntu-latest
+
+    env:
+      RAILS_ENV: test
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: true # Runs bundle install and caches gems. See the ruby_test.yml
+                            # example if you need more control over bundler.
+    - name: Run tests
+      run: bundle exec rake
+
+  yarn:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install
+      run: yarn install
+      
+    - name: Run yarn test
+      run: yarn test
