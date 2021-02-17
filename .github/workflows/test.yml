@@ -37,9 +37,11 @@ jobs:
     - name: Set up environment
       env:
         DBPORT: ${{ job.services.mysql.ports[3306] }}
-      run: bin/setup
+      run: bin/rake db:create db:schema:load
 
     - name: Run tests
+      env:
+        DBPORT: ${{ job.services.mysql.ports[3306] }}
       run: bundle exec rake
 
   yarn:
