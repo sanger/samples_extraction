@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe PrintersController, type: :controller do
   setup do
-    @printer = FactoryBot.create :printer, {:name => 'one'}
+    @printer = FactoryBot.create :printer, { :name => 'one' }
   end
 
   it "should get index" do
@@ -16,9 +16,9 @@ RSpec.describe PrintersController, type: :controller do
   end
 
   it "should create printer" do
-    expect{
+    expect {
       post :create,  params: { printer: @printer.attributes }
-      }.to change{
+      }.to change {
         Printer.count
       }.by(1)
 
@@ -31,7 +31,7 @@ RSpec.describe PrintersController, type: :controller do
   end
 
   it "should get edit" do
-    get :edit, params: {id: @printer}
+    get :edit, params: { id: @printer }
     assert_response :success
   end
 
@@ -41,9 +41,9 @@ RSpec.describe PrintersController, type: :controller do
   end
 
   it "should destroy printer" do
-    expect{
+    expect {
       delete :destroy, params: { id: @printer }
-      }.to change{Printer.count}.by(-1)
+      }.to change { Printer.count }.by(-1)
 
     assert_redirected_to printers_path
   end

@@ -1,5 +1,5 @@
 
-class Step < ActiveRecord::Base
+class Step < ApplicationRecord
 
   self.inheritance_column = :sti_type
 
@@ -21,9 +21,9 @@ class Step < ActiveRecord::Base
 
   serialize :printer_config
 
-  scope :running_with_asset, ->(asset) { includes(:assets).where(asset_groups_assets: { asset_id: asset.id}, state: 'running') }
-  scope :for_assets, ->(assets) { joins(:asset_group => :assets).where(:asset_groups_assets =>  {:asset_id => assets })}
-  scope :for_step_type, ->(step_type) { where(:step_type => step_type)}
+  scope :running_with_asset, ->(asset) { includes(:assets).where(asset_groups_assets: { asset_id: asset.id }, state: 'running') }
+  scope :for_assets, ->(assets) { joins(:asset_group => :assets).where(:asset_groups_assets =>  { :asset_id => assets }) }
+  scope :for_step_type, ->(step_type) { where(:step_type => step_type) }
 
   include Deprecatable
   include Steps::QueueableJob

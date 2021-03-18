@@ -29,5 +29,9 @@ module SamplesExtraction
     config.admin_email = 'admin@test.com'
 
     config.barcode_prefix = 'SE'
+
+    # Load the warren configuration from config/warren.yml
+    # Warren controls connection to the RabbitMQ server
+    config.warren = config_for(:warren)
   end
 end

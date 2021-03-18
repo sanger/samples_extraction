@@ -14,7 +14,7 @@ module Activities
     end
 
     def background_tasks
-      return step_types.for_reasoning.map{|type| BackgroundTask.new(type)}
+      return step_types.for_reasoning.map { |type| BackgroundTask.new(type) }
     end
 
     def create_background_steps(ordered_tasks, reasoning_params)
@@ -28,7 +28,7 @@ module Activities
       end
     end
 
-    def create_connected_tasks(step, asset_group, printer_config=nil, user=nil)
+    def create_connected_tasks(step, asset_group, printer_config = nil, user = nil)
       reasoning_params = {
         :asset_group => asset_group,
         :activity => self,

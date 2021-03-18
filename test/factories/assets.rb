@@ -26,12 +26,16 @@ FactoryBot.define do
     factory :well_with_samples do
       transient do
         supplier_sample_name { 'Sample Name' }
+        sample_uuid { SecureRandom.uuid }
       end
 
       barcode { nil }
 
       facts do
-        build_list :fact, 1, predicate: 'supplier_sample_name', object: 'Example'
+        [
+          build(:fact, predicate: 'supplier_sample_name', object: supplier_sample_name),
+          build(:fact, predicate: 'sample_uuid', object: sample_uuid)
+        ]
       end
     end
   end

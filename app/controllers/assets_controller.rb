@@ -1,4 +1,3 @@
-require 'pry'
 class AssetsController < ApplicationController
 
   before_action :set_asset, only: [:show, :edit, :update, :destroy, :print]
@@ -131,12 +130,12 @@ class AssetsController < ApplicationController
   end
 
   def valid_indexes
-    params.keys.map{|k| k.match(/^[pq](\d*)$/)}.compact.map{|k| k[1]}
+    params.keys.map { |k| k.match(/^[pq](\d*)$/) }.compact.map { |k| k[1] }
   end
 
     def set_queries
       @queries = valid_indexes.map do |val|
-        OpenStruct.new({:predicate => params["p"+val], :object => params["o"+val]})
+        OpenStruct.new({ :predicate => params["p"+val], :object => params["o"+val] })
       end
     end
 

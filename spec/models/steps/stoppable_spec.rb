@@ -1,21 +1,21 @@
 require 'rails_helper'
 RSpec.describe 'Steps::Stoppable' do
-  let(:activity) { create(:activity)}
+  let(:activity) { create(:activity) }
   let(:asset_group) { create(:asset_group) }
-  let(:step_type) { create(:step_type)}
+  let(:step_type) { create(:step_type) }
 
   let(:previous_steps) {
-    2.times.map{
+    2.times.map {
       create(:step, state: Step::STATE_RUNNING, activity: activity, asset_group: asset_group, step_type: step_type)
     }
   }
   let(:next_steps) {
-    2.times.map{
+    2.times.map {
       create(:step, state: Step::STATE_RUNNING, activity: activity, asset_group: asset_group, step_type: step_type)
     }
   }
 
-  let(:step) { create(:step, state: previous_state, activity: activity, asset_group: asset_group, step_type: step_type)}
+  let(:step) { create(:step, state: previous_state, activity: activity, asset_group: asset_group, step_type: step_type) }
 
   context 'when a step is stopped' do
     let(:do_action) {
@@ -26,7 +26,7 @@ RSpec.describe 'Steps::Stoppable' do
 
 
     context 'but the step was already completed before' do
-      let(:previous_state) { Step::STATE_COMPLETE}
+      let(:previous_state) { Step::STATE_COMPLETE }
       before do
         do_action
       end
@@ -70,16 +70,16 @@ RSpec.describe 'Steps::Stoppable' do
     }
 
     let(:next_steps_stopped) {
-      2.times.map{
+      2.times.map {
         create(:step, state: Step::STATE_STOPPED, activity: activity, asset_group: asset_group, step_type: step_type)
       }
     }
     let(:next_steps_not_stopped) {
-      2.times.map{
+      2.times.map {
         create(:step, state: Step::STATE_FAILED, activity: activity, asset_group: asset_group, step_type: step_type)
       }
     }
-    let(:next_steps) { [next_steps_stopped, next_steps_not_stopped].flatten}
+    let(:next_steps) { [next_steps_stopped, next_steps_not_stopped].flatten }
 
     context 'when the step was stopped before' do
       let(:previous_state) { Step::STATE_STOPPED }

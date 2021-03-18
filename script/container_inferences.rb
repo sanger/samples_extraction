@@ -1,5 +1,6 @@
 class ContainerInferences
   attr_reader :asset_group
+
   def initialize(params)
     @asset_group = params[:asset_group]
   end
@@ -53,7 +54,7 @@ def out(val)
   return
 end
 
-return unless ARGV.any?{|s| s.match(".json")}
+return unless ARGV.any? { |s| s.match(".json") }
 
 args = ARGV[0]
 out({}) unless args

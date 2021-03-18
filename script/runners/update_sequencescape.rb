@@ -5,6 +5,7 @@
 # Calls the update_sequencescape method in export.rb
 class UpdateSequencescape
   attr_reader :asset_group, :step
+
   def initialize(params)
     @asset_group = params[:asset_group]
     @step = params[:step]
@@ -37,7 +38,7 @@ def out(val)
   return
 end
 
-return unless ARGV.any?{|s| s.match(".json")}
+return unless ARGV.any? { |s| s.match(".json") }
 
 args = ARGV[0]
 out({}) unless args

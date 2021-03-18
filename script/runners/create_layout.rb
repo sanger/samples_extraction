@@ -7,7 +7,7 @@ num = 0
 barcodes = []
 while (num < NUM_BARCODES) do
   number=(rand*999999).floor.to_s
-  barcode = ["FR"].concat((6-number.length).times.map{ "0" }).concat([number]).join("")
+  barcode = ["FR"].concat((6-number.length).times.map { "0" }).concat([number]).join("")
   found = Asset.find_by(barcode: barcode)
   unless found
     barcodes.push(barcode)
@@ -32,6 +32,6 @@ end
 file = UploadedFile.create(filename: "_temp.csv", data: temp_file.read)
 asset = file.build_asset(content_type: "csv")
 
-data= { add_assets: [[nil, [asset.uuid] ]]}
+data= { add_assets: [[nil, [asset.uuid] ]] }
 
 puts data.to_json

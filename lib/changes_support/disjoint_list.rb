@@ -24,7 +24,7 @@ class ChangesSupport::DisjointList
 
     @list = []
     @disjoint_lists = [self]
-    list.each {|o| add(o)}
+    list.each { |o| add(o) }
   end
 
   def add_disjoint_list(disjoint_list)
@@ -46,7 +46,7 @@ class ChangesSupport::DisjointList
   def _store_for(unique_id)
     store_name = location_for_unique_id[unique_id]
     return nil if store_name.nil? || store_name == DISABLED_NAME
-    @disjoint_lists.select{|l| l.name == store_name}.first
+    @disjoint_lists.select { |l| l.name == store_name }.first
   end
 
 
@@ -108,7 +108,7 @@ class ChangesSupport::DisjointList
 
   def <<(element)
     if element.kind_of?(Array)
-      element.each{|e| add(e)}
+      element.each { |e| add(e) }
     else
       add(element)
     end
@@ -116,7 +116,7 @@ class ChangesSupport::DisjointList
 
   def concat(element)
     if element.kind_of?(Array)
-      element.each{|e| add(e)}
+      element.each { |e| add(e) }
     else
       add(element)
     end
@@ -155,7 +155,7 @@ class ChangesSupport::DisjointList
         _disable(key)
       end
     end
-    disjoint_list.to_a.each {|val| add(val)}
+    disjoint_list.to_a.each { |val| add(val) }
     self
   end
 
@@ -165,7 +165,7 @@ class ChangesSupport::DisjointList
         _disable(key)
       end
     end
-    disjoint_list.to_a.each {|val| add(val)}
+    disjoint_list.to_a.each { |val| add(val) }
     self
   end
 
@@ -212,7 +212,7 @@ class ChangesSupport::DisjointList
     location_for_unique_id[unique_id]=DISABLED_NAME
   end
 
-  def _unique_id_for_element(element, deep=0)
+  def _unique_id_for_element(element, deep = 0)
     return sum_function_for(SecureRandom.uuid) if deep==MAX_DEEP_UNIQUE_ID
     if element.kind_of?(String)
       sum_function_for(element)
@@ -226,10 +226,10 @@ class ChangesSupport::DisjointList
       elsif (element.has_key?(:predicate))
         _unique_id_for_fact(element)
       else
-        sum_function_for(element.keys.dup.concat(element.values.map{|val| _unique_id_for_element(val, deep+1)}).join(""))
+        sum_function_for(element.keys.dup.concat(element.values.map { |val| _unique_id_for_element(val, deep+1) }).join(""))
       end
     elsif element.kind_of?(Enumerable)
-      sum_function_for(element.map{|o| _unique_id_for_element(o, deep+1)}.join(""))
+      sum_function_for(element.map { |o| _unique_id_for_element(o, deep+1) }.join(""))
     else
       sum_function_for(element.to_s)
     end

@@ -43,9 +43,9 @@ class ActivityChannel < ApplicationCable::Channel
         #asset_group.update_attributes(assets: received_list)
         #asset_group.touch
       rescue Errno::ECONNREFUSED => e
-        asset_group.activity.send_wss_event({error: {type: 'danger', msg: 'Cannot connect with sequencescape'} })
+        asset_group.activity.send_wss_event({ error: { type: 'danger', msg: 'Cannot connect with sequencescape' } })
       rescue StandardError => e
-        asset_group.activity.send_wss_event({error: {type: 'danger', msg: e.message} })
+        asset_group.activity.send_wss_event({ error: { type: 'danger', msg: e.message } })
       end
     end
   end
@@ -104,7 +104,7 @@ class ActivityChannel < ApplicationCable::Channel
 
   def unsubscribed
     previous_value = subscribed_ids
-    connection_for_redis.set('SUBSCRIBED_IDS', previous_value.reject{|v| v== stream_id })
+    connection_for_redis.set('SUBSCRIBED_IDS', previous_value.reject { |v| v== stream_id })
 
     stop_all_streams
   end

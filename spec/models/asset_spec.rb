@@ -27,7 +27,7 @@ RSpec.describe Asset do
   end
 
   context '#print_machine_barcode?' do
-    let(:asset) { create(:asset)}
+    let(:asset) { create(:asset) }
     it 'returns true when the asset has a barcode format of machine barcode' do
       asset.facts << create(:fact, predicate: 'barcodeFormat', object: 'machine_barcode',
         literal: true)
@@ -41,7 +41,7 @@ RSpec.describe Asset do
   context '#barcode_formatted_for_printing' do
     let(:human_barcode) { "EG1234E" }
     let(:machine_barcode) { 1420001234690 }
-    let(:asset) { create(:asset, barcode: human_barcode)}
+    let(:asset) { create(:asset, barcode: human_barcode) }
 
     context 'when no specific barcode format has been selected' do
       it 'returns the human barcode' do
@@ -64,7 +64,7 @@ RSpec.describe Asset do
   context '#printable_object' do
     let(:human_barcode) { "EG1234E" }
     let(:machine_barcode) { 1420001234690 }
-    let(:asset) { create(:asset, barcode: human_barcode)}
+    let(:asset) { create(:asset, barcode: human_barcode) }
 
     context 'when is a plate' do
       before do
@@ -105,7 +105,7 @@ RSpec.describe Asset do
   end
 
   context '#study_name' do
-    let(:study) { 'A STUDY'}
+    let(:study) { 'A STUDY' }
     context 'if it is a tube' do
       it 'returns the study name of the tube' do
         tube = create :asset

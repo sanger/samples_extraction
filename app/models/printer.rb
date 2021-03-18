@@ -1,7 +1,7 @@
-class Printer < ActiveRecord::Base
-  scope :for_tube, ->() { where(:printer_type => 'Tube')}
-  scope :for_plate, ->() { where(:printer_type => 'Plate')}
-  scope :for_default, ->() { where(:default_printer => true)}
+class Printer < ApplicationRecord
+  scope :for_tube, ->() { where(:printer_type => 'Tube') }
+  scope :for_plate, ->() { where(:printer_type => 'Plate') }
+  scope :for_default, ->() { where(:default_printer => true) }
 
   def self.for_type(type)
     type = printer_type_for(type)
@@ -13,6 +13,6 @@ class Printer < ActiveRecord::Base
     {
       'Plate' => ['TubeRack', 'Plate'],
       'Tube' => ['Tube', 'SampleTube']
-    }.select{|k,v| v.include?(type)}.first[0]
+    }.select { |k,v| v.include?(type) }.first[0]
   end
 end

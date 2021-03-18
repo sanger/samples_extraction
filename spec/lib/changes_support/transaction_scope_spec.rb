@@ -12,7 +12,7 @@ RSpec.describe 'ChangesSupport::TransactionScope' do
   end
 
   describe 'TransactionScope::ModelAccessor' do
-    let(:accessor) { updates.transaction_scope(Asset)}
+    let(:accessor) { updates.transaction_scope(Asset) }
     context '#where' do
       it 'returns data from the database' do
         asset = create :asset
@@ -47,7 +47,7 @@ RSpec.describe 'ChangesSupport::TransactionScope' do
           updates.add(uuid, 'is', 'Full')
           updates.add(uuid2, 'is', 'Empty')
           updates.add(uuid3, 'a', 'Tube')
-          expect(accessor.joins(:facts).where(facts: {predicate: 'a', object: 'Tube'}).map(&:uuid)).to eq([uuid, uuid3])
+          expect(accessor.joins(:facts).where(facts: { predicate: 'a', object: 'Tube' }).map(&:uuid)).to eq([uuid, uuid3])
         end
       end
       context 'when the condition is met in the database' do
@@ -59,7 +59,7 @@ RSpec.describe 'ChangesSupport::TransactionScope' do
           asset2.facts << create(:fact, predicate: 'is', object: 'Full')
           asset3.facts << create(:fact, predicate: 'is', object: 'Empty')
           asset3.facts << create(:fact, predicate: 'a', object: 'Tube')
-          expect(accessor.joins(:facts).where(facts: {predicate: 'a', object: 'Tube'}).map(&:uuid)).to eq([
+          expect(accessor.joins(:facts).where(facts: { predicate: 'a', object: 'Tube' }).map(&:uuid)).to eq([
             asset1.uuid, asset3.uuid
             ])
         end
@@ -75,7 +75,7 @@ RSpec.describe 'ChangesSupport::TransactionScope' do
           updates.add(uuid2, 'is', 'Empty')
           asset3.facts << create(:fact, predicate: 'is', object: 'Empty')
           asset3.facts << create(:fact, predicate: 'a', object: 'Tube')
-          expect(accessor.joins(:facts).where(facts: {predicate: 'a', object: 'Tube'}).map(&:uuid).sort).to eq([uuid, asset3.uuid].sort)
+          expect(accessor.joins(:facts).where(facts: { predicate: 'a', object: 'Tube' }).map(&:uuid).sort).to eq([uuid, asset3.uuid].sort)
         end
         it 'can join with different models with removed data' do
           uuid = "fdd84c08-2aa3-4e3f-a39c-06ad35228d00"
@@ -88,7 +88,7 @@ RSpec.describe 'ChangesSupport::TransactionScope' do
           asset3.facts << create(:fact, predicate: 'is', object: 'Empty')
           asset3.facts << create(:fact, predicate: 'a', object: 'Tube')
           updates.remove_where(asset3.uuid, 'a', 'Tube')
-          expect(accessor.joins(:facts).where(facts: {predicate: 'a', object: 'Tube'}).map(&:uuid)).to eq([uuid])
+          expect(accessor.joins(:facts).where(facts: { predicate: 'a', object: 'Tube' }).map(&:uuid)).to eq([uuid])
         end
       end
     end

@@ -25,7 +25,7 @@ module Assets::Import
           # aliquots.to_a, same reason
           listal = listw.compact.map(&:aliquots).map(&:to_a)
           if listal
-            listsa = listal.flatten.compact.map{|al| al.sample }
+            listsa = listal.flatten.compact.map { |al| al.sample }
             if listsa
               distinct+=listsa.compact.map(&:attributes).to_json
             end
@@ -38,7 +38,7 @@ module Assets::Import
         # aliquots.to_a, same reason
         listal = remote_asset.aliquots.to_a
         if listal
-          listsa = listal.flatten.compact.map{|al| al.sample }
+          listsa = listal.flatten.compact.map { |al| al.sample }
           if listsa
             distinct+=listsa.compact.map(&:attributes).to_json
           end
@@ -56,7 +56,7 @@ module Assets::Import
           # aliquots.to_a, same reason
           listal = list_tubes.compact.map(&:aliquots).map(&:to_a)
           if listal
-            listsa = listal.flatten.compact.map{|al| al.sample }
+            listsa = listal.flatten.compact.map { |al| al.sample }
             if listsa
               distinct+=listsa.compact.map(&:attributes).to_json
             end
@@ -86,7 +86,7 @@ module Assets::Import
       @import_step
     end
 
-    def _process_refresh(remote_asset, fact_changes=nil)
+    def _process_refresh(remote_asset, fact_changes = nil)
       fact_changes ||= FactChanges.new
       asset_group = AssetGroup.new
       @import_step.update_attributes(asset_group: asset_group)
@@ -123,7 +123,7 @@ module Assets::Import
       end
     end
 
-    def refresh(fact_changes=nil)
+    def refresh(fact_changes = nil)
       if is_remote_asset?
         remote_asset = SequencescapeClient::find_by_uuid(uuid)
         raise RefreshSourceNotFoundAnymore unless remote_asset
@@ -137,7 +137,7 @@ module Assets::Import
       self
     end
 
-    def refresh!(fact_changes=nil)
+    def refresh!(fact_changes = nil)
       if is_remote_asset?
         @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh!!'), state: 'running')
         remote_asset = SequencescapeClient::find_by_uuid(uuid)
@@ -151,7 +151,7 @@ module Assets::Import
       facts.from_remote_asset.count > 0
     end
 
-    def update_facts_from_remote(list, step=nil)
+    def update_facts_from_remote(list, step = nil)
       step = step || @import_step
       list = [list].flatten
       added = list.map do |f|

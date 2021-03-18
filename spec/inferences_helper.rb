@@ -44,7 +44,7 @@ module InferencesHelper
     input_assets = SupportN3::parse_facts(input_facts, {}, false)
     reload_assets(input_assets)
     fail if input_assets.nil?
-    asset_group = FactoryBot.create(:asset_group, {:assets => input_assets})
+    asset_group = FactoryBot.create(:asset_group, { :assets => input_assets })
 
     user = FactoryBot.create :user, username: 'test'
 
@@ -81,7 +81,7 @@ module InferencesHelper
     asset_group.assets.reload
     reload_assets(asset_group.assets)
     obtained_n3 = assets_to_n3(asset_group.assets)
-    asset_group.assets.each{|a| a.facts.each(&:destroy)}
+    asset_group.assets.each { |a| a.facts.each(&:destroy) }
 
     expected_output_assets = SupportN3::parse_facts(output_facts, {}, false)
     fail if expected_output_assets.nil?

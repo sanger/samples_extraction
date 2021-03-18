@@ -53,7 +53,7 @@ module InferenceEngines
         line = "# EXECUTING: #{call_str}"
 
         proxy = Rails.configuration.cwm_proxy
-        env_vars = {'http_proxy' => proxy, 'https_proxy' => proxy}
+        env_vars = { 'http_proxy' => proxy, 'https_proxy' => proxy }
 
         Open3.popen3(*[env_vars, call_list].flatten) do |stdin, stdout, stderror, thr|
           content = stdout.read
@@ -116,12 +116,12 @@ module InferenceEngines
         graphs.each do |quads|
           quads.map do |quad|
             asset = Asset.find_by!(:uuid => TokenUtil.uuid(fragment(quad[0])))
-            updates.remove(asset.facts.select {|f| equal_quad_and_fact?(quad, f) })
+            updates.remove(asset.facts.select { |f| equal_quad_and_fact?(quad, f) })
           end
         end
       end
 
-      def add_quad_to_asset(quad, asset, action_type="addFacts")
+      def add_quad_to_asset(quad, asset, action_type = "addFacts")
         object = fragment(quad[2])
         object_asset = nil
         literal = true

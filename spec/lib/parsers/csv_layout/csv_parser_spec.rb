@@ -9,9 +9,9 @@ require 'parsers/csv_layout/validators/location_validator'
 RSpec.describe Parsers::CsvLayout::CsvParser do
 
   describe "parses a layout" do
-    let(:activity) { create(:activity)}
+    let(:activity) { create(:activity) }
     let(:asset_group) { create(:asset_group) }
-    let(:step_type) {create(:step_type)}
+    let(:step_type) { create(:step_type) }
     let(:step) { create :step,
       activity: activity,
       state: Step::STATE_RUNNING,

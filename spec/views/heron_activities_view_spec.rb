@@ -84,10 +84,10 @@ RSpec.describe 'heron_activities_view' do
 
   it 'lists the correct information' do
     expect(results.to_a).to include(
-      ['Example', source_plate.barcode, target_plate.barcode,
+      ['Sample A', source_plate.barcode, target_plate.barcode,
        'Illumina Extraction', 'Instument', kit.barcode,
        'Kit type', activity.completed_at, 'Users name', activity.id],
-      ['Example', source_plate.barcode, target_plate.barcode,
+      ['Sample B', source_plate.barcode, target_plate.barcode,
        'Illumina Extraction', 'Instument', kit.barcode,
        'Kit type', activity.completed_at, 'Users name', activity.id]
     )

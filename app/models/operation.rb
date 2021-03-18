@@ -33,7 +33,7 @@ class Operation < ApplicationRecord
     end
   end
 
-  def generate_changes_for(option_name, updates=nil)
+  def generate_changes_for(option_name, updates = nil)
     updates ||= FactChanges.new
     type = action_type_for_option(option_name)
     if (type == :add_facts)

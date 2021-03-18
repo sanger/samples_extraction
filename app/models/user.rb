@@ -1,4 +1,4 @@
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   has_many :steps
 
   belongs_to :tube_printer, :class_name => 'Printer', :foreign_key => 'tube_printer_id'
@@ -33,8 +33,8 @@ class User < ActiveRecord::Base
   end
 
   def session_info
-    {:username => username, :fullname => fullname, :barcode => barcode, :role => role,
-      :tube_printer_name => tube_printer_name, :plate_printer_name => plate_printer_name}
+    { :username => username, :fullname => fullname, :barcode => barcode, :role => role,
+      :tube_printer_name => tube_printer_name, :plate_printer_name => plate_printer_name }
   end
 
   def printer_config

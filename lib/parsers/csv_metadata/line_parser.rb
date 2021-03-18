@@ -3,6 +3,7 @@ module Parsers
     class LineParser
       include ActiveModel::Validations
       attr_reader :parsed_content, :headers_parser
+
       validate :validate_parsed_content
 
       def initialize(input_reader, parser)

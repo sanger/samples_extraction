@@ -1,6 +1,6 @@
 require 'support_n3'
 
-class StepType < ActiveRecord::Base
+class StepType < ApplicationRecord
 
   before_update :remove_previous_conditions
   after_save :create_next_conditions #, :unless => :for_reasoning?
@@ -9,25 +9,25 @@ class StepType < ActiveRecord::Base
 
   has_many :activity_type_step_types, dependent: :destroy
   has_many :activity_types, :through => :activity_type_step_types
-  has_many :activities, ->{distinct}, through: :activity_types
+  has_many :activities, -> { distinct }, through: :activity_types
   has_many :condition_groups, dependent: :destroy
   has_many :actions, dependent: :destroy
 
-  has_many :action_subject_condition_groups, ->{distinct}, :through => :actions, :source => :subject_condition_group
-  has_many :action_object_condition_groups, ->{distinct}, :through => :actions, :source => :object_condition_group
+  has_many :action_subject_condition_groups, -> { distinct }, :through => :actions, :source => :subject_condition_group
+  has_many :action_object_condition_groups, -> { distinct }, :through => :actions, :source => :object_condition_group
   def action_condition_groups
     [action_subject_condition_groups, action_object_condition_groups].flatten.uniq - condition_groups
   end
 
   include Deprecatable
 
-  scope :with_template, ->() { where('step_template is not null')}
+  scope :with_template, ->() { where('step_template is not null') }
 
   def self.for_task_type(task_type)
-    select{|stype| stype.task_type == task_type }
+    select { |stype| stype.task_type == task_type }
   end
 
-  scope :for_reasoning, ->() { not_deprecated.where(:for_reasoning => true).order(priority: :desc)}
+  scope :for_reasoning, ->() { not_deprecated.where(:for_reasoning => true).order(priority: :desc) }
 
   scope :not_for_reasoning, ->() { not_deprecated.where(:for_reasoning => false) }
 
@@ -48,7 +48,7 @@ class StepType < ActiveRecord::Base
 
 
   def valid_name_file(names)
-    names.select{|l| l.match(/^[A-Za-z]/)}
+    names.select { |l| l.match(/^[A-Za-z]/) }
   end
 
   def all_background_steps_files
@@ -129,9 +129,9 @@ class StepType < ActiveRecord::Base
     end]
   end
 
-  def condition_group_classification_for(assets, checked_condition_groups=[], wildcard_values={})
+  def condition_group_classification_for(assets, checked_condition_groups = [], wildcard_values = {})
     related_assets = []
-    h = Hash[assets.map{|asset| [asset, condition_groups_for(asset, related_assets, [], wildcard_values)]}]
+    h = Hash[assets.map { |asset| [asset, condition_groups_for(asset, related_assets, [], wildcard_values)] }]
     related_assets.each do |a|
       h[a]= condition_groups_for(a, [], checked_condition_groups, wildcard_values)
     end
@@ -164,10 +164,10 @@ class StepType < ActiveRecord::Base
 
   def every_required_asset_is_in_classification?(classification, required_assets)
     return true if required_assets.nil?
-    required_assets.all?{|asset| !classification[asset].empty?}
+    required_assets.all? { |asset| !classification[asset].empty? }
   end
 
-  def compatible_with?(assets, required_assets=nil, checked_condition_groups=[], wildcard_values={})
+  def compatible_with?(assets, required_assets = nil, checked_condition_groups = [], wildcard_values = {})
     assets = Array(assets).flatten
     # Every asset has at least one condition group satisfied
     classification = condition_group_classification_for(assets, checked_condition_groups, wildcard_values)
@@ -179,7 +179,7 @@ class StepType < ActiveRecord::Base
     return false
   end
 
-  def condition_groups_for(asset, related_assets = [], checked_condition_groups=[], wildcard_values={})
+  def condition_groups_for(asset, related_assets = [], checked_condition_groups = [], wildcard_values = {})
     condition_groups.select do |condition_group|
       condition_group.compatible_with?([asset].flatten, related_assets, checked_condition_groups, wildcard_values)
       #condition_group.conditions_compatible_with?(asset, related_assets)
@@ -197,10 +197,10 @@ class StepType < ActiveRecord::Base
 
   def check_dependency_compatibility_for(asset, condition_group, assets)
     check_cgs = condition_groups.select do |cg|
-      cg.conditions.select{|c| c.object_condition_group == condition_group}.count > 0
+      cg.conditions.select { |c| c.object_condition_group == condition_group }.count > 0
     end
     return true if check_cgs.empty?
-    ancestors = assets.select{|a| a.facts.any?{|f| f.object_asset == asset}}.uniq
+    ancestors = assets.select { |a| a.facts.any? { |f| f.object_asset == asset } }.uniq
     return true if ancestors.empty?
 
     classification = classification_for(ancestors, check_cgs)

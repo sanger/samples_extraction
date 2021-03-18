@@ -66,12 +66,12 @@ module Actions
       fact_changes_unrack.merge(fact_changes_rack)
     end
 
-    def fact_changes_for_unrack_tubes(list_layout, destination_rack=nil)
+    def fact_changes_for_unrack_tubes(list_layout, destination_rack = nil)
       FactChanges.new.tap do |updates|
         rerackGroup=nil
 
         previous_racks = []
-        tubes = list_layout.map{|obj| obj[:asset]}.compact
+        tubes = list_layout.map { |obj| obj[:asset] }.compact
         return updates if tubes.empty?
         tubes_ids = tubes.map(&:id)
         tubes_list = Asset.where(id: tubes_ids).includes(:facts)
@@ -150,11 +150,11 @@ module Actions
         actual_tubes = (tubes_from_previous_rack - unracked_tubes)
 
         TUBE_TO_PLATE_TRANSFERRABLE_PROPERTIES.each do |transferrable_property|
-          unracked_tubes.map{|tube| tube.facts.with_predicate(transferrable_property).map(&:object)}.flatten.compact.each do |value|
+          unracked_tubes.map { |tube| tube.facts.with_predicate(transferrable_property).map(&:object) }.flatten.compact.each do |value|
             updates.remove_where(rack, transferrable_property.to_s, value)
             updates.merge(fact_changes_for_remove_purpose(rack, value)) if transferrable_property.to_s == 'aliquotType'
           end
-          actual_tubes.map{|tube| tube.facts.with_predicate(transferrable_property).map(&:object).flatten.compact}.each do |value|
+          actual_tubes.map { |tube| tube.facts.with_predicate(transferrable_property).map(&:object).flatten.compact }.each do |value|
             updates.add(rack, transferrable_property.to_s, value)
             updates.merge(fact_changes_for_add_purpose(rack, value)) if transferrable_property.to_s == 'aliquotType'
           end
@@ -165,7 +165,7 @@ module Actions
     def fact_changes_for_rack_when_racking_tubes(rack, racked_tubes)
       FactChanges.new.tap do |updates|
         TUBE_TO_PLATE_TRANSFERRABLE_PROPERTIES.map do |prop|
-          racked_tubes.map{|tube| tube.facts.with_predicate(prop)}
+          racked_tubes.map { |tube| tube.facts.with_predicate(prop) }
         end.flatten.compact.each do |fact|
           updates.add(rack, fact.predicate.to_s, fact.object_value)
           updates.merge(fact_changes_for_add_purpose(rack, fact.object_value)) if fact.predicate.to_s == 'aliquotType'
@@ -219,12 +219,12 @@ module Actions
         memo[element] = 0 unless memo[element]
         memo[element]+=1
         memo
-      end.each_pair.select{|key, count| count > 1}
+      end.each_pair.select { |key, count| count > 1 }
     end
 
     def check_duplicates(params, error_messages, error_locations)
-      duplicated_locations = get_duplicates(params.map{|location, barcode| location})
-      duplicated_assets = get_duplicates(params.map{|location, barcode| barcode})
+      duplicated_locations = get_duplicates(params.map { |location, barcode| location })
+      duplicated_assets = get_duplicates(params.map { |location, barcode| barcode })
 
       duplicated_locations.each do |location, count|
         error_locations.push(location)
@@ -269,7 +269,7 @@ module Actions
             end
           end
         end
-        unless (list_layout.map{|obj| obj[:asset]}.include?(tube))
+        unless (list_layout.map { |obj| obj[:asset] }.include?(tube))
           # Remember that the tubes needs to be always in a rack. They cannot be interchanged
           # in between racks
           error_messages.push(
@@ -294,7 +294,7 @@ module Actions
       if asset_group.assets.with_fact('a', 'TubeRack').count > 1
         error_messages.push("Too many TubeRacks found to perform the layout process")
       end
-      raise InvalidDataParams.new(error_messages) if error_messages.count > 0
+      raise InvalidDataParams, error_messages if error_messages.count > 0
 
       asset = asset_group.assets.with_fact('a', 'TubeRack').first
 
@@ -308,16 +308,16 @@ module Actions
       end
 
       unless error_messages.empty?
-        raise InvalidDataParams.new(error_messages)
+        raise InvalidDataParams, error_messages
       end
       if parser.valid?
         updates = parser.parsed_changes.merge(reracking_tubes(asset, parser.layout))
 
         error_messages.push(asset.validate_rack_content)
-        raise InvalidDataParams.new(error_messages) if error_messages.flatten.compact.count > 0
+        raise InvalidDataParams, error_messages if error_messages.flatten.compact.count > 0
         return updates
       else
-        raise InvalidDataParams.new(parser.error_list)
+        raise InvalidDataParams, parser.error_list
       end
     end
 
@@ -325,7 +325,7 @@ module Actions
     def samples_symphony(step_type, params)
       rack = asset_group.assets.with_fact('a', 'TubeRack').first
       msgs = Parsers::Symphony.parse(params[:file].read, rack)
-      raise InvalidDataParams.new(msgs) if msgs.length > 0
+      raise InvalidDataParams, msgs if msgs.length > 0
     end
 
   end

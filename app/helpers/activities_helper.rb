@@ -9,7 +9,7 @@ module ActivitiesHelper
   end
 
   def step_types_data_for_step_types(activity, step_types)
-    step_types.select{|st| st.step_template.blank? }.map do |st|
+    step_types.select { |st| st.step_template.blank? }.map do |st|
     {
       createStepUrl: Rails.application.routes.url_helpers.activity_steps_path(activity),
       stepType: st,
@@ -66,18 +66,18 @@ module ActivitiesHelper
     occured_predicates = []
     operations.reduce([]) do |memo, fact|
       if occured_predicates.include?(fact.predicate)
-        obj = memo.select{|f| f["predicate"] == fact.predicate}.first
+        obj = memo.select { |f| f["predicate"] == fact.predicate }.first
         obj["repeats"] = obj["repeats"] ? obj["repeats"]+1 : 0
         next memo
       end
       elem = fact.object_asset
       if elem
-        obj = {"object_asset" => {
+        obj = { "object_asset" => {
                  uuid: elem.uuid,
                  barcode: elem.barcode,
                  id: elem.id,
                  info_line: elem.info_line
-               }}.merge(fact.attributes)
+               } }.merge(fact.attributes)
       else
         obj = fact.attributes
       end
@@ -92,18 +92,18 @@ module ActivitiesHelper
     occured_predicates = []
     facts.reduce([]) do |memo, fact|
       if occured_predicates.include?(fact.predicate)
-        obj = memo.select{|f| f["predicate"] == fact.predicate}.first
+        obj = memo.select { |f| f["predicate"] == fact.predicate }.first
         obj["repeats"] = obj["repeats"] ? obj["repeats"]+1 : 0
         next memo
       end
       elem = fact.object_asset
       if elem
-        obj = {"object_asset" => {
+        obj = { "object_asset" => {
                  uuid: elem.uuid,
                  barcode: elem.barcode,
                  id: elem.id,
                  info_line: elem.info_line
-               }}.merge(fact.attributes)
+               } }.merge(fact.attributes)
       else
         obj = fact.attributes
       end
@@ -115,7 +115,7 @@ module ActivitiesHelper
 
   def asset_data(asset)
     asset.facts.reload
-    {barcode: asset.barcode, uuid: asset.uuid, facts: facts_data(asset.facts)}
+    { barcode: asset.barcode, uuid: asset.uuid, facts: facts_data(asset.facts) }
   end
 
   def asset_group_data(activity, asset_group)
@@ -127,7 +127,7 @@ module ActivitiesHelper
       condition_group_name: asset_group.condition_group_name,
       name: asset_group.display_name,
       assets_running: activity.steps.running.joins(asset_group: :assets).map(&:assets).flatten.map(&:uuid).uniq,
-      assets: asset_group.assets.map{|asset| asset_data(asset)}
+      assets: asset_group.assets.map { |asset| asset_data(asset) }
     }
   end
 
@@ -142,7 +142,7 @@ module ActivitiesHelper
 
 
   def step_type_templates_data_for_step_types(activity, step_types, asset_group)
-    step_types.select{|s| !s.step_template.blank? }.map do |st|
+    step_types.select { |s| !s.step_template.blank? }.map do |st|
       {
         assetGroup: asset_group,
         createStepUrl: Rails.application.routes.url_helpers.activity_steps_path(activity),
@@ -172,7 +172,7 @@ module ActivitiesHelper
 
   def messages_for_activity(activity)
     activity.steps.failed.map(&:step_messages).flatten.map do |m|
-      {type: 'danger', msg: m.content.to_s.html_safe}
+      { type: 'danger', msg: m.content.to_s.html_safe }
     end
   end
 

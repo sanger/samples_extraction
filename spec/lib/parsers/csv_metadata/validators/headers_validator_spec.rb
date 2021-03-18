@@ -5,6 +5,7 @@ RSpec.describe Parsers::CsvMetadata::Validators::HeadersValidator do
   let(:klass) {
     Class.new {
       attr_accessor :headers
+
       include ActiveModel::Validations
       validates_with Parsers::CsvMetadata::Validators::HeadersValidator
     }

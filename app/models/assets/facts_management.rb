@@ -2,14 +2,14 @@ module Assets::FactsManagement
   def self.included(klass)
     klass.instance_eval do
       scope :with_fact, ->(predicate, object) {
-        joins(:facts).where(:facts => {:predicate => predicate, :object => object})
+        joins(:facts).where(:facts => { :predicate => predicate, :object => object })
       }
       scope :with_field, ->(predicate, object) {
         where(predicate => object)
       }
 
       scope :with_predicate, ->(predicate) {
-        joins(:facts).where(:facts => {:predicate => predicate})
+        joins(:facts).where(:facts => { :predicate => predicate })
       }
 
 
@@ -17,19 +17,19 @@ module Assets::FactsManagement
   end
 
   def has_literal?(predicate, object)
-    facts.any?{|f| f.predicate == predicate && f.object == object}
+    facts.any? { |f| f.predicate == predicate && f.object == object }
   end
 
   def has_predicate?(predicate)
-    facts.any?{|f| f.predicate == predicate}
+    facts.any? { |f| f.predicate == predicate }
   end
 
   def has_predicate_with_value?(predicate)
-    facts.any?{|f| (f.predicate == predicate) && !f.object.nil?}
+    facts.any? { |f| (f.predicate == predicate) && !f.object.nil? }
   end
 
   def has_relation_with_value?(predicate)
-    facts.any?{|f| (f.predicate == predicate) && !f.object_asset_id.nil?}
+    facts.any? { |f| (f.predicate == predicate) && !f.object_asset_id.nil? }
   end
 
   def has_fact?(fact)

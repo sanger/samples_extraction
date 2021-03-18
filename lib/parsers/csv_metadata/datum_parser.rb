@@ -2,6 +2,7 @@ module Parsers
   module CsvMetadata
     class DatumParser
       attr_reader :datum
+
       include ActiveModel::Validations
 
       validate :validations
