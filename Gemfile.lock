@@ -257,7 +257,7 @@ GEM
       sxp (~> 1.0)
     rdf-xsd (3.0.1)
       rdf (~> 3.0)
-    rdoc (6.1.1)
+    rdoc (6.3.2)
     react-rails (2.5.0)
       babel-transpiler (>= 0.7.0)
       connection_pool
