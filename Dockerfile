@@ -4,6 +4,7 @@ RUN apt-get update -qq && apt-get install -y
 # Install node and Yarn
 RUN curl -sL https://deb.nodesource.com/setup_15.x | bash -
 RUN apt-get install -y nodejs
+RUN apt-get install -y python2
 RUN npm install -g yarn
 WORKDIR /samples_extraction
 ADD Gemfile /samples_extraction
