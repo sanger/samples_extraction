@@ -1,4 +1,3 @@
-
 class StepsController < ApplicationController
   before_action :set_step, only: [:update]
   before_action :set_activity, only: [:create]
