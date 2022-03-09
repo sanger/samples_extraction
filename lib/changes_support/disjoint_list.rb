@@ -1,5 +1,3 @@
-require 'google_hash'
-
 module ChangesSupport
 end
 
@@ -19,8 +17,7 @@ class ChangesSupport::DisjointList
   def initialize(list)
     @name = "object_id_#{object_id}"
 
-    # Replace with a normal hash if we want to stop using it
-    @location_for_unique_id = GoogleHashDenseLongToRuby.new
+    @location_for_unique_id = {}
 
     @list = []
     @disjoint_lists = [self]

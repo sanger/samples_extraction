@@ -43,7 +43,6 @@ gem 'ace-rails-ap'
 gem 'rdf-n3'
 gem 'jbuilder'
 gem 'yajl-ruby'
-gem 'google_hash'
 
 # Traction endpoints
 gem 'jsonapi-resources'

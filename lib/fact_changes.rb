@@ -1,7 +1,6 @@
 require 'token_util'
 require 'changes_support/disjoint_list'
 require 'changes_support/transaction_scope'
-require 'google_hash'
 
 class FactChanges
   include ChangesSupport::TransactionScope
@@ -36,8 +35,8 @@ class FactChanges
     build_disjoint_lists(:asset_groups_to_create, :asset_groups_to_destroy)
     build_disjoint_lists(:assets_to_add, :assets_to_remove)
 
-    @instances_from_uuid = GoogleHashDenseRubyToRuby.new
-    @wildcards = GoogleHashDenseRubyToRuby.new
+    @instances_from_uuid = {}
+    @wildcards = {}
   end
 
   def build_disjoint_lists(list, opposite)
