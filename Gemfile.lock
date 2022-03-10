@@ -429,7 +429,7 @@ DEPENDENCIES
   sanger_warren
   sass-rails
   sdoc
-  sequencescape-client-api (= 1.0.0)
+  sequencescape-client-api
   shoulda-matchers
   spring
   sprockets-rails

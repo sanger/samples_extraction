@@ -55,9 +55,7 @@ gem 'pmb-client', git: 'https://github.com/sanger/pmb-client.git'
 # Sequencescspae
 gem 'rest-client'
 gem 'faraday'
-gem 'sequencescape-client-api', '1.0.0', require: 'sequencescape'
-#
-#gem 'sequencescape-client-api', require: 'sequencescape'
+gem 'sequencescape-client-api', require: 'sequencescape'
 
 # Debugging
 gem 'rb-readline'
