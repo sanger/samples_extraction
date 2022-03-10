@@ -9,9 +9,10 @@ gem 'redis'
 gem 'delayed_job'
 gem 'delayed_job_active_record'
 gem 'mysql2'
+gem 'bootsnap', require: false
 
 # Rails and framework libraries
-gem 'rails', '~> 5.1'
+gem 'rails', '~> 5.2'
 gem 'tzinfo-data'
 gem 'activerecord-session_store'
 gem 'micro_token'
