@@ -29,7 +29,7 @@ module Assets::Export
       rescue Timeout::Error => e
         updates.set_errors(['Sequencescape connection - Timeout error occurred.'])
       rescue StandardError => err
-        updates.set_errors(['Sequencescape connection - There was an error while updating Sequencescape'+err.backtrace.to_s])
+        updates.set_errors(['Sequencescape connection - There was an error while updating Sequencescape', err.message, err.backtrace.to_s])
       end
     end
   end
