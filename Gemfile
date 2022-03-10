@@ -6,7 +6,6 @@ gem 'sanger_warren' # Wraps bunny and manages connection pools and configuration
 gem 'puma'
 gem 'daemons'
 gem 'redis'
-gem 'delayed_job'
 gem 'delayed_job_active_record'
 gem 'mysql2'
 gem 'bootsnap', require: false
