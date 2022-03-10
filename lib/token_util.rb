@@ -87,7 +87,7 @@ module TokenUtil
   end
 
   def self.pad(str,chr,size)
-    "#{(size-str.size).times.map { chr }.join('')}#{str}"
+    "#{(size-str.size).times.map { chr }.join}#{str}"
   end
 
   def self.unpad_location(location)

@@ -10,7 +10,7 @@ namespace :message_addition do
     puts 'Finding samples needing uuids...'
     asset_sample_ids = Fact.with_predicate('sanger_sample_id')
                            .joins("LEFT OUTER JOIN facts AS uuid ON uuid.predicate = 'sample_uuid' AND uuid.asset_id = facts.asset_id")
-                           .where('uuid.object IS NULL')
+                           .where(uuid: { object: nil })
                            .pluck('facts.asset_id', 'facts.object')
     puts "#{asset_sample_ids.length} to migrate"
     asset_sample_ids.each_slice(block_size) do |slice|
@@ -25,11 +25,11 @@ namespace :message_addition do
         store[sample.sanger_sample_id] = sample.uuid
       end
       puts 'Building facts'
-      fact_attributes = slice.map do |asset_id, sanger_sample_id|
+      fact_attributes = slice.filter_map do |asset_id, sanger_sample_id|
         next if uuid_hash[sanger_sample_id].nil?
 
         { asset_id: asset_id, predicate: 'sample_uuid', object: uuid_hash[sanger_sample_id] }
-      end.compact
+      end
       puts 'Creating facts'
       Fact.create!(fact_attributes)
       puts 'Done!'

@@ -62,19 +62,19 @@ class FactChanges
 
   def to_h
     {
-      'set_errors': @errors_added,
-      'create_assets': @assets_to_create.map(&:uuid),
-      'create_asset_groups': @asset_groups_to_create.map(&:uuid),
-      'delete_asset_groups': @asset_groups_to_destroy.map(&:uuid),
-      'delete_assets': @assets_to_destroy.map(&:uuid),
-      'add_facts': @facts_to_add.map do |f|
+      set_errors: @errors_added,
+      create_assets: @assets_to_create.map(&:uuid),
+      create_asset_groups: @asset_groups_to_create.map(&:uuid),
+      delete_asset_groups: @asset_groups_to_destroy.map(&:uuid),
+      delete_assets: @assets_to_destroy.map(&:uuid),
+      add_facts: @facts_to_add.map do |f|
         [
           f[:asset].nil? ? nil : f[:asset].uuid,
           f[:predicate],
           (f[:object] || f[:object_asset].uuid)
         ]
       end,
-      'remove_facts': @facts_to_destroy.map do |f|
+      remove_facts: @facts_to_destroy.map do |f|
         if f[:id]
           fact = Fact.find(f[:id])
           [fact.asset.uuid, fact.predicate, fact.object_value_or_uuid]
@@ -86,8 +86,8 @@ class FactChanges
           ]
         end
       end,
-      'add_assets': asset_group_asset_to_h(@assets_to_add),
-      'remove_assets': asset_group_asset_to_h(@assets_to_remove)
+      add_assets: asset_group_asset_to_h(@assets_to_add),
+      remove_assets: asset_group_asset_to_h(@assets_to_remove)
     }.reject { |k,v| v.length == 0 }
   end
 
@@ -242,7 +242,7 @@ class FactChanges
       ((operation.action_type == 'addFacts') &&
       (operation.predicate == 'is') &&
       (operation.object == 'readyForPrint'))
-    end.map(&:asset).compact.uniq.map(&:uuid)
+    end.filter_map(&:asset).uniq.map(&:uuid)
 
     ids_for_print = asset_ids.concat(ready_for_print_ids).flatten.uniq
     @assets_for_printing=Asset.for_printing.where(uuid: ids_for_print)
@@ -471,7 +471,7 @@ class FactChanges
   def _detach_asset_groups(step, asset_groups, with_operations = true)
     operations = _asset_group_building_operations('deleteAssetGroups', step, asset_groups) if with_operations
     instances = asset_groups.flatten
-    ids_to_remove = instances.map(&:id).compact.uniq
+    ids_to_remove = instances.filter_map(&:id).uniq
 
     AssetGroup.where(id: ids_to_remove).update_all(activity_owner_id: nil) if ids_to_remove && !ids_to_remove.empty?
     operations
@@ -549,7 +549,7 @@ class FactChanges
 
   def _instance_builder_for_import(klass, params_list, &block)
 
-    instances = params_list.map do |params_for_instance|
+    instances = params_list.filter_map do |params_for_instance|
       unless (params_for_instance.kind_of?(klass))
         if (all_values_are_new_records(params_for_instance) ||
           (!klass.exists?(params_for_instance)))
@@ -560,7 +560,7 @@ class FactChanges
           params_for_instance
         end
       end
-    end.compact.uniq
+    end.uniq
     instances.each do |instance|
       instance.run_callbacks(:save) { false }
       instance.run_callbacks(:create) { false }
@@ -575,9 +575,9 @@ class FactChanges
   end
 
   def _instances_deletion(klass, instances, &block)
-    operations = block_given? ? yield(instances) : instances
+    operations = block ? yield(instances) : instances
     instances = instances.flatten
-    ids_to_remove = instances.map(&:id).compact.uniq
+    ids_to_remove = instances.filter_map(&:id).uniq
 
     klass.where(id: ids_to_remove).delete_all if ids_to_remove && !ids_to_remove.empty?
     operations

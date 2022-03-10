@@ -223,10 +223,10 @@ class ChangesSupport::DisjointList
       elsif (element.has_key?(:predicate))
         _unique_id_for_fact(element)
       else
-        sum_function_for(element.keys.dup.concat(element.values.map { |val| _unique_id_for_element(val, deep+1) }).join(""))
+        sum_function_for(element.keys.dup.concat(element.values.map { |val| _unique_id_for_element(val, deep+1) }).join)
       end
     elsif element.kind_of?(Enumerable)
-      sum_function_for(element.map { |o| _unique_id_for_element(o, deep+1) }.join(""))
+      sum_function_for(element.map { |o| _unique_id_for_element(o, deep+1) }.join)
     else
       sum_function_for(element.to_s)
     end

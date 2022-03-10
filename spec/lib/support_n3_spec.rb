@@ -266,20 +266,20 @@ RSpec.describe SupportN3 do
       end
 
       it '{ ' \
-            '?a :is :A . ' \
-            '?a :transfer ?b . ' \
-            '?b :is :B . ' \
-            '?b :transfer ?c . ' \
-            '?c :is :C . ' \
-            '?c :transfer ?d . ' \
-            '?d :is :D . ' \
-            '?d :transfer ?a . ' \
-          '} => {' \
-            ':step :addFacts { ?a :is :Processed .}. ' \
-            ':step :addFacts { ?b :is :Processed .}. ' \
-            ':step :addFacts { ?c :is :Processed .}. ' \
-            ':step :addFacts { ?d :is :Processed .}. ' \
-          '} .' do
+         '?a :is :A . ' \
+         '?a :transfer ?b . ' \
+         '?b :is :B . ' \
+         '?b :transfer ?c . ' \
+         '?c :is :C . ' \
+         '?c :transfer ?d . ' \
+         '?d :is :D . ' \
+         '?d :transfer ?a . ' \
+         '} => {' \
+         ':step :addFacts { ?a :is :Processed .}. ' \
+         ':step :addFacts { ?b :is :Processed .}. ' \
+         ':step :addFacts { ?c :is :Processed .}. ' \
+         ':step :addFacts { ?d :is :Processed .}. ' \
+         '} .' do
         validates_rule_with({
           ConditionGroup => [
             { :name => 'a', :step_type => @step_type, :cardinality => nil,

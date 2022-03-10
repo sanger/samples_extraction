@@ -1,5 +1,3 @@
 FactoryBot.define do
-  factory :label_template do
-    
-  end
+  factory :label_template
 end

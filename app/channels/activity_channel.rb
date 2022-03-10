@@ -34,9 +34,9 @@ class ActivityChannel < ApplicationCable::Channel
       begin
         received_list = []
 
-        received_list = assets.map do |uuid_or_barcode|
+        received_list = assets.filter_map do |uuid_or_barcode|
           Asset.find_or_import_asset_with_barcode(uuid_or_barcode)
-        end.compact
+        end
 
         asset_group.update_with_assets(received_list)
 

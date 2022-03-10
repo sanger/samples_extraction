@@ -58,9 +58,9 @@ module ChangesSupport::TransactionScope
                 object_asset = Asset.find(opts[:facts][:object_asset_id]) if opts[:facts][:object_asset_id]
 
                 (
-                  (triple[0]==element.uuid) &&
+                  ((triple[0]==element.uuid) &&
                   (opts[:facts][:predicate] == triple[1]) &&
-                  (opts[:facts][:object] == triple[2]) || (object_asset.uuid == triple[2])
+                  (opts[:facts][:object] == triple[2])) || (object_asset.uuid == triple[2])
                 )
               end
             end

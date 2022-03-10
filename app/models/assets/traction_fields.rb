@@ -36,7 +36,7 @@ module Assets::TractionFields
     _get_values_for_predicate('cost_code')
   end
 
-  def _get_values_for_predicate(predicate, &block)
+  def _get_values_for_predicate(predicate)
     list = facts.with_predicate(predicate).map do |a|
       if block_given?
         yield a

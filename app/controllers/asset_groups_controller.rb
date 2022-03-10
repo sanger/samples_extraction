@@ -63,9 +63,9 @@ class AssetGroupsController < ApplicationController
     end
 
     def perform_assets_update
-      @asset_group.update_attributes(assets: params_update_asset_group[:assets].map do |uuid_or_barcode|
+      @asset_group.update_attributes(assets: params_update_asset_group[:assets].filter_map do |uuid_or_barcode|
                                        Asset.find_or_import_asset_with_barcode(uuid_or_barcode)
-                                     end.compact.uniq)
+                                     end.uniq)
     end
 
     def show_alert(data)

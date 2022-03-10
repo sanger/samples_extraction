@@ -16,7 +16,7 @@ class InvalidDataParams < StandardError
   def html_error_message(error_messages)
     ['<ul>', error_messages.map do |msg|
       ['<li>',msg,'</li>']
-    end, '</ul>'].flatten.join('')
+    end, '</ul>'].flatten.join
   end
 
 end
@@ -71,7 +71,7 @@ module Actions
         rerackGroup=nil
 
         previous_racks = []
-        tubes = list_layout.map { |obj| obj[:asset] }.compact
+        tubes = list_layout.filter_map { |obj| obj[:asset] }
         return updates if tubes.empty?
         tubes_ids = tubes.map(&:id)
         tubes_list = Asset.where(id: tubes_ids).includes(:facts)

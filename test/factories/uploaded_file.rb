@@ -1,4 +1,3 @@
 FactoryBot.define do
-  factory :uploaded_file do
-  end
+  factory :uploaded_file
 end

@@ -1,5 +1,3 @@
 FactoryBot.define do
-  factory :condition, class: 'Condition' do
-
-  end
+  factory :condition, class: 'Condition'
 end

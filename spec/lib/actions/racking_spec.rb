@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'actions/racking'
 
 RSpec.describe Actions::Racking do
-  let(:content) { File.open('test/data/layout.csv').read }
+  let(:content) { File.read('test/data/layout.csv') }
   let(:file) { create(:uploaded_file, data: content ) }
   let(:activity) { create(:activity) }
   let(:asset_group) { create(:asset_group, assets: [asset]) }
@@ -80,7 +80,7 @@ RSpec.describe Actions::Racking do
         let(:num_empty) { 3 }
         let(:start_pos) { 0 }
         let(:content) {
-          add_empty_slots(File.open('test/data/layout.csv').read, num_empty, start_pos)
+          add_empty_slots(File.read('test/data/layout.csv'), num_empty, start_pos)
         }
         def add_empty_slots(content, num_empty, start_pos = 0)
           csv = CSV.new(content).to_a
@@ -145,12 +145,12 @@ RSpec.describe Actions::Racking do
 
     it 'only returns the studies of the tubes that are going to be removed' do
       @tubes.first.facts << create(:fact, predicate: 'study_name', object: 'STDY2')
-      tubes2 = @tubes.each_with_index.map do |tube, idx|
+      tubes2 = @tubes.each_with_index.filter_map do |tube, idx|
         unless idx == 0
           tube.facts << create(:fact, predicate: 'study_name', object: 'STDY1')
           tube
         end
-      end.compact
+      end
 
       updates = fact_changes_for_rack_when_unracking_tubes(asset, tubes2)
       expect(updates.to_h[:remove_facts].select do |triple|
@@ -199,7 +199,7 @@ RSpec.describe Actions::Racking do
 
   describe '#rack_layout' do
     before do
-      csv = CSV.new(File.open('test/data/layout.csv').read).to_a
+      csv = CSV.new(File.read('test/data/layout.csv')).to_a
       @tubes = csv.map do |line|
         create(:asset, barcode: line[1])
       end

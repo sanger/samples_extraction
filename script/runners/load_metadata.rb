@@ -16,7 +16,7 @@ class LoadMetadata
     if line_parsed['location']
       parent = Asset.find_by!(barcode: line_parsed['barcode'])
       facts = parent.facts.where(predicate: 'contains',
-        object_asset_id: Fact.where(predicate: 'location', object: line_parsed['location']).select(:asset_id))
+                                 object_asset_id: Fact.where(predicate: 'location', object: line_parsed['location']).select(:asset_id))
       raise 'More than one asset found' if facts.count > 1
       return facts.first.object_asset
     else

@@ -1,5 +1,3 @@
 FactoryBot.define do
-  factory :asset_group do
-    
-  end
+  factory :asset_group
 end

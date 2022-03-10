@@ -93,9 +93,9 @@ module Assets::Export
   def attributes_to_send
     raise DuplicateLocations if duplicate_locations_in_plate?
 
-    facts.with_predicate('contains').map(&:object_asset).map do |well|
+    facts.with_predicate('contains').map(&:object_asset).filter_map do |well|
       attributes_to_send_for_well(well)
-    end.compact
+    end
   end
 
   def has_sample?

@@ -35,7 +35,7 @@ class AssetGroup < ApplicationRecord
 
       ActiveRecord::Base.transaction do
         step = Step.create(activity: activity_owner, asset_group: self,
-          in_progress?: true, state: 'complete', step_type: step_type_for_import)
+                           in_progress?: true, state: 'complete', step_type: step_type_for_import)
         updates.apply(step)
       end
     end

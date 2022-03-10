@@ -6,7 +6,6 @@ require 'date'
 # an {AssetGroup}. The AssetGroup reflects the currently actively processed set
 # of {Asset assets} so may be updated as the activity progresses.
 class Activity < ApplicationRecord
-  validates :activity_type, presence: true
   # validates :asset_group, :presence => true
   belongs_to :activity_type
   belongs_to :instrument

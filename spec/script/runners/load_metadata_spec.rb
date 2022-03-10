@@ -4,7 +4,7 @@ require Rails.root.to_s+'/script/runners/load_metadata'
 require 'parsers/csv_metadata/csv_parser'
 
 RSpec.describe 'LoadMetadata' do
-  let(:content) { File.open('test/data/metadata.csv').read }
+  let(:content) { File.read('test/data/metadata.csv') }
   let(:file) { create(:uploaded_file, data: content ) }
   let(:file_asset) { create :asset, uploaded_file: file }
 

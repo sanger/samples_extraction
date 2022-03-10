@@ -56,7 +56,7 @@ RSpec.describe Condition, type: :model do
 
       created_assets = {}
       @step = Step.create(step_type: @step_type, asset_group: @asset_group,
-        wildcard_values: wildcards, state: Step::STATE_RUNNING)
+                          wildcard_values: wildcards, state: Step::STATE_RUNNING)
       @step_execution = StepExecution.new({
         :step => @step,
         :asset_group => @asset_group, :created_assets => created_assets })

@@ -130,12 +130,12 @@ class AssetsController < ApplicationController
   end
 
   def valid_indexes
-    params.keys.map { |k| k.match(/^[pq](\d*)$/) }.compact.map { |k| k[1] }
+    params.keys.filter_map { |k| k.match(/^[pq](\d*)$/) }.map { |k| k[1] }
   end
 
     def set_queries
       @queries = valid_indexes.map do |val|
-        OpenStruct.new({ :predicate => params["p"+val], :object => params["o"+val] })
+        OpenStruct.new({ :predicate => params["p"+val], :object => params["o"+val] }) # rubocop:todo Style/OpenStructUse
       end
     end
 

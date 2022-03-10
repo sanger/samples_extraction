@@ -22,7 +22,7 @@ RSpec.describe Parsers::CsvMetadata::CsvParser do
         Asset.find_by(barcode: barcode)
       end
 
-      @content = File.open('test/data/metadata.csv').read
+      @content = File.read('test/data/metadata.csv')
       @assets = 96.times.map do |i|
         FactoryBot.create(:asset, {
           :barcode => 'FR'+(11200002 + i).to_s

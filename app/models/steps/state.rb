@@ -62,12 +62,12 @@ module Steps::State
 
         event :cancel do
           transitions from: [:complete, :cancelling], to: :cancelling,
-            after: :cancel_me_and_any_newer_completed_steps
+                      after: :cancel_me_and_any_newer_completed_steps
         end
 
         event :remake do
           transitions from: [:cancelled, :remaking], to: :remaking,
-            after: :remake_me_and_any_older_cancelled_steps
+                      after: :remake_me_and_any_older_cancelled_steps
         end
 
         event :continue, guards: [:assets_compatible_with_step_type]  do
@@ -83,7 +83,7 @@ module Steps::State
 
           transitions from: :remaking, to: :cancelled, after: [:stop_job, :stop_newer_steps]
           transitions from: [:failed, :running], to: :stopped,
-            after: [:stop_job, :stop_newer_steps, :cancel_me]
+                      after: [:stop_job, :stop_newer_steps, :cancel_me]
           transitions from: :cancelling, to: :complete, after: [:stop_job, :stop_newer_steps]
         end
 

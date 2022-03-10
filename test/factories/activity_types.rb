@@ -1,5 +1,3 @@
 FactoryBot.define do
-  factory :activity_type do
-
-  end
+  factory :activity_type
 end

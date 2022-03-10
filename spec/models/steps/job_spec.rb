@@ -63,7 +63,7 @@ RSpec.describe Steps::Job do
       before do
         step.update_columns(state: 'stopping')
       end
-      it 'does nothing' do
+      it 'does nothing' do # rubocop:todo Lint/EmptyBlock
       end
     end
   end

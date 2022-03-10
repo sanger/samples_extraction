@@ -51,8 +51,8 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
       before do
         get api_v1_asset_path(asset.uuid), headers: {
-          "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
+          'Content-Type': "application/vnd.api+json",
+          Accept: "application/vnd.api+json"
         }
       end
 
@@ -82,8 +82,8 @@ RSpec.describe 'Api::V1::Sets', type: :request do
       end
       before do
         get api_v1_assets_path, params: { "filter[barcode]" => "F02" }, headers: {
-          "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
+          'Content-Type': "application/vnd.api+json",
+          Accept: "application/vnd.api+json"
         }
       end
       it 'returns the asset' do

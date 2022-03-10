@@ -10,7 +10,9 @@ class Fact < ApplicationRecord
   scope :from_remote_asset, ->() { where(:is_remote? => true) }
   scope :created_before, ->(date) { date.nil? ? all : where('created_at < ?', date) }
 
-  validates :object_asset_id, presence: true, unless: :literal?
+  # Confirm test coverage before correcting this one, as its unclear how optional presence validation
+  # plays with belongs_to_required_by_default.
+  validates :object_asset_id, presence: true, unless: :literal? # rubocop:todo Rails/RedundantPresenceValidationOnBelongsTo
   validates :object_asset_id, presence: false, if: :literal?
 
   def set_to_remove_by(step)

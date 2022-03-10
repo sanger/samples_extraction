@@ -92,9 +92,6 @@ class StepType < ApplicationRecord
       Steps::BackgroundTasks::Inference
     elsif task_type=='runner'
       Steps::BackgroundTasks::Runner
-    elsif task_type=='background_step'
-      Step
-      #["BackgroundSteps::", step_action.gsub(".rb","").classify].join.constantize
     else
       Step
     end
@@ -119,19 +116,19 @@ class StepType < ApplicationRecord
 
   def position_for_assets_by_condition_group(assets)
     all_cgroups = {}
-    Hash[condition_group_classification_for(assets).map do |asset, cgroups|
-      [asset.id, Hash[cgroups.map do |cgroup|
+    condition_group_classification_for(assets).to_h do |asset, cgroups|
+      [asset.id, cgroups.to_h do |cgroup|
         all_cgroups[cgroup] = 0 if all_cgroups[cgroup].nil?
         position = all_cgroups[cgroup]
         all_cgroups[cgroup] = all_cgroups[cgroup] + 1
         [cgroup.id, position]
-      end]]
-    end]
+      end]
+    end
   end
 
   def condition_group_classification_for(assets, checked_condition_groups = [], wildcard_values = {})
     related_assets = []
-    h = Hash[assets.map { |asset| [asset, condition_groups_for(asset, related_assets, [], wildcard_values)] }]
+    h = assets.to_h { |asset| [asset, condition_groups_for(asset, related_assets, [], wildcard_values)] }
     related_assets.each do |a|
       h[a]= condition_groups_for(a, [], checked_condition_groups, wildcard_values)
     end

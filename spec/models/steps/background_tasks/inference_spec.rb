@@ -39,7 +39,10 @@ RSpec.describe Steps::BackgroundTasks::Inference do
   			inferences.reverse.reduce(nil) do |memo, step|
   				id = (memo && memo.id) || nil
   				step.update_attributes(next_step_id: id)
-  				step
+      # Step is modified by the accumulator. This is actually shown as a
+      # 'good' pattern on the Lint/UnmodifiedReduceAccumulator documentation
+      # so surprised its complaining here.
+  				step # rubocop:disable Lint/UnmodifiedReduceAccumulator
   			end
   			inferences.first.run!
   			inferences.each(&:reload)

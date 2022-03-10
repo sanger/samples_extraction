@@ -78,12 +78,12 @@ class Asset < ApplicationRecord
           memo.joins(
             "INNER JOIN facts AS facts#{index} ON facts#{index}.asset_id=assets.id"
             ).where("facts#{index}.predicate" => query.predicate,
-            "facts#{index}.object_asset_id" => asset.id)
+                    "facts#{index}.object_asset_id" => asset.id)
         else
           memo.joins(
             "INNER JOIN facts AS facts#{index} ON facts#{index}.asset_id=assets.id"
             ).where("facts#{index}.predicate" => query.predicate,
-            "facts#{index}.object" => query.object)
+                    "facts#{index}.object" => query.object)
         end
       end
     end
@@ -254,7 +254,7 @@ class Asset < ApplicationRecord
   end
 
   def position_value
-    val = facts.map(&:position).compact.first
+    val = facts.filter_map(&:position).first
     return "" if val.nil?
     "_#{(val.to_i+1).to_s}"
   end
