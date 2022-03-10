@@ -4,7 +4,7 @@ module ApplicationCable
 
     def connect
       #self.current_user = nil
-      token = cookies.encrypted['SOME SECRET']['token']
+      token = cookies.encrypted['_samples_extraction_session']['token']
       if token
         self.current_user = User.find_by(:token => token)
         return if self.current_user
