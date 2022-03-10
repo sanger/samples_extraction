@@ -313,7 +313,7 @@ GEM
       rake
     sdoc (1.0.0)
       rdoc (>= 5.0)
-    sequencescape-client-api (1.0.0)
+    sequencescape-client-api (2.0.0)
       activemodel (>= 5.0.0)
       activesupport (>= 5.0.0)
       i18n
