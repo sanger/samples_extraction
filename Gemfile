@@ -42,7 +42,7 @@ gem 'ace-rails-ap'
 # Serializers
 gem 'rdf-n3'
 gem 'jbuilder'
-gem 'yajl-ruby'
+gem 'oj'
 
 # Traction endpoints
 gem 'jsonapi-resources'

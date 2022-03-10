@@ -177,6 +177,7 @@ GEM
     nokogiri (1.13.3)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
+    oj (3.13.10)
     parallel (1.21.0)
     parser (3.1.1.0)
       ast (~> 2.4.1)
@@ -374,7 +375,6 @@ GEM
     will_paginate (3.1.7)
     will_paginate-bootstrap (1.0.2)
       will_paginate (>= 3.0.3)
-    yajl-ruby (1.4.1)
 
 PLATFORMS
   ruby
@@ -407,6 +407,7 @@ DEPENDENCIES
   launchy
   micro_token
   mysql2
+  oj
   pmb-client!
   pry
   puma
@@ -439,7 +440,6 @@ DEPENDENCIES
   webpacker-react
   will_paginate
   will_paginate-bootstrap
-  yajl-ruby
 
 BUNDLED WITH
    2.2.26
