@@ -20,8 +20,6 @@ class ActivityType < ApplicationRecord
     activities.each(&:touch)
   end
 
-  before_update :parse_n3
-
   attr_accessor :n3_definition
 
   def create_activity(params)
@@ -39,13 +37,6 @@ class ActivityType < ApplicationRecord
 
   def available?
     superceded_by.nil?
-  end
-
-  def parse_n3
-    return
-    unless n3_definition.nil?
-      SupportN3::parse_string(n3_definition, {})
-    end
   end
 
   def after_deprecate

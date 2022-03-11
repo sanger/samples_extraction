@@ -1152,13 +1152,6 @@ Lint/ToJSON:
   Exclude:
     - 'lib/fact_changes.rb'
 
-# Offense count: 3
-Lint/UnreachableCode:
-  Exclude:
-    - 'app/helpers/activities_helper.rb'
-    - 'app/models/activity_type.rb'
-    - 'lib/inference_engines/runner/step_execution.rb'
-
 # Offense count: 57
 # Cop supports --auto-correct.
 # Configuration parameters: IgnoreEmptyBlocks, AllowUnusedKeywordArguments.

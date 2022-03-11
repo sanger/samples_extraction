@@ -154,13 +154,8 @@ module ActivitiesHelper
   end
 
   def data_asset_display_for_asset_group(asset_group)
-    asset_group.assets.reduce({}) do |memo, asset|
+    asset_group.assets.each_with_object({}) do |asset, memo|
       memo[asset.uuid] = data_asset_display(asset.facts)
-      next memo
-      if ((asset.has_literal?('a', 'TubeRack')) || ((asset.has_literal?('a', 'Plate'))))
-        memo[asset.uuid] = data_asset_display(asset.facts)
-      end
-      memo
     end
   end
 
