@@ -67,13 +67,12 @@ gem 'sdoc'#, '~> 0.4.0', group: :doc
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
-  gem 'factory_bot_rails'
   gem 'pry'
   gem 'ruby-growl'
 end
 
 group :test do
-  gem 'factory_bot'
+  gem 'factory_bot_rails'
   gem 'rspec-rails'
   gem 'shoulda-matchers'
   gem 'rails-controller-testing'
