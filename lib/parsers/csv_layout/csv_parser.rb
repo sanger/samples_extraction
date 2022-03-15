@@ -29,7 +29,6 @@ module Parsers
         @parsed = false
         @input = str
         @components = self.class::DEFAULT_COMPONENTS.merge(component_defs)
-        valid?
       end
 
       def parsed?
