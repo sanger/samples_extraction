@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'actions/racking'
 
 class RackLayoutCreatingTubes
@@ -13,10 +15,9 @@ class RackLayoutCreatingTubes
     asset_group.uploaded_files
   end
 
-
   def process
     FactChanges.new.tap do |updates|
-      if assets_compatible_with_step_type.count > 0
+      if assets_compatible_with_step_type.any?
         updates.merge(rack_layout_creating_tubes(@asset_group))
         updates.remove_assets([[asset_group.uploaded_files.first.asset.uuid]])
       end
@@ -24,7 +25,7 @@ class RackLayoutCreatingTubes
   end
 end
 
-return unless ARGV.any? { |s| s.match(".json") }
+return unless ARGV.any? { |s| s.match('.json') }
 
 args = ARGV[0]
 asset_group_id = args.match(/(\d*)\.json/)[1]
@@ -36,8 +37,7 @@ begin
   JSON.parse(json)
   puts json
 rescue InvalidDataParams => e
-  puts ({ set_errors: e.errors }.to_json)
+  puts({ set_errors: e.errors }.to_json)
 rescue StandardError => e
-
-  puts ({ set_errors: ['Unknown error while parsing file'+e.to_json+e.backtrace.join] }.to_json)
+  puts({ set_errors: ['Unknown error while parsing file' + e.to_json + e.backtrace.join] }.to_json)
 end

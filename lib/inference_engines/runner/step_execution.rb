@@ -4,6 +4,12 @@ require 'open3'
 module InferenceEngines
   module Runner
     class StepExecution
+      # Temporary constant to assist refactor
+      # @todo Remove this and migrate actions instead
+      CONVERTED_CLASS_ACTIONS = {
+        'move_barcodes_from_tube_rack_to_plate.rb' => 'StepPlanner::MoveBarcodesFromTubeRackToPlate',
+        'rack_layout_creating_tubes.rb' => 'StepPlanner::RackLayoutCreatingTubes'
+      }
       include StepExecutionProcess
 
       attr_accessor :step, :asset_group, :original_assets,
@@ -30,30 +36,43 @@ module InferenceEngines
         end
       end
 
-      def run_from_class
-        require("#{Rails.root}/script/runners/#{@step.step_type.step_action}")
-        @content = @step.step_type.step_action.gsub("\.rb", '').camelize.constantize.new(asset_group: @asset_group, step: @step).process.to_json
-        step.update_columns(output: @content)
-        @updates = FactChanges.new(@content)
+      def step_action
+        CONVERTED_CLASS_ACTIONS.fetch(@step.step_type.step_action, @step.step_type.step_action)
+      end
+
+      def handled_by_class?
+        step_action.starts_with?('StepPlanner::')
       end
 
       def generate_plan
-        if @step.step_type.step_action.match(/\.rb$/)
-          cmd = ["bin/rails", "runner", "#{Rails.root}/script/runners/#{@step.step_type.step_action}"]
+        if handled_by_class?
+          generate_plan_from_class
         else
-          cmd = "#{Rails.root}/script/runners/#{@step.step_type.step_action}"
+          generate_plan_from_external_process
+        end
+      end
+
+      def generate_plan_from_class
+        klass = step_action.constantize
+
+        step_planner = klass.new(input_url, step_url)
+        @content = step_planner.updates
+        step.update_attributes(output: @content)
+        @updates = FactChanges.new(content)
+      end
+
+      def generate_plan_from_external_process
+        if step_action.match(/\.rb$/)
+          cmd = ["bin/rails", "runner", "#{Rails.root}/script/runners/#{step_action}"]
+        else
+          cmd = "#{Rails.root}/script/runners/#{step_action}"
         end
 
-        call_list = [
-          cmd,
-          input_url = Rails.application.routes.url_helpers.asset_group_url(@asset_group.id)+".json",
-          step_url = Rails.application.routes.url_helpers.step_url(@step.id)+".json"
-        ].flatten
+        call_list = [cmd, input_url, step_url].flatten
 
         call_str = call_list.join(" ")
 
         line = "# EXECUTING: #{call_str}"
-
         Open3.popen3(*[call_list].flatten) do |stdin, stdout, stderror, thr|
           @content = stdout.read
           output = [line, content].join("\n")
@@ -132,6 +151,17 @@ module InferenceEngines
           #@step.asset_group.remove_assets(assets)
         end
       end
+
+      private
+
+      def input_url
+        Rails.application.routes.url_helpers.asset_group_url(@asset_group.id)+".json"
+      end
+
+      def step_url
+        Rails.application.routes.url_helpers.step_url(@step.id)+".json"
+      end
+
     end
   end
 end
