@@ -14,7 +14,7 @@ class Condition < ApplicationRecord
     else
       facts = asset.facts.with_predicate(predicate)
     end
-    return false if facts.count==0
+    return false if facts.count == 0
 
     return false unless facts.first.respond_to?(:object_value)
 
@@ -80,6 +80,7 @@ class Condition < ApplicationRecord
     return true if is_runtime_evaluable_condition?
     return false if asset.nil?
     return check_wildcard_condition(asset, wildcard_values) if is_wildcard_condition?
+
     asset.facts.any? do |fact|
       # Either objects are equal, or both of them are relations to something. We
       # do not check the relations values, because we consider them as wildcards
@@ -88,7 +89,7 @@ class Condition < ApplicationRecord
       else
         cg = ConditionGroup.find(object_condition_group_id)
         check_related_condition_group(cg, fact, related_assets,
-  	  checked_condition_groups, wildcard_values)
+                                      checked_condition_groups, wildcard_values)
       end
     end
   end

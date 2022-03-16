@@ -1,7 +1,6 @@
 require 'rails_helper'
 require 'parsers/csv_layout/validators/location_validator'
 
-
 RSpec.describe Parsers::CsvLayout::Validators::LocationValidator do
   let(:klass) {
     Class.new {
@@ -28,5 +27,4 @@ RSpec.describe Parsers::CsvLayout::Validators::LocationValidator do
     instance.location = ''
     expect(instance).to be_invalid
   end
-
 end

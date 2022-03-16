@@ -48,7 +48,7 @@ class CreateHeronActivitiesView < ActiveRecord::Migration[5.1]
       'CGAP Heron Extraction 200ul - 24ul',
       'Heron R&D Extraction')
     SQL
-  )
+                                         )
   end
 
   def down

@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'remote_assets_helper'
 
 RSpec.describe 'Assets::Import' do
-	include RemoteAssetsHelper
+  include RemoteAssetsHelper
 
   context '#refresh!' do
     let(:asset) { create :asset }
@@ -160,10 +160,10 @@ RSpec.describe 'Assets::Import' do
     it 'should store the study uuid in a safe format' do
       @asset = Asset.find_or_import_asset_with_barcode(@barcode_asset)
       expected_study_uuid = if @remote_asset.respond_to?(:wells)
-        @remote_asset.wells.first.aliquots.first.study.uuid
-      else
-        @remote_asset.racked_tubes.first.tube.aliquots.first.study.uuid
-      end
+                              @remote_asset.wells.first.aliquots.first.study.uuid
+                            else
+                              @remote_asset.racked_tubes.first.tube.aliquots.first.study.uuid
+                            end
       @asset.facts.reload
 
       asset_study_uuid = @asset.facts.where(predicate: 'study_uuid').first.object
@@ -175,7 +175,7 @@ RSpec.describe 'Assets::Import' do
         expect(Asset.count).to eq(0)
         Asset.find_or_import_asset_with_barcode(@barcode_asset)
 
-        expect(Asset.count>0).to eq(true)
+        expect(Asset.count > 0).to eq(true)
       end
     end
 
@@ -249,18 +249,18 @@ RSpec.describe 'Assets::Import' do
       tubes_with_info = tubes.select { |t| t.facts.where(predicate: 'supplier_sample_name').count > 0 }
       locations_with_info = tubes_with_info.map { |t| t.facts.with_predicate('location').first.object }
 
-      expect(locations_with_info).to eq(['C1','D1'])
+      expect(locations_with_info).to eq(['C1', 'D1'])
     end
   end
 
   context '#find_or_import_asset_with_barcode' do
-  	context 'when importing an asset that does not exist' do
-  		setup do
-  			allow(SequencescapeClient).to receive(:get_remote_asset).and_return(nil)
+    context 'when importing an asset that does not exist' do
+      setup do
+        allow(SequencescapeClient).to receive(:get_remote_asset).and_return(nil)
       end
 
-  		it 'should return nil' do
-  			expect(Asset.find_or_import_asset_with_barcode('NOT_FOUND')).to eq(nil)
+      it 'should return nil' do
+        expect(Asset.find_or_import_asset_with_barcode('NOT_FOUND')).to eq(nil)
       end
 
       it 'should not create a new asset' do
@@ -270,22 +270,22 @@ RSpec.describe 'Assets::Import' do
       end
     end
 
-  	context 'when importing a local asset' do
-  		setup do
-  			@barcode_asset = generate(:barcode)
-  			@asset = Asset.create!(barcode: @barcode_asset)
+    context 'when importing a local asset' do
+      setup do
+        @barcode_asset = generate(:barcode)
+        @asset = Asset.create!(barcode: @barcode_asset)
       end
 
-  		it 'should return the local asset when looking by its barcode' do
-  			expect(Asset.find_or_import_asset_with_barcode(@barcode_asset)).to eq(@asset)
+      it 'should return the local asset when looking by its barcode' do
+        expect(Asset.find_or_import_asset_with_barcode(@barcode_asset)).to eq(@asset)
       end
 
-  		it 'should return the local asset when looking by its uuid' do
-  			expect(Asset.find_or_import_asset_with_barcode(@asset.uuid)).to eq(@asset)
-  		end
+      it 'should return the local asset when looking by its uuid' do
+        expect(Asset.find_or_import_asset_with_barcode(@asset.uuid)).to eq(@asset)
+      end
     end
 
-  	context 'when importing a remote asset' do
+    context 'when importing a remote asset' do
       let(:SequencescapeClient) { double('sequencescape_client') }
 
       context 'when the asset is a tube' do
@@ -301,9 +301,8 @@ RSpec.describe 'Assets::Import' do
           setup do
             sample_no_supplier_name = build_remote_sample(
               sample_metadata: double('sample_metadata',
-                supplier_name: nil,
-                sample_common_name: 'species'
-              )
+                                      supplier_name: nil,
+                                      sample_common_name: 'species')
             )
             @remote_tube_asset_without_supplier = build_remote_tube(
               barcode: generate(:barcode),
@@ -349,13 +348,13 @@ RSpec.describe 'Assets::Import' do
                 build_remote_sample(sample_metadata: nil))]),
               build_remote_well('B1', aliquots: [build_remote_aliquot(sample:
                 build_remote_sample(sample_metadata: double('sample_metadata',
-                  sample_common_name: 'species', supplier_name: nil)))]),
+                                                            sample_common_name: 'species', supplier_name: nil)))]),
               build_remote_well('C1', aliquots: [build_remote_aliquot(sample:
                 build_remote_sample(sample_metadata: double('sample_metadata',
-                  sample_common_name: 'species', supplier_name: 'a supplier name')))]),
+                                                            sample_common_name: 'species', supplier_name: 'a supplier name')))]),
               build_remote_well('D1', aliquots: [build_remote_aliquot(sample:
                 build_remote_sample(sample_metadata: double('sample_metadata',
-                  sample_common_name: 'species', supplier_name: 'a supplier name')))])
+                                                            sample_common_name: 'species', supplier_name: 'a supplier name')))])
             ]
             @remote_asset_without_supplier = build_remote_plate(barcode: generate(:barcode), wells: wells)
             stub_client_with_asset(SequencescapeClient, @remote_asset_without_supplier)
@@ -366,7 +365,7 @@ RSpec.describe 'Assets::Import' do
 
         context 'when the plate does not have aliquots in its wells' do
           setup do
-            wells = ['A1','B1'].map { |l| build_remote_well(l, aliquots: []) }
+            wells = ['A1', 'B1'].map { |l| build_remote_well(l, aliquots: []) }
             @remote_asset_without_aliquots = build_remote_plate(barcode: generate(:barcode), wells: wells)
             stub_client_with_asset(SequencescapeClient, @remote_asset_without_aliquots)
           end
@@ -374,13 +373,13 @@ RSpec.describe 'Assets::Import' do
           it 'creates the wells with the same uuid as in the remote asset' do
             @asset = Asset.find_or_import_asset_with_barcode(@remote_asset_without_aliquots.barcode)
             wells = @asset.facts.with_predicate('contains').map(&:object_asset)
-            expect(wells.zip(@remote_asset_without_aliquots.wells).all? { |w,w2| w.uuid == w2.uuid }).to eq(true)
+            expect(wells.zip(@remote_asset_without_aliquots.wells).all? { |w, w2| w.uuid == w2.uuid }).to eq(true)
           end
         end
 
         context 'when the plate does not have samples in its wells' do
           setup do
-            wells = ['A1','B1'].map { |l| build_remote_well(l, aliquots: [build_remote_aliquot(sample: nil)]) }
+            wells = ['A1', 'B1'].map { |l| build_remote_well(l, aliquots: [build_remote_aliquot(sample: nil)]) }
             @remote_asset_without_samples = build_remote_plate(barcode: generate(:barcode), wells: wells)
             stub_client_with_asset(SequencescapeClient, @remote_asset_without_samples)
           end
@@ -388,7 +387,7 @@ RSpec.describe 'Assets::Import' do
           it 'creates the wells with the same uuid as in the remote asset' do
             @asset = Asset.find_or_import_asset_with_barcode(@remote_asset_without_samples.barcode)
             wells = @asset.facts.with_predicate('contains').map(&:object_asset)
-            expect(wells.zip(@remote_asset_without_samples.wells).all? { |w,w2| w.uuid == w2.uuid }).to eq(true)
+            expect(wells.zip(@remote_asset_without_samples.wells).all? { |w, w2| w.uuid == w2.uuid }).to eq(true)
           end
         end
       end
@@ -410,13 +409,13 @@ RSpec.describe 'Assets::Import' do
                 build_remote_sample(sample_metadata: nil))])),
               build_remote_racked_tube('B1', build_remote_tube(aliquots: [build_remote_aliquot(sample:
                 build_remote_sample(sample_metadata: double('sample_metadata',
-                  sample_common_name: 'species', supplier_name: nil)))])),
+                                                            sample_common_name: 'species', supplier_name: nil)))])),
               build_remote_racked_tube('C1', build_remote_tube(aliquots: [build_remote_aliquot(sample:
                 build_remote_sample(sample_metadata: double('sample_metadata',
-                  sample_common_name: 'species', supplier_name: 'a supplier name')))])),
+                                                            sample_common_name: 'species', supplier_name: 'a supplier name')))])),
               build_remote_racked_tube('D1', build_remote_tube(aliquots: [build_remote_aliquot(sample:
                 build_remote_sample(sample_metadata: double('sample_metadata',
-                  sample_common_name: 'species', supplier_name: 'a supplier name')))]))
+                                                            sample_common_name: 'species', supplier_name: 'a supplier name')))]))
             ]
             @remote_asset_without_supplier = build_remote_tube_rack(barcode: generate(:barcode), racked_tubes: racked_tubes)
             stub_client_with_asset(SequencescapeClient, @remote_asset_without_supplier)
@@ -425,6 +424,6 @@ RSpec.describe 'Assets::Import' do
           it_behaves_like 'a partial import of samples'
         end
       end
-  	end
+    end
   end
 end

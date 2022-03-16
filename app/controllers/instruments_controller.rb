@@ -66,14 +66,14 @@ class InstrumentsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_instrument
-      @instrument = Instrument.find(params[:id])
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def instrument_params
-      params.require(:instrument).permit(:barcode, :name, { :activity_type_ids => [] })
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_instrument
+    @instrument = Instrument.find(params[:id])
+  end
 
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def instrument_params
+    params.require(:instrument).permit(:barcode, :name, { :activity_type_ids => [] })
+  end
 end

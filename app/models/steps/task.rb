@@ -43,6 +43,7 @@ module Steps::Task
   def apply_changes(updates)
     reload
     return false if stopped?
+
     updates.apply(self)
     true
   end

@@ -1,7 +1,6 @@
 require "faraday"
 
 module SequencescapeClientV2
-
   class SequencescapeClientV2::Model < JsonApiClient::Resource
     # set the api base url in an abstract base class
     self.site = "#{Rails.configuration.ss_api_v2_uri}/api/v2/"

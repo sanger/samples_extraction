@@ -1,30 +1,27 @@
 require 'rails_helper'
 
 RSpec.describe "Steps::QueuableJob" do
-
   let(:activity) { create :activity }
   let(:step_type) { create :step_type }
   let(:asset_group) { create :asset_group }
   let(:user) { create :user, username: 'test' }
 
-
   def build_instance_with_activity
     step = create(:step, {
-      activity: activity,
-      step_type: step_type,
-      asset_group: asset_group,
-      user: user
-    })
+                    activity: activity,
+                    step_type: step_type,
+                    asset_group: asset_group,
+                    user: user
+                  })
   end
 
   context 'when a background step is completed' do
-
     let(:step) { build_instance_with_activity }
     context 'when there was an error in its execution' do
       before do
         allow(step).to receive(:process) do
           raise StandardError
-          #step.update_attributes(state: 'error')
+          # step.update_attributes(state: 'error')
         end
       end
       context 'when it has a next step configured' do
@@ -53,7 +50,6 @@ RSpec.describe "Steps::QueuableJob" do
           expect(my_steps.last).not_to have_received(:process)
         end
       end
-
     end
     context 'when the step is still in progress and has a next step' do
       let(:another_step) { build_instance_with_activity }
@@ -181,5 +177,4 @@ RSpec.describe "Steps::QueuableJob" do
       end
     end
   end
-
 end

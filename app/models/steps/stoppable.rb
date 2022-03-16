@@ -16,5 +16,4 @@ module Steps::Stoppable
   def stop_newer_steps
     activity.steps.newer_than(self).active.each(&:stop!)
   end
-
 end

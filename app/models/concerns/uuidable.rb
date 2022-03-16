@@ -9,5 +9,4 @@ module Uuidable
   def uuid
     self[:uuid] ||= SecureRandom.uuid
   end
-
 end

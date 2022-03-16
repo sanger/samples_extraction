@@ -14,7 +14,6 @@ module Parsers
       attr_accessor :headers_parser
       attr_reader :data, :parsed, :parsed_changes, :components, :line_parser
 
-
       DEFAULT_COMPONENTS = {
         headers_parser: Parsers::CsvMetadata::HeadersParser,
         data_parser: Parsers::CsvMetadata::DataParser,
@@ -67,7 +66,6 @@ module Parsers
           errors.add(:base, "The csv contains some errors")
         end
       end
-
     end
   end
 end

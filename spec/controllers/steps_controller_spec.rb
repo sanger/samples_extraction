@@ -26,16 +26,16 @@ RSpec.describe StepsController, type: :controller do
       let(:plate_printer) { create :printer, name: 'plates' }
       it 'stores the printer_config provided as parameter' do
         post :create, params: {
-            activity_id: activity.id, step: {
-              asset_group_id: asset_group.id, step_type_id: step_type.id,
-              tube_printer_id: tube_printer.id, plate_printer_id: plate_printer.id
-            }
+          activity_id: activity.id, step: {
+            asset_group_id: asset_group.id, step_type_id: step_type.id,
+            tube_printer_id: tube_printer.id, plate_printer_id: plate_printer.id
           }
+        }
         expect(Step.last.printer_config).to eq({
-          "Tube" => tube_printer.name,
-          "Plate" => plate_printer.name,
-          "TubeRack" => plate_printer.name
-        })
+                                                 "Tube" => tube_printer.name,
+                                                 "Plate" => plate_printer.name,
+                                                 "TubeRack" => plate_printer.name
+                                               })
       end
     end
   end
@@ -54,9 +54,11 @@ RSpec.describe StepsController, type: :controller do
     end
 
     context 'when a step is running' do
-      let(:step) { create :step,
-        activity: activity,
-        asset_group: asset_group, step_type: step_type }
+      let(:step) {
+        create :step,
+               activity: activity,
+               asset_group: asset_group, step_type: step_type
+      }
 
       let(:run_step) {
         # We want to simulate that during a running process a 'stop' event is received so we
@@ -83,7 +85,6 @@ RSpec.describe StepsController, type: :controller do
         expect(step.stopped?).to eq(true)
       end
       context 'when the step performed some changes before stopping' do
-
         it 'cancels all changes that were produced during running' do
           step_id = step.id
           allow_any_instance_of(Step).to receive(:process) do
@@ -102,7 +103,5 @@ RSpec.describe StepsController, type: :controller do
         end
       end
     end
-
   end
-
 end

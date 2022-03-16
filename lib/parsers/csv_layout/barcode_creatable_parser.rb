@@ -14,7 +14,7 @@ module Parsers
           @instance.generate_uuid!
           updater.create_assets([@instance])
           updater.add(@instance, 'barcode', barcode)
-          updater.add(@instance , 'a', 'Tube')
+          updater.add(@instance, 'a', 'Tube')
         end
         @instance
       end

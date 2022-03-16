@@ -37,7 +37,6 @@ class Activity < ApplicationRecord
   delegate :name, to: :instrument, prefix: true, allow_nil: true
   delegate :fullname, to: :last_user, prefix: true, allow_nil: true
 
-
   # Called following state transition to finish
   # Broadcasts the activity to the ML warehouse
   def after_finish

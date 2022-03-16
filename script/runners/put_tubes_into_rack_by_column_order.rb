@@ -6,8 +6,6 @@ return unless ARGV.any? { |s| s.match(".json") }
 
 updates = FactChanges.new
 
-
-
 args = ARGV[0]
 out({}) unless args
 matches = args.match(/(\d*)\.json/)

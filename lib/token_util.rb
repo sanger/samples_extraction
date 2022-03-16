@@ -15,22 +15,26 @@ module TokenUtil
 
   def self.machine_barcode?(barcode)
     return false if invalid_barcode?(barcode)
+
     barcode.to_s.match?(MACHINE_BARCODE)
   end
 
   def self.human_barcode?(barcode)
     return false if invalid_barcode?(barcode)
+
     # If we change the next line, we should change it to check the regexp
     !machine_barcode?(barcode)
   end
 
   def self.machine_barcode(barcode)
     return SBCF::SangerBarcode.from_human(barcode).machine_barcode.to_s if human_barcode?(barcode)
+
     barcode.to_s
   end
 
   def self.human_barcode(barcode)
     return SBCF::SangerBarcode.from_machine(barcode).human_barcode.to_s if machine_barcode?(barcode)
+
     barcode.to_s
   end
 
@@ -40,6 +44,7 @@ module TokenUtil
 
   def self.quote_if_uuid(str)
     return quote(str) if is_uuid?(str)
+
     return str
   end
 
@@ -61,43 +66,49 @@ module TokenUtil
 
   def self.to_asset_group_name(wildcard)
     return wildcard if wildcard.nil?
+
     wildcard.gsub('?', '')
   end
 
   def self.generate_positions(letters, columns)
-    size=letters.size * columns.size
+    size = letters.size * columns.size
     location_for_position = size.times.map do |i|
-      "#{letters[(i%letters.length).floor]}#{pad((columns[(i/letters.length).floor]).to_s,'0',2)}"
+      "#{letters[(i % letters.length).floor]}#{pad((columns[(i / letters.length).floor]).to_s, '0', 2)}"
     end
   end
 
-  def self.pad(str,chr,size)
-    "#{(size-str.size).times.map { chr }.join}#{str}"
+  def self.pad(str, chr, size)
+    "#{(size - str.size).times.map { chr }.join}#{str}"
   end
 
   def self.unpad_location(location)
     return location unless location
+
     loc = location.match(/(\w)(0*)(\d*)/)
-    loc[1]+loc[3]
+    loc[1] + loc[3]
   end
 
   def self.pad_location(location)
     return location unless location
+
     parts = location.match(LOCATION_REGEXP)
     return nil if parts.length == 0
+
     letter = parts[1]
     number = parts[2]
-    number = TokenUtil.pad(number,"0",2) unless number.length == 2
+    number = TokenUtil.pad(number, "0", 2) unless number.length == 2
     "#{letter}#{number}"
   end
 
   def self.quote(str)
     return str unless str
+
     "\"#{str}\""
   end
 
   def self.unquote(str)
     return str unless str
-    str.gsub(/\"/,"")
+
+    str.gsub(/\"/, "")
   end
 end

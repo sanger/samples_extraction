@@ -13,6 +13,6 @@ class Printer < ApplicationRecord
     {
       'Plate' => ['TubeRack', 'Plate'],
       'Tube' => ['Tube', 'SampleTube']
-    }.select { |k,v| v.include?(type) }.first[0]
+    }.select { |k, v| v.include?(type) }.first[0]
   end
 end

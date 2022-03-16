@@ -1,5 +1,5 @@
 module Assets::Export
-  class DuplicateLocations < StandardError ; end
+  class DuplicateLocations < StandardError; end
 
   def update_sequencescape(_print_config, user, _step)
     FactChanges.new.tap do |updates|
@@ -50,7 +50,7 @@ module Assets::Export
   def code39_barcode(instance)
     prefix = instance.barcode.prefix
     number = instance.barcode.number
-    SBCF::SangerBarcode.new(prefix:prefix, number:number).human_barcode
+    SBCF::SangerBarcode.new(prefix: prefix, number: number).human_barcode
   end
 
   def update_wells(instance, updates)
@@ -100,8 +100,8 @@ module Assets::Export
 
   def has_sample?
     has_predicate_with_value?('supplier_sample_name') ||
-    has_relation_with_value?('sample_tube') ||
-    has_predicate_with_value?('sample_uuid')
+      has_relation_with_value?('sample_tube') ||
+      has_predicate_with_value?('sample_uuid')
   end
 
   def attributes_to_send_for_well(well)
@@ -125,7 +125,7 @@ module Assets::Export
         memo[fact.predicate.to_sym] = TokenUtil.unpad_location(fact.object)
       end
       if (['aliquotType', 'sanger_sample_id',
-        'sanger_sample_name', 'sample_uuid'].include?(fact.predicate))
+           'sanger_sample_name', 'sample_uuid'].include?(fact.predicate))
         memo[fact.predicate.to_sym] = TokenUtil.unquote(fact.object)
       end
       memo

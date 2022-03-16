@@ -9,7 +9,7 @@ module Parsers
       def initialize(input_reader, parser)
         @parser = parser
         @parsed_content = []
-        @parsed=false
+        @parsed = false
         @input_reader = input_reader
       end
 
@@ -55,7 +55,7 @@ module Parsers
               memo.push(num_line: num_line, data_parser: data_parser)
             end
           end
-          num_line = num_line+1
+          num_line = num_line + 1
           memo
         end
         @parsed = true

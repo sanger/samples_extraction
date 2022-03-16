@@ -1,36 +1,35 @@
 module SupportN3
-
   def self.ontology_to_json(ontology_file)
     reading_instance = nil
     data = {}
     definitions = {}
     inheritance = {}
     ontology = RDF::N3::Reader.new(ontology_file, {
-      validate: false,
-      canonicalize: false,
-    }).quads.reduce({}) do |memo, quad|
+                                     validate: false,
+                                     canonicalize: false,
+                                   }).quads.reduce({}) do |memo, quad|
       subject = quad[0].pname
       predicate = quad[1].pname
       object = quad[2].to_s
 
       if reading_instance != subject
         if (data["rdfs:label"])
-          memo[data["rdfs:label"]]=data
-          definitions[reading_instance]=data["rdfs:label"]
+          memo[data["rdfs:label"]] = data
+          definitions[reading_instance] = data["rdfs:label"]
         end
-        data={ uri: subject }
+        data = { uri: subject }
         reading_instance = subject
       end
 
       if (predicate == "rdfs:subClassOf")
-        inheritance[subject]=[subject] unless inheritance[subject]
+        inheritance[subject] = [subject] unless inheritance[subject]
         inheritance[subject].push(object)
       end
 
       if (predicate == "http://purl.org/dc/elements/1.1/description")
         predicate = "description"
       end
-      data[predicate]=object
+      data[predicate] = object
       memo
     end
 
@@ -59,7 +58,6 @@ module SupportN3
     ontology
   end
 
-
   def self.parse_string(input, options = {}, step_type = nil)
     options = {
       validate: false,
@@ -76,7 +74,7 @@ module SupportN3
   end
 
   def self.fragment(k)
-    k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/,'')
+    k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/, '')
   end
 
   def self.build_asset(name, create_assets = true, created_assets = [])
@@ -96,14 +94,13 @@ module SupportN3
     element.literal? || quads.select { |q| q[0] == element }.count == 0
   end
 
-
   def self.load_step_actions(content, options = {})
     options = {
       validate: false,
       canonicalize: false,
     }.merge(options)
 
-    #puts content
+    # puts content
     open_resource = RDF::N3::Reader.new(content, options)
     quads = open_resource.quads
     quads.reduce({}) do |memo, quad|
@@ -116,22 +113,21 @@ module SupportN3
     end
   end
 
-
   def self.subgraph(node, quads)
-    quads.select { |q| q[3]==node }
+    quads.select { |q| q[3] == node }
   end
-
 
   def self.create_fact(quad, quads, create_assets = true, created_assets = [])
     asset = build_asset(SupportN3::fragment(quad[0]), create_assets, created_assets)
     if is_literal?(quad[2], quads)
       asset.facts << Fact.create(
         :predicate => SupportN3::fragment(quad[1]),
-        :object => SupportN3::fragment(quad[2]))
+        :object => SupportN3::fragment(quad[2])
+      )
     else
       related_asset = build_asset(SupportN3::fragment(quad[2]), create_assets, created_assets)
       asset.facts << Fact.create(:predicate => SupportN3::fragment(quad[1]),
-        :object_asset => related_asset, :literal => false)
+                                 :object_asset => related_asset, :literal => false)
     end
     asset
   end
@@ -163,13 +159,13 @@ module SupportN3
     attr_reader :step_type
 
     def self.rules(quads)
-      quads.select { |quad| fragment(quad[1])=='implies' }
+      quads.select { |quad| fragment(quad[1]) == 'implies' }
     end
 
     def self.parse_rules(quads, enforce_step_type = nil)
       self.activity_type = nil
       deprecate_class_by_name(ActivityType, activity_type_name(quads), activity_type(quads)) do |old_instances|
-        RuleGraphAccessor.rules(quads).each do |k,p,v,g|
+        RuleGraphAccessor.rules(quads).each do |k, p, v, g|
           accessor = RuleGraphAccessor.new(enforce_step_type, quads, k, v)
           accessor.execute
         end
@@ -197,7 +193,7 @@ module SupportN3
       @graph_conditions = graph_conditions
       @graph_consequences = graph_consequences
       @c_groups = {}
-      @c_groups_cardinalities={}
+      @c_groups_cardinalities = {}
 
       @step_type = step_type || StepType.create(:name => name_for_step_type)
       self.class.deprecate_class_by_name(StepType, name_for_step_type, @step_type) do
@@ -219,10 +215,10 @@ module SupportN3
     end
 
     def sort_created_assets_first(list)
-      list.sort do |a,b|
-        if fragment(a[1])=='createAsset'
+      list.sort do |a, b|
+        if fragment(a[1]) == 'createAsset'
           -1
-        elsif fragment(b[1])=='createAsset'
+        elsif fragment(b[1]) == 'createAsset'
           1
         else
           fragment(a[1]) <=> fragment(b[1])
@@ -231,22 +227,20 @@ module SupportN3
     end
 
     def fragment(k)
-      k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/,'').gsub(/_[0-9][0-9][0-9][0-9][0-9][0-9].*$/,'')
+      k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/, '').gsub(/_[0-9][0-9][0-9][0-9][0-9][0-9].*$/, '')
     end
 
     def self.fragment(k)
-      k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/,'').gsub(/_[0-9][0-9][0-9][0-9][0-9][0-9].*$/,'')
+      k.try(:fragment) || (k.try(:name) || k).to_s.gsub(/.*#/, '').gsub(/_[0-9][0-9][0-9][0-9][0-9][0-9].*$/, '')
     end
-
 
     def condition_group_for(node)
       c_groups[fragment(node)]
     end
 
     def store_condition_group(condition_group)
-      c_groups[condition_group.name]=condition_group
+      c_groups[condition_group.name] = condition_group
     end
-
 
     def find_or_create_condition_group_for(node, params)
       if condition_group_for(node)
@@ -260,7 +254,7 @@ module SupportN3
     def keep_selected_list
       actions.select { |quad| fragment(quad[1]) == 'unselectAsset' }.map do |q|
         if q[2].class == RDF::Node
-          fragment(@quads.select { |k,p,v,g| g==q[2] }.flatten[0])
+          fragment(@quads.select { |k, p, v, g| g == q[2] }.flatten[0])
         else
           fragment(q[2])
         end
@@ -280,32 +274,32 @@ module SupportN3
       else
         # or we add the new condition
         object_condition_group = condition_group_for(v)
-        #if (!object_condition_group.nil? && object_condition_group.conditions.empty? && (fragment(v)[0] != '_'))
+        # if (!object_condition_group.nil? && object_condition_group.conditions.empty? && (fragment(v)[0] != '_'))
         #  object_condition_group = nil
-        #end
+        # end
         Condition.create({ :predicate => fragment(p), :object => fragment(v),
-        :condition_group_id => condition_group.id, :object_condition_group => object_condition_group })
+                           :condition_group_id => condition_group.id, :object_condition_group => object_condition_group })
       end
     end
 
     def is_wildcard?(v)
-      (fragment(v)[0]==('_'))
+      (fragment(v)[0] == ('_'))
     end
 
     def build_condition_groups
       # Left side of the rule
-      conditions.each do |k,p,v,g|
+      conditions.each do |k, p, v, g|
         # Finds the condition group (or creates it)
         condition_group = find_or_create_condition_group_for(k,
-          { :step_type => @step_type,
-          :keep_selected => check_keep_selected_asset(k) })
+                                                             { :step_type => @step_type,
+                                                               :keep_selected => check_keep_selected_asset(k) })
       end
       cgr = []
-      conditions.each do |k,p,v,g|
+      conditions.each do |k, p, v, g|
         if is_wildcard?(v)
           vcgroup = find_or_create_condition_group_for(v,
-          { :step_type => @step_type,
-          :keep_selected => check_keep_selected_asset(v) })
+                                                       { :step_type => @step_type,
+                                                         :keep_selected => check_keep_selected_asset(v) })
           cgr.push(condition_group_for(v))
         end
         # After reading all condition groups we will be able to recognize
@@ -372,7 +366,6 @@ module SupportN3
       fragment(value) unless value.nil?
     end
 
-
     def execute
       build_condition_groups
       build_actions
@@ -380,10 +373,10 @@ module SupportN3
 
     def build_actions
       # Right side of the rule
-      actions.each do |k,p,v,g|
+      actions.each do |k, p, v, g|
         action = fragment(p)
         unless v.literal?
-          @quads.select { |quad| quad.last == v }.each do |k,p,v,g|
+          @quads.select { |quad| quad.last == v }.each do |k, p, v, g|
             # Updates cardinality for the condition group
             if fragment(p) == 'maxCardinality'
               @c_groups_cardinalities[fragment(k)] = fragment(v)
@@ -397,7 +390,7 @@ module SupportN3
             # side of the rules
             if @c_groups[fragment(k)].nil?
               @c_groups[fragment(k)] = ConditionGroup.create({ :cardinality => @c_groups_cardinalities[fragment(k)],
-                :name => fragment(k), :keep_selected => check_keep_selected_asset(fragment(k)) })
+                                                               :name => fragment(k), :keep_selected => check_keep_selected_asset(fragment(k)) })
             end
             # Creates condition groups from the objects of the actions side
             object_condition_group_id = nil
@@ -407,21 +400,21 @@ module SupportN3
               if v.class.name == 'RDF::Query::Variable'
                 if c_groups[fragment(v)].nil?
                   c_groups[fragment(v)] = ConditionGroup.create(:cardinality => @c_groups_cardinalities[fragment(v)],
-                    :name=> fragment(v), :keep_selected => check_keep_selected_asset(fragment(v)))
+                                                                :name => fragment(v), :keep_selected => check_keep_selected_asset(fragment(v)))
                 end
                 object_condition_group_id = c_groups[fragment(v)].id
               end
             end
             Action.create({ :action_type => action, :predicate => fragment(p),
-              :object => fragment(v),
-              :step_type_id => @step_type.id,
-              :subject_condition_group_id => @c_groups[fragment(k)].id,
-              :object_condition_group_id => object_condition_group_id
-            })
-            if (action=='unselectAsset')
+                            :object => fragment(v),
+                            :step_type_id => @step_type.id,
+                            :subject_condition_group_id => @c_groups[fragment(k)].id,
+                            :object_condition_group_id => object_condition_group_id })
+            if (action == 'unselectAsset')
               Condition.create({
-                :predicate => fragment(p), :object => fragment(v),
-                :condition_group_id =>  @c_groups[fragment(k)].id })
+                                 :predicate => fragment(p), :object => fragment(v),
+                                 :condition_group_id => @c_groups[fragment(k)].id
+                               })
             end
           end
         end

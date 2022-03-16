@@ -4,6 +4,7 @@ class AliquotTypeInference
   def initialize(params)
     @asset_group = params[:asset_group]
   end
+
   # rubocop:todo Naming/MethodName
   def _CODE
     %Q{
@@ -31,8 +32,8 @@ class AliquotTypeInference
       if assets_compatible_with_step_type.count > 0
         assets_compatible_with_step_type.each do |asset|
           unless asset.facts.with_predicate('contains').map(&:object_asset).any? do |o|
-              o.has_predicate?('aliquotType')
-            end
+                   o.has_predicate?('aliquotType')
+                 end
             asset.facts.with_predicate('contains').map(&:object_asset).each do |o|
               if o.has_predicate?('sample_tube')
                 updates.add(o, 'aliquotType', aliquot_type_fact(asset).object)

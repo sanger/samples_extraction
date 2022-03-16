@@ -1,14 +1,16 @@
 require 'rails_helper'
-require Rails.root.to_s+'/script/runners/transfer_samples'
+require Rails.root.to_s + '/script/runners/transfer_samples'
 
 RSpec.describe 'TransferSamples' do
   let(:sample) { create(:asset, facts: [create(:fact, predicate: 'sample_name', object: 'sample1')]) }
   let(:sources) {
-    5.times.map { create(:asset, facts: [
-      create(:fact, predicate: 'a', object: 'Tube'),
-      create(:fact, predicate: 'study_name', object: 'Study 1'),
-      create(:fact, predicate: 'sample_tube', object_asset_id: sample.id)
-    ]) }
+    5.times.map {
+      create(:asset, facts: [
+               create(:fact, predicate: 'a', object: 'Tube'),
+               create(:fact, predicate: 'study_name', object: 'Study 1'),
+               create(:fact, predicate: 'sample_tube', object_asset_id: sample.id)
+             ])
+    }
   }
   let(:destinations) {
     5.times.map { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
@@ -50,7 +52,7 @@ RSpec.describe 'TransferSamples' do
 
     context 'when the assets are related by a transfer' do
       before do
-        sources.zip(destinations).each do |s,d|
+        sources.zip(destinations).each do |s, d|
           s.facts << create(:fact, predicate: 'transfer', object_asset_id: d.id)
         end
       end
@@ -76,7 +78,7 @@ RSpec.describe 'TransferSamples' do
   context 'when only sources are in the group' do
     let(:group) { create(:asset_group, assets: sources) }
     before do
-      sources.zip(destinations).each do |s,d|
+      sources.zip(destinations).each do |s, d|
         s.facts << create(:fact, predicate: 'transfer', object_asset_id: d.id)
       end
     end
@@ -85,11 +87,10 @@ RSpec.describe 'TransferSamples' do
   context 'when only destinations are in the group' do
     let(:group) { create(:asset_group, assets: destinations) }
     before do
-      destinations.zip(sources).each do |d,s|
+      destinations.zip(sources).each do |d, s|
         d.facts << create(:fact, predicate: 'transferredFrom', object_asset_id: s.id)
       end
     end
     it_behaves_like 'transfers all facts from source to destination'
   end
 end
-

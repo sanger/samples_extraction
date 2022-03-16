@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class RemoveUnneededTables < ActiveRecord::Migration
   def change
     drop_table :asset_groups_steps

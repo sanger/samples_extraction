@@ -24,7 +24,6 @@ RSpec.describe 'Steps::Stoppable' do
       steps.each(&:reload)
     }
 
-
     context 'but the step was already completed before' do
       let(:previous_state) { Step::STATE_COMPLETE }
       before do

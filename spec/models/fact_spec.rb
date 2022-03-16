@@ -22,5 +22,4 @@ RSpec.describe Fact do
       expect(fact).not_to be_valid
     end
   end
-
 end

@@ -7,6 +7,7 @@ class Instrument < ApplicationRecord
       kit,
       kit.kit_type,
       kit.kit_type.activity_type,
-      activity_types.include?(kit.kit_type.activity_type)].all?
+      activity_types.include?(kit.kit_type.activity_type)
+    ].all?
   end
 end

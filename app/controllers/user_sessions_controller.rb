@@ -7,11 +7,10 @@ class UserSessionsController < ApplicationController
 
   def destroy
     @current_user.clean_session if @current_user
-    session[:token]=nil
+    session[:token] = nil
 
     head :no_content
   end
-
 
   private
 

@@ -30,7 +30,7 @@ RSpec.describe KitTypesController, type: :controller do
   end
 
   it "should get edit" do
-    get :edit,  params: { id: @kit_type }
+    get :edit, params: { id: @kit_type }
     assert_response :success
   end
 
@@ -41,9 +41,9 @@ RSpec.describe KitTypesController, type: :controller do
 
   it "should destroy kit_type" do
     expect {
-      delete :destroy,  params: { id: @kit_type }
+      delete :destroy, params: { id: @kit_type }
     }.to change { KitType.count }.by(-1)
-    
+
     assert_redirected_to kit_types_path
   end
 end

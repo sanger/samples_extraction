@@ -25,7 +25,6 @@ module Parsers
           @location = nil
         end
       end
-
     end
   end
 end

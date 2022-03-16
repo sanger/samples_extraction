@@ -1,6 +1,5 @@
 source 'http://rubygems.org'
 
-
 # Service libraries
 gem 'sanger_warren' # Wraps bunny and manages connection pools and configuration
 gem 'puma'
@@ -32,7 +31,6 @@ gem 'bootstrap-sass'
 gem 'will_paginate'
 gem 'will_paginate-bootstrap'
 
-
 # Javascript UI
 gem 'ejs'
 gem 'dropzonejs-rails'
@@ -61,8 +59,7 @@ gem 'sequencescape-client-api', require: 'sequencescape'
 gem 'rb-readline'
 
 # Docs
-gem 'sdoc'#, '~> 0.4.0', group: :doc
-
+gem 'sdoc' # , '~> 0.4.0', group: :doc
 
 group :development, :test do
   # Call 'pry' anywhere in the code to stop execution and get a debugger console
@@ -82,10 +79,9 @@ group :test do
   gem 'rack_session_access'
 end
 
-
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> in views
-  gem 'web-console'#, '~> 2.0'
+  gem 'web-console' # , '~> 2.0'
 
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
@@ -94,7 +90,6 @@ group :development do
   gem 'rubocop-performance'
   gem 'rubocop-rails'
 end
-
 
 group :deployment do
   gem 'exception_notification'

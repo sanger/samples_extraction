@@ -1,7 +1,6 @@
 require 'inference_engines/runner/step_execution'
 
 class Steps::BackgroundTasks::Runner < Step
-
   def process
     runner = InferenceEngines::Runner::StepExecution.new(
       :step => self,
@@ -11,5 +10,4 @@ class Steps::BackgroundTasks::Runner < Step
     )
     runner.run
   end
-
 end

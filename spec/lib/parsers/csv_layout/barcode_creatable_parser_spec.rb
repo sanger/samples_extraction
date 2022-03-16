@@ -3,7 +3,6 @@ require 'parsers/csv_layout/barcode_creatable_parser'
 require 'parsers/csv_layout/validators/any_barcode_validator'
 require 'parsers/csv_layout/validators/fluidx_barcode_validator'
 
-
 RSpec.describe Parsers::CsvLayout::BarcodeCreatableParser do
   before do
     allow(Asset).to receive(:find_or_import_asset_with_barcode) do |barcode|
@@ -15,8 +14,8 @@ RSpec.describe Parsers::CsvLayout::BarcodeCreatableParser do
     allow(main).to receive(:add_error)
     allow(main).to receive(:parsed_changes).and_return(FactChanges.new)
     allow(main).to receive(:components).and_return({
-      barcode_validator: ValidatorSuccess
-    })
+                                                     barcode_validator: ValidatorSuccess
+                                                   })
     main
   }
   class ValidatorSuccess < ActiveModel::Validator
@@ -37,10 +36,10 @@ RSpec.describe Parsers::CsvLayout::BarcodeCreatableParser do
       expect(parser.barcode).to eq(barcode)
     end
     it 'can parse a line' do
-      expect(Parsers::CsvLayout::BarcodeCreatableParser.new(["A01","F123456"], main_parser).barcode).to eq("F123456")
+      expect(Parsers::CsvLayout::BarcodeCreatableParser.new(["A01", "F123456"], main_parser).barcode).to eq("F123456")
     end
     it 'chomps empty spaces before and after the barcode' do
-      expect(Parsers::CsvLayout::BarcodeCreatableParser.new(["A01","   F123456   "], main_parser).barcode).to eq("F123456")
+      expect(Parsers::CsvLayout::BarcodeCreatableParser.new(["A01", "   F123456   "], main_parser).barcode).to eq("F123456")
     end
   end
   context 'when the asset exists' do
@@ -81,8 +80,8 @@ RSpec.describe Parsers::CsvLayout::BarcodeCreatableParser do
     context 'when the validator accepts the input' do
       before do
         allow(main_parser).to receive(:components).and_return({
-          barcode_validator: ValidatorSuccess
-        })
+                                                                barcode_validator: ValidatorSuccess
+                                                              })
       end
       it 'validates the instance' do
         expect(parser).to be_valid
@@ -91,8 +90,8 @@ RSpec.describe Parsers::CsvLayout::BarcodeCreatableParser do
     context 'when the validator rejects the input' do
       before do
         allow(main_parser).to receive(:components).and_return({
-          barcode_validator: ValidatorReject
-        })
+                                                                barcode_validator: ValidatorReject
+                                                              })
       end
 
       it 'does not validate' do
@@ -104,9 +103,9 @@ RSpec.describe Parsers::CsvLayout::BarcodeCreatableParser do
   describe '#no_read_barcode?' do
     it 'validates no read strings' do
       expect(Parsers::CsvLayout::BarcodeCreatableParser.new(["B01", "NO READ"], main_parser).no_read_barcode?).to eq(true)
-      expect(Parsers::CsvLayout::BarcodeCreatableParser.new(["B01","no read"], main_parser).no_read_barcode?).to eq(true)
-      expect(Parsers::CsvLayout::BarcodeCreatableParser.new(["B01","No Read"], main_parser).no_read_barcode?).to eq(true)
-      expect(Parsers::CsvLayout::BarcodeCreatableParser.new(["B01","adasdf"], main_parser).no_read_barcode?).to eq(false)
+      expect(Parsers::CsvLayout::BarcodeCreatableParser.new(["B01", "no read"], main_parser).no_read_barcode?).to eq(true)
+      expect(Parsers::CsvLayout::BarcodeCreatableParser.new(["B01", "No Read"], main_parser).no_read_barcode?).to eq(true)
+      expect(Parsers::CsvLayout::BarcodeCreatableParser.new(["B01", "adasdf"], main_parser).no_read_barcode?).to eq(false)
     end
   end
 end

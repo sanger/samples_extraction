@@ -14,7 +14,7 @@ Rails.application.configure do
   config.eager_load = true
 
   # Show full error reports
-  config.consider_all_requests_local       = true
+  config.consider_all_requests_local = true
 
   # Enable/disable caching. By default caching is disabled.
   # Run rails dev:cache to toggle caching.
@@ -67,7 +67,7 @@ Rails.application.configure do
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 
-  config.pmb_uri = ENV.fetch('SE_PMB_URI','http://localhost:10000/v1')
+  config.pmb_uri = ENV.fetch('SE_PMB_URI', 'http://localhost:10000/v1')
   config.redis_url = ENV.fetch('SE_REDIS_URI', 'redis://127.0.0.1:6379')
   config.ss_uri =  ENV.fetch('SE_SS_URI', 'http://localhost:3000/api/1/')
   config.ss_api_v2_uri = ENV.fetch('SE_SS_API_V2_URI', 'http://localhost:3000')
@@ -75,7 +75,7 @@ Rails.application.configure do
   config.searcher_name_by_barcode = 'Find assets by barcode'
   config.searcher_study_by_name = 'Find study by name'
   config.printing_disabled = true
-  config.redis_enabled=true
+  config.redis_enabled = true
 
   config.inference_engine = :default
   config.cwm_path = ENV.fetch('CWM_PATH', '')

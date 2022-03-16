@@ -66,5 +66,4 @@ RSpec.describe :cancellable, cancellable: true do
     @steps.each(&:reload)
     expect(@steps.any? { |s| s.cancelled? }).to eq(false)
   end
-
 end

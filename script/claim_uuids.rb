@@ -6,7 +6,7 @@ module ClaimUuids
   def orphan_receptacles(stock_plate_ss)
     stock_plate_ss.wells.map do |well|
       list = well.aliquots.first.sample.receptacles.select { |w| w.plate.nil? }
-      if list.length>1
+      if list.length > 1
         puts "The plate #{stock_plate_ss.barcode} has more than one orphan for the well #{well.id}"
       end
       list
@@ -51,5 +51,4 @@ module ClaimUuids
       link_missing_wells(pre_extracted_plate, stock_plate)
     end
   end
-
 end

@@ -67,13 +67,14 @@ class ActivityTypesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_activity_type
-      @activity_type = ActivityType.find(params[:id])
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def activity_type_params
-      params.require(:activity_type).permit(:name, :n3_definition, { :step_type_ids => [] })
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_activity_type
+    @activity_type = ActivityType.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def activity_type_params
+    params.require(:activity_type).permit(:name, :n3_definition, { :step_type_ids => [] })
+  end
 end

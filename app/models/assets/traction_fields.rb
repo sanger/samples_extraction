@@ -1,5 +1,4 @@
 module Assets::TractionFields
-
   def asset_type
     _get_values_for_predicate('a')
   end
@@ -44,8 +43,9 @@ module Assets::TractionFields
         a.object_value_or_uuid
       end
     end
-    return list[0] if list.length==1
+    return list[0] if list.length == 1
     return nil if list.length == 0
+
     list
   end
 
@@ -57,7 +57,7 @@ module Assets::TractionFields
       end
       if memo[f.predicate]
         if memo[f.predicate].kind_of?(String)
-          memo[f.predicate]=[val]
+          memo[f.predicate] = [val]
         else
           memo[f.predicate].push(val)
         end

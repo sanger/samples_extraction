@@ -27,8 +27,9 @@ class ActivityType < ApplicationRecord
     ActiveRecord::Base.transaction do
       group = AssetGroup.create
       activity = Activity.create({
-        kit: params[:kit], instrument: params[:instrument],
-        activity_type: self, asset_group: group })
+                                   kit: params[:kit], instrument: params[:instrument],
+                                   activity_type: self, asset_group: group
+                                 })
       activities << activity
       group.update_attributes!(activity_owner: activity)
     end
@@ -42,12 +43,11 @@ class ActivityType < ApplicationRecord
   def after_deprecate
     superceded_by.update_attributes(
       activities: superceded_by.activities | activities,
-      kit_types:  superceded_by.kit_types | kit_types,
+      kit_types: superceded_by.kit_types | kit_types,
       instruments: superceded_by.instruments | instruments
-      )
+    )
     superceded_by.save!
   end
-
 
   def compatible_with?(assets)
     condition_groups.any? { |c| c.compatible_with?(assets) }

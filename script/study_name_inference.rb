@@ -31,6 +31,7 @@ class StudyNameInference
       f.object_asset.facts.with_predicate('study_name').map(&:object)
     end.flatten.compact.uniq
     return "" if list.count > 1
+
     return list.first
   end
 
@@ -43,7 +44,6 @@ class StudyNameInference
       end
     end
   end
-
 end
 return unless ARGV.any? { |s| s.match(".json") }
 

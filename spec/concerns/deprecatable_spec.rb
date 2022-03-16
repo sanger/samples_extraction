@@ -5,7 +5,6 @@ shared_examples_for "deprecatable" do
     FactoryBot.create(model.to_s.underscore.to_sym)
   end
 
-  
   let(:model) { described_class }
 
   it "deprecates all the instances of the class with the same name" do
@@ -19,7 +18,7 @@ shared_examples_for "deprecatable" do
     deprecatable_list.each { |old| old.deprecate_with(active_instance) }
 
     expect(model.visible.count).to eq(1)
-    expect(model.all.count).to eq(deprecatable_list.count+1)
+    expect(model.all.count).to eq(deprecatable_list.count + 1)
     expect(model.visible.first).to eq(active_instance)
   end
 end

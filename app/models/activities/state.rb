@@ -32,5 +32,4 @@ module Activities::State
   def editing?
     state == 'editing'
   end
-
 end

@@ -1,6 +1,5 @@
 module Activities
   module Tasks
-
     def create_step(params)
       params[:step_type].class_for_task_type
                         .create!(
@@ -14,6 +13,5 @@ module Activities
         step.run!
       end
     end
-
   end
 end

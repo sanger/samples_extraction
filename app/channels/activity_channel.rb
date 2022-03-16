@@ -1,5 +1,4 @@
 class ActivityChannel < ApplicationCable::Channel
-
   def self.connection_for_redis
     ActionCable.server.pubsub.redis_connection_for_subscriptions
   end
@@ -19,6 +18,7 @@ class ActivityChannel < ApplicationCable::Channel
   def self.subscribed_ids
     value = connection_for_redis.get('SUBSCRIBED_IDS')
     return [] unless value
+
     JSON.parse(value)
   end
 
@@ -40,8 +40,8 @@ class ActivityChannel < ApplicationCable::Channel
 
         asset_group.update_with_assets(received_list)
 
-        #asset_group.update_attributes(assets: received_list)
-        #asset_group.touch
+        # asset_group.update_attributes(assets: received_list)
+        # asset_group.touch
       rescue Errno::ECONNREFUSED => e
         asset_group.activity.send_wss_event({ error: { type: 'danger', msg: 'Cannot connect with sequencescape' } })
       rescue StandardError => e
@@ -66,7 +66,7 @@ class ActivityChannel < ApplicationCable::Channel
   end
 
   def self.default_activity_attributes
-    { stepTypes: true, stepsPending: true, stepsRunning:true, stepsFailed: true, stepsFinished: false }.as_json
+    { stepTypes: true, stepsPending: true, stepsRunning: true, stepsFailed: true, stepsFinished: false }.as_json
   end
 
   def self.activity_attributes(id)
@@ -104,7 +104,7 @@ class ActivityChannel < ApplicationCable::Channel
 
   def unsubscribed
     previous_value = subscribed_ids
-    connection_for_redis.set('SUBSCRIBED_IDS', previous_value.reject { |v| v== stream_id })
+    connection_for_redis.set('SUBSCRIBED_IDS', previous_value.reject { |v| v == stream_id })
 
     stop_all_streams
   end

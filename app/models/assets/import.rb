@@ -1,14 +1,12 @@
 module Assets::Import
-
   def self.included(base)
     base.send :include, InstanceMethods
     base.extend ClassMethods
   end
 
-  class RefreshSourceNotFoundAnymore < StandardError ; end
+  class RefreshSourceNotFoundAnymore < StandardError; end
 
   module InstanceMethods
-
     def json_for_remote(remote_asset)
       distinct = remote_asset.attributes.to_json
 
@@ -27,7 +25,7 @@ module Assets::Import
           if listal
             listsa = listal.flatten.compact.map { |al| al.sample }
             if listsa
-              distinct+=listsa.compact.map(&:attributes).to_json
+              distinct += listsa.compact.map(&:attributes).to_json
             end
           end
         end
@@ -40,7 +38,7 @@ module Assets::Import
         if listal
           listsa = listal.flatten.compact.map { |al| al.sample }
           if listsa
-            distinct+=listsa.compact.map(&:attributes).to_json
+            distinct += listsa.compact.map(&:attributes).to_json
           end
         end
       end
@@ -58,7 +56,7 @@ module Assets::Import
           if listal
             listsa = listal.flatten.compact.map { |al| al.sample }
             if listsa
-              distinct+=listsa.compact.map(&:attributes).to_json
+              distinct += listsa.compact.map(&:attributes).to_json
             end
           end
         end
@@ -107,7 +105,7 @@ module Assets::Import
         asset_group.touch
       ensure
         @import_step.update_attributes(state: 'error') unless @import_step.state == 'complete'
-        #@import_step.asset_group.touch if @import_step.asset_group
+        # @import_step.asset_group.touch if @import_step.asset_group
       end
     end
 
@@ -127,6 +125,7 @@ module Assets::Import
       if is_remote_asset?
         remote_asset = SequencescapeClient::find_by_uuid(uuid)
         raise RefreshSourceNotFoundAnymore unless remote_asset
+
         if changed_remote?(remote_asset)
           unless is_refreshing_right_now?
             @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh'), state: 'running')
@@ -142,6 +141,7 @@ module Assets::Import
         @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh!!'), state: 'running')
         remote_asset = SequencescapeClient::find_by_uuid(uuid)
         raise RefreshSourceNotFoundAnymore unless remote_asset
+
         _process_refresh(remote_asset, fact_changes)
       end
       self
@@ -161,11 +161,9 @@ module Assets::Import
       facts << added
       add_operations([added].flatten, step)
     end
-
   end
 
   module ClassMethods
-
     def import_barcode(barcode)
       asset = nil
 
@@ -185,7 +183,7 @@ module Assets::Import
     end
 
     def create_local_asset(barcode, updates)
-      asset=nil
+      asset = nil
       ActiveRecord::Base.transaction do
         asset = Asset.create!(:barcode => barcode)
         updates.add(asset, 'a', 'Tube')
@@ -217,7 +215,6 @@ module Assets::Import
       barcode = TokenUtil.human_barcode(barcode) if TokenUtil.machine_barcode?(barcode)
       find_asset_with_barcode(barcode) || import_barcode(barcode)
     end
-
 
     def update_asset_from_remote_asset(asset, remote_asset, fact_changes)
       fact_changes.tap do |updates|
@@ -257,7 +254,7 @@ module Assets::Import
     end
 
     def sample_id_to_study_name(sample_id)
-      sample_id.gsub(/\d*$/,'').gsub('-', '')
+      sample_id.gsub(/\d*$/, '').gsub('-', '')
     end
 
     def get_study_uuid(study_name)
@@ -336,8 +333,10 @@ module Assets::Import
 
     def sequencescape_type_for_asset(remote_asset)
       return nil unless remote_asset.type
+
       type = remote_asset.type.singularize.classify
       return 'SampleTube' if type == 'Tube'
+
       return type
     end
 
@@ -345,6 +344,5 @@ module Assets::Import
       class_name = sequencescape_type_for_asset(remote_asset)
       (class_name != 'SampleTube')
     end
-
   end
 end

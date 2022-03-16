@@ -10,7 +10,6 @@ module InferenceEngines
       attr_accessor :asset_group
       attr_accessor :updates
 
-
       def initialize(params)
         @step = params[:step]
         @asset_group = params[:asset_group]
@@ -23,18 +22,17 @@ module InferenceEngines
       end
 
       def executable_actions_sorted
-        step.step_type.actions.includes([:subject_condition_group, :object_condition_group]).sort do |a,b|
+        step.step_type.actions.includes([:subject_condition_group, :object_condition_group]).sort do |a, b|
           [:create_asset, :add_facts, :remove_facts, :delete_asset, :select_asset, :unselect_asset]
-          if a.action_type=='createAsset'
+          if a.action_type == 'createAsset'
             -1
-          elsif b.action_type=='createAsset'
+          elsif b.action_type == 'createAsset'
             1
           else
             a.action_type <=> b.action_type
           end
         end
       end
-
 
       def unselect_assets_with_conditions(condition_groups, updates)
         condition_groups.each do |condition_group|
@@ -71,7 +69,6 @@ module InferenceEngines
       def apply
         updates.apply(step)
       end
-
     end
   end
 end

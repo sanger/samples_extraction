@@ -31,7 +31,7 @@ class TransferTubesToTubeRackByPosition
   end
 
   def location_to_pos(location, max_row = 8)
-    ((location[1..-1].to_i - 1) * max_row)+ (location[0].ord - 'A'.ord);
+    ((location[1..-1].to_i - 1) * max_row) + (location[0].ord - 'A'.ord);
   end
 
   def wells_for(rack)
@@ -137,7 +137,6 @@ class TransferTubesToTubeRackByPosition
       end
     end
   end
-
 end
 
 return unless ARGV.any? { |s| s.match(".json") }

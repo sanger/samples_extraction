@@ -1,7 +1,6 @@
 require 'inference_engines/cwm/step_execution'
 
 class Steps::BackgroundTasks::Inference < Step
-
   def process
     inferences = InferenceEngines::Cwm::StepExecution.new(
       :step => self,
@@ -11,5 +10,4 @@ class Steps::BackgroundTasks::Inference < Step
     )
     inferences.run
   end
-
 end

@@ -34,9 +34,9 @@ class Action < ApplicationRecord
           return sources.each do |s|
             destinations.each do |d|
               if (value_for[s.id] && value_for[d.id])
-                yield s,d if (value_for[s.id] == value_for[d.id])
+                yield s, d if (value_for[s.id] == value_for[d.id])
               else
-                yield s,d
+                yield s, d
               end
             end
           end
@@ -44,11 +44,11 @@ class Action < ApplicationRecord
       end
     end
     if step_type.connect_by == 'position'
-      sources.zip(destinations).each { |s,d| yield s,d if d }
+      sources.zip(destinations).each { |s, d| yield s, d if d }
     else
       sources.each do |s|
         destinations.each do |d|
-          yield s,d
+          yield s, d
         end
       end
     end
@@ -75,8 +75,7 @@ class Action < ApplicationRecord
           assets = num_assets_to_create(asset_group).times.map { Asset.new }
           updates.create_assets(assets)
           updates.add_assets([[asset_group, assets]])
-          #asset_group.assets << assets
-
+          # asset_group.assets << assets
 
           updates.create_asset_groups(["?#{subject_condition_group.name}"])
           updates.add_assets([["?#{subject_condition_group.name}", assets]])
@@ -105,7 +104,7 @@ class Action < ApplicationRecord
         updates.remove_assets([[asset_group, sources(asset_group)]])
       else
         each_connected_asset(sources(asset_group), destinations(asset_group), wildcard_values) do |source, destination|
-          if action_type=='addFacts'
+          if action_type == 'addFacts'
             updates.add(source, predicate, destination)
           elsif action_type == 'removeFacts'
             updates.remove_where(source, predicate, destination)
@@ -116,9 +115,9 @@ class Action < ApplicationRecord
   end
 
   def num_assets_to_create(asset_group)
-    return asset_group.assets.count unless (subject_condition_group.cardinality) && (subject_condition_group.cardinality!=0)
-    return subject_condition_group.cardinality
-    #return [[asset_group.assets.count, subject_condition_group.cardinality].min, 1].max
-  end
+    return asset_group.assets.count unless (subject_condition_group.cardinality) && (subject_condition_group.cardinality != 0)
 
+    return subject_condition_group.cardinality
+    # return [[asset_group.assets.count, subject_condition_group.cardinality].min, 1].max
+  end
 end

@@ -1,8 +1,8 @@
 module Steps::WebsocketEvents
   def self.included(klass)
     klass.instance_eval do
-      #after_update :unset_activity_running, if: :can_unset_activity_running?
-      #after_update :wss_event
+      # after_update :unset_activity_running, if: :can_unset_activity_running?
+      # after_update :wss_event
     end
   end
 
@@ -18,5 +18,4 @@ module Steps::WebsocketEvents
   def wss_event
     [activity].concat(activities_affected).compact.uniq.each(&:touch)
   end
-
 end

@@ -62,17 +62,18 @@ class KitsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_kit
-      @kit = Kit.find(params[:id])
-    end
 
-    def set_kit_types
-      @kit_types = KitType.all
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_kit
+    @kit = Kit.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def kit_params
-      params.require(:kit).permit(:barcode, :max_num_reactions, :num_reactions_performed, :kit_type_id)
-    end
+  def set_kit_types
+    @kit_types = KitType.all
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def kit_params
+    params.require(:kit).permit(:barcode, :max_num_reactions, :num_reactions_performed, :kit_type_id)
+  end
 end

@@ -11,8 +11,8 @@ module InferenceEngines
       def initialize(params)
         @step = params[:step]
         @asset_group = params[:asset_group]
-        @original_assets= params[:original_assets]
-        @created_assets= params[:created_assets]
+        @original_assets = params[:original_assets]
+        @created_assets = params[:created_assets]
         @facts_to_destroy = params[:facts_to_destroy]
 
         @step_types = params[:step_types] || [@step.step_type]
@@ -39,9 +39,9 @@ module InferenceEngines
         call_list = [
           cmd = "#{Rails.configuration.cwm_path}/cwm",
           input_urls = [
-            Rails.application.routes.url_helpers.asset_group_url(@asset_group.id)+".n3",
+            Rails.application.routes.url_helpers.asset_group_url(@asset_group.id) + ".n3",
             @step_types.map do |step_type|
-              Rails.application.routes.url_helpers.step_type_url(step_type.id)+".n3"
+              Rails.application.routes.url_helpers.step_type_url(step_type.id) + ".n3"
             end
           ],
           '--mode=r',
@@ -59,7 +59,7 @@ module InferenceEngines
           content = stdout.read
           output = [line, content].join("\n")
           step.update_attributes(output: output)
-          unless thr.value==0
+          unless thr.value == 0
             raise "cwm execution failed\nCODE: #{thr.value}\nCMD: #{line}\nSTDOUT: #{content}\nSTDERR: #{stderror.read}\n"
           end
         end
@@ -84,9 +84,7 @@ module InferenceEngines
         end
 
         updates.apply(step)
-
       end
-
 
       def fragment(k)
         SupportN3::fragment(k)
@@ -96,13 +94,14 @@ module InferenceEngines
         graphs.each do |quads|
           quads.map do |quad|
             asset = Asset.find_by!(:uuid => TokenUtil.uuid(fragment(quad[0])))
-            add_quad_to_asset(quad,asset)
+            add_quad_to_asset(quad, asset)
           end
         end
       end
 
       def equal_quad_and_fact?(quad, fact)
         return false if fact.predicate != fragment(quad[1])
+
         object = fragment(quad[2])
         if TokenUtil.is_uuid?(object)
           return true if fact.object_asset == Asset.find_by(:uuid => TokenUtil.uuid(object))
@@ -139,7 +138,7 @@ module InferenceEngines
         created_assets = {}
         graphs.each do |quads|
           quads.each do |quad|
-            created_assets[quad[0]] = [ Asset.create! ].flatten unless created_assets[quad[0]]
+            created_assets[quad[0]] = [Asset.create!].flatten unless created_assets[quad[0]]
             @step.asset_group.add_assets(created_assets[quad[0]])
             created_assets[quad[0]].each do |asset|
               add_quad_to_asset(quad, asset, "createAsset")

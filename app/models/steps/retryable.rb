@@ -1,5 +1,4 @@
 module Steps::Retryable
-
   def on_retrying
     if ((state == 'retrying') && (state_was == 'error'))
       delay(queue: 'steps').on_retry

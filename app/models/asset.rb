@@ -32,7 +32,6 @@ class Asset < ApplicationRecord
   has_many :steps, through: :asset_groups
   has_many :activities_affected, -> { distinct }, through: :asset_groups, class_name: 'Activity', source: :activity_owner
 
-
   def update_compatible_activity_type
     ActivityType.not_deprecated.all.each do |at|
       activity_types << at if at.compatible_with?(self)
@@ -55,11 +54,11 @@ class Asset < ApplicationRecord
   }
 
   scope :not_started, ->() {
-    with_fact('is','NotStarted')
+    with_fact('is', 'NotStarted')
   }
 
   scope :started, ->() {
-    with_fact('is','Started')
+    with_fact('is', 'Started')
   }
 
   scope :for_printing, ->() {
@@ -70,20 +69,20 @@ class Asset < ApplicationRecord
     queries.each_with_index.reduce(Asset) do |memo, list|
       query = list[0]
       index = list[1]
-      if query.predicate=='barcode'
+      if query.predicate == 'barcode'
         memo.where(barcode: query.object)
       else
         asset = Asset.where(barcode: query.object).first
         if asset
           memo.joins(
             "INNER JOIN facts AS facts#{index} ON facts#{index}.asset_id=assets.id"
-            ).where("facts#{index}.predicate" => query.predicate,
-                    "facts#{index}.object_asset_id" => asset.id)
+          ).where("facts#{index}.predicate" => query.predicate,
+                  "facts#{index}.object_asset_id" => asset.id)
         else
           memo.joins(
             "INNER JOIN facts AS facts#{index} ON facts#{index}.asset_id=assets.id"
-            ).where("facts#{index}.predicate" => query.predicate,
-                    "facts#{index}.object" => query.object)
+          ).where("facts#{index}.predicate" => query.predicate,
+                  "facts#{index}.object" => query.object)
         end
       end
     end
@@ -135,28 +134,27 @@ class Asset < ApplicationRecord
 
   def build_barcode(index)
     self.barcode = SBCF::SangerBarcode.new({
-      prefix: Rails.application.config.barcode_prefix,
-      number: index
-    }).human_barcode
+                                             prefix: Rails.application.config.barcode_prefix,
+                                             number: index
+                                           }).human_barcode
   end
 
   def generate_barcode
     save
     if barcode.nil?
       update_attributes({
-        barcode: SBCF::SangerBarcode.new({
-          prefix: Rails.application.config.barcode_prefix,
-          number: self.id
-          }).human_barcode
-        }
-      )
+                          barcode: SBCF::SangerBarcode.new({
+                                                             prefix: Rails.application.config.barcode_prefix,
+                                                             number: self.id
+                                                           }).human_barcode
+                        })
     end
   end
 
   def attrs_for_sequencescape(traversed_list = [])
     hash = facts.map do |fact|
       if fact.literal?
-        [fact.predicate,  fact.object_value]
+        [fact.predicate, fact.object_value]
       else
         if traversed_list.include?(fact.object_value)
           [fact.predicate, fact.object_value.uuid]
@@ -166,7 +164,7 @@ class Asset < ApplicationRecord
         end
       end
     end.reduce({}) do |memo, list|
-      predicate,object = list
+      predicate, object = list
       if memo[predicate] || memo[predicate.pluralize]
         # Updates name of list to pluralized name
         unless memo[predicate].kind_of? Array
@@ -179,7 +177,7 @@ class Asset < ApplicationRecord
       end
       memo
     end
-    #return {:uuid => uuid, :barcode => { :prefix => 'SE', :number => 14 }}
+    # return {:uuid => uuid, :barcode => { :prefix => 'SE', :number => 14 }}
     hash
   end
 
@@ -190,11 +188,12 @@ class Asset < ApplicationRecord
   def barcode_sequencescaped
     unless barcode.match(/^\d+$/)
       return barcode.match(/\d+/)[0] if barcode.match(/\d+/)
+
       return ""
     end
     ean13 = barcode.rjust(13, '0')
-    ean13.slice!(0,3)
-    ean13.slice!(ean13.length-3,3)
+    ean13.slice!(0, 3)
+    ean13.slice!(ean13.length - 3, 3)
     ean13.to_i
   end
 
@@ -211,6 +210,7 @@ class Asset < ApplicationRecord
         end
       end
     end
+
     return ''
   end
 
@@ -228,12 +228,13 @@ class Asset < ApplicationRecord
 
   def printable_object(username = 'unknown')
     return nil if barcode.nil?
+
     if (kind_of_plate?)
       return {
         :label => {
           :barcode => barcode,
           :top_left => DateTime.now.strftime('%d/%b/%y'),
-          :top_right => info_line, #username,
+          :top_right => info_line, # username,
           :bottom_right => study_and_barcode,
           :bottom_left => barcode
         }
@@ -245,8 +246,7 @@ class Asset < ApplicationRecord
       :top_line => TokenUtil.human_barcode(barcode),
       :middle_line => kit_type,
       :bottom_line => info_line
-      }
-    }
+    } }
   end
 
   def kit_type
@@ -256,7 +256,8 @@ class Asset < ApplicationRecord
   def position_value
     val = facts.filter_map(&:position).first
     return "" if val.nil?
-    "_#{(val.to_i+1).to_s}"
+
+    "_#{(val.to_i + 1).to_s}"
   end
 
   def info_line
@@ -268,6 +269,7 @@ class Asset < ApplicationRecord
     if purposes_facts.count > 0
       return purposes_facts.first.object
     end
+
     return ''
   end
 
@@ -276,9 +278,9 @@ class Asset < ApplicationRecord
     if purposes_facts.count > 0
       return purposes_facts.first.object
     end
+
     return ''
   end
-
 
   def position_name_for_symphony
     str = first_value_for('location')
@@ -303,11 +305,12 @@ class Asset < ApplicationRecord
     return 'Tube' if class_types.include?('Tube')
     return 'SampleTube' if class_types.include?('SampleTube')
     return facts.select { |f| f[:predicate] == 'a' }.first.object if facts.select { |f| f[:predicate] == 'a' }.first
+
     return ""
   end
 
   def kind_of_plate?
-    (class_type=='Plate')||(class_type=='TubeRack')
+    (class_type == 'Plate') || (class_type == 'TubeRack')
   end
 
   def has_wells?
@@ -317,7 +320,6 @@ class Asset < ApplicationRecord
   def class_type
     Asset.class_type(facts)
   end
-
 
   def contains_location?(location)
     facts.with_predicate('contains').any? do |f|
@@ -332,10 +334,9 @@ class Asset < ApplicationRecord
   end
 
   def remove_from_parent(parent)
-    facts.with_predicate('parent').select { |f| f.object_asset==parent }.each(&:destroy)
+    facts.with_predicate('parent').select { |f| f.object_asset == parent }.each(&:destroy)
     facts.with_predicate('location').each(&:destroy)
   end
-
 
   def duplicated_tubes_validation
     contained_assets = facts.with_predicate('contains').map(&:object_asset)
@@ -352,21 +353,23 @@ class Asset < ApplicationRecord
 
   def more_than_one_aliquot_type_validation
     if facts.with_predicate('contains').map(&:object_asset).map do |well|
-      well.facts.with_predicate('aliquotType').map(&:object)
-      end.flatten.uniq.count > 1
+         well.facts.with_predicate('aliquotType').map(&:object)
+       end.flatten.uniq.count > 1
       return ['More than one aliquot type in the same rack']
     end
+
     return []
   end
 
   def barcode_type
     btypes = facts.with_predicate('barcodeType')
     return 'ean13' if btypes.empty?
+
     btypes.first.object.downcase
   end
 
   def validate_rack_content
-    errors=[]
+    errors = []
     errors.push(more_than_one_aliquot_type_validation)
     errors
   end

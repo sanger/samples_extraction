@@ -4,7 +4,6 @@ require 'parsers/csv_layout/validators/fluidx_barcode_validator'
 module Parsers
   module CsvLayout
     class BarcodeParser
-
       NO_READ_BARCODE = 'no read'
 
       include ActiveModel::Validations

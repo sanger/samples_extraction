@@ -1,10 +1,9 @@
 require 'rails_helper'
 require 'spec_helper'
 
-def assert_equal(a,b)
+def assert_equal(a, b)
   expect(a).to eq(b)
 end
-
 
 RSpec.describe StepType, type: :model do
   it_behaves_like "deprecatable"
@@ -16,8 +15,8 @@ RSpec.describe StepType, type: :model do
       create :step_type, for_reasoning: true
       create :step_type, name: 'Not background', for_reasoning: false, priority: 5000
       create :step_type, name: 'Third', for_reasoning: true, priority: 10
-      create :step_type, name: 'First', for_reasoning: true , priority: 1000
-      create :step_type, name: 'Second', for_reasoning: true , priority: 50
+      create :step_type, name: 'First', for_reasoning: true, priority: 1000
+      create :step_type, name: 'Second', for_reasoning: true, priority: 50
 
       expect(StepType.all.for_reasoning.first.name).to eq('First')
       expect(StepType.all.for_reasoning[1].name).to eq('Second')
@@ -62,14 +61,15 @@ RSpec.describe StepType, type: :model do
 
   describe '#compatible_with' do
     setup do
-      @step_type=FactoryBot.create :step_type
-      @cg1=FactoryBot.create(:condition_group, { :name => 'p' })
+      @step_type = FactoryBot.create :step_type
+      @cg1 = FactoryBot.create(:condition_group, { :name => 'p' })
       @step_type.condition_groups << @cg1
       @cg1.conditions << FactoryBot.create(:condition, {
-        :predicate => 'is', :object => 'Tube' })
+                                             :predicate => 'is', :object => 'Tube'
+                                           })
       @cg1.conditions << FactoryBot.create(:condition, {
-        :predicate => 'is', :object => 'Full' })
-
+                                             :predicate => 'is', :object => 'Full'
+                                           })
 
       @asset = FactoryBot.create :asset
     end
@@ -116,10 +116,12 @@ RSpec.describe StepType, type: :model do
       describe "with special configuration" do
         describe "related with cardinality" do
           setup do
-            @assets = 5.times.map { |i| FactoryBot.create :asset, { :facts => [
+            @assets = 5.times.map { |i|
+              FactoryBot.create :asset, { :facts => [
                 FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
                 FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
-              ] }}
+              ] }
+            }
           end
 
           it 'is compatible with any number of assets with no cardinality check' do
@@ -142,38 +144,38 @@ RSpec.describe StepType, type: :model do
             @cg1.cardinality = 4
             assert_equal false, @step_type.compatible_with?(@assets)
           end
-
         end
-
       end
     end
     describe 'matching more than one asset' do
       describe 'for the same condition group' do
         setup do
-          @assets = 5.times.map { |i| FactoryBot.create :asset, { :facts => [
+          @assets = 5.times.map { |i|
+            FactoryBot.create :asset, { :facts => [
               FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
               FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
-            ] }}
+            ] }
+          }
         end
 
         it 'is compatible if all the assets match all the conditions of the rule' do
           @assets.first.facts << FactoryBot.create(:fact,
-            :predicate => 'has', :object => 'DNA')
+                                                   :predicate => 'has', :object => 'DNA')
           assert_equal true, @step_type.compatible_with?(@assets)
         end
 
         it 'is not compatible if any of the assets do not match any the conditions of the rule' do
           @assets << FactoryBot.create(:asset, { :facts => [
-            FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
-            FactoryBot.create(:fact, :predicate => 'is', :object => 'Empty')
-            ] })
+                                         FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
+                                         FactoryBot.create(:fact, :predicate => 'is', :object => 'Empty')
+                                       ] })
           assert_equal false, @step_type.compatible_with?(@assets)
         end
         it 'is not compatible if any of the assets do not match all the conditions of the rule' do
           @assets << FactoryBot.create(:asset, { :facts => [
-            FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
-            FactoryBot.create(:fact, :predicate => 'is', :object => 'Empty')
-            ] })
+                                         FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
+                                         FactoryBot.create(:fact, :predicate => 'is', :object => 'Empty')
+                                       ] })
           assert_equal false, @step_type.compatible_with?(@assets)
         end
       end
@@ -182,24 +184,28 @@ RSpec.describe StepType, type: :model do
         setup do
           @cg2 = FactoryBot.create(:condition_group, { :name => 'q' })
           @cg2.conditions << FactoryBot.create(:condition, {
-            :predicate => 'is',
-            :object => 'Rack'
-            })
+                                                 :predicate => 'is',
+                                                 :object => 'Rack'
+                                               })
 
           @step_type.condition_groups << @cg2
 
-          @assets = 5.times.map { |i| FactoryBot.create :asset, { :facts => [
-            FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
-            FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
-          ] }}
+          @assets = 5.times.map { |i|
+            FactoryBot.create :asset, { :facts => [
+              FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
+              FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
+            ] }
+          }
 
-          @racks = 5.times.map { |i| FactoryBot.create :asset, { :facts => [
-            FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
-          ] }}
+          @racks = 5.times.map { |i|
+            FactoryBot.create :asset, { :facts => [
+              FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
+            ] }
+          }
         end
 
         it 'is compatible with both condition groups when cardinality was set for one of them' do
-          racks = @racks.slice(0,3)
+          racks = @racks.slice(0, 3)
           @cg2.cardinality = 3
 
           assert_equal true, @step_type.compatible_with?([@assets, racks].flatten)
@@ -221,7 +227,7 @@ RSpec.describe StepType, type: :model do
           a.facts << FactoryBot.create(:fact, { :predicate => 'a', :object => 'b' })
           b = FactoryBot.create :asset
           b.facts << FactoryBot.create(:fact, { :predicate => 'c', :object => 'd' })
-          assert_equal false, @step_type.compatible_with?([a,b].flatten)
+          assert_equal false, @step_type.compatible_with?([a, b].flatten)
         end
 
         it 'is not compatible if any of the condition groups is partially matched by any of the assets' do
@@ -233,14 +239,13 @@ RSpec.describe StepType, type: :model do
           it 'is compatible with overlapped assets' do
             @tubes_and_racks = 7.times.map do
               FactoryBot.create(:asset, { :facts => [
-                FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
-                FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
-                FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
-                ] })
+                                  FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
+                                  FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
+                                  FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
+                                ] })
             end
             assert_equal true, @step_type.compatible_with?([@assets, @racks, @tubes_and_racks].flatten)
           end
-
         end
       end
     end
@@ -249,41 +254,53 @@ RSpec.describe StepType, type: :model do
       setup do
         @cg2 = FactoryBot.create(:condition_group, {})
         @cg2.conditions << FactoryBot.create(:condition, {
-          :predicate => 'is', :object => 'Rack' })
+                                               :predicate => 'is', :object => 'Rack'
+                                             })
 
         @step_type.condition_groups << @cg2
 
         @cg1.conditions << FactoryBot.create(:condition, {
-          :predicate => 'inRack', :object => 'q',
-          :object_condition_group_id => @cg2.id })
+                                               :predicate => 'inRack', :object => 'q',
+                                               :object_condition_group_id => @cg2.id
+                                             })
 
-          @racks = 5.times.map { |i| FactoryBot.create :asset, { :facts => [
+        @racks = 5.times.map { |i|
+          FactoryBot.create :asset, { :facts => [
             FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack')
-          ] }}
+          ] }
+        }
 
-          @bad_racks = 5.times.map { |i| FactoryBot.create :asset, { :facts => [
+        @bad_racks = 5.times.map { |i|
+          FactoryBot.create :asset, { :facts => [
             FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack')
-          ] }}
+          ] }
+        }
 
-          @assets = 5.times.map { |i| FactoryBot.create :asset, { :facts => [
+        @assets = 5.times.map { |i|
+          FactoryBot.create :asset, { :facts => [
             FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
             FactoryBot.create(:fact, :predicate => 'is', :object => 'Full'),
             FactoryBot.create(:fact, :predicate => 'inRack', :object_asset_id => @racks[i].id)
-          ] }}
+          ] }
+        }
       end
       it 'is compatible with condition groups that have relations with elements included in the asset group' do
         assert_equal true, @step_type.compatible_with?([@assets, @racks].flatten)
       end
       it 'is not compatible when the relation is not matching the conditions required' do
-        @bad_racks = 5.times.map { |i| FactoryBot.create :asset, { :facts => [
-          FactoryBot.create(:fact, :predicate => 'is', :object => 'BadRack')
-        ] }}
+        @bad_racks = 5.times.map { |i|
+          FactoryBot.create :asset, { :facts => [
+            FactoryBot.create(:fact, :predicate => 'is', :object => 'BadRack')
+          ] }
+        }
 
-        @assets = 5.times.map { |i| FactoryBot.create :asset, { :facts => [
-          FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
-          FactoryBot.create(:fact, :predicate => 'is', :object => 'Full'),
-          FactoryBot.create(:fact, :predicate => 'inRack', :object_asset_id => @bad_racks[i].id)
-        ] }}
+        @assets = 5.times.map { |i|
+          FactoryBot.create :asset, { :facts => [
+            FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
+            FactoryBot.create(:fact, :predicate => 'is', :object => 'Full'),
+            FactoryBot.create(:fact, :predicate => 'inRack', :object_asset_id => @bad_racks[i].id)
+          ] }
+        }
         assert_equal false, @step_type.compatible_with?([@assets, @bad_racks].flatten)
       end
       it 'is compatible with condition groups that have relations with elements outside the asset group' do
@@ -294,16 +311,18 @@ RSpec.describe StepType, type: :model do
       setup do
         @cg2 = FactoryBot.create(:condition_group, {})
         @cg1.conditions << FactoryBot.create(:condition, {
-		:predicate => 'position',
-		:object_condition_group_id => @cg2.id })
+                                               :predicate => 'position',
+                                               :object_condition_group_id => @cg2.id
+                                             })
       end
       it 'is compatible with any literal when met the other conditions' do
-
-        @assets = 5.times.map { |i| FactoryBot.create :asset, { :facts => [
-          FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
-          FactoryBot.create(:fact, :predicate => 'is', :object => 'Full'),
-          FactoryBot.create(:fact, :predicate => 'position', :object => i)
-        ] }}
+        @assets = 5.times.map { |i|
+          FactoryBot.create :asset, { :facts => [
+            FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
+            FactoryBot.create(:fact, :predicate => 'is', :object => 'Full'),
+            FactoryBot.create(:fact, :predicate => 'position', :object => i)
+          ] }
+        }
         assert_equal true, @step_type.compatible_with?([@assets].flatten)
       end
     end

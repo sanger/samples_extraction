@@ -8,4 +8,3 @@ class CreateConditionGroups < ActiveRecord::Migration
     end
   end
 end
-

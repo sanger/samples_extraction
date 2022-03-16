@@ -24,4 +24,3 @@ RSpec.describe AssetGroup, type: :model do
     end
   end
 end
-

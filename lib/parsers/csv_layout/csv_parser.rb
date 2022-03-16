@@ -17,12 +17,12 @@ module Parsers
       attr_reader :data, :parsed, :parsed_changes, :components, :line_parser
 
       DEFAULT_COMPONENTS = {
-          barcode_parser: Parsers::CsvLayout::BarcodeParser,
-          location_parser: Parsers::CsvLayout::LocationParser,
-          location_validator: Parsers::CsvLayout::Validators::LocationValidator,
-          barcode_validator: Parsers::CsvLayout::Validators::FluidxBarcodeValidator,
-          line_parser: Parsers::CsvLayout::LineParser,
-          line_reader: Parsers::CsvLayout::LineReader
+        barcode_parser: Parsers::CsvLayout::BarcodeParser,
+        location_parser: Parsers::CsvLayout::LocationParser,
+        location_validator: Parsers::CsvLayout::Validators::LocationValidator,
+        barcode_validator: Parsers::CsvLayout::Validators::FluidxBarcodeValidator,
+        line_parser: Parsers::CsvLayout::LineParser,
+        line_reader: Parsers::CsvLayout::LineReader
       }
 
       def initialize(str, component_defs = {})
@@ -94,7 +94,6 @@ module Parsers
           (!element.nil?) && (all_elems.count(element) > 1)
         end.uniq.compact
       end
-
     end
   end
 end

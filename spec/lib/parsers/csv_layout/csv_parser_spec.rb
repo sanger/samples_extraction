@@ -7,15 +7,16 @@ require 'parsers/csv_layout/validators/any_barcode_validator'
 require 'parsers/csv_layout/validators/location_validator'
 
 RSpec.describe Parsers::CsvLayout::CsvParser do
-
   describe "parses a layout" do
     let(:activity) { create(:activity) }
     let(:asset_group) { create(:asset_group) }
     let(:step_type) { create(:step_type) }
-    let(:step) { create :step,
-      activity: activity,
-      state: Step::STATE_RUNNING,
-      asset_group: asset_group, step_type: step_type }
+    let(:step) {
+      create :step,
+             activity: activity,
+             state: Step::STATE_RUNNING,
+             asset_group: asset_group, step_type: step_type
+    }
 
     setup do
       allow(Asset).to receive(:find_or_import_asset_with_barcode) do |barcode|
@@ -25,8 +26,8 @@ RSpec.describe Parsers::CsvLayout::CsvParser do
       @content = File.read('test/data/layout.csv')
       @assets = 96.times.map do |i|
         FactoryBot.create(:asset, {
-          :barcode => 'FR'+(11200002 + i).to_s
-        })
+                            :barcode => 'FR' + (11200002 + i).to_s
+                          })
       end
     end
 
@@ -63,22 +64,20 @@ RSpec.describe Parsers::CsvLayout::CsvParser do
         expect(@csv).to be_valid
       end
       it 'detects tube duplication' do
-          asset1 = create :asset, barcode: 'FR000001'
-          content = "A01,#{asset1.barcode}\nB01,#{asset1.barcode}"
-          csv = Parsers::CsvLayout::CsvParser.new(content)
-          expect(csv).not_to be_valid
-          expect(csv.error_list.length).to eq(1)
+        asset1 = create :asset, barcode: 'FR000001'
+        content = "A01,#{asset1.barcode}\nB01,#{asset1.barcode}"
+        csv = Parsers::CsvLayout::CsvParser.new(content)
+        expect(csv).not_to be_valid
+        expect(csv.error_list.length).to eq(1)
       end
       it 'detects location duplication' do
-          asset1 = create :asset, barcode: 'FR000001'
-          asset2 = create :asset, barcode: 'FR000002'
-          content = "A01,#{asset1.barcode}\nA01,#{asset2.barcode}"
-          csv = Parsers::CsvLayout::CsvParser.new(content)
-          expect(csv).not_to be_valid
-          expect(csv.error_list.length).to eq(1)
+        asset1 = create :asset, barcode: 'FR000001'
+        asset2 = create :asset, barcode: 'FR000002'
+        content = "A01,#{asset1.barcode}\nA01,#{asset2.barcode}"
+        csv = Parsers::CsvLayout::CsvParser.new(content)
+        expect(csv).not_to be_valid
+        expect(csv.error_list.length).to eq(1)
       end
     end
   end
-
 end
-

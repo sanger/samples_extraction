@@ -1,20 +1,20 @@
-#This file is part of SEQUENCESCAPE is distributed under the terms of GNU General Public License version 1 or later;
-#Please refer to the LICENSE and README files for information on licensing and authorship of this file.
-#Copyright (C) 2007-2011 Genome Research Ltd.
+# This file is part of SEQUENCESCAPE is distributed under the terms of GNU General Public License version 1 or later;
+# Please refer to the LICENSE and README files for information on licensing and authorship of this file.
+# Copyright (C) 2007-2011 Genome Research Ltd.
 require 'sequencescape-api'
 require 'sequencescape'
 
 require 'sequencescape_client_v2'
 
 class SequencescapeClient
-  @purposes=nil
+  @purposes = nil
 
   def self.api_connection_options
     {
-      :namespace     => 'SamplesExtraction',
-      :url           => Rails.configuration.ss_uri,
+      :namespace => 'SamplesExtraction',
+      :url => Rails.configuration.ss_uri,
       :authorisation => Rails.configuration.ss_authorisation,
-      :read_timeout  => 60
+      :read_timeout => 60
     }
   end
 
@@ -35,7 +35,7 @@ class SequencescapeClient
   end
 
   def self.purpose_by_name(name)
-    client.plate_purpose.all.select { |p| p.name===name }.first
+    client.plate_purpose.all.select { |p| p.name === name }.first
   end
 
   def self.create_plate(purpose_name, attrs)

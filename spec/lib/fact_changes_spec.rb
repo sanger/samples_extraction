@@ -114,14 +114,14 @@ RSpec.describe FactChanges do
       it 'loads added assets' do
         asset = Asset.create
         group = AssetGroup.create
-        json = { add_assets: [[group.uuid, [asset.uuid] ]] }.to_json
+        json = { add_assets: [[group.uuid, [asset.uuid]]] }.to_json
         expect(updates.parse_json(json)).to eq(true)
         expect(updates.assets_to_add.length).to eq(1)
       end
       it 'loads removed assets' do
         asset = Asset.create
         group = AssetGroup.create
-        json = { remove_assets: [[group.uuid, [asset.uuid] ]] }.to_json
+        json = { remove_assets: [[group.uuid, [asset.uuid]]] }.to_json
         expect(updates.parse_json(json)).to eq(true)
         expect(updates.assets_to_remove.length).to eq(1)
       end
@@ -177,13 +177,13 @@ RSpec.describe FactChanges do
       asset = Asset.create
       group = AssetGroup.create
       updates.add_assets([[group, [asset]]])
-      expect(updates.to_h).to include(add_assets: [[group.uuid,  [asset.uuid] ]])
+      expect(updates.to_h).to include(add_assets: [[group.uuid, [asset.uuid]]])
     end
     it 'adds removed assets from the group in the hash' do
       asset = Asset.create
       group = AssetGroup.create
       updates.remove_assets([[group, [asset]]])
-      expect(updates.to_h).to include(remove_assets: [[group.uuid,  [asset.uuid] ]])
+      expect(updates.to_h).to include(remove_assets: [[group.uuid, [asset.uuid]]])
     end
     it 'adds facts to the hash' do
       asset = Asset.create
@@ -220,20 +220,20 @@ RSpec.describe FactChanges do
         expect {
           updates1.apply(step)
         }.to change { asset1.facts.count }.by(1)
-        .and change { Operation.count }.by(1)
+                                          .and change { Operation.count }.by(1)
       end
       it 'applies a new added relation' do
         updates1.add(asset1, relation, asset2)
         expect {
           updates1.apply(step)
         }.to change { asset1.facts.count }.by(1)
-        .and change { Operation.count }.by(1)
+                                          .and change { Operation.count }.by(1)
       end
       it 'is able to add facts to assets created before' do
         updates1.create_assets(['?p'])
         updates1.add('?p', property, value)
         expect { updates1.apply(step) }.to change { Asset.count }.by(1)
-        .and change { Fact.count }.by(1)
+                                                                 .and change { Fact.count }.by(1)
       end
     end
     context 'with add_remote' do
@@ -242,7 +242,7 @@ RSpec.describe FactChanges do
         expect {
           updates1.apply(step)
         }.to change { asset1.facts.count }.by(1)
-        .and change { Operation.count }.by(1)
+                                          .and change { Operation.count }.by(1)
 
         expect(asset1.facts.first.is_remote?).to eq(true)
       end
@@ -253,7 +253,7 @@ RSpec.describe FactChanges do
         expect {
           updates1.apply(step)
         }.to change { asset1.facts.count }.by(1)
-        .and change { Operation.count }.by(1)
+                                          .and change { Operation.count }.by(1)
         expect(asset1.facts.count).to eq(1)
         expect(asset1.facts.first.is_remote?).to eq(true)
       end
@@ -267,7 +267,7 @@ RSpec.describe FactChanges do
         expect {
           updates1.apply(step)
         }.to change { asset1.facts.count }.by(0)
-        .and change { Operation.count }.by(2)
+                                          .and change { Operation.count }.by(2)
         asset1.facts.reload
 
         expect(asset1.facts.count).to eq(1)
@@ -281,7 +281,7 @@ RSpec.describe FactChanges do
         expect {
           updates1.apply(step)
         }.to change { asset1.facts.count }.by(-1)
-        .and change { Operation.count }.by(1)
+                                          .and change { Operation.count }.by(1)
       end
     end
 
@@ -296,7 +296,7 @@ RSpec.describe FactChanges do
         expect {
           updates1.apply(step)
         }.to change { asset1.facts.count }.by(-2)
-        .and change { Operation.count }.by(2)
+                                          .and change { Operation.count }.by(2)
       end
     end
 
@@ -304,7 +304,7 @@ RSpec.describe FactChanges do
       it 'creates the assets provided' do
         updates1.create_assets(["?p", "?q", "?r"])
         expect { updates1.apply(step) }.to change { Asset.count }.by(3)
-        .and change { Operation.count }.by(3)
+                                                                 .and change { Operation.count }.by(3)
       end
     end
 
@@ -322,11 +322,11 @@ RSpec.describe FactChanges do
       end
       it 'removes the facts for the assets' do
         expect { updates1.apply(step) }.to change { asset3.facts.count }.by(-1)
-          .and change { asset4.facts.count }.by(-1)
+                                                                        .and change { asset4.facts.count }.by(-1)
       end
       it 'detaches the assets from any groups' do
         expect { updates1.apply(step) }.to change { asset3.asset_groups.count }.by(-1)
-          .and change { asset4.asset_groups.count }.by(-1)
+                                                                               .and change { asset4.asset_groups.count }.by(-1)
       end
     end
 
@@ -337,7 +337,7 @@ RSpec.describe FactChanges do
       it 'adds the assets to the asset group' do
         updates1.add_assets([[asset_group, [asset1.uuid, asset2.uuid]]])
         expect { updates1.apply(step) }.to change { asset_group.assets.count }.by(2)
-        .and change { Operation.count }.by(2)
+                                                                              .and change { Operation.count }.by(2)
       end
     end
 
@@ -349,10 +349,9 @@ RSpec.describe FactChanges do
         asset_group.assets << [asset1, asset2]
         updates1.remove_assets([[asset_group, [asset1.uuid, asset2.uuid]]])
         expect { updates1.apply(step) }.to change { asset_group.assets.count }.by(-2)
-        .and change { Operation.count }.by(2)
+                                                                              .and change { Operation.count }.by(2)
       end
     end
-
   end
   describe '#add' do
     it 'raises error if we use a wildcard not created before' do
@@ -517,7 +516,6 @@ RSpec.describe FactChanges do
 
       expect(updates1.values_for_predicate(asset, 'description')).to eq(['green', 'tall'])
     end
-
   end
 
   describe '#create_assets' do
@@ -532,7 +530,6 @@ RSpec.describe FactChanges do
     it 'does not raise error when referring to an asset not referred before' do
       expect { updates1.create_assets([SecureRandom.uuid]) }.not_to raise_error
     end
-
   end
 
   describe '#create_asset_groups' do
@@ -547,9 +544,7 @@ RSpec.describe FactChanges do
     it 'does not raise error when referring to an asset not referred before' do
       expect { updates1.create_asset_groups([SecureRandom.uuid]) }.not_to raise_error
     end
-
   end
-
 
   describe '#delete_assets' do
     let(:asset1) { Asset.create(uuid: SecureRandom.uuid) }
@@ -600,7 +595,6 @@ RSpec.describe FactChanges do
     it 'raises error when referring to an asset group not referred before ' do
       expect { updates1.add_assets([[SecureRandom.uuid, [asset1.uuid, asset2.uuid]]]) }.to raise_error(StandardError)
     end
-
   end
 
   describe '#remove_assets' do
@@ -618,9 +612,7 @@ RSpec.describe FactChanges do
     it 'raises error when referring to an asset group not referred before ' do
       expect { updates1.remove_assets([[SecureRandom.uuid, [asset1.uuid, asset2.uuid]]]) }.to raise_error(StandardError)
     end
-
   end
-
 
   describe '#merge' do
     it 'returns another FactChanges object' do
@@ -630,14 +622,14 @@ RSpec.describe FactChanges do
       asset = create :asset
       fact = create(:fact, predicate: 'p', object: 'v')
       fact2 = create(:fact, predicate: 'p2', object: 'v2')
-      asset.facts<<fact
-      asset.facts<<fact2
+      asset.facts << fact
+      asset.facts << fact2
 
-      updates1.add(asset,fact.predicate,fact.object)
-      updates1.add(asset,fact2.predicate,fact2.object)
+      updates1.add(asset, fact.predicate, fact.object)
+      updates1.add(asset, fact2.predicate, fact2.object)
 
       expect(updates1.facts_to_add.count).to eq(2)
-      updates2.remove_where(asset,fact.predicate,fact.object)
+      updates2.remove_where(asset, fact.predicate, fact.object)
       updates1.merge(updates2)
       expect(updates1.facts_to_add.count).to eq(1)
       expect(updates2.facts_to_destroy.count).to eq(1)
@@ -647,19 +639,18 @@ RSpec.describe FactChanges do
       q = create :asset
 
       updates1.add(p, 'relates', q)
-      updates2.remove_where(p,'relates', q)
+      updates2.remove_where(p, 'relates', q)
 
       updates1.merge(updates2)
 
       expect(updates1.to_h).to eq({})
-
     end
     it 'keeps track of disabled changes when merging an object' do
       p = create :asset
       q = create :asset
 
       updates2.add(p, 'relates', q)
-      updates2.remove_where(p,'relates', q)
+      updates2.remove_where(p, 'relates', q)
       updates2.add(p, 'anotherRel', q)
 
       updates1.add(p, 'relates', q)
@@ -673,7 +664,7 @@ RSpec.describe FactChanges do
       q = create :asset
 
       updates2.add(p, 'relates', q)
-      updates2.remove_where(p,'relates', q)
+      updates2.remove_where(p, 'relates', q)
       updates2.add(p, 'anotherRel', q)
 
       updates1.merge(updates2)
@@ -684,9 +675,9 @@ RSpec.describe FactChanges do
       updates1.add(q, 'anotherRel', p)
 
       expect(updates1.to_h).to eq({ add_facts: [
-        [p.uuid, 'anotherRel', q.uuid],
-        [q.uuid, 'anotherRel', p.uuid]
-      ] })
+                                    [p.uuid, 'anotherRel', q.uuid],
+                                    [q.uuid, 'anotherRel', p.uuid]
+                                  ] })
     end
     it 'disables an element because of changes merged' do
       p = create :asset
@@ -697,12 +688,12 @@ RSpec.describe FactChanges do
       updates1.merge(updates2)
 
       expect(updates1.to_h).to eq({
-        add_facts: [
-          [p.uuid, 'relates', q.uuid]
-        ]
-      })
+                                    add_facts: [
+                                      [p.uuid, 'relates', q.uuid]
+                                    ]
+                                  })
 
-      updates1.remove_where(p,'relates', q)
+      updates1.remove_where(p, 'relates', q)
 
       expect(updates1.to_h).to eq({})
     end
@@ -715,38 +706,37 @@ RSpec.describe FactChanges do
       z = create :asset
       y = create :asset
 
-      #1 - will be removed by 4
+      # 1 - will be removed by 4
       updates1.add(p, 'relates', q)
-      #2 - will be removed by 9
+      # 2 - will be removed by 9
       updates1.add(asset, 'relates', asset2)
-      #3 - will be added by 6, so ignored
+      # 3 - will be added by 6, so ignored
       updates1.remove_where(q, 'relates', asset)
-      #4 - OK
+      # 4 - OK
       updates1.add(p, 'relates', q)
-      #5 - OK
+      # 5 - OK
       updates2.add(q, 'relates', z)
-      #6 - invalidated by 3
+      # 6 - invalidated by 3
       updates2.add(q, 'relates', asset)
-      #7 - OK
+      # 7 - OK
       updates2.remove_where(q, 'notRelates', z)
-      #8 - OK
+      # 8 - OK
       updates2.remove_where(q, 'relates', y)
-      #9 - Invalidated by 2
+      # 9 - Invalidated by 2
       updates2.remove_where(asset, 'relates', asset2)
 
       updates1.merge(updates2)
 
-
       expect(updates1.to_h).to include({
-        add_facts: [
-          [p.uuid, 'relates', q.uuid],
-          [q.uuid, 'relates', z.uuid]
-        ],
-        remove_facts: [
-          [q.uuid, 'notRelates', z.uuid],
-          [q.uuid, 'relates', y.uuid]
-        ]
-      })
+                                         add_facts: [
+                                           [p.uuid, 'relates', q.uuid],
+                                           [q.uuid, 'relates', z.uuid]
+                                         ],
+                                         remove_facts: [
+                                           [q.uuid, 'notRelates', z.uuid],
+                                           [q.uuid, 'relates', y.uuid]
+                                         ]
+                                       })
     end
     context 'when using wildcards' do
       let(:obj) { FactChanges.new }
@@ -868,7 +858,6 @@ RSpec.describe FactChanges do
           expect { updates2.apply(step) }.to change { AssetGroup.count }.by(0)
         end
       end
-
     end
     context 'with delete_asset_groups' do
       let(:asset_group1) { create :asset_group, activity_owner: activity }
@@ -915,7 +904,7 @@ RSpec.describe FactChanges do
       end
       it 'does remove the assets from the asset groups' do
         expect { updates.apply(step) }.to change { asset1.asset_groups.count }.by(-1)
-          .and change { asset2.asset_groups.count }.by(-1)
+                                                                              .and change { asset2.asset_groups.count }.by(-1)
       end
       it 'creates as many operations as assets deleted' do
         expect { updates.apply(step) }.to change { Operation.all.count }.by(2)
@@ -997,7 +986,7 @@ RSpec.describe FactChanges do
           updates.add(asset1, "transfer", asset2)
           updates.remove_where(asset1, "transfer", asset2)
           expect { updates.apply(step) }.to change { Fact.with_predicate('related').count }.by(1)
-          .and change { Fact.with_predicate('transfer').count }.by(0)
+                                                                                           .and change { Fact.with_predicate('transfer').count }.by(0)
         end
       end
       context 'when you add a fact and remove an specific fact that complies the added one' do
@@ -1024,9 +1013,9 @@ RSpec.describe FactChanges do
           updates.add("?p", "transfer", "?q")
           updates.remove_where("?p", "transfer", "?q")
           expect { updates.apply(step) }.to change { Asset.count }.by(2)
-          .and change { Fact.count }.by(1)
-          .and change { Fact.with_predicate('related').count }.by(1)
-          .and change { Fact.with_predicate('transfer').count }.by(0)
+                                                                  .and change { Fact.count }.by(1)
+                                                                                            .and change { Fact.with_predicate('related').count }.by(1)
+                                                                                                                                                .and change { Fact.with_predicate('transfer').count }.by(0)
         end
       end
       it 'performs all the changes specified' do
@@ -1037,9 +1026,9 @@ RSpec.describe FactChanges do
         updates.add_assets([["?group1", ["?p", "?q"]]])
 
         expect { updates.apply(step) }.to change { Asset.count }.by(2)
-          .and change { AssetGroup.count }.by(1)
-          .and change { AssetGroupsAsset.count }.by(2)
-          .and change { activity.owned_asset_groups.count }.by(1)
+                                                                .and change { AssetGroup.count }.by(1)
+                                                                                                .and change { AssetGroupsAsset.count }.by(2)
+                                                                                                                                      .and change { activity.owned_asset_groups.count }.by(1)
         expect(activity.owned_asset_groups.last.assets.first.facts.first.object).to eq("Plate")
       end
     end

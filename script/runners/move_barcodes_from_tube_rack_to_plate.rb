@@ -1,4 +1,3 @@
-
 # # This rule applies the barcodes from a rack into a plate
 # {
 #   ?plate se:a Plate .
@@ -22,7 +21,6 @@
 class MoveBarcodesFromTubeRackToPlate
   attr_reader :asset_group
 
-
   def initialize(params)
     @asset_group = params[:asset_group]
   end
@@ -30,7 +28,6 @@ class MoveBarcodesFromTubeRackToPlate
   def assets_compatible_with_step_type
     [plate, tube_rack].flatten.compact.count > 0
   end
-
 
   def plate
     asset_group.assets.select { |a| a.facts.where(predicate: 'a', object: 'Plate').count > 0 }.first
@@ -49,7 +46,7 @@ class MoveBarcodesFromTubeRackToPlate
       location_facts = w.facts.where(predicate: 'location')
       if (location_facts.count == 1)
         location_fact = location_facts.first
-        (TokenUtil.pad_location(location_fact.object) ==  TokenUtil.pad_location(location))
+        (TokenUtil.pad_location(location_fact.object) == TokenUtil.pad_location(location))
       end
     end.first
   end
@@ -66,12 +63,12 @@ class MoveBarcodesFromTubeRackToPlate
       if assets_compatible_with_step_type
         traverse_wells(tube_rack) do |well_from_tube_rack, location|
           well_from_plate = well_at_location(plate, location)
-	  barcode = well_from_tube_rack.barcode
+          barcode = well_from_tube_rack.barcode
           updates.remove_where(well_from_tube_rack, 'barcode', barcode)
           updates.add(well_from_tube_rack, 'previousBarcode', barcode)
           updates.add(well_from_tube_rack, 'appliedBarcodeTo', well_from_plate)
-	  well_from_tube_rack.update_attributes(barcode: nil)
-	  well_from_plate.update_attributes(barcode: barcode)
+          well_from_tube_rack.update_attributes(barcode: nil)
+          well_from_plate.update_attributes(barcode: barcode)
           updates.add(well_from_plate, 'barcode', barcode)
         end
 
@@ -81,7 +78,6 @@ class MoveBarcodesFromTubeRackToPlate
     end
   end
 end
-
 
 args = ARGV[0]
 asset_group_id = args.match(/(\d*)\.json/)[1]
@@ -95,6 +91,5 @@ begin
   JSON.parse(json)
   puts json
 rescue StandardError => e
-  puts ({ set_errors: ['Unknown error while applying barcodes'+e.backtrace.to_s] }.to_json)
+  puts ({ set_errors: ['Unknown error while applying barcodes' + e.backtrace.to_s] }.to_json)
 end
-

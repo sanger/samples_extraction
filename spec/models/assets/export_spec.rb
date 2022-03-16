@@ -29,9 +29,9 @@ RSpec.describe 'Assets::Export' do
 
       expect(asset.attributes_to_send_for_well(well1)).to eq({ sample_uuid: TokenUtil.unquote(uuid) })
       expect(asset.attributes_to_send_for_well(well2)).to eq({
-        sample_tube_uuid: sample_tube.uuid,
-        sanger_sample_name: 'name1'
-      })
+                                                               sample_tube_uuid: sample_tube.uuid,
+                                                               sanger_sample_name: 'name1'
+                                                             })
     end
 
     it 'generates an attribute object for a well' do
@@ -60,10 +60,11 @@ RSpec.describe 'Assets::Export' do
 
       @rack1 = Asset.find_by(uuid: 'rack1')
       expect(@rack1.attributes_to_send).to eq([
-        { sample_tube_uuid: "s1", location: "A1" },
-        { sample_tube_uuid: "s2", location: "B1" },
-        { sample_tube_uuid: "s3", location: "C1" },
-        { sample_tube_uuid: "s4", location: "D1" }])
+                                                { sample_tube_uuid: "s1", location: "A1" },
+                                                { sample_tube_uuid: "s2", location: "B1" },
+                                                { sample_tube_uuid: "s3", location: "C1" },
+                                                { sample_tube_uuid: "s4", location: "D1" }
+                                              ])
     end
   end
 
@@ -99,7 +100,7 @@ RSpec.describe 'Assets::Export' do
     let(:step_type) { create :step_type }
     let(:step) { create :step, step_type: step_type, state: Step::STATE_RUNNING }
     let(:user) { create :user, username: 'test' }
-    let(:print_config) { { "Plate"=>'Pum', "Tube"=>'Pim' } }
+    let(:print_config) { { "Plate" => 'Pum', "Tube" => 'Pim' } }
     let(:plate) { build_remote_plate }
     let(:asset) { create :asset }
 
@@ -153,10 +154,11 @@ RSpec.describe 'Assets::Export' do
       @assets = SupportN3::parse_facts(facts)
       @rack2 = Asset.find_by(uuid: 'rack2')
       expect(@rack2.attributes_to_send).to eq([
-        { sample_tube_uuid: "s1", location: "A1" },
-        { sample_tube_uuid: "s2", location: "B1" },
-        { sample_tube_uuid: "s3", location: "C1" },
-        { sample_tube_uuid: "s4", location: "D1" }])
+                                                { sample_tube_uuid: "s1", location: "A1" },
+                                                { sample_tube_uuid: "s2", location: "B1" },
+                                                { sample_tube_uuid: "s3", location: "C1" },
+                                                { sample_tube_uuid: "s4", location: "D1" }
+                                              ])
     end
 
     it 'generates the attributes when the locations are not duplicated' do
@@ -184,10 +186,11 @@ RSpec.describe 'Assets::Export' do
       @assets = SupportN3::parse_facts(facts)
       @rack2 = Asset.find_by(uuid: 'rack2')
       expect(@rack2.attributes_to_send).to eq([
-        { sample_tube_uuid: "s1", location: "A1" },
-        { sample_tube_uuid: "s2", location: "B1" },
-        { sample_tube_uuid: "s3", location: "C1" },
-        { sample_tube_uuid: "s4", location: "D1" }])
+                                                { sample_tube_uuid: "s1", location: "A1" },
+                                                { sample_tube_uuid: "s2", location: "B1" },
+                                                { sample_tube_uuid: "s3", location: "C1" },
+                                                { sample_tube_uuid: "s4", location: "D1" }
+                                              ])
     end
 
     it 'fails when trying to generate attributes when the locations are duplicated' do
@@ -241,9 +244,10 @@ RSpec.describe 'Assets::Export' do
       @assets = SupportN3::parse_facts(facts)
       @rack2 = Asset.find_by(uuid: 'rack2')
       expect(@rack2.attributes_to_send).to eq([
-        { sample_tube_uuid: "s1", location: "A1" },
-        { sample_tube_uuid: "s2", location: "B1" },
-        { sample_tube_uuid: "s4", location: "D1" }])
+                                                { sample_tube_uuid: "s1", location: "A1" },
+                                                { sample_tube_uuid: "s2", location: "B1" },
+                                                { sample_tube_uuid: "s4", location: "D1" }
+                                              ])
     end
   end
 end

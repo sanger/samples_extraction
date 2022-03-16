@@ -1,6 +1,7 @@
 module StepExecutionProcess
   def run
     return false unless compatible?
+
     plan
     step.reload
     if step.stopped?
@@ -9,6 +10,4 @@ module StepExecutionProcess
       apply
     end
   end
-
 end
-

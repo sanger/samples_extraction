@@ -28,11 +28,13 @@ module Steps::Cancellable
 
   def steps_newer_than_me
     return Step.none unless activity
+
     activity.steps.newer_than(self)
   end
 
   def steps_older_than_me
     return Step.none unless activity
+
     activity.steps.older_than(self)
   end
 
@@ -49,7 +51,6 @@ module Steps::Cancellable
       operations.update_all(cancelled?: false)
     end
   end
-
 
   def _cancel_me_and_any_newer_completed_steps(change_state = true)
     changes = [
@@ -89,5 +90,4 @@ module Steps::Cancellable
       updates
     end
   end
-
 end

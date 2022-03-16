@@ -12,7 +12,7 @@ class ChangesSupport::DisjointList
   attr_accessor :list
   attr_reader :name
 
-  DISABLED_NAME="DISABLED"
+  DISABLED_NAME = "DISABLED"
 
   def initialize(list)
     @name = "object_id_#{object_id}"
@@ -43,9 +43,9 @@ class ChangesSupport::DisjointList
   def _store_for(unique_id)
     store_name = location_for_unique_id[unique_id]
     return nil if store_name.nil? || store_name == DISABLED_NAME
+
     @disjoint_lists.select { |l| l.name == store_name }.first
   end
-
 
   def enabled?(element)
     !store_for(element).nil?
@@ -125,6 +125,7 @@ class ChangesSupport::DisjointList
 
   def add(element)
     return concat_disjoint_list(element) if element.kind_of?(ChangesSupport::DisjointList)
+
     if enabled_in_other_list?(element)
       disable(element)
     elsif include?(element)
@@ -139,7 +140,7 @@ class ChangesSupport::DisjointList
   def sum_function_for(value)
     return value.hash
     # Value to create checksum and seed
-    #XXhash.xxh32(value, SEED_FOR_UNIQUE_IDS)
+    # XXhash.xxh32(value, SEED_FOR_UNIQUE_IDS)
   end
 
   def unique_id_for_element(element)
@@ -168,6 +169,7 @@ class ChangesSupport::DisjointList
 
   def enable(element)
     return if disabled?(element)
+
     unique_id = unique_id_for_element(element)
     # Is not in any of the lists so we can add it
     if (element.kind_of?(Enumerable) && (!element.kind_of?(Hash)))
@@ -175,7 +177,7 @@ class ChangesSupport::DisjointList
     else
       @list.push(element)
     end
-    @location_for_unique_id[unique_id]=name
+    @location_for_unique_id[unique_id] = name
   end
 
   def disable(element)
@@ -189,7 +191,7 @@ class ChangesSupport::DisjointList
       unless (location_for_unique_id[key] == DISABLED_NAME)
         # If my disjoint lists do not have the element
         if location_for_unique_id[key].nil?
-          location_for_unique_id[key]=disjoint_list.location_for_unique_id[key]
+          location_for_unique_id[key] = disjoint_list.location_for_unique_id[key]
           if location_for_unique_id[key] == DISABLED_NAME
             _disable(key)
           end
@@ -206,11 +208,12 @@ class ChangesSupport::DisjointList
   def _disable(unique_id)
     store = _store_for(unique_id)
     store.remove_from_raw_list_by_id(unique_id) if store
-    location_for_unique_id[unique_id]=DISABLED_NAME
+    location_for_unique_id[unique_id] = DISABLED_NAME
   end
 
   def _unique_id_for_element(element, deep = 0)
-    return sum_function_for(SecureRandom.uuid) if deep==MAX_DEEP_UNIQUE_ID
+    return sum_function_for(SecureRandom.uuid) if deep == MAX_DEEP_UNIQUE_ID
+
     if element.kind_of?(String)
       sum_function_for(element)
     elsif (element.respond_to?(:uuid) && (!element.uuid.nil?))
@@ -223,10 +226,10 @@ class ChangesSupport::DisjointList
       elsif (element.has_key?(:predicate))
         _unique_id_for_fact(element)
       else
-        sum_function_for(element.keys.dup.concat(element.values.map { |val| _unique_id_for_element(val, deep+1) }).join)
+        sum_function_for(element.keys.dup.concat(element.values.map { |val| _unique_id_for_element(val, deep + 1) }).join)
       end
     elsif element.kind_of?(Enumerable)
-      sum_function_for(element.map { |o| _unique_id_for_element(o, deep+1) }.join)
+      sum_function_for(element.map { |o| _unique_id_for_element(o, deep + 1) }.join)
     else
       sum_function_for(element.to_s)
     end
@@ -239,5 +242,4 @@ class ChangesSupport::DisjointList
       (element[:object] || element[:object_asset_id] || element[:object_asset].id || element[:object_asset].object_id)
     ].join('_'))
   end
-
 end

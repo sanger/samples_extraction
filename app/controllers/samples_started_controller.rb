@@ -1,5 +1,4 @@
 class SamplesStartedController < SamplesStatusController
-
   private
 
   def get_assets_for_activity_type(activity_type)
@@ -11,5 +10,4 @@ class SamplesStartedController < SamplesStatusController
                  .order(id: :desc)
                  .paginate(pagination_params_for_activity_type(activity_type))
   end
-
 end

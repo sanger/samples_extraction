@@ -10,7 +10,6 @@ module Activities
       def create!(params)
         @step_type.class_for_task_type.send(:create!, params.merge(step_type: @step_type))
       end
-
     end
 
     def background_tasks
@@ -40,6 +39,5 @@ module Activities
       step.update_attributes(next_step: steps.first)
       [step, steps].flatten.compact
     end
-
   end
 end

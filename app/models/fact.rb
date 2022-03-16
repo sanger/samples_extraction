@@ -6,7 +6,7 @@ class Fact < ApplicationRecord
   scope :not_to_remove, ->() { where(:to_remove_by => nil) }
   scope :with_predicate, ->(predicate) { where(:predicate => predicate) }
   scope :with_ns_predicate, ->(namespace) { where(:ns_predicate => namespace) }
-  scope :with_fact, -> (predicate, object) { where(:predicate => predicate, :object => object) }
+  scope :with_fact, ->(predicate, object) { where(:predicate => predicate, :object => object) }
   scope :from_remote_asset, ->() { where(:is_remote? => true) }
   scope :created_before, ->(date) { date.nil? ? all : where('created_at < ?', date) }
 
@@ -39,13 +39,12 @@ class Fact < ApplicationRecord
     f1 = self
     if f1.predicate == f2.predicate
       obj1 = f1.object || '?'
-      obj1 =  '?' unless f1["object_asset_id"].nil?
+      obj1 = '?' unless f1["object_asset_id"].nil?
       obj2 = f1.object || '?'
-      obj2 =  '?' unless f2["object_asset_id"].nil?
+      obj2 = '?' unless f2["object_asset_id"].nil?
       (obj1 <=> obj2)
     else
       f1.predicate <=> f2.predicate
     end
   end
-
 end

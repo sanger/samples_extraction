@@ -8,8 +8,6 @@ RSpec.describe AssetGroupsController, type: :controller do
   let(:activity_type) { create :activity_type }
   let(:activity) { create :activity, { activity_type: activity_type, asset_group: asset_group } }
 
-
-
   context '#upload' do
     let(:file) { fixture_file_upload('test/data/layout.csv', 'text/csv') }
 
@@ -31,7 +29,6 @@ RSpec.describe AssetGroupsController, type: :controller do
   end
 
   context "adding a new asset to the asset group" do
-
     let(:barcode) { generate :barcode }
     let(:asset) { create :asset, barcode: barcode }
 
@@ -40,7 +37,7 @@ RSpec.describe AssetGroupsController, type: :controller do
         it "add the new asset to the group" do
           expect {
             post :update, params: { :asset_group => { :assets => [asset.uuid] },
-              :id => asset_group.id, :activity_id => activity.id }
+                                    :id => asset_group.id, :activity_id => activity.id }
           }.to change { asset_group.assets.count }.by(1)
         end
       end
@@ -48,7 +45,7 @@ RSpec.describe AssetGroupsController, type: :controller do
         it "add the new asset to the group" do
           expect {
             post :update, params: { :asset_group => { :assets => [asset.barcode] },
-              :id => asset_group.id, :activity_id => activity.id }
+                                    :id => asset_group.id, :activity_id => activity.id }
           }.to change { asset_group.assets.count }.by(1)
         end
       end
@@ -65,12 +62,11 @@ RSpec.describe AssetGroupsController, type: :controller do
       end
 
       context "when it is in Sequencescape" do
-
         context 'finding by uuid' do
           it "retrieves the asset from Sequencescape" do
             expect {
               post :update, params: { :asset_group => { :assets => [uuid] },
-                  :id => asset_group.id, :activity_id => activity.id }
+                                      :id => asset_group.id, :activity_id => activity.id }
             }.to change { asset_group.assets.count }.by(1)
           end
         end
@@ -79,17 +75,16 @@ RSpec.describe AssetGroupsController, type: :controller do
           it "retrieves the asset from Sequencescape" do
             expect {
               post :update, params: { :asset_group => { :assets => [barcode] },
-                  :id => asset_group.id, :activity_id => activity.id }
+                                      :id => asset_group.id, :activity_id => activity.id }
             }.to change { asset_group.assets.count }.by(1)
           end
         end
       end
 
       context "when it is not in Sequencescape" do
-
         it 'does not retrieve anything' do
           post :update, params: { :asset_group => { :assets => [SecureRandom.uuid] },
-              :id => asset_group.id, :activity_id => activity.id }
+                                  :id => asset_group.id, :activity_id => activity.id }
           expect(asset_group.assets.count).to eq(0)
         end
       end
@@ -101,8 +96,8 @@ RSpec.describe AssetGroupsController, type: :controller do
           expect {
             post :update, params: { :asset_group => {
               :assets => [creatable_barcode]
-              },
-              :id => asset_group.id, :activity_id => activity.id }
+            },
+                                    :id => asset_group.id, :activity_id => activity.id }
           }.to change { asset_group.assets.count }.by(1)
         end
       end

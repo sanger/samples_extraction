@@ -6,6 +6,11 @@ require:
 
 AllCops:
   NewCops: enable
+  inherit_mode:
+    merge:
+      - Exclude
+  Exclude:
+    - 'db/views_schema.rb'
 
 # Blocks are used to structure tests and are part of the shoulda dsl.
 # The standard BlockLength limits are too stringent for this purpose.
