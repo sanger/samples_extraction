@@ -118,7 +118,7 @@ class AssetsController < ApplicationController
 
     # Use callbacks to share common setup or constraints between actions.
   def set_asset
-    @asset = if UUID_REGEXP.match(params[:id])
+    @asset = if TokenUtil::UUID_REGEXP.match(params[:id])
                Asset.find_by(uuid: params[:id])
              else
                Asset.find(params[:id])
@@ -143,7 +143,4 @@ class AssetsController < ApplicationController
     def asset_params
       params.require(:asset).permit(:barcode)
     end
-
-    UUID_REGEXP = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
-
 end

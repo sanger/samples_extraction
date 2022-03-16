@@ -11,7 +11,7 @@ module Parsers
         protected
 
         def valid_location?(record)
-          !record.location.nil? && !!record.location.match(TokenUtil.LOCATION_REGEXP)
+          record.location.present? && record.location.match?(TokenUtil::LOCATION_REGEXP)
         end
       end
     end

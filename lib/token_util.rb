@@ -1,19 +1,12 @@
 module TokenUtil
-  # rubocop:todo Naming/MethodName
-  def self.UUID_REGEXP
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
-  end
+  LOCATION_REGEXP = /^([A-H])(\d{1,2})$/.freeze
+  UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.freeze
+  MACHINE_BARCODE = /^\d*$/.freeze
+  HUMAN_BARCODE = /^\w*$/.freeze
+  WILDCARD_REGEXP = /\?\w*/.freeze
 
   def self.fluidx_barcode_prefix
     'F'
-  end
-
-  def self.MACHINE_BARCODE
-    /^\d*$/
-  end
-
-  def self.HUMAN_BARCODE
-    /^\w*$/
   end
 
   def self.invalid_barcode?(barcode)
@@ -22,7 +15,7 @@ module TokenUtil
 
   def self.machine_barcode?(barcode)
     return false if invalid_barcode?(barcode)
-    barcode.to_s.match?(TokenUtil.MACHINE_BARCODE)
+    barcode.to_s.match?(MACHINE_BARCODE)
   end
 
   def self.human_barcode?(barcode)
@@ -41,16 +34,8 @@ module TokenUtil
     barcode.to_s
   end
 
-  def self.WILDCARD_REGEXP
-    /\?\w*/
-  end
-
-  def self.LOCATION_REGEXP
-    /^([A-H])(\d{1,2})$/
-  end
-
   def self.is_uuid?(str)
-    str.kind_of?(String) && !str.match(TokenUtil.UUID_REGEXP).nil?
+    str.kind_of?(String) && !str.match(UUID_REGEXP).nil?
   end
 
   def self.quote_if_uuid(str)
@@ -63,11 +48,11 @@ module TokenUtil
   end
 
   def self.uuid(str)
-    str.match(TokenUtil.UUID_REGEXP)[0]
+    str.match(UUID_REGEXP)[0]
   end
 
   def self.is_wildcard?(str)
-    str.kind_of?(String) && !str.match(TokenUtil.WILDCARD_REGEXP).nil?
+    str.kind_of?(String) && !str.match(WILDCARD_REGEXP).nil?
   end
 
   def self.kind_of_asset_id?(str)
@@ -98,7 +83,7 @@ module TokenUtil
 
   def self.pad_location(location)
     return location unless location
-    parts = location.match(TokenUtil.LOCATION_REGEXP)
+    parts = location.match(LOCATION_REGEXP)
     return nil if parts.length == 0
     letter = parts[1]
     number = parts[2]
@@ -115,5 +100,4 @@ module TokenUtil
     return str unless str
     str.gsub(/\"/,"")
   end
-  # rubocop:enable Naming/MethodName
 end
