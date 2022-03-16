@@ -82,8 +82,8 @@ class StepType < ApplicationRecord
   end
 
   def task_type
-    return 'background_step' if (actions.count > 0)  || (step_action.nil?)
-    return 'cwm' if step_action && step_action.end_with?('.n3')
+    return 'background_step' if (actions.count > 0) || step_action.nil?
+    return 'cwm' if step_action&.end_with?('.n3')
     return 'runner'
   end
 

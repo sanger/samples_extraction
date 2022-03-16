@@ -11,7 +11,6 @@ module Parsers
         @parsed_content = []
         @parsed=false
         @input_reader = input_reader
-        valid?
       end
 
       def parsed_data
@@ -38,7 +37,6 @@ module Parsers
 
       def validate_parsed_content
         parse unless @parsed
-        errors.clear
         @parsed_content.each do |entry|
           unless entry[:data_parser].valid?
             errors.add(:base, "There is an error at line #{entry[:num_line]}")
@@ -52,7 +50,7 @@ module Parsers
           if num_line == 1
             @parser.headers_parser = @parser.components[:headers_parser].new(line, @parser)
           else
-            unless is_empty_line?(line)
+            unless empty_line?(line)
               data_parser = @parser.components[:data_parser].new(line, @parser)
               memo.push(num_line: num_line, data_parser: data_parser)
             end
@@ -65,7 +63,7 @@ module Parsers
         parsed_data
       end
 
-      def is_empty_line?(line)
+      def empty_line?(line)
         (line.nil? || (line.length == 0) || line.all?(&:nil?))
       end
     end

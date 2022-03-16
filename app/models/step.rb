@@ -37,14 +37,7 @@ class Step < ApplicationRecord
   include Steps::State
   include Steps::WebsocketEvents
 
-
   def set_errors(errors)
-    #activity.send_wss_event({error: {type: 'danger', msg: errors.first} })
-    #wss_event
-    #step_messages.delete_all
-    #errors.each do |error|
-    #  step_messages << StepMessage.new(content: error)
-    #end
     ActiveRecord::Base.transaction do
      step_messages.each(&:destroy)
      errors.each do |error|

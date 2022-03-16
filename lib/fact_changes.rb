@@ -17,7 +17,7 @@ class FactChanges
   def initialize(json = nil)
     @assets_updated=[]
     reset
-    parse_json(json) if json
+    parse_json(json) unless json.nil?
   end
 
   def parsing_valid?
@@ -96,7 +96,7 @@ class FactChanges
   end
 
   def parse_json(json)
-    obj = JSON.parse(json)
+    obj = json.is_a?(String) ? JSON.parse(json) : json.deep_stringify_keys
     ['set_errors', 'create_assets', 'create_asset_groups', 'delete_asset_groups',
       'remove_facts', 'add_facts', 'delete_assets', 'add_assets', 'remove_assets'].each do |action_type|
       if obj[action_type]

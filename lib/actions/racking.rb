@@ -10,7 +10,6 @@ class InvalidDataParams < StandardError
   def initialize(message = nil)
     super(message)
     @errors = message
-    #@msg = html_error_message([message].flatten)
   end
 
   def html_error_message(error_messages)
@@ -30,6 +29,11 @@ module Actions
     DNA_ALIQUOT = 'DNA'
     RNA_ALIQUOT = 'RNA'
     TUBE_TO_PLATE_TRANSFERRABLE_PROPERTIES = [:study_name,:aliquotType]
+
+    ALIQUOT_PURPOSE = {
+      DNA_ALIQUOT => DNA_STOCK_PLATE_PURPOSE,
+      RNA_ALIQUOT => RNA_STOCK_PLATE_PURPOSE
+    }
 
     # Actions
     def rack_layout(asset_group)
@@ -121,13 +125,7 @@ module Actions
     end
 
     def purpose_for_aliquot(aliquot)
-      if aliquot == DNA_ALIQUOT
-        DNA_STOCK_PLATE_PURPOSE
-      elsif aliquot == RNA_ALIQUOT
-        RNA_STOCK_PLATE_PURPOSE
-      else
-        STOCK_PLATE_PURPOSE
-      end
+      ALIQUOT_PURPOSE.fetch(aliquot, STOCK_PLATE_PURPOSE)
     end
 
     def fact_changes_for_add_purpose(rack, aliquot)
@@ -288,10 +286,12 @@ module Actions
       error_messages = []
       error_locations = []
 
-      if asset_group.assets.with_fact('a', 'TubeRack').empty?
+      tube_racks = asset_group.assets.with_fact('a', 'TubeRack').includes(facts: { object_asset: { facts: :object } })
+
+      if tube_racks.empty?
         error_messages.push("No TubeRacks found to perform the layout process")
       end
-      if asset_group.assets.with_fact('a', 'TubeRack').count > 1
+      if tube_racks.many?
         error_messages.push("Too many TubeRacks found to perform the layout process")
       end
       raise InvalidDataParams, error_messages if error_messages.count > 0

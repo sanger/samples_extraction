@@ -12,7 +12,7 @@ AllCops:
 # Block DSL is also used in routes
 # We should be careful keeping rake tasks here, as large tasks are still an issue.
 # Not sure if we need to split namespaces across several files though.
-# We exclude builders, as they are concerned with rendering xml
+# We exclude builders, as the are concerned with rendering xml
 Metrics/BlockLength:
   Exclude:
     - Gemfile

@@ -13,18 +13,16 @@ module Parsers
 
       def initialize(line, parser)
         @parser = parser
-        _parse(line)
-
-        valid?
+        parse(line)
       end
 
-      protected
+      private
 
-      def _parse(line)
+      def parse(line)
         begin
           @location = TokenUtil.pad_location(line[0].strip)
         rescue StandardError => e
-          errors.add(:location, 'There was an error while parsing the location')
+          @location = nil
         end
       end
 

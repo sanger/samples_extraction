@@ -12,12 +12,12 @@ class StepsController < ApplicationController
   end
 
   def create
-    @activity.create_step({
+    @activity.create_step(
       step_type: @step_type,
       user: @current_user,
       printer_config: @printer_config,
       asset_group: @asset_group
-    })
+    )
     head :ok
   end
 

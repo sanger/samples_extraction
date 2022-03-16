@@ -9,7 +9,7 @@ module InferenceEngines
       CONVERTED_CLASS_ACTIONS = {
         'move_barcodes_from_tube_rack_to_plate.rb' => 'StepPlanner::MoveBarcodesFromTubeRackToPlate',
         'rack_layout_creating_tubes.rb' => 'StepPlanner::RackLayoutCreatingTubes'
-      }
+      }.freeze
       include StepExecutionProcess
 
       attr_accessor :step, :asset_group, :original_assets,
@@ -55,7 +55,7 @@ module InferenceEngines
       def generate_plan_from_class
         klass = step_action.constantize
 
-        step_planner = klass.new(input_url, step_url)
+        step_planner = klass.new(@asset_group.id, @step.id)
         @content = step_planner.updates
         step.update_attributes(output: @content)
         @updates = FactChanges.new(content)
@@ -161,7 +161,6 @@ module InferenceEngines
       def step_url
         Rails.application.routes.url_helpers.step_url(@step.id)+".json"
       end
-
     end
   end
 end

@@ -3,13 +3,13 @@
 require 'actions/racking'
 
 module StepPlanner
+  # Allows the upload of a tube rack layout to register the tubes
   class RackLayoutCreatingTubes
     attr_reader :asset_group
 
     include Actions::Racking
 
-    def initialize(input_url, _step_url)
-      asset_group_id = input_url.match(/(\d*)\.json/)[1]
+    def initialize(asset_group_id, _step_id)
       @asset_group = AssetGroup.find(asset_group_id)
     end
 
@@ -27,7 +27,7 @@ module StepPlanner
     end
 
     def updates
-      ActiveRecord::Base.transaction { process.to_json }
+      ActiveRecord::Base.transaction { process.to_h }
     rescue InvalidDataParams => e
       { set_errors: e.errors }
     rescue StandardError => e
