@@ -50,7 +50,6 @@ class AssetsController < ApplicationController
   # GET /assets/1
   # GET /assets/1.json
   def show
-    # @asset = Asset.find_by_uuid!(params[:uuid])
     respond_to do |format|
       format.html { render :show }
       format.n3 { render :show }
