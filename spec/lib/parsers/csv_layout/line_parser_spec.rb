@@ -30,7 +30,7 @@ RSpec.describe Parsers::CsvLayout::LineParser do
     end
   end
 
-  context '#initialize' do
+  describe '#initialize' do
     it 'can be initialized' do
       @input = [["A1", @asset1.barcode]]
       expect { parser }.not_to raise_error

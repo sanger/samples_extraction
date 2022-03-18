@@ -253,7 +253,7 @@ RSpec.describe 'Assets::Import' do
     end
   end
 
-  context '#find_or_import_asset_with_barcode' do
+  describe '#find_or_import_asset_with_barcode' do
     context 'when importing an asset that does not exist' do
       setup do
         allow(SequencescapeClient).to receive(:get_remote_asset).and_return(nil)
