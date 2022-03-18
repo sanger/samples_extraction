@@ -32,8 +32,6 @@ class ActivityChannel < ApplicationCable::Channel
     assets = strong_params[:assets]
     if asset_group && assets
       begin
-        received_list = []
-
         received_list = assets.filter_map do |uuid_or_barcode|
           Asset.find_or_import_asset_with_barcode(uuid_or_barcode)
         end
