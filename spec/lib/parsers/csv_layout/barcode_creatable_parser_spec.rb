@@ -9,15 +9,13 @@ RSpec.describe Parsers::CsvLayout::BarcodeCreatableParser do
       Asset.find_by(barcode: barcode)
     end
   end
-  let(:main_parser) {
-    main = double('parser')
-    allow(main).to receive(:add_error)
-    allow(main).to receive(:parsed_changes).and_return(FactChanges.new)
-    allow(main).to receive(:components).and_return({
-                                                     barcode_validator: ValidatorSuccess
-                                                   })
-    main
-  }
+
+  let(:main_parser) do
+    instance_double(Parsers::CsvLayout::CsvParser,
+                    parsed_changes: FactChanges.new,
+                    components: { barcode_validator: ValidatorSuccess })
+  end
+
   class ValidatorSuccess < ActiveModel::Validator
     def validate(record)
       true

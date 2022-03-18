@@ -6,16 +6,15 @@ require 'parsers/csv_layout/validators/any_barcode_validator'
 require 'parsers/csv_layout/validators/location_validator'
 
 RSpec.describe Parsers::CsvLayout::LineParser do
-  let(:main_parser) {
-    main = double('parser')
-    allow(main).to receive(:components).and_return({
-                                                     location_validator: Parsers::CsvLayout::Validators::LocationValidator,
-                                                     barcode_validator: Parsers::CsvLayout::Validators::AnyBarcodeValidator,
-                                                     barcode_parser: Parsers::CsvLayout::BarcodeParser,
-                                                     location_parser: Parsers::CsvLayout::LocationParser
-                                                   })
-    main
-  }
+  let(:main_parser) do
+    instance_double(Parsers::CsvLayout::CsvParser,
+                    components: {
+                      location_validator: Parsers::CsvLayout::Validators::LocationValidator,
+                      barcode_validator: Parsers::CsvLayout::Validators::AnyBarcodeValidator,
+                      barcode_parser: Parsers::CsvLayout::BarcodeParser,
+                      location_parser: Parsers::CsvLayout::LocationParser
+                    })
+  end
   let(:input_reader) {
     reader = double('reader')
     allow(reader).to receive(:lines).and_return(@input)

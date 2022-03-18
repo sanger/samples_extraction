@@ -9,18 +9,27 @@ RSpec.describe Parsers::CsvLayout::BarcodeParser do
       Asset.find_by(barcode: barcode)
     end
   end
-  let(:main_parser) {
-    main = double('parser')
-    allow(main).to receive(:add_error)
-    allow(main).to receive(:components).and_return({
-                                                     barcode_validator: ValidatorSuccess
-                                                   })
-    main
-  }
-  class ValidatorSuccess < ActiveModel::Validator
-    def validate(record)
-      true
+
+  let(:success_validator) do
+    Class.new(ActiveModel::Validator) do
+      def validate(record)
+        true
+      end
     end
+  end
+
+  let(:reject_validator) do
+    Class.new(ActiveModel::Validator) do
+      def validate(record)
+        record.errors.add(:barcode, 'There was an error')
+        false
+      end
+    end
+  end
+
+  let(:main_parser) do
+    instance_double(Parsers::CsvLayout::CsvParser,
+                    components: { barcode_validator: success_validator })
   end
 
   let(:barcode) { '1234' }
@@ -62,17 +71,11 @@ RSpec.describe Parsers::CsvLayout::BarcodeParser do
       create :asset, barcode: barcode
     end
 
-    class ValidatorReject < ActiveModel::Validator
-      def validate(record)
-        record.errors.add(:barcode, 'There was an error')
-        false
-      end
-    end
     let(:parser) { Parsers::CsvLayout::BarcodeParser.new(input, main_parser) }
     context 'when the validator accepts the input' do
       before do
         allow(main_parser).to receive(:components).and_return({
-                                                                barcode_validator: ValidatorSuccess
+                                                                barcode_validator: success_validator
                                                               })
       end
       it 'validates the instance' do
@@ -82,7 +85,7 @@ RSpec.describe Parsers::CsvLayout::BarcodeParser do
     context 'when the validator rejects the input' do
       before do
         allow(main_parser).to receive(:components).and_return({
-                                                                barcode_validator: ValidatorReject
+                                                                barcode_validator: reject_validator
                                                               })
       end
 
