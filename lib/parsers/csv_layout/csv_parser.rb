@@ -89,10 +89,7 @@ module Parsers
       end
 
       def duplicated(sym)
-        all_elems = layout.map { |obj| obj[sym] }
-        all_elems.select do |element|
-          (!element.nil?) && (all_elems.count(element) > 1)
-        end.uniq.compact
+        layout.pluck(sym).compact.uniq! || []
       end
     end
   end
