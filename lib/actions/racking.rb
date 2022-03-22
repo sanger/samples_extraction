@@ -34,25 +34,17 @@ module Actions
     }
 
     # Actions
-    def rack_layout(asset_group)
+    def rack_layout(asset_group, options = {})
       content = selected_file(asset_group).data
-      csv_parsing(asset_group, Parsers::CsvLayout::CsvParser.new(content))
+      csv_parsing(asset_group, Parsers::CsvLayout::CsvParser.new(content, options))
     end
 
     def rack_layout_creating_tubes(asset_group)
-      content = selected_file(asset_group).data
-      parser = Parsers::CsvLayout::CsvParser.new(content, {
-                                                   barcode_parser: Parsers::CsvLayout::BarcodeCreatableParser
-                                                 })
-      csv_parsing(asset_group, parser)
+      rack_layout(asset_group, barcode_parser: Parsers::CsvLayout::BarcodeCreatableParser)
     end
 
     def rack_layout_any_barcode(asset_group)
-      content = selected_file(asset_group).data
-      parser = Parsers::CsvLayout::CsvParser.new(content, {
-                                                   barcode_validator: Parsers::CsvLayout::Validators::AnyBarcodeValidator
-                                                 })
-      csv_parsing(asset_group, parser)
+      rack_layout(asset_group, barcode_validator: Parsers::CsvLayout::Validators::AnyBarcodeValidator)
     end
 
     # Support methods and classes
