@@ -62,7 +62,7 @@ class SequencescapeClient
     find_by(barcode: barcode)
   end
 
-  def self.find_by_uuid(uuid, opts = nil)
+  def self.find_by_uuid(uuid)
     find_by(uuid: uuid)
   end
 
