@@ -80,45 +80,8 @@ module Assets::Import
       end].flatten
     end
 
-    def get_import_step
-      @import_step
-    end
-
-    def _process_refresh(remote_asset, fact_changes = nil)
-      fact_changes ||= FactChanges.new
-      asset_group = AssetGroup.new
-      @import_step.update_attributes(asset_group: asset_group)
-
-      begin
-        fact_changes.tap do |updates|
-          asset_group.update_attributes(assets: assets_to_refresh)
-
-          # Removes previous state
-          assets_to_refresh.each do |asset|
-            updates.remove(asset.facts.from_remote_asset)
-          end
-
-          # Loads new state
-          self.class.update_asset_from_remote_asset(self, remote_asset, updates)
-        end.apply(@import_step)
-        @import_step.update_attributes(state: 'complete')
-        asset_group.touch
-      ensure
-        @import_step.update_attributes(state: 'error') unless @import_step.state == 'complete'
-        # @import_step.asset_group.touch if @import_step.asset_group
-      end
-    end
-
     def is_refreshing_right_now?
       Step.running_with_asset(self).count > 0
-    end
-
-    def type_of_asset_for_sequencescape
-      if ((facts.with_predicate('a').first) && ["Tube", "SampleTube"].include?(facts.with_predicate('a').first.object))
-        :tube
-      else
-        :plate
-      end
     end
 
     def refresh(fact_changes = nil)
@@ -151,15 +114,30 @@ module Assets::Import
       facts.from_remote_asset.count > 0
     end
 
-    def update_facts_from_remote(list, step = nil)
-      step = step || @import_step
-      list = [list].flatten
-      added = list.map do |f|
-        f.assign_attributes(:is_remote? => true)
-        f
+    private
+
+    def _process_refresh(remote_asset, fact_changes)
+      fact_changes ||= FactChanges.new
+      asset_group = AssetGroup.new
+      @import_step.update(asset_group: asset_group)
+
+      begin
+        fact_changes.tap do |updates|
+          asset_group.update(assets: assets_to_refresh)
+
+          # Removes previous state
+          assets_to_refresh.each do |asset|
+            updates.remove(asset.facts.from_remote_asset)
+          end
+
+          # Loads new state
+          self.class.update_asset_from_remote_asset(self, remote_asset, updates)
+        end.apply(@import_step)
+        @import_step.update(state: 'complete')
+        asset_group.touch
+      ensure
+        @import_step.update(state: 'error') unless @import_step.state == 'complete'
       end
-      facts << added
-      add_operations([added].flatten, step)
     end
   end
 
@@ -189,24 +167,6 @@ module Assets::Import
         updates.add(asset, 'a', 'Tube')
         updates.add(asset, 'barcodeType', 'Code2D')
         updates.add(asset, 'is', 'Empty')
-      end
-      asset
-    end
-
-    def is_digit_barcode?(barcode)
-      barcode.to_s.match(/^\d+$/)
-    end
-
-    def find_asset_with_barcode(barcode)
-      asset = Asset.find_by_barcode(barcode)
-      asset = Asset.find_by_uuid(barcode) unless asset
-      updates = FactChanges.new
-      if asset.nil? && TokenUtil.is_valid_fluidx_barcode?(barcode)
-        asset = import_barcode(barcode)
-        asset = Asset.create_local_asset(barcode, updates) unless asset
-      end
-      if asset
-        asset.refresh(updates)
       end
       asset
     end
@@ -251,15 +211,6 @@ module Assets::Import
           end
         end
       end
-    end
-
-    def sample_id_to_study_name(sample_id)
-      sample_id.gsub(/\d*$/, '').gsub('-', '')
-    end
-
-    def get_study_uuid(study_name)
-      @study_uuids ||= {}
-      @study_uuids[study_name] ||= SequencescapeClient::get_study_by_name(study_name)&.uuid
     end
 
     def annotate_study_name_from_aliquots(asset, remote_asset, fact_changes)
@@ -342,7 +293,8 @@ module Assets::Import
 
     def keep_sync_with_sequencescape?(remote_asset)
       class_name = sequencescape_type_for_asset(remote_asset)
-      (class_name != 'SampleTube')
+      class_name != 'SampleTube'
+    end
     end
   end
 end
