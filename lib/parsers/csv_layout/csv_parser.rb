@@ -57,6 +57,10 @@ module Parsers
         self_error_list.concat(line_parser.error_list)
       end
 
+      def find_or_import_asset_with_barcode(barcode)
+        Asset.find_or_import_asset_with_barcode(barcode)
+      end
+
       protected
 
       def validate_parsed_data

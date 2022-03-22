@@ -29,7 +29,7 @@ module Parsers
       end
 
       def asset
-        Asset.find_or_import_asset_with_barcode(barcode)
+        @parser.find_or_import_asset_with_barcode(barcode)
       end
 
       def barcode?
