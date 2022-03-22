@@ -12,7 +12,9 @@ module Parsers
 
       def parsed_data
         if valid?
-          parsed_content.select { |e| !e[:barcode_parser].no_read_barcode? }.map do |entry|
+          parsed_content.filter_map do |entry|
+            next if entry[:barcode_parser].no_read_barcode?
+
             {
               location: entry[:location_parser].location,
               asset: entry[:barcode_parser].asset
