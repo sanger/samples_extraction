@@ -1,5 +1,4 @@
-require 'parsers/csv_layout/validators/any_barcode_validator'
-require 'parsers/csv_layout/validators/fluidx_barcode_validator'
+# frozen_string_literal: true
 
 module Parsers
   module CsvLayout
