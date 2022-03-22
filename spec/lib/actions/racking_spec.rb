@@ -18,7 +18,18 @@ RSpec.describe Actions::Racking do
 
   let(:condition) { create(:condition, predicate: fact.predicate, object: fact.object) }
   let(:condition_group) { create(:condition_group, conditions: [condition]) }
+  let(:racking_class) do
+    Class.new do
+      include Actions::Racking
+      attr_reader :asset_group
 
+      def initialize(asset_group)
+        @asset_group = asset_group
+      end
+    end
+  end
+
+  # @todo Use racking_class exclusively
   include Actions::Racking
 
   setup do
@@ -31,7 +42,7 @@ RSpec.describe Actions::Racking do
     describe "when linking it with an asset" do
       it 'adds the facts to the asset' do
         expect(asset.facts.count).to eq(1)
-        updates = send(method, asset_group)
+        updates = send(method)
         updates.apply(step)
 
         asset.facts.reload
@@ -46,8 +57,10 @@ RSpec.describe Actions::Racking do
 
       describe 'with links with previous parents' do
         let(:actual_parent) { create(:asset, uploaded_file: file, facts: [fact]) }
+
         it 'removes links with the previous parents' do
-          send(method, asset_group).apply(step)
+          asset_group
+          send(method).apply(step)
           asset.facts.reload
           assets = asset.facts.with_predicate('contains').map(&:object_asset)
           expect(assets.count).to eq(96)
@@ -58,12 +71,14 @@ RSpec.describe Actions::Racking do
           end
 
           asset_group = AssetGroup.create(assets: [actual_parent])
+
           another_step = Step.new(
             activity: activity,
             asset_group: asset_group, step_type: step_type,
             state: Step::STATE_RUNNING
           )
-          send(method, asset_group).apply(another_step)
+
+          racking_class.new(asset_group).send(method).apply(another_step)
 
           assets = asset.reload.facts.with_predicate('contains').map(&:object_asset)
           expect(assets.count).to eq(0)
@@ -96,7 +111,7 @@ RSpec.describe Actions::Racking do
 
         it 'adds the new facts to the asset and removes the old ones' do
           expect(asset.facts.count).to eq(1)
-          send(method, asset_group).apply(step)
+          send(method).apply(step)
 
           asset.facts.reload
           assets = asset.facts.with_predicate('contains').map(&:object_asset)

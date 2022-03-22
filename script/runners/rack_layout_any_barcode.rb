@@ -16,7 +16,7 @@ class RackLayoutAnyBarcode
   def process
     FactChanges.new.tap do |updates|
       if assets_compatible_with_step_type.count > 0
-        updates.merge(rack_layout_any_barcode(@asset_group))
+        updates.merge(rack_layout_any_barcode)
         updates.remove_assets([[asset_group.uploaded_files.first.asset.uuid]])
       end
     end

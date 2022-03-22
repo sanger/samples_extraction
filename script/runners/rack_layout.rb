@@ -16,7 +16,7 @@ class RackLayout
   def process
     FactChanges.new.tap do |updates|
       if assets_compatible_with_step_type.count > 0
-        updates.merge(rack_layout(@asset_group))
+        updates.merge(rack_layout)
       end
     end
   end
