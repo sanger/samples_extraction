@@ -9,7 +9,6 @@ module Parsers
       include ActiveModel::Validations
 
       validates :asset, presence: { message: "Cannot find the barcode" }, if: :barcode?
-      validates :barcode, presence: true
       validate :validations
 
       def validations
