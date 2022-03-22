@@ -108,6 +108,7 @@ GEM
       activerecord (>= 3.0, < 8.0)
       delayed_job (>= 3.0, < 5)
     diff-lcs (1.5.0)
+    docile (1.4.0)
     domain_name (0.5.20180417)
       unf (>= 0.0.5, < 1.0.0)
     dropzonejs-rails (0.8.4)
@@ -344,6 +345,12 @@ GEM
     set (1.0.2)
     shoulda-matchers (5.1.0)
       activesupport (>= 5.2.0)
+    simplecov (0.21.2)
+      docile (~> 1.1)
+      simplecov-html (~> 0.11)
+      simplecov_json_formatter (~> 0.1)
+    simplecov-html (0.12.3)
+    simplecov_json_formatter (0.1.4)
     sorted_set (1.0.3)
       rbtree
       set (~> 1.0)
@@ -458,6 +465,7 @@ DEPENDENCIES
   sdoc
   sequencescape-client-api
   shoulda-matchers
+  simplecov
   spring
   sprockets-rails
   turbolinks

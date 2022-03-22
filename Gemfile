@@ -72,6 +72,7 @@ group :test do
   gem 'factory_bot_rails'
   gem 'rspec-rails'
   gem 'shoulda-matchers'
+  gem 'simplecov', require: false
   gem 'rails-controller-testing'
   gem 'database_cleaner'
   gem 'json-schema'
