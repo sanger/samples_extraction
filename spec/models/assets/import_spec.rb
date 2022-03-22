@@ -264,9 +264,7 @@ RSpec.describe 'Assets::Import' do
       end
 
       it 'should not create a new asset' do
-        expect(Asset.all.count).to eq(0)
-        Asset.find_or_import_asset_with_barcode('NOT_FOUND')
-        expect(Asset.all.count).to eq(0)
+        expect { Asset.find_or_import_asset_with_barcode('NOT_FOUND') }.not_to change(Asset, :count)
       end
     end
 
@@ -286,8 +284,6 @@ RSpec.describe 'Assets::Import' do
     end
 
     context 'when importing a remote asset' do
-      let(:SequencescapeClient) { double('sequencescape_client') }
-
       context 'when the asset is a tube' do
         setup do
           @remote_asset = build_remote_tube(barcode: generate(:barcode))
