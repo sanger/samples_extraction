@@ -37,7 +37,14 @@ RSpec.describe Parsers::CsvLayout::LineParser do
     end
   end
 
-  context '#parsed_data' do
+  describe '#barcodes' do
+    it 'returns a list of barcodes' do
+      @input = [["A1", "F1234"], ["A2", "F5678"]]
+      expect(parser.barcodes).to eq ['F1234', 'F5678']
+    end
+  end
+
+  describe '#parsed_data' do
     it 'returns the number of lines at input' do
       @input = [["A1", "F1234"], ["A2", "F5678"]]
       expect(parser).to be_valid

@@ -40,6 +40,12 @@ module Parsers
         @parsed_content ||= parse
       end
 
+      def barcodes
+        parsed_content.filter_map do |line|
+          line[:barcode_parser].barcode
+        end.uniq
+      end
+
       protected
 
       def validate_parsed_content
