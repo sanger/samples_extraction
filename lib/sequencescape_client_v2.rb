@@ -9,6 +9,13 @@ module SequencescapeClientV2
   class SequencescapeClientV2::Asset < SequencescapeClientV2::Model
   end
 
+  class SequencescapeClientV2::Labware < SequencescapeClientV2::Model
+    # The plural of labware is labware
+    def self.table_name
+      'labware'
+    end
+  end
+
   class SequencescapeClientV2::Plate < SequencescapeClientV2::Model
     has_many :wells
     has_many :studies, through: :well
