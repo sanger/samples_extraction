@@ -151,36 +151,6 @@ class Asset < ApplicationRecord
     end
   end
 
-  def attrs_for_sequencescape(traversed_list = [])
-    hash = facts.map do |fact|
-      if fact.literal?
-        [fact.predicate, fact.object_value]
-      else
-        if traversed_list.include?(fact.object_value)
-          [fact.predicate, fact.object_value.uuid]
-        else
-          traversed_list.push(fact.object_value)
-          [fact.predicate, fact.object_value.attrs_for_sequencescape(traversed_list)]
-        end
-      end
-    end.reduce({}) do |memo, list|
-      predicate, object = list
-      if memo[predicate] || memo[predicate.pluralize]
-        # Updates name of list to pluralized name
-        unless memo[predicate].kind_of? Array
-          memo[predicate.pluralize] = [memo[predicate]]
-          memo = memo.except!(predicate) if predicate != predicate.pluralize
-        end
-        memo[predicate.pluralize].push(object)
-      else
-        memo[predicate] = object
-      end
-      memo
-    end
-    # return {:uuid => uuid, :barcode => { :prefix => 'SE', :number => 14 }}
-    hash
-  end
-
   def study_and_barcode
     "#{study_name} #{barcode_sequencescaped}"
   end
@@ -282,22 +252,6 @@ class Asset < ApplicationRecord
     return ''
   end
 
-  def position_name_for_symphony
-    str = first_value_for('location')
-    [str[0], str[1..-1]].join(':')
-  end
-
-  def position_index_for_symphony
-    str = first_value_for('location')
-    (str[1..-1] * 12) + (str[0].ord - 'A'.ord)
-  end
-
-  def asset_description
-    names = facts.with_predicate('a').map(&:object).join(' ')
-    types = facts.with_predicate('aliquotType').map(&:object).join(' ')
-    return names + ' ' + types
-  end
-
   def self.class_type(facts)
     class_types = facts.select { |f| f[:predicate] == 'a' }.map(&:object)
     return 'TubeRack' if class_types.include?('TubeRack')
@@ -321,36 +275,6 @@ class Asset < ApplicationRecord
     Asset.class_type(facts)
   end
 
-  def contains_location?(location)
-    facts.with_predicate('contains').any? do |f|
-      f.object_asset.facts.with_predicate('location').map(&:object).include?(location)
-    end
-  end
-
-  def assets_at_location(location)
-    facts.with_predicate('contains').map(&:object_asset).select do |a|
-      a.facts.with_predicate('location').map(&:object).include?(location)
-    end
-  end
-
-  def remove_from_parent(parent)
-    facts.with_predicate('parent').select { |f| f.object_asset == parent }.each(&:destroy)
-    facts.with_predicate('location').each(&:destroy)
-  end
-
-  def duplicated_tubes_validation
-    contained_assets = facts.with_predicate('contains').map(&:object_asset)
-    duplicated = contained_assets.select do |element|
-      element.facts.with_predicate('location').count > 1
-    end.uniq
-    unless duplicated.empty?
-      return duplicated.map do |duplicate_tube|
-        "The tube #{duplicated_tube.barcode} is duplicated in the layout"
-      end
-    end
-    return []
-  end
-
   def more_than_one_aliquot_type_validation
     if facts.with_predicate('contains').map(&:object_asset).map do |well|
          well.facts.with_predicate('aliquotType').map(&:object)
@@ -372,10 +296,6 @@ class Asset < ApplicationRecord
     errors = []
     errors.push(more_than_one_aliquot_type_validation)
     errors
-  end
-
-  def is_sequencescape_plate?
-    has_literal?('barcodeType', 'SequencescapePlate')
   end
 
   def to_n3
