@@ -35,8 +35,7 @@ module Actions
 
     # Actions
     def rack_layout(options = {})
-      content = selected_file.data
-      csv_parsing(Parsers::CsvLayout::CsvParser.new(content, options))
+      csv_parsing(Parsers::CsvLayout::CsvParser.new(selected_file.data, options))
     end
 
     def rack_layout_creating_tubes
@@ -49,15 +48,13 @@ module Actions
 
     # Support methods and classes
 
-    def clean_rack(rack)
-      remove_facts(facts.with_predicate('contains'))
-    end
-
     def reracking_tubes(rack, list_layout)
       fact_changes_unrack = fact_changes_for_unrack_tubes(list_layout, rack)
       fact_changes_rack = fact_changes_for_rack_tubes(list_layout, rack)
       fact_changes_unrack.merge(fact_changes_rack)
     end
+
+    private
 
     def fact_changes_for_unrack_tubes(list_layout, destination_rack = nil)
       FactChanges.new.tap do |updates|
@@ -170,13 +167,6 @@ module Actions
       end
     end
 
-    def remove_tube_from_rack(tube, rack)
-      FactChanges.new.tap do |updates|
-        updates.remove(tube.facts.with_predicate('location'))
-        updates.remove_where(rack, 'contains', tube)
-      end
-    end
-
     def fact_changes_for_rack_tubes(list_layout, rack)
       FactChanges.new.tap do |updates|
         tubes = []
@@ -189,40 +179,6 @@ module Actions
           updates.merge(put_tube_into_rack_position(tube, rack, location))
         end
         updates.merge(fact_changes_for_rack_when_racking_tubes(rack, tubes))
-      end
-    end
-
-    def params_to_list_layout(params)
-      params.map do |location, barcode|
-        asset = Asset.find_or_import_asset_with_barcode(barcode)
-        {
-          :location => location,
-          :asset => asset,
-          :barcode => barcode
-        }
-      end
-    end
-
-    def get_duplicates(list)
-      list.reduce({}) do |memo, element|
-        memo[element] = 0 unless memo[element]
-        memo[element] += 1
-        memo
-      end.each_pair.select { |key, count| count > 1 }
-    end
-
-    def check_duplicates(params, error_messages, error_locations)
-      duplicated_locations = get_duplicates(params.map { |location, barcode| location })
-      duplicated_assets = get_duplicates(params.map { |location, barcode| barcode })
-
-      duplicated_locations.each do |location, count|
-        error_locations.push(location)
-        error_messages.push("Location #{location} is appearing #{count} times")
-      end
-
-      duplicated_assets.each do |barcode, count|
-        # error_locations.push(barcode)
-        error_messages.push("Asset #{barcode} is appearing #{count} times")
       end
     end
 
@@ -312,12 +268,6 @@ module Actions
       else
         raise InvalidDataParams, parser.error_list
       end
-    end
-
-    def samples_symphony(step_type, params)
-      rack = asset_group.assets.with_fact('a', 'TubeRack').first
-      msgs = Parsers::Symphony.parse(params[:file].read, rack)
-      raise InvalidDataParams, msgs if msgs.length > 0
     end
   end
 end
