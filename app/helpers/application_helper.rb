@@ -95,10 +95,11 @@ module ApplicationHelper
         else
           aliquotType = empty_well_aliquot_type
         end
+
         memo[location] = {
           title: "#{asset.short_description}",
           cssClass: aliquotType,
-          url: asset_path(asset)
+          url: Rails.application.routes.url_helpers.asset_path(asset)
         } unless location.nil?
       end
       memo
