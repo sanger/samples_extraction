@@ -841,11 +841,11 @@ RSpec.describe Step, type: :model do
             @racks.each(&:reload)
 
             @tubes.each do |tube|
-              assert_equal true, (tube.facts.select { |f| f.predicate == 'relatesTo' }.length > 0)
+              assert_equal true, tube.facts.any? { |f| f.predicate == 'relatesTo' }
             end
 
             @racks.each do |rack|
-              assert_equal true, (rack.facts.select { |f| f.predicate == 'relatesTo' }.length > 0)
+              assert_equal true, rack.facts.any? { |f| f.predicate == 'relatesTo' }
             end
 
             create_step

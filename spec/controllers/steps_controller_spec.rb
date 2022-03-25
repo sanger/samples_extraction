@@ -90,7 +90,7 @@ RSpec.describe StepsController, type: :controller do
           allow_any_instance_of(Step).to receive(:process) do
             step.reload
             FactChanges.new.create_assets(["?p"]).apply(step)
-            expect(step.operations.length > 0).to eq(true)
+            expect(step.operations).to be_exist
             post :update, params: { id: step_id, step: { event_name: 'stop' } }
           end
           expect(step.operations.all? { |op| !op.cancelled? }).to eq(true)
