@@ -90,6 +90,10 @@ group :development do
   gem 'rubocop', require: false
   gem 'rubocop-performance'
   gem 'rubocop-rails'
+  # Lets mocking of HTTP requests, but importantly also prevents unintentional outbound connections
+  # I had tests connecting to my dev copy of SS and passing, and only noticed the failures on the CI.
+  # Suspect we'll also end up using it properly, especially for integration tests
+  gem 'webmock'
 end
 
 group :deployment do

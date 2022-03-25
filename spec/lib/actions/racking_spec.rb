@@ -33,9 +33,7 @@ RSpec.describe Actions::Racking do
   include Actions::Racking
 
   setup do
-    allow(Asset).to receive(:find_or_import_asset_with_barcode) do |barcode|
-      Asset.find_by(barcode: barcode)
-    end
+    allow(SequencescapeClient).to receive(:labware).and_return([])
   end
 
   shared_examples_for 'rack_layout' do
@@ -83,8 +81,9 @@ RSpec.describe Actions::Racking do
           assets = asset.reload.facts.with_predicate('contains').map(&:object_asset)
           expect(assets.count).to eq(0)
 
-          assets = actual_parent.reload.facts.with_predicate('contains').map(&:object_asset)
+          assets = actual_parent.reload.facts.with_predicate('contains').includes(object_asset: :facts).map(&:object_asset)
           expect(assets.count).to eq(96)
+
           assets.each do |a|
             expect(a.facts.with_predicate('location').count).to eq(1)
             expect(a.facts.with_predicate('parent').count).to eq(1)

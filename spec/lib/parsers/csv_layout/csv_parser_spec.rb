@@ -19,9 +19,7 @@ RSpec.describe Parsers::CsvLayout::CsvParser do
     }
 
     setup do
-      allow(Asset).to receive(:find_or_import_asset_with_barcode) do |barcode|
-        Asset.find_by(barcode: barcode)
-      end
+      allow(SequencescapeClient).to receive(:labware).and_return([])
 
       @content = File.read('test/data/layout.csv')
       @assets = 96.times.map do |i|
@@ -63,6 +61,7 @@ RSpec.describe Parsers::CsvLayout::CsvParser do
         @csv = Parsers::CsvLayout::CsvParser.new("A01,FR11200002\rA02,FR11200003")
         expect(@csv).to be_valid
       end
+
       it 'detects tube duplication' do
         asset1 = create :asset, barcode: 'FR000001'
         content = "A01,#{asset1.barcode}\nB01,#{asset1.barcode}"
@@ -70,6 +69,7 @@ RSpec.describe Parsers::CsvLayout::CsvParser do
         expect(csv).not_to be_valid
         expect(csv.error_list.length).to eq(1)
       end
+
       it 'detects location duplication' do
         asset1 = create :asset, barcode: 'FR000001'
         asset2 = create :asset, barcode: 'FR000002'
