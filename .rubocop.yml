@@ -33,6 +33,7 @@ Metrics/BlockLength:
     - included
     - shared_context
     - shared_examples
+    - shared_examples_for
     - state_machine
     - configure
     - draw

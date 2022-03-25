@@ -63,51 +63,36 @@ module ActivitiesHelper
   end
 
   def operations_data(operations)
-    occured_predicates = []
-    operations.reduce([]) do |memo, fact|
-      if occured_predicates.include?(fact.predicate)
-        obj = memo.select { |f| f["predicate"] == fact.predicate }.first
-        obj["repeats"] = obj["repeats"] ? obj["repeats"] + 1 : 0
-        next memo
-      end
+    operations.map do |fact|
       elem = fact.object_asset
-      if elem
-        obj = { "object_asset" => {
-          uuid: elem.uuid,
-          barcode: elem.barcode,
-          id: elem.id,
-          info_line: elem.info_line
-        } }.merge(fact.attributes)
-      else
-        obj = fact.attributes
-      end
+      obj = if elem
+              { "object_asset" => {
+                uuid: elem.uuid,
+                barcode: elem.barcode,
+                id: elem.id,
+                info_line: elem.info_line
+              } }.merge(fact.attributes)
+            else
+              fact.attributes
+            end
       obj[:asset] = fact.asset.attributes
-      memo.push(obj)
-      memo
+      obj
     end
   end
 
   def facts_data(facts)
-    occured_predicates = []
-    facts.reduce([]) do |memo, fact|
-      if occured_predicates.include?(fact.predicate)
-        obj = memo.select { |f| f["predicate"] == fact.predicate }.first
-        obj["repeats"] = obj["repeats"] ? obj["repeats"] + 1 : 0
-        next memo
-      end
+    facts.map do |fact|
       elem = fact.object_asset
       if elem
-        obj = { "object_asset" => {
+        { "object_asset" => {
           uuid: elem.uuid,
           barcode: elem.barcode,
           id: elem.id,
           info_line: elem.info_line
         } }.merge(fact.attributes)
       else
-        obj = fact.attributes
+        fact.attributes
       end
-      memo.push(obj)
-      memo
     end
   end
 

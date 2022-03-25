@@ -8,7 +8,7 @@ module Parsers
       end
 
       def asset
-        @instance ||= @parser.find_or_import_asset_with_barcode(barcode)
+        @instance ||= @parser.find_or_import_asset_with_barcode(barcode) # || Asset.create_local_asset(barcode, updater)
 
         return @instance if @instance
 

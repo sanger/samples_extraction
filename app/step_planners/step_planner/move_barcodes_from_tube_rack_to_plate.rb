@@ -85,7 +85,7 @@ module StepPlanner
     end
 
     def updates
-      ActiveRecord::Base.transaction { process.to_h }
+      ActiveRecord::Base.transaction { process }
     rescue StandardError => e
       { set_errors: ["Unknown error while applying barcodes: #{e.message}, #{e.backtrace}"] }
     end

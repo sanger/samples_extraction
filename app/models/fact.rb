@@ -1,7 +1,7 @@
 # A Fact stores information about an {Asset}
 class Fact < ApplicationRecord
-  belongs_to :asset, :counter_cache => true
-  belongs_to :object_asset, :class_name => 'Asset'
+  belongs_to :asset, counter_cache: true
+  belongs_to :object_asset, class_name: 'Asset'
 
   scope :not_to_remove, ->() { where(:to_remove_by => nil) }
   scope :with_predicate, ->(predicate) { where(:predicate => predicate) }
@@ -24,11 +24,11 @@ class Fact < ApplicationRecord
   end
 
   def object_value
-    literal? ? object : Asset.find(object_asset_id)
+    literal? ? object : object_asset
   end
 
   def object_value_or_uuid
-    literal? ? object : Asset.find(object_asset_id).uuid
+    literal? ? object : object_asset.uuid
   end
 
   def object_label

@@ -65,8 +65,8 @@ module Actions
         return updates if tubes.empty?
 
         tubes_ids = tubes.map(&:id)
-        tubes_list = Asset.where(id: tubes_ids).includes(:facts)
-        tubes_list.each_with_index do |tube, index|
+        # tubes_list = Asset.where(id: tubes_ids).includes(facts: { object_asset: { facts: :object_asset } })
+        tubes.each_with_index do |tube, index|
           location_facts = tube.facts.with_predicate('location')
           unless location_facts.empty?
             location = location_facts.first.object
@@ -76,7 +76,8 @@ module Actions
             previous_rack = parent_fact.object_asset
             unless (previous_racks.include?(previous_rack))
               previous_racks.push(previous_rack)
-              updates.remove(previous_rack.facts.with_predicate('contains').where(object_asset_id: tubes_ids))
+              old_facts = previous_rack.facts.with_predicate('contains').select { |fact| tubes_ids.include?(fact.object_asset_id) }
+              updates.remove(old_facts)
             end
 
             if destination_rack
@@ -243,7 +244,7 @@ module Actions
       end
       raise InvalidDataParams, error_messages if error_messages.count > 0
 
-      asset = asset_group.assets.with_fact('a', 'TubeRack').first
+      asset = tube_racks.first
 
       if parser.valid?
         rack = asset

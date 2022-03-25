@@ -1,12 +1,12 @@
-# This file is part of SEQUENCESCAPE is distributed under the terms of GNU General Public License version 1 or later;
-# Please refer to the LICENSE and README files for information on licensing and authorship of this file.
-# Copyright (C) 2007-2011 Genome Research Ltd.
+# frozen_string_literal: true
+
 require 'sequencescape-api'
 require 'sequencescape'
 
 require 'sequencescape_client_v2'
 
 class SequencescapeClient
+  SELECT_FOR_IMPORT = 'uuid,labware_barcode'
   @purposes = nil
 
   def self.api_connection_options
@@ -38,10 +38,9 @@ class SequencescapeClient
     client.plate_purpose.all.select { |p| p.name === name }.first
   end
 
-  def self.create_plate(purpose_name, attrs)
-    attrs = {}
+  def self.create_plate(purpose_name)
     purpose = purpose_by_name(purpose_name) || purpose_by_name('Stock Plate')
-    purpose.plates.create!(attrs)
+    purpose.plates.create!({})
   end
 
   def self.get_study_by_name(name)
@@ -64,6 +63,14 @@ class SequencescapeClient
 
   def self.find_by_uuid(uuid)
     find_by(uuid: uuid)
+  end
+
+  def self.labware(conditions)
+    SequencescapeClientV2::Labware.select(
+      tubes: SELECT_FOR_IMPORT,
+      plates: SELECT_FOR_IMPORT,
+      tube_racks: SELECT_FOR_IMPORT
+    ).where(conditions)
   end
 
   # TODO: In most cases we should know what type of record we're looking up.

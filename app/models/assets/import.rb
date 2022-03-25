@@ -89,14 +89,17 @@ module Assets::Import
         remote_asset = SequencescapeClient::find_by_uuid(uuid)
         raise RefreshSourceNotFoundAnymore unless remote_asset
 
-        if changed_remote?(remote_asset)
-          unless is_refreshing_right_now?
-            @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh'), state: 'running')
-            _process_refresh(remote_asset, fact_changes)
-          end
-        end
+        refresh_from_remote(fact_changes: fact_changes, remote_asset: remote_asset)
       end
       self
+    end
+
+    def refresh_from_remote(remote_asset:, fact_changes: nil)
+      return unless changed_remote?(remote_asset)
+      return if is_refreshing_right_now?
+
+      @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh'), state: 'running')
+      _process_refresh(remote_asset, fact_changes)
     end
 
     def refresh!(fact_changes = nil)
@@ -143,21 +146,28 @@ module Assets::Import
 
   module ClassMethods
     def import_barcode(barcode)
-      asset = nil
-
       @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')
       remote_asset = SequencescapeClient::get_remote_asset(barcode)
 
-      if remote_asset
-        asset = Asset.create(barcode: barcode, uuid: remote_asset.uuid)
+      import_remote_asset(remote_asset, barcode, @import_step) if remote_asset
+    end
+
+    def import_remote_asset(remote_asset, barcode, import_step)
+      Asset.create!(barcode: barcode, uuid: remote_asset.uuid).tap do |asset|
         FactChanges.new.tap do |updates|
           updates.replace_remote(asset, 'a', sequencescape_type_for_asset(remote_asset))
           updates.replace_remote(asset, 'remoteAsset', remote_asset.uuid)
-        end.apply(@import_step)
-        asset.refresh
+        end.apply(import_step)
+        asset.refresh_from_remote(remote_asset: remote_asset)
         asset.update_compatible_activity_type
       end
-      asset
+    end
+
+    def import_barcodes(barcodes)
+      @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')
+      SequencescapeClient.labware(barcode: barcodes).map do |remote_asset|
+        import_remote_asset(remote_asset, remote_asset.labware_barcode['human_barcode'], @import_step)
+      end
     end
 
     def create_local_asset(barcode, updates)
@@ -295,6 +305,33 @@ module Assets::Import
       class_name = sequencescape_type_for_asset(remote_asset)
       class_name != 'SampleTube'
     end
+
+    # Finds Assets with the provided barcodes in the local Assets table, and
+    # looks up any missing barcodes in Sequencescape, importing the assets if
+    # required. If a barcode is missing both locally, and in Sequencescape, it
+    # will not be included in the response. It is up to the caller to determine
+    # how to handle this. @note The behaviour differs from the singular
+    # #find_or_import_asset_with_barcode in that it will not also attempt to
+    # lookup by uuid, and will not automatically register fluidx barcodes
+    def find_or_import_assets_with_barcodes(barcodes, includes: :facts)
+      local_assets = Asset.includes(includes).where(barcode: barcodes).to_a
+      remote_assets = import_barcodes(barcodes - local_assets.pluck(:barcode))
+      local_assets + remote_assets
+    end
+
+    private
+
+    def find_asset_with_barcode(barcode)
+      asset = Asset.find_by_barcode(barcode) || Asset.find_by_uuid(barcode)
+
+      updates = FactChanges.new
+
+      if asset.nil? && TokenUtil.is_valid_fluidx_barcode?(barcode)
+        asset = import_barcode(barcode) || Asset.create_local_asset(barcode, updates)
+      end
+
+      asset&.refresh(updates)
+      asset
     end
   end
 end

@@ -1,12 +1,12 @@
 module Assets::Export
   class DuplicateLocations < StandardError; end
 
-  def update_sequencescape(_print_config, user, _step)
+  def update_sequencescape(user)
     FactChanges.new.tap do |updates|
       begin
         # remote (Sequencescape) updates
-        instance = SequencescapeClient.version_1_find_by_uuid(uuid)
-        instance = create_remote_asset unless instance
+        instance = SequencescapeClient.version_1_find_by_uuid(uuid) || create_remote_asset
+
         create_or_update_remote_contained_assets(instance, user) unless attributes_to_send.empty?
 
         # local (Samples Extraction) updates
@@ -53,13 +53,13 @@ module Assets::Export
     SBCF::SangerBarcode.new(prefix: prefix, number: number).human_barcode
   end
 
-  def update_wells(instance, updates)
-    instance.wells.each do |well|
-      fact = fact_well_at(well.location)
+  def update_wells(remote_plate, updates)
+    remote_plate.wells.each do |remote_well|
+      fact = fact_well_at(remote_well.location)
       if fact
-        w = fact.object_asset
-        if w && w.uuid != well.uuid
-          w.update_attributes(uuid: well.uuid)
+        local_well = fact.object_asset
+        if local_well && local_well.uuid != remote_well.uuid
+          local_well.update_attributes(uuid: remote_well.uuid)
           fact.update_attributes(is_remote?: true)
         end
       end
@@ -67,11 +67,11 @@ module Assets::Export
   end
 
   def fact_well_at(location)
-    facts.with_predicate('contains').select do |f|
+    facts.with_predicate('contains').detect do |f|
       if f.object_asset
         TokenUtil.unpad_location(f.object_asset.facts.with_predicate('location').first.object) == TokenUtil.unpad_location(location)
       end
-    end.first
+    end
   end
 
   def mark_as_updated(updates)

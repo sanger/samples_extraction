@@ -58,10 +58,20 @@ module Parsers
       end
 
       def find_or_import_asset_with_barcode(barcode)
-        Asset.find_or_import_asset_with_barcode(barcode)
+        asset_cache.fetch(barcode, nil)
       end
 
       protected
+
+      def asset_cache
+        @asset_cache ||= Asset.find_or_import_assets_with_barcodes(
+          @line_parser.barcodes,
+          # Include the facts, any associated objects (such as tube racks)
+          # and their associated facts
+          # It may make sense to tidy these up with explicit associations
+          includes: { facts: { object_asset: { facts: :object_asset } } }
+        ).index_by(&:barcode)
+      end
 
       def validate_parsed_data
         parse unless @parsed

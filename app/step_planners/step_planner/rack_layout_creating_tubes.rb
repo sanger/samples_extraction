@@ -27,7 +27,7 @@ module StepPlanner
     end
 
     def updates
-      ActiveRecord::Base.transaction { process.to_h }
+      ActiveRecord::Base.transaction { process }
     rescue InvalidDataParams => e
       { set_errors: e.errors }
     rescue StandardError => e

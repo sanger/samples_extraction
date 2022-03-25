@@ -138,13 +138,6 @@ RSpec.describe 'Assets::Import' do
     end
   end
 
-  shared_examples 'an attempted import' do
-    it 'should try to obtain the asset through the Sequencescape API' do
-      @asset = Asset.find_or_import_asset_with_barcode(@remote_asset.barcode)
-      expect(SequencescapeClient).to have_received(:find_by_uuid).with(@remote_asset.uuid)
-    end
-  end
-
   shared_examples 'a plate or tube rack' do
     it 'should create the corresponding facts from the json' do
       @asset = Asset.find_or_import_asset_with_barcode(@barcode_asset)
@@ -291,8 +284,6 @@ RSpec.describe 'Assets::Import' do
           stub_client_with_asset(SequencescapeClient, @remote_asset)
         end
 
-        it_behaves_like 'an attempted import'
-
         context 'when the supplier name has not been provided' do
           setup do
             sample_no_supplier_name = build_remote_sample(
@@ -335,7 +326,6 @@ RSpec.describe 'Assets::Import' do
         end
 
         it_behaves_like 'a plate or tube rack'
-        it_behaves_like 'an attempted import'
 
         context 'when the supplier sample name has not been provided to some samples' do
           setup do
@@ -396,7 +386,6 @@ RSpec.describe 'Assets::Import' do
         end
 
         it_behaves_like 'a plate or tube rack'
-        it_behaves_like 'an attempted import'
 
         context 'when the supplier sample name has not been provided to some samples' do
           setup do
@@ -420,6 +409,47 @@ RSpec.describe 'Assets::Import' do
           it_behaves_like 'a partial import of samples'
         end
       end
+    end
+  end
+
+  describe '#find_or_import_assets_with_barcodes' do
+    let(:local_barcode) { generate(:barcode) }
+    let(:remote_barcode) { generate(:barcode) }
+    let(:non_existant_barcode) { 'NOT_FOUND' }
+    let(:remote_labware) do
+      SequencescapeClientV2::Labware.new(uuid: SecureRandom.uuid, labware_barcode: { 'human_barcode' => remote_barcode }, type: 'tubes')
+    end
+    let(:full_remote_labware) { build_remote_tube(barcode: generate(:barcode), uuid: remote_labware.uuid, labware_barcode: remote_labware.labware_barcode) }
+    let(:local_asset) { Asset.create!(barcode: local_barcode) }
+
+    before do
+      local_asset
+      expect(SequencescapeClient).to receive(:labware).with(barcode: [remote_barcode, non_existant_barcode]).and_return([remote_labware])
+      # We still need this as we're currently immediately refreshing the resource from SS
+      allow(SequencescapeClient).to receive(:find_by_uuid).with(remote_labware.uuid).and_return(full_remote_labware)
+    end
+
+    subject(:find_or_import_assets_with_barcodes) do
+      Asset.find_or_import_assets_with_barcodes([local_barcode, remote_barcode, non_existant_barcode])
+    end
+
+    it 'imports only remote barcodes' do
+      expect { find_or_import_assets_with_barcodes }.to change(Asset, :count).by(1)
+    end
+
+    it 'does not return an asset that does not exist' do
+      expect(find_or_import_assets_with_barcodes.pluck(:barcode)).not_to include(non_existant_barcode)
+    end
+
+    it { is_expected.to(satisfy { |array| array.length == 2 }) }
+    it { is_expected.to all be_an Asset }
+
+    it 'returns local assets' do
+      expect(find_or_import_assets_with_barcodes).to include(local_asset)
+    end
+
+    it 'returns a newly registered remote labware' do
+      expect(find_or_import_assets_with_barcodes.pluck(:barcode)).to include(remote_barcode)
     end
   end
 end

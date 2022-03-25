@@ -35,7 +35,7 @@ class Condition < ApplicationRecord
   end
 
   def check_related_condition_group(cg, fact, related_assets = [], checked_condition_groups = [], wildcard_values = {})
-    related_asset = Asset.find(fact.object_asset_id)
+    related_asset = fact.object_asset
 
     # This condition does not support evaluating relations like:
     # ?a :t ?b . ?b :t ?c . ?c :t ?a .
@@ -43,12 +43,12 @@ class Condition < ApplicationRecord
     # we would need to pass as an argument the list of condition_groups valid up to
     # this point, in which the only thing we need to validate is the object in the relations.
     # For the moment these types of relations will remain unsupported
-    if checked_condition_groups.include?(cg)
-      compatible = (fact.predicate == predicate)
-    else
-      checked_condition_groups << cg
-      compatible = ((fact.predicate == predicate) && cg.compatible_with?(related_asset, related_assets, checked_condition_groups, wildcard_values))
-    end
+    compatible = if checked_condition_groups.include?(cg)
+                   fact.predicate == predicate
+                 else
+                   checked_condition_groups << cg
+                   (fact.predicate == predicate) && cg.compatible_with?(related_asset, related_assets, checked_condition_groups, wildcard_values)
+                 end
     related_assets.push(related_asset) if compatible
     compatible
   end
@@ -87,8 +87,7 @@ class Condition < ApplicationRecord
       if (object_condition_group_id.nil? || (fact.respond_to?(:object_asset_id) && fact.object_asset_id.nil?))
         ((fact.predicate == predicate) && (fact.object == object))
       else
-        cg = ConditionGroup.find(object_condition_group_id)
-        check_related_condition_group(cg, fact, related_assets,
+        check_related_condition_group(object_condition_group, fact, related_assets,
                                       checked_condition_groups, wildcard_values)
       end
     end

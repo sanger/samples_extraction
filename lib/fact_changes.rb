@@ -3,15 +3,18 @@ require 'changes_support/disjoint_list'
 require 'changes_support/transaction_scope'
 
 class FactChanges
+  ACTIONS = [
+    'set_errors', 'create_assets', 'create_asset_groups', 'delete_asset_groups',
+    'remove_facts', 'add_facts', 'delete_assets', 'add_assets', 'remove_assets'
+  ].freeze
+
   include ChangesSupport::TransactionScope
 
   attr_accessor :facts_to_destroy, :facts_to_add, :assets_to_create, :assets_to_destroy,
                 :assets_to_add, :assets_to_remove, :wildcards, :instances_from_uuid,
                 :asset_groups_to_create, :asset_groups_to_destroy, :errors_added,
                 :already_added_to_list, :instances_by_unique_id,
-                :facts_to_set_to_remote
-
-  attr_accessor :operations
+                :facts_to_set_to_remote, :operations
 
   def initialize(json = nil)
     @assets_updated = []
@@ -19,12 +22,7 @@ class FactChanges
     parse_json(json) unless json.nil?
   end
 
-  def parsing_valid?
-    @parsing_valid
-  end
-
   def reset
-    @parsing_valid = false
     @errors_added = []
 
     @facts_to_set_to_remote = []
@@ -95,14 +93,11 @@ class FactChanges
   end
 
   def parse_json(json)
-    obj = json.is_a?(String) ? JSON.parse(json) : json.deep_stringify_keys
-    ['set_errors', 'create_assets', 'create_asset_groups', 'delete_asset_groups',
-     'remove_facts', 'add_facts', 'delete_assets', 'add_assets', 'remove_assets'].each do |action_type|
-      if obj[action_type]
-        send(action_type, obj[action_type])
-      end
+    actions_data = json.is_a?(String) ? JSON.parse(json) : json.deep_stringify_keys
+    actions_data.slice(*ACTIONS).each_pair do |action_type, action_value|
+      send(action_type, action_value) if action_value
     end
-    @parsing_valid = true
+    true
   end
 
   def values_for_predicate(asset, predicate)
@@ -116,11 +111,11 @@ class FactChanges
     (actual_values + values_to_add - values_to_destroy)
   end
 
-  def _build_fact_attributes(s, p, o, options = {})
-    t = [s, p, o, options]
-    params = { asset: t[0], predicate: t[1], literal: !(t[2].kind_of?(Asset)) }
-    params[:literal] ? params[:object] = t[2] : params[:object_asset] = t[2]
-    params = params.merge(t[3]) if t[3]
+  def _build_fact_attributes(asset, predicate, object, options = {})
+    literal = !(object.kind_of?(Asset))
+    params = { asset: asset, predicate: predicate, literal: literal }
+    literal ? params[:object] = object : params[:object_asset] = object
+    params = params.merge(options) if options
     params
   end
 
@@ -134,13 +129,13 @@ class FactChanges
     # facts_to_add.push(track_object(params)) unless detected
   end
 
-  def add_facts(listOfLists)
-    listOfLists.each { |list| add(list[0], list[1], list[2]) }
+  def add_facts(list_of_lists)
+    list_of_lists.each { |list| add(list[0], list[1], list[2]) }
     self
   end
 
-  def remove_facts(listOfLists)
-    listOfLists.each { |list| remove_where(list[0], list[1], list[2]) }
+  def remove_facts(list_of_lists)
+    list_of_lists.each { |list| remove_where(list[0], list[1], list[2]) }
     self
   end
 
@@ -148,14 +143,14 @@ class FactChanges
     add(s, p, o, options.merge({ is_remote?: true })) if (s && p && o)
   end
 
-  def replace_remote(asset, p, o, options = {})
-    if (asset && p && o)
-      asset.facts.with_predicate(p).each do |fact|
+  def replace_remote(asset, predicate, object, options = {})
+    if (asset && predicate && object)
+      asset.facts.with_predicate(predicate).each do |fact|
         remove(fact)
         # In case they are not removed, at least they will be set as remote
         facts_to_set_to_remote << fact
       end
-      add_remote(asset, p, o, options)
+      add_remote(asset, predicate, object, options)
     end
   end
 
@@ -165,7 +160,7 @@ class FactChanges
     if f.kind_of?(Enumerable)
       facts_to_destroy << f.map { |o| o.attributes.symbolize_keys }
     elsif f.kind_of?(Fact)
-      facts_to_destroy << f.attributes.symbolize_keys if f
+      facts_to_destroy << f.attributes.symbolize_keys
     end
   end
 
@@ -274,7 +269,7 @@ class FactChanges
   end
 
   def is_new_record?(uuid)
-    !!(instances_from_uuid[uuid] && instances_from_uuid[uuid].new_record?)
+    !!(instances_from_uuid[uuid]&.new_record?)
   end
 
   def find_instance_of_class_by_uuid(klass, instance_or_uuid_or_id, create = false)

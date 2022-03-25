@@ -26,9 +26,9 @@ class StepType < ApplicationRecord
     select { |stype| stype.task_type == task_type }
   end
 
-  scope :for_reasoning, ->() { not_deprecated.where(:for_reasoning => true).order(priority: :desc) }
+  scope :for_reasoning, ->() { not_deprecated.where(for_reasoning: true).order(priority: :desc) }
 
-  scope :not_for_reasoning, ->() { not_deprecated.where(:for_reasoning => false) }
+  scope :not_for_reasoning, ->() { not_deprecated.where(for_reasoning: false) }
 
   def touch_activities
     activities.each do |activity|
