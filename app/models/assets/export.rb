@@ -16,7 +16,7 @@ module Assets::Export
         update_wells(instance, updates)
 
         updates.add(self, 'beforeBarcode', old_barcode) if old_barcode
-        updates.add_remote(self, 'purpose', class_name) if class_name
+        updates.add_remote(self, 'purpose', purpose_name) if purpose_name
         updates.remove(facts.with_predicate('barcodeType'))
         updates.add(self, 'barcodeType', 'SequencescapePlate')
 
@@ -35,7 +35,7 @@ module Assets::Export
   end
 
   def create_remote_asset
-    SequencescapeClient.create_plate(class_name, {}) if class_name
+    SequencescapeClient.create_plate(purpose_name) if purpose_name
   end
 
   def create_or_update_remote_contained_assets(instance, user)

@@ -231,25 +231,19 @@ class Asset < ApplicationRecord
   end
 
   def info_line
-    "#{class_name} #{aliquot} #{position_value}".strip
+    "#{purpose_name} #{aliquot} #{position_value}".strip
   end
 
-  def class_name
-    purposes_facts = facts.with_predicate('purpose')
-    if purposes_facts.count > 0
-      return purposes_facts.first.object
-    end
-
-    return ''
+  def purpose_name
+    # @todo: Falling back to an empty string, rather than nil feels a bit risky, but this maintains earlier behaviour.
+    # (We don't have any cases of facts with predicate purpose and value NULL)
+    facts.with_predicate('purpose').first&.object || ''
   end
 
   def aliquot
-    purposes_facts = facts.with_predicate('aliquotType')
-    if purposes_facts.count > 0
-      return purposes_facts.first.object
-    end
-
-    return ''
+    # @todo: Falling back to an empty string, rather than nil feels a bit risky, but this maintains tearlier behaviour.
+    # (We don't have any cases of facts with predicate aliquotType and value NULL)
+    facts.with_predicate('aliquotType').first&.object || ''
   end
 
   def self.class_type(facts)
