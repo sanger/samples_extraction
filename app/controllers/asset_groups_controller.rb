@@ -21,7 +21,6 @@ class AssetGroupsController < ApplicationController
     @assets = @asset_group.assets
 
     head :ok
-    # render json: { asset_group: {assets: @asset_group.assets.map(&:uuid) }}
   end
 
   def upload

@@ -6,7 +6,7 @@ require 'sequencescape'
 require 'sequencescape_client_v2'
 
 class SequencescapeClient
-  SELECT_FOR_IMPORT = 'uuid,labware_barcode'
+  SELECT_FOR_IMPORT = 'uuid,labware_barcode,receptacles'
   @purposes = nil
 
   def self.api_connection_options
@@ -66,20 +66,24 @@ class SequencescapeClient
   end
 
   def self.labware(conditions)
-    SequencescapeClientV2::Labware.select(
-      tubes: SELECT_FOR_IMPORT,
-      plates: SELECT_FOR_IMPORT,
-      tube_racks: SELECT_FOR_IMPORT
-    ).where(conditions)
+    SequencescapeClientV2::Labware
+      .includes('receptacles.aliquots.sample.sample_metadata')
+      .select(
+        tubes: SELECT_FOR_IMPORT,
+        plates: SELECT_FOR_IMPORT,
+        tube_racks: 'uuid,labware_barcode',
+        samples: 'sanger_sample_id,uuid,name',
+        sample_metadata: 'supplier_name,sample_common_name'
+      ).where(conditions)
   end
 
   # TODO: In most cases we should know what type of record we're looking up.
   def self.find_by(search_conditions)
     [
-      SequencescapeClientV2::Plate.includes('wells.aliquots.sample'),
-      SequencescapeClientV2::Tube.includes('aliquots.sample'),
-      SequencescapeClientV2::Well.includes('aliquots.sample'),
-      SequencescapeClientV2::TubeRack.includes('racked_tubes.tube.aliquots.sample')
+      SequencescapeClientV2::Plate.includes('wells.aliquots.sample.sample_metadata'),
+      SequencescapeClientV2::Tube.includes('aliquots.sample.sample_metadata'),
+      SequencescapeClientV2::Well.includes('aliquots.sample.sample_metadata'),
+      SequencescapeClientV2::TubeRack.includes('racked_tubes.tube.aliquots.sample.sample_metadata')
     ].each do |klass|
       begin
         search = klass.where(search_conditions).first

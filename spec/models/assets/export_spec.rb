@@ -102,13 +102,14 @@ RSpec.describe 'Assets::Export' do
     let(:user) { create :user, username: 'test' }
     let(:print_config) { { "Plate" => 'Pum', "Tube" => 'Pim' } }
     let(:plate) { build_remote_plate }
+    let(:plate_v2) { build_remote_v2_plate(uuid: plate.uuid) }
     let(:asset) { create :asset }
 
     it 'updates a plate in sequencescape' do
       allow(SequencescapeClient).to receive(:version_1_find_by_uuid).with(asset.uuid).and_return(nil)
       allow(SequencescapeClient).to receive(:version_1_find_by_uuid).with(plate.uuid).and_return(plate)
       allow(SequencescapeClient).to receive(:find_by_uuid).with(asset.uuid).and_return(nil)
-      allow(SequencescapeClient).to receive(:find_by_uuid).with(plate.uuid).and_return(plate)
+      allow(SequencescapeClient).to receive(:find_by_uuid).with(plate.uuid).and_return(plate_v2)
       allow(SequencescapeClient).to receive(:create_plate).and_return(plate)
       barcode = double('barcode')
       allow(barcode).to receive(:prefix).and_return('DN')

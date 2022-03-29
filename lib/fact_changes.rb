@@ -126,7 +126,6 @@ class FactChanges
     fact = _build_fact_attributes(s, p, o, options)
 
     facts_to_add << fact if fact
-    # facts_to_add.push(track_object(params)) unless detected
   end
 
   def add_facts(list_of_lists)
@@ -288,7 +287,7 @@ class FactChanges
     else
       found = instance_or_uuid_or_id
     end
-    _produce_error(["Element identified by #{instance_or_uuid_or_id} should be declared before using it"]) unless found
+    _produce_error(["#{klass} identified by '#{instance_or_uuid_or_id}' should be declared before using it"]) unless found
     found
   end
 

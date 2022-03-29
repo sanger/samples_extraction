@@ -1,11 +1,13 @@
 module Assets::Export
   class DuplicateLocations < StandardError; end
 
+  # NOTE: This is a little concerning, as it will only work for plates, and yet
+  # pushTo is was also being set for wells (and tubeRacks, but that may be intentional)
   def update_sequencescape(user)
     FactChanges.new.tap do |updates|
       begin
         # remote (Sequencescape) updates
-        instance = SequencescapeClient.version_1_find_by_uuid(uuid) || create_remote_asset
+        instance = SequencescapeClient.version_1_find_by_uuid(uuid) || create_remote_plate
 
         create_or_update_remote_contained_assets(instance, user) unless attributes_to_send.empty?
 
@@ -34,7 +36,7 @@ module Assets::Export
     end
   end
 
-  def create_remote_asset
+  def create_remote_plate
     SequencescapeClient.create_plate(purpose_name) if purpose_name
   end
 

@@ -241,7 +241,7 @@ class Asset < ApplicationRecord
   end
 
   def aliquot
-    # @todo: Falling back to an empty string, rather than nil feels a bit risky, but this maintains tearlier behaviour.
+    # @todo: Falling back to an empty string, rather than nil feels a bit risky, but this maintains earlier behaviour.
     # (We don't have any cases of facts with predicate aliquotType and value NULL)
     facts.with_predicate('aliquotType').first&.object || ''
   end

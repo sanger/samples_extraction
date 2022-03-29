@@ -6,7 +6,7 @@ RSpec.describe 'Assets::Import' do
 
   context '#refresh!' do
     let(:asset) { create :asset }
-    let(:plate) { build_remote_plate }
+    let(:plate) { build_remote_v2_plate }
 
     before do
       allow(asset).to receive(:_process_refresh)
@@ -55,7 +55,7 @@ RSpec.describe 'Assets::Import' do
 
   context '#refresh' do
     let(:asset) { create :asset }
-    let(:plate) { build_remote_plate }
+    let(:plate) { build_remote_v2_plate }
 
     before do
       allow(SequencescapeClient).to receive(:find_by_uuid).and_return(true)
@@ -320,7 +320,7 @@ RSpec.describe 'Assets::Import' do
 
       context 'when the asset is a plate' do
         setup do
-          @remote_asset = build_remote_plate(barcode: generate(:barcode))
+          @remote_asset = build_remote_v2_plate(barcode: generate(:barcode))
           @barcode_asset = @remote_asset.barcode
           stub_client_with_asset(SequencescapeClient, @remote_asset)
         end
@@ -342,7 +342,7 @@ RSpec.describe 'Assets::Import' do
                 build_remote_sample(sample_metadata: double('sample_metadata',
                                                             sample_common_name: 'species', supplier_name: 'a supplier name')))])
             ]
-            @remote_asset_without_supplier = build_remote_plate(barcode: generate(:barcode), wells: wells)
+            @remote_asset_without_supplier = build_remote_v2_plate(barcode: generate(:barcode), wells: wells)
             stub_client_with_asset(SequencescapeClient, @remote_asset_without_supplier)
           end
 
@@ -352,7 +352,7 @@ RSpec.describe 'Assets::Import' do
         context 'when the plate does not have aliquots in its wells' do
           setup do
             wells = ['A1', 'B1'].map { |l| build_remote_well(l, aliquots: []) }
-            @remote_asset_without_aliquots = build_remote_plate(barcode: generate(:barcode), wells: wells)
+            @remote_asset_without_aliquots = build_remote_v2_plate(barcode: generate(:barcode), wells: wells)
             stub_client_with_asset(SequencescapeClient, @remote_asset_without_aliquots)
           end
 
@@ -366,7 +366,7 @@ RSpec.describe 'Assets::Import' do
         context 'when the plate does not have samples in its wells' do
           setup do
             wells = ['A1', 'B1'].map { |l| build_remote_well(l, aliquots: [build_remote_aliquot(sample: nil)]) }
-            @remote_asset_without_samples = build_remote_plate(barcode: generate(:barcode), wells: wells)
+            @remote_asset_without_samples = build_remote_v2_plate(barcode: generate(:barcode), wells: wells)
             stub_client_with_asset(SequencescapeClient, @remote_asset_without_samples)
           end
 

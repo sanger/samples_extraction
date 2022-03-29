@@ -104,10 +104,8 @@ module InferenceEngines
       end
 
       def apply
-        if asset_group.assets.with_fact('pushTo', 'Sequencescape').count > 0
-          asset_group.assets.with_fact('pushTo', 'Sequencescape').each do |asset|
-            @updates.merge(asset.update_sequencescape(step.user))
-          end
+        asset_group.assets.with_fact('pushTo', 'Sequencescape').each do |asset|
+          @updates.merge(asset.update_sequencescape(step.user))
         end
         @updates.apply(step)
       end

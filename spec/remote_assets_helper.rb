@@ -15,8 +15,31 @@ module RemoteAssetsHelper
     my_double
   end
 
+  def build_remote_v2_plate(opts = {})
+    purpose = double('purpose', name: 'A purpose')
+    obj = {
+      uuid: SecureRandom.uuid,
+      wells: [build_remote_well('A1'), build_remote_well('A4')],
+      purpose: purpose,
+      type: 'plates',
+      sync?: true
+    }.merge(opts)
+
+    my_double = double('remote_asset', obj)
+    allow(my_double).to receive(:attributes).and_return(obj)
+    allow(my_double).to receive(:class).and_return(SequencescapeClientV2::Plate)
+
+    my_double
+  end
+
   def build_remote_well(location, opts = {})
-    double('well', { aliquots: [build_remote_aliquot], location: location, position: { "name" => location }, uuid: SecureRandom.uuid }.merge(opts))
+    double('well', {
+      aliquots: [build_remote_aliquot],
+      location: location,
+      position: { "name" => location },
+      uuid: SecureRandom.uuid,
+      sync?: false
+    }.merge(opts))
   end
 
   def build_remote_tube_rack(opts = {})
@@ -25,7 +48,8 @@ module RemoteAssetsHelper
       uuid: SecureRandom.uuid,
       racked_tubes: [build_remote_racked_tube('A1'), build_remote_racked_tube('A4')],
       purpose: purpose,
-      type: 'tube_racks'
+      type: 'tube_racks',
+      sync?: true
     }.merge(opts)
 
     my_double = double('remote_asset', obj)
@@ -50,7 +74,8 @@ module RemoteAssetsHelper
       type: 'tubes',
       plate_purpose: purpose,
       aliquots: [build_remote_aliquot],
-      labware_barcode: { 'human_barcode' => 'test' }
+      labware_barcode: { 'human_barcode' => 'test' },
+      sync?: false
     }.merge(opts)
     my_double = double('remote_asset', obj)
 

@@ -23,28 +23,38 @@ class ActivityChannel < ApplicationCable::Channel
   end
 
   def receive(data)
-    process_asset_group(strong_params_for_asset_group(data)) if (data["asset_group"])
-    process_activity(strong_params_for_activity(data)) if (data["activity"])
+    process_asset_group(strong_params_for_asset_group(data)) if data["asset_group"]
+    process_activity(strong_params_for_activity(data)) if data["activity"]
   end
 
   def process_asset_group(strong_params)
     asset_group = AssetGroup.find(strong_params[:id])
     assets = strong_params[:assets]
-    if asset_group && assets
-      begin
-        received_list = assets.filter_map do |uuid_or_barcode|
-          Asset.find_or_import_asset_with_barcode(uuid_or_barcode)
-        end
 
-        asset_group.update_with_assets(received_list)
+    # @todo This probably shouldn't a be a silent failure, and we should instead
+    # throw something akin to ActionController::ParameterMissing but I'm not
+    # currently sure what we expect here. So maintaining existing behaviour.
+    return unless assets
 
-        # asset_group.update_attributes(assets: received_list)
-        # asset_group.touch
-      rescue Errno::ECONNREFUSED => e
-        asset_group.activity.send_wss_event({ error: { type: 'danger', msg: 'Cannot connect with sequencescape' } })
-      rescue StandardError => e
-        asset_group.activity.send_wss_event({ error: { type: 'danger', msg: e.message } })
-      end
+    # @note The array here can contain both asset barcodes, and uuids, or even a mixture of the
+    # two.
+    asset_uuids, asset_barcodes = assets.partition { |identifier| TokenUtil.is_uuid?(identifier) }
+
+    begin
+      uuid_assets = Asset.where(uuid: asset_uuids).to_a
+      barcode_assets = Asset.find_or_import_assets_with_barcodes(asset_barcodes)
+
+      # Maintaining existing behaviour: register previously unknown fluidx barcodes
+      fluidx_barcodes = asset_barcodes.select { |bc| TokenUtil.is_valid_fluidx_barcode?(bc) }
+      missing_barcodes = fluidx_barcodes - barcode_assets.map(&:barcode)
+      facts = FactChanges.new
+      generated_assets = missing_barcodes.map { |bc| Asset.create_local_asset(bc, facts) }
+
+      asset_group.update_with_assets(uuid_assets + barcode_assets + generated_assets)
+    rescue Errno::ECONNREFUSED => e
+      asset_group.activity.send_wss_event({ error: { type: 'danger', msg: 'Cannot connect with sequencescape' } })
+    rescue StandardError => e
+      asset_group.activity.send_wss_event({ error: { type: 'danger', msg: e.message } })
     end
   end
 

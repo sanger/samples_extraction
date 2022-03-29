@@ -54,7 +54,6 @@ RSpec.describe AssetGroupsController, type: :controller do
     context "when the asset is not in the database" do
       let(:barcode) { generate :barcode }
       let(:uuid) { SecureRandom.uuid }
-      let(:SequencescapeClient) { double('sequencescape_client') }
       let(:remote_asset) { build_remote_tube(barcode: barcode, uuid: uuid) }
 
       before do
@@ -63,7 +62,9 @@ RSpec.describe AssetGroupsController, type: :controller do
 
       context "when it is in Sequencescape" do
         context 'finding by uuid' do
-          it "retrieves the asset from Sequencescape" do
+          # NOTE: We previously had an innaccurate mock making this test pass.
+          # We're just pulling assets from SS based on barcode.
+          xit "retrieves the asset from Sequencescape" do
             expect {
               post :update, params: { :asset_group => { :assets => [uuid] },
                                       :id => asset_group.id, :activity_id => activity.id }
