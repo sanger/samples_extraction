@@ -23,43 +23,44 @@ module StepPlanner
   class MoveBarcodesFromTubeRackToPlate
     attr_reader :asset_group
 
+    delegate :assets, to: :asset_group
+
     def initialize(asset_group_id, _step_id)
-      @asset_group = AssetGroup.find(asset_group_id)
+      @asset_group = AssetGroup.includes(assets: { facts: { object_asset: :facts } }).find(asset_group_id)
     end
 
     def assets_compatible_with_step_type
-      [plate, tube_rack].flatten.any?
+      # @note I'm not sure why any? is accepted here, I'd have thought we'd want both
+      # plus failing silently in the event we have nothing to do seem undesireable
+      [plate, tube_rack].any?
     end
 
     def plate
-      # TODO: Scope for improvement here, just adapted it sufficiently to make rubocop happy as I want to keep this
-      # commit focussed on the move to using the same process
-      asset_group.assets.detect { |a| a.facts.exists?(predicate: 'a', object: 'Plate') }
+      @plate ||= assets.detect { |a| a.predicate_matching?('a', 'Plate') }
     end
 
     def tube_rack
-      # TODO: Scope for improvement here, just adapted it sufficiently to make rubocop happy as I want to keep this
-      # commit focussed on the move to using the same process
-      asset_group.assets.detect { |a| a.facts.exists?(predicate: 'a', object: 'TubeRack') }
+      @tube_rack ||= assets.detect { |a| a.predicate_matching?('a', 'TubeRack') }
     end
 
     def wells_for(asset)
-      asset.facts.where(predicate: 'contains').map(&:object_asset)
+      asset.facts.with_predicate('contains').map(&:object_asset)
     end
 
-    def well_at_location(asset, location)
-      wells_for(asset).detect do |w|
-        location_facts = w.facts.where(predicate: 'location')
-        if location_facts.count == 1
-          location_fact = location_facts.first
-          (TokenUtil.pad_location(location_fact.object) == TokenUtil.pad_location(location))
-        end
+    def index_wells_in(asset)
+      wells_for(asset).index_by do |w|
+        location_facts = w.facts.with_predicate('location').map(&:object).uniq
+        # We don't seem to have any case of this occurring in the production database, although there are some historic
+        # records with multiple location facts with the same location.
+        raise StandardError, "Could not identify location for Asset #{asset.id}. Possible locations: #{location_facts}" unless location_facts.one?
+
+        TokenUtil.pad_location(location_facts.first)
       end
     end
 
     def traverse_wells(asset)
       wells_for(asset).each do |w|
-        location = w.facts.where(predicate: 'location').first.object
+        location = w.facts.with_predicate('location').first.object
         yield w, TokenUtil.pad_location(location)
       end
     end
@@ -67,8 +68,9 @@ module StepPlanner
     def process
       FactChanges.new.tap do |updates|
         if assets_compatible_with_step_type
+          plate_wells = index_wells_in(plate)
           traverse_wells(tube_rack) do |well_from_tube_rack, location|
-            well_from_plate = well_at_location(plate, location)
+            well_from_plate = plate_wells.fetch(TokenUtil.pad_location(location))
             barcode = well_from_tube_rack.barcode
             updates.remove_where(well_from_tube_rack, 'barcode', barcode)
             updates.add(well_from_tube_rack, 'previousBarcode', barcode)

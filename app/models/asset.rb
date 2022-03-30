@@ -25,6 +25,14 @@ class Asset < ApplicationRecord
         super
       end
     end
+
+    def predicate_matching?(predicate, value)
+      if loaded?
+        with_predicate(predicate).any? { |fact| fact.object == value }
+      else
+        exists?(predicate: 'a', object: 'Plate')
+      end
+    end
   end
 
   has_many :asset_groups_assets, dependent: :destroy
@@ -53,17 +61,9 @@ class Asset < ApplicationRecord
     joins(:activities).where(:activities => { :activity_type_id => activity_type.id })
   }
 
-  scope :not_started, ->() {
-    with_fact('is', 'NotStarted')
-  }
-
-  scope :started, ->() {
-    with_fact('is', 'Started')
-  }
-
-  scope :for_printing, ->() {
-    where.not(barcode: nil)
-  }
+  scope :not_started, ->() { with_fact('is', 'NotStarted') }
+  scope :started, ->() { with_fact('is', 'Started') }
+  scope :for_printing, ->() { where.not(barcode: nil) }
 
   scope :assets_for_queries, ->(queries) {
     queries.each_with_index.reduce(Asset) do |memo, list|
@@ -87,6 +87,8 @@ class Asset < ApplicationRecord
       end
     end
   }
+
+  delegate :predicate_matching?, to: :facts
 
   def short_description
     "#{aliquot_type} #{class_type} #{barcode.blank? ? '#' : barcode}".chomp
