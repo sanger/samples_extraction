@@ -4,12 +4,6 @@ require 'open3'
 module InferenceEngines
   module Runner
     class StepExecution
-      # Temporary constant to assist refactor
-      # @todo Remove this and migrate actions instead
-      CONVERTED_CLASS_ACTIONS = {
-        'move_barcodes_from_tube_rack_to_plate.rb' => 'StepPlanner::MoveBarcodesFromTubeRackToPlate',
-        'rack_layout_creating_tubes.rb' => 'StepPlanner::RackLayoutCreatingTubes'
-      }.freeze
       include StepExecutionProcess
 
       attr_accessor :step, :asset_group, :original_assets,
@@ -37,7 +31,7 @@ module InferenceEngines
       end
 
       def step_action
-        CONVERTED_CLASS_ACTIONS.fetch(@step.step_type.step_action, @step.step_type.step_action)
+        @step.step_type.step_action
       end
 
       def handled_by_class?

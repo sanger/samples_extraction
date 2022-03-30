@@ -19,7 +19,7 @@
       ?q :a :File .
     }=>{}.
     }],
-  ['Rack Layout creating tubes', 'rack_layout_creating_tubes.rb', %Q{
+  ['Rack Layout creating tubes', 'StepPlanner::RackLayoutCreatingTubes', %Q{
     {
       ?p :contains ?q .
       ?p :a :TubeRack .
