@@ -36,17 +36,6 @@ module InferenceEngines
         end
       end
 
-      def bm(step)
-        puts "=" * 80
-        puts "#{step} STARTING"
-        t = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-        r = yield
-        t2 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-        puts "=" * 80
-        puts "#{step} TOOK #{t2 - t}"
-        r
-      end
-
       def step_action
         CONVERTED_CLASS_ACTIONS.fetch(@step.step_type.step_action, @step.step_type.step_action)
       end
@@ -57,7 +46,7 @@ module InferenceEngines
 
       def generate_plan
         if handled_by_class?
-          bm(:generate_plan) { generate_plan_from_class }
+          generate_plan_from_class
         else
           generate_plan_from_external_process
         end
@@ -67,9 +56,9 @@ module InferenceEngines
         klass = step_action.constantize
 
         step_planner = klass.new(@asset_group.id, @step.id)
-        @content = bm(:sp_updates) { step_planner.updates }
-        bm(:uat) { step.update_attributes(output: @content) }
-        @updates = bm(:FCN) { @content }
+        @content = step_planner.updates
+        step.update_attributes(output: @content)
+        @updates = @content
       end
 
       def generate_plan_from_external_process
