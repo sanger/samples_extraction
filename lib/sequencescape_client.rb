@@ -43,7 +43,7 @@ class SequencescapeClient
     purpose.plates.create!({})
   end
 
-  def self.get_remote_asset(barcode)
+  def self.find_by_barcode(barcode)
     find_by(barcode: barcode)
   end
 

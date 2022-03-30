@@ -147,7 +147,7 @@ module Assets::Import
   module ClassMethods
     def import_barcode(barcode)
       @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')
-      remote_asset = SequencescapeClient::get_remote_asset(barcode)
+      remote_asset = SequencescapeClient::find_by_barcode(barcode)
 
       import_remote_asset(remote_asset, barcode, @import_step) if remote_asset
     end
