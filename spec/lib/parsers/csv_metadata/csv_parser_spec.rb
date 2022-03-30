@@ -24,7 +24,7 @@ RSpec.describe Parsers::CsvMetadata::CsvParser do
       end
 
       @content = File.read('test/data/metadata.csv')
-      @assets = 96.times.map do |i|
+      @assets = Array.new(96) do |i|
         FactoryBot.create(:asset, {
                             :barcode => 'FR' + (11200002 + i).to_s
                           })

@@ -35,7 +35,7 @@ RSpec.describe "Steps::QueuableJob" do
       end
 
       context 'when it has several steps configured' do
-        let(:my_steps) { 5.times.map { build_instance_with_activity } }
+        let(:my_steps) { Array.new(5) { build_instance_with_activity } }
         it 'does not execute any of the steps' do
           my_steps.reverse.reduce(nil) do |next_step, step|
             step.update_attributes(next_step: next_step)
@@ -112,7 +112,7 @@ RSpec.describe "Steps::QueuableJob" do
         end
       end
       context 'when it has several steps configured' do
-        let(:my_steps) { 5.times.map { build_instance_with_activity } }
+        let(:my_steps) { Array.new(5) { build_instance_with_activity } }
 
         context 'when all the steps are correct' do
           it 'executes all steps until the last one' do

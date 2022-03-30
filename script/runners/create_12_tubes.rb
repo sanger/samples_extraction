@@ -2,9 +2,9 @@ return unless ARGV.any? { |s| s.match(".json") }
 
 TOTAL_NUMBER = 12
 
-tubes = TOTAL_NUMBER.times.map { |i| "?p#{i}" }
-samples = TOTAL_NUMBER.times.map { |i| "?q#{i}" }
-sanger_sample_id = TOTAL_NUMBER.times.map { |i| "SAMPLE#{i}" }
+tubes = Array.new(TOTAL_NUMBER) { |i| "?p#{i}" }
+samples = Array.new(TOTAL_NUMBER) { |i| "?q#{i}" }
+sanger_sample_id = Array.new(TOTAL_NUMBER) { |i| "SAMPLE#{i}" }
 study_name = "STDY1"
 
 f1 = tubes.each_with_index.map { |t, i| [t, 'a', 'SampleTube'] }

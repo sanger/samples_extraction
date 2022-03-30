@@ -81,7 +81,7 @@ module SupportN3
     if create_assets
       asset = Asset.find_or_create_by(:name => name)
     else
-      asset = created_assets.select { |a| a.name == name }.first
+      asset = created_assets.find { |a| a.name == name }
       unless asset
         asset = Asset.create(:name => name)
         created_assets.push(asset)
@@ -91,7 +91,7 @@ module SupportN3
   end
 
   def self.is_literal?(element, quads)
-    element.literal? || quads.select { |q| q[0] == element }.count == 0
+    element.literal? || quads.none? { |q| q[0] == element }
   end
 
   def self.load_step_actions(content, options = {})

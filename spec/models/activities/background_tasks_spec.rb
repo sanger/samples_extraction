@@ -17,7 +17,7 @@ RSpec.describe 'BackgroundTasks' do
   let(:step) { create :step, step_type: step_type }
 
   context '#create_background_steps' do
-    let(:list_of_tasks) { 5.times.map { DummyBackgroundStep } }
+    let(:list_of_tasks) { Array.new(5) { DummyBackgroundStep } }
     it 'creates the list of steps' do
       activity.create_background_steps(list_of_tasks, {})
       expect(Step.all.count).to eq(5)
@@ -34,7 +34,7 @@ RSpec.describe 'BackgroundTasks' do
   end
 
   context '#create_connected_tasks' do
-    let(:list_of_tasks) { 5.times.map { DummyBackgroundStep } }
+    let(:list_of_tasks) { Array.new(5) { DummyBackgroundStep } }
 
     let(:other_step) { create :step, step_type: step_type }
     context 'when it does not have any background task defined' do

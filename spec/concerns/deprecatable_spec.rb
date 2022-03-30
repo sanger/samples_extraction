@@ -8,7 +8,7 @@ shared_examples_for "deprecatable" do
   let(:model) { described_class }
 
   it "deprecates all the instances of the class with the same name" do
-    deprecatable_list = 10.times.map { build_instance }
+    deprecatable_list = Array.new(10) { build_instance }
 
     expect(model.all.count).to eq(deprecatable_list.count)
     expect(model.visible.count).to eq(deprecatable_list.count)

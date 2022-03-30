@@ -60,7 +60,7 @@ class Action < ApplicationRecord
 
   def destinations(asset_group)
     if object_condition_group.nil?
-      sources(asset_group).length.times.map { object }
+      Array.new(sources(asset_group).length) { object }
     else
       asset_group.classified_by_condition_group(object_condition_group)
     end
@@ -72,7 +72,7 @@ class Action < ApplicationRecord
         if (asset_group.classified_by_condition_group(subject_condition_group).length > 0)
           assets = asset_group.classified_by_condition_group(subject_condition_group)
         else
-          assets = num_assets_to_create(asset_group).times.map { Asset.new }
+          assets = Array.new(num_assets_to_create(asset_group)) { Asset.new }
           updates.create_assets(assets)
           updates.add_assets([[asset_group, assets]])
           # asset_group.assets << assets

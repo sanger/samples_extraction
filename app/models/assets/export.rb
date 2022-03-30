@@ -119,18 +119,15 @@ module Assets::Export
     return nil unless well.has_sample?
 
     # extract the 'facts' that we want to send to Sequencescape for creation of wells
-    well.facts.reduce({}) do |memo, fact|
-      if (['sample_tube'].include?(fact.predicate))
+    well.facts.each_with_object({}) do |fact, memo|
+      case fact.predicate
+      when 'sample_tube'
         memo["#{fact.predicate}_uuid".to_sym] = fact.object_asset.uuid
-      end
-      if (fact.predicate == 'location')
+      when 'location'
         memo[fact.predicate.to_sym] = TokenUtil.unpad_location(fact.object)
-      end
-      if (['aliquotType', 'sanger_sample_id',
-           'sanger_sample_name', 'sample_uuid'].include?(fact.predicate))
+      when 'aliquotType', 'sanger_sample_id', 'sanger_sample_name', 'sample_uuid'
         memo[fact.predicate.to_sym] = TokenUtil.unquote(fact.object)
       end
-      memo
     end
   end
 end

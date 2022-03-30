@@ -152,7 +152,7 @@ RSpec.describe 'ChangesSupport::DisjointList' do
 
     context 'with a group of disjoint lists' do
       let(:lists) {
-        l = 5.times.map { ChangesSupport::DisjointList.new([]) }
+        l = Array.new(5) { ChangesSupport::DisjointList.new([]) }
         l[0].add_disjoint_list(l[1])
         l[0].add_disjoint_list(l[2])
         l[0].add_disjoint_list(l[3])
@@ -388,8 +388,8 @@ RSpec.describe 'ChangesSupport::DisjointList' do
       end
 
       context 'when merging a chain of objects' do
-        let(:winners) { 6.times.map { ChangesSupport::DisjointList.new([]) } }
-        let(:losers) { 6.times.map { ChangesSupport::DisjointList.new([]) } }
+        let(:winners) { Array.new(6) { ChangesSupport::DisjointList.new([]) } }
+        let(:losers) { Array.new(6) { ChangesSupport::DisjointList.new([]) } }
         let(:list) {
           winners.zip(losers).map { |l|
             l[0].add_disjoint_list(l[1])

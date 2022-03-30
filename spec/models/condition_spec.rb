@@ -22,7 +22,7 @@ RSpec.describe Condition, type: :model do
   describe 'wildcard creation on compatible_with()' do
     # assets, required_assets=nil, checked_condition_groups=[], wildcard_values={})
     setup do
-      @assets = 5.times.map do |i|
+      @assets = Array.new(5) do |i|
         facts = [
           FactoryBot.create(:fact, { :predicate => 'a', :object => 'Tube' })
         ]
@@ -31,7 +31,7 @@ RSpec.describe Condition, type: :model do
         FactoryBot.create(:asset, :facts => facts)
       end
 
-      @wells = 5.times.map do |i|
+      @wells = Array.new(5) do |i|
         facts = [
           FactoryBot.create(:fact, { :predicate => 'a', :object => 'Well' })
         ]

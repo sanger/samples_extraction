@@ -18,7 +18,7 @@ RSpec.describe 'TransferTubesToTubeRackByPosition' do
     ].flatten)
   }
   let(:tubes) {
-    5.times.map { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
+    Array.new(5) { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
   }
   let(:instance) {
     TransferTubesToTubeRackByPosition.new(asset_group: group)
@@ -38,7 +38,7 @@ RSpec.describe 'TransferTubesToTubeRackByPosition' do
       end
       context 'when only some of the tubes are related with the rack' do
         let(:unrelated_tubes) {
-          5.times.map { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
+          Array.new(5) { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
         }
         before do
           group.assets << unrelated_tubes
@@ -171,7 +171,7 @@ RSpec.describe 'TransferTubesToTubeRackByPosition' do
       end
       context 'when there are no more space left in the rack' do
         let(:tubes) {
-          7.times.map { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
+          Array.new(7) { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
         }
         it 'produces an error' do
           set_errors = instance.process.to_h[:set_errors]

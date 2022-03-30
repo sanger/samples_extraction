@@ -65,50 +65,37 @@ module TokenUtil
   end
 
   def self.to_asset_group_name(wildcard)
-    return wildcard if wildcard.nil?
-
-    wildcard.gsub('?', '')
+    wildcard&.delete('?')
   end
 
-  def self.generate_positions(letters, columns)
-    size = letters.size * columns.size
-    location_for_position = size.times.map do |i|
-      "#{letters[(i % letters.length).floor]}#{pad((columns[(i / letters.length).floor]).to_s, '0', 2)}"
-    end
+  def self.generate_positions(rows, columns)
+    columns.flat_map { |col| rows.map { |row| "#{row}#{pad(col, '0', 2)}" } }
   end
 
   def self.pad(str, chr, size)
-    "#{(size - str.size).times.map { chr }.join}#{str}"
+    str.rjust(size, chr)
   end
 
   def self.unpad_location(location)
     return location unless location
 
-    loc = location.match(/(\w)(0*)(\d*)/)
-    loc[1] + loc[3]
+    location.match(/(\w)0*(\d*)/).captures.join
   end
 
   def self.pad_location(location)
     return location unless location
 
-    parts = location.match(LOCATION_REGEXP)
-    return nil if parts.length == 0
-
-    letter = parts[1]
-    number = parts[2]
-    number = TokenUtil.pad(number, "0", 2) unless number.length == 2
-    "#{letter}#{number}"
+    letter, number = location.match(LOCATION_REGEXP)&.captures || raise("Invalid location: #{location}")
+    "#{letter}#{pad(number, '0', 2)}"
   end
 
   def self.quote(str)
     return str unless str
 
-    "\"#{str}\""
+    %("#{str}")
   end
 
   def self.unquote(str)
-    return str unless str
-
-    str.gsub(/\"/, "")
+    str&.delete('"')
   end
 end

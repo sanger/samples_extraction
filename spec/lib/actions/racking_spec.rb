@@ -129,9 +129,7 @@ RSpec.describe Actions::Racking do
 
   describe '#fact_changes_for_rack_when_unracking_tubes' do
     before do
-      @tubes = 15.times.map do |line|
-        create(:asset)
-      end
+      @tubes = create_list :asset, 15
       @tubes.each do |tube|
         asset.facts << create(:fact, predicate: 'contains', object_asset: tube)
       end
@@ -174,9 +172,7 @@ RSpec.describe Actions::Racking do
 
   describe '#fact_changes_for_rack_when_racking_tubes' do
     before do
-      @tubes = 15.times.map do |line|
-        create(:asset)
-      end
+      @tubes = create_list :asset, 15
     end
     it 'returns all the different studies for this rack' do
       @tubes.first.facts << create(:fact, predicate: 'study_name', object: 'STDY2')
@@ -194,18 +190,18 @@ RSpec.describe Actions::Racking do
         tube.facts << create(:fact, predicate: 'aliquotType', object: 'DNA') unless idx == 0
       end
       updates = fact_changes_for_rack_when_racking_tubes(asset, @tubes)
-      expect(updates.to_h[:add_facts].select do |triple|
+      expect(updates.to_h[:add_facts].find do |triple|
         triple[1] == 'purpose'
-      end.first[2]).to eq('DNA Stock Plate')
+      end[2]).to eq('DNA Stock Plate')
     end
     it 'generates the RNA stock plate purpose' do
       @tubes.each_with_index do |tube, idx|
         tube.facts << create(:fact, predicate: 'aliquotType', object: 'RNA') unless idx == 0
       end
       updates = fact_changes_for_rack_when_racking_tubes(asset, @tubes)
-      expect(updates.to_h[:add_facts].select do |triple|
+      expect(updates.to_h[:add_facts].find do |triple|
         triple[1] == 'purpose'
-      end.first[2]).to eq('RNA Stock Plate')
+      end[2]).to eq('RNA Stock Plate')
     end
   end
 

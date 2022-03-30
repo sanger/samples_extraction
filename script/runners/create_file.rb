@@ -7,7 +7,7 @@ num = 0
 barcodes = []
 while (num < NUM_BARCODES) do
   number = (rand * 999999).floor.to_s
-  barcode = ["FR"].concat((6 - number.length).times.map { "0" }).concat([number]).join
+  barcode = ["FR"].concat(Array.new((6 - number.length)) { "0" }).concat([number]).join
   found = Asset.find_by(barcode: barcode)
   unless found
     barcodes.push(barcode)
@@ -18,7 +18,7 @@ puts
 
 letters = ("A".."H").to_a
 columns = (1..12).to_a
-location_for_position = NUM_BARCODES.times.map do |i|
+location_for_position = Array.new(NUM_BARCODES) do |i|
   "#{letters[(i / columns.length).floor]}#{(columns[i % columns.length]).to_s}"
 end
 

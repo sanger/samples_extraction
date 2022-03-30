@@ -5,14 +5,10 @@ RSpec.describe 'Steps::Stoppable' do
   let(:step_type) { create(:step_type) }
 
   let(:previous_steps) {
-    2.times.map {
-      create(:step, state: Step::STATE_RUNNING, activity: activity, asset_group: asset_group, step_type: step_type)
-    }
+    create_list(:step, 2, state: Step::STATE_RUNNING, activity: activity, asset_group: asset_group, step_type: step_type)
   }
   let(:next_steps) {
-    2.times.map {
-      create(:step, state: Step::STATE_RUNNING, activity: activity, asset_group: asset_group, step_type: step_type)
-    }
+    create_list(:step, 2, state: Step::STATE_RUNNING, activity: activity, asset_group: asset_group, step_type: step_type)
   }
 
   let(:step) { create(:step, state: previous_state, activity: activity, asset_group: asset_group, step_type: step_type) }
@@ -69,14 +65,10 @@ RSpec.describe 'Steps::Stoppable' do
     }
 
     let(:next_steps_stopped) {
-      2.times.map {
-        create(:step, state: Step::STATE_STOPPED, activity: activity, asset_group: asset_group, step_type: step_type)
-      }
+      create_list(:step, 2, state: Step::STATE_STOPPED, activity: activity, asset_group: asset_group, step_type: step_type)
     }
     let(:next_steps_not_stopped) {
-      2.times.map {
-        create(:step, state: Step::STATE_FAILED, activity: activity, asset_group: asset_group, step_type: step_type)
-      }
+      create_list(:step, 2, state: Step::STATE_FAILED, activity: activity, asset_group: asset_group, step_type: step_type)
     }
     let(:next_steps) { [next_steps_stopped, next_steps_not_stopped].flatten }
 

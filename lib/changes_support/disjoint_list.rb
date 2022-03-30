@@ -14,6 +14,8 @@ class ChangesSupport::DisjointList
 
   DISABLED_NAME = "DISABLED"
 
+  delegate :each, :length, :[], :flatten, :uniq!, to: :list
+
   def initialize(list)
     @name = "object_id_#{object_id}"
 
@@ -44,7 +46,7 @@ class ChangesSupport::DisjointList
     store_name = location_for_unique_id[unique_id]
     return nil if store_name.nil? || store_name == DISABLED_NAME
 
-    @disjoint_lists.select { |l| l.name == store_name }.first
+    @disjoint_lists.find { |l| l.name == store_name }
   end
 
   def enabled?(element)
@@ -83,26 +85,6 @@ class ChangesSupport::DisjointList
     end
   end
 
-  def length
-    @list.length
-  end
-
-  def each(&block)
-    @list.each(&block)
-  end
-
-  def [](index)
-    @list[index]
-  end
-
-  def flatten
-    @list.flatten
-  end
-
-  def uniq!
-    @list.uniq!
-  end
-
   def <<(element)
     if element.kind_of?(Array)
       element.each { |e| add(e) }
@@ -138,13 +120,11 @@ class ChangesSupport::DisjointList
   end
 
   def sum_function_for(value)
-    return value.hash
-    # Value to create checksum and seed
-    # XXhash.xxh32(value, SEED_FOR_UNIQUE_IDS)
+    value.hash
   end
 
   def unique_id_for_element(element)
-    return _unique_id_for_element(element, 0)
+    _unique_id_for_element(element, 0)
   end
 
   def concat_disjoint_list(disjoint_list)

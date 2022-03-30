@@ -14,6 +14,8 @@ class ActivityType < ApplicationRecord
   has_many :activity_type_compatibilities
   has_many :assets, -> { distinct }, :through => :activity_type_compatibilities
 
+  scope :alphabetical, -> { order(name: :asc) }
+
   include Deprecatable
 
   def touch_activities

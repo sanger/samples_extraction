@@ -12,9 +12,9 @@ module Parsers
       end
 
       def validator
-        @parser.components[:fields].select do |entry|
+        @parser.components[:fields].find do |entry|
           entry[:header] == @header
-        end.first[:validator]
+        end[:validator]
       end
 
       def initialize(datum, header, parser)

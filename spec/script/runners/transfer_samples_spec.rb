@@ -4,7 +4,7 @@ require Rails.root.to_s + '/script/runners/transfer_samples'
 RSpec.describe 'TransferSamples' do
   let(:sample) { create(:asset, facts: [create(:fact, predicate: 'sample_name', object: 'sample1')]) }
   let(:sources) {
-    5.times.map {
+    Array.new(5) {
       create(:asset, facts: [
                create(:fact, predicate: 'a', object: 'Tube'),
                create(:fact, predicate: 'study_name', object: 'Study 1'),
@@ -13,7 +13,7 @@ RSpec.describe 'TransferSamples' do
     }
   }
   let(:destinations) {
-    5.times.map { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
+    Array.new(5) { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
   }
   let(:instance) {
     TransferSamples.new(asset_group: group)
@@ -25,11 +25,11 @@ RSpec.describe 'TransferSamples' do
       study_names_transferred = added_facts.select do |triple|
         triple[1] == 'study_name'
       end.map { |triple| [triple[0], triple[2]] }
-      expect(study_names_transferred).to eq(destinations.map(&:uuid).zip(destinations.length.times.map { 'Study 1' }))
+      expect(study_names_transferred).to eq(destinations.map(&:uuid).zip(Array.new(destinations.length) { 'Study 1' }))
       sample_tubes_transferred = added_facts.select do |triple|
         triple[1] == 'sample_tube'
       end.map { |triple| [triple[0], triple[2]] }
-      expect(sample_tubes_transferred).to eq(destinations.map(&:uuid).zip(destinations.length.times.map { sample.uuid }))
+      expect(sample_tubes_transferred).to eq(destinations.map(&:uuid).zip(Array.new(destinations.length) { sample.uuid }))
     end
     context 'when there is no inverse relation transferredFrom' do
       it 'creates the inverse relation transferredFrom' do

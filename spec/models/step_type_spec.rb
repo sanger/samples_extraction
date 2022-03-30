@@ -28,9 +28,9 @@ RSpec.describe StepType, type: :model do
 
   describe '#for_task_type' do
     it 'returns the step types for that task_type' do
-      runners = 2.times.map { create(:step_type, step_action: 'myscript.rb') }
-      inferences = 2.times.map { create(:step_type, step_action: 'other.n3') }
-      others = 2.times.map { create(:step_type) }
+      runners = create_list(:step_type, 2, step_action: 'myscript.rb')
+      inferences = create_list(:step_type, 2, step_action: 'other.n3')
+      others = create_list(:step_type, 2)
       expect(StepType.for_task_type('runner')).to eq(runners)
       expect(StepType.for_task_type('cwm')).to eq(inferences)
       expect(StepType.all).to eq(runners.concat(inferences).concat(others))
@@ -116,7 +116,7 @@ RSpec.describe StepType, type: :model do
       describe "with special configuration" do
         describe "related with cardinality" do
           setup do
-            @assets = 5.times.map { |i|
+            @assets = Array.new(5) { |i|
               FactoryBot.create :asset, { :facts => [
                 FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
                 FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
@@ -150,7 +150,7 @@ RSpec.describe StepType, type: :model do
     describe 'matching more than one asset' do
       describe 'for the same condition group' do
         setup do
-          @assets = 5.times.map { |i|
+          @assets = Array.new(5) { |i|
             FactoryBot.create :asset, { :facts => [
               FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
               FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
@@ -190,14 +190,14 @@ RSpec.describe StepType, type: :model do
 
           @step_type.condition_groups << @cg2
 
-          @assets = 5.times.map { |i|
+          @assets = Array.new(5) { |i|
             FactoryBot.create :asset, { :facts => [
               FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
               FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
             ] }
           }
 
-          @racks = 5.times.map { |i|
+          @racks = Array.new(5) { |i|
             FactoryBot.create :asset, { :facts => [
               FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
             ] }
@@ -237,7 +237,7 @@ RSpec.describe StepType, type: :model do
 
         describe 'with assets that overlap between condition groups' do
           it 'is compatible with overlapped assets' do
-            @tubes_and_racks = 7.times.map do
+            @tubes_and_racks = Array.new(7) do
               FactoryBot.create(:asset, { :facts => [
                                   FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
                                   FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
@@ -264,19 +264,19 @@ RSpec.describe StepType, type: :model do
                                                :object_condition_group_id => @cg2.id
                                              })
 
-        @racks = 5.times.map { |i|
+        @racks = Array.new(5) { |i|
           FactoryBot.create :asset, { :facts => [
             FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack')
           ] }
         }
 
-        @bad_racks = 5.times.map { |i|
+        @bad_racks = Array.new(5) { |i|
           FactoryBot.create :asset, { :facts => [
             FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack')
           ] }
         }
 
-        @assets = 5.times.map { |i|
+        @assets = Array.new(5) { |i|
           FactoryBot.create :asset, { :facts => [
             FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
             FactoryBot.create(:fact, :predicate => 'is', :object => 'Full'),
@@ -288,13 +288,13 @@ RSpec.describe StepType, type: :model do
         assert_equal true, @step_type.compatible_with?([@assets, @racks].flatten)
       end
       it 'is not compatible when the relation is not matching the conditions required' do
-        @bad_racks = 5.times.map { |i|
+        @bad_racks = Array.new(5) { |i|
           FactoryBot.create :asset, { :facts => [
             FactoryBot.create(:fact, :predicate => 'is', :object => 'BadRack')
           ] }
         }
 
-        @assets = 5.times.map { |i|
+        @assets = Array.new(5) { |i|
           FactoryBot.create :asset, { :facts => [
             FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
             FactoryBot.create(:fact, :predicate => 'is', :object => 'Full'),
@@ -316,7 +316,7 @@ RSpec.describe StepType, type: :model do
                                              })
       end
       it 'is compatible with any literal when met the other conditions' do
-        @assets = 5.times.map { |i|
+        @assets = Array.new(5) { |i|
           FactoryBot.create :asset, { :facts => [
             FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
             FactoryBot.create(:fact, :predicate => 'is', :object => 'Full'),

@@ -12,10 +12,10 @@ current_tubes = rack.facts.where(predicate: 'contains').map(&:object_asset)
 facts_from_tubes = current_tubes.pluck(:facts)
 locations_with_tube = facts_from_tubes.empty? ? [] : facts_from_tubes.where(predicate: 'location').pluck(:object)
 
-tubes = 96.times.map { |i| "?tube#{i}" }
+tubes = Array.new(96) { |i| "?tube#{i}" }
 letters = ("A".."H").to_a
 columns = (1..12).to_a
-location_for_position = 96.times.map do |i|
+location_for_position = Array.new(96) do |i|
   "#{letters[(i / columns.length).floor]}#{(columns[i % columns.length]).to_s}"
 end
 

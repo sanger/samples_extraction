@@ -35,7 +35,7 @@ RSpec.describe Steps::BackgroundTasks::Inference do
       end
 
       it 'executes the rest of next steps' do
-        inferences = 5.times.map { create :inference, activity: activity }
+        inferences = create_list :inference, 5, activity: activity
         inferences.reverse.reduce(nil) do |memo, step|
           id = (memo && memo.id) || nil
           step.update_attributes(next_step_id: id)

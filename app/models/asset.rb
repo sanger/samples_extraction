@@ -158,11 +158,8 @@ class Asset < ApplicationRecord
   end
 
   def barcode_sequencescaped
-    unless barcode.match(/^\d+$/)
-      return barcode.match(/\d+/)[0] if barcode.match(/\d+/)
+    return barcode.match(/\d+/).to_s unless /^\d+$/.match?(barcode)
 
-      return ""
-    end
     ean13 = barcode.rjust(13, '0')
     ean13.slice!(0, 3)
     ean13.slice!(ean13.length - 3, 3)
@@ -249,14 +246,16 @@ class Asset < ApplicationRecord
   end
 
   def self.class_type(facts)
-    class_types = facts.select { |f| f[:predicate] == 'a' }.map(&:object)
+    # @note This appears to exist to 'prioritise' which class_type takes affect.
+    #       We do seem to have some assets which are both 'Tube' and 'Well'. This
+    #       may be due to the representation of some tube racks in SS as plates.
+    class_types = facts.with_predicate('a').map(&:object)
     return 'TubeRack' if class_types.include?('TubeRack')
     return 'Plate' if class_types.include?('Plate')
     return 'Tube' if class_types.include?('Tube')
     return 'SampleTube' if class_types.include?('SampleTube')
-    return facts.select { |f| f[:predicate] == 'a' }.first.object if facts.select { |f| f[:predicate] == 'a' }.first
 
-    return ""
+    facts.first&.object || ''
   end
 
   def kind_of_plate?

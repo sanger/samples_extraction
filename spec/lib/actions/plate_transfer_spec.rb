@@ -10,7 +10,7 @@ RSpec.describe Actions::PlateTransfer do
         source.facts << create(:fact, predicate: 'contains', object_asset: tube)
         destination = create :asset
         updates = Actions::PlateTransfer.transfer_plates(source, destination)
-        expect(updates.to_h[:add_facts].select { |t| t[1] == 'barcode' }.length).to eq(0)
+        expect(updates.to_h[:add_facts].none? { |t| t[1] == 'barcode' }).to be(true)
       end
       it 'copies facts from source wells to destination wells' do
         source = create :asset
@@ -58,8 +58,8 @@ RSpec.describe Actions::PlateTransfer do
         updates.add(destination, 'aliquotType', 'DNA')
         updates = Actions::PlateTransfer.transfer_plates(source, destination, updates)
 
-        created_well = updates.to_h[:add_facts].select { |t| (t[1] == 'location') }.first[0]
-        expect(updates.to_h[:add_facts].select { |t| (t[0] == created_well) && (t[1] == 'aliquotType') }.first[2]).to eq('DNA')
+        created_well = updates.to_h[:add_facts].find { |t| (t[1] == 'location') }[0]
+        expect(updates.to_h[:add_facts].find { |t| (t[0] == created_well) && (t[1] == 'aliquotType') }[2]).to eq('DNA')
       end
       it 'does not copy ignored predicates' do
         source = create :asset
@@ -75,8 +75,8 @@ RSpec.describe Actions::PlateTransfer do
 
         updates = Actions::PlateTransfer.transfer_plates(source, destination, FactChanges.new)
 
-        expect(updates.to_h[:add_facts].select { |t| (t[1] == 'pushedTo') }.length).to eq(0)
-        expect(updates.to_h[:add_facts].select { |t| (t[1] == 'location') }.length > 0).to eq(true)
+        expect(updates.to_h[:add_facts].none? { |t| (t[1] == 'pushedTo') }).to be true
+        expect(updates.to_h[:add_facts].any? { |t| (t[1] == 'location') }).to be true
       end
     end
   end

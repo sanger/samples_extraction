@@ -913,7 +913,7 @@ RSpec.describe FactChanges do
 
     context 'with add_assets' do
       let(:asset_group) { create :asset_group }
-      let(:assets) { 2.times.map { create :asset } }
+      let(:assets) { create_list :asset, 2 }
       let(:updates) { FactChanges.new }
       before do
         step.update_attributes(asset_group: create(:asset_group))
@@ -945,7 +945,7 @@ RSpec.describe FactChanges do
 
     context 'with remove_assets' do
       let(:asset_group) { create :asset_group }
-      let(:assets) { 2.times.map { create :asset } }
+      let(:assets) { Array.new(2) { create :asset } }
       let(:updates) { FactChanges.new }
       before do
         step.update_attributes(asset_group: create(:asset_group))

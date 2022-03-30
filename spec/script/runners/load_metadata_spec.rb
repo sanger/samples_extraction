@@ -10,7 +10,7 @@ RSpec.describe 'LoadMetadata' do
 
   let(:positions) { TokenUtil.generate_positions(('A'..'H').to_a, ('1'..'12').to_a) }
   let(:wells) {
-    96.times.map do |i|
+    Array.new(96) do |i|
       asset = FactoryBot.create(:asset)
       asset.facts << create(:fact, predicate: 'location', object: positions[i])
       asset.facts << create(:fact, predicate: 'a', object: 'Well')

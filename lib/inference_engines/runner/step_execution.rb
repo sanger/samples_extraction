@@ -73,7 +73,7 @@ module InferenceEngines
       end
 
       def generate_plan_from_external_process
-        if step_action.match(/\.rb$/)
+        if step_action.end_with?('.rb')
           cmd = ["bin/rails", "runner", "#{Rails.root}/script/runners/#{step_action}"]
         else
           cmd = "#{Rails.root}/script/runners/#{step_action}"

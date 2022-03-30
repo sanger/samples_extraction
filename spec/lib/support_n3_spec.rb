@@ -266,9 +266,9 @@ RSpec.describe SupportN3 do
                             })
         p = ConditionGroup.find_by_name('p')
         q = ConditionGroup.find_by_name('q')
-        expect(p.conditions.select do |c|
+        expect(p.conditions.find do |c|
           c.predicate == 'contains'
-        end.first.object_condition_group_id).to eq(q.id)
+        end.object_condition_group_id).to eq(q.id)
       end
 
       it '{ ' \
@@ -321,9 +321,9 @@ RSpec.describe SupportN3 do
         d = ConditionGroup.find_by_name('d')
 
         [a, b, c, d].zip([b, c, d, a]).each do |p, q|
-          expect(p.conditions.select do |c|
+          expect(p.conditions.find do |c|
             c.predicate == 'transfer'
-          end.first.object_condition_group_id).to eq(q.id)
+          end.object_condition_group_id).to eq(q.id)
         end
       end
     end

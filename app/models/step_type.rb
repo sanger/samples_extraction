@@ -195,7 +195,7 @@ class StepType < ApplicationRecord
 
   def check_dependency_compatibility_for(asset, condition_group, assets)
     check_cgs = condition_groups.select do |cg|
-      cg.conditions.select { |c| c.object_condition_group == condition_group }.count > 0
+      cg.conditions.any? { |c| c.object_condition_group == condition_group }
     end
     return true if check_cgs.empty?
 
@@ -204,12 +204,9 @@ class StepType < ApplicationRecord
 
     classification = classification_for(ancestors, check_cgs)
 
-    compatible = every_condition_group_satisfies_cardinality(classification) &&
-                 every_condition_group_has_at_least_one_asset?(classification, check_cgs) &&
-                 every_asset_has_at_least_one_condition_group?(classification)
-    return true if compatible
-
-    return false
+    every_condition_group_satisfies_cardinality(classification) &&
+      every_condition_group_has_at_least_one_asset?(classification, check_cgs) &&
+      every_asset_has_at_least_one_condition_group?(classification)
   end
 
   def to_n3

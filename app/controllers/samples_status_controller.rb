@@ -27,7 +27,7 @@ class SamplesStatusController < ApplicationController
   end
 
   def set_activity_types
-    @activity_types = ActivityType.all.visible.sort { |a, b| a.name <=> b.name }.uniq
+    @activity_types = ActivityType.visible.alphabetical
   end
 
   def set_assets_for_activity_types

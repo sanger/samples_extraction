@@ -35,26 +35,12 @@ class SequencescapeClient
   end
 
   def self.purpose_by_name(name)
-    client.plate_purpose.all.select { |p| p.name === name }.first
+    client.plate_purpose.all.find { |p| p.name === name }
   end
 
   def self.create_plate(purpose_name)
     purpose = purpose_by_name(purpose_name) || purpose_by_name('Stock Plate')
     purpose.plates.create!({})
-  end
-
-  def self.get_study_by_name(name)
-    get_study_searcher_by_name.first(name: name)
-  rescue Sequencescape::Api::ResourceNotFound => exception
-    return nil
-  end
-
-  def self.get_study_searcher_by_name
-    @@study_searcher ||= client.search.all.select { |s| s.name == Rails.configuration.searcher_study_by_name }.first
-  end
-
-  def self.get_searcher_by_barcode
-    @@searcher ||= client.search.all.select { |s| s.name == Rails.configuration.searcher_name_by_barcode }.first
   end
 
   def self.get_remote_asset(barcode)
