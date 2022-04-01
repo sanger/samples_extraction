@@ -17,7 +17,6 @@ module Parsers
         # in that context. However, this is definitely the more sensible way of handling this.
 
         @instance = Asset.new(barcode: barcode)
-        @instance.generate_uuid!
         updater.create_assets([@instance])
         updater.add(@instance, 'barcode', barcode)
         updater.add(@instance, 'a', 'Tube')
