@@ -88,6 +88,8 @@ class Asset < ApplicationRecord
     end
   }
 
+  scope :for_refreshing, -> { includes(facts: { object_asset: :facts }) }
+
   delegate :predicate_matching?, to: :facts
 
   def short_description

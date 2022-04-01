@@ -75,9 +75,7 @@ module Assets::Import
 
     def assets_to_refresh
       # We need to destroy also the remote facts of the contained wells on refresh
-      [self, facts.with_predicate('contains').map(&:object_asset).select do |asset|
-        asset.facts.from_remote_asset.count > 0
-      end].flatten
+      [self, *facts.with_predicate('contains').map(&:object_asset).select(&:remote_asset?)]
     end
 
     def is_refreshing_right_now?
@@ -85,12 +83,12 @@ module Assets::Import
     end
 
     def refresh(fact_changes = nil)
-      if is_remote_asset?
-        remote_asset = SequencescapeClient::find_by_uuid(uuid)
-        raise RefreshSourceNotFoundAnymore unless remote_asset
+      return self unless remote_asset?
 
-        refresh_from_remote(fact_changes: fact_changes, remote_asset: remote_asset)
-      end
+      remote_asset = SequencescapeClient::find_by_uuid(uuid)
+      raise RefreshSourceNotFoundAnymore unless remote_asset
+
+      refresh_from_remote(fact_changes: fact_changes, remote_asset: remote_asset)
       self
     end
 
@@ -103,18 +101,22 @@ module Assets::Import
     end
 
     def refresh!(fact_changes = nil)
-      if is_remote_asset?
-        @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh!!'), state: 'running')
-        remote_asset = SequencescapeClient::find_by_uuid(uuid)
-        raise RefreshSourceNotFoundAnymore unless remote_asset
+      return self unless remote_asset?
 
-        _process_refresh(remote_asset, fact_changes)
-      end
+      @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh!!'), state: 'running')
+      remote_asset = SequencescapeClient::find_by_uuid(uuid)
+      raise RefreshSourceNotFoundAnymore unless remote_asset
+
+      _process_refresh(remote_asset, fact_changes)
       self
     end
 
-    def is_remote_asset?
-      facts.from_remote_asset.count > 0
+    def remote_asset?
+      if facts.loaded?
+        facts.any?(&:is_remote?)
+      else
+        facts.from_remote_asset.exists?
+      end
     end
 
     private
@@ -200,26 +202,28 @@ module Assets::Import
       return unless remote_asset.try(:aliquots)
 
       remote_asset.aliquots.each do |aliquot|
+        sample = aliquot.sample
         fact_changes.replace_remote(asset, 'sample_tube', asset)
-        fact_changes.replace_remote(asset, 'sanger_sample_id', TokenUtil.quote_if_uuid(aliquot&.sample&.sanger_sample_id))
-        fact_changes.replace_remote(asset, 'sample_uuid', TokenUtil.quote(aliquot&.sample&.uuid), literal: true)
-        fact_changes.replace_remote(asset, 'sanger_sample_name', TokenUtil.quote_if_uuid(aliquot&.sample&.name))
-        fact_changes.replace_remote(asset, 'supplier_sample_name', TokenUtil.quote_if_uuid(aliquot&.sample&.sample_metadata&.supplier_name))
-        fact_changes.replace_remote(asset, 'sample_common_name', TokenUtil.quote_if_uuid(aliquot&.sample&.sample_metadata&.sample_common_name))
+        fact_changes.replace_remote(asset, 'sanger_sample_id', TokenUtil.quote_if_uuid(sample&.sanger_sample_id))
+        fact_changes.replace_remote(asset, 'sample_uuid', TokenUtil.quote(sample&.uuid), literal: true)
+        fact_changes.replace_remote(asset, 'sanger_sample_name', TokenUtil.quote_if_uuid(sample&.name))
+        fact_changes.replace_remote(asset, 'supplier_sample_name', TokenUtil.quote_if_uuid(sample&.sample_metadata&.supplier_name))
+        fact_changes.replace_remote(asset, 'sample_common_name', TokenUtil.quote_if_uuid(sample&.sample_metadata&.sample_common_name))
       end
     end
 
     def annotate_study_name_from_aliquots(asset, remote_asset, fact_changes)
-      return unless remote_asset.try(:aliquots)
+      return if remote_asset.try(:aliquots).blank?
 
-      return unless ((remote_asset.aliquots.count == 1) && (remote_asset.aliquots.first.sample))
+      study = remote_asset.aliquots.lazy.map(&:study).detect(&:present?)
+      return unless study
 
-      fact_changes.replace_remote(asset, 'study_name', remote_asset.aliquots.first.study.name)
-      fact_changes.replace_remote(asset, 'study_uuid', TokenUtil.quote(remote_asset.aliquots.first.study.uuid), literal: true)
+      fact_changes.replace_remote(asset, 'study_name', study.name)
+      fact_changes.replace_remote(asset, 'study_uuid', TokenUtil.quote(study.uuid), literal: true)
     end
 
     def annotate_study_name(asset, remote_asset, fact_changes)
-      if remote_asset.try(:wells)
+      if remote_asset.try(:wells).present?
         remote_asset.wells.detect do |w|
           annotate_study_name_from_aliquots(asset, w, fact_changes)
         end
@@ -233,10 +237,13 @@ module Assets::Import
     end
 
     def annotate_wells(asset, remote_asset, fact_changes)
-      return unless remote_asset.try(:wells)
+      return if remote_asset.try(:wells).blank?
+
+      well_uuids = remote_asset.wells.map(&:uuid)
+      existing_wells = Asset.includes(:facts).where(uuid: well_uuids).index_by(&:uuid)
 
       remote_asset.wells.each do |well|
-        local_well = Asset.find_or_create_by!(uuid: well.uuid)
+        local_well = existing_wells.fetch(well.uuid) { Asset.new(uuid: well.uuid) }
 
         fact_changes.replace_remote(asset, 'contains', local_well)
 
@@ -252,12 +259,15 @@ module Assets::Import
     end
 
     def annotate_tubes(asset, remote_asset, fact_changes)
-      return unless remote_asset.try(:racked_tubes)
+      return if remote_asset.try(:racked_tubes).blank?
+
+      tube_uuids = remote_asset.racked_tubes.map { |rt| rt.tube.uuid }
+      existing_tubes = Asset.includes(:facts).where(uuid: tube_uuids).index_by(&:uuid)
 
       remote_asset.racked_tubes.each do |racked_tube|
         remote_tube = racked_tube.tube
-        local_tube = Asset.find_or_create_by!(uuid: remote_tube.uuid)
-        local_tube.update!(barcode: remote_tube.labware_barcode['human_barcode'])
+        local_tube = existing_tubes.fetch(remote_tube.uuid) { Asset.new(uuid: remote_tube.uuid) }
+        local_tube.barcode = remote_tube.labware_barcode['human_barcode']
 
         fact_changes.replace_remote(asset, 'contains', local_tube)
 
@@ -265,7 +275,6 @@ module Assets::Import
         fact_changes.replace_remote(local_tube, 'a', 'SampleTube')
         fact_changes.replace_remote(local_tube, 'location', racked_tube.coordinate)
         fact_changes.replace_remote(local_tube, 'parent', asset)
-
         if (remote_tube.try(:aliquots)&.first&.sample&.sample_metadata&.supplier_name)
           annotate_container(local_tube, remote_tube, fact_changes)
         end
@@ -288,20 +297,26 @@ module Assets::Import
     # how to handle this. @note The behaviour differs from the singular
     # #find_or_import_asset_with_barcode in that it will not also attempt to
     # lookup by uuid, and will not automatically register fluidx barcodes
-    def find_or_import_assets_with_barcodes(barcodes, includes: :facts)
-      local_assets = Asset.includes(includes).where(barcode: barcodes).to_a
+    def find_or_import_assets_with_barcodes(barcodes, includes: {})
+      local_assets = Asset.for_refreshing.includes(includes).where(barcode: barcodes).to_a
       remote_assets = import_barcodes(barcodes - local_assets.pluck(:barcode))
+      # This synchronises the local assets with the version in Sequencescape
+      local_assets.each(&:refresh)
       local_assets + remote_assets
     end
 
     private
 
     def import_remote_asset(remote_asset, barcode, import_step)
-      Asset.create!(barcode: barcode, uuid: remote_asset.uuid).tap do |asset|
+      Asset.create!(barcode: barcode, uuid: remote_asset.uuid, facts: []).tap do |asset|
         FactChanges.new.tap do |updates|
           updates.replace_remote(asset, 'a', sequencescape_type_for_asset(remote_asset))
           updates.replace_remote(asset, 'remoteAsset', remote_asset.uuid)
         end.apply(import_step)
+        # We initialize the asset with an empty facts array, but then modify it indirectly
+        # Ideally this wouldn't be the case, and we'd keep the instance in sync. However
+        # for now we unload the association to ensure we don't end up working with stale data
+        asset.facts.reset
         asset.refresh_from_remote(remote_asset: remote_asset)
         asset.update_compatible_activity_type
       end

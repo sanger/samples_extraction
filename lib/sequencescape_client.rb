@@ -6,7 +6,7 @@ require 'sequencescape'
 require 'sequencescape_client_v2'
 
 class SequencescapeClient
-  SELECT_FOR_IMPORT = 'uuid,labware_barcode,receptacles'
+  SELECT_FOR_IMPORT = 'uuid,labware_barcode,receptacles,purpose'
   @purposes = nil
 
   def self.api_connection_options
@@ -53,23 +53,25 @@ class SequencescapeClient
 
   def self.labware(conditions)
     SequencescapeClientV2::Labware
-      .includes('receptacles.aliquots.sample.sample_metadata')
+      .includes('receptacles.aliquots.sample.sample_metadata,receptacles.aliquots.study,purpose')
       .select(
         tubes: SELECT_FOR_IMPORT,
         plates: SELECT_FOR_IMPORT,
-        tube_racks: 'uuid,labware_barcode',
+        tube_racks: 'uuid,labware_barcode,purpose',
         samples: 'sanger_sample_id,uuid,name',
-        sample_metadata: 'supplier_name,sample_common_name'
-      ).where(conditions)
+        sample_metadata: 'supplier_name,sample_common_name',
+        study: 'name,uuid',
+        purpose: 'name'
+      ).where(**conditions)
   end
 
   # TODO: In most cases we should know what type of record we're looking up.
   def self.find_by(search_conditions)
     [
-      SequencescapeClientV2::Plate.includes('wells.aliquots.sample.sample_metadata'),
-      SequencescapeClientV2::Tube.includes('aliquots.sample.sample_metadata'),
-      SequencescapeClientV2::Well.includes('aliquots.sample.sample_metadata'),
-      SequencescapeClientV2::TubeRack.includes('racked_tubes.tube.aliquots.sample.sample_metadata')
+      SequencescapeClientV2::Plate.includes('wells.aliquots.sample.sample_metadata,wells.aliquots.study,purpose'),
+      SequencescapeClientV2::Tube.includes('aliquots.sample.sample_metadata,aliquots.study'),
+      SequencescapeClientV2::Well.includes('aliquots.sample.sample_metadata,aliquots.study'),
+      SequencescapeClientV2::TubeRack.includes('racked_tubes.tube.aliquots.sample.sample_metadata,racked_tubes.tube.aliquots.study,purpose')
     ].each do |klass|
       begin
         search = klass.where(search_conditions).first

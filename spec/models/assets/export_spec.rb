@@ -58,7 +58,7 @@ RSpec.describe 'Assets::Export' do
       }
       @assets = SupportN3::parse_facts(facts)
 
-      @rack1 = Asset.find_by(uuid: 'rack1')
+      @rack1 = Asset.includes(:facts).find_by(uuid: 'rack1')
       expect(@rack1.attributes_to_send).to eq([
                                                 { sample_tube_uuid: "s1", location: "A1" },
                                                 { sample_tube_uuid: "s2", location: "B1" },

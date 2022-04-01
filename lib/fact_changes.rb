@@ -529,30 +529,24 @@ class FactChanges
     operations
   end
 
-  def all_values_are_new_records(hash)
-    hash.values.all? do |value|
-      (value.respond_to?(:new_record?) && value.new_record?)
-    end
+  def any_values_are_new_records(hash)
+    hash.values.any? { |value| value.try(:new_record?) }
   end
 
   def _instance_builder_for_import(klass, params_list, &block)
     instances = params_list.filter_map do |params_for_instance|
-      unless (params_for_instance.kind_of?(klass))
-        if (all_values_are_new_records(params_for_instance) ||
-          (!klass.exists?(params_for_instance)))
-          klass.new(params_for_instance)
-        end
-      else
-        if params_for_instance.new_record?
-          params_for_instance
-        end
+      if params_for_instance.kind_of?(klass)
+        params_for_instance if params_for_instance.new_record?
+      elsif any_values_are_new_records(params_for_instance) || !klass.exists?(params_for_instance)
+        klass.new(params_for_instance)
       end
     end.uniq
     instances.each do |instance|
+      # Runs the callbacks (See https://github.com/zdennis/activerecord-import#callbacks)
       instance.run_callbacks(:save) { false }
       instance.run_callbacks(:create) { false }
     end
-    if instances && !instances.empty?
+    if instances.present?
       klass.import(instances)
       # import does not return the ids for the instances, so we need to reload
       # again. Uuid is the only identificable attribute set

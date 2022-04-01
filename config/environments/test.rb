@@ -58,4 +58,6 @@ Rails.application.configure do
   config.cwm_path = ENV.fetch('CWM_PATH', '')
 
   config.enable_reasoning = true
+
+  config.active_record.verbose_query_logs = true
 end

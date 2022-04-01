@@ -15,7 +15,7 @@ RSpec.describe 'Assets::Import' do
 
     context 'when it is not a remote asset' do
       before do
-        allow(asset).to receive(:is_remote_asset?).and_return(false)
+        allow(asset).to receive(:remote_asset?).and_return(false)
       end
 
       it 'does not refresh' do
@@ -26,7 +26,7 @@ RSpec.describe 'Assets::Import' do
 
     context 'when it is a remote asset' do
       before do
-        allow(asset).to receive(:is_remote_asset?).and_return(true)
+        allow(asset).to receive(:remote_asset?).and_return(true)
       end
 
       context 'when the asset has changed' do
@@ -139,21 +139,22 @@ RSpec.describe 'Assets::Import' do
   end
 
   shared_examples 'a plate or tube rack' do
-    it 'should create the corresponding facts from the json' do
-      facts = the_method.facts.reload
+    it 'should create the corresponding facts from the json', :aggregate_failures do
+      facts = subject.facts.reload
       predicates = ["a", "pushTo", "purpose", "is", "contains", "contains", "study_name", "study_uuid"]
-      predicate_facts = predicates.map { |predicate| facts.with_predicate(predicate) }
-      expect(predicate_facts).to all be_present
+      predicates.each do |predicate|
+        expect(facts.with_predicate(predicate)).to be_present, "No fact with predicate: #{predicate}"
+      end
     end
 
     it 'should store the study uuid in a safe format' do
-      asset_study_uuid = the_method.facts.reload.with_predicate('study_uuid').first.object
+      asset_study_uuid = subject.facts.reload.with_predicate('study_uuid').first&.object
       expect(asset_study_uuid).to eq(TokenUtil.quote(expected_study_uuid))
     end
 
     context 'for the first time' do
       it 'should create the local asset' do
-        expect { the_method }.to change(Asset, :count).by(created_assets)
+        expect { subject }.to change(Asset, :count).by(created_assets)
       end
     end
 
@@ -166,20 +167,28 @@ RSpec.describe 'Assets::Import' do
         end
 
         it 'should raise an exception' do
-          expect { the_method }.to raise_exception Assets::Import::RefreshSourceNotFoundAnymore
+          expect { subject }.to raise_exception Assets::Import::RefreshSourceNotFoundAnymore
         end
       end
 
       context 'when the remote source is present' do
+        setup do
+          # We could do this via webmock, but it all gets a bit complicated, and our return value
+          # is nice and simple here. So instead we just dummy out an empty response for the second
+          # query.
+          allow(SequencescapeClient).to receive(:labware).and_call_original
+          allow(SequencescapeClient).to receive(:labware).with(barcode: ['NOT_FOUND']).and_return([])
+        end
+
         it 'should not create a new local asset' do
-          expect { the_method }.not_to change(Asset, :count)
+          expect { subject }.not_to change(Asset, :count)
         end
 
         context 'when the local copy is up to date' do
           it 'should not destroy any remote facts' do
-            remote_facts = the_method.facts.from_remote_asset
+            remote_facts = original_import.facts.from_remote_asset
             remote_facts.each(&:reload)
-            the_method
+            subject
             expect { remote_facts.each(&:reload) }.not_to raise_error
           end
         end
@@ -196,17 +205,17 @@ RSpec.describe 'Assets::Import' do
           end
 
           it 'should destroy any remote facts that has changed' do
-            the_method
+            subject
             expect { @fact_changed.reload }.to raise_exception ActiveRecord::RecordNotFound
           end
 
           it 'should destroy any contains dependant remote facts' do
-            the_method
+            subject
             expect { @dependant_fact.reload }.to raise_exception ActiveRecord::RecordNotFound
           end
 
           it 'should re-create new remote facts' do
-            expect(the_method.facts.from_remote_asset.all? { |f| f.object_asset != @well_changed })
+            expect(subject.facts.from_remote_asset.where(object_asset: @well_changed)).to be_empty
           end
         end
       end
@@ -215,7 +224,8 @@ RSpec.describe 'Assets::Import' do
 
   shared_examples 'a partial import of samples' do
     it 'imports the information of the tubes that have a supplier name' do
-      tubes = subject.facts.with_predicate('contains').map(&:object_asset)
+      facts = subject.facts
+      tubes = facts.with_predicate('contains').map(&:object_asset)
       tubes_with_info = tubes.select { |t| t.facts.with_predicate('supplier_sample_name').present? }
       locations_with_info = tubes_with_info.map { |t| t.facts.with_predicate('location').first.object }
 
@@ -390,34 +400,73 @@ RSpec.describe 'Assets::Import' do
     let(:full_remote_labware) { build_remote_tube(barcode: generate(:barcode), uuid: remote_labware.uuid, labware_barcode: remote_labware.labware_barcode) }
     let(:local_asset) { Asset.create!(barcode: local_barcode) }
 
-    before do
-      local_asset
-      expect(SequencescapeClient).to receive(:labware).with(barcode: [remote_barcode, non_existant_barcode]).and_return([remote_labware])
-      # We still need this as we're currently immediately refreshing the resource from SS
-      allow(SequencescapeClient).to receive(:find_by_uuid).with(remote_labware.uuid).and_return(full_remote_labware)
+    context 'a tube and an unknown barcode' do
+      before do
+        local_asset
+        expect(SequencescapeClient).to receive(:labware).with(barcode: [remote_barcode, non_existant_barcode]).and_return([remote_labware])
+        # We still need this as we're currently immediately refreshing the resource from SS
+        allow(SequencescapeClient).to receive(:find_by_uuid).with(remote_labware.uuid).and_return(full_remote_labware)
+      end
+
+      subject(:find_or_import_assets_with_barcodes) do
+        Asset.find_or_import_assets_with_barcodes([local_barcode, remote_barcode, non_existant_barcode])
+      end
+
+      it 'imports only remote barcodes' do
+        expect { find_or_import_assets_with_barcodes }.to change(Asset, :count).by(1)
+      end
+
+      it 'does not return an asset that does not exist' do
+        expect(find_or_import_assets_with_barcodes.pluck(:barcode)).not_to include(non_existant_barcode)
+      end
+
+      it { is_expected.to(satisfy { |array| array.length == 2 }) }
+      it { is_expected.to all be_an Asset }
+
+      it 'returns local assets' do
+        expect(find_or_import_assets_with_barcodes).to include(local_asset)
+      end
+
+      it 'returns a newly registered remote labware' do
+        expect(find_or_import_assets_with_barcodes.pluck(:barcode)).to include(remote_barcode)
+      end
     end
 
-    subject(:find_or_import_assets_with_barcodes) do
-      Asset.find_or_import_assets_with_barcodes([local_barcode, remote_barcode, non_existant_barcode])
+    context 'with a plate' do
+      let(:expected_study_uuid) { '6d4617ea-9a21-11ec-9a02-acde48001122' }
+      let(:created_assets) { 97 }
+      let(:barcode) { 'DN9000001W' }
+
+      subject(:find_or_import_assets_with_barcodes) do
+        Asset.find_or_import_assets_with_barcodes([barcode, non_existant_barcode]).first
+      end
+
+      setup do
+        # We're using find_or_import_asset_with_barcode to set-up our state
+        stub_request(:get, %r{api/v2/plates}).to_return(File.new('./spec/support/responses/sequencescape/v2/plate_response.txt'))
+        stub_request(:get, %r{api/v2/labware}).to_return(File.new('./spec/support/responses/sequencescape/v2/labware_plate_response.txt'))
+      end
+
+      it_behaves_like 'a plate or tube rack'
     end
 
-    it 'imports only remote barcodes' do
-      expect { find_or_import_assets_with_barcodes }.to change(Asset, :count).by(1)
-    end
+    context 'with a tube rack' do
+      let(:expected_study_uuid) { '6d4617ea-9a21-11ec-9a02-acde48001122' }
+      let(:created_assets) { 97 }
+      let(:barcode) { 'AB42785517' }
 
-    it 'does not return an asset that does not exist' do
-      expect(find_or_import_assets_with_barcodes.pluck(:barcode)).not_to include(non_existant_barcode)
-    end
+      subject(:find_or_import_assets_with_barcodes) do
+        Asset.find_or_import_assets_with_barcodes([barcode, non_existant_barcode]).first
+      end
 
-    it { is_expected.to(satisfy { |array| array.length == 2 }) }
-    it { is_expected.to all be_an Asset }
+      setup do
+        # We're using find_or_import_asset_with_barcode to set-up our state
+        stub_request(:get, %r{api/v2/(plates|tubes|wells)}).to_return(File.new('./spec/support/responses/sequencescape/v2/empty_response.txt'))
+        stub_request(:get, %r{api/v2/tube_racks}).to_return(File.new('./spec/support/responses/sequencescape/v2/tube_rack_response.txt'))
+        stub_request(:get, %r{api/v2/labware}).to_return(File.new('./spec/support/responses/sequencescape/v2/labware_tube_rack_response.txt'))
+      end
 
-    it 'returns local assets' do
-      expect(find_or_import_assets_with_barcodes).to include(local_asset)
-    end
-
-    it 'returns a newly registered remote labware' do
-      expect(find_or_import_assets_with_barcodes.pluck(:barcode)).to include(remote_barcode)
+      it_behaves_like 'a plate or tube rack'
     end
   end
 end

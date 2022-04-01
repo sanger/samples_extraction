@@ -27,6 +27,10 @@ module SequencescapeClientV2
     def wells
       type == 'plates' ? receptacles : []
     end
+
+    def racked_tubes
+      type == 'tube_racks' ? SequencescapeClientV2::TubeRack.includes('racked_tubes.tube.aliquots.sample.sample_metadata,racked_tubes.tube.aliquots.study').find(id).first.racked_tubes : []
+    end
   end
 
   class SequencescapeClientV2::Plate < SequencescapeClientV2::Model
