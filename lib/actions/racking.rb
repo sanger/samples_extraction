@@ -68,10 +68,12 @@ module Actions
         # tubes_list = Asset.where(id: tubes_ids).includes(facts: { object_asset: { facts: :object_asset } })
         tubes.each_with_index do |tube, index|
           location_facts = tube.facts.with_predicate('location')
-          unless location_facts.empty?
+
+          if location_facts.present?
             location = location_facts.first.object
-            updates.remove(tube.facts.with_predicate('location'))
+            updates.remove(location_facts)
           end
+
           tube.facts.with_predicate('parent').each do |parent_fact|
             previous_rack = parent_fact.object_asset
             unless (previous_racks.include?(previous_rack))
@@ -93,8 +95,8 @@ module Actions
               updates.add(rerack, 'a', 'Rerack')
               updates.add(rerack, 'tube', tube)
               updates.add(rerack, 'barcodeType', 'NoBarcode')
-              updates.add(rerack, 'previousParent', previous_rack)
-              updates.add(rerack, 'previousLocation', location)
+              updates.add(rerack, 'previousParent', previous_rack) if previous_rack.present?
+              updates.add(rerack, 'previousLocation', location) if location.present?
               updates.add(rerack, 'location', list_layout[index][:location])
               updates.add(rerackGroup, 'rerack', rerack)
 
@@ -216,7 +218,7 @@ module Actions
             end
           end
         end
-        unless (list_layout.map { |obj| obj[:asset] }.include?(tube))
+        if list_layout.none? { |obj| obj[:asset] == tube }
           # Remember that the tubes needs to be always in a rack. They cannot be interchanged
           # in between racks
           error_messages.push(
