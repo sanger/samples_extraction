@@ -8,19 +8,17 @@ module Parsers
       end
 
       def asset
-        @instance ||= @parser.find_or_import_asset_with_barcode(barcode) # || Asset.create_local_asset(barcode, updater)
+        @asset ||= @parser.find_or_import_asset_with_barcode(barcode) || generate_asset
+      end
 
-        return @instance if @instance
-
-        # In reality I don't think we ever get here, as Asset.find_or_import_asset_with_barcode
-        # will actually create assets for valid fluidx barcodes, and this is only used
-        # in that context. However, this is definitely the more sensible way of handling this.
-
-        @instance = Asset.new(barcode: barcode)
-        updater.create_assets([@instance])
-        updater.add(@instance, 'barcode', barcode)
-        updater.add(@instance, 'a', 'Tube')
-        @instance
+      def generate_asset
+        Asset.new(barcode: barcode).tap do |tube|
+          updater.create_assets([tube])
+          updater.add(tube, 'barcode', barcode)
+          updater.add(tube, 'a', 'Tube')
+          updater.add(tube, 'barcodeType', 'Code2D') if TokenUtil.is_valid_fluidx_barcode?(barcode)
+          updater.add(tube, 'is', 'Empty')
+        end
       end
     end
   end
