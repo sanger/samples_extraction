@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_03_30_123815) do
+ActiveRecord::Schema.define(version: 2022_04_01_124332) do
 
   create_table "actions", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.string "action_type", null: false
@@ -96,14 +96,15 @@ ActiveRecord::Schema.define(version: 2022_03_30_123815) do
     t.index ["asset_id"], name: "index_asset_groups_assets_on_asset_id"
   end
 
-  create_table "assets", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
-    t.string "uuid"
+  create_table "assets", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+    t.string "uuid", null: false
     t.string "barcode"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "facts_count"
     t.string "remote_digest"
     t.index ["barcode"], name: "index_assets_on_barcode"
+    t.index ["uuid"], name: "index_assets_on_uuid"
   end
 
   create_table "condition_groups", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
