@@ -12,17 +12,14 @@ AllCops:
   Exclude:
     - 'db/views_schema.rb'
 
-# Blocks are used to structure tests and are part of the shoulda dsl.
+# Blocks are used to structure tests and are part of the rspec dsl.
 # The standard BlockLength limits are too stringent for this purpose.
 # Block DSL is also used in routes
 # We should be careful keeping rake tasks here, as large tasks are still an issue.
 # Not sure if we need to split namespaces across several files though.
-# We exclude builders, as the are concerned with rendering xml
 Metrics/BlockLength:
   Exclude:
     - Gemfile
-    - 'db/seeds/**/*'
-    - '**/*.builder'
   IgnoredMethods:
     - describe
     - context
