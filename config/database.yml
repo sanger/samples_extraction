@@ -20,7 +20,7 @@ default: &default
 
 development:
   <<: *default
-  database: <%= ENV.fetch('DBNAME','uat_se_dump') %>
+  database: <%= ENV.fetch('DBNAME','samples_extraction_development') %>
 
 debug:
   <<: *default
