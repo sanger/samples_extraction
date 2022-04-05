@@ -257,7 +257,7 @@ class Asset < ApplicationRecord
     return 'Tube' if class_types.include?('Tube')
     return 'SampleTube' if class_types.include?('SampleTube')
 
-    facts.first&.object || ''
+    class_types.first&.object || ''
   end
 
   def kind_of_plate?
