@@ -30,7 +30,7 @@ class Asset < ApplicationRecord
       if loaded?
         with_predicate(predicate).any? { |fact| fact.object == value }
       else
-        exists?(predicate: 'a', object: 'Plate')
+        exists?(predicate: predicate, object: value)
       end
     end
   end
