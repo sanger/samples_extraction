@@ -47,10 +47,9 @@ class ActivityChannel < ApplicationCable::Channel
       # Maintaining existing behaviour: register previously unknown fluidx barcodes
       fluidx_barcodes = asset_barcodes.select { |bc| TokenUtil.is_valid_fluidx_barcode?(bc) }
       missing_barcodes = fluidx_barcodes - barcode_assets.map(&:barcode)
-      facts = FactChanges.new
-      generated_assets = missing_barcodes.map { |bc| Asset.create_local_asset(bc, facts) }
+      asset_group.update_with_assets(uuid_assets + barcode_assets)
 
-      asset_group.update_with_assets(uuid_assets + barcode_assets + generated_assets)
+      asset_group.activity.send_wss_event({ error: { type: 'danger', msg: "Could not find barcodes: #{missing_barcodes.join(', ')}" } }) if missing_barcodes.present?
     rescue Errno::ECONNREFUSED => e
       asset_group.activity.send_wss_event({ error: { type: 'danger', msg: 'Cannot connect with sequencescape' } })
     rescue StandardError => e
