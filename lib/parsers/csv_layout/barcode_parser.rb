@@ -18,12 +18,11 @@ module Parsers
 
       def initialize(line, parser)
         @parser = parser
-        @parsing_error = nil
         parse(line)
       end
 
       def no_read_barcode?
-        barcode&.downcase&.start_with?(NO_READ_BARCODE)
+        !!barcode&.downcase&.start_with?(NO_READ_BARCODE)
       end
 
       def asset
