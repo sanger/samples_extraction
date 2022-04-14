@@ -45,7 +45,7 @@ module Deployed
     end
 
     def version_hash
-      @version_hash ||= /\Arelease-(?<major>\d+)\.(?<minor>\d+)\.?(?<extra>\S*)\z/.match(label)
+      @version_hash ||= /\A(?:release-|v){0,1}(?<major>\d+)\.(?<minor>\d+)\.?(?<extra>\S*)\z/.match(label)
     end
 
     def version_label
