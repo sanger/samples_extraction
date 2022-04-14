@@ -2,7 +2,7 @@ FROM ruby:2.7
 ENV BUNDLER_VERSION=2.2.26
 RUN apt-get update -qq && apt-get install -y
 # Install node and Yarn
-RUN curl -sL https://deb.nodesource.com/setup_15.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y nodejs
 RUN apt-get install -y python2
 RUN npm install -g yarn
