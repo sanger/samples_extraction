@@ -1,5 +1,5 @@
-FROM ruby:2.6
-ENV BUNDLER_VERSION=2.1.4
+FROM ruby:2.7
+ENV BUNDLER_VERSION=2.2.26
 RUN apt-get update -qq && apt-get install -y
 # Install node and Yarn
 RUN curl -sL https://deb.nodesource.com/setup_15.x | bash -
