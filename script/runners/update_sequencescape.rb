@@ -25,7 +25,7 @@ class UpdateSequencescape
       if assets_compatible_with_step_type
         ActiveRecord::Base.transaction do
           asset_group.assets.with_fact('pushTo', 'Sequencescape').each do |asset|
-            updates.merge(asset.update_sequencescape(step.printer_config, step.user, step))
+            updates.merge(asset.update_sequencescape(step.user))
           end
         end
       end
@@ -54,4 +54,3 @@ step_id = matches2[1]
 asset_group = AssetGroup.find(asset_group_id)
 step = Step.find(step_id)
 out(UpdateSequencescape.new(asset_group: asset_group, step: step).process)
-

@@ -4,6 +4,6 @@ class AddWorkOrdersTable < ActiveRecord::Migration
       t.integer :work_order_id, index: true, unique: true
       t.references :activity, index: true, foreign_key: true, unique: true
       t.timestamps null: false
-    end    
+    end
   end
 end

@@ -2,11 +2,10 @@ require 'rails_helper'
 require 'support_n3'
 
 RSpec.describe Condition, type: :model do
-
   describe 'wildcard creation on compatible_with()' do
-    #assets, required_assets=nil, checked_condition_groups=[], wildcard_values={})
+    # assets, required_assets=nil, checked_condition_groups=[], wildcard_values={})
     setup do
-      @assets = 5.times.map do |i|
+      @assets = Array.new(5) do |i|
         facts = [
           FactoryBot.create(:fact, { :predicate => 'a', :object => 'Tube' })
         ]
@@ -15,7 +14,7 @@ RSpec.describe Condition, type: :model do
         FactoryBot.create(:asset, :facts => facts)
       end
 
-      @wells = 5.times.map do |i|
+      @wells = Array.new(5) do |i|
         facts = [
           FactoryBot.create(:fact, { :predicate => 'a', :object => 'Well' })
         ]
@@ -56,22 +55,21 @@ RSpec.describe Condition, type: :model do
 
       created_assets = {}
       @step = Step.create(step_type: @step_type, asset_group: @asset_group,
-        wildcard_values: wildcards, state: Step::STATE_RUNNING)
+                          wildcard_values: wildcards, state: Step::STATE_RUNNING)
       @step_execution = StepExecution.new({
-        :step => @step,
-        :asset_group => @asset_group, :created_assets => created_assets })
+                                            :step => @step,
+                                            :asset_group => @asset_group, :created_assets => created_assets
+                                          })
       @step_execution.run
 
-      { 210=>{ 1737=>["DNA"], 1738=>["RNA"],
-        1739=>["DNA"], 1740=>["RNA"], 1741=>["DNA"],
-        1742=>["DNA"], 1743=>["RNA"], 1744=>["DNA"],
-        1745=>["RNA"], 1746=>["DNA"] },
-      211=>{ 1737=>["DNA"],
-        1738=>["RNA"], 1739=>["DNA"], 1740=>["RNA"],
-        1741=>["DNA"], 1742=>["DNA"], 1743=>["RNA"],
-        1744=>["DNA"], 1745=>["RNA"], 1746=>["DNA"] } }
-
+      { 210 => { 1737 => ["DNA"], 1738 => ["RNA"],
+                 1739 => ["DNA"], 1740 => ["RNA"], 1741 => ["DNA"],
+                 1742 => ["DNA"], 1743 => ["RNA"], 1744 => ["DNA"],
+                 1745 => ["RNA"], 1746 => ["DNA"] },
+        211 => { 1737 => ["DNA"],
+                 1738 => ["RNA"], 1739 => ["DNA"], 1740 => ["RNA"],
+                 1741 => ["DNA"], 1742 => ["DNA"], 1743 => ["RNA"],
+                 1744 => ["DNA"], 1745 => ["RNA"], 1746 => ["DNA"] } }
     end
-
   end
 end

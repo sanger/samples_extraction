@@ -16,8 +16,9 @@ class LoadMetadata
     if line_parsed['location']
       parent = Asset.find_by!(barcode: line_parsed['barcode'])
       facts = parent.facts.where(predicate: 'contains',
-        object_asset_id: Fact.where(predicate: 'location', object: line_parsed['location']).select(:asset_id))
+                                 object_asset_id: Fact.where(predicate: 'location', object: line_parsed['location']).select(:asset_id))
       raise 'More than one asset found' if facts.count > 1
+
       return facts.first.object_asset
     else
       Asset.find_by!(barcode: line_parsed['barcode'])
@@ -25,7 +26,7 @@ class LoadMetadata
   end
 
   def filter_unneeded_data(line_parsed)
-    line_parsed.reject { |k,v| k=='location' || k=='barcode' }
+    line_parsed.reject { |k, v| k == 'location' || k == 'barcode' }
   end
 
   def metadata_updates(asset_group)
@@ -44,7 +45,6 @@ class LoadMetadata
       end
     end
   end
-
 
   def process
     FactChanges.new.tap do |updates|
@@ -70,5 +70,5 @@ begin
 rescue InvalidDataParams => e
   puts ({ set_errors: e.errors }.to_json)
 rescue StandardError => e
-  puts ({ set_errors: ['Unknown error while parsing file'+e.backtrace.to_s] }.to_json)
+  puts ({ set_errors: ['Unknown error while parsing file' + e.backtrace.to_s] }.to_json)
 end

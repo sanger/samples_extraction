@@ -63,17 +63,18 @@ class KitTypesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_kit_type
-      @kit_type = KitType.find(params[:id])
-    end
 
-    def set_activity_types
-      @activity_types = ActivityType.all
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_kit_type
+    @kit_type = KitType.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def kit_type_params
-      params.require(:kit_type).permit(:name, :target_type, :activity_type_id, :abbreviation)
-    end
+  def set_activity_types
+    @activity_types = ActivityType.all
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def kit_type_params
+    params.require(:kit_type).permit(:name, :target_type, :activity_type_id, :abbreviation)
+  end
 end

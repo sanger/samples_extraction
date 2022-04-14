@@ -1,7 +1,7 @@
 module Activities::State
   def self.included(klass)
     klass.instance_eval do
-      scope :in_progress, ->() { where('completed_at is null') }
+      scope :in_progress, ->() { where(completed_at: nil) }
       scope :finished, ->() { where('completed_at is not null') }
     end
   end
@@ -32,5 +32,4 @@ module Activities::State
   def editing?
     state == 'editing'
   end
-
 end

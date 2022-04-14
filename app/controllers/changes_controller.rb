@@ -19,8 +19,7 @@ class ChangesController < ApplicationController
 
   private
 
-    def params_changes
-      params.require(:changes).permit!
-    end
-
+  def params_changes
+    params.require(:changes).permit!
+  end
 end

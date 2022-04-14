@@ -34,7 +34,6 @@ class PrintBarcodes
       end
     end
   end
-
 end
 
 return unless ARGV.any? { |s| s.match(".json") }

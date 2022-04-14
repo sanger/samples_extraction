@@ -1,28 +1,28 @@
 def inferences_data
-[
-  {
-  :it => %Q{keeps elements the way they are when there is no changes},
-  :rule => %Q{ { ?x :t ?_y .} => { :step :addFacts {?x :t ?_y .}. }. },
-  :inputs => %Q{ :a :t "1" . },
-  :outputs => %Q{ :a :t "1" .}
-  },
+  [
+    {
+      :it => %Q{keeps elements the way they are when there is no changes},
+      :rule => %Q{ { ?x :t ?_y .} => { :step :addFacts {?x :t ?_y .}. }. },
+      :inputs => %Q{ :a :t "1" . },
+      :outputs => %Q{ :a :t "1" .}
+    },
 
-  {
-  :it => %Q{keeps elements the way they are when there is no changes},
-  :rule => %Q{ { ?x :t ?_y .} => { :step :addFacts {?x :t ?_y .}. }. },
-  :inputs => %Q{ :a :t "1" . :b :t "2".},
-  :outputs => %Q{ :a :t "1" . :b :t "2".}
-  },
+    {
+      :it => %Q{keeps elements the way they are when there is no changes},
+      :rule => %Q{ { ?x :t ?_y .} => { :step :addFacts {?x :t ?_y .}. }. },
+      :inputs => %Q{ :a :t "1" . :b :t "2".},
+      :outputs => %Q{ :a :t "1" . :b :t "2".}
+    },
 
-  {
-  :it => %Q{keeps elements the way they are when there is no changes},
-  :rule => %Q{ { ?x :relation_r ?_y .} => { :step :addFacts { ?x :relation_r ?_y . }. }. },
-  :inputs => %Q{ :a :relation_r """1""" . :b :relation_r :a .},
-  :outputs => %Q{ :a :relation_r """1""" . :b :relation_r :a .}
-  },
-  {
-  :it => %Q{relates elements with wildcard and with literal},
-  :rule => %Q{
+    {
+      :it => %Q{keeps elements the way they are when there is no changes},
+      :rule => %Q{ { ?x :relation_r ?_y .} => { :step :addFacts { ?x :relation_r ?_y . }. }. },
+      :inputs => %Q{ :a :relation_r """1""" . :b :relation_r :a .},
+      :outputs => %Q{ :a :relation_r """1""" . :b :relation_r :a .}
+    },
+    {
+      :it => %Q{relates elements with wildcard and with literal},
+      :rule => %Q{
         {
           ?x :s """1""" .
           ?y :t ?_val .
@@ -31,14 +31,14 @@ def inferences_data
         }
 
     },
-  :inputs => %Q{
+      :inputs => %Q{
         :tube1 :s """1""" .
         :tube2 :t """2""" .
         :tube3 :s """1""" .
         :tube4 :t """2""" .
 
     },
-  :outputs => %Q{
+      :outputs => %Q{
         :tube1 :s """1""" .
         :tube1 :val """2""" .
         :tube2 :t """2""" .
@@ -47,10 +47,10 @@ def inferences_data
         :tube3 :val """2""" .
         :tube4 :t """2""" .
   }
-},
-{
-  :it => %Q{relates elements with wildcard},
-  :rule => %Q{
+    },
+    {
+      :it => %Q{relates elements with wildcard},
+      :rule => %Q{
         {
           ?x :t ?_pos .
           ?y :t ?_pos .
@@ -58,14 +58,14 @@ def inferences_data
           :step :addFacts {?x :relates_with ?y }.
         }
     },
-  :inputs => %Q{
+      :inputs => %Q{
         :tube1 :t """1""" .
         :tube2 :t """2""" .
         :tube3 :t """1""" .
         :tube4 :t """2""" .
 
     },
-  :outputs => %Q{
+      :outputs => %Q{
         :tube1 :t """1""" .
         :tube2 :t """2""" .
         :tube3 :t """1""" .
@@ -80,11 +80,11 @@ def inferences_data
         :tube4 :relates_with :tube4 .
   }
 
-},
-{
-  :it => %Q{relates elements with relation},
-  :tags => :testing,
-  :rule => %Q{
+    },
+    {
+      :it => %Q{relates elements with relation},
+      :tags => :testing,
+      :rule => %Q{
         {
           ?x :a "TubeA" .
           ?x :transfer ?y .
@@ -93,24 +93,24 @@ def inferences_data
           :step :addFacts { ?y :transferredFrom ?x . }.
         }
     },
-  :inputs => %Q{
+      :inputs => %Q{
         :tube1 :a "TubeA" .
         :tube1 :transfer :tube2 .
         :tube2 :a "TubeB" .
 
     },
-  :outputs => %Q{
+      :outputs => %Q{
         :tube1 :a """TubeA""" .
         :tube2 :a """TubeB""" .
 
         :tube1 :transfer :tube2 .
         :tube2 :transferredFrom :tube1 .
   }
-},
-  {
-  :it => %Q{set the value if the destination does not have the value},
-  :unless => :cwm_engine?,
-  :rule => %Q{
+    },
+    {
+      :it => %Q{set the value if the destination does not have the value},
+      :unless => :cwm_engine?,
+      :rule => %Q{
     {
       ?x :a :Tube .
       ?y :a :Tube .
@@ -121,23 +121,23 @@ def inferences_data
       :step :addFacts {?y :aliquotType ?_aliquot .}.
     }.
   },
-  :inputs => %Q{
+      :inputs => %Q{
         :tube1 :a :Tube .
         :tube1 :transfer :tube2 .
         :tube2 :a :Tube .
         :tube1 :aliquotType "DNA" .
   },
-  :outputs => %Q{
+      :outputs => %Q{
         :tube1 :a :Tube .
         :tube1 :transfer :tube2 .
         :tube2 :a :Tube .
         :tube1 :aliquotType "DNA" .
         :tube2 :aliquotType "DNA" .
   }
-  },
-  {
-  :it => %Q{only set the value if the destination does not have the value already},
-  :rule => %Q{
+    },
+    {
+      :it => %Q{only set the value if the destination does not have the value already},
+      :rule => %Q{
     {
       ?x :a :Tube .
       ?y :a :Tube .
@@ -148,25 +148,25 @@ def inferences_data
       :step :addFacts {?y :aliquotType ?_aliquot .}.
     }.
   },
-  :inputs => %Q{
+      :inputs => %Q{
         :tube1 :a :Tube .
         :tube1 :transfer :tube2 .
         :tube2 :a :Tube .
         :tube1 :aliquotType """DNA""" .
         :tube2 :aliquotType """RNA""" .
   },
-  :outputs => %Q{
+      :outputs => %Q{
         :tube1 :a :Tube .
         :tube1 :transfer :tube2 .
         :tube2 :a :Tube .
         :tube1 :aliquotType """DNA""" .
         :tube2 :aliquotType """RNA""" .
   }
-  },
-  {
-  :it => %Q{transfer between plates},
-  :unless => :cwm_engine?,
-  :rule => %Q{
+    },
+    {
+      :it => %Q{transfer between plates},
+      :unless => :cwm_engine?,
+      :rule => %Q{
     {
       ?plate :a :Plate .
       ?plate2 :a :Plate .
@@ -184,7 +184,7 @@ def inferences_data
       :step :addFacts {?tube1 :transfer ?tube2 .}.
     }.
   },
-  :inputs => %Q{
+      :inputs => %Q{
       :plate1 :a :Plate .
       :plate2 :a :Plate .
       :tube1 :a :Tube .
@@ -199,7 +199,7 @@ def inferences_data
       :tube3 :location "D9" .
       :plate1 :contains :tube3 .
   },
-  :outputs => %Q{
+      :outputs => %Q{
       :plate1 :a :Plate .
       :plate2 :a :Plate .
       :tube1 :a :Tube .
@@ -216,11 +216,11 @@ def inferences_data
 
       :tube1 :transfer :tube2 .
   }
-  },
+    },
 
-  {
-  :xit => %Q{perform math operations},
-  :rule => %Q{
+    {
+      :xit => %Q{perform math operations},
+      :rule => %Q{
     {
       ?plate :a :Plate .
 
@@ -235,7 +235,7 @@ def inferences_data
       :step :addFacts {?aliquot :currentVolume ?newVolume .}.
     }.
   },
-  :inputs => %Q{
+      :inputs => %Q{
       :plate1 :a """Plate""" .
       :well1 :a """Well""" .
 
@@ -244,7 +244,7 @@ def inferences_data
       :aliquot1 :currentVolume """20""".
 
   },
-  :outputs => %Q{
+      :outputs => %Q{
       :plate1 :a """Plate""" .
       :well1 :a """Well""" .
 
@@ -252,10 +252,10 @@ def inferences_data
       :aliquot1 :a :Aliquot .
       :aliquot1 :currentVolume """30""".
   }
-  },
-  {
-    :it => 'moves the value of a wildcard using a relation between two cgroups',
-    :rule => %Q{
+    },
+    {
+      :it => 'moves the value of a wildcard using a relation between two cgroups',
+      :rule => %Q{
       {
         ?tube :is "Tube" .
         ?tube :location ?_position .
@@ -268,7 +268,7 @@ def inferences_data
         :step :addFacts {?rack :location ?_position .} .
       }
     },
-    :inputs => %Q{
+      :inputs => %Q{
       :tube1 :is "Tube" , :Full ; :location "1".
       :tube2 :is "Tube" , :Full ; :location "2".
       :tube3 :is "Tube" , :Full ; :location "3".
@@ -283,7 +283,7 @@ def inferences_data
       :rack4 :is "Rack" , :Full ; :contains :tube4 ; :position "4" ; :relates :tube4 .
       :rack5 :is "Rack" , :Full ; :contains :tube5 ; :position "5" ; :relates :tube5 .
     },
-    :outputs => %Q{
+      :outputs => %Q{
       :tube1 :is "Tube" , :Full ; :location "1".
       :tube2 :is "Tube" , :Full ; :location "2".
       :tube3 :is "Tube" , :Full ; :location "3".
@@ -298,10 +298,10 @@ def inferences_data
       :rack4 :is "Rack" , "TubeRack" , :Full ; :contains :tube4 ; :position "4" ; :relates :tube4 ; :location "4" .
       :rack5 :is "Rack" , "TubeRack" , :Full ; :contains :tube5 ; :position "5" ; :relates :tube5 ; :location "5" .
     }
-  },
-  {
-    :it => 'Bug 1: Not transferring tube contents to tube rack',
-    :rule => %Q{
+    },
+    {
+      :it => 'Bug 1: Not transferring tube contents to tube rack',
+      :rule => %Q{
 {
   ?tuberack :a :TubeRack .
   ?tuberack :layout :Complete .
@@ -309,7 +309,7 @@ def inferences_data
   ?tube :sanger_sample_id ?_sample .
 } => { :step :addFacts {?tube :transferToTubeRackByPosition ?tuberack . } . } .
       },
-    :inputs => %Q{
+      :inputs => %Q{
 :tube :a "Tube" .
 :tube :aliquotType "RNA" .
 :tube :is "Used" .
@@ -323,7 +323,7 @@ def inferences_data
 :tubeRack :contains :tube2 .
 :tubeRack :contains :tube3 .
 :tubeRack :layout "Complete" .    },
-    :outputs => %Q{
+      :outputs => %Q{
 :tube :transferToTubeRackByPosition :tubeRack .
 :tube :a "Tube" .
 :tube :aliquotType "RNA" .
@@ -339,20 +339,20 @@ def inferences_data
 :tubeRack :contains :tube3 .
 :tubeRack :layout "Complete" .
     }
-  },
-  {
-    :it => 'creates new assets from scratch',
-    :rule => %Q{
+    },
+    {
+      :it => 'creates new assets from scratch',
+      :rule => %Q{
       {?p :maxCardinality "1" .} => {
         :step :createAsset {?p :a :Tube . ?p :uuid "tube" .}
         } .
       },
-    :inputs => %Q{},
-    :outputs => %Q{
+      :inputs => %Q{},
+      :outputs => %Q{
       :tube :a :Tube .
       :tube :uuid "tube" .
     }
-  }
+    }
 
-]
+  ]
 end

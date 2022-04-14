@@ -5,7 +5,6 @@ class ContainerInferences
     @asset_group = params[:asset_group]
   end
 
-
   def containers
     asset_group.assets.joins(%Q{
       INNER JOIN facts as plate_facts on plate_facts.asset_id=assets.id AND plate_facts.predicate='contains'
@@ -17,6 +16,7 @@ class ContainerInferences
   def purpose_for_aliquot(aliquot)
     return 'DNA Stock Plate' if aliquot == 'DNA'
     return 'RNA Stock Plate' if aliquot == 'RNA'
+
     return 'Stock Plate'
   end
 
@@ -25,6 +25,7 @@ class ContainerInferences
       f.object_asset.facts.with_predicate('study_name').map(&:object)
     end.flatten.compact.uniq
     return "" if list.count > 1
+
     return list.first
   end
 
@@ -33,6 +34,7 @@ class ContainerInferences
       f.object_asset.facts.with_predicate('aliquotType').map(&:object)
     end.flatten.compact.uniq
     return "" if list.count > 1
+
     return purpose_for_aliquot(list.first)
   end
 
@@ -46,7 +48,6 @@ class ContainerInferences
       end
     end
   end
-
 end
 
 def out(val)
@@ -63,4 +64,3 @@ out({}) unless matches
 asset_group_id = matches[1]
 asset_group = AssetGroup.find(asset_group_id)
 out(ContainerInferences.new(asset_group: asset_group).process)
-

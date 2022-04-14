@@ -1,7 +1,6 @@
 require 'rails_helper'
 require 'spec_helper'
 shared_examples_for 'background task' do
-
   it_behaves_like "queueable job"
 
   context '#Background task' do
@@ -77,7 +76,6 @@ shared_examples_for 'background task' do
             expect(step.output).to include('boom!')
           end
         end
-
       end
     end
   end

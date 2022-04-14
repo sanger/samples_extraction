@@ -18,25 +18,25 @@ RSpec.describe StepTypesController, type: :controller do
   it "should create step_type" do
     expect {
       post :create, params: { step_type: { :name => 'Test' } }
-      }.to change {
-        StepType.count
-        }.by(1)
+    }.to change {
+           StepType.count
+         }.by(1)
 
     assert_redirected_to step_type_url(StepType.last)
   end
 
   it "should show step_type" do
-    get :show, params:{ id: @step_type }
+    get :show, params: { id: @step_type }
     assert_response :success
   end
 
   it "should get edit" do
-    get :show, params:{ id: @step_type }
+    get :show, params: { id: @step_type }
     assert_response :success
   end
 
   it "should update step_type" do
-    patch :update,   params: { id: @step_type, step_type: @step_type.attributes }
+    patch :update, params: { id: @step_type, step_type: @step_type.attributes }
     assert_redirected_to step_type_url(@step_type)
   end
 
@@ -53,9 +53,9 @@ RSpec.describe StepTypesController, type: :controller do
   it "should destroy step_type" do
     expect {
       delete :destroy, params: { id: @step_type }
-      }.to change {
-        StepType.count
-    }.by(-1)
+    }.to change {
+           StepType.count
+         }.by(-1)
 
     assert_redirected_to step_types_url
   end
@@ -71,8 +71,5 @@ RSpec.describe StepTypesController, type: :controller do
       post :create, params: params
       expect(response.redirect?).to eq(true)
     end
-
   end
-
 end
-

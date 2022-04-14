@@ -48,6 +48,7 @@ class PurposeNameInference
   def purpose_for_aliquot(aliquot)
     return 'DNA Stock Plate' if aliquot == 'DNA'
     return 'RNA Stock Plate' if aliquot == 'RNA'
+
     return 'Stock Plate'
   end
 
@@ -56,6 +57,7 @@ class PurposeNameInference
       f.object_asset.facts.with_predicate('aliquotType').map(&:object)
     end.flatten.compact.uniq
     return "" if list.count > 1
+
     return purpose_for_aliquot(list.first)
   end
 
@@ -68,7 +70,6 @@ class PurposeNameInference
       end
     end
   end
-
 end
 
 def out(val)

@@ -1,5 +1,4 @@
 class AssetsController < ApplicationController
-
   before_action :set_asset, only: [:show, :edit, :update, :destroy, :print]
   before_action :set_queries, only: [:search, :print_search]
 
@@ -15,7 +14,6 @@ class AssetsController < ApplicationController
     respond_to do |format|
       format.html { redirect_to @asset, notice: 'Asset was printed.' }
     end
-
   end
 
   def print_search
@@ -52,13 +50,11 @@ class AssetsController < ApplicationController
   # GET /assets/1
   # GET /assets/1.json
   def show
-    #@asset = Asset.find_by_uuid!(params[:uuid])
     respond_to do |format|
       format.html { render :show }
       format.n3 { render :show }
     end
   end
-
 
   # GET /assets/new
   def new
@@ -89,7 +85,6 @@ class AssetsController < ApplicationController
   # PATCH/PUT /assets/1.json
   def update
     respond_to do |format|
-
       if @asset.update(asset_params)
         @asset.touch
 
@@ -112,13 +107,11 @@ class AssetsController < ApplicationController
     end
   end
 
-
   private
 
-
-    # Use callbacks to share common setup or constraints between actions.
+  # Use callbacks to share common setup or constraints between actions.
   def set_asset
-    @asset = if UUID_REGEXP.match(params[:id])
+    @asset = if TokenUtil::UUID_REGEXP.match(params[:id])
                Asset.find_by(uuid: params[:id])
              else
                Asset.find(params[:id])
@@ -130,20 +123,17 @@ class AssetsController < ApplicationController
   end
 
   def valid_indexes
-    params.keys.map { |k| k.match(/^[pq](\d*)$/) }.compact.map { |k| k[1] }
+    params.keys.filter_map { |k| k.match(/^[pq](\d*)$/) }.map { |k| k[1] }
   end
 
-    def set_queries
-      @queries = valid_indexes.map do |val|
-        OpenStruct.new({ :predicate => params["p"+val], :object => params["o"+val] })
-      end
+  def set_queries
+    @queries = valid_indexes.map do |val|
+      OpenStruct.new({ :predicate => params["p" + val], :object => params["o" + val] }) # rubocop:todo Style/OpenStructUse
     end
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def asset_params
-      params.require(:asset).permit(:barcode)
-    end
-
-    UUID_REGEXP = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
-
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def asset_params
+    params.require(:asset).permit(:barcode)
+  end
 end

@@ -1,7 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe Steps::State do
-
   let(:activity) { create :activity }
   let(:step_type) { create :step_type }
   let(:job) { double('a job', id: 'an id') }
@@ -15,7 +14,7 @@ RSpec.describe Steps::State do
     before do
       allow(step).to receive(:create_job).and_return(job)
     end
-    let(:step) { create :step, state: Step::STATE_PENDING, activity: activity, step_type: step_type  }
+    let(:step) { create :step, state: Step::STATE_PENDING, activity: activity, step_type: step_type }
     it 'can transition to run' do
       expect(step).to transition_from(:pending).to(:running).on_event(:run)
       expect(step).to transition_from(:failed).to(:running).on_event(:run)
@@ -97,7 +96,6 @@ RSpec.describe Steps::State do
     end
   end
 
-
   context 'when changing state to complete' do
     let(:step) { create :step, state: Step::STATE_RUNNING, activity: activity, step_type: step_type }
     it 'sets the timestamp for finished_at' do
@@ -113,4 +111,3 @@ RSpec.describe Steps::State do
     end
   end
 end
-

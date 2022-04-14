@@ -24,6 +24,4 @@ RSpec.describe Parsers::CsvLayout::Validators::FluidxBarcodeValidator do
     instance.barcode = ''
     expect(instance).to be_invalid
   end
-
 end
-

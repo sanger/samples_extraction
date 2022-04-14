@@ -14,13 +14,13 @@ class ActivityType < ApplicationRecord
   has_many :activity_type_compatibilities
   has_many :assets, -> { distinct }, :through => :activity_type_compatibilities
 
+  scope :alphabetical, -> { order(name: :asc) }
+
   include Deprecatable
 
   def touch_activities
     activities.each(&:touch)
   end
-
-  before_update :parse_n3
 
   attr_accessor :n3_definition
 
@@ -29,8 +29,9 @@ class ActivityType < ApplicationRecord
     ActiveRecord::Base.transaction do
       group = AssetGroup.create
       activity = Activity.create({
-        kit: params[:kit], instrument: params[:instrument],
-        activity_type: self, asset_group: group })
+                                   kit: params[:kit], instrument: params[:instrument],
+                                   activity_type: self, asset_group: group
+                                 })
       activities << activity
       group.update_attributes!(activity_owner: activity)
     end
@@ -41,22 +42,14 @@ class ActivityType < ApplicationRecord
     superceded_by.nil?
   end
 
-  def parse_n3
-    return
-    unless n3_definition.nil?
-      SupportN3::parse_string(n3_definition, {})
-    end
-  end
-
   def after_deprecate
     superceded_by.update_attributes(
       activities: superceded_by.activities | activities,
-      kit_types:  superceded_by.kit_types | kit_types,
+      kit_types: superceded_by.kit_types | kit_types,
       instruments: superceded_by.instruments | instruments
-      )
+    )
     superceded_by.save!
   end
-
 
   def compatible_with?(assets)
     condition_groups.any? { |c| c.compatible_with?(assets) }

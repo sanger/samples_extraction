@@ -6,7 +6,7 @@ def print_list(user, printer_config, barcodes)
       asset.facts << Fact.create(predicate: 'barcodeType', object: 'Code128')
       asset
     end
-    
+
     asset_group = AssetGroup.create
     asset_group.assets << assets
     asset_group.save

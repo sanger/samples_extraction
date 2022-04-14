@@ -5,7 +5,6 @@ module Steps::State
   EVENT_REMAKE = 'remake'
   EVENT_CANCEL = 'cancel'
 
-
   def self.included(klass)
     klass.instance_eval do
       scope :in_progress, ->() { where(:in_progress? => true) }
@@ -23,9 +22,7 @@ module Steps::State
       scope :finished, ->() { includes(:operations, :step_type) }
       scope :in_activity, ->() { where.not(activity_id: nil) }
 
-
       include AASM
-
 
       aasm column: :state do
         state :pending, initial: true
@@ -43,13 +40,13 @@ module Steps::State
 
         event :complete do
           transitions from: :cancelled, to: :complete
-          transitions from: [:running,:remaking], to: :complete, after: [
+          transitions from: [:running, :remaking], to: :complete, after: [
             :clear_job, :set_complete_timestamp!
           ]
         end
 
         event :cancelled do
-          transitions from: [:cancelling,:complete], to: :cancelled
+          transitions from: [:cancelling, :complete], to: :cancelled
         end
 
         event :run, guards: [:assets_compatible_with_step_type] do
@@ -62,17 +59,17 @@ module Steps::State
 
         event :cancel do
           transitions from: [:complete, :cancelling], to: :cancelling,
-            after: :cancel_me_and_any_newer_completed_steps
+                      after: :cancel_me_and_any_newer_completed_steps
         end
 
         event :remake do
           transitions from: [:cancelled, :remaking], to: :remaking,
-            after: :remake_me_and_any_older_cancelled_steps
+                      after: :remake_me_and_any_older_cancelled_steps
         end
 
-        event :continue, guards: [:assets_compatible_with_step_type]  do
+        event :continue, guards: [:assets_compatible_with_step_type] do
           transitions from: :running, to: :running
-          transitions from: [:failed,:stopped,:pending], to: :running, after: [:continue_newer_steps, :run]
+          transitions from: [:failed, :stopped, :pending], to: :running, after: [:continue_newer_steps, :run]
         end
 
         event :stop do
@@ -83,7 +80,7 @@ module Steps::State
 
           transitions from: :remaking, to: :cancelled, after: [:stop_job, :stop_newer_steps]
           transitions from: [:failed, :running], to: :stopped,
-            after: [:stop_job, :stop_newer_steps, :cancel_me]
+                      after: [:stop_job, :stop_newer_steps, :cancel_me]
           transitions from: :cancelling, to: :complete, after: [:stop_job, :stop_newer_steps]
         end
 
@@ -112,16 +109,16 @@ module Steps::State
 
   def is_processing_state?(state)
     return false if state.nil?
+
     running? || cancelling? || remaking?
   end
 
   def active?
     running? || pending?
-    #((self.state == 'running') || (self.state.nil?))
+    # ((self.state == 'running') || (self.state.nil?))
   end
 
   def completed?
     complete?
   end
-
 end

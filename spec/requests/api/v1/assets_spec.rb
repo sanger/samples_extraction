@@ -1,7 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe 'Api::V1::Sets', type: :request do
-
   let(:headers) do
     {
       "Content-Type" => "application/vnd.api+json",
@@ -12,6 +11,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
   def key_for_attribute(attr_key)
     # Because some Traction attributes has been stored with a different predicate in extraction
     return :sample_common_name if attr_key == :species
+
     return attr_key
   end
 
@@ -46,13 +46,11 @@ RSpec.describe 'Api::V1::Sets', type: :request do
   end
 
   describe 'Assets' do
-
     describe 'GET' do
-
       before do
         get api_v1_asset_path(asset.uuid), headers: {
-          "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
+          'Content-Type': "application/vnd.api+json",
+          Accept: "application/vnd.api+json"
         }
       end
 
@@ -66,12 +64,10 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
       it_behaves_like 'a response with the required fields for Traction'
     end
-
   end
 
   describe 'filtering' do
     context 'when filtering by barcode' do
-
       let!(:sets) do
         [
           create(:asset, barcode: 'B01'),
@@ -82,8 +78,8 @@ RSpec.describe 'Api::V1::Sets', type: :request do
       end
       before do
         get api_v1_assets_path, params: { "filter[barcode]" => "F02" }, headers: {
-          "Content-Type": "application/vnd.api+json",
-          "Accept": "application/vnd.api+json"
+          'Content-Type': "application/vnd.api+json",
+          Accept: "application/vnd.api+json"
         }
       end
       it 'returns the asset' do
@@ -95,5 +91,4 @@ RSpec.describe 'Api::V1::Sets', type: :request do
       it_behaves_like 'a response with the required fields for Traction'
     end
   end
-
 end

@@ -60,8 +60,8 @@ RSpec.describe 'ChangesSupport::TransactionScope' do
           asset3.facts << create(:fact, predicate: 'is', object: 'Empty')
           asset3.facts << create(:fact, predicate: 'a', object: 'Tube')
           expect(accessor.joins(:facts).where(facts: { predicate: 'a', object: 'Tube' }).map(&:uuid)).to eq([
-            asset1.uuid, asset3.uuid
-            ])
+                                                                                                              asset1.uuid, asset3.uuid
+                                                                                                            ])
         end
       end
       context 'when the condition are met both in the Changes and in the database' do

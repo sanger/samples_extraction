@@ -37,15 +37,14 @@ module Activities::WebsocketEvents
 
   def wss_event(opts = {})
     _wss_event(opts)
-    #delay(queue: 'websockets')._wss_event(opts)
+    # delay(queue: 'websockets')._wss_event(opts)
   end
 
   def _wss_event(opts = {})
     if Rails.configuration.redis_enabled && is_being_listened?
       data = websockets_attributes(json_attributes).merge(opts)
-      #debugger if data[:stepsFinished][0]['state']=='error'
+      # debugger if data[:stepsFinished][0]['state']=='error'
       send_wss_event(data)
     end
   end
-
 end

@@ -2,12 +2,12 @@ require 'tempfile'
 require 'csv'
 require 'rest_client'
 
-NUM_BARCODES=96
+NUM_BARCODES = 96
 num = 0
 barcodes = []
 while (num < NUM_BARCODES) do
-  number=(rand*999999).floor.to_s
-  barcode = ["FR"].concat((6-number.length).times.map { "0" }).concat([number]).join("")
+  number = (rand * 999999).floor.to_s
+  barcode = ["FR"].concat(Array.new((6 - number.length)) { "0" }).concat([number]).join
   found = Asset.find_by(barcode: barcode)
   unless found
     barcodes.push(barcode)
@@ -18,8 +18,8 @@ puts
 
 letters = ("A".."H").to_a
 columns = (1..12).to_a
-location_for_position = NUM_BARCODES.times.map do |i|
-  "#{letters[(i/columns.length).floor]}#{(columns[i%columns.length]).to_s}"
+location_for_position = Array.new(NUM_BARCODES) do |i|
+  "#{letters[(i / columns.length).floor]}#{(columns[i % columns.length]).to_s}"
 end
 
 temp_file = Tempfile.new
@@ -32,6 +32,6 @@ end
 file = UploadedFile.create(filename: "_temp.csv", data: temp_file.read)
 asset = file.build_asset(content_type: "csv")
 
-data= { add_assets: [[nil, [asset.uuid] ]] }
+data = { add_assets: [[nil, [asset.uuid]]] }
 
 puts data.to_json

@@ -1,23 +1,24 @@
 require 'rails_helper'
 
-require Rails.root.to_s+'/script/runners/transfer_tubes_to_tube_rack_by_position'
-
+require Rails.root.to_s + '/script/runners/transfer_tubes_to_tube_rack_by_position'
 
 RSpec.describe 'TransferTubesToTubeRackByPosition' do
   let(:wells) {
     5.times.each_with_index.map do |i|
       create(:asset, facts: [
-        create(:fact, predicate: 'a', object: 'Well'),
-        create(:fact, predicate: 'location', object: "A0#{i}")
-      ])
+               create(:fact, predicate: 'a', object: 'Well'),
+               create(:fact, predicate: 'location', object: "A0#{i}")
+             ])
     end
   }
-  let(:rack) { create(:asset, facts: [
-    create(:fact, predicate: 'a', object: 'TubeRack'),
-    wells.map { |w| create(:fact, predicate: 'contains', object_asset_id: w.id) }
-    ].flatten)}
+  let(:rack) {
+    create(:asset, facts: [
+      create(:fact, predicate: 'a', object: 'TubeRack'),
+      wells.map { |w| create(:fact, predicate: 'contains', object_asset_id: w.id) }
+    ].flatten)
+  }
   let(:tubes) {
-    5.times.map { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
+    Array.new(5) { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
   }
   let(:instance) {
     TransferTubesToTubeRackByPosition.new(asset_group: group)
@@ -37,7 +38,7 @@ RSpec.describe 'TransferTubesToTubeRackByPosition' do
       end
       context 'when only some of the tubes are related with the rack' do
         let(:unrelated_tubes) {
-          5.times.map { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
+          Array.new(5) { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
         }
         before do
           group.assets << unrelated_tubes
@@ -103,7 +104,7 @@ RSpec.describe 'TransferTubesToTubeRackByPosition' do
             let(:aliquot) { aliquot_dna }
             it 'will set up a DNA Stock plate purpose' do
               added_facts = instance.process.to_h[:add_facts]
-              purposes = added_facts.select { |triple| triple[1]=='purpose' }
+              purposes = added_facts.select { |triple| triple[1] == 'purpose' }
               expect(purposes.size).to eq(1)
               expect(purposes.first[0]).to eq(rack.uuid)
               expect(purposes.first[2]).to eq("DNA Stock Plate")
@@ -113,7 +114,7 @@ RSpec.describe 'TransferTubesToTubeRackByPosition' do
             let(:aliquot) { aliquot_rna }
             it 'will set up an RNA Stock plate purpose' do
               added_facts = instance.process.to_h[:add_facts]
-              purposes = added_facts.select { |triple| triple[1]=='purpose' }
+              purposes = added_facts.select { |triple| triple[1] == 'purpose' }
               expect(purposes.size).to eq(1)
               expect(purposes.first[0]).to eq(rack.uuid)
               expect(purposes.first[2]).to eq("RNA Stock Plate")
@@ -144,7 +145,6 @@ RSpec.describe 'TransferTubesToTubeRackByPosition' do
         end
       end
 
-
       context 'when some of the tubes were already in the rack' do
         before do
           wells.last.facts << create(:fact, predicate: 'transferredFrom', object_asset_id: tubes.last.id)
@@ -159,8 +159,8 @@ RSpec.describe 'TransferTubesToTubeRackByPosition' do
           wells.first.facts << create(:fact, predicate: 'transferredFrom', object_asset_id: tubes.first.id)
         end
         it 'starts transferring after the last occupied well of the rack' do
-          rest_tubes = tubes.slice(1,tubes.length)
-          rest_wells = wells.slice(1,wells.length)
+          rest_tubes = tubes.slice(1, tubes.length)
+          rest_wells = wells.slice(1, wells.length)
           group.update_attributes(assets: [rest_tubes, rack].flatten)
 
           added_facts = instance.process.to_h[:add_facts]
@@ -168,11 +168,10 @@ RSpec.describe 'TransferTubesToTubeRackByPosition' do
           transfers = added_facts.select { |triple| triple[1] == 'transfer' }.map { |triple| [triple[0], triple[2]] }
           expect(rest_tubes.map(&:uuid).zip(rest_wells.map(&:uuid))).to eq(transfers)
         end
-
       end
       context 'when there are no more space left in the rack' do
         let(:tubes) {
-          7.times.map { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
+          Array.new(7) { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
         }
         it 'produces an error' do
           set_errors = instance.process.to_h[:set_errors]

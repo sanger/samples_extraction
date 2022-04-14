@@ -1,13 +1,6 @@
 module Uuidable
   extend ActiveSupport::Concern
   included do
-    before_save :uuid
-
-    alias_method :generate_uuid!, :uuid
+    attribute :uuid, default: -> { SecureRandom.uuid }
   end
-
-  def uuid
-    self[:uuid] ||= SecureRandom.uuid
-  end
-
 end

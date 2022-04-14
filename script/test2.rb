@@ -1,5 +1,3 @@
-
-
 obj = {
   create_assets: ["?p"],
   create_asset_groups: ["?Eduardo Martin"],

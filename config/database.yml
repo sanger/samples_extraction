@@ -20,7 +20,7 @@ default: &default
 
 development:
   <<: *default
-  database: samples_extraction_development
+  database: <%= ENV.fetch('DBNAME','samples_extraction_development') %>
 
 debug:
   <<: *default

@@ -6,5 +6,5 @@ ActiveRecord::Base.transaction do
   external_id = PMB::LabelTemplate.where(name: pmb_template_name).first.id
 
   LabelTemplate.create(name: pmb_template_name,
-    template_type: 'Plate', external_id: external_id)
+                       template_type: 'Plate', external_id: external_id)
 end

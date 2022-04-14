@@ -7,8 +7,6 @@ class AssetGroupsController < ApplicationController
 
   include ActivitiesHelper
 
-
-
   def show
     @assets = @asset_group.assets
 
@@ -19,12 +17,10 @@ class AssetGroupsController < ApplicationController
     end
   end
 
-
   def update
     @assets = @asset_group.assets
 
     head :ok
-    #render json: { asset_group: {assets: @asset_group.assets.map(&:uuid) }}
   end
 
   def upload
@@ -44,37 +40,36 @@ class AssetGroupsController < ApplicationController
 
   private
 
-    def update_barcodes
-      perform_assets_update
+  def update_barcodes
+    perform_assets_update
 
-      if @alerts
-        render json: { errors: @alerts }
-      end
+    if @alerts
+      render json: { errors: @alerts }
     end
+  end
 
-    def set_activity
-      # I need the activity to be able to know the step_types compatible to show.
-      @activity = Activity.find(params[:activity_id]) if params[:activity_id]
-    end
+  def set_activity
+    # I need the activity to be able to know the step_types compatible to show.
+    @activity = Activity.find(params[:activity_id]) if params[:activity_id]
+  end
 
-    # Use callbacks to share common setup or constraints between actions.
-    def set_asset_group
-      @asset_group = AssetGroup.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_asset_group
+    @asset_group = AssetGroup.find(params[:id])
+  end
 
-    def perform_assets_update
-      @asset_group.update_attributes(assets: params_update_asset_group[:assets].map do |uuid_or_barcode|
-                                       Asset.find_or_import_asset_with_barcode(uuid_or_barcode)
-                                     end.compact.uniq)
-    end
+  def perform_assets_update
+    @asset_group.update_attributes(assets: params_update_asset_group[:assets].filter_map do |uuid_or_barcode|
+                                             Asset.find_or_import_asset_with_barcode(uuid_or_barcode)
+                                           end.uniq)
+  end
 
-    def show_alert(data)
-      @alerts = [] unless @alerts
-      @alerts.push(data)
-    end
+  def show_alert(data)
+    @alerts = [] unless @alerts
+    @alerts.push(data)
+  end
 
-    def params_update_asset_group
-      params.require(:asset_group).permit(:assets => [])
-    end
-
+  def params_update_asset_group
+    params.require(:asset_group).permit(:assets => [])
+  end
 end

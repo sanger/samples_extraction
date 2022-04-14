@@ -11,8 +11,6 @@ module Assets::FactsManagement
       scope :with_predicate, ->(predicate) {
         joins(:facts).where(:facts => { :predicate => predicate })
       }
-
-
     end
   end
 
@@ -38,7 +36,7 @@ module Assets::FactsManagement
         ((fact.predicate == f.predicate) && (fact.object_asset == f.object_asset) &&
           (fact.to_add_by == f.to_add_by) && (fact.to_remove_by == f.to_remove_by))
       else
-        other_conds=true
+        other_conds = true
         if fact.respond_to?(:to_add_by)
           other_conds = (fact.to_add_by == f.to_add_by) && (fact.to_remove_by == f.to_remove_by)
         end
@@ -46,7 +44,6 @@ module Assets::FactsManagement
       end
     end
   end
-
 
   def facts_to_s
     facts.each do |fact|
@@ -75,5 +72,4 @@ module Assets::FactsManagement
       asset.facts.where(predicate: predicate, object_asset: object)
     end
   end
-
 end

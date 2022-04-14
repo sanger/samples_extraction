@@ -62,13 +62,14 @@ class PrintersController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_printer
-      @printer = Printer.find(params[:id])
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def printer_params
-      params.require(:printer).permit(:name, :printer_type, :default_printer)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_printer
+    @printer = Printer.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def printer_params
+    params.require(:printer).permit(:name, :printer_type, :default_printer)
+  end
 end

@@ -9,8 +9,9 @@ class UploadedFile < ApplicationRecord
   end
 
   def file_type(content_type)
-    return 'XML' if content_type=='text/xml'
-    return 'CSV' if content_type=='text/csv'
+    return 'XML' if content_type == 'text/xml'
+    return 'CSV' if content_type == 'text/csv'
+
     return 'Unknown'
   end
 

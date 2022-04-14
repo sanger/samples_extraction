@@ -22,30 +22,30 @@ RSpec.describe InstrumentsController, type: :controller do
 
   it "should create instrument" do
     expect {
-      post :create,  params: { instrument: @instrument.attributes }
+      post :create, params: { instrument: @instrument.attributes }
     }.to change { Instrument.count }.by(1)
 
     assert_redirected_to instrument_path(assigns(:instrument))
   end
 
   it "should show instrument" do
-    get :show, params:  { id: @instrument }
+    get :show, params: { id: @instrument }
     assert_response :success
   end
 
   it "should get edit" do
-    get :edit,  params: { id: @instrument }
+    get :edit, params: { id: @instrument }
     assert_response :success
   end
 
   it "should update instrument" do
-    patch :update, params:  { id: @instrument, instrument: @instrument.attributes }
+    patch :update, params: { id: @instrument, instrument: @instrument.attributes }
     assert_redirected_to instrument_path(assigns(:instrument))
   end
 
   it "should destroy instrument" do
     expect {
-      delete :destroy, params:  { id: @instrument }
+      delete :destroy, params: { id: @instrument }
     }.to change { Instrument.count }.by(-1)
 
     assert_redirected_to instruments_path

@@ -6,10 +6,11 @@ RSpec.describe Condition, type: :model do
     setup do
       @wildcard = FactoryBot.create(:condition_group)
       @cond = FactoryBot.create(:condition, {
-        :predicate => 'aliquotType', :object_condition_group => @wildcard })
+                                  :predicate => 'aliquotType', :object_condition_group => @wildcard
+                                })
       @fact = FactoryBot.create(:fact, {
-        :predicate => 'aliquotType', :object => 'DNA'
-        })
+                                  :predicate => 'aliquotType', :object => 'DNA'
+                                })
       @asset = FactoryBot.create(:asset, { :facts => [@fact] })
     end
 
@@ -19,9 +20,9 @@ RSpec.describe Condition, type: :model do
   end
 
   describe 'wildcard creation on compatible_with()' do
-    #assets, required_assets=nil, checked_condition_groups=[], wildcard_values={})
+    # assets, required_assets=nil, checked_condition_groups=[], wildcard_values={})
     setup do
-      @assets = 5.times.map do |i|
+      @assets = Array.new(5) do |i|
         facts = [
           FactoryBot.create(:fact, { :predicate => 'a', :object => 'Tube' })
         ]
@@ -30,14 +31,14 @@ RSpec.describe Condition, type: :model do
         FactoryBot.create(:asset, :facts => facts)
       end
 
-      @wells = 5.times.map do |i|
+      @wells = Array.new(5) do |i|
         facts = [
           FactoryBot.create(:fact, { :predicate => 'a', :object => 'Well' })
         ]
         aliquot = ((i % 2) == 0) ? 'DNA' : 'RNA'
         facts.push(FactoryBot.create(:fact, { :predicate => 'aliquotType', :object => aliquot }))
         FactoryBot.create(:asset, :facts => facts)
-      end      
+      end
       @rack = FactoryBot.create :asset
       @rack.facts << (FactoryBot.create(:fact, { :predicate => 'a', :object => 'Rack' }))
       @rack.facts << (@wells.map { |well| FactoryBot.create(:fact, { :predicate => 'contains', :object_asset => well }) })
@@ -69,16 +70,14 @@ RSpec.describe Condition, type: :model do
       @asset_group = FactoryBot.create(:asset_group, :assets => @assets)
       @step = FactoryBot.create(:step, { :step_type => @step_type, :asset_group => @asset_group })
 
-      { 210=>{ 1737=>["DNA"], 1738=>["RNA"], 
-        1739=>["DNA"], 1740=>["RNA"], 1741=>["DNA"], 
-        1742=>["DNA"], 1743=>["RNA"], 1744=>["DNA"], 
-        1745=>["RNA"], 1746=>["DNA"] }, 
-      211=>{ 1737=>["DNA"], 
-        1738=>["RNA"], 1739=>["DNA"], 1740=>["RNA"], 
-        1741=>["DNA"], 1742=>["DNA"], 1743=>["RNA"], 
-        1744=>["DNA"], 1745=>["RNA"], 1746=>["DNA"] } }
-   
+      { 210 => { 1737 => ["DNA"], 1738 => ["RNA"],
+                 1739 => ["DNA"], 1740 => ["RNA"], 1741 => ["DNA"],
+                 1742 => ["DNA"], 1743 => ["RNA"], 1744 => ["DNA"],
+                 1745 => ["RNA"], 1746 => ["DNA"] },
+        211 => { 1737 => ["DNA"],
+                 1738 => ["RNA"], 1739 => ["DNA"], 1740 => ["RNA"],
+                 1741 => ["DNA"], 1742 => ["DNA"], 1743 => ["RNA"],
+                 1744 => ["DNA"], 1745 => ["RNA"], 1746 => ["DNA"] } }
     end
-
-  end  
+  end
 end

@@ -19,7 +19,7 @@
       ?q :a :File .
     }=>{}.
     }],
-  ['Rack Layout creating tubes', 'rack_layout_creating_tubes.rb', %Q{
+  ['Rack Layout creating tubes', 'StepPlanner::RackLayoutCreatingTubes', %Q{
     {
       ?p :contains ?q .
       ?p :a :TubeRack .
@@ -53,7 +53,7 @@
     { ?p :a :TubeRack .}=>{}.
     }]
 ].map { |l|
-  s=StepType.find_by(name: l[0])
-  s2=StepType.create(name: l[0], step_action: l[1], for_reasoning: true, n3_definition: l[2])
+  s = StepType.find_by(name: l[0])
+  s2 = StepType.create(name: l[0], step_action: l[1], for_reasoning: true, n3_definition: l[2])
   s.deprecate_with(s)
 }

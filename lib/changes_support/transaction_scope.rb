@@ -46,10 +46,10 @@ module ChangesSupport::TransactionScope
 
     # Filters out assets that do not complie to the conditions expressed in the opts anymore
     def _filter_removed_entries(opts)
-      if (@klass==Asset)
+      if (@klass == Asset)
         if @updates.to_h[:delete_assets]
-          selected_elements=result_set.to_a.select { |a| @updates.to_h[:delete_assets].include?(a.uuid) }
-          @result_set=result_set.to_a - selected_elements
+          selected_elements = result_set.to_a.select { |a| @updates.to_h[:delete_assets].include?(a.uuid) }
+          @result_set = result_set.to_a - selected_elements
         end
         if @updates.to_h[:remove_facts]
           if opts[:facts]
@@ -58,13 +58,13 @@ module ChangesSupport::TransactionScope
                 object_asset = Asset.find(opts[:facts][:object_asset_id]) if opts[:facts][:object_asset_id]
 
                 (
-                  (triple[0]==element.uuid) &&
+                  ((triple[0] == element.uuid) &&
                   (opts[:facts][:predicate] == triple[1]) &&
-                  (opts[:facts][:object] == triple[2]) || (object_asset.uuid == triple[2])
+                  (opts[:facts][:object] == triple[2])) || (object_asset.uuid == triple[2])
                 )
               end
             end
-            @result_set=result_set.to_a - selected_elements
+            @result_set = result_set.to_a - selected_elements
           end
         end
       end
@@ -72,7 +72,7 @@ module ChangesSupport::TransactionScope
 
     def _append_added_entries(opts)
       selected_elements = _select_by(opts)
-      @result_set=result_set.to_a.concat(selected_elements) if selected_elements.length > 0
+      @result_set = result_set.to_a.concat(selected_elements) if selected_elements.length > 0
     end
 
     def where(opts)
@@ -106,20 +106,21 @@ module ChangesSupport::TransactionScope
 
     def _join_condition(elem, default_fkey_name = nil)
       default_fkey_name ||= @klass.to_s.downcase.to_sym
-      rel={}
+      rel = {}
       rel[default_fkey_name] = elem
       rel
     end
 
     def _get_or_build_accessor(klass)
       return nil unless klass
+
       @accessors ||= {}
       @accessors[klass] = ModelAccessor.new(klass, @updates)
     end
 
     def _select_by(opts)
       _disjoint_list_for(:create).select do |a|
-        opts.all? do |k,v|
+        opts.all? do |k, v|
           model_name = k.to_s.singularize.to_sym
           if (_disjoint_lists.has_key?(model_name) && (v.kind_of?(Hash)))
             class_name = model_name.to_s.classify.constantize
@@ -128,13 +129,13 @@ module ChangesSupport::TransactionScope
           else
             k_id = k.to_s.concat("_id").to_sym
             if a.respond_to?(k)
-              a.send(k)==v
+              a.send(k) == v
             elsif (a.respond_to?(k_id) && (k_id != :object_id))
               a.send(k_id)
             elsif (a.kind_of?(Hash) && a.has_key?(k))
-              a[k]==v
+              a[k] == v
             elsif (a.kind_of?(Hash) && a.has_key?(k_id))
-              a[k_id]==v.id
+              a[k_id] == v.id
             else
               false
             end
@@ -146,8 +147,8 @@ module ChangesSupport::TransactionScope
 
   def transaction_scope(klass)
     raise 'Unsupported transaction scope class' unless klass == Asset
+
     @transaction_scopes ||= {}
     @transaction_scopes[klass.to_s] ||= ModelAccessor.new(klass, self)
   end
-
 end

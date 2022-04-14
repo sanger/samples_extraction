@@ -54,7 +54,7 @@ runners = [
       ?q :a :File .
     }=>{}.
     }],
-  ['Rack Layout creating tubes', 'rack_layout_creating_tubes.rb', %Q{
+  ['Rack Layout creating tubes', 'StepPlanner::RackLayoutCreatingTubes', %Q{
     {
       ?p :contains ?q .
       ?p :a :TubeRack .
@@ -89,4 +89,4 @@ runners = [
     }]
 ].map { |l| StepType.create(name: l[0], step_action: l[1], n3_definition: l[2]) }
 
-#reracking_activity_type.step_types << runners
+# reracking_activity_type.step_types << runners

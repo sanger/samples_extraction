@@ -10,55 +10,43 @@ class InvalidDataParams < StandardError
   def initialize(message = nil)
     super(message)
     @errors = message
-    #@msg = html_error_message([message].flatten)
   end
 
   def html_error_message(error_messages)
     ['<ul>', error_messages.map do |msg|
-      ['<li>',msg,'</li>']
-    end, '</ul>'].flatten.join('')
+      ['<li>', msg, '</li>']
+    end, '</ul>'].flatten.join
   end
-
 end
 
 module Actions
   module Racking
-
     DNA_STOCK_PLATE_PURPOSE = 'DNA Stock Plate'
     RNA_STOCK_PLATE_PURPOSE = 'RNA Stock Plate'
     STOCK_PLATE_PURPOSE = 'Stock Plate'
     DNA_ALIQUOT = 'DNA'
     RNA_ALIQUOT = 'RNA'
-    TUBE_TO_PLATE_TRANSFERRABLE_PROPERTIES = [:study_name,:aliquotType]
+    TUBE_TO_PLATE_TRANSFERRABLE_PROPERTIES = [:study_name, :aliquotType]
+
+    ALIQUOT_PURPOSE = {
+      DNA_ALIQUOT => DNA_STOCK_PLATE_PURPOSE,
+      RNA_ALIQUOT => RNA_STOCK_PLATE_PURPOSE
+    }
 
     # Actions
-    def rack_layout(asset_group)
-      content = selected_file(asset_group).data
-      csv_parsing(asset_group, Parsers::CsvLayout::CsvParser.new(content))
+    def rack_layout(options = {})
+      csv_parsing(Parsers::CsvLayout::CsvParser.new(selected_file.data, options))
     end
 
-    def rack_layout_creating_tubes(asset_group)
-      content = selected_file(asset_group).data
-      parser = Parsers::CsvLayout::CsvParser.new(content, {
-        barcode_parser: Parsers::CsvLayout::BarcodeCreatableParser
-      })
-      csv_parsing(asset_group, parser)
+    def rack_layout_creating_tubes
+      rack_layout(barcode_parser: Parsers::CsvLayout::BarcodeCreatableParser)
     end
 
-    def rack_layout_any_barcode(asset_group)
-      content = selected_file(asset_group).data
-      parser = Parsers::CsvLayout::CsvParser.new(content, {
-        barcode_validator: Parsers::CsvLayout::Validators::AnyBarcodeValidator
-      })
-      csv_parsing(asset_group, parser)
+    def rack_layout_any_barcode
+      rack_layout(barcode_validator: Parsers::CsvLayout::Validators::AnyBarcodeValidator)
     end
 
     # Support methods and classes
-
-
-    def clean_rack(rack)
-      remove_facts(facts.with_predicate('contains'))
-    end
 
     def reracking_tubes(rack, list_layout)
       fact_changes_unrack = fact_changes_for_unrack_tubes(list_layout, rack)
@@ -66,26 +54,32 @@ module Actions
       fact_changes_unrack.merge(fact_changes_rack)
     end
 
+    private
+
     def fact_changes_for_unrack_tubes(list_layout, destination_rack = nil)
       FactChanges.new.tap do |updates|
-        rerackGroup=nil
+        rerackGroup = nil
 
         previous_racks = []
-        tubes = list_layout.map { |obj| obj[:asset] }.compact
+        tubes = list_layout.filter_map { |obj| obj[:asset] }
         return updates if tubes.empty?
+
         tubes_ids = tubes.map(&:id)
-        tubes_list = Asset.where(id: tubes_ids).includes(:facts)
-        tubes_list.each_with_index do |tube, index|
+        # tubes_list = Asset.where(id: tubes_ids).includes(facts: { object_asset: { facts: :object_asset } })
+        tubes.each_with_index do |tube, index|
           location_facts = tube.facts.with_predicate('location')
-          unless location_facts.empty?
+
+          if location_facts.present?
             location = location_facts.first.object
-            updates.remove(tube.facts.with_predicate('location'))
+            updates.remove(location_facts)
           end
+
           tube.facts.with_predicate('parent').each do |parent_fact|
             previous_rack = parent_fact.object_asset
             unless (previous_racks.include?(previous_rack))
               previous_racks.push(previous_rack)
-              updates.remove(previous_rack.facts.with_predicate('contains').where(object_asset_id: tubes_ids))
+              old_facts = previous_rack.facts.with_predicate('contains').select { |fact| tubes_ids.include?(fact.object_asset_id) }
+              updates.remove(old_facts)
             end
 
             if destination_rack
@@ -101,8 +95,8 @@ module Actions
               updates.add(rerack, 'a', 'Rerack')
               updates.add(rerack, 'tube', tube)
               updates.add(rerack, 'barcodeType', 'NoBarcode')
-              updates.add(rerack, 'previousParent', previous_rack)
-              updates.add(rerack, 'previousLocation', location)
+              updates.add(rerack, 'previousParent', previous_rack) if previous_rack.present?
+              updates.add(rerack, 'previousLocation', location) if location.present?
               updates.add(rerack, 'location', list_layout[index][:location])
               updates.add(rerackGroup, 'rerack', rerack)
 
@@ -121,13 +115,7 @@ module Actions
     end
 
     def purpose_for_aliquot(aliquot)
-      if aliquot == DNA_ALIQUOT
-        DNA_STOCK_PLATE_PURPOSE
-      elsif aliquot == RNA_ALIQUOT
-        RNA_STOCK_PLATE_PURPOSE
-      else
-        STOCK_PLATE_PURPOSE
-      end
+      ALIQUOT_PURPOSE.fetch(aliquot, STOCK_PLATE_PURPOSE)
     end
 
     def fact_changes_for_add_purpose(rack, aliquot)
@@ -182,13 +170,6 @@ module Actions
       end
     end
 
-    def remove_tube_from_rack(tube, rack)
-      FactChanges.new.tap do |updates|
-        updates.remove(tube.facts.with_predicate('location'))
-        updates.remove_where(rack, 'contains', tube)
-      end
-    end
-
     def fact_changes_for_rack_tubes(list_layout, rack)
       FactChanges.new.tap do |updates|
         tubes = []
@@ -196,44 +177,11 @@ module Actions
           location = l[:location]
           tube = l[:asset]
           next unless tube
+
           tubes.push(tube)
           updates.merge(put_tube_into_rack_position(tube, rack, location))
         end
         updates.merge(fact_changes_for_rack_when_racking_tubes(rack, tubes))
-      end
-    end
-
-    def params_to_list_layout(params)
-      params.map do |location, barcode|
-        asset = Asset.find_or_import_asset_with_barcode(barcode)
-        {
-          :location => location,
-          :asset => asset,
-          :barcode => barcode
-        }
-      end
-    end
-
-    def get_duplicates(list)
-      list.reduce({}) do |memo, element|
-        memo[element] = 0 unless memo[element]
-        memo[element]+=1
-        memo
-      end.each_pair.select { |key, count| count > 1 }
-    end
-
-    def check_duplicates(params, error_messages, error_locations)
-      duplicated_locations = get_duplicates(params.map { |location, barcode| location })
-      duplicated_assets = get_duplicates(params.map { |location, barcode| barcode })
-
-      duplicated_locations.each do |location, count|
-        error_locations.push(location)
-        error_messages.push("Location #{location} is appearing #{count} times")
-      end
-
-      duplicated_assets.each do |barcode, count|
-        #error_locations.push(barcode)
-        error_messages.push("Asset #{barcode} is appearing #{count} times")
       end
     end
 
@@ -261,42 +209,44 @@ module Actions
         tube_location = tube.facts.with_predicate('location').first.object
         list_layout.each do |obj|
           next unless obj[:asset]
+
           if (tube_location == obj[:location])
             if (obj[:asset] != tube)
               error_messages.push(
                 "Tube #{obj[:asset].barcode} cannot be put at location #{obj[:location]} because the tube #{tube.barcode || tube.uuid} is there"
-                )
+              )
             end
           end
         end
-        unless (list_layout.map { |obj| obj[:asset] }.include?(tube))
+        if list_layout.none? { |obj| obj[:asset] == tube }
           # Remember that the tubes needs to be always in a rack. They cannot be interchanged
           # in between racks
           error_messages.push(
-                "Missing tube!! Any tube already existing in the rack can't disappear from its defined layout without being reracked before. Tube #{tube.barcode || tube.uuid} should be present in the rack at location #{tube_location} but is missed from the rack."
+            "Missing tube!! Any tube already existing in the rack can't disappear from its defined layout without being reracked before. Tube #{tube.barcode || tube.uuid} should be present in the rack at location #{tube_location} but is missed from the rack."
           )
         end
       end
-
     end
 
-    def selected_file(asset_group)
+    def selected_file
       asset_group.uploaded_files.first
     end
 
-    def csv_parsing(asset_group, parser)
+    def csv_parsing(parser)
       error_messages = []
       error_locations = []
 
-      if asset_group.assets.with_fact('a', 'TubeRack').empty?
+      tube_racks = asset_group.assets.with_fact('a', 'TubeRack').includes(facts: { object_asset: { facts: :object } })
+
+      if tube_racks.empty?
         error_messages.push("No TubeRacks found to perform the layout process")
       end
-      if asset_group.assets.with_fact('a', 'TubeRack').count > 1
+      if tube_racks.many?
         error_messages.push("Too many TubeRacks found to perform the layout process")
       end
       raise InvalidDataParams, error_messages if error_messages.count > 0
 
-      asset = asset_group.assets.with_fact('a', 'TubeRack').first
+      asset = tube_racks.first
 
       if parser.valid?
         rack = asset
@@ -310,23 +260,17 @@ module Actions
       unless error_messages.empty?
         raise InvalidDataParams, error_messages
       end
+
       if parser.valid?
         updates = parser.parsed_changes.merge(reracking_tubes(asset, parser.layout))
 
         error_messages.push(asset.validate_rack_content)
         raise InvalidDataParams, error_messages if error_messages.flatten.compact.count > 0
+
         return updates
       else
         raise InvalidDataParams, parser.error_list
       end
     end
-
-
-    def samples_symphony(step_type, params)
-      rack = asset_group.assets.with_fact('a', 'TubeRack').first
-      msgs = Parsers::Symphony.parse(params[:file].read, rack)
-      raise InvalidDataParams, msgs if msgs.length > 0
-    end
-
   end
 end

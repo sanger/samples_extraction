@@ -1,4 +1,3 @@
 FactoryBot.define do
-  factory :user_session do
-  end
+  factory :user_session
 end

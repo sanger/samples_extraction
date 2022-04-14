@@ -19,7 +19,7 @@ module Parsers
       end
 
       def _parse(line)
-        @headers=line.map { |header| header.strip }
+        @headers = line.map { |header| header.strip }
       end
     end
   end

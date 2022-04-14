@@ -1,5 +1,3 @@
 FactoryBot.define do
-  factory :step_type do
-    
-  end
+  factory :step_type
 end

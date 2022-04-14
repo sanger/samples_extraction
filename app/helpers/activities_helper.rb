@@ -1,23 +1,22 @@
 require 'support_n3'
 
 module ActivitiesHelper
-
   def ontology_json
     return @ontology if @ontology
-    ontology = File.new(Rails.root.to_s+'/app/assets/owls/root-ontology.ttl')
-    @ontology=SupportN3.ontology_to_json(ontology).to_json.html_safe
+
+    ontology = File.new(Rails.root.to_s + '/app/assets/owls/root-ontology.ttl')
+    @ontology = SupportN3.ontology_to_json(ontology).to_json.html_safe
   end
 
   def step_types_data_for_step_types(activity, step_types)
     step_types.select { |st| st.step_template.blank? }.map do |st|
-    {
-      createStepUrl: Rails.application.routes.url_helpers.activity_steps_path(activity),
-      stepType: st,
-      name: st.name
-    }
+      {
+        createStepUrl: Rails.application.routes.url_helpers.activity_steps_path(activity),
+        stepType: st,
+        name: st.name
+      }
     end
   end
-
 
   def step_types_for_asset_groups_data(activity, asset_group)
     step_types = activity.step_types_for(asset_group.assets)
@@ -30,6 +29,7 @@ module ActivitiesHelper
 
   def step_types_control_data(activity)
     return {} if activity.running?
+
     activity.owned_asset_groups.reduce({}) do |memo, asset_group|
       data_for_step_types = step_types_for_asset_groups_data(activity, asset_group)
       memo[asset_group.id] = data_for_step_types
@@ -63,55 +63,38 @@ module ActivitiesHelper
   end
 
   def operations_data(operations)
-    occured_predicates = []
-    operations.reduce([]) do |memo, fact|
-      if occured_predicates.include?(fact.predicate)
-        obj = memo.select { |f| f["predicate"] == fact.predicate }.first
-        obj["repeats"] = obj["repeats"] ? obj["repeats"]+1 : 0
-        next memo
-      end
+    operations.map do |fact|
       elem = fact.object_asset
-      if elem
-        obj = { "object_asset" => {
-                 uuid: elem.uuid,
-                 barcode: elem.barcode,
-                 id: elem.id,
-                 info_line: elem.info_line
-               } }.merge(fact.attributes)
-      else
-        obj = fact.attributes
-      end
-      obj[:asset]=fact.asset.attributes
-      memo.push(obj)
-      memo
+      obj = if elem
+              { "object_asset" => {
+                uuid: elem.uuid,
+                barcode: elem.barcode,
+                id: elem.id,
+                info_line: elem.info_line
+              } }.merge(fact.attributes)
+            else
+              fact.attributes
+            end
+      obj[:asset] = fact.asset.attributes
+      obj
     end
   end
-
 
   def facts_data(facts)
-    occured_predicates = []
-    facts.reduce([]) do |memo, fact|
-      if occured_predicates.include?(fact.predicate)
-        obj = memo.select { |f| f["predicate"] == fact.predicate }.first
-        obj["repeats"] = obj["repeats"] ? obj["repeats"]+1 : 0
-        next memo
-      end
+    facts.map do |fact|
       elem = fact.object_asset
       if elem
-        obj = { "object_asset" => {
-                 uuid: elem.uuid,
-                 barcode: elem.barcode,
-                 id: elem.id,
-                 info_line: elem.info_line
-               } }.merge(fact.attributes)
+        { "object_asset" => {
+          uuid: elem.uuid,
+          barcode: elem.barcode,
+          id: elem.id,
+          info_line: elem.info_line
+        } }.merge(fact.attributes)
       else
-        obj = fact.attributes
+        fact.attributes
       end
-      memo.push(obj)
-      memo
     end
   end
-
 
   def asset_data(asset)
     asset.facts.reload
@@ -140,7 +123,6 @@ module ActivitiesHelper
     end
   end
 
-
   def step_type_templates_data_for_step_types(activity, step_types, asset_group)
     step_types.select { |s| !s.step_template.blank? }.map do |st|
       {
@@ -148,19 +130,14 @@ module ActivitiesHelper
         createStepUrl: Rails.application.routes.url_helpers.activity_steps_path(activity),
         stepType: st,
         name: st.name,
-        id: "step-type-id-#{ rand(9999).to_s }-#{ st.id }"
+        id: "step-type-id-#{rand(9999).to_s}-#{st.id}"
       }
     end
   end
 
   def data_asset_display_for_asset_group(asset_group)
-    asset_group.assets.reduce({}) do |memo, asset|
+    asset_group.assets.each_with_object({}) do |asset, memo|
       memo[asset.uuid] = data_asset_display(asset.facts)
-      next memo
-      if ((asset.has_literal?('a', 'TubeRack')) || ((asset.has_literal?('a', 'Plate'))))
-        memo[asset.uuid] = data_asset_display(asset.facts)
-      end
-      memo
     end
   end
 
@@ -175,5 +152,4 @@ module ActivitiesHelper
       { type: 'danger', msg: m.content.to_s.html_safe }
     end
   end
-
 end

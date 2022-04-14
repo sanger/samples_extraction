@@ -13,11 +13,10 @@ class RackLayout
     asset_group.uploaded_files
   end
 
-
   def process
     FactChanges.new.tap do |updates|
       if assets_compatible_with_step_type.count > 0
-        updates.merge(rack_layout(@asset_group))
+        updates.merge(rack_layout)
       end
     end
   end
@@ -37,5 +36,5 @@ begin
 rescue InvalidDataParams => e
   puts ({ set_errors: e.errors }.to_json)
 rescue StandardError => e
-  puts ({ set_errors: ['Unknown error while parsing file'+e] }.to_json)
+  puts ({ set_errors: ['Unknown error while parsing file' + e] }.to_json)
 end

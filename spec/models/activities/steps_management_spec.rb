@@ -1,24 +1,26 @@
 require 'rails_helper'
 RSpec.describe 'Activities::StepsManagement' do
   context "with an activity configuration" do
-    let(:asset) { create :asset, {
-      barcode: '1',
-      facts: [
-        ['is_a', 'Tube'],
-        ['is_a', 'ReceptionTube'],
-        ['aliquotType', 'DNA']
-      ].map do |a,b|
-        create :fact, { :predicate => a, :object => b }
-      end
+    let(:asset) {
+      create :asset, {
+        barcode: '1',
+        facts: [
+          ['is_a', 'Tube'],
+          ['is_a', 'ReceptionTube'],
+          ['aliquotType', 'DNA']
+        ].map do |a, b|
+                 create :fact, { :predicate => a, :object => b }
+               end
       }
     }
-    let(:step_type) { create :step_type, name: 'Step B',
-      condition_groups: [
-        create(:condition_group, conditions: [
-          create(:condition, { predicate: 'is_a', object: 'ReceptionTube' }),
-          create(:condition, { predicate: 'aliquotType', object: 'DNA' })
-        ])
-      ]
+    let(:step_type) {
+      create :step_type, name: 'Step B',
+                         condition_groups: [
+                           create(:condition_group, conditions: [
+                                    create(:condition, { predicate: 'is_a', object: 'ReceptionTube' }),
+                                    create(:condition, { predicate: 'aliquotType', object: 'DNA' })
+                                  ])
+                         ]
     }
     let(:step_type2) { create :step_type, name: 'Step A' }
     let(:activity_type) { create :activity_type, step_types: [step_type, step_type2] }

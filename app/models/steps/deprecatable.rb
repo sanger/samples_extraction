@@ -6,12 +6,13 @@ module Steps::Deprecatable
   end
 
   def following_step_ids
-    obj=self
-    list=[]
+    obj = self
+    list = []
     loop do
       id = obj.next_step_id
       return list if id.nil?
       return list if list.include?(id)
+
       list.push(id)
       obj = next_step
     end
@@ -33,5 +34,4 @@ module Steps::Deprecatable
     self.activity = nil
     save!
   end
-
 end

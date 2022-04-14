@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@rails/webpacker": "^3.2.2",
+    "@rails/webpacker": "^5.4.3",
     "ajv": "^6.4.0",
     "classnames": "^2.2.6",
     "eslint": "^4.19.1",
@@ -41,6 +41,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^24.9.0",
     "jest-enzyme": "^7.1.0",
+    "postcss-preset-env": "^6.7.1",
     "regenerator-runtime": "^0.13.3"
   },
   "scripts": {

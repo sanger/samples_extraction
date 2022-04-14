@@ -7,11 +7,6 @@ class Operation < ApplicationRecord
 
   scope :for_presenting, ->() { includes(:asset, :action) }
 
-  #def action_type
-  #  return action.action_type if action
-  #  return attributes["action_type"]
-  #end
-
   def object_value
     object || object_asset
   end
@@ -41,9 +36,6 @@ class Operation < ApplicationRecord
     elsif (type == :remove_facts)
       updates.remove_where(self.asset, self.predicate, object_value)
     elsif (type == :create_assets)
-      #asset = Asset.create(uuid: object)
-      #update_attributes(asset: asset)
-      #updates.create_assets([asset.uuid])
       updates.create_assets([object])
     elsif (type == :delete_assets)
       updates.delete_assets([object])
@@ -58,5 +50,4 @@ class Operation < ApplicationRecord
     end
     updates
   end
-
 end

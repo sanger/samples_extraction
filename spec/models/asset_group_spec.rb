@@ -1,8 +1,8 @@
 require 'rails_helper'
 RSpec.describe AssetGroup, type: :model do
   context '#update_with_assets' do
-    let(:existing_assets) { 3.times.map { create :asset } }
-    let(:new_assets) { 2.times.map { create :asset } }
+    let(:existing_assets) { create_list :asset, 3 }
+    let(:new_assets) { create_list :asset, 2 }
     let(:group) { create(:asset_group, assets: existing_assets) }
     before do
       allow(group).to receive(:refresh!).and_return(true)
@@ -24,4 +24,3 @@ RSpec.describe AssetGroup, type: :model do
     end
   end
 end
-

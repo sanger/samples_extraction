@@ -1,7 +1,6 @@
 require 'rails_helper'
 
 describe Steps::Task do
-
   let(:user) { create :user, username: 'test' }
   let(:printer_config) {
     {
@@ -19,24 +18,23 @@ describe Steps::Task do
     create(:step, step_type: step_type, activity: activity, asset_group: group, user: user, printer_config: printer_config)
   end
 
-  #it_behaves_like 'background task'
+  # it_behaves_like 'background task'
 
   context 'a background task with some changes defined' do
     let(:step_type) {
       create(:step_type,
-        step_action: step_action,
-        condition_groups: [cg],
-        actions: [
-          create(:action, action_type: 'createAsset', predicate: 'a', object: 'Tube',
-            subject_condition_group: cg2)
-        ]
-      )
+             step_action: step_action,
+             condition_groups: [cg],
+             actions: [
+               create(:action, action_type: 'createAsset', predicate: 'a', object: 'Tube',
+                               subject_condition_group: cg2)
+             ])
     }
-    let(:cg) { create :condition_group, conditions: [ create(:condition, predicate: 'a', object: 'Plate')] }
+    let(:cg) { create :condition_group, conditions: [create(:condition, predicate: 'a', object: 'Plate')] }
     let(:cg2) { create :condition_group }
     let(:group) { create :asset_group, assets: [asset] }
     let(:activity) { create :activity }
-    let(:asset) { create :asset, facts: [ create(:fact, predicate: 'a', object: 'Plate')] }
+    let(:asset) { create :asset, facts: [create(:fact, predicate: 'a', object: 'Plate')] }
 
     context 'when the step type does not have a step action' do
       let(:step_action) { nil }

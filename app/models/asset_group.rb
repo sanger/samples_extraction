@@ -1,10 +1,9 @@
-
 class AssetGroup < ApplicationRecord
   include Uuidable
 
   has_many :asset_groups_assets, dependent: :destroy
   has_many :assets, through: :asset_groups_assets
-  #has_and_belongs_to_many :assets, ->() {distinct}
+  # has_and_belongs_to_many :assets, ->() {distinct}
   has_many :steps
   has_many :uploaded_files, through: :assets
 
@@ -35,7 +34,7 @@ class AssetGroup < ApplicationRecord
 
       ActiveRecord::Base.transaction do
         step = Step.create(activity: activity_owner, asset_group: self,
-          in_progress?: true, state: 'complete', step_type: step_type_for_import)
+                           in_progress?: true, state: 'complete', step_type: step_type_for_import)
         updates.apply(step)
       end
     end
@@ -104,6 +103,7 @@ class AssetGroup < ApplicationRecord
       if assets.select { |a| a.barcode == barcode }.empty?
         asset = Asset.find_or_import_asset_with_barcode(barcode)
         return false if asset.nil?
+
         add_assets(asset)
       end
     end
@@ -135,16 +135,17 @@ class AssetGroup < ApplicationRecord
 
   def assets_by_fact_group
     return [] unless assets
-    obj_type = Struct.new(:predicate,:object, :to_add_by, :to_remove_by, :object_asset_id)
+
+    obj_type = Struct.new(:predicate, :object, :to_add_by, :to_remove_by, :object_asset_id)
 
     groups = assets.group_by do |a|
-      a.facts.sort do |f1,f2|
+      a.facts.sort do |f1, f2|
         # Canonical sort of facts
         f1.canonical_comparison_for_sorting(f2)
       end.map(&:as_json).map do |f|
         obj = f["object"]
         if f["object_asset_id"]
-          obj="?"
+          obj = "?"
         end
         obj_type.new(f["predicate"], obj, f["to_add_by"], f["to_remove_by"], nil)
       end.uniq
@@ -152,5 +153,4 @@ class AssetGroup < ApplicationRecord
 
     clean_fact_group(groups)
   end
-
 end

@@ -1,12 +1,14 @@
 module Assets::Export
-  class DuplicateLocations < StandardError ; end
+  class DuplicateLocations < StandardError; end
 
-  def update_sequencescape(_print_config, user, _step)
+  # NOTE: This is a little concerning, as it will only work for plates, and yet
+  # pushTo is was also being set for wells (and tubeRacks, but that may be intentional)
+  def update_sequencescape(user)
     FactChanges.new.tap do |updates|
       begin
         # remote (Sequencescape) updates
-        instance = SequencescapeClient.version_1_find_by_uuid(uuid)
-        instance = create_remote_asset unless instance
+        instance = SequencescapeClient.version_1_find_by_uuid(uuid) || create_remote_plate
+
         create_or_update_remote_contained_assets(instance, user) unless attributes_to_send.empty?
 
         # local (Samples Extraction) updates
@@ -16,7 +18,7 @@ module Assets::Export
         update_wells(instance, updates)
 
         updates.add(self, 'beforeBarcode', old_barcode) if old_barcode
-        updates.add_remote(self, 'purpose', class_name) if class_name
+        updates.add_remote(self, 'purpose', purpose_name) if purpose_name
         updates.remove(facts.with_predicate('barcodeType'))
         updates.add(self, 'barcodeType', 'SequencescapePlate')
 
@@ -29,13 +31,13 @@ module Assets::Export
       rescue Timeout::Error => e
         updates.set_errors(['Sequencescape connection - Timeout error occurred.'])
       rescue StandardError => err
-        updates.set_errors(['Sequencescape connection - There was an error while updating Sequencescape'+err.backtrace.to_s])
+        updates.set_errors(['Sequencescape connection - There was an error while updating Sequencescape', err.message, err.backtrace.to_s])
       end
     end
   end
 
-  def create_remote_asset
-    SequencescapeClient.create_plate(class_name, {}) if class_name
+  def create_remote_plate
+    SequencescapeClient.create_plate(purpose_name) if purpose_name
   end
 
   def create_or_update_remote_contained_assets(instance, user)
@@ -50,16 +52,16 @@ module Assets::Export
   def code39_barcode(instance)
     prefix = instance.barcode.prefix
     number = instance.barcode.number
-    SBCF::SangerBarcode.new(prefix:prefix, number:number).human_barcode
+    SBCF::SangerBarcode.new(prefix: prefix, number: number).human_barcode
   end
 
-  def update_wells(instance, updates)
-    instance.wells.each do |well|
-      fact = fact_well_at(well.location)
+  def update_wells(remote_plate, updates)
+    remote_plate.wells.each do |remote_well|
+      fact = fact_well_at(remote_well.location)
       if fact
-        w = fact.object_asset
-        if w && w.uuid != well.uuid
-          w.update_attributes(uuid: well.uuid)
+        local_well = fact.object_asset
+        if local_well && local_well.uuid != remote_well.uuid
+          local_well.update_attributes(uuid: remote_well.uuid)
           fact.update_attributes(is_remote?: true)
         end
       end
@@ -67,11 +69,11 @@ module Assets::Export
   end
 
   def fact_well_at(location)
-    facts.with_predicate('contains').select do |f|
+    facts.with_predicate('contains').detect do |f|
       if f.object_asset
         TokenUtil.unpad_location(f.object_asset.facts.with_predicate('location').first.object) == TokenUtil.unpad_location(location)
       end
-    end.first
+    end
   end
 
   def mark_as_updated(updates)
@@ -93,15 +95,15 @@ module Assets::Export
   def attributes_to_send
     raise DuplicateLocations if duplicate_locations_in_plate?
 
-    facts.with_predicate('contains').map(&:object_asset).map do |well|
+    facts.with_predicate('contains').map(&:object_asset).filter_map do |well|
       attributes_to_send_for_well(well)
-    end.compact
+    end
   end
 
   def has_sample?
     has_predicate_with_value?('supplier_sample_name') ||
-    has_relation_with_value?('sample_tube') ||
-    has_predicate_with_value?('sample_uuid')
+      has_relation_with_value?('sample_tube') ||
+      has_predicate_with_value?('sample_uuid')
   end
 
   def attributes_to_send_for_well(well)
@@ -117,18 +119,15 @@ module Assets::Export
     return nil unless well.has_sample?
 
     # extract the 'facts' that we want to send to Sequencescape for creation of wells
-    well.facts.reduce({}) do |memo, fact|
-      if (['sample_tube'].include?(fact.predicate))
+    well.facts.each_with_object({}) do |fact, memo|
+      case fact.predicate
+      when 'sample_tube'
         memo["#{fact.predicate}_uuid".to_sym] = fact.object_asset.uuid
-      end
-      if (fact.predicate == 'location')
+      when 'location'
         memo[fact.predicate.to_sym] = TokenUtil.unpad_location(fact.object)
-      end
-      if (['aliquotType', 'sanger_sample_id',
-        'sanger_sample_name', 'sample_uuid'].include?(fact.predicate))
+      when 'aliquotType', 'sanger_sample_id', 'sanger_sample_name', 'sample_uuid'
         memo[fact.predicate.to_sym] = TokenUtil.unquote(fact.object)
       end
-      memo
     end
   end
 end

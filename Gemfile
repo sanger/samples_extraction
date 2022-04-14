@@ -1,17 +1,16 @@
 source 'http://rubygems.org'
 
-
 # Service libraries
 gem 'sanger_warren' # Wraps bunny and manages connection pools and configuration
 gem 'puma'
 gem 'daemons'
 gem 'redis'
-gem 'delayed_job'
 gem 'delayed_job_active_record'
 gem 'mysql2'
+gem 'bootsnap', require: false
 
 # Rails and framework libraries
-gem 'rails', '~> 5.1'
+gem 'rails', '~> 5.2'
 gem 'tzinfo-data'
 gem 'activerecord-session_store'
 gem 'micro_token'
@@ -32,7 +31,6 @@ gem 'bootstrap-sass'
 gem 'will_paginate'
 gem 'will_paginate-bootstrap'
 
-
 # Javascript UI
 gem 'ejs'
 gem 'dropzonejs-rails'
@@ -42,8 +40,7 @@ gem 'ace-rails-ap'
 # Serializers
 gem 'rdf-n3'
 gem 'jbuilder'
-gem 'yajl-ruby'
-gem 'google_hash'
+gem 'oj'
 
 # Traction endpoints
 gem 'jsonapi-resources'
@@ -56,43 +53,36 @@ gem 'pmb-client', git: 'https://github.com/sanger/pmb-client.git'
 # Sequencescspae
 gem 'rest-client'
 gem 'faraday'
-gem 'sequencescape-client-api', '1.0.0', require: 'sequencescape'
-#
-#gem 'sequencescape-client-api', require: 'sequencescape'
+gem 'sequencescape-client-api', require: 'sequencescape'
 
 # Debugging
 gem 'rb-readline'
 
 # Docs
-gem 'sdoc'#, '~> 0.4.0', group: :doc
-
+gem 'sdoc' # , '~> 0.4.0', group: :doc
 
 group :development, :test do
-  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug'
-  gem 'factory_bot_rails'
-  gem 'pry'
+  # Call 'pry' anywhere in the code to stop execution and get a debugger console
+  gem 'pry-byebug'
+  gem 'pry-rails'
   gem 'ruby-growl'
 end
 
 group :test do
-  gem 'factory_bot'
+  gem 'factory_bot_rails'
   gem 'rspec-rails'
   gem 'shoulda-matchers'
+  gem 'simplecov', require: false
   gem 'rails-controller-testing'
   gem 'database_cleaner'
   gem 'json-schema'
-end
-
-group :test do
   gem 'launchy'
   gem 'rack_session_access'
 end
 
-
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> in views
-  gem 'web-console'#, '~> 2.0'
+  gem 'web-console' # , '~> 2.0'
 
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
@@ -100,12 +90,9 @@ group :development do
   gem 'rubocop', require: false
   gem 'rubocop-performance'
   gem 'rubocop-rails'
-
-
-  gem 'travis'
-  gem 'travis-lint'
+  # Mocks APi connections, and also prevents inadvertent network connections being made.
+  gem 'webmock'
 end
-
 
 group :deployment do
   gem 'exception_notification'

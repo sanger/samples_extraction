@@ -55,8 +55,8 @@ module ApplicationHelper
   end
 
   def render_react_display_for_asset(asset)
-    data_asset_display = {}.tap { |o| o[asset.uuid]=data_asset_display(asset.facts) }
-    react_component('FactsSvg',  { asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
+    data_asset_display = {}.tap { |o| o[asset.uuid] = data_asset_display(asset.facts) }
+    react_component('FactsSvg', { asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
   end
 
   def render_react_tooltip
@@ -69,19 +69,21 @@ module ApplicationHelper
 
   def object_with_facts(object)
     return nil if object.nil?
+
     object.attributes.merge(facts: object.facts)
   end
 
   def render_react_display_and_facts_for_asset(asset)
-    data_asset_display = {}.tap { |o| o[asset.uuid]=data_asset_display(asset.facts) }
-    react_component('Facts',  { asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
+    data_asset_display = {}.tap { |o| o[asset.uuid] = data_asset_display(asset.facts) }
+    react_component('Facts', { asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
   end
 
   def render_react_edit_asset(asset, readonly = false)
-    data_asset_display = {}.tap { |o| o[asset.uuid]=data_asset_display(asset.facts) }
-    react_component('FactsEditor',  {
-      changesUrl: readonly ? nil : changes_url,
-      asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display })
+    data_asset_display = {}.tap { |o| o[asset.uuid] = data_asset_display(asset.facts) }
+    react_component('FactsEditor', {
+                      changesUrl: readonly ? nil : changes_url,
+                      asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display
+                    })
   end
 
   def data_asset_display_for_plate(facts)
@@ -93,10 +95,11 @@ module ApplicationHelper
         else
           aliquotType = empty_well_aliquot_type
         end
+
         memo[location] = {
           title: "#{asset.short_description}",
           cssClass: aliquotType,
-          url: asset_path(asset)
+          url: Rails.application.routes.url_helpers.asset_path(asset)
         } unless location.nil?
       end
       memo
@@ -108,12 +111,12 @@ module ApplicationHelper
     aliquot_fact = facts.with_predicate('aliquotType').first
     if aliquot_fact
       css_classes = [(aliquot_fact.object || unknown_aliquot_type), is_facts_values].compact.join(' ')
-      url = ((aliquot_fact.class==Fact) ? asset_path(aliquot_fact.asset) : '')
+      url = ((aliquot_fact.class == Fact) ? asset_path(aliquot_fact.asset) : '')
       title = "#{aliquot_fact.asset.short_description}"
     else
       css_classes = is_facts_values
-      url=''
-      title=''
+      url = ''
+      title = ''
     end
     {
       aliquot: {
@@ -124,6 +127,7 @@ module ApplicationHelper
 
   def data_asset_display(facts)
     return data_asset_display_for_plate(facts) if facts.with_predicate('contains').count > 0
+
     data_asset_display_for_tube(facts)
   end
 
@@ -148,5 +152,4 @@ module ApplicationHelper
       "<script type='text/javascript'>$(document).trigger('msg.display_error', #{a.to_json});</script>"
     end.join('\n').html_safe if @alerts
   end
-
 end

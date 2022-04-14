@@ -26,7 +26,6 @@ class CreateStampedPlate
       Actions::PlateTransfer.transfer_plates(source_plate, "?stampedPlate", updates)
     end
   end
-
 end
 
 return unless ARGV.any? { |s| s.match(".json") }
@@ -35,4 +34,3 @@ args = ARGV[0]
 asset_group_id = args.match(/(\d*)\.json/)[1]
 asset_group = AssetGroup.find(asset_group_id)
 puts CreateStampedPlate.new(asset_group: asset_group).process.to_json
-

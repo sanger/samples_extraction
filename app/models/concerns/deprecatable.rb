@@ -4,8 +4,8 @@ module Deprecatable
     has_many   :supercedes,    :class_name => self.name, :foreign_key => :superceded_by_id
     belongs_to :superceded_by, :class_name => self.name, :foreign_key => :superceded_by_id
 
-    scope :visible, -> { where( :superceded_by_id => nil ) }
-    scope :not_deprecated, -> { where( :superceded_by_id => nil ) }
+    scope :visible, -> { where(:superceded_by_id => nil) }
+    scope :not_deprecated, -> { where(:superceded_by_id => nil) }
   end
 
   def deprecated?

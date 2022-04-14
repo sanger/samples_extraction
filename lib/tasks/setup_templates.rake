@@ -1,4 +1,3 @@
-
 namespace :label_templates do
   desc "Find or register label templates in print-my-barcode"
   task setup: :environment do
@@ -10,4 +9,3 @@ namespace :label_templates do
     LabelTemplateSetup.find_or_register_each_template!
   end
 end
-
