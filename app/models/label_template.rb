@@ -1,7 +1,7 @@
 class LabelTemplate < ApplicationRecord
   CLASS_TYPE_TEMPLATE_ALIASES = {
     'TubeRack' => 'Plate',
-    'Tube' => 'SampleTube'
+    'SampleTube' => 'Tube'
   }.freeze
 
   validates_presence_of :name, :external_id
@@ -11,6 +11,12 @@ class LabelTemplate < ApplicationRecord
     type = CLASS_TYPE_TEMPLATE_ALIASES.fetch(class_type, class_type)
 
     templates = where(template_type: type)
+
+    unless templates.count.positive?
+      raise %(
+        Could not find any label template for type \'#{type}\'. Please contact LIMS support to fix the problem
+      )
+    end
 
     templates_by_barcodetype = templates.select { |t| t.name.include?(barcodetype) }
 
