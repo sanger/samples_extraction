@@ -1,5 +1,42 @@
 require 'rails_helper'
-RSpec.describe Asset do
+RSpec.describe Asset, type: :model do
+  context '#class_type' do
+    context 'when having several valid types' do
+      let(:props) do
+        [
+          create(:fact, predicate: 'a', object: 'Tube'),
+          create(:fact, predicate: 'a', object: 'Well')
+        ]
+      end
+      let(:asset) { create :asset, facts: props }
+
+      it 'returns the right prioritised class type' do
+        expect(asset.class_type).to eq('Tube')
+      end
+    end
+    context 'when not having any valid types' do
+      let(:props) do
+        [
+          create(:fact, predicate: 'a', object: 'Something'),
+          create(:fact, predicate: 'a', object: 'Another')
+        ]
+      end
+      let(:asset) { create :asset, facts: props }
+
+      it 'returns the first value when not recognised' do
+        expect(asset.class_type).to eq('Something')
+      end
+    end
+
+    context 'when not having anything' do
+      let(:props) { [] }
+      let(:asset) { create :asset, facts: props }
+
+      it 'returns empty string' do
+        expect(asset.class_type).to eq('')
+      end
+    end
+  end
   context '#has_wells?' do
     it 'returns true when it is a plate with wells' do
       plate = create(:asset)

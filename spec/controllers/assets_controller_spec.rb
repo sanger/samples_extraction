@@ -38,8 +38,6 @@ RSpec.describe AssetsController, type: :controller do
     it_behaves_like 'a search action from a controller'
 
     it 'prints the barcodes of the assets from the query' do
-      allow(Printables::Group).to receive(:print_assets)
-
       asset = create :asset, barcode: 'S1234'
       search = Asset.where(barcode: 'S1234')
 

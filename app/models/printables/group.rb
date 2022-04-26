@@ -1,37 +1,40 @@
 module Printables::Group
-  def classify_for_printing(assets, printer_config)
-    assets.reduce({}) do |memo, asset|
+  def classify_for_printing(printer_config)
+    template_cache = Hash.new { |store, types| store[types] = LabelTemplate.for_type(*types).external_id }
+
+    assets.group_by do |asset|
       class_type = asset.class_type
       printer_name = printer_config[Printer.printer_type_for(class_type)]
-      label_template = LabelTemplate.for_type(class_type, asset.barcode_type).first
-      [asset, label_template, printer_name]
-      memo[printer_name] = {} unless memo[printer_name]
-      memo[printer_name][label_template] = [] unless memo[printer_name][label_template]
-      memo[printer_name][label_template].push(asset)
-      memo
+
+      raise "There is no defined printer for asset with type #{class_type}" unless printer_name
+
+      label_template_external_id = template_cache[[class_type, asset.barcode_type]]
+      [printer_name, label_template_external_id]
     end
   end
 
-  def print(printer_config, user)
-    print_assets(assets, printer_config, user)
-  end
-
-  def print_assets(assets, printer_config, user)
+  #
+  # Print labels for the current Printables::Group (eg. Assets in an Asset
+  # Group) using the default printers defined in printer_config
+  #
+  # @param printer_config [Hash] Typically returned bu the `User` maps a printer
+  #                              type, 'Plate' or 'Tube' to a printer name.
+  # @param _username [Void] Unused. Formerly the username.
+  #
+  # @return [Void]
+  #
+  def print(printer_config, _username = nil)
     return if Rails.configuration.printing_disabled
 
-    classify_for_printing(assets, printer_config).each do |printer_name, info_for_template|
-      info_for_template.each do |label_template, assets|
-        body_print = assets.filter_map { |a| a.printable_object(user) }.reverse
-        next if body_print.empty?
+    classify_for_printing(printer_config).each do |(printer_name, external_id), assets|
+      body_print = assets.filter_map(&:printable_object).reverse
+      next if body_print.empty?
 
-        PMB::PrintJob.new(
-          printer_name: printer_name,
-          label_template_id: label_template.external_id,
-          labels: { body: body_print }
-        ).save
-      end
+      PMB::PrintJob.new(
+        printer_name: printer_name,
+        label_template_id: external_id,
+        labels: { body: body_print }
+      ).save
     end
   end
-
-  module_function :print_assets
 end

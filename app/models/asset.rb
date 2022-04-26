@@ -197,7 +197,7 @@ class Asset < ApplicationRecord
     barcode
   end
 
-  def printable_object(username = 'unknown')
+  def printable_object
     return nil if barcode.nil?
 
     if (kind_of_plate?)
@@ -252,6 +252,7 @@ class Asset < ApplicationRecord
     #       We do seem to have some assets which are both 'Tube' and 'Well'. This
     #       may be due to the representation of some tube racks in SS as plates.
     class_types = facts.with_predicate('a').map(&:object)
+
     return 'TubeRack' if class_types.include?('TubeRack')
     return 'Plate' if class_types.include?('Plate')
     return 'Tube' if class_types.include?('Tube')

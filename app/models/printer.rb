@@ -1,7 +1,7 @@
 class Printer < ApplicationRecord
   CLASS_TYPE_PRINTER_ALIASES = {
     'TubeRack' => 'Plate',
-    'Tube' => 'SampleTube'
+    'SampleTube' => 'Tube'
   }.freeze
 
   scope :for_tube, ->() { where(:printer_type => 'Tube') }
