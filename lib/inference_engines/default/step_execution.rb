@@ -6,9 +6,7 @@ module InferenceEngines
     class StepExecution
       include StepExecutionProcess
 
-      attr_accessor :step
-      attr_accessor :asset_group
-      attr_accessor :updates
+      attr_accessor :step, :asset_group, :updates
 
       def initialize(params)
         @step = params[:step]

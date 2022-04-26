@@ -147,16 +147,7 @@ module SupportN3
   end
 
   class RuleGraphAccessor
-    attr_reader :quads
-    attr_reader :graph_conditions
-    attr_reader :graph_consequences
-    attr_reader :c_groups
-    attr_reader :c_groups_cardinalities
-
-    attr_reader :conditions
-    attr_reader :actions
-
-    attr_reader :step_type
+    attr_reader :quads, :graph_conditions, :graph_consequences, :c_groups, :c_groups_cardinalities, :conditions, :actions, :step_type
 
     def self.rules(quads)
       quads.select { |quad| fragment(quad[1]) == 'implies' }

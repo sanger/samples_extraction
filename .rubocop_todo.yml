@@ -474,16 +474,6 @@ Rails/WhereNot:
     - 'app/models/step_type.rb'
     - 'db/migrate/20170225191416_migrate_operations_to_object_asset.rb'
 
-# Offense count: 14
-# This cop supports safe auto-correction (--auto-correct).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: separated, grouped
-Style/AccessorGrouping:
-  Exclude:
-    - 'lib/changes_support/disjoint_list.rb'
-    - 'lib/inference_engines/default/step_execution.rb'
-    - 'lib/support_n3.rb'
-
 # Offense count: 1
 # This cop supports safe auto-correction (--auto-correct).
 # Configuration parameters: EnforcedStyle.

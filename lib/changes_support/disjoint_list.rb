@@ -7,9 +7,7 @@ class ChangesSupport::DisjointList
 
   include Enumerable
 
-  attr_accessor :location_for_unique_id
-  attr_accessor :disjoint_lists
-  attr_accessor :list
+  attr_accessor :location_for_unique_id, :disjoint_lists, :list
   attr_reader :name
 
   DISABLED_NAME = "DISABLED"
