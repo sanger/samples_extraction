@@ -1,6 +1,6 @@
 class AddStateToStep < ActiveRecord::Migration
   def change
-    ActiveRecord::Base.transaction do |t|
+    ActiveRecord::Base.transaction do |_t|
       add_column :steps, :state, :string
     end
   end

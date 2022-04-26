@@ -6,14 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 19
-# This cop supports safe auto-correction (--auto-correct).
-# Configuration parameters: TreatCommentsAsGroupSeparators, ConsiderPunctuation, Include.
-# Include: **/*.gemfile, **/Gemfile, **/gems.rb
-Bundler/OrderedGems:
-  Exclude:
-    - 'Gemfile'
-
 # Offense count: 16
 # Configuration parameters: IgnoredMethods.
 Lint/AmbiguousBlockAssociation:
@@ -44,27 +36,6 @@ Lint/NonDeterministicRequireOrder:
     - 'lib/tasks/setup_templates.rake'
     - 'spec/rails_helper.rb'
 
-# Offense count: 6
-# This cop supports safe auto-correction (--auto-correct).
-Lint/ParenthesesAsGroupedExpression:
-  Exclude:
-    - 'script/runners/load_metadata.rb'
-    - 'script/runners/rack_layout.rb'
-    - 'script/runners/rack_layout_any_barcode.rb'
-
-# Offense count: 10
-# This cop supports safe auto-correction (--auto-correct).
-Lint/RedundantStringCoercion:
-  Exclude:
-    - 'app/helpers/activities_helper.rb'
-    - 'app/models/asset.rb'
-    - 'lib/changes_support/disjoint_list.rb'
-    - 'lib/fact_changes.rb'
-    - 'script/runners/create_file.rb'
-    - 'script/runners/create_layout.rb'
-    - 'script/runners/full_rack_generator.rb'
-    - 'script/runners/transfer_tubes_to_tube_rack_by_position.rb'
-
 # Offense count: 9
 Lint/ShadowingOuterLocalVariable:
   Exclude:
@@ -78,57 +49,6 @@ Lint/ShadowingOuterLocalVariable:
 Lint/SuppressedException:
   Exclude:
     - 'spec/controllers/steps_controller_spec.rb'
-
-# Offense count: 1
-# This cop supports safe auto-correction (--auto-correct).
-Lint/ToJSON:
-  Exclude:
-    - 'lib/fact_changes.rb'
-
-# Offense count: 49
-# This cop supports safe auto-correction (--auto-correct).
-# Configuration parameters: IgnoreEmptyBlocks, AllowUnusedKeywordArguments.
-Lint/UnusedBlockArgument:
-  Exclude:
-    - 'app/models/action.rb'
-    - 'app/models/printables/print_asset.rb'
-    - 'db/migrate/20161028122148_add_action_type_to_operations.rb'
-    - 'db/migrate/20161028134840_add_connect_by_to_step_type.rb'
-    - 'db/migrate/20170122001651_add_active_step_to_activity.rb'
-    - 'db/migrate/20170122173205_add_state_to_step.rb'
-    - 'db/migrate/20170128170039_add_namespace_to_fact_predicate.rb'
-    - 'db/migrate/20170225191416_migrate_operations_to_object_asset.rb'
-    - 'lib/actions/plate_transfer.rb'
-    - 'lib/fact_changes.rb'
-    - 'lib/inference_engines/cwm/step_execution.rb'
-    - 'lib/inference_engines/runner/step_execution.rb'
-    - 'lib/support_n3.rb'
-    - 'script/fix_duplicated_tubes.rb'
-    - 'script/runners/create_12_tubes.rb'
-    - 'script/runners/load_metadata.rb'
-    - 'spec/models/activities/background_tasks_spec.rb'
-    - 'spec/models/step_spec.rb'
-    - 'spec/models/step_type_spec.rb'
-
-# Offense count: 18
-# This cop supports safe auto-correction (--auto-correct).
-# Configuration parameters: AllowUnusedKeywordArguments, IgnoreEmptyMethods, IgnoreNotImplementedMethods.
-Lint/UnusedMethodArgument:
-  Exclude:
-    - 'app/controllers/application_controller.rb'
-    - 'app/helpers/application_helper.rb'
-    - 'app/models/action.rb'
-    - 'app/models/asset.rb'
-    - 'app/models/assets/export.rb'
-    - 'lib/actions/racking.rb'
-    - 'lib/fact_changes.rb'
-    - 'lib/inference_engines/cwm/step_execution.rb'
-    - 'lib/support_n3.rb'
-    - 'script/remove_duplicates.rb'
-    - 'script/runners/transfer_samples.rb'
-    - 'spec/lib/parsers/csv_layout/barcode_creatable_parser_spec.rb'
-    - 'spec/lib/parsers/csv_layout/barcode_parser_spec.rb'
-    - 'spec/remote_assets_helper.rb'
 
 # Offense count: 56
 Lint/UselessAssignment:
@@ -265,14 +185,6 @@ Naming/PredicateName:
     - 'lib/fact_changes.rb'
     - 'lib/support_n3.rb'
     - 'lib/token_util.rb'
-
-# Offense count: 2
-# This cop supports safe auto-correction (--auto-correct).
-# Configuration parameters: PreferredName.
-Naming/RescuedExceptionsVariableName:
-  Exclude:
-    - 'app/models/assets/export.rb'
-    - 'lib/sequencescape_client.rb'
 
 # Offense count: 36
 # Configuration parameters: EnforcedStyle, AllowedIdentifiers.

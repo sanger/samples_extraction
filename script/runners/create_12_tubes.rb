@@ -7,13 +7,13 @@ samples = Array.new(TOTAL_NUMBER) { |i| "?q#{i}" }
 sanger_sample_id = Array.new(TOTAL_NUMBER) { |i| "SAMPLE#{i}" }
 study_name = "STDY1"
 
-f1 = tubes.each_with_index.map { |t, i| [t, 'a', 'SampleTube'] }
-f2 = tubes.each_with_index.map { |t, i| [t, 'is', 'NotStarted'] }
+f1 = tubes.each_with_index.map { |t, _i| [t, 'a', 'SampleTube'] }
+f2 = tubes.each_with_index.map { |t, _i| [t, 'is', 'NotStarted'] }
 f3 = tubes.each_with_index.map { |t, i| [t, 'sample_tube', samples[i]] }
 f4 = tubes.each_with_index.map { |t, i| [t, 'sanger_sample_id', sanger_sample_id[i]] }
-f5 = tubes.each_with_index.map { |t, i| [t, 'study_name', study_name] }
-f6 = tubes.each_with_index.map { |t, i| [t, 'transferVolume', 20] }
-f7 = tubes.each_with_index.map { |t, i| [t, 'volume', 100] }
+f5 = tubes.each_with_index.map { |t, _i| [t, 'study_name', study_name] }
+f6 = tubes.each_with_index.map { |t, _i| [t, 'transferVolume', 20] }
+f7 = tubes.each_with_index.map { |t, _i| [t, 'volume', 100] }
 
 all_assets = tubes + samples
 obj = {

@@ -55,7 +55,7 @@ module InferenceEngines
         proxy = Rails.configuration.cwm_proxy
         env_vars = { 'http_proxy' => proxy, 'https_proxy' => proxy }
 
-        Open3.popen3(*[env_vars, call_list].flatten) do |stdin, stdout, stderror, thr|
+        Open3.popen3(*[env_vars, call_list].flatten) do |_stdin, stdout, stderror, thr|
           content = stdout.read
           output = [line, content].join("\n")
           step.update_attributes(output: output)
@@ -120,7 +120,7 @@ module InferenceEngines
         end
       end
 
-      def add_quad_to_asset(quad, asset, action_type = "addFacts")
+      def add_quad_to_asset(quad, asset, _action_type = "addFacts")
         object = fragment(quad[2])
         object_asset = nil
         literal = true
@@ -148,11 +148,11 @@ module InferenceEngines
         @step.created_asset_group.add_assets(created_assets.values.flatten.compact.uniq)
       end
 
-      def select_asset(assets, quads)
+      def select_asset(assets, _quads)
         @step.asset_group.add_assets(assets)
       end
 
-      def unselect_asset(assets, quads)
+      def unselect_asset(assets, _quads)
         @step.asset_group.remove_assets(assets)
       end
     end

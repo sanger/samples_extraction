@@ -18,7 +18,7 @@ class TransferSamples
     asset_group
   end
 
-  def each_asset_and_modified_asset(&block)
+  def each_asset_and_modified_asset
     asset_group.assets.with_predicate('transfer').each do |asset|
       asset.facts.with_predicate('transfer').each do |fact|
         modified_asset = fact.object_asset

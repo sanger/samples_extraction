@@ -19,7 +19,7 @@ puts
 letters = ("A".."H").to_a
 columns = (1..12).to_a
 location_for_position = Array.new(NUM_BARCODES) do |i|
-  "#{letters[(i / columns.length).floor]}#{(columns[i % columns.length]).to_s}"
+  "#{letters[(i / columns.length).floor]}#{columns[i % columns.length]}"
 end
 
 temp_file = Tempfile.new

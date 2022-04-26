@@ -95,13 +95,13 @@ RSpec.describe Step, type: :model do
                                            })
       @step_type.condition_groups << @cg1
       @step_type.condition_groups << @cg2
-      @tubes = Array.new(7) { |i|
+      @tubes = Array.new(7) { |_i|
         FactoryBot.create(:asset, { :facts => [
                             FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
                             FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
                           ] })
       }
-      @racks = Array.new(5) { |i|
+      @racks = Array.new(5) { |_i|
         FactoryBot.create(:asset, { :facts => [
                             FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
                             FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
@@ -245,10 +245,10 @@ RSpec.describe Step, type: :model do
             @racks.each(&:reload)
             @tubes.each(&:reload)
 
-            @tubes.each_with_index do |tube, pos|
+            @tubes.each_with_index do |tube, _pos|
               assert_equal true, tube.facts.with_predicate('relates').count == 0
             end
-            @racks.each_with_index do |rack, pos|
+            @racks.each_with_index do |rack, _pos|
               assert_equal true, rack.facts.with_predicate('relates').count != 0
             end
             @racks.zip(@tubes).each do |list|

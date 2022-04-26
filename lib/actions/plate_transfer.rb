@@ -57,7 +57,7 @@ module Actions
           memo[location].push(f.object_asset)
           memo
         end
-        value.each do |location, assets|
+        value.each do |_location, assets|
           asset1, asset2 = assets
           if asset2
             return updates unless validate_tube_is_compatible_with_aliquot(updates, asset2, aliquot.object) if aliquot

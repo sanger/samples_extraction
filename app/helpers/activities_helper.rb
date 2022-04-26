@@ -130,7 +130,7 @@ module ActivitiesHelper
         createStepUrl: Rails.application.routes.url_helpers.activity_steps_path(activity),
         stepType: st,
         name: st.name,
-        id: "step-type-id-#{rand(9999).to_s}-#{st.id}"
+        id: "step-type-id-#{rand(9999)}-#{st.id}"
       }
     end
   end

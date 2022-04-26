@@ -1,58 +1,58 @@
 source 'http://rubygems.org'
 
 # Service libraries
-gem 'sanger_warren' # Wraps bunny and manages connection pools and configuration
-gem 'puma'
+gem 'bootsnap', require: false
 gem 'daemons'
-gem 'redis'
 gem 'delayed_job_active_record'
 gem 'mysql2'
-gem 'bootsnap', require: false
+gem 'puma'
+gem 'redis'
+gem 'sanger_warren' # Wraps bunny and manages connection pools and configuration
 
 # Rails and framework libraries
-gem 'rails', '~> 5.2'
-gem 'tzinfo-data'
+gem 'aasm'
+gem 'activerecord-import'
 gem 'activerecord-session_store'
 gem 'micro_token'
-gem 'activerecord-import'
-gem 'aasm'
+gem 'rails', '~> 5.2'
+gem 'tzinfo-data'
 
 # Rails views and UI
-gem 'turbolinks'
 gem 'bootstrap_form'
-gem 'sprockets-rails'
-gem 'js_cookie_rails'
-gem 'webpacker'
-gem 'webpacker-react'
+gem 'bootstrap-sass'
 gem 'jquery-rails'
+gem 'js_cookie_rails'
 gem 'react-rails'
 gem 'sass-rails'
-gem 'bootstrap-sass'
+gem 'sprockets-rails'
+gem 'turbolinks'
+gem 'webpacker'
+gem 'webpacker-react'
 gem 'will_paginate'
 gem 'will_paginate-bootstrap'
 
 # Javascript UI
-gem 'ejs'
-gem 'dropzonejs-rails'
-gem 'rails-assets-tether'
 gem 'ace-rails-ap'
+gem 'dropzonejs-rails'
+gem 'ejs'
+gem 'rails-assets-tether'
 
 # Serializers
-gem 'rdf-n3'
 gem 'jbuilder'
 gem 'oj'
+gem 'rdf-n3'
 
 # Traction endpoints
-gem 'jsonapi-resources'
 gem 'json_api_client'
+gem 'jsonapi-resources'
 
 # Tools
-gem 'sanger_barcode_format', git: 'https://github.com/sanger/sanger_barcode_format.git'
 gem 'pmb-client', git: 'https://github.com/sanger/pmb-client.git'
+gem 'sanger_barcode_format', git: 'https://github.com/sanger/sanger_barcode_format.git'
 
 # Sequencescspae
-gem 'rest-client'
 gem 'faraday'
+gem 'rest-client'
 gem 'sequencescape-client-api', require: 'sequencescape'
 
 # Debugging
@@ -69,15 +69,15 @@ group :development, :test do
 end
 
 group :test do
-  gem 'factory_bot_rails'
-  gem 'rspec-rails'
-  gem 'shoulda-matchers'
-  gem 'simplecov', require: false
-  gem 'rails-controller-testing'
   gem 'database_cleaner'
+  gem 'factory_bot_rails'
   gem 'json-schema'
   gem 'launchy'
   gem 'rack_session_access'
+  gem 'rails-controller-testing'
+  gem 'rspec-rails'
+  gem 'shoulda-matchers'
+  gem 'simplecov', require: false
 end
 
 group :development do

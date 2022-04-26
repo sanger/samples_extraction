@@ -42,8 +42,8 @@ class FactChanges
 
     list1.add_disjoint_list(list2)
 
-    send("#{list.to_s}=", list1)
-    send("#{opposite.to_s}=", list2)
+    send("#{list}=", list1)
+    send("#{opposite}=", list2)
   end
 
   def asset_group_asset_to_h(asset_group_asset_str)
@@ -85,10 +85,10 @@ class FactChanges
       end,
       add_assets: asset_group_asset_to_h(@assets_to_add),
       remove_assets: asset_group_asset_to_h(@assets_to_remove)
-    }.reject { |k, v| v.length == 0 }
+    }.reject { |_k, v| v.length == 0 }
   end
 
-  def to_json
+  def to_json(*_args)
     JSON.pretty_generate(to_h)
   end
 
@@ -200,7 +200,7 @@ class FactChanges
 
   def apply(step, with_operations = true)
     _handle_errors(step) if errors_added.length > 0
-    ActiveRecord::Base.transaction do |t|
+    ActiveRecord::Base.transaction do |_t|
       _set_remote_facts(facts_to_set_to_remote)
       operations = [
         _create_asset_groups(step, asset_groups_to_create, with_operations),
@@ -416,7 +416,7 @@ class FactChanges
       _build_barcode(asset, count + barcode_index)
       asset
     end
-    _instance_builder_for_import(Asset, assets) do |instances|
+    _instance_builder_for_import(Asset, assets) do |_instances|
       _asset_operations('createAssets', step, assets) if with_operations
     end
   end
@@ -447,7 +447,7 @@ class FactChanges
   def _create_asset_groups(step, asset_groups, with_operations = true)
     return unless asset_groups
 
-    asset_groups.each_with_index do |asset_group, index|
+    asset_groups.each do |asset_group|
       asset_group.update_attributes(
         name: TokenUtil.to_asset_group_name(wildcard_for_uuid(asset_group.uuid)),
         activity_owner: step.activity
@@ -500,14 +500,14 @@ class FactChanges
   end
 
   def _asset_group_operations(action_type, step, asset_group_assets)
-    asset_group_assets.map do |asset_group_asset, index|
+    asset_group_assets.map do |asset_group_asset, _index|
       Operation.new(:action_type => action_type, :step => step,
                     :asset => asset_group_asset.asset, object: asset_group_asset.asset_group.uuid)
     end
   end
 
   def _asset_operations(action_type, step, assets)
-    assets.map do |asset, index|
+    assets.map do |asset, _index|
       # refer = (action_type == 'deleteAsset' ? nil : asset)
       Operation.new(:action_type => action_type, :step => step, object: asset.uuid)
     end
@@ -533,7 +533,7 @@ class FactChanges
     hash.values.any? { |value| value.try(:new_record?) }
   end
 
-  def _instance_builder_for_import(klass, params_list, &block)
+  def _instance_builder_for_import(klass, params_list)
     instances = params_list.filter_map do |params_for_instance|
       if params_for_instance.kind_of?(klass)
         params_for_instance if params_for_instance.new_record?

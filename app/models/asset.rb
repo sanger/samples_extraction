@@ -228,7 +228,7 @@ class Asset < ApplicationRecord
     val = facts.filter_map(&:position).first
     return "" if val.nil?
 
-    "_#{(val.to_i + 1).to_s}"
+    "_#{(val.to_i + 1)}"
   end
 
   def info_line

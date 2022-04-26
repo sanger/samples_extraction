@@ -17,7 +17,7 @@ RSpec.describe Parsers::CsvLayout::BarcodeCreatableParser do
   end
 
   class ValidatorSuccess < ActiveModel::Validator
-    def validate(record)
+    def validate(_record)
       true
     end
   end

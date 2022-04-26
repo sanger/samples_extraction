@@ -1,4 +1,5 @@
 module Printables::Instance
+<<<<<<< HEAD
   #
   # Print labels for the current Printables::Instance (eg. Asset) using the
   # default printers defined in printer_config
@@ -11,6 +12,11 @@ module Printables::Instance
   #
   def print(printer_config, _username)
     body_print = [printable_object].compact
+=======
+  # @todo Remove user: https://github.com/sanger/samples_extraction/issues/184
+  def print(printer_config, user)
+    body_print = [printable_object(user)].compact
+>>>>>>> e4b24de (Rubocop - autocorrects)
     return if Rails.configuration.printing_disabled || body_print.empty?
     if !printer_config
       raise 'No printer config provided'

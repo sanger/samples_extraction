@@ -26,7 +26,7 @@ class LoadMetadata
   end
 
   def filter_unneeded_data(line_parsed)
-    line_parsed.reject { |k, v| k == 'location' || k == 'barcode' }
+    line_parsed.reject { |k, _v| k == 'location' || k == 'barcode' }
   end
 
   def metadata_updates(asset_group)
@@ -68,7 +68,7 @@ begin
   JSON.parse(json)
   puts json
 rescue InvalidDataParams => e
-  puts ({ set_errors: e.errors }.to_json)
+  puts({ set_errors: e.errors }.to_json)
 rescue StandardError => e
-  puts ({ set_errors: ['Unknown error while parsing file' + e.backtrace.to_s] }.to_json)
+  puts({ set_errors: ['Unknown error while parsing file' + e.backtrace.to_s] }.to_json)
 end

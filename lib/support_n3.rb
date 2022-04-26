@@ -164,15 +164,15 @@ module SupportN3
 
     def self.parse_rules(quads, enforce_step_type = nil)
       self.activity_type = nil
-      deprecate_class_by_name(ActivityType, activity_type_name(quads), activity_type(quads)) do |old_instances|
-        RuleGraphAccessor.rules(quads).each do |k, p, v, g|
+      deprecate_class_by_name(ActivityType, activity_type_name(quads), activity_type(quads)) do |_old_instances|
+        RuleGraphAccessor.rules(quads).each do |k, _p, v, _g|
           accessor = RuleGraphAccessor.new(enforce_step_type, quads, k, v)
           accessor.execute
         end
       end
     end
 
-    def self.deprecate_class_by_name(class_type, name, new_instance, &block)
+    def self.deprecate_class_by_name(class_type, name, new_instance)
       if name && !name.empty?
         old_instances = class_type.where(:name => name).not_deprecated
         old_instances = nil if (old_instances.count > 1) && (old_instances.first == new_instance)
@@ -254,7 +254,7 @@ module SupportN3
     def keep_selected_list
       actions.select { |quad| fragment(quad[1]) == 'unselectAsset' }.map do |q|
         if q[2].class == RDF::Node
-          fragment(@quads.select { |k, p, v, g| g == q[2] }.flatten[0])
+          fragment(@quads.select { |_k, _p, _v, g| g == q[2] }.flatten[0])
         else
           fragment(q[2])
         end
@@ -288,14 +288,14 @@ module SupportN3
 
     def build_condition_groups
       # Left side of the rule
-      conditions.each do |k, p, v, g|
+      conditions.each do |k, _p, _v, _g|
         # Finds the condition group (or creates it)
         condition_group = find_or_create_condition_group_for(k,
                                                              { :step_type => @step_type,
                                                                :keep_selected => check_keep_selected_asset(k) })
       end
       cgr = []
-      conditions.each do |k, p, v, g|
+      conditions.each do |k, p, v, _g|
         if is_wildcard?(v)
           vcgroup = find_or_create_condition_group_for(v,
                                                        { :step_type => @step_type,
@@ -373,10 +373,10 @@ module SupportN3
 
     def build_actions
       # Right side of the rule
-      actions.each do |k, p, v, g|
+      actions.each do |_k, p, v, _g|
         action = fragment(p)
         unless v.literal?
-          @quads.select { |quad| quad.last == v }.each do |k, p, v, g|
+          @quads.select { |quad| quad.last == v }.each do |k, p, v, _g|
             # Updates cardinality for the condition group
             if fragment(p) == 'maxCardinality'
               @c_groups_cardinalities[fragment(k)] = fragment(v)

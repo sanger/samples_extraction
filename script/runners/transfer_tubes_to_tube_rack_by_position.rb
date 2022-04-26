@@ -53,7 +53,7 @@ class TransferTubesToTubeRackByPosition
     tubes_already_ids = previous_tubes_ids & tubes.map(&:id)
     if (tubes_already_ids.length > 0)
       tubes_already = Asset.where(id: tubes_already_ids).map(&:barcode)
-      updates.set_errors(["This rack already contains the tubes #{tubes_already.to_s}"])
+      updates.set_errors(["This rack already contains the tubes #{tubes_already}"])
       return false
     end
     true

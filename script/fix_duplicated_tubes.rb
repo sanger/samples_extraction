@@ -12,6 +12,6 @@ duplicateds = facts.reduce({}) do |memo, fact|
   memo
 end
 
-duplicateds2 = duplicateds.map do |key, values|
+duplicateds2 = duplicateds.map do |_key, values|
   values[1]
 end

@@ -197,13 +197,13 @@ module Actions
       end
     end
 
-    def check_tuberacks(asset_group, list_layout, error_messages, error_locations)
+    def check_tuberacks(asset_group, _list_layout, error_messages, _error_locations)
       if asset_group.assets.with_fact('a', 'TubeRack').empty?
         error_messages.push("No TubeRacks found to perform the racking process")
       end
     end
 
-    def check_collisions(rack, list_layout, error_messages, error_locations)
+    def check_collisions(rack, list_layout, error_messages, _error_locations)
       tubes_for_rack = rack.facts.with_predicate('contains').map(&:object_asset)
       tubes_for_rack.each do |tube|
         tube_location = tube.facts.with_predicate('location').first.object

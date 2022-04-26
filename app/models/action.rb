@@ -13,7 +13,7 @@ class Action < ApplicationRecord
   # Given the current action (that defines a relation between 2 conditional groups)
   # and the list of assets classified into 2 groups: sources or destinations, this method
   # will generate a list of pairs [source, destination] that can be connected.
-  def each_connected_asset(sources, destinations, wildcard_values = {}, &block)
+  def each_connected_asset(sources, destinations, wildcard_values = {})
     unless (wildcard_values.nil? || wildcard_values.empty?)
       if (object_condition_group)
         if (wildcard_values[object_condition_group.id])
@@ -83,7 +83,9 @@ class Action < ApplicationRecord
           asset_group.classify_assets_in_condition_group(assets, subject_condition_group)
         end
         destinations = destinations(asset_group)
-        assets.each do |asset|
+
+        # @todo: https://github.com/sanger/samples_extraction/issues/183
+        assets.each do |_asset|
           each_connected_asset(assets, destinations, wildcard_values) do |s, d|
             updates.add(s, predicate, d)
           end

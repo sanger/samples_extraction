@@ -67,7 +67,7 @@ module InferenceEngines
         call_str = call_list.join(" ")
 
         line = "# EXECUTING: #{call_str}"
-        Open3.popen3(*[call_list].flatten) do |stdin, stdout, stderror, thr|
+        Open3.popen3(*[call_list].flatten) do |_stdin, stdout, stderror, thr|
           @content = stdout.read
           output = [line, content].join("\n")
           step.update_attributes(output: output)

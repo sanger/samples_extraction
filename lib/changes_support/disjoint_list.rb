@@ -199,7 +199,7 @@ class ChangesSupport::DisjointList
     elsif element.try(:uuid)
       sum_function_for(element.uuid)
     elsif element.try(:id)
-      sum_function_for("#{element.class.to_s}_#{element.id.to_s}")
+      sum_function_for("#{element.class}_#{element.id}")
     elsif element.kind_of?(Hash)
       if (element.has_key?(:uuid) && (!element[:uuid].nil?))
         sum_function_for(element[:uuid])

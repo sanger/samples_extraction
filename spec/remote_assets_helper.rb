@@ -89,7 +89,7 @@ module RemoteAssetsHelper
     double('aliquot', { sample: build_remote_sample, study: build_study }.merge(opts))
   end
 
-  def build_study(opts = {})
+  def build_study(_opts = {})
     double('study', { name: 'STDY', uuid: SecureRandom.uuid })
   end
 

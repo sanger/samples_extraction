@@ -24,7 +24,7 @@ class SequencescapeClient
 
   def self.version_1_find_by_uuid(uuid, type = :plate)
     client.send(type).find(uuid)
-  rescue Sequencescape::Api::ResourceNotFound => exception
+  rescue Sequencescape::Api::ResourceNotFound => e
     return nil
   end
 

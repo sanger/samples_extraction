@@ -16,7 +16,7 @@ tubes = Array.new(96) { |i| "?tube#{i}" }
 letters = ("A".."H").to_a
 columns = (1..12).to_a
 location_for_position = Array.new(96) do |i|
-  "#{letters[(i / columns.length).floor]}#{(columns[i % columns.length]).to_s}"
+  "#{letters[(i / columns.length).floor]}#{columns[i % columns.length]}"
 end
 
 facts_to_add = (location_for_position - locations_with_tube).reduce([]) do |memo, location|

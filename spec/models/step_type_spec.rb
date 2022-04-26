@@ -116,7 +116,7 @@ RSpec.describe StepType, type: :model do
       describe "with special configuration" do
         describe "related with cardinality" do
           setup do
-            @assets = Array.new(5) { |i|
+            @assets = Array.new(5) { |_i|
               FactoryBot.create :asset, { :facts => [
                 FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
                 FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
@@ -150,7 +150,7 @@ RSpec.describe StepType, type: :model do
     describe 'matching more than one asset' do
       describe 'for the same condition group' do
         setup do
-          @assets = Array.new(5) { |i|
+          @assets = Array.new(5) { |_i|
             FactoryBot.create :asset, { :facts => [
               FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
               FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
@@ -190,14 +190,14 @@ RSpec.describe StepType, type: :model do
 
           @step_type.condition_groups << @cg2
 
-          @assets = Array.new(5) { |i|
+          @assets = Array.new(5) { |_i|
             FactoryBot.create :asset, { :facts => [
               FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
               FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
             ] }
           }
 
-          @racks = Array.new(5) { |i|
+          @racks = Array.new(5) { |_i|
             FactoryBot.create :asset, { :facts => [
               FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
             ] }
@@ -264,13 +264,13 @@ RSpec.describe StepType, type: :model do
                                                :object_condition_group_id => @cg2.id
                                              })
 
-        @racks = Array.new(5) { |i|
+        @racks = Array.new(5) { |_i|
           FactoryBot.create :asset, { :facts => [
             FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack')
           ] }
         }
 
-        @bad_racks = Array.new(5) { |i|
+        @bad_racks = Array.new(5) { |_i|
           FactoryBot.create :asset, { :facts => [
             FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack')
           ] }
@@ -288,7 +288,7 @@ RSpec.describe StepType, type: :model do
         assert_equal true, @step_type.compatible_with?([@assets, @racks].flatten)
       end
       it 'is not compatible when the relation is not matching the conditions required' do
-        @bad_racks = Array.new(5) { |i|
+        @bad_racks = Array.new(5) { |_i|
           FactoryBot.create :asset, { :facts => [
             FactoryBot.create(:fact, :predicate => 'is', :object => 'BadRack')
           ] }

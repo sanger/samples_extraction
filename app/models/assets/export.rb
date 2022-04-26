@@ -30,8 +30,8 @@ module Assets::Export
         updates.set_errors(['Sequencescape connection - The server is down.'])
       rescue Timeout::Error => e
         updates.set_errors(['Sequencescape connection - Timeout error occurred.'])
-      rescue StandardError => err
-        updates.set_errors(['Sequencescape connection - There was an error while updating Sequencescape', err.message, err.backtrace.to_s])
+      rescue StandardError => e
+        updates.set_errors(['Sequencescape connection - There was an error while updating Sequencescape', e.message, e.backtrace.to_s])
       end
     end
   end
@@ -55,7 +55,7 @@ module Assets::Export
     SBCF::SangerBarcode.new(prefix: prefix, number: number).human_barcode
   end
 
-  def update_wells(remote_plate, updates)
+  def update_wells(remote_plate, _updates)
     remote_plate.wells.each do |remote_well|
       fact = fact_well_at(remote_well.location)
       if fact
