@@ -99,7 +99,7 @@ class StepType < ApplicationRecord
 
   def create_next_conditions
     unless n3_definition.nil?
-      SupportN3::parse_string(n3_definition, {}, self)
+      SupportN3.parse_string(n3_definition, {}, self)
     end
   end
 

@@ -56,7 +56,7 @@ RSpec.describe 'Assets::Export' do
         :rack1   :a                 :TubeRack ;
                  :contains          :tube1, :tube2, :tube3, :tube4 .
       }
-      @assets = SupportN3::parse_facts(facts)
+      @assets = SupportN3.parse_facts(facts)
 
       @rack1 = Asset.includes(:facts).find_by(uuid: 'rack1')
       expect(@rack1.attributes_to_send).to eq([
@@ -152,7 +152,7 @@ RSpec.describe 'Assets::Export' do
                  :location          "D1" ;
                  :sample_tube       :s4 .
       }
-      @assets = SupportN3::parse_facts(facts)
+      @assets = SupportN3.parse_facts(facts)
       @rack2 = Asset.find_by(uuid: 'rack2')
       expect(@rack2.attributes_to_send).to eq([
                                                 { sample_tube_uuid: "s1", location: "A1" },
@@ -184,7 +184,7 @@ RSpec.describe 'Assets::Export' do
                  :location          "D1" ;
                  :sample_tube       :s4 .
       }
-      @assets = SupportN3::parse_facts(facts)
+      @assets = SupportN3.parse_facts(facts)
       @rack2 = Asset.find_by(uuid: 'rack2')
       expect(@rack2.attributes_to_send).to eq([
                                                 { sample_tube_uuid: "s1", location: "A1" },
@@ -215,7 +215,7 @@ RSpec.describe 'Assets::Export' do
                  :location          "B1" ;
                  :sample_tube       :s4 .
       }
-      @assets = SupportN3::parse_facts(facts)
+      @assets = SupportN3.parse_facts(facts)
       @rack2 = Asset.find_by(uuid: 'rack2')
       expect { @rack2.attributes_to_send }.to raise_exception Assets::Export::DuplicateLocations
     end
@@ -242,7 +242,7 @@ RSpec.describe 'Assets::Export' do
                  :location          "D1" ;
                  :sample_tube       :s4 .
       }
-      @assets = SupportN3::parse_facts(facts)
+      @assets = SupportN3.parse_facts(facts)
       @rack2 = Asset.find_by(uuid: 'rack2')
       expect(@rack2.attributes_to_send).to eq([
                                                 { sample_tube_uuid: "s1", location: "A1" },

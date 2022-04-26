@@ -36,7 +36,7 @@ else
     memo.push(asset: tube, location: available_locations[idx])
   end
   updates.add(rack, 'layout', 'Complete')
-  updates.merge(Actions::Racking::reracking_tubes(rack, layout))
+  updates.merge(Actions::Racking.reracking_tubes(rack, layout))
 end
 
 puts updates.to_json

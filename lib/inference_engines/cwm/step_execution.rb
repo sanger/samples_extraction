@@ -76,7 +76,7 @@ module InferenceEngines
       end
 
       def export
-        step_actions = SupportN3::load_step_actions(step.output)
+        step_actions = SupportN3.load_step_actions(step.output)
 
         ['create_asset', 'remove_facts', 'add_facts', 'unselect_asset', 'select_asset'].each do |action_type|
           quads = step_actions[action_type.camelize(:lower).to_sym]
@@ -87,7 +87,7 @@ module InferenceEngines
       end
 
       def fragment(k)
-        SupportN3::fragment(k)
+        SupportN3.fragment(k)
       end
 
       def add_facts(graphs)

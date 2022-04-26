@@ -66,11 +66,11 @@ module Assets::Import
     end
 
     def update_digest_with_remote(remote_asset)
-      update_attributes(remote_digest: Digest::MD5::hexdigest(json_for_remote(remote_asset)))
+      update_attributes(remote_digest: Digest::MD5.hexdigest(json_for_remote(remote_asset)))
     end
 
     def changed_remote?(remote_asset)
-      Digest::MD5::hexdigest(json_for_remote(remote_asset)) != remote_digest
+      Digest::MD5.hexdigest(json_for_remote(remote_asset)) != remote_digest
     end
 
     def assets_to_refresh
@@ -85,7 +85,7 @@ module Assets::Import
     def refresh(fact_changes = nil)
       return self unless remote_asset?
 
-      remote_asset = SequencescapeClient::find_by_uuid(uuid)
+      remote_asset = SequencescapeClient.find_by_uuid(uuid)
       raise RefreshSourceNotFoundAnymore unless remote_asset
 
       refresh_from_remote(fact_changes: fact_changes, remote_asset: remote_asset)
@@ -104,7 +104,7 @@ module Assets::Import
       return self unless remote_asset?
 
       @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh!!'), state: 'running')
-      remote_asset = SequencescapeClient::find_by_uuid(uuid)
+      remote_asset = SequencescapeClient.find_by_uuid(uuid)
       raise RefreshSourceNotFoundAnymore unless remote_asset
 
       _process_refresh(remote_asset, fact_changes)
@@ -149,7 +149,7 @@ module Assets::Import
   module ClassMethods
     def import_barcode(barcode)
       @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')
-      remote_asset = SequencescapeClient::find_by_barcode(barcode)
+      remote_asset = SequencescapeClient.find_by_barcode(barcode)
 
       import_remote_asset(remote_asset, barcode, @import_step) if remote_asset
     end

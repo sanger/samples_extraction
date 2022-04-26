@@ -16,7 +16,7 @@ RSpec.describe "Inference" do
           :tube2 :volume """17""" .
         }
 
-        obtained_assets = SupportN3::parse_facts(code)
+        obtained_assets = SupportN3.parse_facts(code)
 
         f1 = [
           FactoryBot.create(:fact, { :predicate => 'name', :object => 'a name' }),

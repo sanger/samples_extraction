@@ -42,7 +42,7 @@ module InferencesHelper
   def build_step(rule, input_facts, options = {})
     step_type = FactoryBot.create(:step_type, :n3_definition => rule)
 
-    input_assets = SupportN3::parse_facts(input_facts, {}, false)
+    input_assets = SupportN3.parse_facts(input_facts, {}, false)
     reload_assets(input_assets)
     fail if input_assets.nil?
 
@@ -85,7 +85,7 @@ module InferencesHelper
     obtained_n3 = assets_to_n3(asset_group.assets)
     asset_group.assets.each { |a| a.facts.each(&:destroy) }
 
-    expected_output_assets = SupportN3::parse_facts(output_facts, {}, false)
+    expected_output_assets = SupportN3.parse_facts(output_facts, {}, false)
     fail if expected_output_assets.nil?
 
     reload_assets(expected_output_assets)

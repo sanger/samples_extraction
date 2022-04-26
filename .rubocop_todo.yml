@@ -559,19 +559,6 @@ Style/ClassVars:
   Exclude:
     - 'app/models/action.rb'
 
-# Offense count: 24
-# This cop supports safe auto-correction (--auto-correct).
-Style/ColonMethodCall:
-  Exclude:
-    - 'app/models/assets/import.rb'
-    - 'app/models/step_type.rb'
-    - 'db/seeds.rb'
-    - 'lib/inference_engines/cwm/step_execution.rb'
-    - 'lib/support_n3.rb'
-    - 'script/runners/put_tubes_into_rack_by_column_order.rb'
-    - 'spec/inferences_helper.rb'
-    - 'spec/integration/inference_spec.rb'
-    - 'spec/models/assets/export_spec.rb'
 
 # Offense count: 6
 # This cop supports safe auto-correction (--auto-correct).

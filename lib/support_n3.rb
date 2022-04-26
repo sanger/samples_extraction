@@ -118,15 +118,15 @@ module SupportN3
   end
 
   def self.create_fact(quad, quads, create_assets = true, created_assets = [])
-    asset = build_asset(SupportN3::fragment(quad[0]), create_assets, created_assets)
+    asset = build_asset(SupportN3.fragment(quad[0]), create_assets, created_assets)
     if is_literal?(quad[2], quads)
       asset.facts << Fact.create(
-        :predicate => SupportN3::fragment(quad[1]),
-        :object => SupportN3::fragment(quad[2])
+        :predicate => SupportN3.fragment(quad[1]),
+        :object => SupportN3.fragment(quad[2])
       )
     else
-      related_asset = build_asset(SupportN3::fragment(quad[2]), create_assets, created_assets)
-      asset.facts << Fact.create(:predicate => SupportN3::fragment(quad[1]),
+      related_asset = build_asset(SupportN3.fragment(quad[2]), create_assets, created_assets)
+      asset.facts << Fact.create(:predicate => SupportN3.fragment(quad[1]),
                                  :object_asset => related_asset, :literal => false)
     end
     asset
