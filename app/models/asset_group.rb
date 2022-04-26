@@ -11,7 +11,7 @@ class AssetGroup < ApplicationRecord
   belongs_to :activity_owner, :class_name => 'Activity'
   belongs_to :condition_group, :class_name => 'ConditionGroup'
 
-  alias_method :activity, :activity_owner
+  alias activity activity_owner
 
   include Printables::Group
 
