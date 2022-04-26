@@ -3,21 +3,21 @@ require Rails.root.to_s + '/script/runners/transfer_samples'
 
 RSpec.describe 'TransferSamples' do
   let(:sample) { create(:asset, facts: [create(:fact, predicate: 'sample_name', object: 'sample1')]) }
-  let(:sources) {
-    Array.new(5) {
+  let(:sources) do
+    Array.new(5) do
       create(:asset, facts: [
                create(:fact, predicate: 'a', object: 'Tube'),
                create(:fact, predicate: 'study_name', object: 'Study 1'),
                create(:fact, predicate: 'sample_tube', object_asset_id: sample.id)
              ])
-    }
-  }
-  let(:destinations) {
+    end
+  end
+  let(:destinations) do
     Array.new(5) { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
-  }
-  let(:instance) {
+  end
+  let(:instance) do
     TransferSamples.new(asset_group: group)
-  }
+  end
 
   shared_examples_for 'transfers all facts from source to destination' do
     it 'transfers all facts from source to destination' do

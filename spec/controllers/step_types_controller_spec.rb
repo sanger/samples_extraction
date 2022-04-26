@@ -16,11 +16,11 @@ RSpec.describe StepTypesController, type: :controller do
   end
 
   it "should create step_type" do
-    expect {
+    expect do
       post :create, params: { step_type: { :name => 'Test' } }
-    }.to change {
-           StepType.count
-         }.by(1)
+    end.to change {
+             StepType.count
+           }.by(1)
 
     assert_redirected_to step_type_url(StepType.last)
   end
@@ -42,20 +42,20 @@ RSpec.describe StepTypesController, type: :controller do
 
   it "should update priority for step_type" do
     step_type = create :step_type
-    expect {
+    expect do
       post :update, params: { id: step_type.id, step_type: step_type.attributes.merge({ priority: 10 }.as_json) }
-    }.to change {
+    end.to change {
       step_type.reload
       step_type.priority
     }.to(10)
   end
 
   it "should destroy step_type" do
-    expect {
+    expect do
       delete :destroy, params: { id: @step_type }
-    }.to change {
-           StepType.count
-         }.by(-1)
+    end.to change {
+             StepType.count
+           }.by(-1)
 
     assert_redirected_to step_types_url
   end
@@ -63,9 +63,9 @@ RSpec.describe StepTypesController, type: :controller do
   context '#create' do
     let(:params) { { step_type: { name: 'My task' } } }
     it 'creates a new step type' do
-      expect {
+      expect do
         post :create, params: params
-      }.to change { StepType.all.count }.by(1)
+      end.to change { StepType.all.count }.by(1)
     end
     it 'redirects to the step type url' do
       post :create, params: params

@@ -11,11 +11,11 @@ RSpec.describe ApplicationHelper, type: :helper do
   end
 
   context '#data_asset_display_for_plate' do
-    let(:well) {
+    let(:well) do
       w = create_well(location, sample, aliquot)
       w.update_attributes(barcode: barcode)
       w
-    }
+    end
     let(:sample) { nil }
     let(:aliquot) { nil }
     let(:location) { nil }

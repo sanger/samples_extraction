@@ -9,12 +9,12 @@ RSpec.describe Actions::Racking do
   let(:fact) { create(:fact, predicate: 'a', object: 'TubeRack') }
   let(:asset) { create :asset, uploaded_file: file, facts: [fact] }
   let(:step_type) { create(:step_type, condition_groups: [condition_group]) }
-  let(:step) {
+  let(:step) do
     create :step,
            activity: activity,
            state: Step::STATE_RUNNING,
            asset_group: asset_group, step_type: step_type
-  }
+  end
 
   let(:condition) { create(:condition, predicate: fact.predicate, object: fact.object) }
   let(:condition_group) { create(:condition_group, conditions: [condition]) }
@@ -95,9 +95,9 @@ RSpec.describe Actions::Racking do
       describe 'with empty slots in the layout .csv' do
         let(:num_empty) { 3 }
         let(:start_pos) { 0 }
-        let(:content) {
+        let(:content) do
           add_empty_slots(File.read('test/data/layout.csv'), num_empty, start_pos)
-        }
+        end
         def add_empty_slots(content, num_empty, start_pos = 0)
           csv = CSV.new(content).to_a
           num_empty.times do |i|

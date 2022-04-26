@@ -1,16 +1,16 @@
 require 'rails_helper'
 RSpec.describe Action, type: :model do
   context '#each_connected_asset' do
-    let(:action) {
+    let(:action) do
       create(:action, step_type: step_type,
                       predicate: 'some verb', action_type: 'something')
-    }
+    end
 
     shared_examples 'a connector by position' do
-      let(:step_type) {
+      let(:step_type) do
         create(:step_type,
                connect_by: 'position')
-      }
+      end
       it 'yields sources and destination' do
         i = 0
         action.each_connected_asset(sources, destinations) do |a, b|
@@ -34,13 +34,13 @@ RSpec.describe Action, type: :model do
       let(:sources) { [:a, :b, :c] }
       let(:destinations) { [:alpha, :beta, :gamma] }
       let(:pairs_by_position) { [[:a, :alpha], [:b, :beta], [:c, :gamma]] }
-      let(:pairs) {
+      let(:pairs) do
         [
           [:a, :alpha], [:a, :beta], [:a, :gamma],
           [:b, :alpha], [:b, :beta], [:b, :gamma],
           [:c, :alpha], [:c, :beta], [:c, :gamma]
         ]
-      }
+      end
 
       it_behaves_like 'a connector by position'
       it_behaves_like 'a connector of all to all'
@@ -49,12 +49,12 @@ RSpec.describe Action, type: :model do
       let(:sources) { [:a, :b] }
       let(:destinations) { [:alpha, :beta, :gamma] }
       let(:pairs_by_position) { [[:a, :alpha], [:b, :beta]] }
-      let(:pairs) {
+      let(:pairs) do
         [
           [:a, :alpha], [:a, :beta], [:a, :gamma],
           [:b, :alpha], [:b, :beta], [:b, :gamma]
         ]
-      }
+      end
       it_behaves_like 'a connector by position'
       it_behaves_like 'a connector of all to all'
     end
@@ -62,13 +62,13 @@ RSpec.describe Action, type: :model do
       let(:sources) { [:a, :b, :c] }
       let(:destinations) { [:alpha, :beta] }
       let(:pairs_by_position) { [[:a, :alpha], [:b, :beta]] }
-      let(:pairs) {
+      let(:pairs) do
         [
           [:a, :alpha], [:a, :beta],
           [:b, :alpha], [:b, :beta],
           [:c, :alpha], [:c, :beta]
         ]
-      }
+      end
       it_behaves_like 'a connector by position'
       it_behaves_like 'a connector of all to all'
     end

@@ -17,9 +17,9 @@ RSpec.describe KitTypesController, type: :controller do
   end
 
   it "should create kit_type" do
-    expect {
+    expect do
       post :create, params: { kit_type: @kit_type.attributes }
-    }.to change { KitType.count }.by(1)
+    end.to change { KitType.count }.by(1)
 
     assert_redirected_to kit_type_path(assigns(:kit_type))
   end
@@ -40,9 +40,9 @@ RSpec.describe KitTypesController, type: :controller do
   end
 
   it "should destroy kit_type" do
-    expect {
+    expect do
       delete :destroy, params: { id: @kit_type }
-    }.to change { KitType.count }.by(-1)
+    end.to change { KitType.count }.by(-1)
 
     assert_redirected_to kit_types_path
   end

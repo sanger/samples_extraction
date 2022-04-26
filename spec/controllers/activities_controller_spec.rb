@@ -27,9 +27,9 @@ RSpec.describe ActivitiesController, type: :controller do
   end
   context "when scanning a new kit" do
     context 'when the kit does not exist' do
-      let(:subject) {
+      let(:subject) do
         post :create, params: { activity: { :kit_barcode => '11850', :instrument_barcode => @instrument.barcode } }
-      }
+      end
       it 'fails creating the activity' do
         count = @kit.kit_type.activity_type.activities.count
         subject
@@ -43,9 +43,9 @@ RSpec.describe ActivitiesController, type: :controller do
     end
     context 'when the kit exists' do
       context 'when the instrument does not support the activity type' do
-        let(:subject) {
+        let(:subject) do
           post :create, params: { activity: { :kit_barcode => @kit.barcode, :instrument_barcode => @instrument.barcode } }
-        }
+        end
         it 'fails creating the activity' do
           count = @kit.kit_type.activity_type.activities.count
           subject

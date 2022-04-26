@@ -15,11 +15,11 @@ RSpec.describe Parsers::CsvLayout::LineParser do
                       location_parser: Parsers::CsvLayout::LocationParser
                     })
   end
-  let(:input_reader) {
+  let(:input_reader) do
     reader = double('reader')
     allow(reader).to receive(:lines).and_return(@input)
     reader
-  }
+  end
   let(:parser) { Parsers::CsvLayout::LineParser.new(input_reader, main_parser) }
 
   before do

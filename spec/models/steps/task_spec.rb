@@ -2,13 +2,13 @@ require 'rails_helper'
 
 describe Steps::Task do
   let(:user) { create :user, username: 'test' }
-  let(:printer_config) {
+  let(:printer_config) do
     {
       "Plate" => "plates",
       "Tube" => "tubes",
       "TubeRack" => "plates"
     }
-  }
+  end
   def build_instance
     asset_group = build :asset_group
     build :step, asset_group: asset_group, printer_config: printer_config
@@ -21,7 +21,7 @@ describe Steps::Task do
   # it_behaves_like 'background task'
 
   context 'a background task with some changes defined' do
-    let(:step_type) {
+    let(:step_type) do
       create(:step_type,
              step_action: step_action,
              condition_groups: [cg],
@@ -29,7 +29,7 @@ describe Steps::Task do
                create(:action, action_type: 'createAsset', predicate: 'a', object: 'Tube',
                                subject_condition_group: cg2)
              ])
-    }
+    end
     let(:cg) { create :condition_group, conditions: [create(:condition, predicate: 'a', object: 'Plate')] }
     let(:cg2) { create :condition_group }
     let(:group) { create :asset_group, assets: [asset] }
@@ -42,20 +42,20 @@ describe Steps::Task do
         asset.reload
 
         step = create_instance(step_type, activity, group)
-        expect {
+        expect do
           step.run!
-        }.to change { Asset.all.count }.by(1).and change { Fact.count }
+        end.to change { Asset.all.count }.by(1).and change { Fact.count }
       end
     end
     context 'when the step type does have a step action' do
       let(:step_action) { 'some_action' }
       context 'when the step action runs correctly' do
         let(:valid_changes) { FactChanges.new.tap { |update| update.create_assets(["?p"]) } }
-        let(:correct_execution) {
+        let(:correct_execution) do
           execution = double('step_execution')
           allow(execution).to receive(:plan).and_return(valid_changes)
           execution
-        }
+        end
         before do
           allow(InferenceEngines::Runner::StepExecution).to receive(:new).and_return(correct_execution)
         end
@@ -64,9 +64,9 @@ describe Steps::Task do
           asset.reload
 
           step = create_instance(step_type, activity, group)
-          expect {
+          expect do
             step.run!
-          }.to change { Asset.all.count }.by(2).and change { Fact.count }
+          end.to change { Asset.all.count }.by(2).and change { Fact.count }
         end
 
         it 'prints the selected list of assets' do
@@ -95,10 +95,10 @@ describe Steps::Task do
         end
       end
       context 'when the step works fine but the step action fails' do
-        let(:failable_execution) {
+        let(:failable_execution) do
           execution = double('step_execution')
           execution
-        }
+        end
 
         before do
           allow(failable_execution).to receive(:plan).and_raise('not good!!')
@@ -109,9 +109,9 @@ describe Steps::Task do
           asset.reload
           # We don't change asset count because assets are never destroyed, only facts
           step = create_instance(step_type, activity, group)
-          expect {
+          expect do
             step.run!
-          }.not_to change { Fact.count }
+          end.not_to change { Fact.count }
         end
       end
     end

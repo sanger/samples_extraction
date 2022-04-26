@@ -14,14 +14,14 @@ RSpec.describe Steps::BackgroundTasks::Inference do
         allow(execution).to receive(:run).and_raise(StandardError)
       end
       it 'changes the status to error' do
-        expect {
+        expect do
           inference.run!
-        }.to change { inference.failed? }.from(false).to(true)
+        end.to change { inference.failed? }.from(false).to(true)
       end
       it 'adds an output value explaining the error' do
-        expect {
+        expect do
           inference.run!
-        }.to change { inference.output.nil? }.to(false)
+        end.to change { inference.output.nil? }.to(false)
       end
     end
     context 'when there is no error' do

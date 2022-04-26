@@ -11,12 +11,12 @@ RSpec.describe Parsers::CsvLayout::CsvParser do
     let(:activity) { create(:activity) }
     let(:asset_group) { create(:asset_group) }
     let(:step_type) { create(:step_type) }
-    let(:step) {
+    let(:step) do
       create :step,
              activity: activity,
              state: Step::STATE_RUNNING,
              asset_group: asset_group, step_type: step_type
-    }
+    end
 
     setup do
       allow(SequencescapeClient).to receive(:labware).and_return([])

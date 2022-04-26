@@ -95,18 +95,18 @@ RSpec.describe Step, type: :model do
                                            })
       @step_type.condition_groups << @cg1
       @step_type.condition_groups << @cg2
-      @tubes = Array.new(7) { |_i|
+      @tubes = Array.new(7) do |_i|
         FactoryBot.create(:asset, { :facts => [
                             FactoryBot.create(:fact, :predicate => 'is', :object => 'Tube'),
                             FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
                           ] })
-      }
-      @racks = Array.new(5) { |_i|
+      end
+      @racks = Array.new(5) do |_i|
         FactoryBot.create(:asset, { :facts => [
                             FactoryBot.create(:fact, :predicate => 'is', :object => 'Rack'),
                             FactoryBot.create(:fact, :predicate => 'is', :object => 'Full')
                           ] })
-      }
+      end
       @assets = [@tubes, @racks].flatten
       @asset_group = FactoryBot.create(:asset_group, { :assets => @assets })
     end
@@ -114,9 +114,9 @@ RSpec.describe Step, type: :model do
     describe 'when creating a new step' do
       it 'raises an exception if assets are not compatible with step_type' do
         @cg1.update_attributes(:cardinality => 1)
-        expect {
+        expect do
           @step = create_step
-        }.to raise_error(AASM::InvalidTransition)
+        end.to raise_error(AASM::InvalidTransition)
       end
     end
 
@@ -159,9 +159,9 @@ RSpec.describe Step, type: :model do
           it 'does not execute the rule when the wildcard condition is not met' do
             previous_num = @asset_group.assets.count
 
-            expect {
+            expect do
               @step = create_step
-            }.to raise_error(StandardError)
+            end.to raise_error(StandardError)
 
             @racks.each(&:reload)
 
@@ -450,9 +450,9 @@ RSpec.describe Step, type: :model do
       let(:asset_group) { create(:asset_group, assets: [origins, targets].flatten) }
 
       shared_examples 'a step type that can connect by position' do
-        let(:step_type) {
+        let(:step_type) do
           create(:step_type, condition_groups: condition_groups, actions: actions, connect_by: 'position')
-        }
+        end
         it 'connects origins with destinations 1 to 1 leaving outside assets without associated pair' do
           s = run_step_type(step_type, asset_group)
           origins.each(&:reload)
@@ -465,9 +465,9 @@ RSpec.describe Step, type: :model do
       end
 
       shared_examples 'a step type that can connect N to N' do
-        let(:step_type) {
+        let(:step_type) do
           create(:step_type, condition_groups: condition_groups, actions: actions, connect_by: nil)
-        }
+        end
 
         it 'connects all origins with all destinations' do
           s = run_step_type(step_type, asset_group)
@@ -487,18 +487,18 @@ RSpec.describe Step, type: :model do
       end
 
       context 'when the destinations exist upfront' do
-        let(:condition_groups) {
+        let(:condition_groups) do
           [
             create_condition_group_to_select_asset_type('Tube'),
             create_condition_group_to_select_asset_type('Rack')
           ]
-        }
-        let(:actions) {
+        end
+        let(:actions) do
           [
             create_action_for_connecting_condition_groups('transfer',
                                                           condition_groups.first, condition_groups.last)
           ]
-        }
+        end
         let(:targets) { destinations }
         context 'when there are more destinations than origins' do
           let(:origins) { create_assets(5, 'Tube') }
@@ -526,22 +526,22 @@ RSpec.describe Step, type: :model do
       end
 
       context 'when the destinations are going to be created during the execution' do
-        let(:condition_groups) {
+        let(:condition_groups) do
           [
             create_condition_group_to_select_asset_type('Tube')
           ]
-        }
-        let(:action_for_creating_rack) {
+        end
+        let(:action_for_creating_rack) do
           create_action_for_creating_asset('Rack')
-        }
-        let(:actions) {
+        end
+        let(:actions) do
           [
             create_action_for_connecting_condition_groups('transfer',
                                                           condition_groups.first,
                                                           action_for_creating_rack.subject_condition_group),
             action_for_creating_rack
           ]
-        }
+        end
         let(:origins) { create_assets(5, 'Tube') }
         let(:targets) { [] }
 

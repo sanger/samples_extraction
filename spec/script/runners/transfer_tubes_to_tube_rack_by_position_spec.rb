@@ -3,26 +3,26 @@ require 'rails_helper'
 require Rails.root.to_s + '/script/runners/transfer_tubes_to_tube_rack_by_position'
 
 RSpec.describe 'TransferTubesToTubeRackByPosition' do
-  let(:wells) {
+  let(:wells) do
     5.times.each_with_index.map do |i|
       create(:asset, facts: [
                create(:fact, predicate: 'a', object: 'Well'),
                create(:fact, predicate: 'location', object: "A0#{i}")
              ])
     end
-  }
-  let(:rack) {
+  end
+  let(:rack) do
     create(:asset, facts: [
       create(:fact, predicate: 'a', object: 'TubeRack'),
       wells.map { |w| create(:fact, predicate: 'contains', object_asset_id: w.id) }
     ].flatten)
-  }
-  let(:tubes) {
+  end
+  let(:tubes) do
     Array.new(5) { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
-  }
-  let(:instance) {
+  end
+  let(:instance) do
     TransferTubesToTubeRackByPosition.new(asset_group: group)
-  }
+  end
   context 'when it receives a rack and a set of tubes' do
     let(:group) { create(:asset_group, assets: [rack, tubes].flatten) }
     context 'when the tubes do not relate with the rack' do
@@ -37,9 +37,9 @@ RSpec.describe 'TransferTubesToTubeRackByPosition' do
         end
       end
       context 'when only some of the tubes are related with the rack' do
-        let(:unrelated_tubes) {
+        let(:unrelated_tubes) do
           Array.new(5) { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
-        }
+        end
         before do
           group.assets << unrelated_tubes
         end
@@ -170,9 +170,9 @@ RSpec.describe 'TransferTubesToTubeRackByPosition' do
         end
       end
       context 'when there are no more space left in the rack' do
-        let(:tubes) {
+        let(:tubes) do
           Array.new(7) { create(:asset, facts: [create(:fact, predicate: 'a', object: 'Tube')]) }
-        }
+        end
         it 'produces an error' do
           set_errors = instance.process.to_h[:set_errors]
           expect(set_errors.count).not_to eq(0)

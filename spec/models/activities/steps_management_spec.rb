@@ -1,7 +1,7 @@
 require 'rails_helper'
 RSpec.describe 'Activities::StepsManagement' do
   context "with an activity configuration" do
-    let(:asset) {
+    let(:asset) do
       create :asset, {
         barcode: '1',
         facts: [
@@ -12,8 +12,8 @@ RSpec.describe 'Activities::StepsManagement' do
                  create :fact, { :predicate => a, :object => b }
                end
       }
-    }
-    let(:step_type) {
+    end
+    let(:step_type) do
       create :step_type, name: 'Step B',
                          condition_groups: [
                            create(:condition_group, conditions: [
@@ -21,7 +21,7 @@ RSpec.describe 'Activities::StepsManagement' do
                                     create(:condition, { predicate: 'aliquotType', object: 'DNA' })
                                   ])
                          ]
-    }
+    end
     let(:step_type2) { create :step_type, name: 'Step A' }
     let(:activity_type) { create :activity_type, step_types: [step_type, step_type2] }
     let(:activity) { create :activity, activity_type: activity_type }

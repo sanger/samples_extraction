@@ -16,9 +16,9 @@ RSpec.describe ActivityTypesController, type: :controller do
   end
 
   it "should create activity_type" do
-    expect {
+    expect do
       post :create, params: { activity_type: @activity_type.attributes }
-    }.to change { ActivityType.count }.by(1)
+    end.to change { ActivityType.count }.by(1)
 
     assert_redirected_to activity_type_path(assigns(:activity_type))
   end
@@ -39,9 +39,9 @@ RSpec.describe ActivityTypesController, type: :controller do
   end
 
   it "should destroy activity_type" do
-    expect {
+    expect do
       delete :destroy, params: { id: @activity_type }
-    }.to change { ActivityType.count }.by(-1)
+    end.to change { ActivityType.count }.by(-1)
 
     assert_redirected_to activity_types_path
   end

@@ -4,21 +4,21 @@ RSpec.describe 'Steps::Stoppable' do
   let(:asset_group) { create(:asset_group) }
   let(:step_type) { create(:step_type) }
 
-  let(:previous_steps) {
+  let(:previous_steps) do
     create_list(:step, 2, state: Step::STATE_RUNNING, activity: activity, asset_group: asset_group, step_type: step_type)
-  }
-  let(:next_steps) {
+  end
+  let(:next_steps) do
     create_list(:step, 2, state: Step::STATE_RUNNING, activity: activity, asset_group: asset_group, step_type: step_type)
-  }
+  end
 
   let(:step) { create(:step, state: previous_state, activity: activity, asset_group: asset_group, step_type: step_type) }
 
   context 'when a step is stopped' do
-    let(:do_action) {
+    let(:do_action) do
       steps = [previous_steps, step, next_steps].flatten
       step.stop!
       steps.each(&:reload)
-    }
+    end
 
     context 'but the step was already completed before' do
       let(:previous_state) { Step::STATE_COMPLETE }
@@ -58,18 +58,18 @@ RSpec.describe 'Steps::Stoppable' do
     end
   end
   context 'when a step is continued' do
-    let(:do_action) {
+    let(:do_action) do
       steps = [previous_steps, step, next_steps].flatten
       step.continue!
       steps.each(&:reload)
-    }
+    end
 
-    let(:next_steps_stopped) {
+    let(:next_steps_stopped) do
       create_list(:step, 2, state: Step::STATE_STOPPED, activity: activity, asset_group: asset_group, step_type: step_type)
-    }
-    let(:next_steps_not_stopped) {
+    end
+    let(:next_steps_not_stopped) do
       create_list(:step, 2, state: Step::STATE_FAILED, activity: activity, asset_group: asset_group, step_type: step_type)
-    }
+    end
     let(:next_steps) { [next_steps_stopped, next_steps_not_stopped].flatten }
 
     context 'when the step was stopped before' do

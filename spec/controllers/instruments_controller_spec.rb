@@ -21,9 +21,9 @@ RSpec.describe InstrumentsController, type: :controller do
   end
 
   it "should create instrument" do
-    expect {
+    expect do
       post :create, params: { instrument: @instrument.attributes }
-    }.to change { Instrument.count }.by(1)
+    end.to change { Instrument.count }.by(1)
 
     assert_redirected_to instrument_path(assigns(:instrument))
   end
@@ -44,9 +44,9 @@ RSpec.describe InstrumentsController, type: :controller do
   end
 
   it "should destroy instrument" do
-    expect {
+    expect do
       delete :destroy, params: { id: @instrument }
-    }.to change { Instrument.count }.by(-1)
+    end.to change { Instrument.count }.by(-1)
 
     assert_redirected_to instruments_path
   end

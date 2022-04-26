@@ -3,14 +3,14 @@ require 'parsers/csv_layout/location_parser'
 require 'parsers/csv_layout/validators/location_validator'
 
 RSpec.describe Parsers::CsvLayout::LocationParser do
-  let(:main_parser) {
+  let(:main_parser) do
     main = double('parser')
     allow(main).to receive(:add_error)
     allow(main).to receive(:components).and_return({
                                                      location_validator: Parsers::CsvLayout::Validators::LocationValidator
                                                    })
     main
-  }
+  end
   let(:barcode) { '1234' }
   let(:location) { 'A10' }
   let(:input) { [location, barcode] }

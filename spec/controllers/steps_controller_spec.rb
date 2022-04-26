@@ -12,13 +12,13 @@ RSpec.describe StepsController, type: :controller do
 
   context '#create' do
     it 'creates a new step' do
-      expect {
+      expect do
         post :create, params: {
           activity_id: activity.id, step: {
             asset_group_id: asset_group.id, step_type_id: step_type.id
           }
         }
-      }.to change { Step.all.count }
+      end.to change { Step.all.count }
     end
 
     context 'when receiving a specific printer config' do
@@ -40,9 +40,9 @@ RSpec.describe StepsController, type: :controller do
     end
   end
   context '#update' do
-    let(:step) {
+    let(:step) do
       create(:step, activity: activity, asset_group: asset_group, step_type: step_type)
-    }
+    end
 
     let(:event_name) { Step::EVENT_RUN }
 
@@ -54,13 +54,13 @@ RSpec.describe StepsController, type: :controller do
     end
 
     context 'when a step is running' do
-      let(:step) {
+      let(:step) do
         create :step,
                activity: activity,
                asset_group: asset_group, step_type: step_type
-      }
+      end
 
-      let(:run_step) {
+      let(:run_step) do
         # We want to simulate that during a running process a 'stop' event is received so we
         # need 2 different calls ran asynchronously that is why one of them will be performed
         # in a different thread
@@ -69,7 +69,7 @@ RSpec.describe StepsController, type: :controller do
           post :update, params: { id: step_id, step: { event_name: 'run' } }
         rescue ActionDispatch::IllegalStateError => e
         end
-      }
+      end
       it 'can be stopped' do
         step_id = step.id
         allow_any_instance_of(Step).to receive(:process) do

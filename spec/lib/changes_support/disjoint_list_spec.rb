@@ -119,25 +119,25 @@ RSpec.describe 'ChangesSupport::DisjointList' do
       expect(list.add(elem)).to eq(list)
     end
     it 'adds the element when is not present in any of the lists' do
-      expect {
+      expect do
         list.add(elem)
-      }.to change { list.to_a.length }.by(1)
-                                      .and change { list.length }.by(1)
+      end.to change { list.to_a.length }.by(1)
+                                        .and change { list.length }.by(1)
       expect(list.to_a).to eq([elem])
     end
     it 'stores the position in the common hash' do
-      expect {
+      expect do
         list.add(elem)
-      }.to change { list.store_for(elem) }.from(nil).to(list)
-                                          .and change { list2.store_for(elem) }.from(nil).to(list)
+      end.to change { list.store_for(elem) }.from(nil).to(list)
+                                            .and change { list2.store_for(elem) }.from(nil).to(list)
     end
     it 'does not add the element again if it is already present' do
       list.add(elem)
       expect(list.to_a).to eq([elem])
-      expect {
+      expect do
         list.add(elem)
-      }.to change { list.to_a.length }.by(0)
-                                      .and change { list.length }.by(0)
+      end.to change { list.to_a.length }.by(0)
+                                        .and change { list.length }.by(0)
       expect(list.to_a).to eq([elem])
     end
     it 'disables the element from the list if is added to another disjoint list' do
@@ -151,14 +151,14 @@ RSpec.describe 'ChangesSupport::DisjointList' do
     end
 
     context 'with a group of disjoint lists' do
-      let(:lists) {
+      let(:lists) do
         l = Array.new(5) { ChangesSupport::DisjointList.new([]) }
         l[0].add_disjoint_list(l[1])
         l[0].add_disjoint_list(l[2])
         l[0].add_disjoint_list(l[3])
         l[0].add_disjoint_list(l[4])
         l
-      }
+      end
       it 'disables element if present in another list' do
         lists[0] << []
         lists[1] << [1]
@@ -390,12 +390,12 @@ RSpec.describe 'ChangesSupport::DisjointList' do
       context 'when merging a chain of objects' do
         let(:winners) { Array.new(6) { ChangesSupport::DisjointList.new([]) } }
         let(:losers) { Array.new(6) { ChangesSupport::DisjointList.new([]) } }
-        let(:list) {
-          winners.zip(losers).map { |l|
+        let(:list) do
+          winners.zip(losers).map do |l|
             l[0].add_disjoint_list(l[1])
             { winner: l[0], loser: l[1] }
-          }
-        }
+          end
+        end
 
         it 'keeps track of all restrictions until the final list' do
           list[0][:winner] << 'Manchester City'

@@ -58,9 +58,9 @@ RSpec.describe FactChanges do
   describe '#parse_json' do
     let(:updates) { FactChanges.new }
     it 'raises exception when the parsed object is not right' do
-      expect {
+      expect do
         updates.parse_json("something went wrong!")
-      }.to raise_error(StandardError)
+      end.to raise_error(StandardError)
     end
     it 'parses a json and loads the changes from it' do
       expect(updates.facts_to_add.length).to eq(0)
@@ -217,17 +217,17 @@ RSpec.describe FactChanges do
     context 'with add' do
       it 'applies a new added property' do
         updates1.add(asset1, property, value)
-        expect {
+        expect do
           updates1.apply(step)
-        }.to change { asset1.facts.count }.by(1)
-                                          .and change { Operation.count }.by(1)
+        end.to change { asset1.facts.count }.by(1)
+                                            .and change { Operation.count }.by(1)
       end
       it 'applies a new added relation' do
         updates1.add(asset1, relation, asset2)
-        expect {
+        expect do
           updates1.apply(step)
-        }.to change { asset1.facts.count }.by(1)
-                                          .and change { Operation.count }.by(1)
+        end.to change { asset1.facts.count }.by(1)
+                                            .and change { Operation.count }.by(1)
       end
       it 'is able to add facts to assets created before' do
         updates1.create_assets(['?p'])
@@ -239,10 +239,10 @@ RSpec.describe FactChanges do
     context 'with add_remote' do
       it 'adds a new remote fact' do
         updates1.add_remote(asset1, relation, asset2)
-        expect {
+        expect do
           updates1.apply(step)
-        }.to change { asset1.facts.count }.by(1)
-                                          .and change { Operation.count }.by(1)
+        end.to change { asset1.facts.count }.by(1)
+                                            .and change { Operation.count }.by(1)
 
         expect(asset1.facts.first.is_remote?).to eq(true)
       end
@@ -250,10 +250,10 @@ RSpec.describe FactChanges do
     context 'with replace_remote' do
       it 'adds a new remote fact if it does not exist' do
         updates1.replace_remote(asset1, relation, asset2)
-        expect {
+        expect do
           updates1.apply(step)
-        }.to change { asset1.facts.count }.by(1)
-                                          .and change { Operation.count }.by(1)
+        end.to change { asset1.facts.count }.by(1)
+                                            .and change { Operation.count }.by(1)
         expect(asset1.facts.count).to eq(1)
         expect(asset1.facts.first.is_remote?).to eq(true)
       end
@@ -264,10 +264,10 @@ RSpec.describe FactChanges do
 
         updates1.replace_remote(asset1, relation, asset2)
         asset1.facts.reload
-        expect {
+        expect do
           updates1.apply(step)
-        }.to change { asset1.facts.count }.by(0)
-                                          .and change { Operation.count }.by(2)
+        end.to change { asset1.facts.count }.by(0)
+                                            .and change { Operation.count }.by(2)
         asset1.facts.reload
 
         expect(asset1.facts.count).to eq(1)
@@ -278,10 +278,10 @@ RSpec.describe FactChanges do
       it 'removes an already existing fact' do
         asset1.facts << fact1
         updates1.remove(fact1)
-        expect {
+        expect do
           updates1.apply(step)
-        }.to change { asset1.facts.count }.by(-1)
-                                          .and change { Operation.count }.by(1)
+        end.to change { asset1.facts.count }.by(-1)
+                                            .and change { Operation.count }.by(1)
       end
     end
 
@@ -293,10 +293,10 @@ RSpec.describe FactChanges do
       it 'removes facts with a condition' do
         asset1.facts << [fact1, fact2, fact3, fact4]
         updates1.remove_where(asset1, 'cond1', 'val')
-        expect {
+        expect do
           updates1.apply(step)
-        }.to change { asset1.facts.count }.by(-2)
-                                          .and change { Operation.count }.by(2)
+        end.to change { asset1.facts.count }.by(-2)
+                                            .and change { Operation.count }.by(2)
       end
     end
 
@@ -746,9 +746,9 @@ RSpec.describe FactChanges do
         obj2.merge(obj)
       end
       it 'merges wildcards used in other objects' do
-        expect {
+        expect do
           obj2.add("?p", "a", "Tube")
-        }.not_to raise_error
+        end.not_to raise_error
       end
       it 'merges mapping between wildcards and uuids from other objects' do
         obj2.add("?p", "a", "Tube")

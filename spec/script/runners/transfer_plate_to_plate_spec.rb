@@ -19,9 +19,9 @@ RSpec.describe 'TransferPlateToPlate' do
     ].flatten)
   end
 
-  let(:instance) {
+  let(:instance) do
     TransferPlateToPlate.new(asset_group: group)
-  }
+  end
 
   context 'when we have 2 plates defined in the group' do
     let(:group) { create(:asset_group, assets: [source_rack, destination_rack]) }

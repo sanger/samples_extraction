@@ -12,19 +12,19 @@ RSpec.describe AssetGroupsController, type: :controller do
     let(:file) { fixture_file_upload('test/data/layout.csv', 'text/csv') }
 
     it 'creates a new uploaded file' do
-      expect {
+      expect do
         post :upload, params: { id: asset_group.id,  qqfilename: 'myfile.csv', qqfile:  file }
-      }.to change { UploadedFile.all.count }.by(1)
+      end.to change { UploadedFile.all.count }.by(1)
     end
     it 'adds the file to the asset group' do
-      expect {
+      expect do
         post :upload, params: { id: asset_group.id,  qqfilename: 'myfile.csv', qqfile:  file }
-      }.to change { asset_group.assets.count }.by(1)
+      end.to change { asset_group.assets.count }.by(1)
     end
     it 'creates a new step to track the change in the asset group' do
-      expect {
+      expect do
         post :upload, params: { id: asset_group.id,  qqfilename: 'myfile.csv', qqfile:  file }
-      }.to change { Step.all.count }.by(1)
+      end.to change { Step.all.count }.by(1)
     end
   end
 
@@ -35,18 +35,18 @@ RSpec.describe AssetGroupsController, type: :controller do
     context "when the asset is in the database" do
       context 'finding by uuid' do
         it "add the new asset to the group" do
-          expect {
+          expect do
             post :update, params: { :asset_group => { :assets => [asset.uuid] },
                                     :id => asset_group.id, :activity_id => activity.id }
-          }.to change { asset_group.assets.count }.by(1)
+          end.to change { asset_group.assets.count }.by(1)
         end
       end
       context 'finding by barcode' do
         it "add the new asset to the group" do
-          expect {
+          expect do
             post :update, params: { :asset_group => { :assets => [asset.barcode] },
                                     :id => asset_group.id, :activity_id => activity.id }
-          }.to change { asset_group.assets.count }.by(1)
+          end.to change { asset_group.assets.count }.by(1)
         end
       end
     end
@@ -65,19 +65,19 @@ RSpec.describe AssetGroupsController, type: :controller do
           # NOTE: We previously had an innaccurate mock making this test pass.
           # We're just pulling assets from SS based on barcode.
           xit "retrieves the asset from Sequencescape" do
-            expect {
+            expect do
               post :update, params: { :asset_group => { :assets => [uuid] },
                                       :id => asset_group.id, :activity_id => activity.id }
-            }.to change { asset_group.assets.count }.by(1)
+            end.to change { asset_group.assets.count }.by(1)
           end
         end
 
         context 'finding by barcode' do
           it "retrieves the asset from Sequencescape" do
-            expect {
+            expect do
               post :update, params: { :asset_group => { :assets => [barcode] },
                                       :id => asset_group.id, :activity_id => activity.id }
-            }.to change { asset_group.assets.count }.by(1)
+            end.to change { asset_group.assets.count }.by(1)
           end
         end
       end
@@ -94,12 +94,12 @@ RSpec.describe AssetGroupsController, type: :controller do
         let(:creatable_barcode) { generate :barcode_creatable }
 
         it "creates a new asset" do
-          expect {
+          expect do
             post :update, params: { :asset_group => {
               :assets => [creatable_barcode]
             },
                                     :id => asset_group.id, :activity_id => activity.id }
-          }.to change { asset_group.assets.count }.by(1)
+          end.to change { asset_group.assets.count }.by(1)
         end
       end
     end

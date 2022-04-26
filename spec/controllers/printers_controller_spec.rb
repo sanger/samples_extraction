@@ -16,11 +16,11 @@ RSpec.describe PrintersController, type: :controller do
   end
 
   it "should create printer" do
-    expect {
+    expect do
       post :create, params: { printer: @printer.attributes }
-    }.to change {
-           Printer.count
-         }.by(1)
+    end.to change {
+             Printer.count
+           }.by(1)
 
     assert_redirected_to printer_path(assigns(:printer))
   end
@@ -41,9 +41,9 @@ RSpec.describe PrintersController, type: :controller do
   end
 
   it "should destroy printer" do
-    expect {
+    expect do
       delete :destroy, params: { id: @printer }
-    }.to change { Printer.count }.by(-1)
+    end.to change { Printer.count }.by(-1)
 
     assert_redirected_to printers_path
   end

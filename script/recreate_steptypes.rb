@@ -52,8 +52,8 @@
   ['Update Sequencescape', 'update_sequencescape.rb', %{
     { ?p :a :TubeRack .}=>{}.
     }]
-].map { |l|
+].map do |l|
   s = StepType.find_by(name: l[0])
   s2 = StepType.create(name: l[0], step_action: l[1], for_reasoning: true, n3_definition: l[2])
   s.deprecate_with(s)
-}
+end
