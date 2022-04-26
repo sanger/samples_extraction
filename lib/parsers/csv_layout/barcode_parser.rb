@@ -2,7 +2,7 @@
 
 module Parsers
   module CsvLayout
-    class BarcodeParser
+    class BarcodeParser # rubocop:todo Style/Documentation
       NO_READ_BARCODE = 'no read'
 
       include ActiveModel::Validations

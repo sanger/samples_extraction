@@ -1,4 +1,4 @@
-class Condition < ApplicationRecord
+class Condition < ApplicationRecord # rubocop:todo Style/Documentation
   belongs_to :condition_group
   has_many :activity_types, through: :condition_group
   belongs_to :object_condition_group, class_name: 'ConditionGroup'

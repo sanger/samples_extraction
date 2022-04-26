@@ -1,7 +1,7 @@
 require 'csv'
 require 'fact_changes'
 
-class UploadedFile < ApplicationRecord
+class UploadedFile < ApplicationRecord # rubocop:todo Style/Documentation
   belongs_to :asset
 
   def step

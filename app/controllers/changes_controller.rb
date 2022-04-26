@@ -1,4 +1,4 @@
-class ChangesController < ApplicationController
+class ChangesController < ApplicationController # rubocop:todo Style/Documentation
   def create
     @step = Step.create(state: 'running')
     json = params_changes.to_json

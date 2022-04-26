@@ -1,4 +1,4 @@
-class ConditionGroup < ApplicationRecord
+class ConditionGroup < ApplicationRecord # rubocop:todo Style/Documentation
   belongs_to :step_type
   has_many :activity_types, through: :step_type
   has_many :conditions, dependent: :destroy

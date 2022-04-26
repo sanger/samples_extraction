@@ -1,4 +1,4 @@
-class Instrument < ApplicationRecord
+class Instrument < ApplicationRecord # rubocop:todo Style/Documentation
   has_and_belongs_to_many :activity_types
   has_many :activities
 

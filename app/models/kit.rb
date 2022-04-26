@@ -1,4 +1,4 @@
-class Kit < ApplicationRecord
+class Kit < ApplicationRecord # rubocop:todo Style/Documentation
   belongs_to :kit_type
   has_many :activities
   has_one :activity_type, through: :kit_type

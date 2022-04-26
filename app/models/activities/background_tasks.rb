@@ -1,6 +1,6 @@
 module Activities
-  module BackgroundTasks
-    class BackgroundTask
+  module BackgroundTasks # rubocop:todo Style/Documentation
+    class BackgroundTask # rubocop:todo Style/Documentation
       attr_accessor :step_type
 
       def initialize(step_type)

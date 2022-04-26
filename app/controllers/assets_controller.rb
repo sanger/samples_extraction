@@ -1,4 +1,4 @@
-class AssetsController < ApplicationController
+class AssetsController < ApplicationController # rubocop:todo Style/Documentation
   before_action :set_asset, only: %i[show edit update destroy print]
   before_action :set_queries, only: %i[search print_search]
 

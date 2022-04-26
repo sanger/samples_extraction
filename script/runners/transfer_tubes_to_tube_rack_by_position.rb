@@ -2,7 +2,7 @@
 
 require 'actions/tube_transfer'
 
-class TransferTubesToTubeRackByPosition
+class TransferTubesToTubeRackByPosition # rubocop:todo Style/Documentation
   attr_reader :asset_group
 
   include Actions::TubeTransfer

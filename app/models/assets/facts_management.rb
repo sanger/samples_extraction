@@ -1,4 +1,4 @@
-module Assets::FactsManagement
+module Assets::FactsManagement # rubocop:todo Style/Documentation
   def self.included(klass)
     klass.instance_eval do
       scope :with_fact, ->(predicate, object) { joins(:facts).where(facts: { predicate: predicate, object: object }) }

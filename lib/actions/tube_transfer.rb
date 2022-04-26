@@ -1,5 +1,5 @@
 module Actions
-  module TubeTransfer
+  module TubeTransfer # rubocop:todo Style/Documentation
     def transfer_tubes(asset, modified_asset)
       FactChanges.new.tap do |updates|
         %w[study_uuid sample_uuid sanger_sample_name supplier_sample_name sample_common_name].each do |field|

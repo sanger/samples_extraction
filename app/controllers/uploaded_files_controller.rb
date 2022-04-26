@@ -1,4 +1,4 @@
-class UploadedFilesController < ApplicationController
+class UploadedFilesController < ApplicationController # rubocop:todo Style/Documentation
   before_action :set_uploaded_file, only: [:show]
 
   def show

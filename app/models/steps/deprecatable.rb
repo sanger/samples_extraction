@@ -1,4 +1,4 @@
-module Steps::Deprecatable
+module Steps::Deprecatable # rubocop:todo Style/Documentation
   def self.included(klass)
     klass.instance_eval { scope :deprecatable, -> { cancelled.or(failed).or(stopped) } }
   end

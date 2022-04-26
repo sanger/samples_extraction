@@ -1,4 +1,4 @@
-class CreateConditionGroups < ActiveRecord::Migration
+class CreateConditionGroups < ActiveRecord::Migration # rubocop:todo Style/Documentation
   def change
     create_table :condition_groups do |t|
       t.string :name

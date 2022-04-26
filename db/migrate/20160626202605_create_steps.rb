@@ -1,4 +1,4 @@
-class CreateSteps < ActiveRecord::Migration
+class CreateSteps < ActiveRecord::Migration # rubocop:todo Style/Documentation
   def change
     create_table :steps do |t|
       t.references :step_type, index: true, foreign_key: true

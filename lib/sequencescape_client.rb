@@ -5,7 +5,7 @@ require 'sequencescape'
 
 require 'sequencescape_client_v2'
 
-class SequencescapeClient
+class SequencescapeClient # rubocop:todo Style/Documentation
   SELECT_FOR_IMPORT = 'uuid,labware_barcode,receptacles,purpose'
   @purposes = nil
 

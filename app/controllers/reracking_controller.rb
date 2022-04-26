@@ -1,4 +1,4 @@
-class RerackingController < ApplicationController
+class RerackingController < ApplicationController # rubocop:todo Style/Documentation
   before_action :set_activity_type
   before_action :set_activity, only: %i[update show]
 

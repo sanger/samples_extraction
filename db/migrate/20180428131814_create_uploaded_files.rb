@@ -1,4 +1,4 @@
-class CreateUploadedFiles < ActiveRecord::Migration[5.1]
+class CreateUploadedFiles < ActiveRecord::Migration[5.1] # rubocop:todo Style/Documentation
   def change
     create_table :uploaded_files, force: true do |t|
       # t.references :asset_group, index: true, foreign_key: true

@@ -1,6 +1,6 @@
 module Parsers
   module CsvLayout
-    class LineParser
+    class LineParser # rubocop:todo Style/Documentation
       include ActiveModel::Validations
 
       validate :validate_parsed_content

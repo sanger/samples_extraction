@@ -1,6 +1,6 @@
 module Parsers
   module CsvLayout
-    class LocationParser
+    class LocationParser # rubocop:todo Style/Documentation
       include ActiveModel::Validations
 
       validate :validations

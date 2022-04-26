@@ -1,4 +1,4 @@
-class Operation < ApplicationRecord
+class Operation < ApplicationRecord # rubocop:todo Style/Documentation
   belongs_to :step
   belongs_to :asset
   belongs_to :object_asset, class_name: 'Asset'

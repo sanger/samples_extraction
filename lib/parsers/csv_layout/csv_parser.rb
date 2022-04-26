@@ -7,7 +7,7 @@ require 'parsers/csv_layout/validators/location_validator'
 
 module Parsers
   module CsvLayout
-    class CsvParser
+    class CsvParser # rubocop:todo Style/Documentation
       include ActiveModel::Validations
 
       validate :validate_parsed_data

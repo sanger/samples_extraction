@@ -1,4 +1,4 @@
-module AssetsHelper
+module AssetsHelper # rubocop:todo Style/Documentation
   def condition_groups_init_for_asset(asset)
     obj = {}
     obj[asset.barcode] = { template: 'templates/asset_facts' }

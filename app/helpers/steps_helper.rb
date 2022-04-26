@@ -1,4 +1,4 @@
-module StepsHelper
+module StepsHelper # rubocop:todo Style/Documentation
   def text_color_for_state(state)
     "text-#{color_for_state(state)}"
   end

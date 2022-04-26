@@ -3,7 +3,7 @@ require 'open3'
 
 module InferenceEngines
   module Cwm
-    class StepExecution
+    class StepExecution # rubocop:todo Style/Documentation
       include StepExecutionProcess
 
       attr_accessor :step, :asset_group, :original_assets, :created_assets, :facts_to_destroy, :updates

@@ -1,4 +1,4 @@
-class CreateConditions < ActiveRecord::Migration
+class CreateConditions < ActiveRecord::Migration # rubocop:todo Style/Documentation
   def change
     create_table :conditions do |t|
       t.references :condition_group, index: true, foreign_key: true

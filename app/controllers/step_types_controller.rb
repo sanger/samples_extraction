@@ -1,4 +1,4 @@
-class StepTypesController < ApplicationController
+class StepTypesController < ApplicationController # rubocop:todo Style/Documentation
   before_action :set_step_type, only: %i[show edit update destroy]
 
   # GET /step_types

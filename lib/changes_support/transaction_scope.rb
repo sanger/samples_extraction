@@ -1,5 +1,5 @@
-module ChangesSupport::TransactionScope
-  class ModelAccessor
+module ChangesSupport::TransactionScope # rubocop:todo Style/Documentation
+  class ModelAccessor # rubocop:todo Style/Documentation
     attr_reader :result_set
 
     def initialize(klass, updates)

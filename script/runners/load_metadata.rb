@@ -3,7 +3,7 @@
 require 'actions/racking'
 require 'parsers/csv_metadata/csv_parser'
 
-class LoadMetadata
+class LoadMetadata # rubocop:todo Style/Documentation
   attr_reader :asset_group
 
   def initialize(params)

@@ -1,4 +1,4 @@
-module Steps::State
+module Steps::State # rubocop:todo Style/Documentation
   EVENT_RUN = 'run'
   EVENT_CONTINUE = 'continue'
   EVENT_STOP = 'stop'

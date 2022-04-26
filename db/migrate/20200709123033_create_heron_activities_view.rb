@@ -1,4 +1,4 @@
-class CreateHeronActivitiesView < ActiveRecord::Migration[5.1]
+class CreateHeronActivitiesView < ActiveRecord::Migration[5.1] # rubocop:todo Style/Documentation
   def up
     ActiveRecord::Base.connection.execute(<<~SQL)
       CREATE VIEW heron_activities_view AS

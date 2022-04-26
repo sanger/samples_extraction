@@ -1,6 +1,6 @@
 # Migrate to StepPlanner https://github.com/sanger/samples_extraction/issues/193
 
-class PrintBarcodes
+class PrintBarcodes # rubocop:todo Style/Documentation
   attr_reader :asset_group, :step
 
   def initialize(params)

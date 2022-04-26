@@ -1,4 +1,4 @@
-module Activities::WebsocketEvents
+module Activities::WebsocketEvents # rubocop:todo Style/Documentation
   def self.included(klass)
     klass.instance_eval { after_commit :wss_event }
   end

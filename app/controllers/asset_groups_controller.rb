@@ -1,4 +1,4 @@
-class AssetGroupsController < ApplicationController
+class AssetGroupsController < ApplicationController # rubocop:todo Style/Documentation
   before_action :set_asset_group, only: %i[show update print upload]
   before_action :set_activity, only: %i[show update]
   before_action :update_barcodes, only: [:update]

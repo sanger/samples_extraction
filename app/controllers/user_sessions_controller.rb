@@ -1,4 +1,4 @@
-class UserSessionsController < ApplicationController
+class UserSessionsController < ApplicationController # rubocop:todo Style/Documentation
   before_action :set_user, only: [:create]
 
   def create

@@ -1,4 +1,4 @@
-class CreateActions < ActiveRecord::Migration
+class CreateActions < ActiveRecord::Migration # rubocop:todo Style/Documentation
   def change
     create_table :actions do |t|
       t.string :action_type, null: false

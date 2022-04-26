@@ -1,4 +1,4 @@
-module SupportN3
+module SupportN3 # rubocop:todo Style/Documentation
   def self.ontology_to_json(ontology_file)
     reading_instance = nil
     data = {}
@@ -130,7 +130,7 @@ module SupportN3
     quads.map { |quad| create_fact(quad, quads, create_assets, created_assets) }.sort_by { |a| a.name }.uniq
   end
 
-  class RuleGraphAccessor
+  class RuleGraphAccessor # rubocop:todo Style/Documentation
     attr_reader :quads,
                 :graph_conditions,
                 :graph_consequences,

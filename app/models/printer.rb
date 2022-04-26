@@ -1,4 +1,4 @@
-class Printer < ApplicationRecord
+class Printer < ApplicationRecord # rubocop:todo Style/Documentation
   CLASS_TYPE_PRINTER_ALIASES = { 'TubeRack' => 'Plate', 'Tube' => 'SampleTube' }.freeze
 
   scope :for_tube, -> { where(printer_type: 'Tube') }

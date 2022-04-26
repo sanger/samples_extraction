@@ -1,4 +1,4 @@
-module ApplicationHelper
+module ApplicationHelper # rubocop:todo Style/Documentation
   def unknown_aliquot_type
     'unknown-aliquot'
   end

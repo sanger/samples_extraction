@@ -1,4 +1,4 @@
-module Steps::Job
+module Steps::Job # rubocop:todo Style/Documentation
   def create_job
     save_job(delay(queue: 'steps').perform_job)
   end

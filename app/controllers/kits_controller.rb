@@ -1,4 +1,4 @@
-class KitsController < ApplicationController
+class KitsController < ApplicationController # rubocop:todo Style/Documentation
   before_action :set_kit, only: %i[show edit update destroy]
   before_action :set_kit_types, only: %i[new show edit update]
 

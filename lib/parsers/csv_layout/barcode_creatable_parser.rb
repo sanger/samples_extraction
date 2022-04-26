@@ -2,7 +2,7 @@ require 'parsers/csv_layout/barcode_parser'
 
 module Parsers
   module CsvLayout
-    class BarcodeCreatableParser < BarcodeParser
+    class BarcodeCreatableParser < BarcodeParser # rubocop:todo Style/Documentation
       def updater
         @parser.parsed_changes
       end

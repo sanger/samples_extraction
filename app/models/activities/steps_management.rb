@@ -1,4 +1,4 @@
-module Activities::StepsManagement
+module Activities::StepsManagement # rubocop:todo Style/Documentation
   def active_step
     return nil unless steps.in_progress
 

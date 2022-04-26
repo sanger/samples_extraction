@@ -1,4 +1,4 @@
-module Steps::Cancellable
+module Steps::Cancellable # rubocop:todo Style/Documentation
   def self.included(klass)
     klass.instance_eval do
       scope :newer_than, ->(step) { where("id > #{step.id}").includes(:operations, :step_type) }

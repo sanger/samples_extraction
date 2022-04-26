@@ -6,7 +6,7 @@ require 'parsers/csv_metadata/validators/headers_validator'
 
 module Parsers
   module CsvMetadata
-    class CsvParser
+    class CsvParser # rubocop:todo Style/Documentation
       include ActiveModel::Validations
 
       validate :validate_parsed_data

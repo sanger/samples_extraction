@@ -1,4 +1,4 @@
-module Assets::Import
+module Assets::Import # rubocop:todo Style/Documentation
   def self.included(base)
     base.send :include, InstanceMethods
     base.extend ClassMethods
@@ -7,7 +7,7 @@ module Assets::Import
   class RefreshSourceNotFoundAnymore < StandardError
   end
 
-  module InstanceMethods
+  module InstanceMethods # rubocop:todo Style/Documentation
     def json_for_remote(remote_asset)
       distinct = remote_asset.attributes.to_json
 
@@ -135,7 +135,7 @@ module Assets::Import
     end
   end
 
-  module ClassMethods
+  module ClassMethods # rubocop:todo Style/Documentation
     def import_barcode(barcode)
       @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')
       remote_asset = SequencescapeClient.find_by_barcode(barcode)

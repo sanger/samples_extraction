@@ -2,7 +2,7 @@
 
 require 'actions/plate_transfer'
 
-class CreateStampedPlate
+class CreateStampedPlate # rubocop:todo Style/Documentation
   attr_reader :asset_group
 
   def initialize(params)

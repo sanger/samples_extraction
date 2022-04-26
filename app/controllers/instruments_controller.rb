@@ -1,4 +1,4 @@
-class InstrumentsController < ApplicationController
+class InstrumentsController < ApplicationController # rubocop:todo Style/Documentation
   before_action :set_instrument, only: %i[show edit update destroy use]
 
   # GET /instruments

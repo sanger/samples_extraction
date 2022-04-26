@@ -1,4 +1,4 @@
-class ActivitiesController < ApplicationController
+class ActivitiesController < ApplicationController # rubocop:todo Style/Documentation
   include ActionController::Live
 
   before_action :set_activity, only: %i[show update]

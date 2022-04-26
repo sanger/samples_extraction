@@ -1,7 +1,7 @@
-module ChangesSupport
+module ChangesSupport # rubocop:todo Style/Documentation
 end
 
-class ChangesSupport::DisjointList
+class ChangesSupport::DisjointList # rubocop:todo Style/Documentation
   SEED_FOR_UNIQUE_IDS = Random.rand(1000)
   MAX_DEEP_UNIQUE_ID = 3
 

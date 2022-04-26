@@ -1,4 +1,4 @@
-class ActivityType < ApplicationRecord
+class ActivityType < ApplicationRecord # rubocop:todo Style/Documentation
   has_many :activities
   has_many :kit_types
   has_many :activity_type_step_types

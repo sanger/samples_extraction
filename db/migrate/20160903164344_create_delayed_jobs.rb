@@ -1,4 +1,4 @@
-class CreateDelayedJobs < ActiveRecord::Migration
+class CreateDelayedJobs < ActiveRecord::Migration # rubocop:todo Style/Documentation
   def self.up
     create_table :delayed_jobs, force: true do |table|
       table.integer :priority, default: 0, null: false # Allows some jobs to jump to the front of the queue

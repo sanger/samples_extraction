@@ -1,4 +1,4 @@
-module Deprecatable
+module Deprecatable # rubocop:todo Style/Documentation
   extend ActiveSupport::Concern
   included do
     has_many :supercedes, class_name: self.name, foreign_key: :superceded_by_id

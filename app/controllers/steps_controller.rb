@@ -1,4 +1,4 @@
-class StepsController < ApplicationController
+class StepsController < ApplicationController # rubocop:todo Style/Documentation
   before_action :set_step, only: [:update]
   before_action :set_activity, only: [:create]
   before_action :set_printer_config, only: [:create]

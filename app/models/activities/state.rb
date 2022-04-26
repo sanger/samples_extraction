@@ -1,4 +1,4 @@
-module Activities::State
+module Activities::State # rubocop:todo Style/Documentation
   def self.included(klass)
     klass.instance_eval do
       scope :in_progress, -> { where(completed_at: nil) }

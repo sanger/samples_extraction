@@ -1,4 +1,4 @@
-class AssetGroup < ApplicationRecord
+class AssetGroup < ApplicationRecord # rubocop:todo Style/Documentation
   include Uuidable
 
   has_many :asset_groups_assets, dependent: :destroy

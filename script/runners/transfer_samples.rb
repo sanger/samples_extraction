@@ -2,7 +2,7 @@
 
 require 'actions/tube_transfer'
 
-class TransferSamples
+class TransferSamples # rubocop:todo Style/Documentation
   include Actions::TubeTransfer
 
   attr_reader :asset_group

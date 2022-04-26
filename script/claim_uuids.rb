@@ -1,4 +1,4 @@
-module ClaimUuids
+module ClaimUuids # rubocop:todo Style/Documentation
   # Module for Sequencescape created to solve issue
   # process_list([preextracted, stock])
   # link_missing_wells([preextracted, stock])

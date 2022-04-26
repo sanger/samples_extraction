@@ -1,4 +1,4 @@
-class LabelTemplate < ApplicationRecord
+class LabelTemplate < ApplicationRecord # rubocop:todo Style/Documentation
   CLASS_TYPE_TEMPLATE_ALIASES = { 'TubeRack' => 'Plate', 'SampleTube' => 'Tube' }.freeze
 
   validates_presence_of :name, :external_id

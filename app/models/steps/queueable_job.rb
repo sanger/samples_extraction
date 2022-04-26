@@ -1,4 +1,4 @@
-module Steps::QueueableJob
+module Steps::QueueableJob # rubocop:todo Style/Documentation
   def self.included(klass)
     klass.instance_eval do
       after_update :run_next_step, if: :can_run_next_step?

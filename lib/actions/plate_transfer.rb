@@ -1,5 +1,5 @@
 module Actions
-  module PlateTransfer
+  module PlateTransfer # rubocop:todo Style/Documentation
     def self.to_sequencescape_location(location)
       loc = location.match(/(\w)(0*)(\d*)/)
       loc[1] + loc[3]

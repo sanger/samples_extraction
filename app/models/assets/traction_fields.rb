@@ -1,4 +1,4 @@
-module Assets::TractionFields
+module Assets::TractionFields # rubocop:todo Style/Documentation
   def asset_type
     _get_values_for_predicate('a')
   end

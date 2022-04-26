@@ -1,6 +1,6 @@
 module Parsers
   module CsvMetadata
-    class DataParser
+    class DataParser # rubocop:todo Style/Documentation
       attr_reader :data
 
       include ActiveModel::Validations

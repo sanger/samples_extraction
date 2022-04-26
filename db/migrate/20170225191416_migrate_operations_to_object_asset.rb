@@ -1,4 +1,4 @@
-class MigrateOperationsToObjectAsset < ActiveRecord::Migration
+class MigrateOperationsToObjectAsset < ActiveRecord::Migration # rubocop:todo Style/Documentation
   def change
     ActiveRecord::Base.transaction do |_t|
       Operation

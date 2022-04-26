@@ -1,4 +1,4 @@
-class PrintersController < ApplicationController
+class PrintersController < ApplicationController # rubocop:todo Style/Documentation
   before_action :set_printer, only: %i[show edit update destroy]
 
   # GET /printers

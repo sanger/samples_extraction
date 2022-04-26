@@ -1,6 +1,6 @@
 require 'support_n3'
 
-module ActivitiesHelper
+module ActivitiesHelper # rubocop:todo Style/Documentation
   def ontology_json
     return @ontology if @ontology
 

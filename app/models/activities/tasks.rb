@@ -1,5 +1,5 @@
 module Activities
-  module Tasks
+  module Tasks # rubocop:todo Style/Documentation
     def create_step(params)
       params[:step_type]
         .class_for_task_type

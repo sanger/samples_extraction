@@ -1,4 +1,4 @@
-module StepExecutionProcess
+module StepExecutionProcess # rubocop:todo Style/Documentation
   def run
     return false unless compatible?
 

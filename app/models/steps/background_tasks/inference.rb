@@ -1,6 +1,6 @@
 require 'inference_engines/cwm/step_execution'
 
-class Steps::BackgroundTasks::Inference < Step
+class Steps::BackgroundTasks::Inference < Step # rubocop:todo Style/Documentation
   def process
     inferences =
       InferenceEngines::Cwm::StepExecution.new(

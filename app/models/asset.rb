@@ -1,7 +1,7 @@
 require 'sequencescape_client'
 require 'date'
 
-class Asset < ApplicationRecord
+class Asset < ApplicationRecord # rubocop:todo Style/Documentation
   DataIntegrityError = Class.new(StandardError)
 
   include Uuidable

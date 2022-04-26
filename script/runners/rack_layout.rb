@@ -2,7 +2,7 @@
 
 require 'actions/racking'
 
-class RackLayout
+class RackLayout # rubocop:todo Style/Documentation
   attr_reader :asset_group
 
   include Actions::Racking

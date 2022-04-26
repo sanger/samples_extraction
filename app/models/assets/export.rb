@@ -1,4 +1,4 @@
-module Assets::Export
+module Assets::Export # rubocop:todo Style/Documentation
   class DuplicateLocations < StandardError
   end
 

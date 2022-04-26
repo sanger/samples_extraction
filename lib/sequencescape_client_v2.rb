@@ -1,7 +1,7 @@
 require 'faraday'
 
 module SequencescapeClientV2
-  class SequencescapeClientV2::Model < JsonApiClient::Resource
+  class SequencescapeClientV2::Model < JsonApiClient::Resource # rubocop:todo Style/Documentation
     # Indicates if the asset should be synced back with the remove
     class_attribute :sync
 
@@ -13,7 +13,7 @@ module SequencescapeClientV2
   class SequencescapeClientV2::Asset < SequencescapeClientV2::Model
   end
 
-  class SequencescapeClientV2::Labware < SequencescapeClientV2::Model
+  class SequencescapeClientV2::Labware < SequencescapeClientV2::Model # rubocop:todo Style/Documentation
     # The plural of labware is labware
     def self.table_name
       'labware'
@@ -42,7 +42,7 @@ module SequencescapeClientV2
     end
   end
 
-  class SequencescapeClientV2::Plate < SequencescapeClientV2::Model
+  class SequencescapeClientV2::Plate < SequencescapeClientV2::Model # rubocop:todo Style/Documentation
     has_many :wells
     has_many :studies, through: :well
     has_many :samples, through: :well

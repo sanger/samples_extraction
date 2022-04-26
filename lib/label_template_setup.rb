@@ -1,5 +1,5 @@
-class LabelTemplateSetup
-  module ClassMethods
+class LabelTemplateSetup # rubocop:todo Style/Documentation
+  module ClassMethods # rubocop:todo Style/Documentation
     def label_types
       @label_types ||= PMB::LabelType.all
     end

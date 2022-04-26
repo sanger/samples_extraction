@@ -1,4 +1,4 @@
-class SamplesNotStartedController < SamplesStatusController
+class SamplesNotStartedController < SamplesStatusController # rubocop:todo Style/Documentation
   private
 
   def get_assets_for_activity_type(activity_type)

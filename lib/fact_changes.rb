@@ -2,7 +2,7 @@ require 'token_util'
 require 'changes_support/disjoint_list'
 require 'changes_support/transaction_scope'
 
-class FactChanges
+class FactChanges # rubocop:todo Style/Documentation
   ACTIONS = %w[
     set_errors
     create_assets

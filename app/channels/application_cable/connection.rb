@@ -1,5 +1,5 @@
 module ApplicationCable
-  class Connection < ActionCable::Connection::Base
+  class Connection < ActionCable::Connection::Base # rubocop:todo Style/Documentation
     identified_by :current_user
 
     def connect

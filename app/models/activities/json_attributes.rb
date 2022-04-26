@@ -1,4 +1,4 @@
-module Activities::JsonAttributes
+module Activities::JsonAttributes # rubocop:todo Style/Documentation
   def initial_json_attributes(current_user = nil)
     {
       activity: {

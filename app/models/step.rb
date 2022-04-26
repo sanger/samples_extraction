@@ -1,4 +1,4 @@
-class Step < ApplicationRecord
+class Step < ApplicationRecord # rubocop:todo Style/Documentation
   self.inheritance_column = :sti_type
 
   attr_accessor :wildcard_values

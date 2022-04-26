@@ -1,6 +1,6 @@
 require 'support_n3'
 
-class StepType < ApplicationRecord
+class StepType < ApplicationRecord # rubocop:todo Style/Documentation
   before_update :remove_previous_conditions
   after_save :create_next_conditions # , :unless => :for_reasoning?
 

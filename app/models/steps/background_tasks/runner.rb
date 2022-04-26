@@ -1,6 +1,6 @@
 require 'inference_engines/runner/step_execution'
 
-class Steps::BackgroundTasks::Runner < Step
+class Steps::BackgroundTasks::Runner < Step # rubocop:todo Style/Documentation
   def process
     runner =
       InferenceEngines::Runner::StepExecution.new(

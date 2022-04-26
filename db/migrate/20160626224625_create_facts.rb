@@ -1,4 +1,4 @@
-class CreateFacts < ActiveRecord::Migration
+class CreateFacts < ActiveRecord::Migration # rubocop:todo Style/Documentation
   def change
     create_table :facts do |t|
       t.references :asset, index: true, foreign_key: true

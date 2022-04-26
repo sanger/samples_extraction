@@ -3,7 +3,7 @@ require 'fact_changes'
 
 module InferenceEngines
   module Default
-    class StepExecution
+    class StepExecution # rubocop:todo Style/Documentation
       include StepExecutionProcess
 
       attr_accessor :step, :asset_group, :updates

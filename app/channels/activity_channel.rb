@@ -1,4 +1,4 @@
-class ActivityChannel < ApplicationCable::Channel
+class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documentation
   def self.connection_for_redis
     ActionCable.server.pubsub.redis_connection_for_subscriptions
   end

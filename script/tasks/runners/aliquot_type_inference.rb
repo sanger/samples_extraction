@@ -1,4 +1,4 @@
-class AliquotTypeInference
+class AliquotTypeInference # rubocop:todo Style/Documentation
   attr_reader :asset_group
 
   def initialize(params)

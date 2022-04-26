@@ -1,4 +1,4 @@
-class ActivityTypesController < ApplicationController
+class ActivityTypesController < ApplicationController # rubocop:todo Style/Documentation
   before_action :set_activity_type, only: %i[show edit update destroy]
 
   # GET /activity_types

@@ -1,6 +1,6 @@
 module Parsers
   module CsvMetadata
-    class LineParser
+    class LineParser # rubocop:todo Style/Documentation
       include ActiveModel::Validations
       attr_reader :parsed_content, :headers_parser
 

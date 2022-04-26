@@ -4,7 +4,7 @@ require 'parsers/csv_layout/validators/any_barcode_validator'
 
 require 'fact_changes'
 
-class InvalidDataParams < StandardError
+class InvalidDataParams < StandardError # rubocop:todo Style/Documentation
   attr_accessor :errors
 
   def initialize(message = nil)
@@ -18,7 +18,7 @@ class InvalidDataParams < StandardError
 end
 
 module Actions
-  module Racking
+  module Racking # rubocop:todo Style/Documentation
     DNA_STOCK_PLATE_PURPOSE = 'DNA Stock Plate'
     RNA_STOCK_PLATE_PURPOSE = 'RNA Stock Plate'
     STOCK_PLATE_PURPOSE = 'Stock Plate'

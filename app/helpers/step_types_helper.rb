@@ -1,4 +1,4 @@
-module StepTypesHelper
+module StepTypesHelper # rubocop:todo Style/Documentation
   def fact_css_classes
     {
       'addFacts' => 'glyphicon glyphicon-pencil',
