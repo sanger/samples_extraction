@@ -1,10 +1,10 @@
 class Action < ApplicationRecord
-  belongs_to :subject_condition_group, :class_name => 'ConditionGroup'
-  belongs_to :object_condition_group, :class_name => 'ConditionGroup'
+  belongs_to :subject_condition_group, class_name: 'ConditionGroup'
+  belongs_to :object_condition_group, class_name: 'ConditionGroup'
 
   belongs_to :step_type
 
-  @@TYPES = [:checkFacts, :addFacts, :removeFacts]
+  @@TYPES = %i[checkFacts addFacts removeFacts]
 
   def self.types
     @@TYPES
@@ -17,40 +17,44 @@ class Action < ApplicationRecord
     unless (wildcard_values.nil? || wildcard_values.empty?)
       if (object_condition_group)
         if (wildcard_values[object_condition_group.id])
-          return sources.each_with_index do |source, index|
-            if wildcard_values[object_condition_group.id][source.id]
-              yield source, wildcard_values[object_condition_group.id][source.id].first
-            else
-              values_for_wildcard = wildcard_values[object_condition_group.id].values.flatten
-              if (values_for_wildcard.length == 1)
-                yield source, values_for_wildcard[0]
-              else
-                yield source, values_for_wildcard[index]
+          return(
+            [
+              sources.each_with_index do |source, index|
+                if wildcard_values[object_condition_group.id][source.id]
+                  yield source, wildcard_values[object_condition_group.id][source.id].first
+                else
+                  values_for_wildcard = wildcard_values[object_condition_group.id].values.flatten
+                  if (values_for_wildcard.length == 1)
+                    yield source, values_for_wildcard[0]
+                  else
+                    yield source, values_for_wildcard[index]
+                  end
+                end
               end
-            end
-          end
+            ]
+          )
         else
           value_for = wildcard_values.values.first
-          return sources.each do |s|
-            destinations.each do |d|
-              if (value_for[s.id] && value_for[d.id])
-                yield s, d if (value_for[s.id] == value_for[d.id])
-              else
-                yield s, d
+          return(
+            [
+              sources.each do |s|
+                destinations.each do |d|
+                  if (value_for[s.id] && value_for[d.id])
+                    yield s, d if (value_for[s.id] == value_for[d.id])
+                  else
+                    yield s, d
+                  end
+                end
               end
-            end
-          end
+            ]
+          )
         end
       end
     end
     if step_type.connect_by == 'position'
       sources.zip(destinations).each { |s, d| yield s, d if d }
     else
-      sources.each do |s|
-        destinations.each do |d|
-          yield s, d
-        end
-      end
+      sources.each { |s| destinations.each { |d| yield s, d } }
     end
   end
 
@@ -75,6 +79,7 @@ class Action < ApplicationRecord
           assets = Array.new(num_assets_to_create(asset_group)) { Asset.new }
           updates.create_assets(assets)
           updates.add_assets([[asset_group, assets]])
+
           # asset_group.assets << assets
 
           updates.create_asset_groups(["?#{subject_condition_group.name}"])
@@ -86,9 +91,7 @@ class Action < ApplicationRecord
 
         # @todo: https://github.com/sanger/samples_extraction/issues/183
         assets.each do |_asset|
-          each_connected_asset(assets, destinations, wildcard_values) do |s, d|
-            updates.add(s, predicate, d)
-          end
+          each_connected_asset(assets, destinations, wildcard_values) { |s, d| updates.add(s, predicate, d) }
         end
       elsif action_type == 'createGroup'
         updates.create_asset_groups([object])
@@ -117,7 +120,9 @@ class Action < ApplicationRecord
   end
 
   def num_assets_to_create(asset_group)
-    return asset_group.assets.count unless (subject_condition_group.cardinality) && (subject_condition_group.cardinality != 0)
+    unless (subject_condition_group.cardinality) && (subject_condition_group.cardinality != 0)
+      return asset_group.assets.count
+    end
 
     return subject_condition_group.cardinality
     # return [[asset_group.assets.count, subject_condition_group.cardinality].min, 1].max

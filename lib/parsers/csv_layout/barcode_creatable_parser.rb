@@ -12,13 +12,15 @@ module Parsers
       end
 
       def generate_asset
-        Asset.new(barcode: barcode).tap do |tube|
-          updater.create_assets([tube])
-          updater.add(tube, 'barcode', barcode)
-          updater.add(tube, 'a', 'Tube')
-          updater.add(tube, 'barcodeType', 'Code2D') if TokenUtil.is_valid_fluidx_barcode?(barcode)
-          updater.add(tube, 'is', 'Empty')
-        end
+        Asset
+          .new(barcode: barcode)
+          .tap do |tube|
+            updater.create_assets([tube])
+            updater.add(tube, 'barcode', barcode)
+            updater.add(tube, 'a', 'Tube')
+            updater.add(tube, 'barcodeType', 'Code2D') if TokenUtil.is_valid_fluidx_barcode?(barcode)
+            updater.add(tube, 'is', 'Empty')
+          end
       end
     end
   end

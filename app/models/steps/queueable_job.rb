@@ -18,11 +18,7 @@ module Steps::QueueableJob
   end
 
   def run_next_step
-    if next_step.assets_compatible_with_step_type
-      next_step.run!
-    else
-      next_step.ignore!
-    end
+    next_step.assets_compatible_with_step_type ? next_step.run! : next_step.ignore!
   end
 
   def can_run_next_step?

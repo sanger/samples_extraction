@@ -31,7 +31,9 @@ module Activities::JsonAttributes
       stepTypes: -> { ApplicationController.helpers.step_types_control_data(self) },
       stepsPending: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.running) },
       stepsRunning: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.processing) },
-      stepsFailed: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.finished.select { |s| s.state == 'failed' }) },
+      stepsFailed: -> do
+        ApplicationController.helpers.steps_data_for_steps(self.steps.finished.select { |s| s.state == 'failed' })
+      end,
       stepsFinished: -> { ApplicationController.helpers.steps_data_for_steps(self.steps.reload.finished.reverse) }
     }
   end

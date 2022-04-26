@@ -1,3 +1,1 @@
-FactoryBot.define do
-  factory :condition, class: 'Condition'
-end
+FactoryBot.define { factory :condition, class: 'Condition' }

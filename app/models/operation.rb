@@ -5,7 +5,7 @@ class Operation < ApplicationRecord
   belongs_to :action
   belongs_to :activity
 
-  scope :for_presenting, ->() { includes(:asset, :action) }
+  scope :for_presenting, -> { includes(:asset, :action) }
 
   def object_value
     object || object_asset
@@ -13,10 +13,14 @@ class Operation < ApplicationRecord
 
   def opposites
     {
-      add_facts: :remove_facts, remove_facts: :add_facts,
-      create_assets: :delete_assets, delete_assets: :create_assets,
-      create_asset_groups: :delete_asset_groups, delete_asset_groups: :create_asset_groups,
-      add_assets: :remove_assets, remove_assets: :add_assets
+      add_facts: :remove_facts,
+      remove_facts: :add_facts,
+      create_assets: :delete_assets,
+      delete_assets: :create_assets,
+      create_asset_groups: :delete_asset_groups,
+      delete_asset_groups: :create_asset_groups,
+      add_assets: :remove_assets,
+      remove_assets: :add_assets
     }
   end
 

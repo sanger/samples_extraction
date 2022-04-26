@@ -3,9 +3,7 @@ class UploadedFilesController < ApplicationController
 
   def show
     respond_to do |format|
-      format.bin do
-        send_data(@uploaded_file.data, filename: @uploaded_file.filename)
-      end
+      format.bin { send_data(@uploaded_file.data, filename: @uploaded_file.filename) }
       format.html { render :show }
       format.n3 { render :show }
     end

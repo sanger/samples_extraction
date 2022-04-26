@@ -30,6 +30,7 @@ class PrintBarcodes
       if assets_compatible_with_step_type
         asset_group.assets.each do |asset|
           asset.print(printer_config, user.username)
+
           # Do not print again unless the step fails
           updates.remove(Fact.where(asset: asset, predicate: 'is', object: 'readyForPrint'))
         end
@@ -38,7 +39,7 @@ class PrintBarcodes
   end
 end
 
-return unless ARGV.any? { |s| s.match(".json") }
+return unless ARGV.any? { |s| s.match('.json') }
 
 args = ARGV[0]
 asset_group_id = args.match(/(\d*)\.json/)[1]

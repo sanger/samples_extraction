@@ -62,9 +62,7 @@ module Parsers
 
       def validate_parsed_data
         parse unless @parsed
-        unless @line_parser.valid?
-          errors.add(:base, "The csv contains some errors")
-        end
+        errors.add(:base, 'The csv contains some errors') unless @line_parser.valid?
       end
     end
   end

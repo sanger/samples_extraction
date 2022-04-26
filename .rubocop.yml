@@ -1,4 +1,6 @@
-inherit_from: .rubocop_todo.yml
+inherit_from:
+  - .rubocop_todo.yml
+  - node_modules/@prettier/plugin-ruby/rubocop.yml
 
 require:
   - rubocop-performance
@@ -48,3 +50,11 @@ Metrics/BlockLength:
     - class_eval
     - has_metadata
     - resources
+
+# Rubocop is choking on this file, so we're excluding it for now.
+Rails/NegateInclude:
+  inherit_mode:
+    merge:
+      - Exclude
+  Exclude:
+    - 'lib/changes_support/disjoint_list.rb'

@@ -1,6 +1,6 @@
 class KitTypesController < ApplicationController
-  before_action :set_kit_type, only: [:show, :edit, :update, :destroy]
-  before_action :set_activity_types, only: [:new, :show, :edit, :update]
+  before_action :set_kit_type, only: %i[show edit update destroy]
+  before_action :set_activity_types, only: %i[new show edit update]
 
   # GET /kit_types
   # GET /kit_types.json
@@ -10,8 +10,7 @@ class KitTypesController < ApplicationController
 
   # GET /kit_types/1
   # GET /kit_types/1.json
-  def show
-  end
+  def show; end
 
   # GET /kit_types/new
   def new
@@ -19,8 +18,7 @@ class KitTypesController < ApplicationController
   end
 
   # GET /kit_types/1/edit
-  def edit
-  end
+  def edit; end
 
   # POST /kit_types
   # POST /kit_types.json

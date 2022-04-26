@@ -30,11 +30,7 @@ module Printables::Group
       body_print = assets.filter_map(&:printable_object).reverse
       next if body_print.empty?
 
-      PMB::PrintJob.new(
-        printer_name: printer_name,
-        label_template_id: external_id,
-        labels: { body: body_print }
-      ).save
+      PMB::PrintJob.new(printer_name: printer_name, label_template_id: external_id, labels: { body: body_print }).save
     end
   end
 end

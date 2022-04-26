@@ -12,11 +12,11 @@ RSpec.describe Parsers::CsvMetadata::Validators::HeadersValidator do
   end
   let(:instance) { klass.new }
   it 'validates normal headers' do
-    instance.headers = ["h1", "h2"]
+    instance.headers = %w[h1 h2]
     expect(instance).to be_valid
   end
   it 'does not validate an empty header' do
-    instance.headers = ["h1", "h2", ""]
+    instance.headers = ['h1', 'h2', '']
     expect(instance).to be_invalid
   end
 end

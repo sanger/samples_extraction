@@ -1,7 +1,7 @@
 # Process diagram for step processing
 
 This diagram is an attempt to map out the step process to aid performance
-optimizations. It is *not* and exhaustive map of all calls in the process.
+optimizations. It is _not_ and exhaustive map of all calls in the process.
 
 ## Sequence Diagram
 

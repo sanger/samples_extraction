@@ -92,7 +92,7 @@ module TokenUtil
   def self.quote(str)
     return str unless str
 
-    %("#{str}")
+    "\"#{str}\""
   end
 
   def self.unquote(str)

@@ -1,9 +1,9 @@
+# Helpers for N3 tests
 module InferencesHelper
   def assets_equal?(expected, obtained)
     return false if expected.nil? || obtained.nil?
 
-    [[expected, obtained],
-     [obtained, expected]].all? do |expected_assets, obtained_assets|
+    [[expected, obtained], [obtained, expected]].all? do |expected_assets, obtained_assets|
       expected_assets.all? do |expected_asset|
         obtained_assets.any? do |obtained_asset|
           next if expected_asset.name != obtained_asset.name
@@ -24,46 +24,47 @@ module InferencesHelper
   end
 
   def assets_to_n3(assets)
-    "\n" + assets.map do |asset|
-      asset.facts.map do |fact|
-        ":#{asset.name}\t:#{fact.predicate}\t#{fact.object_asset.nil? ? fact.object : ':' + fact.object_asset.name} ."
-      end
-    end.flatten.sort.join("\n") + "\n"
+    "\n" +
+      assets
+        .map do |asset|
+          asset.facts.map do |fact|
+            ":#{asset.name}\t:#{fact.predicate}\t#{fact.object_asset.nil? ? fact.object : ':' + fact.object_asset.name} ."
+          end
+        end
+        .flatten
+        .sort
+        .join("\n") + "\n"
   end
 
   def assets_are_equal(expected_assets, obtained_assets)
-    expect(assets_equal?(expected_assets, obtained_assets)).to eq(true), "expected #{assets_to_n3(expected_assets)}, obtained #{assets_to_n3(obtained_assets)} shoud be equal"
+    expect(assets_equal?(expected_assets, obtained_assets)).to eq(true),
+    "expected #{assets_to_n3(expected_assets)}, obtained #{assets_to_n3(obtained_assets)} shoud be equal"
   end
 
   def assets_are_different(expected_assets, obtained_assets)
-    expect(assets_equal?(expected_assets, obtained_assets)).to eq(false), "expected #{assets_to_n3(expected_assets)}, obtained #{assets_to_n3(obtained_assets)} should be different"
+    expect(assets_equal?(expected_assets, obtained_assets)).to eq(false),
+    "expected #{assets_to_n3(expected_assets)}, obtained #{assets_to_n3(obtained_assets)} should be different"
   end
 
   def build_step(rule, input_facts, options = {})
-    step_type = FactoryBot.create(:step_type, :n3_definition => rule)
+    step_type = FactoryBot.create(:step_type, n3_definition: rule)
 
     input_assets = SupportN3.parse_facts(input_facts, {}, false)
     reload_assets(input_assets)
     fail if input_assets.nil?
 
-    asset_group = FactoryBot.create(:asset_group, { :assets => input_assets })
+    asset_group = FactoryBot.create(:asset_group, { assets: input_assets })
 
     user = FactoryBot.create :user, username: 'test'
 
-    FactoryBot.create(:step, {
-      step_type: step_type,
-      asset_group: asset_group,
-      user_id: user.id
-    }.merge(options))
+    FactoryBot.create(:step, { step_type: step_type, asset_group: asset_group, user_id: user.id }.merge(options))
   end
 
   def compare_n3_output(expected_n3, obtained_n3)
     lines_obtained = obtained_n3.split("\n")
     lines_expected = expected_n3.split("\n")
 
-    lines_expected.all? do |line|
-      lines_obtained.include?(line)
-    end
+    lines_expected.all? { |line| lines_obtained.include?(line) }
   end
 
   def reload_assets(assets)

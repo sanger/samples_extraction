@@ -2,17 +2,17 @@ class ActivityType < ApplicationRecord
   has_many :activities
   has_many :kit_types
   has_many :activity_type_step_types
-  has_many :step_types, :through => :activity_type_step_types
-  has_many :condition_groups, :through => :step_types
+  has_many :step_types, through: :activity_type_step_types
+  has_many :condition_groups, through: :step_types
 
   after_update :touch_activities
 
   has_and_belongs_to_many :instruments
 
-  has_many :conditions, :through => :condition_groups
+  has_many :conditions, through: :condition_groups
 
   has_many :activity_type_compatibilities
-  has_many :assets, -> { distinct }, :through => :activity_type_compatibilities
+  has_many :assets, -> { distinct }, through: :activity_type_compatibilities
 
   scope :alphabetical, -> { order(name: :asc) }
 
@@ -28,10 +28,8 @@ class ActivityType < ApplicationRecord
     activity = nil
     ActiveRecord::Base.transaction do
       group = AssetGroup.create
-      activity = Activity.create({
-                                   kit: params[:kit], instrument: params[:instrument],
-                                   activity_type: self, asset_group: group
-                                 })
+      activity =
+        Activity.create({ kit: params[:kit], instrument: params[:instrument], activity_type: self, asset_group: group })
       activities << activity
       group.update_attributes!(activity_owner: activity)
     end

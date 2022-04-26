@@ -4,13 +4,14 @@ module ClaimUuids
   # link_missing_wells([preextracted, stock])
 
   def orphan_receptacles(stock_plate_ss)
-    stock_plate_ss.wells.map do |well|
-      list = well.aliquots.first.sample.receptacles.select { |w| w.plate.nil? }
-      if list.length > 1
-        puts "The plate #{stock_plate_ss.barcode} has more than one orphan for the well #{well.id}"
+    stock_plate_ss
+      .wells
+      .map do |well|
+        list = well.aliquots.first.sample.receptacles.select { |w| w.plate.nil? }
+        puts "The plate #{stock_plate_ss.barcode} has more than one orphan for the well #{well.id}" if list.length > 1
+        list
       end
-      list
-    end.flatten
+      .flatten
   end
 
   def info_link_missing_wells(pre_extracted_plate, stock_plate)
@@ -22,7 +23,7 @@ module ClaimUuids
     else
       puts "Not found condiiton for #{stock_plate.barcode}"
     end
-    puts "No more lines"
+    puts 'No more lines'
   end
 
   def link_missing_wells(pre_extracted_plate, stock_plate)
@@ -35,7 +36,7 @@ module ClaimUuids
     else
       puts "Not found condiiton for #{stock_plate.barcode}"
     end
-    puts "No more lines"
+    puts 'No more lines'
   end
 
   def info_about(list)

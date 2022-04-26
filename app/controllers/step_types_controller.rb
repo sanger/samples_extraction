@@ -1,12 +1,12 @@
 class StepTypesController < ApplicationController
-  before_action :set_step_type, only: [:show, :edit, :update, :destroy]
+  before_action :set_step_type, only: %i[show edit update destroy]
 
   # GET /step_types
   # GET /step_types.json
   def index
     @step_types = StepType.not_deprecated unless @activity
     respond_to do |format|
-      format.html { render 'active', :layout => false } if @activity
+      format.html { render 'active', layout: false } if @activity
       format.html { render 'index' }
     end
   end
@@ -26,8 +26,7 @@ class StepTypesController < ApplicationController
   end
 
   # GET /step_types/1/edit
-  def edit
-  end
+  def edit; end
 
   # POST /step_types
   # POST /step_types.json
@@ -79,7 +78,7 @@ class StepTypesController < ApplicationController
   def empty_options_set_to_nil(params)
     params_copy = params.dup
     if params
-      [:step_template, :connect_by, :step_action].each do |key|
+      %i[step_template connect_by step_action].each do |key|
         params_copy[key] = nil if params[key] && params[key].empty?
       end
     end
@@ -88,6 +87,8 @@ class StepTypesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def step_type_params
-    params.require(:step_type).permit(:n3_definition, :name, :step_template, :connect_by, :for_reasoning, :step_action, :priority)
+    params
+      .require(:step_type)
+      .permit(:n3_definition, :name, :step_template, :connect_by, :for_reasoning, :step_action, :priority)
   end
 end

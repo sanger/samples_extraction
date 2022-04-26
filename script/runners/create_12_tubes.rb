@@ -1,13 +1,13 @@
 # @todo Migrate to StepPlanner https://github.com/sanger/samples_extraction/issues/193
 
-return unless ARGV.any? { |s| s.match(".json") }
+return unless ARGV.any? { |s| s.match('.json') }
 
 TOTAL_NUMBER = 12
 
 tubes = Array.new(TOTAL_NUMBER) { |i| "?p#{i}" }
 samples = Array.new(TOTAL_NUMBER) { |i| "?q#{i}" }
 sanger_sample_id = Array.new(TOTAL_NUMBER) { |i| "SAMPLE#{i}" }
-study_name = "STDY1"
+study_name = 'STDY1'
 
 f1 = tubes.each_with_index.map { |t, _i| [t, 'a', 'SampleTube'] }
 f2 = tubes.each_with_index.map { |t, _i| [t, 'is', 'NotStarted'] }

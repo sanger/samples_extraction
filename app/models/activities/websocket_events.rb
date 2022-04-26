@@ -1,8 +1,6 @@
 module Activities::WebsocketEvents
   def self.included(klass)
-    klass.instance_eval do
-      after_commit :wss_event
-    end
+    klass.instance_eval { after_commit :wss_event }
   end
 
   def running_inside_transaction?
@@ -22,17 +20,21 @@ module Activities::WebsocketEvents
   end
 
   def websockets_attributes(attrs)
-    attrs.keys.reduce({ shownComponents: {} }) do |memo, key|
-      memo[key] = attrs[key].call unless (ActivityChannel.activity_attributes(id)[key.to_s] == false)
-      memo
-    end
+    attrs
+      .keys
+      .reduce({ shownComponents: {} }) do |memo, key|
+        memo[key] = attrs[key].call unless (ActivityChannel.activity_attributes(id)[key.to_s] == false)
+        memo
+      end
   end
 
   def initial_websockets_attributes(attrs)
-    attrs.keys.reduce({}) do |memo, key|
-      memo[key] = attrs[key].call
-      memo
-    end
+    attrs
+      .keys
+      .reduce({}) do |memo, key|
+        memo[key] = attrs[key].call
+        memo
+      end
   end
 
   def wss_event(opts = {})
@@ -43,6 +45,7 @@ module Activities::WebsocketEvents
   def _wss_event(opts = {})
     if Rails.configuration.redis_enabled && is_being_listened?
       data = websockets_attributes(json_attributes).merge(opts)
+
       # debugger if data[:stepsFinished][0]['state']=='error'
       send_wss_event(data)
     end

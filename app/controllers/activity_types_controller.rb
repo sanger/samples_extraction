@@ -1,5 +1,5 @@
 class ActivityTypesController < ApplicationController
-  before_action :set_activity_type, only: [:show, :edit, :update, :destroy]
+  before_action :set_activity_type, only: %i[show edit update destroy]
 
   # GET /activity_types
   # GET /activity_types.json
@@ -23,8 +23,7 @@ class ActivityTypesController < ApplicationController
   end
 
   # GET /activity_types/1/edit
-  def edit
-  end
+  def edit; end
 
   # POST /activity_types
   # POST /activity_types.json
@@ -75,6 +74,6 @@ class ActivityTypesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def activity_type_params
-    params.require(:activity_type).permit(:name, :n3_definition, { :step_type_ids => [] })
+    params.require(:activity_type).permit(:name, :n3_definition, { step_type_ids: [] })
   end
 end

@@ -10,7 +10,7 @@ class ChangesSupport::DisjointList
   attr_accessor :location_for_unique_id, :disjoint_lists, :list
   attr_reader :name
 
-  DISABLED_NAME = "DISABLED"
+  DISABLED_NAME = 'DISABLED'
 
   delegate :each, :length, :[], :flatten, :uniq!, to: :list
 
@@ -78,25 +78,15 @@ class ChangesSupport::DisjointList
   end
 
   def remove_from_raw_list_by_id(unique_id)
-    @list.delete_if do |a|
-      unique_id_for_element(a) == unique_id
-    end
+    @list.delete_if { |a| unique_id_for_element(a) == unique_id }
   end
 
   def <<(element)
-    if element.kind_of?(Array)
-      element.each { |e| add(e) }
-    else
-      add(element)
-    end
+    element.kind_of?(Array) ? element.each { |e| add(e) } : add(element)
   end
 
   def concat(element)
-    if element.kind_of?(Array)
-      element.each { |e| add(e) }
-    else
-      add(element)
-    end
+    element.kind_of?(Array) ? element.each { |e| add(e) } : add(element)
   end
 
   def push(element)
@@ -126,20 +116,14 @@ class ChangesSupport::DisjointList
   end
 
   def concat_disjoint_list(disjoint_list)
-    disjoint_list.location_for_unique_id.keys.each do |key|
-      if disjoint_list.disabled_key?(key)
-        _disable(key)
-      end
-    end
+    disjoint_list.location_for_unique_id.keys.each { |key| _disable(key) if disjoint_list.disabled_key?(key) }
     disjoint_list.to_a.each { |val| add(val) }
     self
   end
 
   def merge(disjoint_list)
     disjoint_list.location_for_unique_id.keys.each do |key|
-      if (!disjoint_list.include_key?(key) || disjoint_list.disabled_key?(key))
-        _disable(key)
-      end
+      _disable(key) if (!disjoint_list.include_key?(key) || disjoint_list.disabled_key?(key))
     end
     disjoint_list.to_a.each { |val| add(val) }
     self
@@ -149,12 +133,9 @@ class ChangesSupport::DisjointList
     return if disabled?(element)
 
     unique_id = unique_id_for_element(element)
+
     # Is not in any of the lists so we can add it
-    if (element.kind_of?(Enumerable) && (!element.kind_of?(Hash)))
-      @list.concat(element)
-    else
-      @list.push(element)
-    end
+    (element.kind_of?(Enumerable) && (!element.kind_of?(Hash))) ? @list.concat(element) : @list.push(element)
     @location_for_unique_id[unique_id] = name
   end
 
@@ -170,14 +151,10 @@ class ChangesSupport::DisjointList
         # If my disjoint lists do not have the element
         if location_for_unique_id[key].nil?
           location_for_unique_id[key] = disjoint_list.location_for_unique_id[key]
-          if location_for_unique_id[key] == DISABLED_NAME
-            _disable(key)
-          end
+          _disable(key) if location_for_unique_id[key] == DISABLED_NAME
         else
           # If my lists have the element alredy
-          if location_for_unique_id[key] != disjoint_list.location_for_unique_id[key]
-            _disable(key)
-          end
+          _disable(key) if location_for_unique_id[key] != disjoint_list.location_for_unique_id[key]
         end
       end
     end
@@ -204,7 +181,9 @@ class ChangesSupport::DisjointList
       elsif (element.has_key?(:predicate))
         _unique_id_for_fact(element)
       else
-        sum_function_for(element.keys.dup.concat(element.values.map { |val| _unique_id_for_element(val, deep + 1) }).join)
+        sum_function_for(
+          element.keys.dup.concat(element.values.map { |val| _unique_id_for_element(val, deep + 1) }).join
+        )
       end
     elsif element.kind_of?(Enumerable)
       sum_function_for(element.map { |o| _unique_id_for_element(o, deep + 1) }.join)
@@ -214,10 +193,12 @@ class ChangesSupport::DisjointList
   end
 
   def _unique_id_for_fact(element)
-    sum_function_for([
-      (element[:asset_id] || element[:asset].id || element[:asset].object_id),
-      element[:predicate],
-      (element[:object] || element[:object_asset_id] || element[:object_asset].id || element[:object_asset].object_id)
-    ].join('_'))
+    sum_function_for(
+      [
+        (element[:asset_id] || element[:asset].id || element[:asset].object_id),
+        element[:predicate],
+        (element[:object] || element[:object_asset_id] || element[:object_asset].id || element[:object_asset].object_id)
+      ].join('_')
+    )
   end
 end

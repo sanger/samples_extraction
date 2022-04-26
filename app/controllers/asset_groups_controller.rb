@@ -1,6 +1,6 @@
 class AssetGroupsController < ApplicationController
-  before_action :set_asset_group, only: [:show, :update, :print, :upload]
-  before_action :set_activity, only: [:show, :update]
+  before_action :set_asset_group, only: %i[show update print upload]
+  before_action :set_activity, only: %i[show update]
   before_action :update_barcodes, only: [:update]
 
   include ActionController::Live
@@ -43,9 +43,7 @@ class AssetGroupsController < ApplicationController
   def update_barcodes
     perform_assets_update
 
-    if @alerts
-      render json: { errors: @alerts }
-    end
+    render json: { errors: @alerts } if @alerts
   end
 
   def set_activity
@@ -59,9 +57,12 @@ class AssetGroupsController < ApplicationController
   end
 
   def perform_assets_update
-    @asset_group.update_attributes(assets: params_update_asset_group[:assets].filter_map do |uuid_or_barcode|
-                                             Asset.find_or_import_asset_with_barcode(uuid_or_barcode)
-                                           end.uniq)
+    @asset_group.update_attributes(
+      assets:
+        params_update_asset_group[:assets].filter_map do |uuid_or_barcode|
+          Asset.find_or_import_asset_with_barcode(uuid_or_barcode)
+        end.uniq
+    )
   end
 
   def show_alert(data)
@@ -70,6 +71,6 @@ class AssetGroupsController < ApplicationController
   end
 
   def params_update_asset_group
-    params.require(:asset_group).permit(:assets => [])
+    params.require(:asset_group).permit(assets: [])
   end
 end

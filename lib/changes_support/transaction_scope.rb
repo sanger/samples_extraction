@@ -53,17 +53,19 @@ module ChangesSupport::TransactionScope
         end
         if @updates.to_h[:remove_facts]
           if opts[:facts]
-            selected_elements = result_set.select do |element|
-              @updates.to_h[:remove_facts].any? do |triple|
-                object_asset = Asset.find(opts[:facts][:object_asset_id]) if opts[:facts][:object_asset_id]
+            selected_elements =
+              result_set.select do |element|
+                @updates.to_h[:remove_facts].any? do |triple|
+                  object_asset = Asset.find(opts[:facts][:object_asset_id]) if opts[:facts][:object_asset_id]
 
-                (
-                  ((triple[0] == element.uuid) &&
-                  (opts[:facts][:predicate] == triple[1]) &&
-                  (opts[:facts][:object] == triple[2])) || (object_asset.uuid == triple[2])
-                )
+                  (
+                    (
+                      (triple[0] == element.uuid) && (opts[:facts][:predicate] == triple[1]) &&
+                        (opts[:facts][:object] == triple[2])
+                    ) || (object_asset.uuid == triple[2])
+                  )
+                end
               end
-            end
             @result_set = result_set.to_a - selected_elements
           end
         end
@@ -127,7 +129,7 @@ module ChangesSupport::TransactionScope
             accessor = _get_or_build_accessor(class_name)
             accessor.exists?(opts[k].merge(_join_condition(a)))
           else
-            k_id = k.to_s.concat("_id").to_sym
+            k_id = k.to_s.concat('_id').to_sym
             if a.respond_to?(k)
               a.send(k) == v
             elsif (a.respond_to?(k_id) && (k_id != :object_id))

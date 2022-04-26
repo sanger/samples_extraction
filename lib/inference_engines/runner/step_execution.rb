@@ -6,8 +6,7 @@ module InferenceEngines
     class StepExecution
       include StepExecutionProcess
 
-      attr_accessor :step, :asset_group, :original_assets,
-                    :created_assets, :facts_to_destroy, :updates, :content
+      attr_accessor :step, :asset_group, :original_assets, :created_assets, :facts_to_destroy, :updates, :content
 
       def initialize(params)
         @step = params[:step]
@@ -39,11 +38,7 @@ module InferenceEngines
       end
 
       def generate_plan
-        if handled_by_class?
-          generate_plan_from_class
-        else
-          generate_plan_from_external_process
-        end
+        handled_by_class? ? generate_plan_from_class : generate_plan_from_external_process
       end
 
       def generate_plan_from_class
@@ -57,14 +52,14 @@ module InferenceEngines
 
       def generate_plan_from_external_process
         if step_action.end_with?('.rb')
-          cmd = ["bin/rails", "runner", "#{Rails.root}/script/runners/#{step_action}"]
+          cmd = ['bin/rails', 'runner', "#{Rails.root}/script/runners/#{step_action}"]
         else
           cmd = "#{Rails.root}/script/runners/#{step_action}"
         end
 
         call_list = [cmd, input_url, step_url].flatten
 
-        call_str = call_list.join(" ")
+        call_str = call_list.join(' ')
 
         line = "# EXECUTING: #{call_str}"
         Open3.popen3(*[call_list].flatten) do |_stdin, stdout, stderror, thr|
@@ -87,9 +82,10 @@ module InferenceEngines
       end
 
       def apply
-        asset_group.assets.with_fact('pushTo', 'Sequencescape').each do |asset|
-          @updates.merge(asset.update_sequencescape(step.user))
-        end
+        asset_group
+          .assets
+          .with_fact('pushTo', 'Sequencescape')
+          .each { |asset| @updates.merge(asset.update_sequencescape(step.user)) }
         @updates.apply(step)
       end
 
@@ -105,27 +101,19 @@ module InferenceEngines
       end
 
       def add_facts(list)
-        FactChanges.new.tap do |updates|
-          list.each { |l| updates.add(l[0], l[1], l[2]) }
-        end
+        FactChanges.new.tap { |updates| list.each { |l| updates.add(l[0], l[1], l[2]) } }
       end
 
       def remove_facts(list)
-        FactChanges.new.tap do |updates|
-          list.each { |l| updates.remove_where(l[0], l[1], l[2]) }
-        end
+        FactChanges.new.tap { |updates| list.each { |l| updates.remove_where(l[0], l[1], l[2]) } }
       end
 
       def delete_asset(list)
-        FactChanges.new.tap do |updates|
-          updates.delete_assets(list)
-        end
+        FactChanges.new.tap { |updates| updates.delete_assets(list) }
       end
 
       def create_asset(list)
-        FactChanges.new.tap do |updates|
-          updates.create_assets(list)
-        end
+        FactChanges.new.tap { |updates| updates.create_assets(list) }
       end
 
       def select_asset(uuids)
@@ -147,11 +135,11 @@ module InferenceEngines
       private
 
       def input_url
-        Rails.application.routes.url_helpers.asset_group_url(@asset_group.id) + ".json"
+        Rails.application.routes.url_helpers.asset_group_url(@asset_group.id) + '.json'
       end
 
       def step_url
-        Rails.application.routes.url_helpers.step_url(@step.id) + ".json"
+        Rails.application.routes.url_helpers.step_url(@step.id) + '.json'
       end
     end
   end

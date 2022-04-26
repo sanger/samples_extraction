@@ -11,11 +11,18 @@ RSpec.describe :cancellable, cancellable: true do
     @asset_group.assets << @asset
     @activity_type = FactoryBot.create :activity_type
     @activity = FactoryBot.create :activity, activity_type: @activity_type, asset_group: @asset_group
-    @steps = Array.new(10) do
-      step = build_step(%{{?p :a :Rack.} => {:step :addFacts {?p :a :TubeRack .}.} .}, %{}, activity: @activity, asset_group: @asset_group)
-      step.run!
-      step
-    end
+    @steps =
+      Array.new(10) do
+        step =
+          build_step(
+            '{?p :a :Rack.} => {:step :addFacts {?p :a :TubeRack .}.} .',
+            '',
+            activity: @activity,
+            asset_group: @asset_group
+          )
+        step.run!
+        step
+      end
   end
 
   context '#remake_me' do

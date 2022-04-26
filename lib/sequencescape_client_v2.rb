@@ -1,9 +1,10 @@
-require "faraday"
+require 'faraday'
 
 module SequencescapeClientV2
   class SequencescapeClientV2::Model < JsonApiClient::Resource
     # Indicates if the asset should be synced back with the remove
     class_attribute :sync
+
     # set the api base url in an abstract base class
     self.site = "#{Rails.configuration.ss_api_v2_uri}/api/v2/"
     self.sync = false
@@ -29,7 +30,15 @@ module SequencescapeClientV2
     end
 
     def racked_tubes
-      type == 'tube_racks' ? SequencescapeClientV2::TubeRack.includes('racked_tubes.tube.aliquots.sample.sample_metadata,racked_tubes.tube.aliquots.study').find(id).first.racked_tubes : []
+      if type == 'tube_racks'
+        SequencescapeClientV2::TubeRack
+          .includes('racked_tubes.tube.aliquots.sample.sample_metadata,racked_tubes.tube.aliquots.study')
+          .find(id)
+          .first
+          .racked_tubes
+      else
+        []
+      end
     end
   end
 

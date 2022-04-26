@@ -90,6 +90,7 @@ group :development do
   gem 'rubocop', require: false
   gem 'rubocop-performance'
   gem 'rubocop-rails'
+
   # Mocks APi connections, and also prevents inadvertent network connections being made.
   gem 'webmock'
 end

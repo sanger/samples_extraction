@@ -1,3 +1,1 @@
-FactoryBot.define do
-  factory :printer
-end
+FactoryBot.define { factory :printer }

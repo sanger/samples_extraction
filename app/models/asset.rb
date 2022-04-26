@@ -38,55 +38,55 @@ class Asset < ApplicationRecord
   has_many :asset_groups_assets, dependent: :destroy
   has_many :asset_groups, through: :asset_groups_assets
   has_many :steps, through: :asset_groups
-  has_many :activities_affected, -> { distinct }, through: :asset_groups, class_name: 'Activity', source: :activity_owner
+  has_many :activities_affected,
+           -> { distinct },
+           through: :asset_groups,
+           class_name: 'Activity',
+           source: :activity_owner
 
   def update_compatible_activity_type
-    ActivityType.not_deprecated.all.each do |at|
-      activity_types << at if at.compatible_with?(self)
-    end
+    ActivityType.not_deprecated.all.each { |at| activity_types << at if at.compatible_with?(self) }
   end
 
   has_many :operations, dependent: :nullify
 
   has_many :activity_type_compatibilities
-  has_many :activity_types, :through => :activity_type_compatibilities
+  has_many :activity_types, through: :activity_type_compatibilities
 
-  has_many :activities, -> { distinct }, :through => :steps
+  has_many :activities, -> { distinct }, through: :steps
 
-  scope :currently_changing, ->() {
-    joins(:asset_groups, :steps).where(:steps => { :state => 'running' })
-  }
+  scope :currently_changing, -> { joins(:asset_groups, :steps).where(steps: { state: 'running' }) }
 
-  scope :for_activity_type, ->(activity_type) {
-    joins(:activities).where(:activities => { :activity_type_id => activity_type.id })
-  }
+  scope :for_activity_type,
+        ->(activity_type) { joins(:activities).where(activities: { activity_type_id: activity_type.id }) }
 
-  scope :not_started, ->() { with_fact('is', 'NotStarted') }
-  scope :started, ->() { with_fact('is', 'Started') }
-  scope :for_printing, ->() { where.not(barcode: nil) }
+  scope :not_started, -> { with_fact('is', 'NotStarted') }
+  scope :started, -> { with_fact('is', 'Started') }
+  scope :for_printing, -> { where.not(barcode: nil) }
 
-  scope :assets_for_queries, ->(queries) {
-    queries.each_with_index.reduce(Asset) do |memo, list|
-      query = list[0]
-      index = list[1]
-      if query.predicate == 'barcode'
-        memo.where(barcode: query.object)
-      else
-        asset = Asset.where(barcode: query.object).first
-        if asset
-          memo.joins(
-            "INNER JOIN facts AS facts#{index} ON facts#{index}.asset_id=assets.id"
-          ).where("facts#{index}.predicate" => query.predicate,
-                  "facts#{index}.object_asset_id" => asset.id)
-        else
-          memo.joins(
-            "INNER JOIN facts AS facts#{index} ON facts#{index}.asset_id=assets.id"
-          ).where("facts#{index}.predicate" => query.predicate,
-                  "facts#{index}.object" => query.object)
-        end
-      end
-    end
-  }
+  scope :assets_for_queries,
+        ->(queries) {
+          queries
+            .each_with_index
+            .reduce(Asset) do |memo, list|
+              query = list[0]
+              index = list[1]
+              if query.predicate == 'barcode'
+                memo.where(barcode: query.object)
+              else
+                asset = Asset.where(barcode: query.object).first
+                if asset
+                  memo
+                    .joins("INNER JOIN facts AS facts#{index} ON facts#{index}.asset_id=assets.id")
+                    .where("facts#{index}.predicate" => query.predicate, "facts#{index}.object_asset_id" => asset.id)
+                else
+                  memo
+                    .joins("INNER JOIN facts AS facts#{index} ON facts#{index}.asset_id=assets.id")
+                    .where("facts#{index}.predicate" => query.predicate, "facts#{index}.object" => query.object)
+                end
+              end
+            end
+        }
 
   scope :for_refreshing, -> { includes(facts: { object_asset: :facts }) }
 
@@ -98,7 +98,7 @@ class Asset < ApplicationRecord
 
   def aliquot_type
     f = facts.with_predicate('aliquotType').first
-    f ? f.object : ""
+    f ? f.object : ''
   end
 
   # Returns all facts with the predicate 'sample_uuid'
@@ -109,9 +109,7 @@ class Asset < ApplicationRecord
     if has_predicate?('sample_uuid')
       facts.with_predicate('sample_uuid')
     else
-      facts.with_predicate('contains').flat_map do |fact|
-        fact.object_asset.sample_uuid_facts
-      end
+      facts.with_predicate('contains').flat_map { |fact| fact.object_asset.sample_uuid_facts }
     end
   end
 
@@ -120,16 +118,13 @@ class Asset < ApplicationRecord
   # loop in the event asset_a > asset_b > asset_a
   def walk_transfers(before = nil)
     transfers = facts.with_predicate('transferredFrom')
-    parent_fact = if transfers.respond_to?(:created_before)
-                    transfers.created_before(before).last
-                  else
-                    transfers.reverse.detect { |t| before.nil? || (t.created_at < before) }
-                  end
-    if parent_fact&.object_asset
-      parent_fact.object_asset.walk_transfers(parent_fact.created_at)
-    else
-      self
-    end
+    parent_fact =
+      if transfers.respond_to?(:created_before)
+        transfers.created_before(before).last
+      else
+        transfers.reverse.detect { |t| before.nil? || (t.created_at < before) }
+      end
+    parent_fact&.object_asset ? parent_fact.object_asset.walk_transfers(parent_fact.created_at) : self
   end
 
   def relation_id
@@ -137,21 +132,19 @@ class Asset < ApplicationRecord
   end
 
   def build_barcode(index)
-    self.barcode = SBCF::SangerBarcode.new({
-                                             prefix: Rails.application.config.barcode_prefix,
-                                             number: index
-                                           }).human_barcode
+    self.barcode =
+      SBCF::SangerBarcode.new({ prefix: Rails.application.config.barcode_prefix, number: index }).human_barcode
   end
 
   def generate_barcode
     save
     if barcode.nil?
-      update_attributes({
-                          barcode: SBCF::SangerBarcode.new({
-                                                             prefix: Rails.application.config.barcode_prefix,
-                                                             number: self.id
-                                                           }).human_barcode
-                        })
+      update_attributes(
+        {
+          barcode:
+            SBCF::SangerBarcode.new({ prefix: Rails.application.config.barcode_prefix, number: self.id }).human_barcode
+        }
+      )
     end
   end
 
@@ -201,23 +194,29 @@ class Asset < ApplicationRecord
     return nil if barcode.nil?
 
     if (kind_of_plate?)
-      return {
-        :label => {
-          :barcode => barcode,
-          :top_left => DateTime.now.strftime('%d/%b/%y'),
-          :top_right => info_line, # username,
-          :bottom_right => study_and_barcode,
-          :bottom_left => barcode
+      return(
+        {
+          label: {
+            barcode: barcode,
+            top_left: DateTime.now.strftime('%d/%b/%y'),
+            top_right: info_line, # username,
+            bottom_right: study_and_barcode,
+            bottom_left: barcode
+          }
+        }
+      )
+    end
+    return(
+      {
+        label: {
+          barcode: barcode_formatted_for_printing,
+          barcode2d: barcode_formatted_for_printing,
+          top_line: TokenUtil.human_barcode(barcode),
+          middle_line: kit_type,
+          bottom_line: info_line
         }
       }
-    end
-    return { :label => {
-      :barcode => barcode_formatted_for_printing,
-      :barcode2d => barcode_formatted_for_printing,
-      :top_line => TokenUtil.human_barcode(barcode),
-      :middle_line => kit_type,
-      :bottom_line => info_line
-    } }
+    )
   end
 
   def kit_type
@@ -226,7 +225,7 @@ class Asset < ApplicationRecord
 
   def position_value
     val = facts.filter_map(&:position).first
-    return "" if val.nil?
+    return '' if val.nil?
 
     "_#{(val.to_i + 1)}"
   end
@@ -274,9 +273,13 @@ class Asset < ApplicationRecord
   end
 
   def more_than_one_aliquot_type_validation
-    if facts.with_predicate('contains').map(&:object_asset).map do |well|
-         well.facts.with_predicate('aliquotType').map(&:object)
-       end.flatten.uniq.count > 1
+    if facts
+         .with_predicate('contains')
+         .map(&:object_asset)
+         .map { |well| well.facts.with_predicate('aliquotType').map(&:object) }
+         .flatten
+         .uniq
+         .count > 1
       return ['More than one aliquot type in the same rack']
     end
 

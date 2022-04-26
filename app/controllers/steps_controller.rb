@@ -57,17 +57,16 @@ class StepsController < ApplicationController
 
   def set_printer_config
     tube_printer = Printer.find_by(id: params_step[:tube_printer_id]) || nil
-    plate_printer = Printer.find_by(id: params_step[:plate_printer_id]) ||  nil
+    plate_printer = Printer.find_by(id: params_step[:plate_printer_id]) || nil
     tube_rack_printer = Printer.find_by(id: params_step[:plate_printer_id]) || nil
     @printer_config = {
-      'Tube' => tube_printer.nil? ? "" : tube_printer.name,
-      'Plate' => plate_printer.nil? ? "" : plate_printer.name,
-      'TubeRack' => tube_rack_printer.nil? ? "" : tube_rack_printer.name
+      'Tube' => tube_printer.nil? ? '' : tube_printer.name,
+      'Plate' => plate_printer.nil? ? '' : plate_printer.name,
+      'TubeRack' => tube_rack_printer.nil? ? '' : tube_rack_printer.name
     }
   end
 
   def params_step
-    params.require(:step).permit(:step_type_id, :asset_group_id, :tube_printer_id, :plate_printer_id,
-                                 :event_name)
+    params.require(:step).permit(:step_type_id, :asset_group_id, :tube_printer_id, :plate_printer_id, :event_name)
   end
 end

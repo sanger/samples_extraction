@@ -6,7 +6,7 @@ module Actions
     end
 
     def self.ignored_predicates_for_existing_well
-      ['a', 'parent', 'pushedTo']
+      %w[a parent pushedTo]
     end
 
     def self.ignored_predicates_for_new_well
@@ -43,24 +43,36 @@ module Actions
       aliquot = plate.facts.where(predicate: 'aliquotType').first
       updates ||= FactChanges.new
       updates.tap do |updates|
-        return updates unless validate_plate_is_compatible_with_aliquot(updates, destination, aliquot.object) if aliquot
+        if aliquot
+          return updates unless validate_plate_is_compatible_with_aliquot(updates, destination, aliquot.object)
+        end
         updates.add(destination, 'aliquotType', aliquot.object) if aliquot
-        value = plate.facts.with_predicate('contains').reduce({}) do |memo, f|
-          location = to_sequencescape_location(f.object_asset.facts.with_predicate('location').first.object)
-          memo[location] = [] unless memo[location]
-          memo[location].push(f.object_asset)
-          memo
-        end
-        value = destination.facts.with_predicate('contains').reduce(value) do |memo, f|
-          location = to_sequencescape_location(f.object_asset.facts.with_predicate('location').first.object)
-          memo[location] = [] unless memo[location]
-          memo[location].push(f.object_asset)
-          memo
-        end
+        value =
+          plate
+            .facts
+            .with_predicate('contains')
+            .reduce({}) do |memo, f|
+              location = to_sequencescape_location(f.object_asset.facts.with_predicate('location').first.object)
+              memo[location] = [] unless memo[location]
+              memo[location].push(f.object_asset)
+              memo
+            end
+        value =
+          destination
+            .facts
+            .with_predicate('contains')
+            .reduce(value) do |memo, f|
+              location = to_sequencescape_location(f.object_asset.facts.with_predicate('location').first.object)
+              memo[location] = [] unless memo[location]
+              memo[location].push(f.object_asset)
+              memo
+            end
         value.each do |_location, assets|
           asset1, asset2 = assets
           if asset2
-            return updates unless validate_tube_is_compatible_with_aliquot(updates, asset2, aliquot.object) if aliquot
+            if aliquot
+              return updates unless validate_tube_is_compatible_with_aliquot(updates, asset2, aliquot.object)
+            end
             updates.add(asset2, 'aliquotType', aliquot.object) if aliquot && !asset2.has_predicate?('aliquotType')
             asset1.facts.each do |fact|
               unless ignored_predicates_for_existing_well.include?(fact.predicate)
@@ -76,21 +88,25 @@ module Actions
       aliquot_value = updates.values_for_predicate(destination, 'aliquotType').first
       updates ||= FactChanges.new
       updates.tap do |updates|
-        contains_facts = plate.facts.with_predicate('contains').map do |contain_fact|
-          source_well = contain_fact.object_asset
-          destination_well = Asset.new
-          updates.create_assets([destination_well])
-          source_well.facts.each do |fact|
-            unless ignored_predicates_for_new_well.include?(fact.predicate)
-              updates.add(destination_well, fact.predicate, fact.object_value, literal: fact.literal)
+        contains_facts =
+          plate
+            .facts
+            .with_predicate('contains')
+            .map do |contain_fact|
+              source_well = contain_fact.object_asset
+              destination_well = Asset.new
+              updates.create_assets([destination_well])
+              source_well.facts.each do |fact|
+                unless ignored_predicates_for_new_well.include?(fact.predicate)
+                  updates.add(destination_well, fact.predicate, fact.object_value, literal: fact.literal)
+                end
+              end
+              updates.add(destination_well, 'barcodeType', 'NoBarcode')
+              if aliquot_value && !source_well.has_predicate?('aliquotType')
+                updates.add(destination_well, 'aliquotType', aliquot_value)
+              end
+              updates.add(destination, 'contains', destination_well)
             end
-          end
-          updates.add(destination_well, 'barcodeType', 'NoBarcode')
-          if aliquot_value && !source_well.has_predicate?('aliquotType')
-            updates.add(destination_well, 'aliquotType', aliquot_value)
-          end
-          updates.add(destination, 'contains', destination_well)
-        end
       end
     end
 

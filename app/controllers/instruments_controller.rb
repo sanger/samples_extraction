@@ -1,5 +1,5 @@
 class InstrumentsController < ApplicationController
-  before_action :set_instrument, only: [:show, :edit, :update, :destroy, :use]
+  before_action :set_instrument, only: %i[show edit update destroy use]
 
   # GET /instruments
   # GET /instruments.json
@@ -9,8 +9,7 @@ class InstrumentsController < ApplicationController
 
   # GET /instruments/1
   # GET /instruments/1.json
-  def show
-  end
+  def show; end
 
   def use
     @activity = Activity.new
@@ -22,8 +21,7 @@ class InstrumentsController < ApplicationController
   end
 
   # GET /instruments/1/edit
-  def edit
-  end
+  def edit; end
 
   # POST /instruments
   # POST /instruments.json
@@ -74,6 +72,6 @@ class InstrumentsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def instrument_params
-    params.require(:instrument).permit(:barcode, :name, { :activity_type_ids => [] })
+    params.require(:instrument).permit(:barcode, :name, { activity_type_ids: [] })
   end
 end

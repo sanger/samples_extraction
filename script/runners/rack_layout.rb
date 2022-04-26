@@ -16,15 +16,11 @@ class RackLayout
   end
 
   def process
-    FactChanges.new.tap do |updates|
-      if assets_compatible_with_step_type.count > 0
-        updates.merge(rack_layout)
-      end
-    end
+    FactChanges.new.tap { |updates| updates.merge(rack_layout) if assets_compatible_with_step_type.count > 0 }
   end
 end
 
-return unless ARGV.any? { |s| s.match(".json") }
+return unless ARGV.any? { |s| s.match('.json') }
 
 args = ARGV[0]
 asset_group_id = args.match(/(\d*)\.json/)[1]

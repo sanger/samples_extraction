@@ -22,9 +22,7 @@ class LabelTemplateSetup
 
     def register_label_type(name, data)
       ltype = PMB::LabelType.all.detect { |lt| lt.name == name }
-      if ltype.nil?
-        PMB::LabelType.new(data).save
-      end
+      PMB::LabelType.new(data).save if ltype.nil?
     end
 
     def register_template(template_name, template_type)
@@ -34,9 +32,7 @@ class LabelTemplateSetup
     end
 
     def find_or_register_each_template!
-      templates.each do |template|
-        template.find_or_register!
-      end
+      templates.each { |template| template.find_or_register! }
     end
   end
   extend ClassMethods
@@ -54,11 +50,11 @@ class LabelTemplateSetup
     existing = find_or_create_by_name!
 
     if local_template.external_id == existing.id
-      puts "No changes..."
+      puts 'No changes...'
       return true
     end
     local_template.external_id = existing.id
-    local_template.new_record? ? "Registering template" : "Updating template"
+    local_template.new_record? ? 'Registering template' : 'Updating template'
     local_template.save!
   end
 

@@ -21,18 +21,30 @@ class TransferSamples
   end
 
   def each_asset_and_modified_asset
-    asset_group.assets.with_predicate('transfer').each do |asset|
-      asset.facts.with_predicate('transfer').each do |fact|
-        modified_asset = fact.object_asset
-        yield(asset, modified_asset) if asset && modified_asset
+    asset_group
+      .assets
+      .with_predicate('transfer')
+      .each do |asset|
+        asset
+          .facts
+          .with_predicate('transfer')
+          .each do |fact|
+            modified_asset = fact.object_asset
+            yield(asset, modified_asset) if asset && modified_asset
+          end
       end
-    end
-    asset_group.assets.with_predicate('transferredFrom').each do |modified_asset|
-      modified_asset.facts.with_predicate('transferredFrom').each do |fact|
-        asset = fact.object_asset
-        yield(asset, modified_asset) if asset && modified_asset
+    asset_group
+      .assets
+      .with_predicate('transferredFrom')
+      .each do |modified_asset|
+        modified_asset
+          .facts
+          .with_predicate('transferredFrom')
+          .each do |fact|
+            asset = fact.object_asset
+            yield(asset, modified_asset) if asset && modified_asset
+          end
       end
-    end
   end
 
   def process
@@ -48,7 +60,7 @@ class TransferSamples
     end
   end
 end
-return unless ARGV.any? { |s| s.match(".json") }
+return unless ARGV.any? { |s| s.match('.json') }
 
 args = ARGV[0]
 asset_group_id = args.match(/(\d*)\.json/)[1]

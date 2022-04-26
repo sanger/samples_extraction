@@ -18,12 +18,15 @@ class UploadedFile < ApplicationRecord
   def build_asset(params)
     unless asset
       update_attributes(asset: Asset.create)
-      FactChanges.new.tap do |updates|
-        updates.add(asset, 'a', 'File')
-        updates.add(asset, 'filename', filename)
-        updates.add(asset, 'fileType', file_type(params[:content_type]))
-        updates.add(asset, 'contents', asset)
-      end.apply(step)
+      FactChanges
+        .new
+        .tap do |updates|
+          updates.add(asset, 'a', 'File')
+          updates.add(asset, 'filename', filename)
+          updates.add(asset, 'fileType', file_type(params[:content_type]))
+          updates.add(asset, 'contents', asset)
+        end
+        .apply(step)
     end
     asset.touch
     asset

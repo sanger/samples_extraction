@@ -50,9 +50,13 @@ module StepPlanner
     def index_wells_in(asset)
       wells_for(asset).index_by do |w|
         location_facts = w.facts.with_predicate('location').map(&:object).uniq
+
         # We don't seem to have any case of this occurring in the production database, although there are some historic
         # records with multiple location facts with the same location.
-        raise StandardError, "Could not identify location for Asset #{asset.id}. Possible locations: #{location_facts}" unless location_facts.one?
+        unless location_facts.one?
+          raise StandardError,
+                "Could not identify location for Asset #{asset.id}. Possible locations: #{location_facts}"
+        end
 
         TokenUtil.pad_location(location_facts.first)
       end

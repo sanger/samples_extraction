@@ -1,8 +1,5 @@
 class LabelTemplate < ApplicationRecord
-  CLASS_TYPE_TEMPLATE_ALIASES = {
-    'TubeRack' => 'Plate',
-    'SampleTube' => 'Tube'
-  }.freeze
+  CLASS_TYPE_TEMPLATE_ALIASES = { 'TubeRack' => 'Plate', 'SampleTube' => 'Tube' }.freeze
 
   validates_presence_of :name, :external_id
   validates_uniqueness_of :name, :external_id

@@ -6,11 +6,16 @@ class ContainerInferences
   end
 
   def containers
-    asset_group.assets.joins(%{
+    asset_group
+      .assets
+      .joins(
+        "
       INNER JOIN facts as plate_facts on plate_facts.asset_id=assets.id AND plate_facts.predicate='contains'
       INNER JOIN assets as tubes on tubes.id=plate_facts.object_asset_id
       INNER JOIN facts as tubes_facts on tubes_facts.asset_id=tubes.id AND (tubes_facts.predicate='aliquotType' OR tubes_facts.predicate='study_name')
-    }).uniq
+    "
+      )
+      .uniq
   end
 
   def purpose_for_aliquot(aliquot)
@@ -21,19 +26,29 @@ class ContainerInferences
   end
 
   def study_name_for(asset)
-    list = asset.facts.with_predicate('contains').map do |f|
-      f.object_asset.facts.with_predicate('study_name').map(&:object)
-    end.flatten.compact.uniq
-    return "" if list.count > 1
+    list =
+      asset
+        .facts
+        .with_predicate('contains')
+        .map { |f| f.object_asset.facts.with_predicate('study_name').map(&:object) }
+        .flatten
+        .compact
+        .uniq
+    return '' if list.count > 1
 
     return list.first
   end
 
   def purpose_for(asset)
-    list = asset.facts.with_predicate('contains').map do |f|
-      f.object_asset.facts.with_predicate('aliquotType').map(&:object)
-    end.flatten.compact.uniq
-    return "" if list.count > 1
+    list =
+      asset
+        .facts
+        .with_predicate('contains')
+        .map { |f| f.object_asset.facts.with_predicate('aliquotType').map(&:object) }
+        .flatten
+        .compact
+        .uniq
+    return '' if list.count > 1
 
     return purpose_for_aliquot(list.first)
   end
@@ -55,7 +70,7 @@ def out(val)
   return
 end
 
-return unless ARGV.any? { |s| s.match(".json") }
+return unless ARGV.any? { |s| s.match('.json') }
 
 args = ARGV[0]
 out({}) unless args

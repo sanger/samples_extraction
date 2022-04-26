@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe 'BackgroundTasks' do
+  # Mock step for testing. Should probably be anonymous class
   class DummyBackgroundStep
     def self.create!(params)
       @instance = FactoryBot.create(:step, params)
@@ -25,11 +26,7 @@ RSpec.describe 'BackgroundTasks' do
     it 'connects each step with the next one' do
       activity.create_background_steps(list_of_tasks, {})
       steps = Step.all
-      steps.each_with_index do |s, idx|
-        if ((idx + 1) < steps.count)
-          expect(s.next_step).to eq(steps[idx + 1])
-        end
-      end
+      steps.each_with_index { |s, idx| expect(s.next_step).to eq(steps[idx + 1]) if ((idx + 1) < steps.count) }
     end
   end
 

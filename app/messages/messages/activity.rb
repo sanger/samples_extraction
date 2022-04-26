@@ -26,10 +26,7 @@ module Messages
 
     # Hash object used by #to_json to render the message
     def as_json(_args = {})
-      {
-        samples_extraction_activity: samples_extraction_activity,
-        lims: 'SAMPEXT'
-      }
+      { samples_extraction_activity: samples_extraction_activity, lims: 'SAMPEXT' }
     end
 
     private
@@ -53,11 +50,7 @@ module Messages
       activity.assets.flat_map do |asset|
         input_barcode = asset.walk_transfers.barcode
         asset.sample_uuid_facts.map do |fact|
-          {
-            sample_uuid: TokenUtil.unquote(fact.object),
-            input_barcode: input_barcode,
-            output_barcode: asset.barcode
-          }
+          { sample_uuid: TokenUtil.unquote(fact.object), input_barcode: input_barcode, output_barcode: asset.barcode }
         end
       end
     end

@@ -12,30 +12,32 @@ RSpec.describe 'ChangesSupport::DisjointList' do
   describe '#sum_function_for' do
     let(:list) { ChangesSupport::DisjointList.new([]) }
     it 'generates a sum function for the string provided' do
-      expect(list.sum_function_for("123")).to eq(list.sum_function_for(123.to_s))
+      expect(list.sum_function_for('123')).to eq(list.sum_function_for(123.to_s))
     end
     it 'always generates the same value for the same input' do
-      expect(list.sum_function_for("abcdef")).to eq(list.sum_function_for("abcdef"))
+      expect(list.sum_function_for('abcdef')).to eq(list.sum_function_for('abcdef'))
     end
     it 'does not generate the same value for different inputs' do
-      expect(list.sum_function_for("abcdef")).not_to eq(list.sum_function_for("ABCDEF"))
+      expect(list.sum_function_for('abcdef')).not_to eq(list.sum_function_for('ABCDEF'))
     end
   end
 
   describe '#unique_id_for_element' do
     let(:list) { ChangesSupport::DisjointList.new([]) }
     it 'does not generate the same value for different inputs' do
-      expect(list.unique_id_for_element("abcdef")).not_to eq(list.unique_id_for_element("ABCDEF"))
+      expect(list.unique_id_for_element('abcdef')).not_to eq(list.unique_id_for_element('ABCDEF'))
     end
 
     it 'always generates the same value for the same input' do
-      expect(list.unique_id_for_element("abcdef")).to eq(list.unique_id_for_element("abcdef"))
+      expect(list.unique_id_for_element('abcdef')).to eq(list.unique_id_for_element('abcdef'))
     end
     it 'can generate an id for arrays' do
-      expect(list.unique_id_for_element(["1", "2", "3"])).to eq(list.unique_id_for_element([1, 2, 3]))
+      expect(list.unique_id_for_element(%w[1 2 3])).to eq(list.unique_id_for_element([1, 2, 3]))
     end
     it 'can generate an id for hash' do
-      expect(list.unique_id_for_element({ a: 1, b: 2, c: 3 })).to eq(list.unique_id_for_element({ a: "1", b: "2", c: "3" }))
+      expect(list.unique_id_for_element({ a: 1, b: 2, c: 3 })).to eq(
+        list.unique_id_for_element({ a: '1', b: '2', c: '3' })
+      )
     end
     it 'can generate an id for ActiveRecord' do
       fact1 = create(:fact, predicate: 'p', object: 'v')
@@ -65,8 +67,8 @@ RSpec.describe 'ChangesSupport::DisjointList' do
       expect(list.unique_id_for_element(f1)).not_to eq(list.unique_id_for_element(f3))
     end
     it 'can generate ids for basic datatypes converting to string' do
-      expect(list.unique_id_for_element(1)).to eq(list.unique_id_for_element("1"))
-      expect(list.unique_id_for_element(true)).to eq(list.unique_id_for_element("true"))
+      expect(list.unique_id_for_element(1)).to eq(list.unique_id_for_element('1'))
+      expect(list.unique_id_for_element(true)).to eq(list.unique_id_for_element('true'))
       expect(list.unique_id_for_element(true)).not_to eq(list.unique_id_for_element(false))
     end
     it 'does not enter in infinite loop' do
@@ -111,33 +113,26 @@ RSpec.describe 'ChangesSupport::DisjointList' do
     let(:list) { ChangesSupport::DisjointList.new(raw_list) }
     let(:list2) { ChangesSupport::DisjointList.new(raw_list2) }
 
-    before do
-      list.add_disjoint_list(list2)
-    end
+    before { list.add_disjoint_list(list2) }
 
     it 'returns the disjoint list' do
       expect(list.add(elem)).to eq(list)
     end
     it 'adds the element when is not present in any of the lists' do
-      expect do
-        list.add(elem)
-      end.to change { list.to_a.length }.by(1)
-                                        .and change { list.length }.by(1)
+      expect { list.add(elem) }.to change { list.to_a.length }.by(1).and change { list.length }.by(1)
       expect(list.to_a).to eq([elem])
     end
     it 'stores the position in the common hash' do
-      expect do
-        list.add(elem)
-      end.to change { list.store_for(elem) }.from(nil).to(list)
-                                            .and change { list2.store_for(elem) }.from(nil).to(list)
+      expect { list.add(elem) }.to change { list.store_for(elem) }.from(nil).to(list).and change {
+                   list2.store_for(elem)
+                 }
+                 .from(nil)
+                 .to(list)
     end
     it 'does not add the element again if it is already present' do
       list.add(elem)
       expect(list.to_a).to eq([elem])
-      expect do
-        list.add(elem)
-      end.to change { list.to_a.length }.by(0)
-                                        .and change { list.length }.by(0)
+      expect { list.add(elem) }.to change { list.to_a.length }.by(0).and change { list.length }.by(0)
       expect(list.to_a).to eq([elem])
     end
     it 'disables the element from the list if is added to another disjoint list' do
@@ -204,13 +199,14 @@ RSpec.describe 'ChangesSupport::DisjointList' do
         disjoint1 << []
         disjoint2 << []
         disjoint3 << ['rome']
-        disjoint4 << ['barcelona', 'rome', 'lisbon']
+        disjoint4 << %w[barcelona rome lisbon]
+
         # rome is disabled
         disjoint1.concat(disjoint3)
         disjoint1 << 'barcelona'
         disjoint1 << 'athens'
         disjoint1 << 'rome'
-        expect(disjoint1.to_a).to eq(['barcelona', 'athens'])
+        expect(disjoint1.to_a).to eq(%w[barcelona athens])
       end
     end
   end
@@ -222,8 +218,9 @@ RSpec.describe 'ChangesSupport::DisjointList' do
     it 'removes the element with id from the list' do
       list.add(elem)
       expect(list.length).to eq(1)
-      expect { list.remove(elem) }.to change { list.length }.by(-1)
-                                                            .and change { list.store_for(elem) }.from(list).to(nil)
+      expect { list.remove(elem) }.to change { list.length }.by(-1).and change { list.store_for(elem) }
+                                     .from(list)
+                                     .to(nil)
       expect(list.to_a).to eq([])
     end
   end
@@ -235,8 +232,9 @@ RSpec.describe 'ChangesSupport::DisjointList' do
     let(:list3) { ChangesSupport::DisjointList.new([]) }
 
     it 'adds the list to the disjoint lists' do
-      expect { list.add_disjoint_list(list2) }.to change { list.disjoint_lists }.from([list]).to([list, list2])
-                                                                                .and change { list2.disjoint_lists }.from([list2]).to([list, list2])
+      expect { list.add_disjoint_list(list2) }.to change { list.disjoint_lists }
+        .from([list])
+        .to([list, list2]).and change { list2.disjoint_lists }.from([list2]).to([list, list2])
     end
 
     it 'sets up a shared list of disjoint lists for all added instances' do
@@ -244,7 +242,9 @@ RSpec.describe 'ChangesSupport::DisjointList' do
       expect(list.disjoint_lists).to be(list2.disjoint_lists)
 
       list3 = ChangesSupport::DisjointList.new([])
-      expect { list3.add_disjoint_list(list2) }.to change { list.disjoint_lists }.from([list, list2]).to([list3, list, list2])
+      expect { list3.add_disjoint_list(list2) }.to change { list.disjoint_lists }
+        .from([list, list2])
+        .to([list3, list, list2])
     end
 
     it 'sets up a common list of locations for all added instances' do
@@ -377,24 +377,26 @@ RSpec.describe 'ChangesSupport::DisjointList' do
       end
 
       it 'merges the information removing values from the merged opposite disjoint list' do
-        disjoint1 << ['green', 'yellow']
-        disjoint2 << ['white', 'red']
-        disjoint3 << ['white', 'blue']
-        disjoint4 << ['green', 'black']
+        disjoint1 << %w[green yellow]
+        disjoint2 << %w[white red]
+        disjoint3 << %w[white blue]
+        disjoint4 << %w[green black]
 
         disjoint1.merge(disjoint3)
 
-        expect(disjoint1.to_a).to eq(['yellow', 'blue'])
+        expect(disjoint1.to_a).to eq(%w[yellow blue])
       end
 
       context 'when merging a chain of objects' do
         let(:winners) { Array.new(6) { ChangesSupport::DisjointList.new([]) } }
         let(:losers) { Array.new(6) { ChangesSupport::DisjointList.new([]) } }
         let(:list) do
-          winners.zip(losers).map do |l|
-            l[0].add_disjoint_list(l[1])
-            { winner: l[0], loser: l[1] }
-          end
+          winners
+            .zip(losers)
+            .map do |l|
+              l[0].add_disjoint_list(l[1])
+              { winner: l[0], loser: l[1] }
+            end
         end
 
         it 'keeps track of all restrictions until the final list' do
@@ -411,10 +413,14 @@ RSpec.describe 'ChangesSupport::DisjointList' do
           list[5][:winner] << 'Tottenham'
           list[5][:loser] << 'Ajax'
 
-          winners = 6.times.map.reduce(ChangesSupport::DisjointList.new([])) do |memo, i|
-            memo.merge(list[i][:winner])
-            memo
-          end
+          winners =
+            6
+              .times
+              .map
+              .reduce(ChangesSupport::DisjointList.new([])) do |memo, i|
+                memo.merge(list[i][:winner])
+                memo
+              end
           expect(winners.to_a.sort).to eq(['Manchester City'])
         end
       end
@@ -429,33 +435,33 @@ RSpec.describe 'ChangesSupport::DisjointList' do
       it 'adds all elements in both lists if no restrictions are found' do
         disjoint1 << 'green'
         disjoint3 << 'blue'
-        expect { disjoint1.merge(disjoint3) }.to change { disjoint1.to_a }.from(['green']).to(['green', 'blue'])
+        expect { disjoint1.merge(disjoint3) }.to change { disjoint1.to_a }.from(['green']).to(%w[green blue])
       end
 
       it 'adds new elements keeping duplicates unique' do
-        disjoint1 << ['green', 'red', 'white']
-        disjoint3 << ['blue', 'red', 'white']
-        expect { disjoint1.merge(disjoint3) }.to change {
-                                                   disjoint1.to_a.sort
-                                                 }.from(['green', 'red', 'white']).to(["blue", "green", "red", "white"])
+        disjoint1 << %w[green red white]
+        disjoint3 << %w[blue red white]
+        expect { disjoint1.merge(disjoint3) }.to change { disjoint1.to_a.sort }
+          .from(%w[green red white])
+          .to(%w[blue green red white])
       end
 
       it 'merges the information of disjoint lists keeping duplicates unique' do
-        disjoint1 << ['green', 'yellow']
-        disjoint2 << ['paris', 'london', 'rome']
-        disjoint3 << ['white', 'green', 'yellow']
-        disjoint4 << ['barcelona', 'rome', 'lisbon']
+        disjoint1 << %w[green yellow]
+        disjoint2 << %w[paris london rome]
+        disjoint3 << %w[white green yellow]
+        disjoint4 << %w[barcelona rome lisbon]
 
         disjoint1.merge(disjoint3)
 
-        expect(disjoint1.to_a).to eq(['green', 'yellow', 'white'])
-        expect(disjoint2.to_a).to eq(['paris', 'london'])
+        expect(disjoint1.to_a).to eq(%w[green yellow white])
+        expect(disjoint2.to_a).to eq(%w[paris london])
       end
 
       it 'all restrictions are applied even in next actions after merging' do
         disjoint1 << []
         disjoint3 << []
-        disjoint4 << ['barcelona', 'rome', 'lisbon']
+        disjoint4 << %w[barcelona rome lisbon]
         disjoint1.merge(disjoint3)
         disjoint1 << 'barcelona'
         disjoint1 << 'athens'

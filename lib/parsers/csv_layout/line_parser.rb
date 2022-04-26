@@ -15,18 +15,13 @@ module Parsers
           parsed_content.filter_map do |entry|
             next if entry[:barcode_parser].no_read_barcode?
 
-            {
-              location: entry[:location_parser].location,
-              asset: entry[:barcode_parser].asset
-            }
+            { location: entry[:location_parser].location, asset: entry[:barcode_parser].asset }
           end
         end
       end
 
       def error_list_for_parser(parser, line_number)
-        parser.errors.messages.values.map do |msg|
-          "At line #{line_number}: #{msg[0]}"
-        end
+        parser.errors.messages.values.map { |msg| "At line #{line_number}: #{msg[0]}" }
       end
 
       def error_list
@@ -43,9 +38,7 @@ module Parsers
       end
 
       def barcodes
-        parsed_content.filter_map do |line|
-          line[:barcode_parser].barcode
-        end.uniq
+        parsed_content.filter_map { |line| line[:barcode_parser].barcode }.uniq
       end
 
       protected
@@ -66,11 +59,7 @@ module Parsers
           next if barcode_parser.no_read_barcode?
 
           location_parser = @parser.components[:location_parser].new(line, @parser)
-          {
-            location_parser: location_parser,
-            barcode_parser: barcode_parser,
-            num_line: num_line
-          }
+          { location_parser: location_parser, barcode_parser: barcode_parser, num_line: num_line }
         end
       end
 
