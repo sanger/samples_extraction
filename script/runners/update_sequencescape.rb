@@ -1,3 +1,5 @@
+# @todo Migrate to StepPlanner https://github.com/sanger/samples_extraction/issues/193
+
 # Creates or updates a plate in Sequencescape corresponding to the Samples Extraction Asset
 # At time of writing, 'update' function is limited to 're-racking'
 # Only works if the Asset has a fact 'pushTo:Sequencescape'

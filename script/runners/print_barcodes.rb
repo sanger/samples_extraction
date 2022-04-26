@@ -1,3 +1,5 @@
+# Migrate to StepPlanner https://github.com/sanger/samples_extraction/issues/193
+
 class PrintBarcodes
   attr_reader :asset_group, :step
 

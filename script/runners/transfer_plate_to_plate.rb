@@ -1,3 +1,5 @@
+# @todo Migrate to StepPlanner https://github.com/sanger/samples_extraction/issues/193
+
 require 'actions/plate_transfer'
 
 # Stamps an Asset (plate or tube rack) to another Asset

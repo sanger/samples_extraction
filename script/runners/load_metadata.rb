@@ -1,3 +1,5 @@
+# @todo Migrate to StepPlanner https://github.com/sanger/samples_extraction/issues/193
+
 require 'actions/racking'
 require 'parsers/csv_metadata/csv_parser'
 
