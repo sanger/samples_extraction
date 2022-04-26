@@ -7,7 +7,7 @@ class StudyNameInference
 
   # rubocop:todo Naming/MethodName
   def _CODE
-    %Q{
+    %{
       {
         ?asset :contains ?anotherAsset .
         ?anotherAsset :study_name ?study .

@@ -43,7 +43,7 @@ RSpec.describe SupportN3 do
     @activity_type = FactoryBot.create :activity_type, { :name => testing_name }
     @activity_type.reload
     expect(@activity_type.deprecated?).to eq(false)
-    SupportN3.parse_string(%Q{
+    SupportN3.parse_string(%{
       :activity :activityTypeName "#{testing_name}" .
       {} => {:step :stepTypeName \"\"\"#{testing_name}\"\"\" .}.
       {} => {:step :stepTypeName \"\"\"#{testing_name}\"\"\" .}.

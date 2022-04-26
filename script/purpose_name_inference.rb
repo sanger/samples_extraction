@@ -7,7 +7,7 @@ class PurposeNameInference
 
   # rubocop:todo Naming/MethodName
   def _CODE
-    %Q{
+    %{
       {
         ?asset :contains ?anotherAsset .
         ?anotherAsset :aliquotType """DNA""" .
@@ -38,7 +38,7 @@ class PurposeNameInference
   end
 
   def containers
-    asset_group.assets.joins(%Q{
+    asset_group.assets.joins(%{
       INNER JOIN facts as plate_facts on plate_facts.asset_id=assets.id AND plate_facts.predicate='contains'
       INNER JOIN assets as tubes on tubes.id=plate_facts.object_asset_id
       INNER JOIN facts as tubes_facts on tubes_facts.asset_id=tubes.id AND tubes_facts.predicate='aliquotType'

@@ -474,24 +474,6 @@ Rails/WhereNot:
     - 'app/models/step_type.rb'
     - 'db/migrate/20170225191416_migrate_operations_to_object_asset.rb'
 
-# Offense count: 82
-# This cop supports safe auto-correction (--auto-correct).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: percent_q, bare_percent
-Style/BarePercentLiterals:
-  Exclude:
-    - 'db/seeds.rb'
-    - 'script/aliquot_type_inference.rb'
-    - 'script/container_inferences.rb'
-    - 'script/purpose_name_inference.rb'
-    - 'script/recreate_steptypes.rb'
-    - 'script/study_name_inference.rb'
-    - 'script/tasks/runners/aliquot_type_inference.rb'
-    - 'spec/integration/inferences_data.rb'
-    - 'spec/lib/support_n3_spec.rb'
-    - 'spec/models/assets/export_spec.rb'
-    - 'spec/models/steps/cancellable_spec.rb'
-
 # Offense count: 1
 # This cop supports safe auto-correction (--auto-correct).
 Style/BlockComments:

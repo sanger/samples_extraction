@@ -7,7 +7,7 @@ class AliquotTypeInference
 
   # rubocop:todo Naming/MethodName
   def _CODE
-    %Q{
+    %{
       {
         ?asset :aliquotType ?aliquot .
         ?asset :contains ?anotherAsset .

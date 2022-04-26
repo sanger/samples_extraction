@@ -12,7 +12,7 @@ RSpec.describe :cancellable, cancellable: true do
     @activity_type = FactoryBot.create :activity_type
     @activity = FactoryBot.create :activity, activity_type: @activity_type, asset_group: @asset_group
     @steps = Array.new(10) do
-      step = build_step(%Q{{?p :a :Rack.} => {:step :addFacts {?p :a :TubeRack .}.} .}, %Q{}, activity: @activity, asset_group: @asset_group)
+      step = build_step(%{{?p :a :Rack.} => {:step :addFacts {?p :a :TubeRack .}.} .}, %{}, activity: @activity, asset_group: @asset_group)
       step.run!
       step
     end

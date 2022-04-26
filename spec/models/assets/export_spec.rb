@@ -35,7 +35,7 @@ RSpec.describe 'Assets::Export' do
     end
 
     it 'generates an attribute object for a well' do
-      facts = %Q{
+      facts = %{
         :s1 :a :SampleTube .
         :s2 :a :SampleTube .
         :s3 :a :SampleTube .
@@ -125,13 +125,13 @@ RSpec.describe 'Assets::Export' do
 
   context '#attributes_to_send' do
     it 'can convert location to Sequencescape location format' do
-      %Q{
+      %{
         I have a tube rack that contains 4 tubes with names tube1, tube2,
         tube3 and tube4.
         tube1 is in location A01, tube2 in B01, tube3 in C01 and tube4 in D1.
         Each tube has a sample tube inside, with names s1, s2, s3 and s4.
       }
-      facts = %Q{
+      facts = %{
         :s1 :a :SampleTube .
         :s2 :a :SampleTube .
         :s3 :a :SampleTube .
@@ -163,7 +163,7 @@ RSpec.describe 'Assets::Export' do
     end
 
     it 'generates the attributes when the locations are not duplicated' do
-      facts = %Q{
+      facts = %{
         :s1 :a :SampleTube .
         :s2 :a :SampleTube .
         :s3 :a :SampleTube .
@@ -195,7 +195,7 @@ RSpec.describe 'Assets::Export' do
     end
 
     it 'fails when trying to generate attributes when the locations are duplicated' do
-      facts = %Q{
+      facts = %{
         :s1 :a :SampleTube .
         :s2 :a :SampleTube .
         :s3 :a :SampleTube .
@@ -221,7 +221,7 @@ RSpec.describe 'Assets::Export' do
     end
 
     it 'does not export locations without a sample in it' do
-      facts = %Q{
+      facts = %{
         :s1 :a :SampleTube .
         :s2 :a :SampleTube .
         :s3 :a :SampleTube .
