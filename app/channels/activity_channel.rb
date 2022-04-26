@@ -81,11 +81,9 @@ class ActivityChannel < ApplicationCable::Channel
   end
 
   def self.activity_attributes(id)
-    begin
-      JSON.parse(redis.hget('activities', id)) || default_activity_attributes
-    rescue StandardError => e
-      default_activity_attributes
-    end
+    JSON.parse(redis.hget('activities', id)) || default_activity_attributes
+  rescue StandardError => e
+    default_activity_attributes
   end
 
   def strong_params_for_asset_group(params)

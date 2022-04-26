@@ -76,12 +76,10 @@ class SequencescapeClient
         'racked_tubes.tube.aliquots.sample.sample_metadata,racked_tubes.tube.aliquots.study,purpose'
       )
     ].each do |klass|
-      begin
-        search = klass.where(search_conditions).first
-        return search if search
-      rescue JsonApiClient::Errors::ClientError => e
-        # Ignore filter error
-      end
+      search = klass.where(search_conditions).first
+      return search if search
+    rescue JsonApiClient::Errors::ClientError => e
+      # Ignore filter error
     end
     nil
   end

@@ -48,27 +48,21 @@ class StepType < ApplicationRecord
   end
 
   def all_background_steps_files
-    begin
-      valid_name_file(Dir.entries('lib/background_steps'))
-    rescue Errno::ENOENT => e
-      []
-    end
+    valid_name_file(Dir.entries('lib/background_steps'))
+  rescue Errno::ENOENT => e
+    []
   end
 
   def all_inferences_files
-    begin
-      valid_name_file(Dir.entries('script/inferences'))
-    rescue Errno::ENOENT => e
-      []
-    end
+    valid_name_file(Dir.entries('script/inferences'))
+  rescue Errno::ENOENT => e
+    []
   end
 
   def all_runners_files
-    begin
-      valid_name_file(Dir.entries('script/runners'))
-    rescue Errno::ENOENT => e
-      []
-    end
+    valid_name_file(Dir.entries('script/runners'))
+  rescue Errno::ENOENT => e
+    []
   end
 
   def all_step_actions

@@ -1417,17 +1417,6 @@ Style/PreferredHashMethods:
     - 'lib/changes_support/transaction_scope.rb'
     - 'spec/models/asset_spec.rb'
 
-# Offense count: 8
-# This cop supports safe auto-correction (--auto-correct).
-Style/RedundantBegin:
-  Exclude:
-    - 'app/channels/activity_channel.rb'
-    - 'app/models/assets/export.rb'
-    - 'app/models/step_type.rb'
-    - 'lib/parsers/csv_layout/location_parser.rb'
-    - 'lib/sequencescape_client.rb'
-    - 'spec/controllers/steps_controller_spec.rb'
-
 # Offense count: 1
 # This cop supports safe auto-correction (--auto-correct).
 Style/RedundantCondition:

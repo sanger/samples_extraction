@@ -6,36 +6,34 @@ module Assets::Export
   # pushTo is was also being set for wells (and tubeRacks, but that may be intentional)
   def update_sequencescape(user)
     FactChanges.new.tap do |updates|
-      begin
-        # remote (Sequencescape) updates
-        instance = SequencescapeClient.version_1_find_by_uuid(uuid) || create_remote_plate
+      # remote (Sequencescape) updates
+      instance = SequencescapeClient.version_1_find_by_uuid(uuid) || create_remote_plate
 
-        create_or_update_remote_contained_assets(instance, user) unless attributes_to_send.empty?
+      create_or_update_remote_contained_assets(instance, user) unless attributes_to_send.empty?
 
-        # local (Samples Extraction) updates
-        old_barcode = barcode
-        update_attributes(uuid: instance.uuid, barcode: code39_barcode(instance))
+      # local (Samples Extraction) updates
+      old_barcode = barcode
+      update_attributes(uuid: instance.uuid, barcode: code39_barcode(instance))
 
-        update_wells(instance, updates)
+      update_wells(instance, updates)
 
-        updates.add(self, 'beforeBarcode', old_barcode) if old_barcode
-        updates.add_remote(self, 'purpose', purpose_name) if purpose_name
-        updates.remove(facts.with_predicate('barcodeType'))
-        updates.add(self, 'barcodeType', 'SequencescapePlate')
+      updates.add(self, 'beforeBarcode', old_barcode) if old_barcode
+      updates.add_remote(self, 'purpose', purpose_name) if purpose_name
+      updates.remove(facts.with_predicate('barcodeType'))
+      updates.add(self, 'barcodeType', 'SequencescapePlate')
 
-        mark_as_updated(updates)
-        mark_to_print(updates) if old_barcode != barcode
-      rescue SocketError
-        updates.set_errors(['Sequencescape connection - Network connectivity issue'])
-      rescue Errno::ECONNREFUSED => e
-        updates.set_errors(['Sequencescape connection - The server is down.'])
-      rescue Timeout::Error => e
-        updates.set_errors(['Sequencescape connection - Timeout error occurred.'])
-      rescue StandardError => e
-        updates.set_errors(
-          ['Sequencescape connection - There was an error while updating Sequencescape', e.message, e.backtrace.to_s]
-        )
-      end
+      mark_as_updated(updates)
+      mark_to_print(updates) if old_barcode != barcode
+    rescue SocketError
+      updates.set_errors(['Sequencescape connection - Network connectivity issue'])
+    rescue Errno::ECONNREFUSED => e
+      updates.set_errors(['Sequencescape connection - The server is down.'])
+    rescue Timeout::Error => e
+      updates.set_errors(['Sequencescape connection - Timeout error occurred.'])
+    rescue StandardError => e
+      updates.set_errors(
+        ['Sequencescape connection - There was an error while updating Sequencescape', e.message, e.backtrace.to_s]
+      )
     end
   end
 

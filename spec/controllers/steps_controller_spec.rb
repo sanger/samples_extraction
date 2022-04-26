@@ -72,10 +72,8 @@ RSpec.describe StepsController, type: :controller do
       it 'can be stopped' do
         step_id = step.id
         allow_any_instance_of(Step).to receive(:process) do
-          begin
-            post :update, params: { id: step_id, step: { event_name: 'stop' } }
-          rescue ActionDispatch::IllegalStateError => e
-          end
+          post :update, params: { id: step_id, step: { event_name: 'stop' } }
+        rescue ActionDispatch::IllegalStateError => e
         end
 
         run_step
