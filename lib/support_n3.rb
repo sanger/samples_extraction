@@ -14,7 +14,7 @@ module SupportN3 # rubocop:todo Style/Documentation
           object = quad[2].to_s
 
           if reading_instance != subject
-            if (data['rdfs:label'])
+            if data['rdfs:label']
               memo[data['rdfs:label']] = data
               definitions[reading_instance] = data['rdfs:label']
             end
@@ -22,12 +22,12 @@ module SupportN3 # rubocop:todo Style/Documentation
             reading_instance = subject
           end
 
-          if (predicate == 'rdfs:subClassOf')
+          if predicate == 'rdfs:subClassOf'
             inheritance[subject] = [subject] unless inheritance[subject]
             inheritance[subject].push(object)
           end
 
-          predicate = 'description' if (predicate == 'http://purl.org/dc/elements/1.1/description')
+          predicate = 'description' if predicate == 'http://purl.org/dc/elements/1.1/description'
           data[predicate] = object
           memo
         end
@@ -98,7 +98,7 @@ module SupportN3 # rubocop:todo Style/Documentation
     quads = open_resource.quads
     quads.reduce({}) do |memo, quad|
       # If it is a step added to the root graph of the document
-      if ((fragment(quad[0]) == 'step') && (quad[3].nil?))
+      if (fragment(quad[0]) == 'step') && (quad[3].nil?)
         memo[fragment(quad[1]).to_sym] = [] unless memo[fragment(quad[1]).to_sym]
         memo[fragment(quad[1]).to_sym].push(subgraph(quad[2], quads))
       end
@@ -414,7 +414,7 @@ module SupportN3 # rubocop:todo Style/Documentation
                   object_condition_group_id: object_condition_group_id
                 }
               )
-              if (action == 'unselectAsset')
+              if action == 'unselectAsset'
                 Condition.create(
                   { predicate: fragment(p), object: fragment(v), condition_group_id: @c_groups[fragment(k)].id }
                 )

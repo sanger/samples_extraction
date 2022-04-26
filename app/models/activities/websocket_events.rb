@@ -23,7 +23,7 @@ module Activities::WebsocketEvents # rubocop:todo Style/Documentation
     attrs
       .keys
       .reduce({ shownComponents: {} }) do |memo, key|
-        memo[key] = attrs[key].call unless (ActivityChannel.activity_attributes(id)[key.to_s] == false)
+        memo[key] = attrs[key].call unless ActivityChannel.activity_attributes(id)[key.to_s] == false
         memo
       end
   end

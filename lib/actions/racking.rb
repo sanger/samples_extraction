@@ -75,7 +75,7 @@ module Actions
             .with_predicate('parent')
             .each do |parent_fact|
               previous_rack = parent_fact.object_asset
-              unless (previous_racks.include?(previous_rack))
+              unless previous_racks.include?(previous_rack)
                 previous_racks.push(previous_rack)
                 old_facts =
                   previous_rack
@@ -199,7 +199,7 @@ module Actions
         location = obj[:location]
         asset = obj[:asset]
         barcode = obj[:barcode]
-        if (asset.nil? && !barcode.nil? && !barcode.starts_with?('F'))
+        if asset.nil? && !barcode.nil? && !barcode.starts_with?('F')
           error_locations.push(location)
           error_messages.push("Barcode #{barcode} scanned at #{location} is not in the database")
         end
@@ -219,8 +219,8 @@ module Actions
         list_layout.each do |obj|
           next unless obj[:asset]
 
-          if (tube_location == obj[:location])
-            if (obj[:asset] != tube)
+          if tube_location == obj[:location]
+            if obj[:asset] != tube
               error_messages.push(
                 "Tube #{obj[:asset].barcode} cannot be put at location #{obj[:location]} because the tube #{tube.barcode || tube.uuid} is there"
               )

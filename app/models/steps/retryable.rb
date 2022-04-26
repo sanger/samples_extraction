@@ -1,6 +1,6 @@
 module Steps::Retryable # rubocop:todo Style/Documentation
   def on_retrying
-    delay(queue: 'steps').on_retry if ((state == 'retrying') && (state_was == 'error'))
+    delay(queue: 'steps').on_retry if (state == 'retrying') && (state_was == 'error')
   end
 
   def on_retry

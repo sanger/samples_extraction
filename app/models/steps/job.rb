@@ -44,6 +44,6 @@ module Steps::Job # rubocop:todo Style/Documentation
       complete! if running?
     end
   ensure
-    fail! unless (stopped? || ignored? || completed?)
+    fail! unless stopped? || ignored? || completed?
   end
 end

@@ -123,7 +123,7 @@ class ChangesSupport::DisjointList # rubocop:todo Style/Documentation
 
   def merge(disjoint_list)
     disjoint_list.location_for_unique_id.keys.each do |key|
-      _disable(key) if (!disjoint_list.include_key?(key) || disjoint_list.disabled_key?(key))
+      _disable(key) if !disjoint_list.include_key?(key) || disjoint_list.disabled_key?(key)
     end
     disjoint_list.to_a.each { |val| add(val) }
     self
@@ -147,7 +147,7 @@ class ChangesSupport::DisjointList # rubocop:todo Style/Documentation
 
   def _synchronize_with_list(disjoint_list)
     disjoint_list.location_for_unique_id.keys.each do |key|
-      unless (location_for_unique_id[key] == DISABLED_NAME)
+      unless location_for_unique_id[key] == DISABLED_NAME
         # If my disjoint lists do not have the element
         if location_for_unique_id[key].nil?
           location_for_unique_id[key] = disjoint_list.location_for_unique_id[key]
@@ -176,9 +176,9 @@ class ChangesSupport::DisjointList # rubocop:todo Style/Documentation
     elsif element.try(:id)
       sum_function_for("#{element.class}_#{element.id}")
     elsif element.kind_of?(Hash)
-      if (element.has_key?(:uuid) && (!element[:uuid].nil?))
+      if element.has_key?(:uuid) && (!element[:uuid].nil?)
         sum_function_for(element[:uuid])
-      elsif (element.has_key?(:predicate))
+      elsif element.has_key?(:predicate)
         _unique_id_for_fact(element)
       else
         sum_function_for(

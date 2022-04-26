@@ -60,10 +60,10 @@ class Condition < ApplicationRecord # rubocop:todo Style/Documentation
   end
 
   def runtime_compatible_with?(asset, related_asset)
-    return asset == related_asset if (predicate == 'equalTo')
-    return asset != related_asset if (predicate == 'notEqualTo')
-    return asset.facts.with_predicate(object).count == 0 if (predicate == 'hasNotPredicate')
-    return asset.facts.with_predicate(object).count == 0 if (predicate == 'sum')
+    return asset == related_asset if predicate == 'equalTo'
+    return asset != related_asset if predicate == 'notEqualTo'
+    return asset.facts.with_predicate(object).count == 0 if predicate == 'hasNotPredicate'
+    return asset.facts.with_predicate(object).count == 0 if predicate == 'sum'
   end
 
   def is_runtime_evaluable_condition?
@@ -78,7 +78,7 @@ class Condition < ApplicationRecord # rubocop:todo Style/Documentation
     asset.facts.any? do |fact|
       # Either objects are equal, or both of them are relations to something. We
       # do not check the relations values, because we consider them as wildcards
-      if (object_condition_group_id.nil? || (fact.respond_to?(:object_asset_id) && fact.object_asset_id.nil?))
+      if object_condition_group_id.nil? || (fact.respond_to?(:object_asset_id) && fact.object_asset_id.nil?)
         ((fact.predicate == predicate) && (fact.object == object))
       else
         check_related_condition_group(

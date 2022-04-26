@@ -1,4 +1,4 @@
-module Printables::Group
+module Printables::Group # rubocop:todo Style/Documentation
   def classify_for_printing(printer_config)
     template_cache = Hash.new { |store, types| store[types] = LabelTemplate.for_type(*types).external_id }
 

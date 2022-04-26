@@ -147,11 +147,11 @@ class FactChanges # rubocop:todo Style/Documentation
   end
 
   def add_remote(s, p, o, options = {})
-    add(s, p, o, options.merge({ is_remote?: true })) if (s && p && o)
+    add(s, p, o, options.merge({ is_remote?: true })) if s && p && o
   end
 
   def replace_remote(asset, predicate, object, options = {})
-    if (asset && predicate && object)
+    if asset && predicate && object
       asset
         .facts
         .with_predicate(predicate)
@@ -190,7 +190,7 @@ class FactChanges # rubocop:todo Style/Documentation
   end
 
   def merge(fact_changes)
-    if (fact_changes)
+    if fact_changes
       # To keep track of already added object after merging with another fact changes object
       # _add_already_added_from_other_object(fact_changes)
       errors_added.concat(fact_changes.errors_added)
@@ -361,7 +361,7 @@ class FactChanges # rubocop:todo Style/Documentation
 
   def add_assets(list)
     list.each do |elem|
-      if ((elem.length > 0) && elem[1].kind_of?(Array))
+      if (elem.length > 0) && elem[1].kind_of?(Array)
         asset_group = elem[0].nil? ? nil : validate_instances(find_asset_group(elem[0]))
         asset_ids = elem[1]
       else
@@ -376,7 +376,7 @@ class FactChanges # rubocop:todo Style/Documentation
 
   def remove_assets(list)
     list.each do |elem|
-      if ((elem.length > 0) && elem[1].kind_of?(Array))
+      if (elem.length > 0) && elem[1].kind_of?(Array)
         asset_group = elem[0].nil? ? nil : validate_instances(find_asset_group(elem[0]))
         asset_ids = elem[1]
       else
@@ -446,7 +446,7 @@ class FactChanges # rubocop:todo Style/Documentation
   def _build_barcode(asset, i)
     barcode_type = values_for_predicate(asset, 'barcodeType').first
 
-    unless (barcode_type == 'NoBarcode')
+    unless barcode_type == 'NoBarcode'
       barcode = values_for_predicate(asset, 'barcode').first
       if barcode
         asset.barcode = barcode

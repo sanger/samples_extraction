@@ -26,7 +26,7 @@ RSpec.describe 'BackgroundTasks' do
     it 'connects each step with the next one' do
       activity.create_background_steps(list_of_tasks, {})
       steps = Step.all
-      steps.each_with_index { |s, idx| expect(s.next_step).to eq(steps[idx + 1]) if ((idx + 1) < steps.count) }
+      steps.each_with_index { |s, idx| expect(s.next_step).to eq(steps[idx + 1]) if (idx + 1) < steps.count }
     end
   end
 

@@ -14,9 +14,9 @@ class Action < ApplicationRecord # rubocop:todo Style/Documentation
   # and the list of assets classified into 2 groups: sources or destinations, this method
   # will generate a list of pairs [source, destination] that can be connected.
   def each_connected_asset(sources, destinations, wildcard_values = {})
-    unless (wildcard_values.nil? || wildcard_values.empty?)
-      if (object_condition_group)
-        if (wildcard_values[object_condition_group.id])
+    unless wildcard_values.nil? || wildcard_values.empty?
+      if object_condition_group
+        if wildcard_values[object_condition_group.id]
           return(
             [
               sources.each_with_index do |source, index|
@@ -24,7 +24,7 @@ class Action < ApplicationRecord # rubocop:todo Style/Documentation
                   yield source, wildcard_values[object_condition_group.id][source.id].first
                 else
                   values_for_wildcard = wildcard_values[object_condition_group.id].values.flatten
-                  if (values_for_wildcard.length == 1)
+                  if values_for_wildcard.length == 1
                     yield source, values_for_wildcard[0]
                   else
                     yield source, values_for_wildcard[index]
@@ -39,8 +39,8 @@ class Action < ApplicationRecord # rubocop:todo Style/Documentation
             [
               sources.each do |s|
                 destinations.each do |d|
-                  if (value_for[s.id] && value_for[d.id])
-                    yield s, d if (value_for[s.id] == value_for[d.id])
+                  if value_for[s.id] && value_for[d.id]
+                    yield s, d if value_for[s.id] == value_for[d.id]
                   else
                     yield s, d
                   end
@@ -73,7 +73,7 @@ class Action < ApplicationRecord # rubocop:todo Style/Documentation
   def run(asset_group, wildcard_values = {})
     FactChanges.new.tap do |updates|
       if action_type == 'createAsset'
-        if (asset_group.classified_by_condition_group(subject_condition_group).length > 0)
+        if asset_group.classified_by_condition_group(subject_condition_group).length > 0
           assets = asset_group.classified_by_condition_group(subject_condition_group)
         else
           assets = Array.new(num_assets_to_create(asset_group)) { Asset.new }

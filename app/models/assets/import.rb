@@ -249,7 +249,7 @@ module Assets::Import # rubocop:todo Style/Documentation
         fact_changes.replace_remote(local_well, 'location', well.position['name'])
         fact_changes.replace_remote(local_well, 'parent', asset)
 
-        if (well.try(:aliquots)&.first&.sample&.sample_metadata&.supplier_name)
+        if well.try(:aliquots)&.first&.sample&.sample_metadata&.supplier_name
           annotate_container(local_well, well, fact_changes)
         end
       end
@@ -272,7 +272,7 @@ module Assets::Import # rubocop:todo Style/Documentation
         fact_changes.replace_remote(local_tube, 'a', 'SampleTube')
         fact_changes.replace_remote(local_tube, 'location', racked_tube.coordinate)
         fact_changes.replace_remote(local_tube, 'parent', asset)
-        if (remote_tube.try(:aliquots)&.first&.sample&.sample_metadata&.supplier_name)
+        if remote_tube.try(:aliquots)&.first&.sample&.sample_metadata&.supplier_name
           annotate_container(local_tube, remote_tube, fact_changes)
         end
       end

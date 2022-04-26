@@ -53,7 +53,7 @@ class TransferTubesToTubeRackByPosition # rubocop:todo Style/Documentation
     facts_for_wells = Fact.where(asset_id: wells_for(rack).map(&:id))
     previous_tubes_ids = facts_for_wells.with_predicate('transferredFrom').map(&:object_asset_id)
     tubes_already_ids = previous_tubes_ids & tubes.map(&:id)
-    if (tubes_already_ids.length > 0)
+    if tubes_already_ids.length > 0
       tubes_already = Asset.where(id: tubes_already_ids).map(&:barcode)
       updates.set_errors(["This rack already contains the tubes #{tubes_already}"])
       return false
@@ -67,7 +67,7 @@ class TransferTubesToTubeRackByPosition # rubocop:todo Style/Documentation
       updates.set_errors(['Not all tubes have an aliquot associated'])
       return false
     end
-    unless (aliquot_facts.map(&:object).uniq.size == 1)
+    unless aliquot_facts.map(&:object).uniq.size == 1
       updates.set_errors(['Not all tubes have the same aliquot'])
       return false
     end
@@ -137,9 +137,9 @@ class TransferTubesToTubeRackByPosition # rubocop:todo Style/Documentation
           return updates unless validate_all_tubes_have_aliquot(tubes, updates)
           return updates unless validate_same_aliquot_between_tubes_and_destination_plate(tubes, rack, updates)
 
-          if (((aliquot_types.uniq.length) == 1) && (aliquot_types.uniq.first == 'DNA'))
+          if ((aliquot_types.uniq.length) == 1) && (aliquot_types.uniq.first == 'DNA')
             purpose_name = 'DNA Stock Plate'
-          elsif (((aliquot_types.uniq.length) == 1) && (aliquot_types.uniq.first == 'RNA'))
+          elsif ((aliquot_types.uniq.length) == 1) && (aliquot_types.uniq.first == 'RNA')
             purpose_name = 'RNA Stock Plate'
           else
             purpose_name = 'Stock Plate'

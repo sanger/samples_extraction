@@ -3,14 +3,14 @@ module Actions
     def transfer_tubes(asset, modified_asset)
       FactChanges.new.tap do |updates|
         %w[study_uuid sample_uuid sanger_sample_name supplier_sample_name sample_common_name].each do |field|
-          if (asset.has_predicate?(field))
+          if asset.has_predicate?(field)
             updates.add(modified_asset, field, asset.facts.with_predicate(field).first.object)
           end
         end
-        if (asset.has_predicate?('sample_tube'))
+        if asset.has_predicate?('sample_tube')
           updates.add(modified_asset, 'sample_tube', asset.facts.with_predicate('sample_tube').first.object_asset)
         end
-        if (asset.has_predicate?('study_name'))
+        if asset.has_predicate?('study_name')
           updates.add(modified_asset, 'study_name', asset.facts.with_predicate('study_name').first.object)
         end
 
@@ -27,7 +27,7 @@ module Actions
             .with_predicate('aliquotType')
             .each { |aliquot_fact| updates.add(modified_asset, 'aliquotType', aliquot_fact.object) }
         end
-        if (asset.has_predicate?('volume') && asset.has_predicate?('transferVolume'))
+        if asset.has_predicate?('volume') && asset.has_predicate?('transferVolume')
           transferredVolume = asset.facts.with_predicate('transferVolume').first.object
           actualVolume = asset.facts.with_predicate('volume').first.object
           nextVolume = (actualVolume.to_i - transferredVolume.to_i)

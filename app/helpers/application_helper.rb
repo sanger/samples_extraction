@@ -94,7 +94,7 @@ module ApplicationHelper # rubocop:todo Style/Documentation
       .map(&:object_asset)
       .reduce({}) do |memo, asset|
         location = TokenUtil.unpad_location(asset.first_value_for('location'))
-        if (location && (asset.has_sample? || !asset.barcode.nil?))
+        if location && (asset.has_sample? || !asset.barcode.nil?)
           if asset.has_sample?
             aliquotType = asset.first_value_for('aliquotType') || unknown_aliquot_type
           else

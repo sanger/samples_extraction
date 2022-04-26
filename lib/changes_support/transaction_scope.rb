@@ -37,7 +37,7 @@ module ChangesSupport::TransactionScope # rubocop:todo Style/Documentation
     end
 
     def _result_set_from_database(opts)
-      if (result_set.respond_to?(:superclass) && (result_set.superclass == ApplicationRecord))
+      if result_set.respond_to?(:superclass) && (result_set.superclass == ApplicationRecord)
         @result_set = result_set.where(opts)
       else
         @result_set = result_set.to_a.concat(@klass.where(opts))
@@ -46,7 +46,7 @@ module ChangesSupport::TransactionScope # rubocop:todo Style/Documentation
 
     # Filters out assets that do not complie to the conditions expressed in the opts anymore
     def _filter_removed_entries(opts)
-      if (@klass == Asset)
+      if @klass == Asset
         if @updates.to_h[:delete_assets]
           selected_elements = result_set.to_a.select { |a| @updates.to_h[:delete_assets].include?(a.uuid) }
           @result_set = result_set.to_a - selected_elements
@@ -124,7 +124,7 @@ module ChangesSupport::TransactionScope # rubocop:todo Style/Documentation
       _disjoint_list_for(:create).select do |a|
         opts.all? do |k, v|
           model_name = k.to_s.singularize.to_sym
-          if (_disjoint_lists.has_key?(model_name) && (v.kind_of?(Hash)))
+          if _disjoint_lists.has_key?(model_name) && (v.kind_of?(Hash))
             class_name = model_name.to_s.classify.constantize
             accessor = _get_or_build_accessor(class_name)
             accessor.exists?(opts[k].merge(_join_condition(a)))
@@ -132,11 +132,11 @@ module ChangesSupport::TransactionScope # rubocop:todo Style/Documentation
             k_id = k.to_s.concat('_id').to_sym
             if a.respond_to?(k)
               a.send(k) == v
-            elsif (a.respond_to?(k_id) && (k_id != :object_id))
+            elsif a.respond_to?(k_id) && (k_id != :object_id)
               a.send(k_id)
-            elsif (a.kind_of?(Hash) && a.has_key?(k))
+            elsif a.kind_of?(Hash) && a.has_key?(k)
               a[k] == v
-            elsif (a.kind_of?(Hash) && a.has_key?(k_id))
+            elsif a.kind_of?(Hash) && a.has_key?(k_id)
               a[k_id] == v.id
             else
               false

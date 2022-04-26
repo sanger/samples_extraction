@@ -26,7 +26,7 @@ class AssetGroup < ApplicationRecord # rubocop:todo Style/Documentation
     removed_assets = self.assets - assets_to_update
     added_assets = assets_to_update - self.assets
 
-    if ((removed_assets.length > 0) || (added_assets.length > 0))
+    if (removed_assets.length > 0) || (added_assets.length > 0)
       updates = FactChanges.new
       updates.add_assets([[self, added_assets]]) if added_assets
       updates.remove_assets([[self, removed_assets]]) if removed_assets
@@ -53,7 +53,7 @@ class AssetGroup < ApplicationRecord # rubocop:todo Style/Documentation
   end
 
   def position_for_asset(asset)
-    assets.each_with_index { |a, pos| return pos if (asset.id == a.id) }
+    assets.each_with_index { |a, pos| return pos if asset.id == a.id }
     return -1
   end
 
@@ -63,7 +63,7 @@ class AssetGroup < ApplicationRecord # rubocop:todo Style/Documentation
 
   def classified_by_condition_group(condition_group)
     @classification ||= {}
-    if (condition_group.conditions.length == 0)
+    if condition_group.conditions.length == 0
       @classification[condition_group.id] ||= []
     else
       @classification[condition_group.id] ||= condition_group.select_compatible_assets(assets)

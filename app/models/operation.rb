@@ -25,9 +25,9 @@ class Operation < ApplicationRecord # rubocop:todo Style/Documentation
   end
 
   def action_type_for_option(option)
-    if (option == :remake)
+    if option == :remake
       action_type.underscore.to_sym
-    elsif (option == :cancel)
+    elsif option == :cancel
       opposites[action_type.underscore.to_sym]
     end
   end
@@ -35,21 +35,21 @@ class Operation < ApplicationRecord # rubocop:todo Style/Documentation
   def generate_changes_for(option_name, updates = nil)
     updates ||= FactChanges.new
     type = action_type_for_option(option_name)
-    if (type == :add_facts)
+    if type == :add_facts
       updates.add(self.asset, self.predicate, object_value)
-    elsif (type == :remove_facts)
+    elsif type == :remove_facts
       updates.remove_where(self.asset, self.predicate, object_value)
-    elsif (type == :create_assets)
+    elsif type == :create_assets
       updates.create_assets([object])
-    elsif (type == :delete_assets)
+    elsif type == :delete_assets
       updates.delete_assets([object])
-    elsif (type == :add_assets)
+    elsif type == :add_assets
       updates.add_assets([[AssetGroup.find_by(uuid: object), [self.asset]]])
-    elsif (type == :remove_assets)
+    elsif type == :remove_assets
       updates.remove_assets([[AssetGroup.find_by(uuid: object), [self.asset]]])
-    elsif (type == :create_asset_groups)
+    elsif type == :create_asset_groups
       updates.create_asset_groups([object])
-    elsif (type == :delete_asset_groups)
+    elsif type == :delete_asset_groups
       updates.delete_asset_groups([object])
     end
     updates

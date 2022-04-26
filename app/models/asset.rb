@@ -165,7 +165,7 @@ class Asset < ApplicationRecord # rubocop:todo Style/Documentation
     if has_predicate?('study_name')
       return facts.with_predicate('study_name').first.object
     else
-      if (kind_of_plate?)
+      if kind_of_plate?
         tubes = facts.with_predicate('contains').map(&:object_asset)
         if tubes.length > 0
           if tubes.first.facts.with_predicate('study_name').length > 0
@@ -193,7 +193,7 @@ class Asset < ApplicationRecord # rubocop:todo Style/Documentation
   def printable_object
     return nil if barcode.nil?
 
-    if (kind_of_plate?)
+    if kind_of_plate?
       return(
         {
           label: {

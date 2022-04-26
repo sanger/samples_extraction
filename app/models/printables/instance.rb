@@ -1,4 +1,4 @@
-module Printables::Instance
+module Printables::Instance # rubocop:todo Style/Documentation
   #
   # Print labels for the current Printables::Instance (eg. Asset) using the
   # default printers defined in printer_config

@@ -19,7 +19,7 @@ class ConditionGroup < ApplicationRecord # rubocop:todo Style/Documentation
     assets = [assets].flatten
     return true if is_wildcard?
 
-    if ((cardinality) && (cardinality > 0))
+    if (cardinality) && (cardinality > 0)
       return false if assets.kind_of?(Array) && (assets.length > cardinality)
     end
     assets.all? do |asset|

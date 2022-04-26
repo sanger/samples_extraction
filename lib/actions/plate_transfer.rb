@@ -17,7 +17,7 @@ module Actions
       aliquots = plate.facts.with_predicate('aliquotType').map(&:object).uniq
       return true if aliquots.empty?
 
-      if ((aliquots.size != 1) || (aliquots.first != aliquotType))
+      if (aliquots.size != 1) || (aliquots.first != aliquotType)
         updates.set_errors(
           ["The plate #{plate.barcode} contains aliquot #{aliquots.first} which is not compatible with #{aliquotType}"]
         )
@@ -30,7 +30,7 @@ module Actions
       aliquots = tube.facts.with_predicate('aliquotType').map(&:object).uniq
       return true if aliquots.empty?
 
-      if ((aliquots.size != 1) || (aliquots.first != aliquotType))
+      if (aliquots.size != 1) || (aliquots.first != aliquotType)
         updates.set_errors(
           ["The tube #{tube.barcode} contains aliquot #{aliquots.first} which is not compatible with #{aliquotType}"]
         )
