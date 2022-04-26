@@ -24,7 +24,7 @@ RSpec.describe Printables::Group do
       it 'classifies all assets to use the right printer' do
         expect(group.classify_for_printing(config)).to eq(
           {
-            'printer1' => { template1 => [asset1, asset2] }
+            ['printer1', template1.external_id] => [asset1, asset2]
           }
         )
       end
@@ -57,8 +57,8 @@ RSpec.describe Printables::Group do
       it 'classifies all assets to use the right printer' do
         expect(group.classify_for_printing(config)).to eq(
           {
-            'printer1' => { template1 => [asset1] },
-            'printer2' => { template2 => [asset2] }
+            ['printer1', template1.external_id] => [asset1],
+            ['printer2', template2.external_id] => [asset2]
           }
         )
       end
@@ -90,7 +90,7 @@ RSpec.describe Printables::Group do
       let(:printer2) { create :printer, name: 'printer2' }
 
       it 'raises error' do
-        expect { group.classify_for_printing(config) }.to raise_error
+        expect { group.classify_for_printing(config) }.to raise_error RuntimeError, "Could not find any label template for type 'Plate'. Please contact LIMS support to fix the problem"
       end
     end
 
@@ -120,7 +120,7 @@ RSpec.describe Printables::Group do
       let(:printer2) { create :printer, name: 'printer2' }
 
       it 'raises error' do
-        expect { group.classify_for_printing(config) }.to raise_error
+        expect { group.classify_for_printing(config) }.to raise_error RuntimeError, 'There is no defined printer for asset with type Plate'
       end
     end
   end
@@ -149,7 +149,7 @@ RSpec.describe Printables::Group do
     end
 
     it 'sends the right message to PMB' do
-      body_print = assets.filter_map { |a| a.printable_object('user1') }.reverse
+      body_print = assets.filter_map(&:printable_object).reverse
 
       expect(PMB::PrintJob).to receive(:new).with(
         printer_name: 'printer1',
@@ -163,7 +163,7 @@ RSpec.describe Printables::Group do
     context 'when an asset does not have barcode' do
       let(:asset1) { create(:asset, facts: props1, barcode: nil) }
       it 'does not print it' do
-        body_print = [asset2.printable_object('user1')]
+        body_print = [asset2.printable_object]
 
         expect(PMB::PrintJob).to receive(:new).with(
           printer_name: 'printer1',

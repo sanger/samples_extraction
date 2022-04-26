@@ -16,27 +16,27 @@ RSpec.describe LabelTemplate, type: :model do
     end
     context 'when obtaining a template' do
       it 'returns a valid template for each case' do
-        expect(LabelTemplate.for_type('Tube', 'ean13')).to eq([templates[3], templates[5]])
-        expect(LabelTemplate.for_type('Tube', 'code128')).to eq([templates[3]])
-        expect(LabelTemplate.for_type('Tube', 'code39')).to eq([templates[5]])
-        expect(LabelTemplate.for_type('Plate', 'ean13')).to eq([templates[1], templates[4]])
-        expect(LabelTemplate.for_type('Plate', 'code128')).to eq([templates[1]])
-        expect(LabelTemplate.for_type('Plate', 'code39')).to eq([templates[4]])
+        expect(LabelTemplate.for_type('Tube', 'ean13')).to eq(templates[3])
+        expect(LabelTemplate.for_type('Tube', 'code128')).to eq(templates[3])
+        expect(LabelTemplate.for_type('Tube', 'code39')).to eq(templates[5])
+        expect(LabelTemplate.for_type('Plate', 'ean13')).to eq(templates[1])
+        expect(LabelTemplate.for_type('Plate', 'code128')).to eq(templates[1])
+        expect(LabelTemplate.for_type('Plate', 'code39')).to eq(templates[4])
       end
     end
     context 'when using the wrong template' do
       it 'raise error' do
-        expect { LabelTemplate.for_type('Bubidibu', 'ean13') }.to raise_error
+        expect { LabelTemplate.for_type('Bubidibu', 'ean13') }.to raise_error RuntimeError, "Could not find any label template for type 'Bubidibu'. Please contact LIMS support to fix the problem"
       end
     end
     context 'when using the template of an alias labware type' do
       it 'returns a valid template for each case' do
-        expect(LabelTemplate.for_type('SampleTube', 'ean13')).to eq([templates[3], templates[5]])
-        expect(LabelTemplate.for_type('SampleTube', 'code128')).to eq([templates[3]])
-        expect(LabelTemplate.for_type('SampleTube', 'code39')).to eq([templates[5]])
-        expect(LabelTemplate.for_type('TubeRack', 'ean13')).to eq([templates[1], templates[4]])
-        expect(LabelTemplate.for_type('TubeRack', 'code128')).to eq([templates[1]])
-        expect(LabelTemplate.for_type('TubeRack', 'code39')).to eq([templates[4]])
+        expect(LabelTemplate.for_type('SampleTube', 'ean13')).to eq(templates[3])
+        expect(LabelTemplate.for_type('SampleTube', 'code128')).to eq(templates[3])
+        expect(LabelTemplate.for_type('SampleTube', 'code39')).to eq(templates[5])
+        expect(LabelTemplate.for_type('TubeRack', 'ean13')).to eq(templates[1])
+        expect(LabelTemplate.for_type('TubeRack', 'code128')).to eq(templates[1])
+        expect(LabelTemplate.for_type('TubeRack', 'code39')).to eq(templates[4])
       end
     end
   end

@@ -197,7 +197,7 @@ class Asset < ApplicationRecord
     barcode
   end
 
-  def printable_object(username = 'unknown')
+  def printable_object
     return nil if barcode.nil?
 
     if (kind_of_plate?)

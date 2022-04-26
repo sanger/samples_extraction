@@ -12,14 +12,11 @@ class LabelTemplate < ApplicationRecord
 
     templates = where(template_type: type)
 
-    unless templates.count.positive?
-      raise %(
-        Could not find any label template for type \'#{type}\'. Please contact LIMS support to fix the problem
-      )
+    if templates.blank?
+      raise "Could not find any label template for type \'#{type}\'. "\
+            'Please contact LIMS support to fix the problem'
     end
 
-    templates_by_barcodetype = templates.select { |t| t.name.include?(barcodetype) }
-
-    templates_by_barcodetype.presence || templates
+    templates.detect { |t| t.name.include?(barcodetype) } || templates.first
   end
 end
