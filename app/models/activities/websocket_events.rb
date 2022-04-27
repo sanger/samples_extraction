@@ -15,6 +15,10 @@ module Activities::WebsocketEvents # rubocop:todo Style/Documentation
     ActionCable.server.broadcast(stream_id, data)
   end
 
+  def report_error(message)
+    send_wss_event({ error: { type: 'danger', msg: message } })
+  end
+
   def stream_id
     "activity_#{id}"
   end

@@ -43,21 +43,18 @@ class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documenta
     begin
       uuid_assets = Asset.where(uuid: asset_uuids).to_a
       barcode_assets = Asset.find_or_import_assets_with_barcodes(asset_barcodes)
-
-      # Maintaining existing behaviour: register previously unknown fluidx barcodes
-      fluidx_barcodes = asset_barcodes.select { |bc| TokenUtil.is_valid_fluidx_barcode?(bc) }
-      missing_barcodes = fluidx_barcodes - barcode_assets.map(&:barcode)
       asset_group.update_with_assets(uuid_assets + barcode_assets)
 
+      missing_barcodes = asset_barcodes - barcode_assets.map(&:barcode)
+
       if missing_barcodes.present?
-        asset_group.activity.send_wss_event(
-          { error: { type: 'danger', msg: "Could not find barcodes: #{missing_barcodes.join(', ')}" } }
-        )
+        asset_group.activity.report_error("Could not find barcodes: #{missing_barcodes.to_sentence}")
       end
     rescue Errno::ECONNREFUSED => e
-      asset_group.activity.send_wss_event({ error: { type: 'danger', msg: 'Cannot connect with sequencescape' } })
+      asset_group.activity.report_error('Cannot connect with sequencescape')
     rescue StandardError => e
-      asset_group.activity.send_wss_event({ error: { type: 'danger', msg: e.message } })
+      logger.error(e.backtrace.join("\n"))
+      asset_group.activity.report_error(e.message)
     end
   end
 

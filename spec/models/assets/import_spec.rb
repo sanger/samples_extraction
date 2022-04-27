@@ -439,7 +439,7 @@ RSpec.describe 'Assets::Import' do
 
   describe '#find_or_import_assets_with_barcodes' do
     let(:local_barcode) { generate(:barcode) }
-    let(:remote_barcode) { generate(:barcode) }
+    let(:remote_barcode) { 'FD04797704' }
     let(:non_existant_barcode) { 'NOT_FOUND' }
     let(:remote_labware) do
       SequencescapeClientV2::Labware.new(
@@ -451,23 +451,16 @@ RSpec.describe 'Assets::Import' do
       )
     end
     let(:full_remote_labware) do
-      build_remote_tube(
-        barcode: generate(:barcode),
-        uuid: remote_labware.uuid,
-        labware_barcode: remote_labware.labware_barcode
-      )
+      build_remote_tube(barcode: generate(:barcode), uuid: remote_labware.uuid, labware_barcode: remote_barcode)
     end
     let(:local_asset) { Asset.create!(barcode: local_barcode) }
 
     context 'a tube and an unknown barcode' do
       before do
         local_asset
-        expect(SequencescapeClient).to receive(:labware)
-          .with(barcode: [remote_barcode, non_existant_barcode])
-          .and_return([remote_labware])
-
-        # We still need this as we're currently immediately refreshing the resource from SS
-        allow(SequencescapeClient).to receive(:find_by_uuid).with(remote_labware.uuid).and_return(full_remote_labware)
+        stub_request(:get, %r{api/v2/labware}).to_return(
+          File.new('./spec/support/responses/sequencescape/v2/labware_tube_response.txt')
+        )
       end
 
       subject(:find_or_import_assets_with_barcodes) do
@@ -491,6 +484,20 @@ RSpec.describe 'Assets::Import' do
 
       it 'returns a newly registered remote labware' do
         expect(find_or_import_assets_with_barcodes.pluck(:barcode)).to include(remote_barcode)
+      end
+
+      it 'registers facts on the remote asset', :aggregate_failures do
+        subject
+        remote_facts = Asset.find_by(barcode: remote_barcode).facts.pluck(:predicate, :object)
+
+        expect(remote_facts).to include(
+          %w[a SampleTube],
+          %w[is NotStarted],
+          ['sample_tube', nil],
+          %w[sanger_sample_id 6197STDY8180517],
+          %w[sample_uuid "1ffb862a-c60c-11ec-a4d0-fa163e1e3ca9"], # rubocop:disable Lint/PercentStringArray
+          %w[sanger_sample_name 6197STDY8180517]
+        )
       end
     end
 

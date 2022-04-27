@@ -29,6 +29,10 @@ module SequencescapeClientV2
       type == 'plates' ? receptacles : []
     end
 
+    def aliquots
+      type == 'tubes' ? receptacles.flat_map(&:aliquots) : []
+    end
+
     def racked_tubes
       if type == 'tube_racks'
         SequencescapeClientV2::TubeRack
@@ -64,14 +68,10 @@ module SequencescapeClientV2
 
   class SequencescapeClientV2::Well < SequencescapeClientV2::Model
     has_many :aliquots
-    has_many :studies, through: :aliquot
-    has_many :samples, through: :aliquot
   end
 
   class SequencescapeClientV2::Tube < SequencescapeClientV2::Model
     has_many :aliquots
-    has_many :studies, through: :aliquot
-    has_many :samples, through: :aliquot
   end
 
   class SequencescapeClientV2::RackedTube < SequencescapeClientV2::Model
