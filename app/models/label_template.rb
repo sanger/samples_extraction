@@ -10,8 +10,8 @@ class LabelTemplate < ApplicationRecord # rubocop:todo Style/Documentation
     templates = where(template_type: type)
 
     if templates.blank?
-      raise "Could not find any label template for type \'#{type}\'. "\
-            'Please contact LIMS support to fix the problem'
+      raise "Could not find any label template for type \'#{type}\'. " \
+              'Please contact LIMS support to fix the problem'
     end
 
     templates.detect { |t| t.name.include?(barcodetype) } || templates.first

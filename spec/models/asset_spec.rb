@@ -2,12 +2,7 @@ require 'rails_helper'
 RSpec.describe Asset, type: :model do
   context '#class_type' do
     context 'when having several valid types' do
-      let(:props) do
-        [
-          create(:fact, predicate: 'a', object: 'Tube'),
-          create(:fact, predicate: 'a', object: 'Well')
-        ]
-      end
+      let(:props) { [create(:fact, predicate: 'a', object: 'Tube'), create(:fact, predicate: 'a', object: 'Well')] }
       let(:asset) { create :asset, facts: props }
 
       it 'returns the right prioritised class type' do
@@ -16,10 +11,7 @@ RSpec.describe Asset, type: :model do
     end
     context 'when not having any valid types' do
       let(:props) do
-        [
-          create(:fact, predicate: 'a', object: 'Something'),
-          create(:fact, predicate: 'a', object: 'Another')
-        ]
+        [create(:fact, predicate: 'a', object: 'Something'), create(:fact, predicate: 'a', object: 'Another')]
       end
       let(:asset) { create :asset, facts: props }
 
