@@ -266,7 +266,6 @@ GEM
       sxp (~> 1.0)
     rdf-xsd (3.0.1)
       rdf (~> 3.0)
-    rdoc (6.1.1)
     react-rails (2.5.0)
       babel-transpiler (>= 0.7.0)
       connection_pool
@@ -337,8 +336,6 @@ GEM
     sassc (2.0.1)
       ffi (~> 1.9)
       rake
-    sdoc (1.0.0)
-      rdoc (>= 5.0)
     semantic_range (3.0.0)
     sequencescape-client-api (2.0.0)
       activemodel (>= 5.0.0)
@@ -411,12 +408,15 @@ GEM
       semantic_range (>= 2.3.0)
     webpacker-react (0.3.2)
       webpacker
+    webrick (1.7.0)
     websocket-driver (0.7.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     will_paginate (3.1.7)
     will_paginate-bootstrap (1.0.2)
       will_paginate (>= 3.0.3)
+    yard (0.9.27)
+      webrick (~> 1.7.0)
 
 PLATFORMS
   ruby
@@ -469,7 +469,6 @@ DEPENDENCIES
   sanger_barcode_format!
   sanger_warren
   sass-rails
-  sdoc
   sequencescape-client-api
   shoulda-matchers
   simplecov
@@ -483,6 +482,7 @@ DEPENDENCIES
   webpacker-react
   will_paginate
   will_paginate-bootstrap
+  yard
 
 BUNDLED WITH
    2.2.26
