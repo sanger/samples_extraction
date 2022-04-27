@@ -59,7 +59,7 @@ gem 'sequencescape-client-api', require: 'sequencescape'
 gem 'rb-readline'
 
 # Docs
-gem 'sdoc' # , '~> 0.4.0', group: :doc
+gem 'yard'
 
 group :development, :test do
   # Call 'pry' anywhere in the code to stop execution and get a debugger console
