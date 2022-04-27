@@ -31,7 +31,8 @@ RSpec.describe 'Steps::Deprecatable' do
 
     it 'does not deprecate anything if is completed' do
       steps = create_list(:step, 10, state: Step::STATE_COMPLETE, activity: activity)
-      step = create(:step, activity: activity, state: Step::STATE_PENDING, asset_group: asset_group, step_type: step_type)
+      step =
+        create(:step, activity: activity, state: Step::STATE_PENDING, asset_group: asset_group, step_type: step_type)
 
       expect(activity.steps.count).to eq(11)
       step.run!
@@ -52,7 +53,15 @@ RSpec.describe 'Steps::Deprecatable' do
     end
 
     it 'does not deprecate any steps created before me that are in my chain for next_step' do
-      steps = create_list(:step, 10, state: Step::STATE_STOPPED, activity: activity, asset_group: asset_group, step_type: step_type)
+      steps =
+        create_list(
+          :step,
+          10,
+          state: Step::STATE_STOPPED,
+          activity: activity,
+          asset_group: asset_group,
+          step_type: step_type
+        )
       step = create(:step, activity: activity, asset_group: asset_group, step_type: step_type, next_step: steps.last)
 
       expect(activity.steps.count).to eq(11)

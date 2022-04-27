@@ -25,8 +25,12 @@ RSpec.describe LabelTemplate, type: :model do
       end
     end
     context 'when using the wrong template' do
+      let(:message) do
+        "Could not find any label template for type 'Bubidibu'. Please contact LIMS support to fix the problem"
+      end
+
       it 'raise error' do
-        expect { LabelTemplate.for_type('Bubidibu', 'ean13') }.to raise_error RuntimeError, "Could not find any label template for type 'Bubidibu'. Please contact LIMS support to fix the problem"
+        expect { LabelTemplate.for_type('Bubidibu', 'ean13') }.to raise_error RuntimeError, message
       end
     end
     context 'when using the template of an alias labware type' do

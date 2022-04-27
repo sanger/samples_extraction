@@ -1,17 +1,18 @@
-class AssetGroup < ApplicationRecord
+class AssetGroup < ApplicationRecord # rubocop:todo Style/Documentation
   include Uuidable
 
   has_many :asset_groups_assets, dependent: :destroy
   has_many :assets, through: :asset_groups_assets
+
   # has_and_belongs_to_many :assets, ->() {distinct}
   has_many :steps
   has_many :uploaded_files, through: :assets
 
   has_one :activity, dependent: :nullify
-  belongs_to :activity_owner, :class_name => 'Activity'
-  belongs_to :condition_group, :class_name => 'ConditionGroup'
+  belongs_to :activity_owner, class_name: 'Activity'
+  belongs_to :condition_group, class_name: 'ConditionGroup'
 
-  alias_method :activity, :activity_owner
+  alias activity activity_owner
 
   include Printables::Group
 
@@ -25,7 +26,7 @@ class AssetGroup < ApplicationRecord
     removed_assets = self.assets - assets_to_update
     added_assets = assets_to_update - self.assets
 
-    if ((removed_assets.length > 0) || (added_assets.length > 0))
+    if (removed_assets.length > 0) || (added_assets.length > 0)
       updates = FactChanges.new
       updates.add_assets([[self, added_assets]]) if added_assets
       updates.remove_assets([[self, removed_assets]]) if removed_assets
@@ -33,8 +34,14 @@ class AssetGroup < ApplicationRecord
       refresh!
 
       ActiveRecord::Base.transaction do
-        step = Step.create(activity: activity_owner, asset_group: self,
-                           in_progress?: true, state: 'complete', step_type: step_type_for_import)
+        step =
+          Step.create(
+            activity: activity_owner,
+            asset_group: self,
+            in_progress?: true,
+            state: 'complete',
+            step_type: step_type_for_import
+          )
         updates.apply(step)
       end
     end
@@ -46,19 +53,17 @@ class AssetGroup < ApplicationRecord
   end
 
   def position_for_asset(asset)
-    assets.each_with_index { |a, pos| return pos if (asset.id == a.id) }
+    assets.each_with_index { |a, pos| return pos if asset.id == a.id }
     return -1
   end
 
   def touch_activity
-    if activity_owner
-      activity_owner.touch
-    end
+    activity_owner.touch if activity_owner
   end
 
   def classified_by_condition_group(condition_group)
     @classification ||= {}
-    if (condition_group.conditions.length == 0)
+    if condition_group.conditions.length == 0
       @classification[condition_group.id] ||= []
     else
       @classification[condition_group.id] ||= condition_group.select_compatible_assets(assets)
@@ -72,12 +77,12 @@ class AssetGroup < ApplicationRecord
   end
 
   def condition_group_name
-    prefix = condition_group.nil? ? "Main" : condition_group.name
+    prefix = condition_group.nil? ? 'Main' : condition_group.name
     "#{prefix} #{id}"
   end
 
   def display_name
-    prefix = name || "Main"
+    prefix = name || 'Main'
     "#{prefix} #{id}"
   end
 
@@ -127,9 +132,7 @@ class AssetGroup < ApplicationRecord
 
   def clean_fact_group(groups)
     h = {}
-    groups.each do |group, assets|
-      h[group] = assets.uniq
-    end
+    groups.each { |group, assets| h[group] = assets.uniq }
     h
   end
 
@@ -138,18 +141,22 @@ class AssetGroup < ApplicationRecord
 
     obj_type = Struct.new(:predicate, :object, :to_add_by, :to_remove_by, :object_asset_id)
 
-    groups = assets.group_by do |a|
-      a.facts.sort do |f1, f2|
-        # Canonical sort of facts
-        f1.canonical_comparison_for_sorting(f2)
-      end.map(&:as_json).map do |f|
-        obj = f["object"]
-        if f["object_asset_id"]
-          obj = "?"
-        end
-        obj_type.new(f["predicate"], obj, f["to_add_by"], f["to_remove_by"], nil)
-      end.uniq
-    end
+    groups =
+      assets.group_by do |a|
+        a
+          .facts
+          .sort do |f1, f2|
+            # Canonical sort of facts
+            f1.canonical_comparison_for_sorting(f2)
+          end
+          .map(&:as_json)
+          .map do |f|
+            obj = f['object']
+            obj = '?' if f['object_asset_id']
+            obj_type.new(f['predicate'], obj, f['to_add_by'], f['to_remove_by'], nil)
+          end
+          .uniq
+      end
 
     clean_fact_group(groups)
   end

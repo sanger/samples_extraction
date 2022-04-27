@@ -23,9 +23,7 @@ RSpec.describe Steps::Job do
       end
     end
     context 'if the step is already processing' do
-      before do
-        step.update_columns(state: Step::STATE_RUNNING)
-      end
+      before { step.update_columns(state: Step::STATE_RUNNING) }
       it 'does nothing' do
         expect { step.run }.to raise_error(AASM::InvalidTransition)
       end
@@ -34,22 +32,16 @@ RSpec.describe Steps::Job do
 
   context '#perform_job' do
     context 'if the step state is still running' do
-      before do
-        step.update_columns(state: Step::STATE_RUNNING)
-      end
+      before { step.update_columns(state: Step::STATE_RUNNING) }
       context 'when calling #process' do
         context 'when there is no error' do
-          before do
-            allow(step).to receive(:process)
-          end
+          before { allow(step).to receive(:process) }
           it 'changes the state to complete' do
             expect { step.perform_job }.to change { step.complete? }.from(false).to(true)
           end
         end
         context 'when there is an error' do
-          before do
-            allow(step).to receive(:process).and_raise('boom!!')
-          end
+          before { allow(step).to receive(:process).and_raise('boom!!') }
           it 'does not propagate the exception' do
             expect { step.perform_job }.not_to raise_error
           end
@@ -60,9 +52,7 @@ RSpec.describe Steps::Job do
       end
     end
     context 'if the step is already processing something else' do
-      before do
-        step.update_columns(state: 'stopping')
-      end
+      before { step.update_columns(state: 'stopping') }
       it 'does nothing' do # rubocop:todo Lint/EmptyBlock
       end
     end

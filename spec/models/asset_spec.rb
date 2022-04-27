@@ -2,12 +2,7 @@ require 'rails_helper'
 RSpec.describe Asset, type: :model do
   context '#class_type' do
     context 'when having several valid types' do
-      let(:props) do
-        [
-          create(:fact, predicate: 'a', object: 'Tube'),
-          create(:fact, predicate: 'a', object: 'Well')
-        ]
-      end
+      let(:props) { [create(:fact, predicate: 'a', object: 'Tube'), create(:fact, predicate: 'a', object: 'Well')] }
       let(:asset) { create :asset, facts: props }
 
       it 'returns the right prioritised class type' do
@@ -16,10 +11,7 @@ RSpec.describe Asset, type: :model do
     end
     context 'when not having any valid types' do
       let(:props) do
-        [
-          create(:fact, predicate: 'a', object: 'Something'),
-          create(:fact, predicate: 'a', object: 'Another')
-        ]
+        [create(:fact, predicate: 'a', object: 'Something'), create(:fact, predicate: 'a', object: 'Another')]
       end
       let(:asset) { create :asset, facts: props }
 
@@ -66,8 +58,7 @@ RSpec.describe Asset, type: :model do
   context '#print_machine_barcode?' do
     let(:asset) { create(:asset) }
     it 'returns true when the asset has a barcode format of machine barcode' do
-      asset.facts << create(:fact, predicate: 'barcodeFormat', object: 'machine_barcode',
-                                   literal: true)
+      asset.facts << create(:fact, predicate: 'barcodeFormat', object: 'machine_barcode', literal: true)
       expect(asset.print_machine_barcode?).to be_truthy
     end
     it 'returns false when the asset does not have a setting' do
@@ -76,8 +67,8 @@ RSpec.describe Asset, type: :model do
   end
 
   context '#barcode_formatted_for_printing' do
-    let(:human_barcode) { "EG1234E" }
-    let(:machine_barcode) { 1420001234690 }
+    let(:human_barcode) { 'EG1234E' }
+    let(:machine_barcode) { 1_420_001_234_690 }
     let(:asset) { create(:asset, barcode: human_barcode) }
 
     context 'when no specific barcode format has been selected' do
@@ -86,10 +77,7 @@ RSpec.describe Asset, type: :model do
       end
     end
     context 'when machine barcode has been selected' do
-      before do
-        asset.facts << create(:fact, predicate: 'barcodeFormat', object: 'machine_barcode',
-                                     literal: true)
-      end
+      before { asset.facts << create(:fact, predicate: 'barcodeFormat', object: 'machine_barcode', literal: true) }
       context 'when we can generate the machine barcode' do
         it 'returns the machine barcode' do
           expect(asset.barcode_formatted_for_printing).to eq(machine_barcode.to_s)
@@ -99,22 +87,18 @@ RSpec.describe Asset, type: :model do
   end
 
   context '#printable_object' do
-    let(:human_barcode) { "EG1234E" }
-    let(:machine_barcode) { 1420001234690 }
+    let(:human_barcode) { 'EG1234E' }
+    let(:machine_barcode) { 1_420_001_234_690 }
     let(:asset) { create(:asset, barcode: human_barcode) }
 
     context 'when is a plate' do
-      before do
-        asset.facts << create(:fact, predicate: 'a', object: 'Plate', literal: true)
-      end
+      before { asset.facts << create(:fact, predicate: 'a', object: 'Plate', literal: true) }
       it 'generates a plate printable object' do
         expect(asset.printable_object[:label].has_key?(:top_left))
       end
     end
     context 'when is a tube' do
-      before do
-        asset.facts << create(:fact, predicate: 'a', object: 'Tube', literal: true)
-      end
+      before { asset.facts << create(:fact, predicate: 'a', object: 'Tube', literal: true) }
       it 'generates a tube printable object' do
         expect(asset.printable_object[:label].has_key?(:barcode2d))
       end
@@ -124,10 +108,7 @@ RSpec.describe Asset, type: :model do
         end
       end
       context 'when machine barcode has been selected' do
-        before do
-          asset.facts << create(:fact, predicate: 'barcodeFormat',
-                                       object: 'machine_barcode', literal: true)
-        end
+        before { asset.facts << create(:fact, predicate: 'barcodeFormat', object: 'machine_barcode', literal: true) }
         it 'prints the human barcode in the top line' do
           expect(asset.printable_object[:label][:top_line]).to eq(human_barcode)
         end

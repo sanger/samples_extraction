@@ -9,25 +9,25 @@ RSpec.describe 'LoadMetadata' do
   let(:file_asset) { create :asset, uploaded_file: file }
 
   let(:positions) { TokenUtil.generate_positions(('A'..'H').to_a, ('1'..'12').to_a) }
-  let(:wells) {
+  let(:wells) do
     Array.new(96) do |i|
       asset = FactoryBot.create(:asset)
       asset.facts << create(:fact, predicate: 'location', object: positions[i])
       asset.facts << create(:fact, predicate: 'a', object: 'Well')
       asset
     end
-  }
-  let(:rack) {
-    create(:asset,
-           barcode: 'DN1001001',
-           facts: [
-             create(:fact, predicate: 'a', object: 'TubeRack'),
-             wells.map { |w| create(:fact, predicate: 'contains', object_asset_id: w.id) }
-           ].flatten)
-  }
-  let(:instance) {
-    LoadMetadata.new(asset_group: group)
-  }
+  end
+  let(:rack) do
+    create(
+      :asset,
+      barcode: 'DN1001001',
+      facts: [
+        create(:fact, predicate: 'a', object: 'TubeRack'),
+        wells.map { |w| create(:fact, predicate: 'contains', object_asset_id: w.id) }
+      ].flatten
+    )
+  end
+  let(:instance) { LoadMetadata.new(asset_group: group) }
   context 'when it receives a metadata file' do
     let(:group) { create(:asset_group, assets: [rack, file_asset].flatten) }
     let(:added_triples) { instance.process.to_h[:add_facts] }
@@ -36,7 +36,7 @@ RSpec.describe 'LoadMetadata' do
     end
     it 'adds the right set of properties' do
       predicates = added_triples.map { |l| l[1] }.uniq
-      expect(predicates).to eq(['data1', 'data2'])
+      expect(predicates).to eq(%w[data1 data2])
     end
     it 'adds to the right number of assets' do
       assets = added_triples.map { |l| l[0] }.uniq

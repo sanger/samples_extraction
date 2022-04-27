@@ -6,7 +6,7 @@ require 'parsers/csv_metadata/validators/headers_validator'
 
 module Parsers
   module CsvMetadata
-    class CsvParser
+    class CsvParser # rubocop:todo Style/Documentation
       include ActiveModel::Validations
 
       validate :validate_parsed_data
@@ -62,9 +62,7 @@ module Parsers
 
       def validate_parsed_data
         parse unless @parsed
-        unless @line_parser.valid?
-          errors.add(:base, "The csv contains some errors")
-        end
+        errors.add(:base, 'The csv contains some errors') unless @line_parser.valid?
       end
     end
   end

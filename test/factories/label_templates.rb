@@ -1,3 +1,1 @@
-FactoryBot.define do
-  factory :label_template
-end
+FactoryBot.define { factory :label_template }

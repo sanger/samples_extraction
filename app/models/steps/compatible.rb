@@ -1,4 +1,4 @@
-module Steps::Compatible
+module Steps::Compatible # rubocop:todo Style/Documentation
   def assets_compatible_with_step_type
     return true if asset_group.nil?
 

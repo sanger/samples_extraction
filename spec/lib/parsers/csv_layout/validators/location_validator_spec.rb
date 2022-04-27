@@ -2,14 +2,14 @@ require 'rails_helper'
 require 'parsers/csv_layout/validators/location_validator'
 
 RSpec.describe Parsers::CsvLayout::Validators::LocationValidator do
-  let(:klass) {
-    Class.new {
+  let(:klass) do
+    Class.new do
       attr_accessor :location
 
       include ActiveModel::Validations
       validates_with Parsers::CsvLayout::Validators::LocationValidator
-    }
-  }
+    end
+  end
   let(:instance) { klass.new }
   it 'validates a valid location' do
     instance.location = 'A01'

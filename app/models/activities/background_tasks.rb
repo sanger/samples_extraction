@@ -1,6 +1,6 @@
 module Activities
-  module BackgroundTasks
-    class BackgroundTask
+  module BackgroundTasks # rubocop:todo Style/Documentation
+    class BackgroundTask # rubocop:todo Style/Documentation
       attr_accessor :step_type
 
       def initialize(step_type)
@@ -29,11 +29,11 @@ module Activities
 
     def create_connected_tasks(step, asset_group, printer_config = nil, user = nil)
       reasoning_params = {
-        :asset_group => asset_group,
-        :activity => self,
-        :printer_config => printer_config,
-        :user => user,
-        :in_progress? => true
+        asset_group: asset_group,
+        activity: self,
+        printer_config: printer_config,
+        user: user,
+        in_progress?: true
       }
       steps = create_background_steps(background_tasks, reasoning_params)
       step.update_attributes(next_step: steps.first)

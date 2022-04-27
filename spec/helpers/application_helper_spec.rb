@@ -11,11 +11,11 @@ RSpec.describe ApplicationHelper, type: :helper do
   end
 
   context '#data_asset_display_for_plate' do
-    let(:well) {
+    let(:well) do
       w = create_well(location, sample, aliquot)
       w.update_attributes(barcode: barcode)
       w
-    }
+    end
     let(:sample) { nil }
     let(:aliquot) { nil }
     let(:location) { nil }
@@ -33,7 +33,7 @@ RSpec.describe ApplicationHelper, type: :helper do
       end
     end
     context 'when the well has a location' do
-      let(:location) { "A1" }
+      let(:location) { 'A1' }
       context 'when the well does not have a barcode or a sample' do
         let(:barcode) { nil }
         let(:sample) { nil }
@@ -45,30 +45,30 @@ RSpec.describe ApplicationHelper, type: :helper do
         end
       end
       context 'when the well has a barcode or a sample' do
-        let(:barcode) { "S1234" }
+        let(:barcode) { 'S1234' }
         context 'when the well does not have a sample' do
           let(:sample) { nil }
           it 'displays an empty well' do
             val = helper.data_asset_display_for_plate(asset.facts)
-            expect(val.keys).to eq(["A1"])
+            expect(val.keys).to eq(['A1'])
             expect(val.values.first[:cssClass]).to eq(helper.empty_well_aliquot_type)
           end
         end
         context 'when the well has a sample' do
-          let(:sample) { "sample1" }
+          let(:sample) { 'sample1' }
           context 'when the well has an aliquot' do
-            let(:aliquot) { "DNA" }
+            let(:aliquot) { 'DNA' }
             it 'displays the aliquot' do
               val = helper.data_asset_display_for_plate(asset.facts)
-              expect(val.keys).to eq(["A1"])
-              expect(val.values.first[:cssClass]).to eq("DNA")
+              expect(val.keys).to eq(['A1'])
+              expect(val.values.first[:cssClass]).to eq('DNA')
             end
           end
           context 'when the well does not have an aliquot' do
             let(:aliquot) { nil }
             it 'displays unknown aliquot' do
               val = helper.data_asset_display_for_plate(asset.facts)
-              expect(val.keys).to eq(["A1"])
+              expect(val.keys).to eq(['A1'])
               expect(val.values.first[:cssClass]).to eq(helper.unknown_aliquot_type)
             end
           end

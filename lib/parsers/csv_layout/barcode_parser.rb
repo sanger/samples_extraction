@@ -2,12 +2,12 @@
 
 module Parsers
   module CsvLayout
-    class BarcodeParser
+    class BarcodeParser # rubocop:todo Style/Documentation
       NO_READ_BARCODE = 'no read'
 
       include ActiveModel::Validations
 
-      validates :asset, presence: { message: "Cannot find the barcode" }, if: :barcode?
+      validates :asset, presence: { message: 'Cannot find the barcode' }, if: :barcode?
       validate :validations
 
       def validations

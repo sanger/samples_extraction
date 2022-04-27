@@ -16,7 +16,7 @@ Rails.application.configure do
   config.eager_load = true
 
   # Full error reports are disabled and caching is turned on.
-  config.consider_all_requests_local       = false
+  config.consider_all_requests_local = false
   config.action_controller.perform_caching = true
 
   # Print deprecation notices to the Rails logger.
@@ -54,7 +54,7 @@ Rails.application.configure do
 
   config.pmb_uri = ENV.fetch('SE_PMB_URI', 'http://localhost:10000/v1')
   config.redis_url = ENV.fetch('SE_REDIS_URI', 'redis://127.0.0.1:6379')
-  config.ss_uri =  ENV.fetch('SE_SS_URI', 'http://localhost:3000/api/1/')
+  config.ss_uri = ENV.fetch('SE_SS_URI', 'http://localhost:3000/api/1/')
   config.ss_api_v2_uri = ENV.fetch('SE_SS_API_V2_URI', 'http://localhost:3000')
 
   config.ss_authorisation = ENV.fetch('SS_AUTHORISATION_TOKEN', '')

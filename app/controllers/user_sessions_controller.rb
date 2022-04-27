@@ -1,4 +1,4 @@
-class UserSessionsController < ApplicationController
+class UserSessionsController < ApplicationController # rubocop:todo Style/Documentation
   before_action :set_user, only: [:create]
 
   def create
@@ -19,6 +19,6 @@ class UserSessionsController < ApplicationController
   end
 
   def set_user
-    @user = User.find_by!(:barcode => user_session_params[:barcode])
+    @user = User.find_by!(barcode: user_session_params[:barcode])
   end
 end

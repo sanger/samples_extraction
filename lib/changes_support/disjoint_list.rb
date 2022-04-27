@@ -1,18 +1,16 @@
-module ChangesSupport
+module ChangesSupport # rubocop:todo Style/Documentation
 end
 
-class ChangesSupport::DisjointList
+class ChangesSupport::DisjointList # rubocop:todo Style/Documentation
   SEED_FOR_UNIQUE_IDS = Random.rand(1000)
   MAX_DEEP_UNIQUE_ID = 3
 
   include Enumerable
 
-  attr_accessor :location_for_unique_id
-  attr_accessor :disjoint_lists
-  attr_accessor :list
+  attr_accessor :location_for_unique_id, :disjoint_lists, :list
   attr_reader :name
 
-  DISABLED_NAME = "DISABLED"
+  DISABLED_NAME = 'DISABLED'
 
   delegate :each, :length, :[], :flatten, :uniq!, to: :list
 
@@ -80,25 +78,15 @@ class ChangesSupport::DisjointList
   end
 
   def remove_from_raw_list_by_id(unique_id)
-    @list.delete_if do |a|
-      unique_id_for_element(a) == unique_id
-    end
+    @list.delete_if { |a| unique_id_for_element(a) == unique_id }
   end
 
   def <<(element)
-    if element.kind_of?(Array)
-      element.each { |e| add(e) }
-    else
-      add(element)
-    end
+    element.kind_of?(Array) ? element.each { |e| add(e) } : add(element)
   end
 
   def concat(element)
-    if element.kind_of?(Array)
-      element.each { |e| add(e) }
-    else
-      add(element)
-    end
+    element.kind_of?(Array) ? element.each { |e| add(e) } : add(element)
   end
 
   def push(element)
@@ -128,20 +116,14 @@ class ChangesSupport::DisjointList
   end
 
   def concat_disjoint_list(disjoint_list)
-    disjoint_list.location_for_unique_id.keys.each do |key|
-      if disjoint_list.disabled_key?(key)
-        _disable(key)
-      end
-    end
+    disjoint_list.location_for_unique_id.keys.each { |key| _disable(key) if disjoint_list.disabled_key?(key) }
     disjoint_list.to_a.each { |val| add(val) }
     self
   end
 
   def merge(disjoint_list)
     disjoint_list.location_for_unique_id.keys.each do |key|
-      if (!disjoint_list.include_key?(key) || disjoint_list.disabled_key?(key))
-        _disable(key)
-      end
+      _disable(key) if !disjoint_list.include_key?(key) || disjoint_list.disabled_key?(key)
     end
     disjoint_list.to_a.each { |val| add(val) }
     self
@@ -151,12 +133,9 @@ class ChangesSupport::DisjointList
     return if disabled?(element)
 
     unique_id = unique_id_for_element(element)
+
     # Is not in any of the lists so we can add it
-    if (element.kind_of?(Enumerable) && (!element.kind_of?(Hash)))
-      @list.concat(element)
-    else
-      @list.push(element)
-    end
+    (element.kind_of?(Enumerable) && (!element.kind_of?(Hash))) ? @list.concat(element) : @list.push(element)
     @location_for_unique_id[unique_id] = name
   end
 
@@ -168,18 +147,14 @@ class ChangesSupport::DisjointList
 
   def _synchronize_with_list(disjoint_list)
     disjoint_list.location_for_unique_id.keys.each do |key|
-      unless (location_for_unique_id[key] == DISABLED_NAME)
+      unless location_for_unique_id[key] == DISABLED_NAME
         # If my disjoint lists do not have the element
         if location_for_unique_id[key].nil?
           location_for_unique_id[key] = disjoint_list.location_for_unique_id[key]
-          if location_for_unique_id[key] == DISABLED_NAME
-            _disable(key)
-          end
+          _disable(key) if location_for_unique_id[key] == DISABLED_NAME
         else
           # If my lists have the element alredy
-          if location_for_unique_id[key] != disjoint_list.location_for_unique_id[key]
-            _disable(key)
-          end
+          _disable(key) if location_for_unique_id[key] != disjoint_list.location_for_unique_id[key]
         end
       end
     end
@@ -199,14 +174,16 @@ class ChangesSupport::DisjointList
     elsif element.try(:uuid)
       sum_function_for(element.uuid)
     elsif element.try(:id)
-      sum_function_for("#{element.class.to_s}_#{element.id.to_s}")
+      sum_function_for("#{element.class}_#{element.id}")
     elsif element.kind_of?(Hash)
-      if (element.has_key?(:uuid) && (!element[:uuid].nil?))
+      if element.has_key?(:uuid) && (!element[:uuid].nil?)
         sum_function_for(element[:uuid])
-      elsif (element.has_key?(:predicate))
+      elsif element.has_key?(:predicate)
         _unique_id_for_fact(element)
       else
-        sum_function_for(element.keys.dup.concat(element.values.map { |val| _unique_id_for_element(val, deep + 1) }).join)
+        sum_function_for(
+          element.keys.dup.concat(element.values.map { |val| _unique_id_for_element(val, deep + 1) }).join
+        )
       end
     elsif element.kind_of?(Enumerable)
       sum_function_for(element.map { |o| _unique_id_for_element(o, deep + 1) }.join)
@@ -216,10 +193,12 @@ class ChangesSupport::DisjointList
   end
 
   def _unique_id_for_fact(element)
-    sum_function_for([
-      (element[:asset_id] || element[:asset].id || element[:asset].object_id),
-      element[:predicate],
-      (element[:object] || element[:object_asset_id] || element[:object_asset].id || element[:object_asset].object_id)
-    ].join('_'))
+    sum_function_for(
+      [
+        (element[:asset_id] || element[:asset].id || element[:asset].object_id),
+        element[:predicate],
+        (element[:object] || element[:object_asset_id] || element[:object_asset].id || element[:object_asset].object_id)
+      ].join('_')
+    )
   end
 end
