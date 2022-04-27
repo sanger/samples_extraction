@@ -67,7 +67,9 @@ module InferenceEngines
           output = [line, content].join("\n")
           step.update_attributes(output: output)
           unless thr.value == 0
+            # rubocop:todo Layout/LineLength
             raise "runner execution failed\nCODE: #{thr.value}\nCMD: #{line}\nSTDOUT: #{content}\nSTDERR: #{stderror.read}\n"
+            # rubocop:enable Layout/LineLength
           end
         end
 

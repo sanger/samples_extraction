@@ -18,7 +18,9 @@ module ClaimUuids # rubocop:todo Style/Documentation
     wells = orphan_receptacles(stock_plate)
     if pre_extracted_plate.wells.count < 96 && (pre_extracted_plate.wells.count + wells.count == 96)
       wells.each do |w|
+        # rubocop:todo Layout/LineLength
         puts "You should attach barcode #{pre_extracted_plate.barcode} with id #{pre_extracted_plate.id} with well #{w.id} at #{w.map.description}"
+        # rubocop:enable Layout/LineLength
       end
     else
       puts "Not found condiiton for #{stock_plate.barcode}"
@@ -30,7 +32,9 @@ module ClaimUuids # rubocop:todo Style/Documentation
     wells = orphan_receptacles(stock_plate)
     if pre_extracted_plate.wells.count < 96 && (pre_extracted_plate.wells.count + wells.count == 96)
       wells.each do |w|
+        # rubocop:todo Layout/LineLength
         puts "You should attach barcode #{pre_extracted_plate.barcode} with id #{pre_extracted_plate.id} with well #{w.id} at #{w.map.description}"
+        # rubocop:enable Layout/LineLength
       end
       pre_extracted_plate.wells << wells
     else

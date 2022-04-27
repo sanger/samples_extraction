@@ -6,16 +6,11 @@ class ContainerInferences # rubocop:todo Style/Documentation
   end
 
   def containers
-    asset_group
-      .assets
-      .joins(
-        "
+    asset_group.assets.joins(<<~SQL.squish).uniq
       INNER JOIN facts as plate_facts on plate_facts.asset_id=assets.id AND plate_facts.predicate='contains'
       INNER JOIN assets as tubes on tubes.id=plate_facts.object_asset_id
       INNER JOIN facts as tubes_facts on tubes_facts.asset_id=tubes.id AND (tubes_facts.predicate='aliquotType' OR tubes_facts.predicate='study_name')
-    "
-      )
-      .uniq
+    SQL
   end
 
   def purpose_for_aliquot(aliquot)

@@ -970,14 +970,9 @@ RSpec.describe FactChanges do
           updates.add('?p', 'related', '?q')
           updates.add('?p', 'transfer', '?q')
           updates.remove_where('?p', 'transfer', '?q')
-          expect { updates.apply(step) }.to change { Asset.count }.by(2).and change { Fact.count }.by(1).and change {
-                                                                     Fact.with_predicate('related').count
-                                                                   }.by(1).and change {
-                                                                                                                 Fact
-                                                                                                                   .with_predicate(
-                                                                                                                   'transfer'
-                                                                                                                 ).count
-                                                                                                               }.by(0)
+          expect { updates.apply(step) }.to change { Asset.count }.by(2) && change { Fact.count }.by(1) &&
+            change { Fact.with_predicate('related').count }.by(1) &&
+            change { Fact.with_predicate('transfer').count }.by(0)
         end
       end
       it 'performs all the changes specified' do
@@ -987,13 +982,8 @@ RSpec.describe FactChanges do
         updates.create_asset_groups(['?group1'])
         updates.add_assets([['?group1', %w[?p ?q]]])
 
-        expect { updates.apply(step) }.to change { Asset.count }.by(2).and change { AssetGroup.count }.by(
-                                       1
-                                     ).and change { AssetGroupsAsset.count }.by(2).and change {
-                                                                                                                 activity
-                                                                                                                   .owned_asset_groups
-                                                                                                                   .count
-                                                                                                               }.by(1)
+        expect { updates.apply(step) }.to change { Asset.count }.by(2) && change { AssetGroup.count }.by(1) &&
+          change { AssetGroupsAsset.count }.by(2) && change { activity.owned_asset_groups.count }.by(1)
         expect(activity.owned_asset_groups.last.assets.first.facts.first.object).to eq('Plate')
       end
     end

@@ -222,7 +222,9 @@ module Actions
           if tube_location == obj[:location]
             if obj[:asset] != tube
               error_messages.push(
+                # rubocop:todo Layout/LineLength
                 "Tube #{obj[:asset].barcode} cannot be put at location #{obj[:location]} because the tube #{tube.barcode || tube.uuid} is there"
+                # rubocop:enable Layout/LineLength
               )
             end
           end
@@ -231,7 +233,9 @@ module Actions
           # Remember that the tubes needs to be always in a rack. They cannot be interchanged
           # in between racks
           error_messages.push(
+            # rubocop:todo Layout/LineLength
             "Missing tube!! Any tube already existing in the rack can't disappear from its defined layout without being reracked before. Tube #{tube.barcode || tube.uuid} should be present in the rack at location #{tube_location} but is missed from the rack."
+            # rubocop:enable Layout/LineLength
           )
         end
       end

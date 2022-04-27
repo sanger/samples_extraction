@@ -28,7 +28,9 @@ module InferencesHelper
       assets
         .map do |asset|
           asset.facts.map do |fact|
+            # rubocop:todo Layout/LineLength
             ":#{asset.name}\t:#{fact.predicate}\t#{fact.object_asset.nil? ? fact.object : ':' + fact.object_asset.name} ."
+            # rubocop:enable Layout/LineLength
           end
         end
         .flatten
