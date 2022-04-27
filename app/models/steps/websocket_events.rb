@@ -1,4 +1,4 @@
-module Steps::WebsocketEvents
+module Steps::WebsocketEvents # rubocop:todo Style/Documentation
   def self.included(klass)
     klass.instance_eval do
       # after_update :unset_activity_running, if: :can_unset_activity_running?

@@ -1,3 +1,1 @@
-FactoryBot.define do
-  factory :uploaded_file
-end
+FactoryBot.define { factory :uploaded_file }

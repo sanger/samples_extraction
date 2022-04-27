@@ -30,10 +30,10 @@ RSpec.describe Actions::PlateTransfer do
 
         destination = create :asset
         updates = Actions::PlateTransfer.transfer_plates(source, destination)
-        expect(updates.to_h[:add_facts].select { |t| t[1] == 'location' }.map { |t| t[2] }).to eq(["A01", "B01"])
-        expect(updates.to_h[:add_facts].select { |t| t[1] == 'concentration' }.map { |t| t[2] }).to eq(["1.3"])
-        expect(updates.to_h[:add_facts].select { |t| t[1] == 'sample_common_name' }.map { |t| t[2] }).to eq(["species"])
-        expect(updates.to_h[:add_facts].select { |t| t[1] == 'a' }.map { |t| t[2] }).to eq(["Well", "Well"])
+        expect(updates.to_h[:add_facts].select { |t| t[1] == 'location' }.map { |t| t[2] }).to eq(%w[A01 B01])
+        expect(updates.to_h[:add_facts].select { |t| t[1] == 'concentration' }.map { |t| t[2] }).to eq(['1.3'])
+        expect(updates.to_h[:add_facts].select { |t| t[1] == 'sample_common_name' }.map { |t| t[2] }).to eq(['species'])
+        expect(updates.to_h[:add_facts].select { |t| t[1] == 'a' }.map { |t| t[2] }).to eq(%w[Well Well])
       end
       it 'can copy facts with uuid values' do
         source = create :asset

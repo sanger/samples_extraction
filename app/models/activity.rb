@@ -19,11 +19,9 @@ class Activity < ApplicationRecord
   has_many :users, through: :steps
   has_one :work_order
 
-  scope :for_activity_type, ->(activity_type) {
-    where(activity_type: activity_type)
-  }
+  scope :for_activity_type, ->(activity_type) { where(activity_type: activity_type) }
 
-  scope :for_user, ->(user) { joins(:steps).where({ :steps => { :user_id => user.id } }).distinct }
+  scope :for_user, ->(user) { joins(:steps).where({ steps: { user_id: user.id } }).distinct }
 
   include Activities::StepsManagement
   include Activities::Tasks

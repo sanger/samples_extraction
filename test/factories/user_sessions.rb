@@ -1,3 +1,1 @@
-FactoryBot.define do
-  factory :user_session
-end
+FactoryBot.define { factory :user_session }

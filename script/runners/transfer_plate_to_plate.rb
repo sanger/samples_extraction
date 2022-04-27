@@ -1,3 +1,5 @@
+# @todo Migrate to StepPlanner https://github.com/sanger/samples_extraction/issues/193
+
 require 'actions/plate_transfer'
 
 # Stamps an Asset (plate or tube rack) to another Asset
@@ -15,8 +17,8 @@ class TransferPlateToPlate
   end
 
   # rubocop:todo Naming/MethodName
-  def _CODE
-  end
+  def _CODE; end
+
   # rubocop:enable Naming/MethodName
 
   #
@@ -40,17 +42,24 @@ class TransferPlateToPlate
     FactChanges.new.tap do |updates|
       aliquot_types = []
       if assets_compatible_with_step_type
-        plates = asset_group.assets.with_predicate('transferredFrom').each do |plate|
-          plate.facts.with_predicate('transferredFrom').each do |f|
-            source = f.object_asset
-            Actions::PlateTransfer.transfer_plates(source, plate, updates)
-          end
-        end
+        plates =
+          asset_group
+            .assets
+            .with_predicate('transferredFrom')
+            .each do |plate|
+              plate
+                .facts
+                .with_predicate('transferredFrom')
+                .each do |f|
+                  source = f.object_asset
+                  Actions::PlateTransfer.transfer_plates(source, plate, updates)
+                end
+            end
       end
     end
   end
 end
-return unless ARGV.any? { |s| s.match(".json") }
+return unless ARGV.any? { |s| s.match('.json') }
 
 args = ARGV[0]
 asset_group_id = args.match(/(\d*)\.json/)[1]

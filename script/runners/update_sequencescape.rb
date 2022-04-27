@@ -1,3 +1,5 @@
+# @todo Migrate to StepPlanner https://github.com/sanger/samples_extraction/issues/193
+
 # Creates or updates a plate in Sequencescape corresponding to the Samples Extraction Asset
 # At time of writing, 'update' function is limited to 're-racking'
 # Only works if the Asset has a fact 'pushTo:Sequencescape'
@@ -16,7 +18,7 @@ class UpdateSequencescape
   end
 
   def asset_group_for_execution
-    AssetGroup.create!(:assets => asset_group.assets.with_fact('pushTo', 'Sequencescape'))
+    AssetGroup.create!(assets: asset_group.assets.with_fact('pushTo', 'Sequencescape'))
   end
 
   def process
@@ -24,9 +26,10 @@ class UpdateSequencescape
       aliquot_types = []
       if assets_compatible_with_step_type
         ActiveRecord::Base.transaction do
-          asset_group.assets.with_fact('pushTo', 'Sequencescape').each do |asset|
-            updates.merge(asset.update_sequencescape(step.user))
-          end
+          asset_group
+            .assets
+            .with_fact('pushTo', 'Sequencescape')
+            .each { |asset| updates.merge(asset.update_sequencescape(step.user)) }
         end
       end
     end
@@ -38,7 +41,7 @@ def out(val)
   return
 end
 
-return unless ARGV.any? { |s| s.match(".json") }
+return unless ARGV.any? { |s| s.match('.json') }
 
 args = ARGV[0]
 out({}) unless args

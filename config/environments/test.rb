@@ -19,7 +19,7 @@ Rails.application.configure do
   config.public_file_server.headers = { 'Cache-Control' => 'public, max-age=3600' }
 
   # Show full error reports and disable caching.
-  config.consider_all_requests_local       = true
+  config.consider_all_requests_local = true
   config.action_controller.perform_caching = false
 
   # Raise exceptions instead of rendering exception templates.
@@ -45,11 +45,11 @@ Rails.application.configure do
   # config.action_view.raise_on_missing_translations = true
   config.pmb_uri = ENV.fetch('SE_PMB_URI', 'http://localhost:10000/v1')
   config.redis_url = ENV.fetch('SE_REDIS_URI', 'redis://127.0.0.1:6379')
-  config.ss_uri =  ENV.fetch('SE_SS_URI', 'http://localhost:3000/api/1/')
+  config.ss_uri = ENV.fetch('SE_SS_URI', 'http://localhost:3000/api/1/')
   config.ss_api_v2_uri = ENV.fetch('SE_SS_API_V2_URI', 'http://localhost:3000')
 
   config.searcher_name_by_barcode = 'Find assets by barcode'
-  config.ss_authorisation =  'test'
+  config.ss_authorisation = 'test'
   config.printing_disabled = true
   config.default_n3_resources_url = nil
   config.redis_enabled = false

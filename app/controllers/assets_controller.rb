@@ -1,50 +1,44 @@
-class AssetsController < ApplicationController
-  before_action :set_asset, only: [:show, :edit, :update, :destroy, :print]
-  before_action :set_queries, only: [:search, :print_search]
+class AssetsController < ApplicationController # rubocop:todo Style/Documentation
+  before_action :set_asset, only: %i[show edit update destroy print]
+  before_action :set_queries, only: %i[search print_search]
 
   # GET /assets
   # GET /assets.json
   def index
-    @assets = Asset.all.includes(:facts).paginate(:page => params[:page], :per_page => 5)
+    @assets = Asset.all.includes(:facts).paginate(page: params[:page], per_page: 5)
   end
 
   def print
     @asset.print(@current_user.printer_config, @current_user.username)
 
-    respond_to do |format|
-      format.html { redirect_to @asset, notice: 'Asset was printed.' }
-    end
+    respond_to { |format| format.html { redirect_to @asset, notice: 'Asset was printed.' } }
   end
 
   def print_search
     @start_time = Time.now
-    @assets = get_search_results(@queries).paginate(:page => params[:page], :per_page => 10)
+    @assets = get_search_results(@queries).paginate(page: params[:page], per_page: 10)
 
     temp_group = AssetGroup.new
     temp_group.assets << @assets
     temp_group.print(@current_user.printer_config, @current_user.username)
 
-    respond_to do |format|
-      format.html { render :search, notice: 'Search was printed.' }
-    end
+    respond_to { |format| format.html { render :search, notice: 'Search was printed.' } }
   end
 
   def search
     @start_time = Time.now
-    @assets = get_search_results(@queries).paginate(:page => params[:page], :per_page => 10)
+    @assets = get_search_results(@queries).paginate(page: params[:page], per_page: 10)
 
     @valid_indexes = valid_indexes
 
-    respond_to do |format|
-      format.html { render :search  }
-    end
+    respond_to { |format| format.html { render :search } }
   end
 
   # GET /assets/1
   # GET /assets/1.json
   def show_by_internal_id
     @asset = Asset.find!(params[:id])
-    redirect_to asset_path(@asset.uuid, :format => nil)
+    redirect_to asset_path(@asset.uuid, format: nil)
   end
 
   # GET /assets/1
@@ -62,8 +56,7 @@ class AssetsController < ApplicationController
   end
 
   # GET /assets/1/edit
-  def edit
-  end
+  def edit; end
 
   # POST /assets
   # POST /assets.json
@@ -111,11 +104,7 @@ class AssetsController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_asset
-    @asset = if TokenUtil::UUID_REGEXP.match(params[:id])
-               Asset.find_by(uuid: params[:id])
-             else
-               Asset.find(params[:id])
-             end
+    @asset = TokenUtil::UUID_REGEXP.match(params[:id]) ? Asset.find_by(uuid: params[:id]) : Asset.find(params[:id])
   end
 
   def get_search_results(queries)
@@ -127,9 +116,10 @@ class AssetsController < ApplicationController
   end
 
   def set_queries
-    @queries = valid_indexes.map do |val|
-      OpenStruct.new({ :predicate => params["p" + val], :object => params["o" + val] }) # rubocop:todo Style/OpenStructUse
-    end
+    @queries =
+      valid_indexes.map do |val|
+        OpenStruct.new({ predicate: params['p' + val], object: params['o' + val] }) # rubocop:todo Style/OpenStructUse
+      end
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

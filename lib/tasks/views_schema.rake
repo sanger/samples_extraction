@@ -24,24 +24,22 @@ namespace :db do
     task schema_load: :environment do
       require './lib/views_schema'
 
-      ActiveRecord::Tasks::DatabaseTasks.send(:each_current_configuration, ActiveRecord::Tasks::DatabaseTasks.env) do |config|
+      ActiveRecord::Tasks::DatabaseTasks.send(
+        :each_current_configuration,
+        ActiveRecord::Tasks::DatabaseTasks.env
+      ) do |config|
         ActiveRecord::Base.establish_connection(config)
         load Rails.root.join('db/views_schema.rb')
       end
+
       # Ensure we switch back to the main dev database.
       ActiveRecord::Base.establish_connection
     end
   end
 end
 
-Rake::Task['db:schema:dump'].enhance do
-  Rake::Task['db:views:dump_schema'].invoke
-end
+Rake::Task['db:schema:dump'].enhance { Rake::Task['db:views:dump_schema'].invoke }
 
-Rake::Task['db:schema:load'].enhance do
-  Rake::Task['db:views:schema_load'].invoke
-end
+Rake::Task['db:schema:load'].enhance { Rake::Task['db:views:schema_load'].invoke }
 
-Rake::Task['db:test:prepare'].enhance do
-  Rake::Task['db:views:schema_load'].invoke
-end
+Rake::Task['db:test:prepare'].enhance { Rake::Task['db:views:schema_load'].invoke }

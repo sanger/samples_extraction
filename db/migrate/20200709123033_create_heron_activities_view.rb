@@ -1,6 +1,6 @@
-class CreateHeronActivitiesView < ActiveRecord::Migration[5.1]
+class CreateHeronActivitiesView < ActiveRecord::Migration[5.1] # rubocop:todo Style/Documentation
   def up
-    ActiveRecord::Base.connection.execute(<<~SQL
+    ActiveRecord::Base.connection.execute(<<~SQL)
       CREATE VIEW heron_activities_view AS
       SELECT
         IFNULL(
@@ -48,7 +48,6 @@ class CreateHeronActivitiesView < ActiveRecord::Migration[5.1]
       'CGAP Heron Extraction 200ul - 24ul',
       'Heron R&D Extraction')
     SQL
-                                         )
   end
 
   def down

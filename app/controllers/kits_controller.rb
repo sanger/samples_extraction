@@ -1,6 +1,6 @@
-class KitsController < ApplicationController
-  before_action :set_kit, only: [:show, :edit, :update, :destroy]
-  before_action :set_kit_types, only: [:new, :show, :edit, :update]
+class KitsController < ApplicationController # rubocop:todo Style/Documentation
+  before_action :set_kit, only: %i[show edit update destroy]
+  before_action :set_kit_types, only: %i[new show edit update]
 
   # GET /kits
   # GET /kits.json
@@ -10,8 +10,7 @@ class KitsController < ApplicationController
 
   # GET /kits/1
   # GET /kits/1.json
-  def show
-  end
+  def show; end
 
   # GET /kits/new
   def new
@@ -19,8 +18,7 @@ class KitsController < ApplicationController
   end
 
   # GET /kits/1/edit
-  def edit
-  end
+  def edit; end
 
   # POST /kits
   # POST /kits.json

@@ -1,3 +1,1 @@
-FactoryBot.define do
-  factory :asset_group
-end
+FactoryBot.define { factory :asset_group }

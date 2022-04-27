@@ -1,12 +1,13 @@
-module Assets::Import
+module Assets::Import # rubocop:todo Style/Documentation
   def self.included(base)
     base.send :include, InstanceMethods
     base.extend ClassMethods
   end
 
-  class RefreshSourceNotFoundAnymore < StandardError; end
+  class RefreshSourceNotFoundAnymore < StandardError
+  end
 
-  module InstanceMethods
+  module InstanceMethods # rubocop:todo Style/Documentation
     def json_for_remote(remote_asset)
       distinct = remote_asset.attributes.to_json
 
@@ -24,9 +25,7 @@ module Assets::Import
           aliquots = wells.compact.map(&:aliquots).map(&:to_a)
           if aliquots
             samples = aliquots.flatten.compact.map { |al| al.sample }
-            if samples
-              distinct += samples.compact.map(&:attributes).to_json
-            end
+            distinct += samples.compact.map(&:attributes).to_json if samples
           end
         end
       end
@@ -37,27 +36,21 @@ module Assets::Import
         aliquots = remote_asset.aliquots.to_a
         if aliquots
           samples = aliquots.flatten.compact.map { |al| al.sample }
-          if samples
-            distinct += samples.compact.map(&:attributes).to_json
-          end
+          distinct += samples.compact.map(&:attributes).to_json if samples
         end
       end
 
       # FOR A TUBE RACK
       if remote_asset.respond_to?(:racked_tubes) && remote_asset.racked_tubes
         # to_a because racked_tubes relation does not act as an array
-        list_tubes = remote_asset.racked_tubes.map do |racked_tube|
-          racked_tube.tube
-        end.to_a
+        list_tubes = remote_asset.racked_tubes.map { |racked_tube| racked_tube.tube }.to_a
 
         if list_tubes
           # aliquots.to_a, same reason
           aliquots = list_tubes.compact.map(&:aliquots).map(&:to_a)
           if aliquots
             samples = aliquots.flatten.compact.map { |al| al.sample }
-            if samples
-              distinct += samples.compact.map(&:attributes).to_json
-            end
+            distinct += samples.compact.map(&:attributes).to_json if samples
           end
         end
       end
@@ -66,11 +59,11 @@ module Assets::Import
     end
 
     def update_digest_with_remote(remote_asset)
-      update_attributes(remote_digest: Digest::MD5::hexdigest(json_for_remote(remote_asset)))
+      update_attributes(remote_digest: Digest::MD5.hexdigest(json_for_remote(remote_asset)))
     end
 
     def changed_remote?(remote_asset)
-      Digest::MD5::hexdigest(json_for_remote(remote_asset)) != remote_digest
+      Digest::MD5.hexdigest(json_for_remote(remote_asset)) != remote_digest
     end
 
     def assets_to_refresh
@@ -85,7 +78,7 @@ module Assets::Import
     def refresh(fact_changes = nil)
       return self unless remote_asset?
 
-      remote_asset = SequencescapeClient::find_by_uuid(uuid)
+      remote_asset = SequencescapeClient.find_by_uuid(uuid)
       raise RefreshSourceNotFoundAnymore unless remote_asset
 
       refresh_from_remote(fact_changes: fact_changes, remote_asset: remote_asset)
@@ -104,7 +97,7 @@ module Assets::Import
       return self unless remote_asset?
 
       @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh!!'), state: 'running')
-      remote_asset = SequencescapeClient::find_by_uuid(uuid)
+      remote_asset = SequencescapeClient.find_by_uuid(uuid)
       raise RefreshSourceNotFoundAnymore unless remote_asset
 
       _process_refresh(remote_asset, fact_changes)
@@ -112,11 +105,7 @@ module Assets::Import
     end
 
     def remote_asset?
-      if facts.loaded?
-        facts.any?(&:is_remote?)
-      else
-        facts.from_remote_asset.exists?
-      end
+      facts.loaded? ? facts.any?(&:is_remote?) : facts.from_remote_asset.exists?
     end
 
     private
@@ -127,17 +116,17 @@ module Assets::Import
       @import_step.update(asset_group: asset_group)
 
       begin
-        fact_changes.tap do |updates|
-          asset_group.update(assets: assets_to_refresh)
+        fact_changes
+          .tap do |updates|
+            asset_group.update(assets: assets_to_refresh)
 
-          # Removes previous state
-          assets_to_refresh.each do |asset|
-            updates.remove(asset.facts.from_remote_asset)
+            # Removes previous state
+            assets_to_refresh.each { |asset| updates.remove(asset.facts.from_remote_asset) }
+
+            # Loads new state
+            self.class.update_asset_from_remote_asset(self, remote_asset, updates)
           end
-
-          # Loads new state
-          self.class.update_asset_from_remote_asset(self, remote_asset, updates)
-        end.apply(@import_step)
+          .apply(@import_step)
         @import_step.update(state: 'complete')
         asset_group.touch
       ensure
@@ -146,28 +135,32 @@ module Assets::Import
     end
   end
 
-  module ClassMethods
+  module ClassMethods # rubocop:todo Style/Documentation
     def import_barcode(barcode)
       @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')
-      remote_asset = SequencescapeClient::find_by_barcode(barcode)
+      remote_asset = SequencescapeClient.find_by_barcode(barcode)
 
       import_remote_asset(remote_asset, barcode, @import_step) if remote_asset
     end
 
     def import_barcodes(barcodes)
       @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Import'), state: 'running')
-      SequencescapeClient.labware(barcode: barcodes).map do |remote_asset|
-        import_remote_asset(remote_asset, remote_asset.labware_barcode['human_barcode'], @import_step)
-      end
+      SequencescapeClient
+        .labware(barcode: barcodes)
+        .map do |remote_asset|
+          import_remote_asset(remote_asset, remote_asset.labware_barcode['human_barcode'], @import_step)
+        end
     end
 
     def create_local_asset(barcode, updates)
       ActiveRecord::Base.transaction do
-        Asset.create!(:barcode => barcode).tap do |asset|
-          updates.add(asset, 'a', 'Tube')
-          updates.add(asset, 'barcodeType', 'Code2D')
-          updates.add(asset, 'is', 'Empty')
-        end
+        Asset
+          .create!(barcode: barcode)
+          .tap do |asset|
+            updates.add(asset, 'a', 'Tube')
+            updates.add(asset, 'barcodeType', 'Code2D')
+            updates.add(asset, 'is', 'Empty')
+          end
       end
     end
 
@@ -207,8 +200,16 @@ module Assets::Import
         fact_changes.replace_remote(asset, 'sanger_sample_id', TokenUtil.quote_if_uuid(sample&.sanger_sample_id))
         fact_changes.replace_remote(asset, 'sample_uuid', TokenUtil.quote(sample&.uuid), literal: true)
         fact_changes.replace_remote(asset, 'sanger_sample_name', TokenUtil.quote_if_uuid(sample&.name))
-        fact_changes.replace_remote(asset, 'supplier_sample_name', TokenUtil.quote_if_uuid(sample&.sample_metadata&.supplier_name))
-        fact_changes.replace_remote(asset, 'sample_common_name', TokenUtil.quote_if_uuid(sample&.sample_metadata&.sample_common_name))
+        fact_changes.replace_remote(
+          asset,
+          'supplier_sample_name',
+          TokenUtil.quote_if_uuid(sample&.sample_metadata&.supplier_name)
+        )
+        fact_changes.replace_remote(
+          asset,
+          'sample_common_name',
+          TokenUtil.quote_if_uuid(sample&.sample_metadata&.sample_common_name)
+        )
       end
     end
 
@@ -224,13 +225,9 @@ module Assets::Import
 
     def annotate_study_name(asset, remote_asset, fact_changes)
       if remote_asset.try(:wells).present?
-        remote_asset.wells.detect do |w|
-          annotate_study_name_from_aliquots(asset, w, fact_changes)
-        end
+        remote_asset.wells.detect { |w| annotate_study_name_from_aliquots(asset, w, fact_changes) }
       elsif remote_asset.try(:racked_tubes)
-        remote_asset.racked_tubes.detect do |rt|
-          annotate_study_name_from_aliquots(asset, rt.tube, fact_changes)
-        end
+        remote_asset.racked_tubes.detect { |rt| annotate_study_name_from_aliquots(asset, rt.tube, fact_changes) }
       else
         annotate_study_name_from_aliquots(asset, remote_asset, fact_changes)
       end
@@ -252,7 +249,7 @@ module Assets::Import
         fact_changes.replace_remote(local_well, 'location', well.position['name'])
         fact_changes.replace_remote(local_well, 'parent', asset)
 
-        if (well.try(:aliquots)&.first&.sample&.sample_metadata&.supplier_name)
+        if well.try(:aliquots)&.first&.sample&.sample_metadata&.supplier_name
           annotate_container(local_well, well, fact_changes)
         end
       end
@@ -275,7 +272,7 @@ module Assets::Import
         fact_changes.replace_remote(local_tube, 'a', 'SampleTube')
         fact_changes.replace_remote(local_tube, 'location', racked_tube.coordinate)
         fact_changes.replace_remote(local_tube, 'parent', asset)
-        if (remote_tube.try(:aliquots)&.first&.sample&.sample_metadata&.supplier_name)
+        if remote_tube.try(:aliquots)&.first&.sample&.sample_metadata&.supplier_name
           annotate_container(local_tube, remote_tube, fact_changes)
         end
       end
@@ -300,6 +297,7 @@ module Assets::Import
     def find_or_import_assets_with_barcodes(barcodes, includes: {})
       local_assets = Asset.for_refreshing.includes(includes).where(barcode: barcodes).to_a
       remote_assets = import_barcodes(barcodes - local_assets.pluck(:barcode))
+
       # This synchronises the local assets with the version in Sequencescape
       local_assets.each(&:refresh)
       local_assets + remote_assets
@@ -308,18 +306,24 @@ module Assets::Import
     private
 
     def import_remote_asset(remote_asset, barcode, import_step)
-      Asset.create!(barcode: barcode, uuid: remote_asset.uuid, facts: []).tap do |asset|
-        FactChanges.new.tap do |updates|
-          updates.replace_remote(asset, 'a', sequencescape_type_for_asset(remote_asset))
-          updates.replace_remote(asset, 'remoteAsset', remote_asset.uuid)
-        end.apply(import_step)
-        # We initialize the asset with an empty facts array, but then modify it indirectly
-        # Ideally this wouldn't be the case, and we'd keep the instance in sync. However
-        # for now we unload the association to ensure we don't end up working with stale data
-        asset.facts.reset
-        asset.refresh_from_remote(remote_asset: remote_asset)
-        asset.update_compatible_activity_type
-      end
+      Asset
+        .create!(barcode: barcode, uuid: remote_asset.uuid, facts: [])
+        .tap do |asset|
+          FactChanges
+            .new
+            .tap do |updates|
+              updates.replace_remote(asset, 'a', sequencescape_type_for_asset(remote_asset))
+              updates.replace_remote(asset, 'remoteAsset', remote_asset.uuid)
+            end
+            .apply(import_step)
+
+          # We initialize the asset with an empty facts array, but then modify it indirectly
+          # Ideally this wouldn't be the case, and we'd keep the instance in sync. However
+          # for now we unload the association to ensure we don't end up working with stale data
+          asset.facts.reset
+          asset.refresh_from_remote(remote_asset: remote_asset)
+          asset.update_compatible_activity_type
+        end
     end
 
     def find_asset_with_barcode(barcode)

@@ -7,7 +7,7 @@ require 'parsers/csv_layout/validators/location_validator'
 
 module Parsers
   module CsvLayout
-    class CsvParser
+    class CsvParser # rubocop:todo Style/Documentation
       include ActiveModel::Validations
 
       validate :validate_parsed_data
@@ -64,20 +64,27 @@ module Parsers
       protected
 
       def asset_cache
-        @asset_cache ||= Asset.find_or_import_assets_with_barcodes(
-          @line_parser.barcodes,
-          # Include the facts, any associated objects (such as tube racks)
-          # and their associated facts
-          # It may make sense to tidy these up with explicit associations
-          includes: { facts: { object_asset: { facts: :object_asset } } }
-        ).index_by(&:barcode)
+        @asset_cache ||=
+          Asset
+            .find_or_import_assets_with_barcodes(
+              @line_parser.barcodes,
+              # Include the facts, any associated objects (such as tube racks)
+              # and their associated facts
+              # It may make sense to tidy these up with explicit associations
+              includes: {
+                facts: {
+                  object_asset: {
+                    facts: :object_asset
+                  }
+                }
+              }
+            )
+            .index_by(&:barcode)
       end
 
       def validate_parsed_data
         parse unless @parsed
-        unless @line_parser.valid?
-          errors.add(:base, "The csv contains some errors")
-        end
+        errors.add(:base, 'The csv contains some errors') unless @line_parser.valid?
       end
 
       def validate_tube_duplication

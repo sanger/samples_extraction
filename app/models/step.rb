@@ -1,4 +1,4 @@
-class Step < ApplicationRecord
+class Step < ApplicationRecord # rubocop:todo Style/Documentation
   self.inheritance_column = :sti_type
 
   attr_accessor :wildcard_values
@@ -12,16 +12,25 @@ class Step < ApplicationRecord
   has_many :step_messages # , dependent: :destroy
   has_many :assets, through: :asset_group
   has_many :assets_affected, -> { distinct }, through: :operations, class_name: 'Asset', source: :asset
-  has_many :asset_groups_affected, -> { distinct }, through: :assets_affected, class_name: 'AssetGroup', source: :asset_groups
-  has_many :activities_affected, -> { distinct }, through: :asset_groups_affected, class_name: 'Activity', source: :activity_owner
-  belongs_to :created_asset_group, :class_name => 'AssetGroup', :foreign_key => 'created_asset_group_id'
-  belongs_to :next_step, class_name: 'Step', :foreign_key => 'next_step_id'
+  has_many :asset_groups_affected,
+           -> { distinct },
+           through: :assets_affected,
+           class_name: 'AssetGroup',
+           source: :asset_groups
+  has_many :activities_affected,
+           -> { distinct },
+           through: :asset_groups_affected,
+           class_name: 'Activity',
+           source: :activity_owner
+  belongs_to :created_asset_group, class_name: 'AssetGroup', foreign_key: 'created_asset_group_id'
+  belongs_to :next_step, class_name: 'Step', foreign_key: 'next_step_id'
 
   serialize :printer_config
 
-  scope :running_with_asset, ->(asset) { includes(:assets).where(asset_groups_assets: { asset_id: asset.id }, state: 'running') }
-  scope :for_assets, ->(assets) { joins(:asset_group => :assets).where(:asset_groups_assets => { :asset_id => assets }) }
-  scope :for_step_type, ->(step_type) { where(:step_type => step_type) }
+  scope :running_with_asset,
+        ->(asset) { includes(:assets).where(asset_groups_assets: { asset_id: asset.id }, state: 'running') }
+  scope :for_assets, ->(assets) { joins(asset_group: :assets).where(asset_groups_assets: { asset_id: assets }) }
+  scope :for_step_type, ->(step_type) { where(step_type: step_type) }
 
   include Deprecatable
   include Steps::QueueableJob
@@ -38,9 +47,7 @@ class Step < ApplicationRecord
   def set_errors(errors)
     ActiveRecord::Base.transaction do
       step_messages.each(&:destroy)
-      errors.each do |error|
-        step_messages.create(step_id: self.id, content: error)
-      end
+      errors.each { |error| step_messages.create(step_id: self.id, content: error) }
     end
     wss_event
   end

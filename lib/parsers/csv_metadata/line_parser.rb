@@ -1,6 +1,6 @@
 module Parsers
   module CsvMetadata
-    class LineParser
+    class LineParser # rubocop:todo Style/Documentation
       include ActiveModel::Validations
       attr_reader :parsed_content, :headers_parser
 
@@ -14,23 +14,15 @@ module Parsers
       end
 
       def parsed_data
-        if valid?
-          @parsed_content.map do |entry|
-            entry[:data_parser].data
-          end
-        end
+        @parsed_content.map { |entry| entry[:data_parser].data } if valid?
       end
 
       def error_list_for_parser(parser, numline)
-        parser.errors.messages.values.map do |msg|
-          "At line #{numline}: #{msg[0]}"
-        end
+        parser.errors.messages.values.map { |msg| "At line #{numline}: #{msg[0]}" }
       end
 
       def error_list
-        parsed_content.map do |entry|
-          error_list_for_parser(entry[:data_parser], entry[:num_line])
-        end
+        parsed_content.map { |entry| error_list_for_parser(entry[:data_parser], entry[:num_line]) }
       end
 
       protected
@@ -38,26 +30,26 @@ module Parsers
       def validate_parsed_content
         parse unless @parsed
         @parsed_content.each do |entry|
-          unless entry[:data_parser].valid?
-            errors.add(:base, "There is an error at line #{entry[:num_line]}")
-          end
+          errors.add(:base, "There is an error at line #{entry[:num_line]}") unless entry[:data_parser].valid?
         end
       end
 
       def parse
         num_line = 1
-        @input_reader.lines.reduce(@parsed_content) do |memo, line|
-          if num_line == 1
-            @parser.headers_parser = @parser.components[:headers_parser].new(line, @parser)
-          else
-            unless empty_line?(line)
-              data_parser = @parser.components[:data_parser].new(line, @parser)
-              memo.push(num_line: num_line, data_parser: data_parser)
+        @input_reader
+          .lines
+          .reduce(@parsed_content) do |memo, line|
+            if num_line == 1
+              @parser.headers_parser = @parser.components[:headers_parser].new(line, @parser)
+            else
+              unless empty_line?(line)
+                data_parser = @parser.components[:data_parser].new(line, @parser)
+                memo.push(num_line: num_line, data_parser: data_parser)
+              end
             end
+            num_line = num_line + 1
+            memo
           end
-          num_line = num_line + 1
-          memo
-        end
         @parsed = true
 
         parsed_data

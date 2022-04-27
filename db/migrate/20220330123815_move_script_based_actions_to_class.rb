@@ -11,21 +11,18 @@ class MoveScriptBasedActionsToClass < ActiveRecord::Migration[5.2]
   }.freeze
 
   def up
-    CONVERTED_CLASS_ACTIONS.each do |from, to|
-      convert(from, to)
-    end
+    CONVERTED_CLASS_ACTIONS.each { |from, to| convert(from, to) }
   end
 
   def down
-    CONVERTED_CLASS_ACTIONS.each do |from, to|
-      convert(to, from)
-    end
+    CONVERTED_CLASS_ACTIONS.each { |from, to| convert(to, from) }
   end
 
   private
 
   def convert(from, to)
     say "Converting #{from} to #{to}"
+
     # We update in bulk to improve performance, and avoid coupling to future validation changes
     StepType.where(step_action: from).update_all(step_action: to) # rubocop:disable Rails/SkipsModelValidations
   end

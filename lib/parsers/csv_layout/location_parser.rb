@@ -1,6 +1,6 @@
 module Parsers
   module CsvLayout
-    class LocationParser
+    class LocationParser # rubocop:todo Style/Documentation
       include ActiveModel::Validations
 
       validate :validations
@@ -19,11 +19,9 @@ module Parsers
       private
 
       def parse(line)
-        begin
-          @location = TokenUtil.pad_location(line[0].strip)
-        rescue StandardError => e
-          @location = nil
-        end
+        @location = TokenUtil.pad_location(line[0].strip)
+      rescue StandardError => e
+        @location = nil
       end
     end
   end

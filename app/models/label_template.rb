@@ -1,8 +1,5 @@
-class LabelTemplate < ApplicationRecord
-  CLASS_TYPE_TEMPLATE_ALIASES = {
-    'TubeRack' => 'Plate',
-    'SampleTube' => 'Tube'
-  }.freeze
+class LabelTemplate < ApplicationRecord # rubocop:todo Style/Documentation
+  CLASS_TYPE_TEMPLATE_ALIASES = { 'TubeRack' => 'Plate', 'SampleTube' => 'Tube' }.freeze
 
   validates_presence_of :name, :external_id
   validates_uniqueness_of :name, :external_id
@@ -13,8 +10,8 @@ class LabelTemplate < ApplicationRecord
     templates = where(template_type: type)
 
     if templates.blank?
-      raise "Could not find any label template for type \'#{type}\'. "\
-            'Please contact LIMS support to fix the problem'
+      raise "Could not find any label template for type \'#{type}\'. " \
+              'Please contact LIMS support to fix the problem'
     end
 
     templates.detect { |t| t.name.include?(barcodetype) } || templates.first

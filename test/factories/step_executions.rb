@@ -1,3 +1,1 @@
-FactoryBot.define do
-  factory :step_execution
-end
+FactoryBot.define { factory :step_execution }

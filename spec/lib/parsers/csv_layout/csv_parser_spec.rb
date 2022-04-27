@@ -7,29 +7,22 @@ require 'parsers/csv_layout/validators/any_barcode_validator'
 require 'parsers/csv_layout/validators/location_validator'
 
 RSpec.describe Parsers::CsvLayout::CsvParser do
-  describe "parses a layout" do
+  describe 'parses a layout' do
     let(:activity) { create(:activity) }
     let(:asset_group) { create(:asset_group) }
     let(:step_type) { create(:step_type) }
-    let(:step) {
-      create :step,
-             activity: activity,
-             state: Step::STATE_RUNNING,
-             asset_group: asset_group, step_type: step_type
-    }
+    let(:step) do
+      create :step, activity: activity, state: Step::STATE_RUNNING, asset_group: asset_group, step_type: step_type
+    end
 
     setup do
       allow(SequencescapeClient).to receive(:labware).and_return([])
 
       @content = File.read('test/data/layout.csv')
-      @assets = Array.new(96) do |i|
-        FactoryBot.create(:asset, {
-                            :barcode => 'FR' + (11200002 + i).to_s
-                          })
-      end
+      @assets = Array.new(96) { |i| FactoryBot.create(:asset, { barcode: 'FR' + (11_200_002 + i).to_s }) }
     end
 
-    describe "with valid content" do
+    describe 'with valid content' do
       it 'parses correctly' do
         @csv = Parsers::CsvLayout::CsvParser.new(@content)
 
@@ -56,7 +49,7 @@ RSpec.describe Parsers::CsvLayout::CsvParser do
       end
     end
 
-    describe "parsing content saved from Excel" do
+    describe 'parsing content saved from Excel' do
       it 'parses it correctly' do
         @csv = Parsers::CsvLayout::CsvParser.new("A01,FR11200002\rA02,FR11200003")
         expect(@csv).to be_valid

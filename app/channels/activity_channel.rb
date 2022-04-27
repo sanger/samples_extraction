@@ -1,4 +1,4 @@
-class ActivityChannel < ApplicationCable::Channel
+class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documentation
   def self.connection_for_redis
     ActionCable.server.pubsub.redis_connection_for_subscriptions
   end
@@ -23,8 +23,8 @@ class ActivityChannel < ApplicationCable::Channel
   end
 
   def receive(data)
-    process_asset_group(strong_params_for_asset_group(data)) if data["asset_group"]
-    process_activity(strong_params_for_activity(data)) if data["activity"]
+    process_asset_group(strong_params_for_asset_group(data)) if data['asset_group']
+    process_activity(strong_params_for_activity(data)) if data['activity']
   end
 
   def process_asset_group(strong_params)
@@ -49,7 +49,11 @@ class ActivityChannel < ApplicationCable::Channel
       missing_barcodes = fluidx_barcodes - barcode_assets.map(&:barcode)
       asset_group.update_with_assets(uuid_assets + barcode_assets)
 
-      asset_group.activity.send_wss_event({ error: { type: 'danger', msg: "Could not find barcodes: #{missing_barcodes.join(', ')}" } }) if missing_barcodes.present?
+      if missing_barcodes.present?
+        asset_group.activity.send_wss_event(
+          { error: { type: 'danger', msg: "Could not find barcodes: #{missing_barcodes.join(', ')}" } }
+        )
+      end
     rescue Errno::ECONNREFUSED => e
       asset_group.activity.send_wss_event({ error: { type: 'danger', msg: 'Cannot connect with sequencescape' } })
     rescue StandardError => e
@@ -62,7 +66,7 @@ class ActivityChannel < ApplicationCable::Channel
 
     obj = ActivityChannel.activity_attributes(params[:activity_id])
 
-    ['stepTypes', 'stepsPending', 'stepsRunning', 'stepsFailed', 'stepsFinished'].reduce(obj) do |memo, key|
+    %w[stepTypes stepsPending stepsRunning stepsFailed stepsFinished].reduce(obj) do |memo, key|
       memo[key] = !!strong_params[key] unless strong_params[key].nil?
       memo
     end
@@ -77,16 +81,14 @@ class ActivityChannel < ApplicationCable::Channel
   end
 
   def self.activity_attributes(id)
-    begin
-      JSON.parse(redis.hget('activities', id)) || default_activity_attributes
-    rescue StandardError => e
-      default_activity_attributes
-    end
+    JSON.parse(redis.hget('activities', id)) || default_activity_attributes
+  rescue StandardError => e
+    default_activity_attributes
   end
 
   def strong_params_for_asset_group(params)
     params = ActionController::Parameters.new(params)
-    params.require(:asset_group).permit(:id, :assets => [])
+    params.require(:asset_group).permit(:id, assets: [])
   end
 
   def strong_params_for_activity(params)

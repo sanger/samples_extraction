@@ -1,7 +1,7 @@
-class ActivitiesController < ApplicationController
+class ActivitiesController < ApplicationController # rubocop:todo Style/Documentation
   include ActionController::Live
 
-  before_action :set_activity, only: [:show, :update]
+  before_action :set_activity, only: %i[show update]
   before_action :set_instrument, only: [:create]
   before_action :set_kit, only: [:create]
   before_action :set_activity_type, only: [:create]

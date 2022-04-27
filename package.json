@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "@babel/preset-env": "^7.5.5",
+    "@babel/preset-react": "^7.0.0",
     "@rails/webpacker": "^5.4.3",
     "ajv": "^6.4.0",
     "classnames": "^2.2.6",
@@ -25,14 +27,13 @@
     "react_ujs": "^2.4.4",
     "turbolinks": "^5.1.1",
     "upath": "^1.0.5",
-    "@babel/preset-env": "^7.5.5",
-    "@babel/preset-react": "^7.0.0",
     "webpacker-react": "^0.3.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.5",
     "@babel/core": "^7.5.5",
     "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
+    "@prettier/plugin-ruby": "^2.1.0",
     "babel-jest": "^24.9.0",
     "babel-loader": "^8.0.6",
     "babel-plugin-react-transform": "^3.0.0",
@@ -42,6 +43,7 @@
     "jest": "^24.9.0",
     "jest-enzyme": "^7.1.0",
     "postcss-preset-env": "^6.7.1",
+    "prettier": "^2.6.2",
     "regenerator-runtime": "^0.13.3"
   },
   "scripts": {

@@ -1,13 +1,13 @@
 require 'rails_helper'
 
-shared_examples_for "deprecatable" do
+shared_examples_for 'deprecatable' do
   def build_instance
     FactoryBot.create(model.to_s.underscore.to_sym)
   end
 
   let(:model) { described_class }
 
-  it "deprecates all the instances of the class with the same name" do
+  it 'deprecates all the instances of the class with the same name' do
     deprecatable_list = Array.new(10) { build_instance }
 
     expect(model.all.count).to eq(deprecatable_list.count)
