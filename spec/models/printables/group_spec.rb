@@ -142,7 +142,8 @@ RSpec.describe Printables::Group do
     context 'when using v2' do
       let(:uri) { 'http://localhost:10000/v2' }
       let(:post_headers) { { 'Content-Type' => 'application/json' } }
-      xit 'sends the right message to PMB' do
+
+      it 'sends the right message to PMB' do
         request =
           stub_request(:post, "#{uri}/print_jobs")
             .with(
@@ -171,7 +172,7 @@ RSpec.describe Printables::Group do
 
       context 'when an asset does not have barcode' do
         let(:asset1) { create(:asset, facts: facts1, barcode: nil) }
-        xit 'does not print it' do
+        it 'does not print it' do
           request =
             stub_request(:post, "#{uri}/print_jobs")
               .with(
