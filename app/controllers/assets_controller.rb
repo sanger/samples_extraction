@@ -11,7 +11,9 @@ class AssetsController < ApplicationController # rubocop:todo Style/Documentatio
   def print
     @asset.print(@current_user.printer_config, @current_user.username)
 
-    respond_to { |format| format.html { redirect_to @asset, notice: 'Asset was printed.' } }
+    respond_to do |format|
+      format.html { redirect_to @asset, notice: 'Asset was printed.' } # rubocop:todo Rails/I18nLocaleTexts
+    end
   end
 
   def print_search
@@ -65,7 +67,7 @@ class AssetsController < ApplicationController # rubocop:todo Style/Documentatio
 
     respond_to do |format|
       if @asset.save
-        format.html { redirect_to @asset, notice: 'Asset was successfully created.' }
+        format.html { redirect_to @asset, notice: 'Asset was successfully created.' } # rubocop:todo Rails/I18nLocaleTexts
         format.json { render :show, status: :created, location: @asset }
       else
         format.html { render :new }
@@ -81,7 +83,7 @@ class AssetsController < ApplicationController # rubocop:todo Style/Documentatio
       if @asset.update(asset_params)
         @asset.touch
 
-        format.html { redirect_to @asset, notice: 'Asset was successfully updated.' }
+        format.html { redirect_to @asset, notice: 'Asset was successfully updated.' } # rubocop:todo Rails/I18nLocaleTexts
         format.json { render :show, status: :ok, location: @asset }
       else
         format.html { render :edit }
@@ -95,7 +97,7 @@ class AssetsController < ApplicationController # rubocop:todo Style/Documentatio
   def destroy
     @asset.destroy
     respond_to do |format|
-      format.html { redirect_to assets_url, notice: 'Asset was successfully destroyed.' }
+      format.html { redirect_to assets_url, notice: 'Asset was successfully destroyed.' } # rubocop:todo Rails/I18nLocaleTexts
       format.json { head :no_content }
     end
   end
