@@ -16,7 +16,7 @@ RSpec.describe Printables::Group do
       let!(:printer2) { create :printer, name: 'printer2' }
 
       it 'classifies all assets to use the right printer' do
-        expect(group.classify_for_printing(config)).to eq({ ['printer1', template1.external_id] => [asset1, asset2] })
+        expect(group.classify_for_printing(config)).to eq({ ['printer1', template1] => [asset1, asset2] })
       end
     end
     context 'when each asset is for a different template and printer' do
@@ -34,7 +34,7 @@ RSpec.describe Printables::Group do
 
       it 'classifies all assets to use the right printer' do
         expect(group.classify_for_printing(config)).to eq(
-          { ['printer1', template1.external_id] => [asset1], ['printer2', template2.external_id] => [asset2] }
+          { ['printer1', template1] => [asset1], ['printer2', template2] => [asset2] }
         )
       end
     end

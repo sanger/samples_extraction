@@ -1,6 +1,7 @@
+require './lib/print_my_barcode_job'
 module Printables::Group # rubocop:todo Style/Documentation
   def classify_for_printing(printer_config)
-    template_cache = Hash.new { |store, types| store[types] = LabelTemplate.for_type(*types).external_id }
+    template_cache = Hash.new { |store, types| store[types] = LabelTemplate.for_type(*types) }
 
     assets.group_by do |asset|
       class_type = asset.class_type
@@ -8,8 +9,8 @@ module Printables::Group # rubocop:todo Style/Documentation
 
       raise "There is no defined printer for asset with type #{class_type}" unless printer_name
 
-      label_template_external_id = template_cache[[class_type, asset.barcode_type]]
-      [printer_name, label_template_external_id]
+      label_template = template_cache[[class_type, asset.barcode_type]]
+      [printer_name, label_template]
     end
   end
 
@@ -26,11 +27,11 @@ module Printables::Group # rubocop:todo Style/Documentation
   def print(printer_config, _username = nil)
     return if Rails.configuration.printing_disabled
 
-    classify_for_printing(printer_config).each do |(printer_name, external_id), assets|
+    classify_for_printing(printer_config).each do |(printer_name, label_template), assets|
       body_print = assets.filter_map(&:printable_object).reverse
       next if body_print.empty?
 
-      PMB::PrintJob.new(printer_name: printer_name, label_template_id: external_id, labels: { body: body_print }).save
+      PrintMyBarcodeJob.new(printer_name: printer_name, label_template: label_template, labels: body_print).save
     end
   end
 end

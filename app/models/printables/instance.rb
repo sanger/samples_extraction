@@ -1,3 +1,5 @@
+require './lib/print_my_barcode_job'
+
 module Printables::Instance # rubocop:todo Style/Documentation
   #
   # Print labels for the current Printables::Instance (eg. Asset) using the
@@ -17,12 +19,6 @@ module Printables::Instance # rubocop:todo Style/Documentation
 
     printer_name = printer_config[Printer.printer_type_for(class_type)]
     label_template = LabelTemplate.for_type(class_type, barcode_type)
-    PMB::PrintJob.new(
-      printer_name: printer_name,
-      label_template_id: label_template.external_id,
-      labels: {
-        body: body_print
-      }
-    ).save
+    PrintMyBarcodeJob.new(printer_name: printer_name, label_template: label_template, labels: body_print).save
   end
 end
