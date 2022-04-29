@@ -96,24 +96,59 @@ RSpec.describe Printables::Group do
     before { allow(Rails.configuration).to receive(:printing_disabled).and_return(false) }
 
     it 'sends the right message to PMB' do
-      body_print = assets.filter_map(&:printable_object).reverse
-
-      expect(PMB::PrintJob).to receive(:new)
-        .with(printer_name: 'printer1', label_template_id: 1, labels: { body: body_print })
-        .and_return(saveable_mock)
-      expect(saveable_mock).to receive(:save)
+      stub_request(:post, 'http://localhost:10000/v1/print_jobs')
+        .with(
+          body: {
+            data: {
+              type: 'print_jobs',
+              attributes: {
+                printer_name: 'printer1',
+                label_template_id: 1,
+                labels: {
+                  body: [
+                    { label: { barcode: '2', barcode2d: '2', top_line: '', middle_line: nil, bottom_line: '' } },
+                    { label: { barcode: '1', barcode2d: '1', top_line: '', middle_line: nil, bottom_line: '' } }
+                  ]
+                }
+              }
+            }
+          }.to_json
+        )
+        .to_return(
+          status: 200,
+          body: '{ "message": "labels successfully printed" }',
+          headers: {
+            'Content-Type' => 'application/vnd.api+json'
+          }
+        )
       group.print(config, 'user1')
     end
 
     context 'when an asset does not have barcode' do
       let(:asset1) { create(:asset, facts: props1, barcode: nil) }
       it 'does not print it' do
-        body_print = [asset2.printable_object]
-
-        expect(PMB::PrintJob).to receive(:new)
-          .with(printer_name: 'printer1', label_template_id: 1, labels: { body: body_print })
-          .and_return(saveable_mock)
-        expect(saveable_mock).to receive(:save)
+        stub_request(:post, 'http://localhost:10000/v1/print_jobs')
+          .with(
+            body: {
+              data: {
+                type: 'print_jobs',
+                attributes: {
+                  printer_name: 'printer1',
+                  label_template_id: 1,
+                  labels: {
+                    body: [{ label: { barcode: '2', barcode2d: '2', top_line: '', middle_line: nil, bottom_line: '' } }]
+                  }
+                }
+              }
+            }.to_json
+          )
+          .to_return(
+            status: 200,
+            body: '{ "message": "labels successfully printed" }',
+            headers: {
+              'Content-Type' => 'application/vnd.api+json'
+            }
+          )
 
         group.print(config, 'user1')
       end
