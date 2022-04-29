@@ -45,14 +45,14 @@ RSpec.describe Printables::Instance do
                 'Content-Type' => 'application/vnd.api+json'
               }
             )
-        asset1.print(config, 'user1')
+        asset1.print(config)
         expect(request).to have_been_made
       end
 
       context 'when an asset does not have barcode' do
         let(:asset1) { create(:asset, facts: props1, barcode: nil) }
         it 'does not print it' do
-          asset1.print(config, 'user1')
+          asset1.print(config)
           expect(a_request(:post, "#{uri}/print_jobs")).not_to have_been_made
         end
       end
@@ -82,14 +82,14 @@ RSpec.describe Printables::Instance do
                 'Content-Type' => 'application/json'
               }
             )
-        asset1.print(config, 'user1')
+        asset1.print(config)
         expect(request).to have_been_made
       end
 
       context 'when an asset does not have barcode' do
         let(:asset1) { create(:asset, facts: props1, barcode: nil) }
         it 'does not print it' do
-          asset1.print(config, 'user1')
+          asset1.print(config)
           expect(a_request(:post, "#{uri}/print_jobs")).not_to have_been_made
         end
       end

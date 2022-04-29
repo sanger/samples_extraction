@@ -103,7 +103,7 @@ RSpec.describe Printables::Group do
                 {"data":{"type":"print_jobs","attributes":{"printer_name":"printer1","label_template_id":1,"labels":{"body":[{"label":{"barcode":"2","barcode2d":"2","top_line":"","middle_line":null,"bottom_line":""}},{"label":{"barcode":"1","barcode2d":"1","top_line":"","middle_line":null,"bottom_line":""}}]}}}}
                 RESPONSE
 
-        group.print(config, 'user1')
+        group.print(config)
         expect(request).to have_been_made
       end
 
@@ -133,7 +133,7 @@ RSpec.describe Printables::Group do
                   {"data":{"type":"print_jobs","attributes":{"printer_name":"printer1","label_template_id":1,"labels":{"body":[{"label":{"barcode":"1","barcode2d":"1","top_line":"","middle_line":null,"bottom_line":""}}]}}}}
                   RESPONSE
 
-          group.print(config, 'user1')
+          group.print(config)
           expect(request).to have_been_made
         end
       end
@@ -166,7 +166,7 @@ RSpec.describe Printables::Group do
                 'Content-Type' => 'application/json'
               }
             )
-        group.print(config, 'user1')
+        group.print(config)
         expect(request).to have_been_made
       end
 
@@ -195,7 +195,7 @@ RSpec.describe Printables::Group do
                 }
               )
 
-          group.print(config, 'user1')
+          group.print(config)
           expect(request).to have_been_made
         end
       end
