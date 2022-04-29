@@ -85,11 +85,11 @@ module Assets::Import # rubocop:todo Style/Documentation
       self
     end
 
-    def refresh_from_remote(remote_asset:, fact_changes: nil)
+    def refresh_from_remote(remote_asset:, fact_changes: nil, step: nil)
       return unless changed_remote?(remote_asset)
       return if is_refreshing_right_now?
 
-      @import_step = Step.create(step_type: StepType.find_or_create_by(name: 'Refresh'), state: 'running')
+      @import_step = step || Step.create(step_type: StepType.find_or_create_by(name: 'Refresh'), state: 'running')
       _process_refresh(remote_asset, fact_changes)
     end
 
@@ -309,19 +309,11 @@ module Assets::Import # rubocop:todo Style/Documentation
       Asset
         .create!(barcode: barcode, uuid: remote_asset.uuid, facts: [])
         .tap do |asset|
-          FactChanges
-            .new
-            .tap do |updates|
-              updates.replace_remote(asset, 'a', sequencescape_type_for_asset(remote_asset))
-              updates.replace_remote(asset, 'remoteAsset', remote_asset.uuid)
-            end
-            .apply(import_step)
-
           # We initialize the asset with an empty facts array, but then modify it indirectly
           # Ideally this wouldn't be the case, and we'd keep the instance in sync. However
           # for now we unload the association to ensure we don't end up working with stale data
           asset.facts.reset
-          asset.refresh_from_remote(remote_asset: remote_asset)
+          asset.refresh_from_remote(remote_asset: remote_asset, step: import_step)
           asset.update_compatible_activity_type
         end
     end
