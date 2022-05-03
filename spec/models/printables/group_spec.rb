@@ -137,6 +137,22 @@ RSpec.describe Printables::Group do
           expect(request).to have_been_made
         end
       end
+
+      it 'handles failure with a custom exception' do
+        request =
+          stub_request(:post, "#{uri}/print_jobs").to_return(
+            status: 500,
+            body: <<~RESPONSE,
+                {"data":{"type":"print_jobs","attributes":{"printer_name":"printer1","label_template_id":1,"labels":{"body":[{"label":{"barcode":"2","barcode2d":"2","top_line":"","middle_line":null,"bottom_line":""}},{"label":{"barcode":"1","barcode2d":"1","top_line":"","middle_line":null,"bottom_line":""}}]}}}}
+                RESPONSE
+            headers: {
+              'Content-Type' => 'application/json'
+            }
+          )
+
+        expect { group.print(config) }.to raise_error PrintMyBarcodeJob::PrintingError
+        expect(request).to have_been_made
+      end
     end
 
     context 'when using v2' do
@@ -198,6 +214,22 @@ RSpec.describe Printables::Group do
           group.print(config)
           expect(request).to have_been_made
         end
+      end
+
+      it 'handles failure with a custom exception' do
+        request =
+          stub_request(:post, "#{uri}/print_jobs").to_return(
+            status: 500,
+            body: <<~RESPONSE,
+                {"data":{"type":"print_jobs","attributes":{"printer_name":"printer1","label_template_id":1,"labels":{"body":[{"label":{"barcode":"2","barcode2d":"2","top_line":"","middle_line":null,"bottom_line":""}},{"label":{"barcode":"1","barcode2d":"1","top_line":"","middle_line":null,"bottom_line":""}}]}}}}
+                RESPONSE
+            headers: {
+              'Content-Type' => 'application/json'
+            }
+          )
+
+        expect { group.print(config) }.to raise_error PrintMyBarcodeJob::PrintingError
+        expect(request).to have_been_made
       end
     end
   end

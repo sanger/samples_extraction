@@ -3,6 +3,8 @@
 # Wraps a print job for Print My Barcode
 # https://github.com/sanger/print_my_barcode
 class PrintMyBarcodeJob
+  PrintingError = Class.new(StandardError)
+
   #
   # Build a new print job
   #
@@ -47,14 +49,21 @@ class PrintMyBarcodeJob
         body: @labels
       }
     ).save
+  rescue JsonApiClient::Errors::ApiError => e
+    raise PrintingError, e.message
   end
 
   def v2_client
-    Faraday.new(url: pmb_uri) { |f| f.request :json }
+    Faraday.new(url: pmb_uri) do |faraday|
+      faraday.request :json
+      faraday.response :raise_error
+    end
   end
 
   def v2_request
     v2_client.post('print_jobs', v2_body)
+  rescue Faraday::Error => e
+    raise PrintingError, e.message
   end
 
   def v2_body
