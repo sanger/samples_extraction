@@ -9,7 +9,7 @@ class Step < ApplicationRecord # rubocop:todo Style/Documentation
   belongs_to :user
   has_many :uploads
   has_many :operations
-  has_many :step_messages # , dependent: :destroy
+  has_many :step_messages
   has_many :assets, through: :asset_group
   has_many :assets_affected, -> { distinct }, through: :operations, class_name: 'Asset', source: :asset
   has_many :asset_groups_affected,
@@ -31,6 +31,7 @@ class Step < ApplicationRecord # rubocop:todo Style/Documentation
         ->(asset) { includes(:assets).where(asset_groups_assets: { asset_id: asset.id }, state: 'running') }
   scope :for_assets, ->(assets) { joins(asset_group: :assets).where(asset_groups_assets: { asset_id: assets }) }
   scope :for_step_type, ->(step_type) { where(step_type: step_type) }
+  scope :include_messages, -> { includes(:step_messages) }
 
   include Deprecatable
   include Steps::QueueableJob

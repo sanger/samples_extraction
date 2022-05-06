@@ -17,7 +17,7 @@ module Activities::JsonAttributes # rubocop:todo Style/Documentation
         optionsData: Printer.for_plate.map { |a| [a.name, a.id] },
         defaultValue: current_user && current_user.plate_printer ? current_user.plate_printer.id : nil
       }
-    }.merge(websockets_attributes(json_attributes))
+    }.merge(websockets_attributes)
   end
 
   def json_attributes

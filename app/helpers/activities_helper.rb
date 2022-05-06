@@ -149,6 +149,11 @@ module ActivitiesHelper # rubocop:todo Style/Documentation
   end
 
   def messages_for_activity(activity)
-    activity.steps.failed.map(&:step_messages).flatten.map { |m| { type: 'danger', msg: m.content.to_s.html_safe } }
+    activity
+      .steps
+      .failed
+      .include_messages
+      .flat_map(&:step_messages)
+      .map { |m| { type: 'danger', msg: m.content.to_s.html_safe } }
   end
 end
