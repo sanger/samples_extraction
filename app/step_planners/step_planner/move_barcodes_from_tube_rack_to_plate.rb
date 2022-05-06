@@ -48,25 +48,25 @@ module StepPlanner
     end
 
     def index_wells_in(asset)
-      wells_for(asset).index_by do |w|
-        location_facts = w.facts.with_predicate('location').map(&:object).uniq
-
-        # We don't seem to have any case of this occurring in the production database, although there are some historic
-        # records with multiple location facts with the same location.
-        unless location_facts.one?
-          raise StandardError,
-                "Could not identify location for Asset #{asset.id}. Possible locations: #{location_facts}"
-        end
-
-        TokenUtil.pad_location(location_facts.first)
-      end
+      wells_for(asset).index_by { |well| location_of(well) }
     end
 
     def traverse_wells(asset)
-      wells_for(asset).each do |w|
-        location = w.facts.with_predicate('location').first.object
-        yield w, TokenUtil.pad_location(location)
+      wells_for(asset).each { |well| yield well, location_of(well) }
+    end
+
+    def location_of(well)
+      locations = well.facts.with_predicate('location').map(&:object).uniq
+
+      # Detect situations where we have no location, or multiple contradictory
+      # locations.
+      # We don't seem to have any case of the latter occurring in the production
+      # database, although there are some historic records with multiple
+      # location facts with the same location.
+      unless locations.one?
+        raise StandardError, "Could not identify location for Asset #{well.id}. Possible locations: #{locations}"
       end
+      TokenUtil.pad_location(locations.first)
     end
 
     def process
