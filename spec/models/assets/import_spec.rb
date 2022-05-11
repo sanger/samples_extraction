@@ -184,11 +184,11 @@ RSpec.describe 'Assets::Import' do
           %w[is NotStarted],
           %w[location E1],
           %w[sanger_sample_id sample_DN944443D_E1],
-          %w[sample_uuid "50f4e104-d048-11ec-94e7-fa163e1e3ca9"],
+          %w[sample_uuid "50f4e104-d048-11ec-94e7-fa163e1e3ca9"], # rubocop:disable Lint/PercentStringArray
           %w[sanger_sample_name sample_DN944443D_E1],
           %w[supplier_sample_name sample_DN944443D_E1],
           ['study_name', 'UAT Study'],
-          %w[study_uuid "fec8a1fa-b9e2-11e9-9123-fa163e99b035"]
+          %w[study_uuid "fec8a1fa-b9e2-11e9-9123-fa163e99b035"] # rubocop:disable Lint/PercentStringArray
         )
       end
     end

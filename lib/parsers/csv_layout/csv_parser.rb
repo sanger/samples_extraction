@@ -90,10 +90,8 @@ module Parsers
       def validate_tube_duplication
         parse unless @parsed
         if @line_parser.valid?
-          unless duplicated(:asset).empty?
-            duplicated(:asset).each do |asset|
-              errors.add(:base, "The tube with barcode #{asset.barcode} is duplicated in the file")
-            end
+          duplicated(:asset).each do |asset|
+            errors.add(:base, "The tube with barcode #{asset.barcode} is duplicated in the file")
           end
         end
       end
@@ -101,10 +99,8 @@ module Parsers
       def validate_location_duplication
         parse unless @parsed
         if @line_parser.valid?
-          unless duplicated(:location).empty?
-            duplicated(:location).each do |location|
-              errors.add(:base, "The location #{location} is duplicated in the file")
-            end
+          duplicated(:location).each do |location|
+            errors.add(:base, "The location #{location} is duplicated in the file")
           end
         end
       end

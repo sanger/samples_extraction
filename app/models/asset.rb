@@ -280,10 +280,10 @@ class Asset < ApplicationRecord # rubocop:todo Style/Documentation
          .flatten
          .uniq
          .count > 1
-      return ['More than one aliquot type in the same rack']
+      ['More than one aliquot type in the same rack']
     end
 
-    return []
+    []
   end
 
   def barcode_type
@@ -294,9 +294,7 @@ class Asset < ApplicationRecord # rubocop:todo Style/Documentation
   end
 
   def validate_rack_content
-    errors = []
-    errors.push(more_than_one_aliquot_type_validation)
-    errors
+    more_than_one_aliquot_type_validation
   end
 
   def to_n3

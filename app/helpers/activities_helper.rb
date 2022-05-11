@@ -49,7 +49,7 @@ module ActivitiesHelper # rubocop:todo Style/Documentation
         activity: step.activity,
         assetGroup: step.asset_group,
         step_type: step.step_type,
-        operations: operations_data(step.operations.joins(:asset)),
+        operations: operations_data(step.operations),
         username: username
       }.merge(step.attributes)
     end
@@ -62,24 +62,23 @@ module ActivitiesHelper # rubocop:todo Style/Documentation
   end
 
   def operations_data(operations)
-    operations.map do |fact|
-      elem = fact.object_asset
-      obj =
-        if elem
-          {
-            'object_asset' => {
-              uuid: elem.uuid,
-              barcode: elem.barcode,
-              id: elem.id,
-              info_line: elem.info_line
-            }
-          }.merge(fact.attributes)
-        else
-          fact.attributes
+    operations
+      .with_asset
+      .includes(:object_asset, :asset)
+      .map do |fact|
+        fact.attributes.tap do |data|
+          elem = fact.object_asset
+
+          data['object_asset'] = {
+            uuid: elem.uuid,
+            barcode: elem.barcode,
+            id: elem.id,
+            info_line: elem.info_line
+          } if elem
+
+          data[:asset] = fact.asset.attributes
         end
-      obj[:asset] = fact.asset.attributes
-      obj
-    end
+      end
   end
 
   def facts_data(facts)
