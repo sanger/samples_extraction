@@ -4,7 +4,7 @@ require 'remote_assets_helper'
 RSpec.describe 'Assets::Import' do
   include RemoteAssetsHelper
 
-  context '#refresh!' do
+  describe '#refresh!' do
     let(:asset) { create :asset }
     let(:plate) { build_remote_v2_plate }
 
@@ -45,55 +45,58 @@ RSpec.describe 'Assets::Import' do
     end
   end
 
-  context '#refresh' do
+  describe '#refresh' do
     let(:asset) { create :asset }
-    let(:plate) { build_remote_v2_plate }
 
-    before do
-      allow(SequencescapeClient).to receive(:find_by_uuid).and_return(true)
-      allow(asset).to receive(:changed_remote?).and_return(false)
-    end
-
-    it 'recognises a plate' do
-      asset.facts << create(:fact, predicate: 'a', object: 'TubeRack', is_remote?: true)
-      asset.refresh
-      expect(SequencescapeClient).to have_received(:find_by_uuid).with(asset.uuid)
-    end
-
-    it 'recognises a tube' do
-      asset.facts << create(:fact, predicate: 'a', object: 'Tube', is_remote?: true)
-      asset.refresh
-      expect(SequencescapeClient).to have_received(:find_by_uuid).with(asset.uuid)
-    end
-
-    context 'when actually updating' do
+    context 'with a dummied response' do
       before do
-        allow(SequencescapeClient).to receive(:find_by_uuid).and_return(plate)
+        allow(SequencescapeClient).to receive(:find_by_uuid).and_return(true)
+        allow(asset).to receive(:changed_remote?).and_return(false)
+      end
+
+      it 'recognises a plate' do
+        asset.facts << create(:fact, predicate: 'a', object: 'TubeRack', is_remote?: true)
+        asset.refresh
+        expect(SequencescapeClient).to have_received(:find_by_uuid).with(asset.uuid)
+      end
+
+      it 'recognises a tube' do
+        asset.facts << create(:fact, predicate: 'a', object: 'Tube', is_remote?: true)
+        asset.refresh
+        expect(SequencescapeClient).to have_received(:find_by_uuid).with(asset.uuid)
+      end
+    end
+
+    context 'when updating a plate' do
+      let(:asset) { create :plate, purpose: ['original', { is_remote?: true }] }
+
+      before do
+        stub_request(:get, %r{api/v2/plates}).to_return(
+          File.new('./spec/support/responses/sequencescape/v2/plate_uuid_response.txt')
+        )
         allow(asset).to receive(:changed_remote?).and_return(true)
       end
 
       it 'does not destroy remote facts that have not changed' do
-        fact = create(:fact, predicate: 'a', object: 'Plate', is_remote?: true)
-        asset.facts << fact
+        fact = asset.facts.with_predicate('a').first
         asset.refresh
         expect { fact.reload }.not_to raise_error
         expect(asset.facts.with_predicate('a').first.object).to eq('Plate')
       end
 
       it 'destroys and refreshes remote facts that have changed' do
-        fact = create(:fact, predicate: 'a', object: 'Tube', is_remote?: true)
-        asset.facts << fact
+        fact = asset.facts.with_predicate('purpose').first
         asset.refresh
         expect { fact.reload }.to raise_error(ActiveRecord::RecordNotFound)
-        expect(asset.facts.with_predicate('a').first.object).to eq('Plate')
+        expect(asset.facts.reload.with_predicate('purpose').first.object).to eq('Stock Plate')
       end
 
       it 'does not destroy local facts' do
-        fact = create(:fact, predicate: 'is', object: 'Red', is_remote?: false)
+        fact = create(:fact, predicate: 'is_coloured', object: 'Red', is_remote?: false)
         asset.facts << fact
         asset.refresh
         expect { fact.reload }.not_to raise_error
-        expect(asset.facts.with_predicate('is').first.object).to eq('Red')
+        expect(asset.facts.reload.with_predicate('is_coloured').first.object).to eq('Red')
       end
 
       it 'does not destroy the assets linked by remote facts' do
@@ -107,25 +110,86 @@ RSpec.describe 'Assets::Import' do
       end
 
       it 'replaces the local facts of the assets linked with remote facts that are changing' do
-        asset2 = create(:asset, uuid: plate.wells.first.uuid)
-        fact_well = create(:fact, predicate: 'location', object: 'A01', is_remote?: false)
-        asset2.facts << fact_well
-        fact = create(:fact, predicate: 'contains', object_asset_id: asset2.id, is_remote?: true)
+        well = create(:asset, uuid: '76c222fa-9a21-11ec-9a02-acde48001122')
+        fact_well = create(:fact, predicate: 'location', object: 'A01', is_remote?: true)
+        well.facts << fact_well
+        fact = create(:fact, predicate: 'contains', object_asset_id: well.id, is_remote?: true)
         asset.facts << fact
         asset.refresh
         expect { fact_well.reload }.to raise_error(ActiveRecord::RecordNotFound)
-        expect { asset2.reload }.not_to raise_error
+        expect { well.reload }.not_to raise_error
       end
 
       it 'replaces the remote facts of the assets linked with remote facts that are changing' do
-        asset2 = create(:asset, uuid: plate.wells.first.uuid)
+        well = create(:asset, uuid: '76c222fa-9a21-11ec-9a02-acde48001122')
         fact_well = create(:fact, predicate: 'location', object: 'A01', is_remote?: true)
-        asset2.facts << fact_well
-        fact = create(:fact, predicate: 'contains', object_asset_id: asset2.id, is_remote?: true)
+        well.facts << fact_well
+        fact = create(:fact, predicate: 'contains', object_asset_id: well.id, is_remote?: true)
         asset.facts << fact
         asset.refresh
         expect { fact_well.reload }.to raise_error(ActiveRecord::RecordNotFound)
-        expect { asset2.reload }.not_to raise_error
+        expect { well.reload }.not_to raise_error
+      end
+
+      it 'sets up the expected facts' do
+        asset.refresh
+        facts = asset.facts.reload.pluck(:predicate, :object)
+        expect(facts).to include(
+          %w[pushTo Sequencescape],
+          ['purpose', 'Stock Plate'],
+          %w[is NotStarted],
+          ['contains', nil]
+        )
+      end
+    end
+
+    context 'when updating a well' do
+      let(:asset) do
+        create :well_with_samples, uuid: '50ea0b26-d048-11ec-94e7-fa163e1e3ca9', location: ['A1', { is_remote?: true }]
+      end
+
+      before do
+        stub_request(:get, %r{api/v2/(plates|tubes)}).to_return(
+          File.new('./spec/support/responses/sequencescape/v2/empty_response.txt')
+        )
+
+        stub_request(:get, %r{api/v2/wells}).to_return(
+          File.new('./spec/support/responses/sequencescape/v2/well_response.txt')
+        )
+        allow(asset).to receive(:changed_remote?).and_return(true)
+      end
+
+      let!(:original_facts) { asset.facts.group_by(&:predicate) }
+
+      it 'does not destroy remote facts that have not changed' do
+        fact = asset.facts.with_predicate('a').first
+        asset.refresh
+        expect { fact.reload }.not_to raise_error
+        expect(asset.facts.with_predicate('a').first.object).to eq('Well')
+      end
+
+      it 'destroys and refreshes remote facts that have changed' do
+        fact = create(:fact, predicate: 'location', object: 'B2', is_remote?: true)
+        asset.facts << fact
+        asset.refresh
+        expect { fact.reload }.to raise_error(ActiveRecord::RecordNotFound)
+        expect(asset.facts.reload.with_predicate('location').first.object).to eq('E1')
+      end
+
+      it 'sets up the expected facts' do
+        asset.refresh
+        facts = asset.facts.reload.pluck(:predicate, :object)
+        expect(facts).to include(
+          %w[a Well],
+          %w[is NotStarted],
+          %w[location E1],
+          %w[sanger_sample_id sample_DN944443D_E1],
+          %w[sample_uuid "50f4e104-d048-11ec-94e7-fa163e1e3ca9"],
+          %w[sanger_sample_name sample_DN944443D_E1],
+          %w[supplier_sample_name sample_DN944443D_E1],
+          ['study_name', 'UAT Study'],
+          %w[study_uuid "fec8a1fa-b9e2-11e9-9123-fa163e99b035"]
+        )
       end
     end
   end

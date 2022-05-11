@@ -17,42 +17,34 @@ module Assets::Import # rubocop:todo Style/Documentation
       # Having a :to_json method that returns a json would be pretty sensible too
 
       # FOR A PLATE
-      if remote_asset.respond_to?(:wells) && remote_asset.wells
+      if remote_asset.try(:wells)
         # wells.to_a because wells relation does not act as an array
         wells = remote_asset.wells.to_a
-        if wells
-          # aliquots.to_a, same reason
-          aliquots = wells.compact.map(&:aliquots).map(&:to_a)
-          if aliquots
-            samples = aliquots.flatten.compact.map { |al| al.sample }
-            distinct += samples.compact.map(&:attributes).to_json if samples
-          end
-        end
+
+        # aliquots.to_a, same reason
+        aliquots = wells.compact.map(&:aliquots).map(&:to_a)
+        samples = aliquots.flatten.compact.map { |al| al.sample }
+        distinct += samples.compact.map(&:attributes).to_json
       end
 
       # FOR A TUBE
-      if remote_asset.respond_to?(:aliquots) && remote_asset.aliquots
+      if remote_asset.try(:aliquots)
         # aliquots.to_a, same reason
         aliquots = remote_asset.aliquots.to_a
-        if aliquots
-          samples = aliquots.flatten.compact.map { |al| al.sample }
-          distinct += samples.compact.map(&:attributes).to_json if samples
-        end
+        samples = aliquots.flatten.compact.map { |al| al.sample }
+        distinct += samples.compact.map(&:attributes).to_json
       end
 
       # FOR A TUBE RACK
-      if remote_asset.respond_to?(:racked_tubes) && remote_asset.racked_tubes
+      if remote_asset.try(:racked_tubes)
         # to_a because racked_tubes relation does not act as an array
         list_tubes = remote_asset.racked_tubes.map { |racked_tube| racked_tube.tube }.to_a
 
-        if list_tubes
-          # aliquots.to_a, same reason
-          aliquots = list_tubes.compact.map(&:aliquots).map(&:to_a)
-          if aliquots
-            samples = aliquots.flatten.compact.map { |al| al.sample }
-            distinct += samples.compact.map(&:attributes).to_json if samples
-          end
-        end
+        # aliquots.to_a, same reason
+        aliquots = list_tubes.compact.map(&:aliquots).map(&:to_a)
+
+        samples = aliquots.flatten.compact.map { |al| al.sample }
+        distinct += samples.compact.map(&:attributes).to_json
       end
 
       distinct
@@ -172,7 +164,6 @@ module Assets::Import # rubocop:todo Style/Documentation
       find_asset_with_barcode(barcode) || import_barcode(barcode)
     end
 
-    # One call
     def update_asset_from_remote_asset(asset, remote_asset, fact_changes)
       fact_changes.replace_remote(asset, 'a', sequencescape_type_for_asset(remote_asset))
 
@@ -183,7 +174,11 @@ module Assets::Import # rubocop:todo Style/Documentation
 
       fact_changes.replace_remote(asset, 'is', 'NotStarted')
 
-      annotate_container(asset, remote_asset, fact_changes)
+      if remote_asset.type == 'wells'
+        annotate_well(asset, remote_asset, fact_changes)
+      else
+        annotate_container(asset, remote_asset, fact_changes)
+      end
       annotate_wells(asset, remote_asset, fact_changes)
       annotate_tubes(asset, remote_asset, fact_changes)
       annotate_study_name(asset, remote_asset, fact_changes)
@@ -233,6 +228,14 @@ module Assets::Import # rubocop:todo Style/Documentation
       end
     end
 
+    def annotate_well(asset, remote_asset, fact_changes, plate = nil)
+      # Updated wells will also mean that the plate is out of date, so we'll set it in the asset
+      fact_changes.replace_remote(asset, 'a', 'Well')
+      fact_changes.replace_remote(asset, 'location', remote_asset.position['name'])
+      fact_changes.replace_remote(asset, 'parent', plate) if plate
+      annotate_container(asset, remote_asset, fact_changes)
+    end
+
     def annotate_wells(asset, remote_asset, fact_changes)
       return if remote_asset.try(:wells).blank?
 
@@ -244,14 +247,7 @@ module Assets::Import # rubocop:todo Style/Documentation
 
         fact_changes.replace_remote(asset, 'contains', local_well)
 
-        # Updated wells will also mean that the plate is out of date, so we'll set it in the asset
-        fact_changes.replace_remote(local_well, 'a', 'Well')
-        fact_changes.replace_remote(local_well, 'location', well.position['name'])
-        fact_changes.replace_remote(local_well, 'parent', asset)
-
-        if well.try(:aliquots)&.first&.sample&.sample_metadata&.supplier_name
-          annotate_container(local_well, well, fact_changes)
-        end
+        annotate_well(local_well, well, fact_changes, asset)
       end
     end
 
