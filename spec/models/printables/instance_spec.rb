@@ -70,7 +70,16 @@ RSpec.describe Printables::Instance do
                 print_job: {
                   printer_name: 'printer1',
                   label_template_name: 'se_ean13_96tube',
-                  labels: [{ label: { barcode: '1', barcode2d: '1', top_line: '', middle_line: nil, bottom_line: '' } }]
+                  labels: [
+                    {
+                      barcode: '1',
+                      barcode2d: '1',
+                      top_line: '',
+                      middle_line: nil,
+                      bottom_line: '',
+                      label_name: 'label'
+                    }
+                  ]
                 }
               }.to_json,
               headers: post_headers

@@ -67,6 +67,10 @@ class PrintMyBarcodeJob
   end
 
   def v2_body
-    { print_job: { printer_name: @printer_name, label_template_name: @label_template.name, labels: @labels } }
+    { print_job: { printer_name: @printer_name, label_template_name: @label_template.name, labels: v2_labels } }
+  end
+
+  def v2_labels
+    @labels.flat_map(&:values).map { |label| label.merge(label_name: 'label') }
   end
 end

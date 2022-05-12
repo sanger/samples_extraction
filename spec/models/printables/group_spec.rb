@@ -168,8 +168,22 @@ RSpec.describe Printables::Group do
                   printer_name: 'printer1',
                   label_template_name: 'se_ean13_96tube',
                   labels: [
-                    { label: { barcode: '2', barcode2d: '2', top_line: '', middle_line: nil, bottom_line: '' } },
-                    { label: { barcode: '1', barcode2d: '1', top_line: '', middle_line: nil, bottom_line: '' } }
+                    {
+                      barcode: '2',
+                      barcode2d: '2',
+                      top_line: '',
+                      middle_line: nil,
+                      bottom_line: '',
+                      label_name: 'label'
+                    },
+                    {
+                      barcode: '1',
+                      barcode2d: '1',
+                      top_line: '',
+                      middle_line: nil,
+                      bottom_line: '',
+                      label_name: 'label'
+                    }
                   ]
                 }
               }.to_json,
@@ -197,7 +211,14 @@ RSpec.describe Printables::Group do
                     printer_name: 'printer1',
                     label_template_name: 'se_ean13_96tube',
                     labels: [
-                      { label: { barcode: '2', barcode2d: '2', top_line: '', middle_line: nil, bottom_line: '' } }
+                      {
+                        barcode: '2',
+                        barcode2d: '2',
+                        top_line: '',
+                        middle_line: nil,
+                        bottom_line: '',
+                        label_name: 'label'
+                      }
                     ]
                   }
                 }.to_json,
