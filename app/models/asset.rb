@@ -20,7 +20,7 @@ class Asset < ApplicationRecord # rubocop:todo Style/Documentation
     # second time.
     def with_predicate(predicate)
       if loaded?
-        select { |fact| fact.predicate.casecmp?(predicate) }
+        select { |fact| fact.predicate.casecmp?(predicate.to_s) }
       else
         super
       end
