@@ -4,6 +4,11 @@ class LabelTemplate < ApplicationRecord # rubocop:todo Style/Documentation
   validates_presence_of :name, :external_id
   validates_uniqueness_of :name, :external_id
 
+  # Currently all label templates actively used by Sample Extraction use the
+  # label name 'label', so it has been set here. If this changes in future
+  # we can add a column to the database and this will be handled correctly
+  attribute :label_name, default: 'label'
+
   def self.for_type(class_type, barcodetype = 'ean13')
     type = CLASS_TYPE_TEMPLATE_ALIASES.fetch(class_type, class_type)
 

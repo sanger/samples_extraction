@@ -194,29 +194,22 @@ class Asset < ApplicationRecord # rubocop:todo Style/Documentation
     return nil if barcode.nil?
 
     if kind_of_plate?
-      return(
-        {
-          label: {
-            barcode: barcode,
-            top_left: DateTime.now.strftime('%d/%b/%y'),
-            top_right: info_line, # username,
-            bottom_right: study_and_barcode,
-            bottom_left: barcode
-          }
-        }
-      )
-    end
-    return(
       {
-        label: {
-          barcode: barcode_formatted_for_printing,
-          barcode2d: barcode_formatted_for_printing,
-          top_line: TokenUtil.human_barcode(barcode),
-          middle_line: kit_type,
-          bottom_line: info_line
-        }
+        barcode: barcode,
+        top_left: DateTime.now.strftime('%d/%b/%y'),
+        top_right: info_line, # username,
+        bottom_right: study_and_barcode,
+        bottom_left: barcode
       }
-    )
+    else
+      {
+        barcode: barcode_formatted_for_printing,
+        barcode2d: barcode_formatted_for_printing,
+        top_line: TokenUtil.human_barcode(barcode),
+        middle_line: kit_type,
+        bottom_line: info_line
+      }
+    end
   end
 
   def kit_type

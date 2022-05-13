@@ -46,11 +46,15 @@ class PrintMyBarcodeJob
       printer_name: @printer_name,
       label_template_id: @label_template.external_id,
       labels: {
-        body: @labels
+        body: v1_labels
       }
     ).save
   rescue JsonApiClient::Errors::ApiError => e
     raise PrintingError, e.message
+  end
+
+  def v1_labels
+    @labels.map { |label| { @label_template.label_name.to_sym => label } }
   end
 
   def v2_client
@@ -71,6 +75,6 @@ class PrintMyBarcodeJob
   end
 
   def v2_labels
-    @labels.flat_map(&:values).map { |label| label.merge(label_name: 'label') }
+    @labels.map { |label| label.merge(label_name: @label_template.label_name) }
   end
 end
