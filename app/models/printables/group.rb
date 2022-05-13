@@ -1,7 +1,7 @@
 require './lib/print_my_barcode_job'
 module Printables::Group # rubocop:todo Style/Documentation
   def classify_for_printing(printer_config)
-    template_cache = Hash.new { |store, types| store[types] = LabelTemplate.for_type(*types) }
+    template_cache = Hash.new { |store, type| store[type] = LabelTemplate.for_type(type) }
 
     assets.group_by do |asset|
       class_type = asset.class_type
@@ -9,7 +9,7 @@ module Printables::Group # rubocop:todo Style/Documentation
 
       raise "There is no defined printer for asset with type #{class_type}" unless printer_name
 
-      label_template = template_cache[[class_type, asset.barcode_type]]
+      label_template = template_cache[class_type]
       [printer_name, label_template]
     end
   end

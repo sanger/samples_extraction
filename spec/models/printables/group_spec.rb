@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Printables::Group do
   describe '#classify_for_printing' do
-    let!(:template1) { create(:label_template, name: 'se_ean13_96tube', template_type: 'Tube', external_id: 1) }
+    let!(:template1) { create(:tube_label_template) }
     let(:facts1) { [create(:fact, predicate: 'a', object: 'Tube')] }
     let(:asset1) { create(:asset, facts: facts1) }
     let(:assets) { [asset1, asset2] }
@@ -22,7 +22,7 @@ RSpec.describe Printables::Group do
     end
 
     context 'when each asset is for a different template and printer' do
-      let!(:template2) { create(:label_template, name: 'se_ean13_96plate', template_type: 'Plate', external_id: 2) }
+      let!(:template2) { create(:plate_label_template) }
       let(:facts2) { [create(:fact, predicate: 'a', object: 'Plate')] }
       let(:asset2) { create(:asset, facts: facts2) }
 
@@ -47,7 +47,7 @@ RSpec.describe Printables::Group do
     end
 
     context 'when there is no printer to print the asset' do
-      let!(:template2) { create(:label_template, name: 'se_ean13_96plate', template_type: 'Plate', external_id: 2) }
+      let!(:template2) { create(:plate_label_template) }
       let(:facts2) { [create(:fact, predicate: 'a', object: 'Plate')] }
       let(:asset2) { create(:asset, facts: facts2) }
       let(:config) { { 'Tube' => 'printer1' } }
@@ -60,7 +60,7 @@ RSpec.describe Printables::Group do
   end
 
   context '#print' do
-    let!(:template1) { create(:label_template, name: 'se_ean13_96tube', template_type: 'Tube', external_id: 1) }
+    let!(:template1) { create(:tube_label_template) }
     let(:facts1) { [create(:fact, predicate: 'a', object: 'Tube')] }
     let(:asset1) { create(:asset, facts: facts1, barcode: '1') }
     let(:asset2) { create(:asset, facts: facts1, barcode: '2') }
@@ -87,7 +87,7 @@ RSpec.describe Printables::Group do
                   type: 'print_jobs',
                   attributes: {
                     printer_name: 'printer1',
-                    label_template_id: 1,
+                    label_template_id: template1.external_id,
                     labels: {
                       body: [
                         { label: { barcode: '2', barcode2d: '2', top_line: '', middle_line: nil, bottom_line: '' } },
@@ -118,7 +118,7 @@ RSpec.describe Printables::Group do
                     type: 'print_jobs',
                     attributes: {
                       printer_name: 'printer1',
-                      label_template_id: 1,
+                      label_template_id: template1.external_id,
                       labels: {
                         body: [
                           { label: { barcode: '2', barcode2d: '2', top_line: '', middle_line: nil, bottom_line: '' } }
@@ -166,7 +166,7 @@ RSpec.describe Printables::Group do
               body: {
                 print_job: {
                   printer_name: 'printer1',
-                  label_template_name: 'se_ean13_96tube',
+                  label_template_name: template1.name,
                   labels: [
                     {
                       barcode: '2',
@@ -209,7 +209,7 @@ RSpec.describe Printables::Group do
                 body: {
                   print_job: {
                     printer_name: 'printer1',
-                    label_template_name: 'se_ean13_96tube',
+                    label_template_name: template1.name,
                     labels: [
                       {
                         barcode: '2',

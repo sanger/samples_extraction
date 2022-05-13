@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Printables::Instance do
   context '#print' do
-    let!(:template1) { create(:label_template, name: 'se_ean13_96tube', template_type: 'Tube', external_id: 1) }
+    let!(:template1) { create(:tube_label_template) }
     let(:props1) { [create(:fact, predicate: 'a', object: 'Tube')] }
     let(:asset1) { create(:asset, facts: props1, barcode: '1') }
     let(:config) { { 'Tube' => 'printer1', 'Plate' => 'printer2' } }
@@ -28,7 +28,7 @@ RSpec.describe Printables::Instance do
                   type: 'print_jobs',
                   attributes: {
                     printer_name: 'printer1',
-                    label_template_id: 1,
+                    label_template_id: template1.external_id,
                     labels: {
                       body: [
                         { label: { barcode: '1', barcode2d: '1', top_line: '', middle_line: nil, bottom_line: '' } }
@@ -69,7 +69,7 @@ RSpec.describe Printables::Instance do
               body: {
                 print_job: {
                   printer_name: 'printer1',
-                  label_template_name: 'se_ean13_96tube',
+                  label_template_name: template1.name,
                   labels: [
                     {
                       barcode: '1',

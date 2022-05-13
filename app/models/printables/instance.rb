@@ -17,7 +17,7 @@ module Printables::Instance # rubocop:todo Style/Documentation
     raise 'No printer config provided' if !printer_config
 
     printer_name = printer_config[Printer.printer_type_for(class_type)]
-    label_template = LabelTemplate.for_type(class_type, barcode_type)
+    label_template = LabelTemplate.for_type(class_type)
     PrintMyBarcodeJob.new(printer_name: printer_name, label_template: label_template, labels: body_print).save
   end
 end
