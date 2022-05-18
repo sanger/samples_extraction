@@ -33,7 +33,7 @@ class AssetGroupsController < ApplicationController # rubocop:todo Style/Documen
   end
 
   def print
-    @asset_group.print(@current_user.printer_config, @current_user.username)
+    @asset_group.print(@current_user.printer_config)
 
     redirect_to :back
   end

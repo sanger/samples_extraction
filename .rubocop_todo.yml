@@ -463,14 +463,6 @@ Rails/TimeZone:
     - 'app/controllers/assets_controller.rb'
     - 'spec/remote_assets_helper.rb'
 
-# Offense count: 2
-# This cop supports safe auto-correction (--auto-correct).
-# Configuration parameters: Include.
-# Include: app/models/**/*.rb
-Rails/Validation:
-  Exclude:
-    - 'app/models/label_template.rb'
-
 # Offense count: 3
 # This cop supports safe auto-correction (--auto-correct).
 Rails/WhereNot:
@@ -694,7 +686,6 @@ Style/FrozenStringLiteralComment:
     - 'app/models/instrument.rb'
     - 'app/models/kit.rb'
     - 'app/models/kit_type.rb'
-    - 'app/models/label_template.rb'
     - 'app/models/operation.rb'
     - 'app/models/printables/group.rb'
     - 'app/models/printables/instance.rb'

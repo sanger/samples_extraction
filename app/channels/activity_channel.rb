@@ -74,7 +74,7 @@ class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documenta
   end
 
   def self.default_activity_attributes
-    { stepTypes: true, stepsPending: true, stepsRunning: true, stepsFailed: true, stepsFinished: false }.as_json
+    { stepTypes: true, stepsPending: true, stepsRunning: true, stepsFailed: true, stepsFinished: false }
   end
 
   def self.activity_attributes(id)

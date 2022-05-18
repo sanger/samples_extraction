@@ -2,7 +2,10 @@ require 'parsers/csv_layout/barcode_parser'
 
 module Parsers
   module CsvLayout
-    class BarcodeCreatableParser < BarcodeParser # rubocop:todo Style/Documentation
+    # Used to automatically register an empty tube with the given barcode if
+    # the barcode doesn't already exist in either Sequencescape or
+    # Samples Extraction.
+    class BarcodeCreatableParser < BarcodeParser
       def updater
         @parser.parsed_changes
       end

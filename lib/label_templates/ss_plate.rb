@@ -50,10 +50,6 @@ def plate_barcode_definition(name, type_id, barcode_type)
   }
 end
 
-LabelTemplateSetup.register_template('se_ean13_96plate', 'Plate') do |name, type_id|
-  plate_barcode_definition(name, type_id, '5')
-end
-
 LabelTemplateSetup.register_template('se_code128_96plate', 'Plate') do |name, type_id|
   plate_barcode_definition(name, type_id, '9')
 end

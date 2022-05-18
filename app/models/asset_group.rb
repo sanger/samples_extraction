@@ -52,11 +52,6 @@ class AssetGroup < ApplicationRecord # rubocop:todo Style/Documentation
     @step_type_for_import ||= StepType.find_or_create_by(name: 'ChangeGroup')
   end
 
-  def position_for_asset(asset)
-    assets.each_with_index { |a, pos| return pos if asset.id == a.id }
-    return -1
-  end
-
   def touch_activity
     activity_owner.touch if activity_owner
   end
@@ -122,42 +117,7 @@ class AssetGroup < ApplicationRecord # rubocop:todo Style/Documentation
     end
   end
 
-  def unselect_all_barcodes
-    assets.delete(assets)
-  end
-
   def to_n3
     render :n3
-  end
-
-  def clean_fact_group(groups)
-    h = {}
-    groups.each { |group, assets| h[group] = assets.uniq }
-    h
-  end
-
-  def assets_by_fact_group
-    return [] unless assets
-
-    obj_type = Struct.new(:predicate, :object, :to_add_by, :to_remove_by, :object_asset_id)
-
-    groups =
-      assets.group_by do |a|
-        a
-          .facts
-          .sort do |f1, f2|
-            # Canonical sort of facts
-            f1.canonical_comparison_for_sorting(f2)
-          end
-          .map(&:as_json)
-          .map do |f|
-            obj = f['object']
-            obj = '?' if f['object_asset_id']
-            obj_type.new(f['predicate'], obj, f['to_add_by'], f['to_remove_by'], nil)
-          end
-          .uniq
-      end
-
-    clean_fact_group(groups)
   end
 end

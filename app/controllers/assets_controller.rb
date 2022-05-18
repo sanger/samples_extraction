@@ -9,7 +9,7 @@ class AssetsController < ApplicationController # rubocop:todo Style/Documentatio
   end
 
   def print
-    @asset.print(@current_user.printer_config, @current_user.username)
+    @asset.print(@current_user.printer_config)
 
     respond_to do |format|
       format.html { redirect_to @asset, notice: 'Asset was printed.' } # rubocop:todo Rails/I18nLocaleTexts
@@ -22,7 +22,7 @@ class AssetsController < ApplicationController # rubocop:todo Style/Documentatio
 
     temp_group = AssetGroup.new
     temp_group.assets << @assets
-    temp_group.print(@current_user.printer_config, @current_user.username)
+    temp_group.print(@current_user.printer_config)
 
     respond_to { |format| format.html { render :search, notice: 'Search was printed.' } }
   end
