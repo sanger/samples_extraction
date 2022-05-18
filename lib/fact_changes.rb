@@ -81,17 +81,14 @@ class FactChanges # rubocop:todo Style/Documentation
       create_asset_groups: @asset_groups_to_create.map(&:uuid),
       delete_asset_groups: @asset_groups_to_destroy.map(&:uuid),
       delete_assets: @assets_to_destroy.map(&:uuid),
-      add_facts:
-        @facts_to_add.map do |f|
-          [f[:asset].nil? ? nil : f[:asset].uuid, f[:predicate], (f[:object] || f[:object_asset].uuid)]
-        end,
+      add_facts: @facts_to_add.map { |f| [f[:asset]&.uuid, f[:predicate], (f[:object] || f[:object_asset].uuid)] },
       remove_facts:
         @facts_to_destroy.map do |f|
           if f[:id]
             fact = Fact.find(f[:id])
             [fact.asset.uuid, fact.predicate, fact.object_value_or_uuid]
           else
-            [f[:asset].nil? ? nil : f[:asset].uuid, f[:predicate], (f[:object] || f[:object_asset].uuid)]
+            [f[:asset]&.uuid, f[:predicate], (f[:object] || f[:object_asset].uuid)]
           end
         end,
       add_assets: asset_group_asset_to_h(@assets_to_add),
@@ -315,7 +312,7 @@ class FactChanges # rubocop:todo Style/Documentation
   end
 
   def wildcard_for_uuid(uuid)
-    wildcards.keys.detect { |key| wildcards[key] == uuid }
+    wildcards.key(uuid)
   end
 
   def find_instance_from_uuid(klass, uuid)

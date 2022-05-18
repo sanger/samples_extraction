@@ -6,14 +6,13 @@ RSpec.describe Actions::Racking do
   let(:file) { create(:uploaded_file, data: content) }
   let(:activity) { create(:activity) }
   let(:asset_group) { create(:asset_group, assets: [asset]) }
-  let(:fact) { create(:fact, predicate: 'a', object: 'TubeRack') }
-  let(:asset) { create :asset, uploaded_file: file, facts: [fact] }
+  let(:asset) { create :asset, uploaded_file: file, a: 'TubeRack' }
   let(:step_type) { create(:step_type, condition_groups: [condition_group]) }
   let(:step) do
     create :step, activity: activity, state: Step::STATE_RUNNING, asset_group: asset_group, step_type: step_type
   end
 
-  let(:condition) { create(:condition, predicate: fact.predicate, object: fact.object) }
+  let(:condition) { create(:condition, predicate: 'a', object: 'TubeRack') }
   let(:condition_group) { create(:condition_group, conditions: [condition]) }
   let(:racking_class) do
     Class.new do
@@ -49,7 +48,7 @@ RSpec.describe Actions::Racking do
       end
 
       describe 'with links with previous parents' do
-        let(:actual_parent) { create(:asset, uploaded_file: file, facts: [fact]) }
+        let(:actual_parent) { create(:asset, uploaded_file: file, a: 'TubeRack') }
 
         it 'removes links with the previous parents' do
           asset_group
@@ -115,41 +114,32 @@ RSpec.describe Actions::Racking do
   end
 
   describe '#fact_changes_for_rack_when_unracking_tubes' do
-    before do
-      @tubes = create_list :asset, 15
-      @tubes.each { |tube| asset.facts << create(:fact, predicate: 'contains', object_asset: tube) }
+    let(:tubes) do
+      [create(:asset, study_name: 'STDY2'), *create_list(:asset, 2, study_name: 'STDY1', aliquot_type: aliquot_type)]
     end
+    let(:aliquot_type) { nil }
+
+    before { tubes.each { |tube| create(:fact, asset: asset, predicate: 'contains', object_asset: tube) } }
+
     it 'removes all the different studies for this rack when all tubes go out' do
-      @tubes.first.facts << create(:fact, predicate: 'study_name', object: 'STDY2')
-      @tubes.each_with_index do |tube, idx|
-        tube.facts << create(:fact, predicate: 'study_name', object: 'STDY1') unless idx == 0
-      end
-      updates = fact_changes_for_rack_when_unracking_tubes(asset, @tubes)
+      updates = fact_changes_for_rack_when_unracking_tubes(asset, tubes)
       expect(
         updates.to_h[:remove_facts].select { |triple| triple[1] == 'study_name' }.map { |triple| triple[2] }.sort
       ).to eq(%w[STDY1 STDY2])
     end
 
-    it 'removes the purpose when all tubes go out' do
-      asset.facts << create(:fact, predicate: 'purpose', object: 'DNA Stock Plate')
-      @tubes.first.facts << create(:fact, predicate: 'aliquotType', object: 'DNA')
-      updates = fact_changes_for_rack_when_unracking_tubes(asset, @tubes)
-      expect(
-        updates.to_h[:remove_facts].select { |triple| triple[1] == 'purpose' }.map { |triple| triple[2] }.sort
-      ).to eq(['DNA Stock Plate'])
+    context 'when a DNA tube' do
+      let(:aliquot_type) { 'DNA' }
+      it 'removes the purpose when all tubes go out' do
+        updates = fact_changes_for_rack_when_unracking_tubes(asset, tubes)
+        expect(
+          updates.to_h[:remove_facts].select { |triple| triple[1] == 'purpose' }.map { |triple| triple[2] }.sort
+        ).to eq(['DNA Stock Plate'])
+      end
     end
 
     it 'only returns the studies of the tubes that are going to be removed' do
-      @tubes.first.facts << create(:fact, predicate: 'study_name', object: 'STDY2')
-      tubes2 =
-        @tubes.each_with_index.filter_map do |tube, idx|
-          unless idx == 0
-            tube.facts << create(:fact, predicate: 'study_name', object: 'STDY1')
-            tube
-          end
-        end
-
-      updates = fact_changes_for_rack_when_unracking_tubes(asset, tubes2)
+      updates = fact_changes_for_rack_when_unracking_tubes(asset, tubes[1..])
       expect(
         updates.to_h[:remove_facts].select { |triple| triple[1] == 'study_name' }.map { |triple| triple[2] }.sort
       ).to eq(['STDY1'])
@@ -157,31 +147,33 @@ RSpec.describe Actions::Racking do
   end
 
   describe '#fact_changes_for_rack_when_racking_tubes' do
-    before { @tubes = create_list :asset, 15 }
-    it 'returns all the different studies for this rack' do
-      @tubes.first.facts << create(:fact, predicate: 'study_name', object: 'STDY2')
-      @tubes.each_with_index do |tube, idx|
-        tube.facts << create(:fact, predicate: 'study_name', object: 'STDY1') unless idx == 0
-      end
+    subject(:updates) { fact_changes_for_rack_when_racking_tubes(asset, tubes) }
 
-      updates = fact_changes_for_rack_when_racking_tubes(asset, @tubes)
+    let(:tubes) do
+      [create(:asset, study_name: 'STDY2'), *create_list(:asset, 2, study_name: 'STDY1', aliquot_type: aliquot_type)]
+    end
+    let(:aliquot_type) { nil }
+
+    it 'returns all the different studies for this rack' do
       expect(
-        updates.to_h[:add_facts].select { |triple| triple[1] == 'study_name' }.map { |triple| triple[2] }.sort
-      ).to eq(%w[STDY1 STDY2])
+        updates.to_h[:add_facts]
+          .select { |_uuid, predicate, _object| predicate == 'study_name' }
+          .map { |_uuid, _predicate, object| object }
+      ).to match_array(%w[STDY1 STDY2])
     end
-    it 'generates the DNA stock plate purpose' do
-      @tubes.each_with_index do |tube, idx|
-        tube.facts << create(:fact, predicate: 'aliquotType', object: 'DNA') unless idx == 0
+    context 'when a DNA tube' do
+      let(:aliquot_type) { 'DNA' }
+
+      it 'generates the DNA stock plate purpose' do
+        expect(updates.to_h[:add_facts].find { |triple| triple[1] == 'purpose' }[2]).to eq('DNA Stock Plate')
       end
-      updates = fact_changes_for_rack_when_racking_tubes(asset, @tubes)
-      expect(updates.to_h[:add_facts].find { |triple| triple[1] == 'purpose' }[2]).to eq('DNA Stock Plate')
     end
-    it 'generates the RNA stock plate purpose' do
-      @tubes.each_with_index do |tube, idx|
-        tube.facts << create(:fact, predicate: 'aliquotType', object: 'RNA') unless idx == 0
+    context 'when an RNA tube' do
+      let(:aliquot_type) { 'RNA' }
+
+      it 'generates the RNA stock plate purpose' do
+        expect(updates.to_h[:add_facts].find { |triple| triple[1] == 'purpose' }[2]).to eq('RNA Stock Plate')
       end
-      updates = fact_changes_for_rack_when_racking_tubes(asset, @tubes)
-      expect(updates.to_h[:add_facts].find { |triple| triple[1] == 'purpose' }[2]).to eq('RNA Stock Plate')
     end
   end
 

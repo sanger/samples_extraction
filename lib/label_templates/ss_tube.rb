@@ -94,10 +94,6 @@ def tube_barcode_definition(name, type_id, barcode_type)
   }
 end
 
-LabelTemplateSetup.register_template('se_ean13_1dtube', 'Tube') do |name, type_id|
-  tube_barcode_definition(name, type_id, '5')
-end
-
 LabelTemplateSetup.register_template('se_code128_1dtube', 'Tube') do |name, type_id|
   tube_barcode_definition(name, type_id, '9')
 end

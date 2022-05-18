@@ -6,6 +6,7 @@ class Operation < ApplicationRecord # rubocop:todo Style/Documentation
   belongs_to :activity
 
   scope :for_presenting, -> { includes(:asset, :action) }
+  scope :with_asset, -> { where.not(asset_id: nil) }
 
   def object_value
     object || object_asset

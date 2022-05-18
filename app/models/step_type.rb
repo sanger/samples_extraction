@@ -102,21 +102,6 @@ class StepType < ApplicationRecord # rubocop:todo Style/Documentation
     actions.each { |action| action.update_attributes(step_type_id: nil) }
   end
 
-  def position_for_assets_by_condition_group(assets)
-    all_cgroups = {}
-    condition_group_classification_for(assets).to_h do |asset, cgroups|
-      [
-        asset.id,
-        cgroups.to_h do |cgroup|
-          all_cgroups[cgroup] = 0 if all_cgroups[cgroup].nil?
-          position = all_cgroups[cgroup]
-          all_cgroups[cgroup] = all_cgroups[cgroup] + 1
-          [cgroup.id, position]
-        end
-      ]
-    end
-  end
-
   def condition_group_classification_for(assets, checked_condition_groups = [], wildcard_values = {})
     related_assets = []
     h = assets.to_h { |asset| [asset, condition_groups_for(asset, related_assets, [], wildcard_values)] }
@@ -153,14 +138,11 @@ class StepType < ApplicationRecord # rubocop:todo Style/Documentation
 
     # Every asset has at least one condition group satisfied
     classification = condition_group_classification_for(assets, checked_condition_groups, wildcard_values)
-    compatible =
-      every_condition_group_satisfies_cardinality(classification) &&
-        every_condition_group_has_at_least_one_asset?(classification) &&
-        every_asset_has_at_least_one_condition_group?(classification) &&
-        every_required_asset_is_in_classification?(classification, required_assets)
-    return true if compatible
 
-    return false
+    every_condition_group_satisfies_cardinality(classification) &&
+      every_condition_group_has_at_least_one_asset?(classification) &&
+      every_asset_has_at_least_one_condition_group?(classification) &&
+      every_required_asset_is_in_classification?(classification, required_assets)
   end
 
   def condition_groups_for(asset, related_assets = [], checked_condition_groups = [], wildcard_values = {})
@@ -175,20 +157,6 @@ class StepType < ApplicationRecord # rubocop:todo Style/Documentation
       memo[asset] = cgroups.select { |condition_group| condition_group.compatible_with?([asset].flatten) }
       memo
     end
-  end
-
-  def check_dependency_compatibility_for(asset, condition_group, assets)
-    check_cgs = condition_groups.select { |cg| cg.conditions.any? { |c| c.object_condition_group == condition_group } }
-    return true if check_cgs.empty?
-
-    ancestors = assets.select { |a| a.facts.any? { |f| f.object_asset == asset } }.uniq
-    return true if ancestors.empty?
-
-    classification = classification_for(ancestors, check_cgs)
-
-    every_condition_group_satisfies_cardinality(classification) &&
-      every_condition_group_has_at_least_one_asset?(classification, check_cgs) &&
-      every_asset_has_at_least_one_condition_group?(classification)
   end
 
   def to_n3

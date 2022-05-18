@@ -6,6 +6,9 @@ namespace :label_templates do
     puts 'Label types loaded...'
     Dir['./lib/label_templates/*'].each { |f| require f }
     puts 'Templates loaded...'
-    LabelTemplateSetup.find_or_register_each_template!
+    LabelTemplate.transaction do
+      LabelTemplateSetup.remove_old_templates!
+      LabelTemplateSetup.find_or_register_each_template!
+    end
   end
 end

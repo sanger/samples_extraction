@@ -32,7 +32,7 @@ module Steps::Task # rubocop:todo Style/Documentation
       assets_for_printing = assets_for_printing.to_a.concat(updates.assets_for_printing)
     end
 
-    AssetGroup.new(assets: assets_for_printing).print(printer_config, user.username) if assets_for_printing.length > 0
+    AssetGroup.new(assets: assets_for_printing).print(printer_config) if assets_for_printing.length > 0
   end
 
   def apply_changes(updates)

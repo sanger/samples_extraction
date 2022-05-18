@@ -1,4 +1,6 @@
-class LabelTemplateSetup # rubocop:todo Style/Documentation
+# Called in lib/tasks/setup_templates.rake
+# Handles the creation of the label templates setup in lib/label_types
+class LabelTemplateSetup
   module ClassMethods # rubocop:todo Style/Documentation
     def label_types
       @label_types ||= PMB::LabelType.all
@@ -33,6 +35,16 @@ class LabelTemplateSetup # rubocop:todo Style/Documentation
 
     def find_or_register_each_template!
       templates.each { |template| template.find_or_register! }
+    end
+
+    def remove_old_templates!
+      LabelTemplate.where.not(name: registered_names).each(&:destroy)
+    end
+
+    private
+
+    def registered_names
+      templates.map(&:name)
     end
   end
   extend ClassMethods

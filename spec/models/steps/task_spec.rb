@@ -70,7 +70,7 @@ describe Steps::Task do
 
           step = create_instance(step_type, activity, group)
 
-          expect_any_instance_of(AssetGroup).to receive(:print).with(printer_config, user.username)
+          expect_any_instance_of(AssetGroup).to receive(:print).with(printer_config)
 
           step.run!
         end
