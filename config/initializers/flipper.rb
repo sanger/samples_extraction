@@ -8,6 +8,8 @@
 require 'flipper/adapters/redis'
 require 'yaml'
 
+FLIPPER_FEATURES = YAML.load_file('./config/feature_flags.yml')
+
 Flipper.configure do |config|
   if Rails.configuration.redis_url
     config.adapter { Flipper::Adapters::Redis.new(Redis.new(url: Rails.configuration.redis_url)) }
@@ -17,7 +19,7 @@ Flipper.configure do |config|
 end
 
 Flipper::UI.configure do |config|
-  config.descriptions_source = ->(_keys) { YAML.load_file('./config/feature_flags.yml') }
+  config.descriptions_source = ->(_keys) { FLIPPER_FEATURES }
   config.banner_text = "#{Rails.application.engine_name} [#{Rails.env}]"
   config.banner_class = Rails.env.production? ? 'danger' : 'info'
 
@@ -33,3 +35,6 @@ Flipper::UI.configure do |config|
   # page as well as the view page.
   config.show_feature_description_in_list = true
 end
+
+# Automatically add tracking of features in the yaml file
+FLIPPER_FEATURES.each_key { |feature| Flipper.add(feature) }
