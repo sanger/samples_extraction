@@ -75,6 +75,18 @@ describe Steps::Task do
           step.run!
         end
 
+        # NOTE: We can probably safely remove this test entirely once the flag is permenant
+        it 'does not print assets when dpl348_decouple_automatic_printing_from_steps is enabled' do
+          Flipper.enable(:dpl348_decouple_automatic_printing_from_steps)
+          asset.reload
+
+          step = create_instance(step_type, activity, group)
+
+          expect_any_instance_of(AssetGroup).not_to receive(:print).with(printer_config)
+
+          step.run!
+        end
+
         context 'when printing fails' do
           before do
             allow_any_instance_of(AssetGroup).to receive(:print).and_raise(
