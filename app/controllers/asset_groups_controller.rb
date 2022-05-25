@@ -35,7 +35,7 @@ class AssetGroupsController < ApplicationController # rubocop:todo Style/Documen
   def print
     @asset_group.print(@current_user.printer_config)
 
-    redirect_to :back
+    redirect_back fallback_location: root_path
   end
 
   private

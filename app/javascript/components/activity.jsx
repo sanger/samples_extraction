@@ -281,6 +281,8 @@ class Activity extends React.Component {
             selectedAssetGroup={this.state.selectedAssetGroup}
             onSelectAssetGroup={this.onSelectAssetGroup}
             assetGroups={this.state.assetGroups}
+            tubePrinter={this.props.tubePrinter}
+            platePrinter={this.props.platePrinter}
           />
           {this.renderStepTypesControl('2')}
         </React.Fragment>

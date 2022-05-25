@@ -11,11 +11,11 @@ module Activities::JsonAttributes # rubocop:todo Style/Documentation
       },
       tubePrinter: {
         optionsData: Printer.for_tube.map { |a| [a.name, a.id] },
-        defaultValue: current_user && current_user.tube_printer ? current_user.tube_printer.id : nil
+        defaultValue: current_user&.tube_printer_id
       },
       platePrinter: {
         optionsData: Printer.for_plate.map { |a| [a.name, a.id] },
-        defaultValue: current_user && current_user.plate_printer ? current_user.plate_printer.id : nil
+        defaultValue: current_user&.plate_printer_id
       }
     }.merge(websockets_attributes)
   end

@@ -508,10 +508,9 @@ body.administrator-role .operator-allowed {
 
 form.edit_asset_group .barcode-adding-control {
   width: 100%;
-}
-form.edit_asset_group .barcode-adding-control {
   @extend .operator-allowed;
 }
+
 body .btn {
   @extend .operator-allowed;
 }

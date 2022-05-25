@@ -1,5 +1,6 @@
 import React from 'react'
-import AssetGroupEditor from '../asset_group_components/asset_group_editor'
+import AssetGroupEditor from './asset_group_editor'
+import AssetGroupPrinting from './asset_group_printing'
 
 class AssetGroupsEditor extends React.Component {
   constructor(props) {
@@ -46,21 +47,30 @@ class AssetGroupsEditor extends React.Component {
         id={'asset-group-' + assetGroup.id}
         key={'asset-group-' + assetGroup.id}
       >
-        <AssetGroupEditor
-          assetGroup={assetGroup}
-          uuidsPendingRemoval={this.props.uuidsPendingRemoval}
-          dataAssetDisplay={this.props.dataAssetDisplay}
-          activityRunning={this.props.activityRunning}
-          onCollapseFacts={this.props.onCollapseFacts}
-          collapsedFacts={this.props.collapsedFacts}
-          onExecuteStep={this.props.onExecuteStep}
-          isShown={this.isShown(assetGroup)}
-          onAddBarcodesToAssetGroup={this.props.onAddBarcodesToAssetGroup}
-          onRemoveAssetFromAssetGroup={this.props.onRemoveAssetFromAssetGroup}
-          onRemoveAllAssetsFromAssetGroup={this.props.onRemoveAllAssetsFromAssetGroup}
-          onErrorMessage={this.props.onErrorMessage}
-          onChangeAssetGroup={this.props.onChangeAssetGroup}
-        />
+        <div className="panel panel-default">
+          <div className="print-asset-group-header">
+            <AssetGroupPrinting
+              assetGroup={assetGroup}
+              tubePrinter={this.props.tubePrinter}
+              platePrinter={this.props.platePrinter}
+            ></AssetGroupPrinting>
+          </div>
+          <AssetGroupEditor
+            assetGroup={assetGroup}
+            uuidsPendingRemoval={this.props.uuidsPendingRemoval}
+            dataAssetDisplay={this.props.dataAssetDisplay}
+            activityRunning={this.props.activityRunning}
+            onCollapseFacts={this.props.onCollapseFacts}
+            collapsedFacts={this.props.collapsedFacts}
+            onExecuteStep={this.props.onExecuteStep}
+            isShown={this.isShown(assetGroup)}
+            onAddBarcodesToAssetGroup={this.props.onAddBarcodesToAssetGroup}
+            onRemoveAssetFromAssetGroup={this.props.onRemoveAssetFromAssetGroup}
+            onRemoveAllAssetsFromAssetGroup={this.props.onRemoveAllAssetsFromAssetGroup}
+            onErrorMessage={this.props.onErrorMessage}
+            onChangeAssetGroup={this.props.onChangeAssetGroup}
+          />
+        </div>
       </div>
     )
   }
