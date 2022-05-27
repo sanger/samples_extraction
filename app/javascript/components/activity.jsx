@@ -280,6 +280,10 @@ class Activity extends React.Component {
             onChangeAssetGroup={this.onChangeAssetGroup}
             selectedAssetGroup={this.state.selectedAssetGroup}
             onSelectAssetGroup={this.onSelectAssetGroup}
+            allowPrinting={
+              this.props.featureFlags?.dpl348_decouple_automatic_printing_from_steps ||
+              this.props.featureFlags?.dpl348_allow_printing_from_activities_pages
+            }
             assetGroups={this.state.assetGroups}
             tubePrinter={this.props.tubePrinter}
             platePrinter={this.props.platePrinter}
@@ -302,14 +306,16 @@ class Activity extends React.Component {
         <AlertDisplay onRemoveErrorMessage={this.onRemoveErrorMessage} messages={this.state.messages} />
         <ActivityDescription activity={this.props.activity} />
 
-        <PrintersSelection
-          selectedTubePrinter={this.state.selectedTubePrinter}
-          selectedPlatePrinter={this.state.selectedPlatePrinter}
-          tubePrinter={this.props.tubePrinter}
-          platePrinter={this.props.platePrinter}
-          onChangeTubePrinter={this.onChangeTubePrinter}
-          onChangePlatePrinter={this.onChangePlatePrinter}
-        />
+        {!this.props.featureFlags?.dpl348_decouple_automatic_printing_from_steps && (
+          <PrintersSelection
+            selectedTubePrinter={this.state.selectedTubePrinter}
+            selectedPlatePrinter={this.state.selectedPlatePrinter}
+            tubePrinter={this.props.tubePrinter}
+            platePrinter={this.props.platePrinter}
+            onChangeTubePrinter={this.onChangeTubePrinter}
+            onChangePlatePrinter={this.onChangePlatePrinter}
+          />
+        )}
         {this.renderAssetGroupsEditorAndStepTypes()}
         <Steps
           onToggle={this.onToggleComponentBuilder('stepsFinished')}
