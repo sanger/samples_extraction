@@ -32,7 +32,7 @@ class AlertDisplay extends React.Component {
     return (
       <React.Fragment>
         <span className="badge alert-danger">
-          {this.props.messages.length} errors, showing {messages.length}
+          {this.props.messages.length} messages, showing {messages.length}
         </span>
         <hr />
         {messages.map(this.renderMessage)}

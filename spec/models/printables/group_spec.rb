@@ -107,6 +107,11 @@ RSpec.describe Printables::Group do
         expect(request).to have_been_made
       end
 
+      it 'returns a summary' do
+        stub_request(:post, "#{uri}/print_jobs")
+        expect(group.print(config).to_s).to eq('2 labels sent to printer1')
+      end
+
       context 'when an asset does not have barcode' do
         let(:asset1) { create(:asset, facts: facts1, barcode: nil) }
         it 'does not print it' do
@@ -141,7 +146,7 @@ RSpec.describe Printables::Group do
       it 'handles failure with a custom exception' do
         request =
           stub_request(:post, "#{uri}/print_jobs").to_return(
-            status: 500,
+            status: 400,
             body: <<~RESPONSE,
                 {"data":{"type":"print_jobs","attributes":{"printer_name":"printer1","label_template_id":1,"labels":{"body":[{"label":{"barcode":"2","barcode2d":"2","top_line":"","middle_line":null,"bottom_line":""}},{"label":{"barcode":"1","barcode2d":"1","top_line":"","middle_line":null,"bottom_line":""}}]}}}}
                 RESPONSE
@@ -150,7 +155,9 @@ RSpec.describe Printables::Group do
             }
           )
 
-        expect { group.print(config) }.to raise_error PrintMyBarcodeJob::PrintingError
+        expect { group.print(config) }.to raise_error(
+          an_instance_of(PrintMyBarcodeJob::PrintingError).and(having_attributes(status_code: 400))
+        )
         expect(request).to have_been_made
       end
     end
@@ -240,7 +247,7 @@ RSpec.describe Printables::Group do
       it 'handles failure with a custom exception' do
         request =
           stub_request(:post, "#{uri}/print_jobs").to_return(
-            status: 500,
+            status: 400,
             body: <<~RESPONSE,
                 {"data":{"type":"print_jobs","attributes":{"printer_name":"printer1","label_template_id":1,"labels":{"body":[{"label":{"barcode":"2","barcode2d":"2","top_line":"","middle_line":null,"bottom_line":""}},{"label":{"barcode":"1","barcode2d":"1","top_line":"","middle_line":null,"bottom_line":""}}]}}}}
                 RESPONSE
@@ -249,7 +256,9 @@ RSpec.describe Printables::Group do
             }
           )
 
-        expect { group.print(config) }.to raise_error PrintMyBarcodeJob::PrintingError
+        expect { group.print(config) }.to raise_error(
+          an_instance_of(PrintMyBarcodeJob::PrintingError).and(having_attributes(status_code: 400))
+        )
         expect(request).to have_been_made
       end
     end

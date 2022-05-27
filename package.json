@@ -4,6 +4,7 @@
     "@babel/preset-react": "^7.16.7",
     "@rails/webpacker": "^5.4.3",
     "ajv": "^6.4.0",
+    "babel-loader": "^8.2.5",
     "classnames": "^2.3.1",
     "eslint": "^4.19.1",
     "fine-uploader": "^5.16.2",
@@ -27,8 +28,7 @@
     "react_ujs": "^2.6.2",
     "turbolinks": "^5.1.1",
     "upath": "^1.0.5",
-    "webpacker-react": "^0.3.2",
-    "babel-loader": "^8.2.5"
+    "webpacker-react": "^0.3.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.17.10",
@@ -42,6 +42,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^24.9.0",
     "jest-enzyme": "^7.1.2",
+    "miragejs": "^0.1.44",
     "postcss-preset-env": "^6.7.1",
     "prettier": "^2.6.2",
     "regenerator-runtime": "^0.13.3"

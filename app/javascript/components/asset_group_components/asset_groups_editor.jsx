@@ -53,6 +53,7 @@ class AssetGroupsEditor extends React.Component {
               assetGroup={assetGroup}
               tubePrinter={this.props.tubePrinter}
               platePrinter={this.props.platePrinter}
+              onErrorMessage={this.props.onErrorMessage}
             ></AssetGroupPrinting>
           </div>
           <AssetGroupEditor

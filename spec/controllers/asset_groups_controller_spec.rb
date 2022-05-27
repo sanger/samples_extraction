@@ -122,4 +122,66 @@ RSpec.describe AssetGroupsController, type: :controller do
       end
     end
   end
+
+  describe '#print' do
+    subject(:request) { post :print, params: params, format: format, session: { token: user.token } }
+
+    let(:asset_group) { instance_double(AssetGroup, print: 'Printed') }
+    let(:user) { create :user, token: 'test', tube_printer: tube_printer, plate_printer: plate_printer }
+    let(:tube_printer) { create :tube_printer }
+    let(:plate_printer) { create :plate_printer }
+
+    before { allow(AssetGroup).to receive(:find).and_return(asset_group) }
+
+    context 'when requesting json' do
+      let(:format) { :json }
+
+      context 'without any printer config' do
+        let(:params) { { id: 4 } }
+
+        it 'renders a success' do
+          request
+          expect(response.status).to eq(200)
+          expect(response.body).to eq('{"success":true,"message":"Printed"}')
+        end
+
+        it 'users the user preferences' do
+          request
+          expect(asset_group).to have_received(:print).with(user.printer_config)
+        end
+      end
+
+      context 'without any printer config' do
+        let(:params) { { id: 4, printer_config: request_printer_config } }
+        let(:request_printer_config) { { 'Plate' => 'plate printer', 'Tube' => 'Tube printer' } }
+
+        it 'renders a success' do
+          request
+          expect(response.status).to eq(200)
+          expect(response.body).to eq('{"success":true,"message":"Printed"}')
+        end
+
+        it 'users the request preferences' do
+          request
+          expect(asset_group).to have_received(:print).with(request_printer_config)
+        end
+      end
+
+      context 'when there is a problem' do
+        let(:params) { { id: 4 } }
+
+        before do
+          allow(asset_group).to receive(:print).and_raise(
+            PrintMyBarcodeJob::PrintingError.new('The printer is on holiday', 400)
+          )
+        end
+
+        it 'renders an error' do
+          request
+          expect(response.status).to eq(400)
+          expect(response.body).to eq('{"success":false,"message":"The printer is on holiday"}')
+        end
+      end
+    end
+  end
 end
