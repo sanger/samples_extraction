@@ -233,28 +233,6 @@ class FactChanges # rubocop:todo Style/Documentation
     @assets_updated = Asset.where(id: @operations.pluck(:asset_id).uniq).distinct
   end
 
-  # Consider removal once dpl348_decouple_automatic_printing_from_steps is finalised
-  def assets_for_printing
-    return [] unless @operations
-
-    asset_ids = @operations.select { |operation| (operation.action_type == 'createAssets') }.pluck(:object).uniq
-
-    ready_for_print_ids =
-      @operations
-        .select do |operation|
-          (
-            (operation.action_type == 'addFacts') && (operation.predicate == 'is') &&
-              (operation.object == 'readyForPrint')
-          )
-        end
-        .filter_map(&:asset)
-        .uniq
-        .map(&:uuid)
-
-    ids_for_print = asset_ids.concat(ready_for_print_ids).flatten.uniq
-    @assets_for_printing = Asset.for_printing.where(uuid: ids_for_print)
-  end
-
   def find_asset(asset_or_uuid)
     find_instance_of_class_by_uuid(Asset, asset_or_uuid)
   end

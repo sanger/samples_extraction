@@ -48,16 +48,14 @@ class AssetGroupsEditor extends React.Component {
         key={'asset-group-' + assetGroup.id}
       >
         <div className="panel panel-default">
-          {this.props.allowPrinting && (
-            <div className="print-asset-group-header">
-              <AssetGroupPrinting
-                assetGroup={assetGroup}
-                tubePrinter={this.props.tubePrinter}
-                platePrinter={this.props.platePrinter}
-                onErrorMessage={this.props.onErrorMessage}
-              ></AssetGroupPrinting>
-            </div>
-          )}
+          <div className="print-asset-group-header">
+            <AssetGroupPrinting
+              assetGroup={assetGroup}
+              tubePrinter={this.props.tubePrinter}
+              platePrinter={this.props.platePrinter}
+              onErrorMessage={this.props.onErrorMessage}
+            ></AssetGroupPrinting>
+          </div>
           <AssetGroupEditor
             assetGroup={assetGroup}
             uuidsPendingRemoval={this.props.uuidsPendingRemoval}

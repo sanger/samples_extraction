@@ -8,7 +8,7 @@
 require 'flipper/adapters/redis'
 require 'yaml'
 
-FLIPPER_FEATURES = YAML.load_file('./config/feature_flags.yml')
+FLIPPER_FEATURES = YAML.load_file('./config/feature_flags.yml') || {}
 
 Flipper.configure do |config|
   if Rails.configuration.redis_url
