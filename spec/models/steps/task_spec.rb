@@ -64,19 +64,8 @@ describe Steps::Task do
           step = create_instance(step_type, activity, group)
           expect { step.run! }.to change { Asset.all.count }.by(2).and change { Fact.count }
         end
-
-        # NOTE: We can probably safely remove this test entirely once the dpl348_decouple_automatic_printing_from_steps
-        # flag is permenant
-        it 'does not print assets' do
-          asset.reload
-
-          step = create_instance(step_type, activity, group)
-
-          expect_any_instance_of(AssetGroup).not_to receive(:print).with(printer_config)
-
-          step.run!
-        end
       end
+
       context 'when it has cancelled operations from previous failed executions' do
         let(:step) { create_instance(step_type, activity, group) }
         before do
