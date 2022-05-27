@@ -14,8 +14,6 @@ class StepTypeTemplatesButtons extends React.Component {
         activityRunning={this.props.activityRunning}
         stepTypeTemplateData={stepTypeTemplateData}
         key={pos}
-        selectedTubePrinter={this.props.selectedTubePrinter}
-        selectedPlatePrinter={this.props.selectedPlatePrinter}
       />
     )
   }

@@ -2,7 +2,6 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 import { FormFor } from 'react-rails-form-helpers'
-import PrintersSelectionHidden from '../activity_components/printers_selection_hidden'
 import UploadFile from './step_type_templates/upload_file'
 import ApplyFile from './step_type_templates/apply_file'
 
@@ -27,10 +26,6 @@ class StepTypeTemplateControl extends React.Component {
         <div className="container">{this.renderTemplate(template, stepTypeTemplateData)}</div>
 
         <FormFor url={stepTypeTemplateData.createStepUrl} className="form-inline activity-desc">
-          <PrintersSelectionHidden
-            selectedTubePrinter={this.props.selectedTubePrinter}
-            selectedPlatePrinter={this.props.selectedPlatePrinter}
-          />
           <input type="hidden" name="step[step_type_id]" value={stepTypeTemplateData.stepType.id} />
           <input type="hidden" name="step[asset_group_id]" value={this.props.assetGroupId} />
 

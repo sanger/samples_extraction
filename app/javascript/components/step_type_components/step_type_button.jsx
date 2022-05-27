@@ -1,6 +1,4 @@
 import React from 'react'
-import { FormFor } from 'react-rails-form-helpers'
-import PrintersSelectionHidden from '../activity_components/printers_selection_hidden'
 import ButtonWithLoading from '../lib/button_with_loading'
 
 class StepTypeButton extends React.Component {
@@ -27,8 +25,6 @@ class StepTypeButton extends React.Component {
         step: {
           step_type_id: this.props.stepTypeData.stepType.id,
           asset_group_id: this.props.assetGroupId,
-          tube_printer_id: this.props.selectedTubePrinter,
-          plate_printer_id: this.props.selectedPlatePrinter,
         },
       },
     })

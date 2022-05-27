@@ -1,7 +1,6 @@
 class StepsController < ApplicationController # rubocop:todo Style/Documentation
   before_action :set_step, only: [:update]
   before_action :set_activity, only: [:create]
-  before_action :set_printer_config, only: [:create]
   before_action :set_asset_group, only: [:create]
   before_action :set_step_type, only: [:create]
 
@@ -12,12 +11,7 @@ class StepsController < ApplicationController # rubocop:todo Style/Documentation
   end
 
   def create
-    @activity.create_step(
-      step_type: @step_type,
-      user: @current_user,
-      printer_config: @printer_config,
-      asset_group: @asset_group
-    )
+    @activity.create_step(step_type: @step_type, user: @current_user, asset_group: @asset_group)
     head :ok
   end
 
@@ -53,17 +47,6 @@ class StepsController < ApplicationController # rubocop:todo Style/Documentation
 
   def set_step_type
     @step_type = StepType.find(params_step[:step_type_id])
-  end
-
-  def set_printer_config
-    tube_printer = Printer.find_by(id: params_step[:tube_printer_id]) || nil
-    plate_printer = Printer.find_by(id: params_step[:plate_printer_id]) || nil
-    tube_rack_printer = Printer.find_by(id: params_step[:plate_printer_id]) || nil
-    @printer_config = {
-      'Tube' => tube_printer.nil? ? '' : tube_printer.name,
-      'Plate' => plate_printer.nil? ? '' : plate_printer.name,
-      'TubeRack' => tube_rack_printer.nil? ? '' : tube_rack_printer.name
-    }
   end
 
   def params_step

@@ -1,6 +1,4 @@
 import React from 'react'
-import { FormFor } from 'react-rails-form-helpers'
-import PrintersSelectionHidden from '../activity_components/printers_selection_hidden'
 
 class StepTypeTemplateButton extends React.Component {
   render() {

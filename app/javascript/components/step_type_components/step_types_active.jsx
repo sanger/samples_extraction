@@ -23,8 +23,6 @@ const StepTypesActive = (props) => {
             activityRunning={props.activityRunning}
             assetGroupId={props.assetGroupId}
             onExecuteStep={props.onExecuteStep}
-            selectedTubePrinter={props.selectedTubePrinter}
-            selectedPlatePrinter={props.selectedPlatePrinter}
             stepTypesData={props.activeStepTypes ? props.activeStepTypes.stepTypesData : []}
             stepTypesTemplatesData={props.activeStepTypes ? props.activeStepTypes.stepTypesTemplatesData : []}
           />

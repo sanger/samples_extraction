@@ -24,8 +24,6 @@ class Activity extends React.Component {
     this.state = {
       uuidsPendingRemoval: [],
       messages: props.messages,
-      selectedTubePrinter: props.tubePrinter.defaultValue,
-      selectedPlatePrinter: props.platePrinter.defaultValue,
       selectedAssetGroup: props.activity.selectedAssetGroup,
       stepTypes: props.stepTypes,
       assetGroups: props.assetGroups,
@@ -46,9 +44,6 @@ class Activity extends React.Component {
     this.onExecuteStep = this.onExecuteStep.bind(this)
     this.onChangeStateStep = this.onChangeStateStep.bind(this)
     this.changeStateStep = this.changeStateStep.bind(this)
-
-    this.onChangeTubePrinter = this.onChangeTubePrinter.bind(this)
-    this.onChangePlatePrinter = this.onChangePlatePrinter.bind(this)
 
     this.onCollapseFacts = this.onCollapseFacts.bind(this)
     this.onAddBarcodesToAssetGroup = this.onAddBarcodesToAssetGroup.bind(this)
@@ -207,12 +202,6 @@ class Activity extends React.Component {
     })
   }
 
-  onChangeTubePrinter(e) {
-    this.setState({ selectedTubePrinter: e.target.value })
-  }
-  onChangePlatePrinter(e) {
-    this.setState({ selectedPlatePrinter: e.target.value })
-  }
   onExecuteStep(msg) {
     this.setState({ activityRunning: true })
   }
@@ -251,8 +240,6 @@ class Activity extends React.Component {
             onExecuteStep={this.onExecuteStep}
             activityRunning={this.state.activityRunning}
             selectedAssetGroup={this.state.selectedAssetGroup}
-            selectedTubePrinter={this.state.selectedTubePrinter}
-            selectedPlatePrinter={this.state.selectedPlatePrinter}
           />
         )
       }

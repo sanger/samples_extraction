@@ -23,26 +23,6 @@ RSpec.describe StepsController, type: :controller do
              }
       end.to change { Step.all.count }
     end
-
-    context 'when receiving a specific printer config' do
-      let(:tube_printer) { create :printer, name: 'tubes' }
-      let(:plate_printer) { create :printer, name: 'plates' }
-      it 'stores the printer_config provided as parameter' do
-        post :create,
-             params: {
-               activity_id: activity.id,
-               step: {
-                 asset_group_id: asset_group.id,
-                 step_type_id: step_type.id,
-                 tube_printer_id: tube_printer.id,
-                 plate_printer_id: plate_printer.id
-               }
-             }
-        expect(Step.last.printer_config).to eq(
-          { 'Tube' => tube_printer.name, 'Plate' => plate_printer.name, 'TubeRack' => plate_printer.name }
-        )
-      end
-    end
   end
   context '#update' do
     let(:step) { create(:step, activity: activity, asset_group: asset_group, step_type: step_type) }

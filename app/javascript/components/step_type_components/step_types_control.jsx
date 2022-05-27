@@ -13,8 +13,6 @@ const renderTogglable = (props) => {
       onExecuteStep={props.onExecuteStep}
       selectedAssetGroup={props.selectedAssetGroup}
       activeStepTypes={stepTypes}
-      selectedTubePrinter={props.selectedTubePrinter}
-      selectedPlatePrinter={props.selectedPlatePrinter}
     />
   )
 }

@@ -19,8 +19,6 @@ class StepTypes extends React.Component {
               stepTypesData={this.props.stepTypesData}
               activityRunning={this.props.activityRunning}
               assetGroupId={this.props.assetGroupId}
-              selectedTubePrinter={this.props.selectedTubePrinter}
-              selectedPlatePrinter={this.props.selectedPlatePrinter}
               onExecuteStep={this.props.onExecuteStep}
             />
             <StepTypeTemplatesButtons
@@ -28,8 +26,6 @@ class StepTypes extends React.Component {
               stepTypesTemplatesData={this.props.stepTypesTemplatesData}
               activityRunning={this.props.activityRunning}
               assetGroupId={this.props.assetGroupId}
-              selectedTubePrinter={this.props.selectedTubePrinter}
-              selectedPlatePrinter={this.props.selectedPlatePrinter}
             />
           </ul>
           <StepTypeTemplatesControls
@@ -37,8 +33,6 @@ class StepTypes extends React.Component {
             instanceId={this.props.instanceId}
             activityRunning={this.props.activityRunning}
             assetGroupId={this.props.assetGroupId}
-            selectedTubePrinter={this.props.selectedTubePrinter}
-            selectedPlatePrinter={this.props.selectedPlatePrinter}
           />
         </div>
       )

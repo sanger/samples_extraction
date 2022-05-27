@@ -15,8 +15,6 @@ class StepTypeButtons extends React.Component {
         activityRunning={this.props.activityRunning}
         assetGroupId={this.props.assetGroupId}
         onExecuteStep={this.props.onExecuteStep}
-        selectedTubePrinter={this.props.selectedTubePrinter}
-        selectedPlatePrinter={this.props.selectedPlatePrinter}
       />
     )
   }
