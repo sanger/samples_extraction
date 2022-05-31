@@ -100,10 +100,10 @@ describe Steps::Task do
           context 'and dpl348_steps_only_warn_on_print_failure is enabled' do
             before { Flipper.enable :dpl348_steps_only_warn_on_print_failure }
 
-            it 'runs the rest of the job' do
+            it 'runs the rest of the job', aggregate_failures: true do
               asset
               expect { step.run! }.to change(Asset, :count).by(2).and change(Fact, :count)
-              expect(step).to be_complete
+              expect(step).to be_complete, "Step #{step.state}, with output: #{step.output}"
             end
 
             it 'provides user feedback' do
