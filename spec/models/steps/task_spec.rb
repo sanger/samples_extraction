@@ -98,7 +98,10 @@ describe Steps::Task do
           let(:step) { create_instance(step_type, activity, group) }
 
           context 'and dpl348_steps_only_warn_on_print_failure is enabled' do
-            before { Flipper.enable :dpl348_steps_only_warn_on_print_failure }
+            before do
+              allow_any_instance_of(Activity).to receive(:report_error)
+              Flipper.enable :dpl348_steps_only_warn_on_print_failure
+            end
 
             it 'runs the rest of the job', aggregate_failures: true do
               asset
