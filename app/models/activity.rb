@@ -6,7 +6,6 @@ require 'date'
 # an {AssetGroup}. The AssetGroup reflects the currently actively processed set
 # of {Asset assets} so may be updated as the activity progresses.
 class Activity < ApplicationRecord
-  validates :activity_type, presence: true
   # validates :asset_group, :presence => true
   belongs_to :activity_type
   belongs_to :instrument
@@ -20,11 +19,9 @@ class Activity < ApplicationRecord
   has_many :users, through: :steps
   has_one :work_order
 
-  scope :for_activity_type, ->(activity_type) {
-    where(activity_type: activity_type)
-  }
+  scope :for_activity_type, ->(activity_type) { where(activity_type: activity_type) }
 
-  scope :for_user, ->(user) { joins(:steps).where({ :steps => { :user_id => user.id } }).distinct }
+  scope :for_user, ->(user) { joins(:steps).where({ steps: { user_id: user.id } }).distinct }
 
   include Activities::StepsManagement
   include Activities::Tasks
@@ -37,7 +34,6 @@ class Activity < ApplicationRecord
   delegate :barcode, :type, to: :kit, prefix: true, allow_nil: true
   delegate :name, to: :instrument, prefix: true, allow_nil: true
   delegate :fullname, to: :last_user, prefix: true, allow_nil: true
-
 
   # Called following state transition to finish
   # Broadcasts the activity to the ML warehouse

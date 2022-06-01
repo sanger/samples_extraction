@@ -38,8 +38,6 @@ RSpec.describe AssetsController, type: :controller do
     it_behaves_like 'a search action from a controller'
 
     it 'prints the barcodes of the assets from the query' do
-      allow(Printables::Group).to receive(:print_assets)
-
       asset = create :asset, barcode: 'S1234'
       search = Asset.where(barcode: 'S1234')
 
@@ -52,7 +50,7 @@ RSpec.describe AssetsController, type: :controller do
       post :print_search, params: { p0: 'barcode', o0: 'S1234' }, xhr: true
       expect(assigns(:assets).to_a).to eq(search.to_a)
 
-      expect(mocked_group).to have_received(:print).with({ "Plate"=>'Pum', "Tube"=>'Pim' }, 'test')
+      expect(mocked_group).to have_received(:print).with({ 'Plate' => 'Pum', 'Tube' => 'Pim' })
     end
   end
 end

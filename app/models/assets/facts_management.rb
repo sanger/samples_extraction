@@ -1,18 +1,10 @@
-module Assets::FactsManagement
+module Assets::FactsManagement # rubocop:todo Style/Documentation
   def self.included(klass)
     klass.instance_eval do
-      scope :with_fact, ->(predicate, object) {
-        joins(:facts).where(:facts => { :predicate => predicate, :object => object })
-      }
-      scope :with_field, ->(predicate, object) {
-        where(predicate => object)
-      }
+      scope :with_fact, ->(predicate, object) { joins(:facts).where(facts: { predicate: predicate, object: object }) }
+      scope :with_field, ->(predicate, object) { where(predicate => object) }
 
-      scope :with_predicate, ->(predicate) {
-        joins(:facts).where(:facts => { :predicate => predicate })
-      }
-
-
+      scope :with_predicate, ->(predicate) { joins(:facts).where(facts: { predicate: predicate }) }
     end
   end
 
@@ -35,10 +27,12 @@ module Assets::FactsManagement
   def has_fact?(fact)
     facts.any? do |f|
       if f.object.nil?
-        ((fact.predicate == f.predicate) && (fact.object_asset == f.object_asset) &&
-          (fact.to_add_by == f.to_add_by) && (fact.to_remove_by == f.to_remove_by))
+        (
+          (fact.predicate == f.predicate) && (fact.object_asset == f.object_asset) && (fact.to_add_by == f.to_add_by) &&
+            (fact.to_remove_by == f.to_remove_by)
+        )
       else
-        other_conds=true
+        other_conds = true
         if fact.respond_to?(:to_add_by)
           other_conds = (fact.to_add_by == f.to_add_by) && (fact.to_remove_by == f.to_remove_by)
         end
@@ -47,11 +41,8 @@ module Assets::FactsManagement
     end
   end
 
-
   def facts_to_s
-    facts.each do |fact|
-      render :partial => fact
-    end
+    facts.each { |fact| render partial: fact }
   end
 
   def object_value(fact)
@@ -75,5 +66,4 @@ module Assets::FactsManagement
       asset.facts.where(predicate: predicate, object_asset: object)
     end
   end
-
 end

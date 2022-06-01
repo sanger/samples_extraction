@@ -1,5 +1,4 @@
-class ActivityChannel < ApplicationCable::Channel
-
+class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documentation
   def self.connection_for_redis
     ActionCable.server.pubsub.redis_connection_for_subscriptions
   end
@@ -19,34 +18,43 @@ class ActivityChannel < ApplicationCable::Channel
   def self.subscribed_ids
     value = connection_for_redis.get('SUBSCRIBED_IDS')
     return [] unless value
+
     JSON.parse(value)
   end
 
   def receive(data)
-    process_asset_group(strong_params_for_asset_group(data)) if (data["asset_group"])
-    process_activity(strong_params_for_activity(data)) if (data["activity"])
+    process_asset_group(strong_params_for_asset_group(data)) if data['asset_group']
+    process_activity(strong_params_for_activity(data)) if data['activity']
   end
 
   def process_asset_group(strong_params)
     asset_group = AssetGroup.find(strong_params[:id])
     assets = strong_params[:assets]
-    if asset_group && assets
-      begin
-        received_list = []
 
-        received_list = assets.map do |uuid_or_barcode|
-          Asset.find_or_import_asset_with_barcode(uuid_or_barcode)
-        end.compact
+    # @todo This probably shouldn't a be a silent failure, and we should instead
+    # throw something akin to ActionController::ParameterMissing but I'm not
+    # currently sure what we expect here. So maintaining existing behaviour.
+    return unless assets
 
-        asset_group.update_with_assets(received_list)
+    # @note The array here can contain both asset barcodes, and uuids, or even a mixture of the
+    # two.
+    asset_uuids, asset_barcodes = assets.partition { |identifier| TokenUtil.is_uuid?(identifier) }
 
-        #asset_group.update_attributes(assets: received_list)
-        #asset_group.touch
-      rescue Errno::ECONNREFUSED => e
-        asset_group.activity.send_wss_event({ error: { type: 'danger', msg: 'Cannot connect with sequencescape' } })
-      rescue StandardError => e
-        asset_group.activity.send_wss_event({ error: { type: 'danger', msg: e.message } })
+    begin
+      uuid_assets = Asset.where(uuid: asset_uuids).to_a
+      barcode_assets = Asset.find_or_import_assets_with_barcodes(asset_barcodes)
+      asset_group.update_with_assets(uuid_assets + barcode_assets)
+
+      missing_barcodes = asset_barcodes - barcode_assets.map(&:barcode)
+
+      if missing_barcodes.present?
+        asset_group.activity.report_error("Could not find barcodes: #{missing_barcodes.to_sentence}")
       end
+    rescue Errno::ECONNREFUSED => e
+      asset_group.activity.report_error('Cannot connect with sequencescape')
+    rescue StandardError => e
+      logger.error(e.backtrace.join("\n"))
+      asset_group.activity.report_error(e.message)
     end
   end
 
@@ -55,7 +63,7 @@ class ActivityChannel < ApplicationCable::Channel
 
     obj = ActivityChannel.activity_attributes(params[:activity_id])
 
-    ['stepTypes', 'stepsPending', 'stepsRunning', 'stepsFailed', 'stepsFinished'].reduce(obj) do |memo, key|
+    %w[stepTypes stepsPending stepsRunning stepsFailed stepsFinished].reduce(obj) do |memo, key|
       memo[key] = !!strong_params[key] unless strong_params[key].nil?
       memo
     end
@@ -66,20 +74,18 @@ class ActivityChannel < ApplicationCable::Channel
   end
 
   def self.default_activity_attributes
-    { stepTypes: true, stepsPending: true, stepsRunning:true, stepsFailed: true, stepsFinished: false }.as_json
+    { stepTypes: true, stepsPending: true, stepsRunning: true, stepsFailed: true, stepsFinished: false }
   end
 
   def self.activity_attributes(id)
-    begin
-      JSON.parse(redis.hget('activities', id)) || default_activity_attributes
-    rescue StandardError => e
-      default_activity_attributes
-    end
+    JSON.parse(redis.hget('activities', id)) || default_activity_attributes
+  rescue StandardError => e
+    default_activity_attributes
   end
 
   def strong_params_for_asset_group(params)
     params = ActionController::Parameters.new(params)
-    params.require(:asset_group).permit(:id, :assets => [])
+    params.require(:asset_group).permit(:id, assets: [])
   end
 
   def strong_params_for_activity(params)
@@ -104,7 +110,7 @@ class ActivityChannel < ApplicationCable::Channel
 
   def unsubscribed
     previous_value = subscribed_ids
-    connection_for_redis.set('SUBSCRIBED_IDS', previous_value.reject { |v| v== stream_id })
+    connection_for_redis.set('SUBSCRIBED_IDS', previous_value.reject { |v| v == stream_id })
 
     stop_all_streams
   end

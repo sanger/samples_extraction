@@ -19,7 +19,7 @@ RSpec.describe 'Assets::Export' do
       well2.facts << [
         create(:fact, predicate: 'sample_tube', object_asset: sample_tube),
         create(:fact, predicate: 'study_uuid', object: TokenUtil.quote(uuid)),
-        create(:fact, predicate: 'sanger_sample_name', object: "name1")
+        create(:fact, predicate: 'sanger_sample_name', object: 'name1')
       ]
 
       asset.facts << [
@@ -28,14 +28,14 @@ RSpec.describe 'Assets::Export' do
       ]
 
       expect(asset.attributes_to_send_for_well(well1)).to eq({ sample_uuid: TokenUtil.unquote(uuid) })
-      expect(asset.attributes_to_send_for_well(well2)).to eq({
-        sample_tube_uuid: sample_tube.uuid,
-        sanger_sample_name: 'name1'
-      })
+      expect(asset.attributes_to_send_for_well(well2)).to eq(
+        { sample_tube_uuid: sample_tube.uuid, sanger_sample_name: 'name1' }
+      )
     end
 
     it 'generates an attribute object for a well' do
-      facts = %Q{
+      facts =
+        '
         :s1 :a :SampleTube .
         :s2 :a :SampleTube .
         :s3 :a :SampleTube .
@@ -55,15 +55,18 @@ RSpec.describe 'Assets::Export' do
 
         :rack1   :a                 :TubeRack ;
                  :contains          :tube1, :tube2, :tube3, :tube4 .
-      }
-      @assets = SupportN3::parse_facts(facts)
+      '
+      @assets = SupportN3.parse_facts(facts)
 
-      @rack1 = Asset.find_by(uuid: 'rack1')
-      expect(@rack1.attributes_to_send).to eq([
-        { sample_tube_uuid: "s1", location: "A1" },
-        { sample_tube_uuid: "s2", location: "B1" },
-        { sample_tube_uuid: "s3", location: "C1" },
-        { sample_tube_uuid: "s4", location: "D1" }])
+      @rack1 = Asset.includes(:facts).find_by(uuid: 'rack1')
+      expect(@rack1.attributes_to_send).to eq(
+        [
+          { sample_tube_uuid: 's1', location: 'A1' },
+          { sample_tube_uuid: 's2', location: 'B1' },
+          { sample_tube_uuid: 's3', location: 'C1' },
+          { sample_tube_uuid: 's4', location: 'D1' }
+        ]
+      )
     end
   end
 
@@ -99,37 +102,39 @@ RSpec.describe 'Assets::Export' do
     let(:step_type) { create :step_type }
     let(:step) { create :step, step_type: step_type, state: Step::STATE_RUNNING }
     let(:user) { create :user, username: 'test' }
-    let(:print_config) { { "Plate"=>'Pum', "Tube"=>'Pim' } }
+    let(:print_config) { { 'Plate' => 'Pum', 'Tube' => 'Pim' } }
     let(:plate) { build_remote_plate }
+    let(:plate_v2) { build_remote_v2_plate(uuid: plate.uuid) }
     let(:asset) { create :asset }
 
     it 'updates a plate in sequencescape' do
       allow(SequencescapeClient).to receive(:version_1_find_by_uuid).with(asset.uuid).and_return(nil)
       allow(SequencescapeClient).to receive(:version_1_find_by_uuid).with(plate.uuid).and_return(plate)
       allow(SequencescapeClient).to receive(:find_by_uuid).with(asset.uuid).and_return(nil)
-      allow(SequencescapeClient).to receive(:find_by_uuid).with(plate.uuid).and_return(plate)
+      allow(SequencescapeClient).to receive(:find_by_uuid).with(plate.uuid).and_return(plate_v2)
       allow(SequencescapeClient).to receive(:create_plate).and_return(plate)
       barcode = double('barcode')
       allow(barcode).to receive(:prefix).and_return('DN')
       allow(barcode).to receive(:number).and_return('123')
       allow(plate).to receive(:barcode).and_return(barcode)
 
-      expect(asset.facts.where(predicate: 'contains').count).to eq(0)
-      asset.update_sequencescape(print_config, user, step).apply(step)
-      asset.refresh
-      expect(asset.facts.where(predicate: 'contains').count).to eq(plate.wells.count)
+      expect(asset.facts.with_predicate('contains').count).to eq(0)
+      asset.update_sequencescape(user).apply(step)
+      asset.reload.refresh
+      expect(asset.facts.with_predicate('contains').count).to eq(plate.wells.count)
     end
   end
 
   context '#attributes_to_send' do
     it 'can convert location to Sequencescape location format' do
-      %Q{
+      '
         I have a tube rack that contains 4 tubes with names tube1, tube2,
         tube3 and tube4.
         tube1 is in location A01, tube2 in B01, tube3 in C01 and tube4 in D1.
         Each tube has a sample tube inside, with names s1, s2, s3 and s4.
-      }
-      facts = %Q{
+      '
+      facts =
+        '
         :s1 :a :SampleTube .
         :s2 :a :SampleTube .
         :s3 :a :SampleTube .
@@ -149,18 +154,22 @@ RSpec.describe 'Assets::Export' do
         :tube4   :a                 :Tube ;
                  :location          "D1" ;
                  :sample_tube       :s4 .
-      }
-      @assets = SupportN3::parse_facts(facts)
+      '
+      @assets = SupportN3.parse_facts(facts)
       @rack2 = Asset.find_by(uuid: 'rack2')
-      expect(@rack2.attributes_to_send).to eq([
-        { sample_tube_uuid: "s1", location: "A1" },
-        { sample_tube_uuid: "s2", location: "B1" },
-        { sample_tube_uuid: "s3", location: "C1" },
-        { sample_tube_uuid: "s4", location: "D1" }])
+      expect(@rack2.attributes_to_send).to eq(
+        [
+          { sample_tube_uuid: 's1', location: 'A1' },
+          { sample_tube_uuid: 's2', location: 'B1' },
+          { sample_tube_uuid: 's3', location: 'C1' },
+          { sample_tube_uuid: 's4', location: 'D1' }
+        ]
+      )
     end
 
     it 'generates the attributes when the locations are not duplicated' do
-      facts = %Q{
+      facts =
+        '
         :s1 :a :SampleTube .
         :s2 :a :SampleTube .
         :s3 :a :SampleTube .
@@ -180,18 +189,22 @@ RSpec.describe 'Assets::Export' do
         :tube4   :a                 :Tube ;
                  :location          "D1" ;
                  :sample_tube       :s4 .
-      }
-      @assets = SupportN3::parse_facts(facts)
+      '
+      @assets = SupportN3.parse_facts(facts)
       @rack2 = Asset.find_by(uuid: 'rack2')
-      expect(@rack2.attributes_to_send).to eq([
-        { sample_tube_uuid: "s1", location: "A1" },
-        { sample_tube_uuid: "s2", location: "B1" },
-        { sample_tube_uuid: "s3", location: "C1" },
-        { sample_tube_uuid: "s4", location: "D1" }])
+      expect(@rack2.attributes_to_send).to eq(
+        [
+          { sample_tube_uuid: 's1', location: 'A1' },
+          { sample_tube_uuid: 's2', location: 'B1' },
+          { sample_tube_uuid: 's3', location: 'C1' },
+          { sample_tube_uuid: 's4', location: 'D1' }
+        ]
+      )
     end
 
     it 'fails when trying to generate attributes when the locations are duplicated' do
-      facts = %Q{
+      facts =
+        '
         :s1 :a :SampleTube .
         :s2 :a :SampleTube .
         :s3 :a :SampleTube .
@@ -210,14 +223,15 @@ RSpec.describe 'Assets::Export' do
         :tube4   :a                 :Tube ;
                  :location          "B1" ;
                  :sample_tube       :s4 .
-      }
-      @assets = SupportN3::parse_facts(facts)
+      '
+      @assets = SupportN3.parse_facts(facts)
       @rack2 = Asset.find_by(uuid: 'rack2')
       expect { @rack2.attributes_to_send }.to raise_exception Assets::Export::DuplicateLocations
     end
 
     it 'does not export locations without a sample in it' do
-      facts = %Q{
+      facts =
+        '
         :s1 :a :SampleTube .
         :s2 :a :SampleTube .
         :s3 :a :SampleTube .
@@ -237,13 +251,16 @@ RSpec.describe 'Assets::Export' do
         :tube4   :a                 :Tube ;
                  :location          "D1" ;
                  :sample_tube       :s4 .
-      }
-      @assets = SupportN3::parse_facts(facts)
+      '
+      @assets = SupportN3.parse_facts(facts)
       @rack2 = Asset.find_by(uuid: 'rack2')
-      expect(@rack2.attributes_to_send).to eq([
-        { sample_tube_uuid: "s1", location: "A1" },
-        { sample_tube_uuid: "s2", location: "B1" },
-        { sample_tube_uuid: "s4", location: "D1" }])
+      expect(@rack2.attributes_to_send).to eq(
+        [
+          { sample_tube_uuid: 's1', location: 'A1' },
+          { sample_tube_uuid: 's2', location: 'B1' },
+          { sample_tube_uuid: 's4', location: 'D1' }
+        ]
+      )
     end
   end
 end

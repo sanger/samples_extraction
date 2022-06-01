@@ -11,11 +11,18 @@ RSpec.describe :cancellable, cancellable: true do
     @asset_group.assets << @asset
     @activity_type = FactoryBot.create :activity_type
     @activity = FactoryBot.create :activity, activity_type: @activity_type, asset_group: @asset_group
-    @steps = 10.times.map do
-      step = build_step(%Q{{?p :a :Rack.} => {:step :addFacts {?p :a :TubeRack .}.} .}, %Q{}, activity: @activity, asset_group: @asset_group)
-      step.run!
-      step
-    end
+    @steps =
+      Array.new(10) do
+        step =
+          build_step(
+            '{?p :a :Rack.} => {:step :addFacts {?p :a :TubeRack .}.} .',
+            '',
+            activity: @activity,
+            asset_group: @asset_group
+          )
+        step.run!
+        step
+      end
   end
 
   context '#remake_me' do
@@ -49,7 +56,7 @@ RSpec.describe :cancellable, cancellable: true do
     expect(@steps.any? { |s| s.cancelled? }).to eq(false)
     @steps[5].cancel
     @steps.each(&:reload)
-    expect(@steps.select { |s| s.cancelled? }.count).to eq(5)
+    expect(@steps.count { |s| s.cancelled? }).to eq(5)
     expected_ids = [@steps[5].id, @steps[5].steps_newer_than_me.map(&:id)].flatten.sort
     expect(@steps.select { |s| s.cancelled? }.map(&:id).sort).to eq(expected_ids)
   end
@@ -58,7 +65,7 @@ RSpec.describe :cancellable, cancellable: true do
     expect(@steps.any? { |s| s.cancelled? }).to eq(false)
     @steps[5].cancel
     @steps.each(&:reload)
-    expect(@steps.select { |s| s.cancelled? }.count).to eq(5)
+    expect(@steps.count { |s| s.cancelled? }).to eq(5)
     expected_ids = [@steps[5].id, @steps[5].steps_newer_than_me.map(&:id)].flatten.sort
     expect(@steps.select { |s| s.cancelled? }.map(&:id).sort).to eq(expected_ids)
 
@@ -66,5 +73,4 @@ RSpec.describe :cancellable, cancellable: true do
     @steps.each(&:reload)
     expect(@steps.any? { |s| s.cancelled? }).to eq(false)
   end
-
 end

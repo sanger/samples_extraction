@@ -1,30 +1,22 @@
 require 'rails_helper'
 
-RSpec.describe "Steps::QueuableJob" do
-
+RSpec.describe 'Steps::QueuableJob' do
   let(:activity) { create :activity }
   let(:step_type) { create :step_type }
   let(:asset_group) { create :asset_group }
   let(:user) { create :user, username: 'test' }
 
-
   def build_instance_with_activity
-    step = create(:step, {
-      activity: activity,
-      step_type: step_type,
-      asset_group: asset_group,
-      user: user
-    })
+    step = create(:step, { activity: activity, step_type: step_type, asset_group: asset_group, user: user })
   end
 
   context 'when a background step is completed' do
-
     let(:step) { build_instance_with_activity }
     context 'when there was an error in its execution' do
       before do
         allow(step).to receive(:process) do
           raise StandardError
-          #step.update_attributes(state: 'error')
+          # step.update_attributes(state: 'error')
         end
       end
       context 'when it has a next step configured' do
@@ -38,19 +30,24 @@ RSpec.describe "Steps::QueuableJob" do
       end
 
       context 'when it has several steps configured' do
-        let(:my_steps) { 5.times.map { build_instance_with_activity } }
+        let(:my_steps) { Array.new(5) { build_instance_with_activity } }
         it 'does not execute any of the steps' do
-          my_steps.reverse.reduce(nil) do |memo, step|
-            step.update_attributes(next_step: memo)
-            allow(step).to receive(:process)
-            step
-          end
+          my_steps
+            .reverse
+            .reduce(nil) do |next_step, step|
+              step.update_attributes(next_step: next_step)
+              allow(step).to receive(:process)
+
+              # Step is modified by the accumulator. This is actually shown as a
+              # 'good' pattern on the Lint/UnmodifiedReduceAccumulator documentation
+              # so surprised its complaining here.
+              step # rubocop:disable Lint/UnmodifiedReduceAccumulator
+            end
           step.update_attributes(next_step: my_steps.first)
           expect { step.run! }.not_to raise_error
           expect(my_steps.last).not_to have_received(:process)
         end
       end
-
     end
     context 'when the step is still in progress and has a next step' do
       let(:another_step) { build_instance_with_activity }
@@ -98,7 +95,7 @@ RSpec.describe "Steps::QueuableJob" do
         context 'when the next step is not compatible' do
           before do
             st = create :step_type
-            st.update_attributes(n3_definition: "{ ?p :a :nothing . } => { } .")
+            st.update_attributes(n3_definition: '{ ?p :a :nothing . } => { } .')
 
             another_step.update_attributes(step_type: st)
           end
@@ -113,17 +110,23 @@ RSpec.describe "Steps::QueuableJob" do
         end
       end
       context 'when it has several steps configured' do
-        let(:my_steps) { 5.times.map { build_instance_with_activity } }
+        let(:my_steps) { Array.new(5) { build_instance_with_activity } }
 
         context 'when all the steps are correct' do
           it 'executes all steps until the last one' do
-            my_steps.reverse.reduce(nil) do |memo, step|
-              step.update_attributes(next_step: memo)
-              allow(step).to receive(:run!) do
-                step.update_attributes(state: 'complete')
+            my_steps
+              .reverse
+              .reduce(nil) do |next_step, step|
+                step.update_attributes(next_step: next_step)
+                allow(step).to receive(:run!) do
+                  step.update_attributes(state: 'complete')
+                end
+
+                # Step is modified by the accumulator. This is actually shown as a
+                # 'good' pattern on the Lint/UnmodifiedReduceAccumulator documentation
+                # so surprised its complaining here.
+                step # rubocop:disable Lint/UnmodifiedReduceAccumulator
               end
-              step
-            end
             my_steps.first.run!
             expect(my_steps.last).to have_received(:run!)
           end
@@ -136,10 +139,16 @@ RSpec.describe "Steps::QueuableJob" do
             end
           end
           before do
-            my_steps.reverse.reduce(nil) do |memo, step|
-              step.update_attributes(next_step: memo)
-              step
-            end
+            my_steps
+              .reverse
+              .reduce(nil) do |next_step, step|
+                step.update_attributes(next_step: next_step)
+
+                # Step is modified by the accumulator. This is actually shown as a
+                # 'good' pattern on the Lint/UnmodifiedReduceAccumulator documentation
+                # so surprised its complaining here.
+                step # rubocop:disable Lint/UnmodifiedReduceAccumulator
+              end
             mock_step_completion(my_steps[0], 'complete')
             mock_step_completion(my_steps[1], 'complete')
             mock_step_completion(my_steps[2], 'error')
@@ -172,5 +181,4 @@ RSpec.describe "Steps::QueuableJob" do
       end
     end
   end
-
 end

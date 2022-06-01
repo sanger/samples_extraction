@@ -1,9 +1,7 @@
-class Kit < ApplicationRecord
+class Kit < ApplicationRecord # rubocop:todo Style/Documentation
   belongs_to :kit_type
   has_many :activities
-  has_one :activity_type, :through => :kit_type
-
-  validates :kit_type, :presence => true
+  has_one :activity_type, through: :kit_type
 
   def type
     kit_type&.name
