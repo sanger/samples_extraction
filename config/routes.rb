@@ -2,6 +2,7 @@ require 'sass'
 require 'bootstrap-sass'
 
 Rails.application.routes.draw do
+  user_is_admin = ->(x) { User.find_by(token: x.session['token'])&.role == 'administrator' }
   resources :printers
   resources :user_sessions do
     collection do
@@ -17,7 +18,7 @@ Rails.application.routes.draw do
 
   resources :asset_groups do
     member do
-      get 'print'
+      post 'print'
       post 'upload', to: 'asset_groups#upload'
     end
   end
@@ -66,7 +67,5 @@ Rails.application.routes.draw do
     end
   end
 
-  # namespace :aker do
-  #  resources :work_orders, only: [:create, :index]
-  # end
+  mount Flipper::UI.app(Flipper) => '/flipper', :constraints => user_is_admin
 end

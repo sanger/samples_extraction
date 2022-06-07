@@ -233,6 +233,7 @@ class FactChanges # rubocop:todo Style/Documentation
     @assets_updated = Asset.where(id: @operations.pluck(:asset_id).uniq).distinct
   end
 
+  # Consider removal once dpl348_decouple_automatic_printing_from_steps is finalised
   def assets_for_printing
     return [] unless @operations
 

@@ -44,7 +44,7 @@ Rails.application.configure do
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
   config.pmb_uri = ENV.fetch('SE_PMB_URI', 'http://localhost:10000/v1')
-  config.redis_url = ENV.fetch('SE_REDIS_URI', 'redis://127.0.0.1:6379')
+  config.redis_url = ENV.fetch('SE_REDIS_URI', nil)
   config.ss_uri = ENV.fetch('SE_SS_URI', 'http://localhost:3000/api/1/')
   config.ss_api_v2_uri = ENV.fetch('SE_SS_API_V2_URI', 'http://localhost:3000')
 
