@@ -114,14 +114,14 @@ RSpec.describe 'Assets::Export' do
       allow(SequencescapeClient).to receive(:find_by_uuid).with(plate.uuid).and_return(plate_v2)
       allow(SequencescapeClient).to receive(:create_plate).and_return(plate)
       barcode = double('barcode')
-      allow(barcode).to receive(:prefix).and_return('DN')
-      allow(barcode).to receive(:number).and_return('123')
       allow(plate).to receive(:barcode).and_return(barcode)
+      allow(barcode).to receive(:machine).and_return('SQPD-1234')
 
       expect(asset.facts.with_predicate('contains').count).to eq(0)
       asset.update_sequencescape(user).apply(step)
       asset.reload.refresh
       expect(asset.facts.with_predicate('contains').count).to eq(plate.wells.count)
+      expect(asset.barcode).to eq('SQPD-1234')
     end
   end
 
