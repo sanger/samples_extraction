@@ -11,7 +11,7 @@ require 'yaml'
 FLIPPER_FEATURES = YAML.load_file('./config/feature_flags.yml')
 
 Flipper.configure do |config|
-  if Rails.configuration.redis_url
+  if Rails.configuration.redis_url.present?
     config.adapter { Flipper::Adapters::Redis.new(Redis.new(url: Rails.configuration.redis_url)) }
   else
     config.adapter { Flipper::Adapters::Memory.new }
@@ -36,5 +36,10 @@ Flipper::UI.configure do |config|
   config.show_feature_description_in_list = true
 end
 
-# Automatically add tracking of features in the yaml file
-FLIPPER_FEATURES.each_key { |feature| Flipper.add(feature) }
+begin
+  # Automatically add tracking of features in the yaml file
+  FLIPPER_FEATURES.each_key { |feature| Flipper.add(feature) }
+rescue Redis::CannotConnectError => e
+  Rails.logger.warn(e.message)
+  Rails.logger.warn('Features not registered with flipper')
+end
