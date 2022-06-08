@@ -35,7 +35,7 @@ class StepTypesController < ApplicationController # rubocop:todo Style/Documenta
 
     respond_to do |format|
       if @step_type.save
-        format.html { redirect_to @step_type, notice: 'Step type was successfully created.' }
+        format.html { redirect_to @step_type, notice: 'Step type was successfully created.' } # rubocop:todo Rails/I18nLocaleTexts
         format.json { render :show, status: :created, location: @step_type }
       else
         format.html { render :new }
@@ -49,7 +49,7 @@ class StepTypesController < ApplicationController # rubocop:todo Style/Documenta
   def update
     respond_to do |format|
       if @step_type.update(empty_options_set_to_nil(step_type_params))
-        format.html { redirect_to @step_type, notice: 'Step type was successfully updated.' }
+        format.html { redirect_to @step_type, notice: 'Step type was successfully updated.' } # rubocop:todo Rails/I18nLocaleTexts
         format.json { render :show, status: :ok, location: @step_type }
       else
         format.html { render :edit }
@@ -63,7 +63,7 @@ class StepTypesController < ApplicationController # rubocop:todo Style/Documenta
   def destroy
     @step_type.destroy
     respond_to do |format|
-      format.html { redirect_to step_types_url, notice: 'Step type was successfully destroyed.' }
+      format.html { redirect_to step_types_url, notice: 'Step type was successfully destroyed.' } # rubocop:todo Rails/I18nLocaleTexts
       format.json { head :no_content }
     end
   end

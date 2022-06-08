@@ -26,7 +26,7 @@ class PrintersController < ApplicationController # rubocop:todo Style/Documentat
 
     respond_to do |format|
       if @printer.save
-        format.html { redirect_to @printer, notice: 'Printer was successfully created.' }
+        format.html { redirect_to @printer, notice: 'Printer was successfully created.' } # rubocop:todo Rails/I18nLocaleTexts
         format.json { render :show, status: :created, location: @printer }
       else
         format.html { render :new }
@@ -40,7 +40,7 @@ class PrintersController < ApplicationController # rubocop:todo Style/Documentat
   def update
     respond_to do |format|
       if @printer.update(printer_params)
-        format.html { redirect_to @printer, notice: 'Printer was successfully updated.' }
+        format.html { redirect_to @printer, notice: 'Printer was successfully updated.' } # rubocop:todo Rails/I18nLocaleTexts
         format.json { render :show, status: :ok, location: @printer }
       else
         format.html { render :edit }
@@ -54,7 +54,7 @@ class PrintersController < ApplicationController # rubocop:todo Style/Documentat
   def destroy
     @printer.destroy
     respond_to do |format|
-      format.html { redirect_to printers_url, notice: 'Printer was successfully destroyed.' }
+      format.html { redirect_to printers_url, notice: 'Printer was successfully destroyed.' } # rubocop:todo Rails/I18nLocaleTexts
       format.json { head :no_content }
     end
   end

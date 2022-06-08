@@ -32,7 +32,7 @@ class ActivityTypesController < ApplicationController # rubocop:todo Style/Docum
 
     respond_to do |format|
       if @activity_type.save
-        format.html { redirect_to @activity_type, notice: 'Activity type was successfully created.' }
+        format.html { redirect_to @activity_type, notice: 'Activity type was successfully created.' } # rubocop:todo Rails/I18nLocaleTexts
         format.json { render :show, status: :created, location: @activity_type }
       else
         format.html { render :new }
@@ -46,7 +46,7 @@ class ActivityTypesController < ApplicationController # rubocop:todo Style/Docum
   def update
     respond_to do |format|
       if @activity_type.update(activity_type_params)
-        format.html { redirect_to @activity_type, notice: 'Activity type was successfully updated.' }
+        format.html { redirect_to @activity_type, notice: 'Activity type was successfully updated.' } # rubocop:todo Rails/I18nLocaleTexts
         format.json { render :show, status: :ok, location: @activity_type }
       else
         format.html { render :edit }
@@ -60,7 +60,7 @@ class ActivityTypesController < ApplicationController # rubocop:todo Style/Docum
   def destroy
     @activity_type.destroy
     respond_to do |format|
-      format.html { redirect_to activity_types_url, notice: 'Activity type was successfully destroyed.' }
+      format.html { redirect_to activity_types_url, notice: 'Activity type was successfully destroyed.' } # rubocop:todo Rails/I18nLocaleTexts
       format.json { head :no_content }
     end
   end

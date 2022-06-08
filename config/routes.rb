@@ -1,6 +1,3 @@
-require 'sass'
-require 'bootstrap-sass'
-
 Rails.application.routes.draw do
   user_is_admin = ->(x) { User.find_by(token: x.session['token'])&.role == 'administrator' }
   resources :printers
