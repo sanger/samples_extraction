@@ -51,9 +51,7 @@ module Assets::Export # rubocop:todo Style/Documentation
   end
 
   def code39_barcode(instance)
-    prefix = instance.barcode.prefix
-    number = instance.barcode.number
-    SBCF::SangerBarcode.new(prefix: prefix, number: number).human_barcode
+    instance.barcode.machine
   end
 
   def update_wells(remote_plate, _updates)

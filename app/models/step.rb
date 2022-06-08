@@ -33,6 +33,8 @@ class Step < ApplicationRecord # rubocop:todo Style/Documentation
   scope :for_step_type, ->(step_type) { where(step_type: step_type) }
   scope :include_messages, -> { includes(:step_messages) }
 
+  delegate :report_error, to: :activity
+
   include Deprecatable
   include Steps::QueueableJob
   include Steps::Job

@@ -11,26 +11,30 @@ const buildEmptyActivityState = () => {
       instrument_name: 'My instrument',
       kit_name: 'A selected kit',
     },
-    tubePrinter: {
-      optionsData: [
-        ['printer 1', 1],
-        ['printer 2', 8],
-      ],
-      defaultValue: 8,
-    },
-    platePrinter: {
-      optionsData: [
-        ['printer 3', 2],
-        ['printer 14', 14],
-      ],
-      defaultValue: 14,
-    },
+    tubePrinter: tubePrinterOptions(),
+    platePrinter: platePrinterOptions(),
     shownComponents: {},
     activityRunning: false,
     activityState: null,
     messages: [],
   }
 }
+
+const tubePrinterOptions = () => ({
+  optionsData: [
+    ['printer 1', 1],
+    ['printer 2', 8],
+  ],
+  defaultValue: 8,
+})
+
+const platePrinterOptions = () => ({
+  optionsData: [
+    ['printer 3', 2],
+    ['printer 14', 14],
+  ],
+  defaultValue: 14,
+})
 
 const generateAssetGroupId = () => {
   return ASSET_GROUP_ID++
@@ -45,7 +49,13 @@ const buildAssets = (numAssets) => {
 }
 
 const buildAssetGroupData = (assetGroupId, numAssets) => {
-  return { id: assetGroupId, assets: buildAssets(numAssets), assets_running: [], updateUrl: 'http://' + assetGroupId }
+  return {
+    id: assetGroupId,
+    assets: buildAssets(numAssets),
+    assets_running: [],
+    updateUrl: 'http://' + assetGroupId,
+    printUrl: `http://localhost/asset_groups/${assetGroupId}/print`,
+  }
 }
 
 const buildAssetGroups = (numGroups, numAssets) => {
@@ -66,4 +76,11 @@ const buildActivityState = (numGroups, numAssets) => {
   return state
 }
 
-export { buildAssets, buildAssetGroups, buildActivityState, buildAssetGroupData }
+export {
+  buildAssets,
+  buildAssetGroups,
+  buildActivityState,
+  buildAssetGroupData,
+  tubePrinterOptions,
+  platePrinterOptions,
+}

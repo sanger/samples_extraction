@@ -59,6 +59,9 @@ RSpec.configure do |config|
     Warren.handler.disable!
   end
 
+  # Setup test flipper
+  config.before(:each) { Flipper.instance = Flipper.new(Flipper::Adapters::Memory.new) }
+
   # Print the 10 slowest examples and example groups at the
   # end of the spec run, to help surface which specs are running
   # particularly slow.

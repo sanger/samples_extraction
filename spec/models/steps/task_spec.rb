@@ -36,7 +36,7 @@ describe Steps::Task do
     let(:cg2) { create :condition_group }
     let(:group) { create :asset_group, assets: [asset] }
     let(:activity) { create :activity }
-    let(:asset) { create :asset, facts: [create(:fact, predicate: 'a', object: 'Plate')] }
+    let(:asset) { create :asset, a: 'Plate' }
 
     context 'when the step type does not have a step action' do
       let(:step_action) { nil }
@@ -73,6 +73,58 @@ describe Steps::Task do
           expect_any_instance_of(AssetGroup).to receive(:print).with(printer_config)
 
           step.run!
+        end
+
+        # NOTE: We can probably safely remove this test entirely once the flag is permenant
+        it 'does not print assets when dpl348_decouple_automatic_printing_from_steps is enabled' do
+          Flipper.enable(:dpl348_decouple_automatic_printing_from_steps)
+          asset.reload
+
+          step = create_instance(step_type, activity, group)
+
+          expect_any_instance_of(AssetGroup).not_to receive(:print).with(printer_config)
+
+          step.run!
+        end
+
+        context 'when printing fails' do
+          before do
+            allow_any_instance_of(AssetGroup).to receive(:print).and_raise(
+              PrintMyBarcodeJob::PrintingError,
+              'The printer was stolen'
+            )
+          end
+
+          let(:step) { create_instance(step_type, activity, group) }
+
+          context 'and dpl348_steps_only_warn_on_print_failure is enabled' do
+            before do
+              allow_any_instance_of(Activity).to receive(:report_error)
+              Flipper.enable :dpl348_steps_only_warn_on_print_failure
+            end
+
+            it 'runs the rest of the job', aggregate_failures: true do
+              asset
+              expect { step.run! }.to change(Asset, :count).by(2).and change(Fact, :count)
+              expect(step).to be_complete, "Step #{step.state}, with output: #{step.output}"
+            end
+
+            it 'provides user feedback' do
+              # Unfortunately because we are reloading the step, we can't use
+              # expect(step.activity) as the two are different instances. We
+              # *could* use ActionCable.server, but then we are coupling to the
+              # implementation a bit more
+              expect_any_instance_of(Activity).to receive(:report_error).with('Could not print: The printer was stolen')
+              step.run!
+            end
+          end
+
+          context 'and dpl348_steps_only_warn_on_print_failure is disabled' do
+            it 'fails the rest of the job' do
+              step.run!
+              expect(step).to be_failed
+            end
+          end
         end
       end
       context 'when it has cancelled operations from previous failed executions' do

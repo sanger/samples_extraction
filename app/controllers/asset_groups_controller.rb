@@ -33,9 +33,17 @@ class AssetGroupsController < ApplicationController # rubocop:todo Style/Documen
   end
 
   def print
-    @asset_group.print(@current_user.printer_config)
+    summary = @asset_group.print(printer_config)
 
-    redirect_to :back
+    respond_to do |format|
+      format.html { redirect_back fallback_location: root_path, notice: summary.to_s }
+      format.json { render json: { success: true, message: summary.to_s } }
+    end
+  rescue PrintMyBarcodeJob::PrintingError => e
+    respond_to do |format|
+      format.html { redirect_back fallback_location: root_path, alert: e.message, status: e.status_code }
+      format.json { render json: { success: false, message: e.message }, status: e.status_code }
+    end
   end
 
   private
@@ -68,6 +76,12 @@ class AssetGroupsController < ApplicationController # rubocop:todo Style/Documen
   def show_alert(data)
     @alerts = [] unless @alerts
     @alerts.push(data)
+  end
+
+  def printer_config
+    # We permit the entire hash, as we just use it for lookup.
+    request_config = params.fetch(:printer_config, {}).permit!
+    @current_user.printer_config.merge(request_config)
   end
 
   def params_update_asset_group
