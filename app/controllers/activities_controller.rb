@@ -38,7 +38,7 @@ class ActivitiesController < ApplicationController # rubocop:todo Style/Document
 
     respond_to do |format|
       if @activity.save
-        format.html { redirect_to @activity, notice: 'Activity was successfully created.' }
+        format.html { redirect_to @activity, notice: 'Activity was successfully created.' } # rubocop:todo Rails/I18nLocaleTexts
         format.json { render :show, status: :created, location: @activity }
       else
         format.html { render :new }
@@ -52,7 +52,7 @@ class ActivitiesController < ApplicationController # rubocop:todo Style/Document
   def set_user
     @user = @current_user
     if @user.nil?
-      flash[:danger] = 'User not found'
+      flash[:danger] = 'User not found' # rubocop:todo Rails/I18nLocaleTexts
       redirect_to :back
     end
   end
@@ -62,7 +62,7 @@ class ActivitiesController < ApplicationController # rubocop:todo Style/Document
 
     @kit = Kit.find_by_barcode!(activity_params[:kit_barcode])
   rescue ActiveRecord::RecordNotFound => e
-    flash[:danger] = 'Kit not found'
+    flash[:danger] = 'Kit not found' # rubocop:todo Rails/I18nLocaleTexts
     redirect_back(fallback_location: use_instrument_path(@instrument))
   end
 
@@ -71,7 +71,7 @@ class ActivitiesController < ApplicationController # rubocop:todo Style/Document
 
     @instrument = Instrument.find_by_barcode!(activity_params[:instrument_barcode])
   rescue ActiveRecord::RecordNotFound => e
-    flash[:danger] = 'Instrument not found'
+    flash[:danger] = 'Instrument not found' # rubocop:todo Rails/I18nLocaleTexts
     redirect_back(fallback_location: instruments_path)
   end
 
@@ -80,7 +80,7 @@ class ActivitiesController < ApplicationController # rubocop:todo Style/Document
       begin
         @activity_type = ActivityType.find(activity_params[:activity_type_id])
       rescue ActiveRecord::RecordNotFound => e
-        flash[:danger] = 'Activity type not found'
+        flash[:danger] = 'Activity type not found' # rubocop:todo Rails/I18nLocaleTexts
         redirect_back(fallback_location: instruments_path) and return
       end
     else

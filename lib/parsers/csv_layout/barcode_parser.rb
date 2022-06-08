@@ -7,7 +7,7 @@ module Parsers
 
       include ActiveModel::Validations
 
-      validates :asset, presence: { message: 'Cannot find the barcode' }, if: :barcode?
+      validates :asset, presence: { message: 'Cannot find the barcode' }, if: :barcode? # rubocop:todo Rails/I18nLocaleTexts
       validate :validations
 
       def validations

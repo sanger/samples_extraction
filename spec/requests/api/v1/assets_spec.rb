@@ -83,9 +83,9 @@ RSpec.describe 'Api::V1::Sets', type: :request do
             }
       end
       it 'returns the asset' do
-        @body = JSON.parse(response.body)
-        expect(@body['data'].length).to eq 1
-        barcodes = @body['data'].map { |o| o['attributes']['barcode'] }
+        data = JSON.parse(response.body).fetch('data')
+        expect(data.length).to eq 1
+        barcodes = data.map { |o| o['attributes']['barcode'] }
         expect(barcodes.include?('F02')).to eq(true)
       end
       it_behaves_like 'a response with the required fields for Traction'

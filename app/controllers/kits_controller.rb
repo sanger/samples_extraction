@@ -26,7 +26,7 @@ class KitsController < ApplicationController # rubocop:todo Style/Documentation
     @kit = Kit.new(kit_params)
     respond_to do |format|
       if @kit.save
-        format.html { redirect_to @kit, notice: 'Kit was successfully created.' }
+        format.html { redirect_to @kit, notice: 'Kit was successfully created.' } # rubocop:todo Rails/I18nLocaleTexts
         format.json { render :show, status: :created, location: @kit }
       else
         format.html { render :new }
@@ -40,7 +40,7 @@ class KitsController < ApplicationController # rubocop:todo Style/Documentation
   def update
     respond_to do |format|
       if @kit.update(kit_params)
-        format.html { redirect_to @kit, notice: 'Kit was successfully updated.' }
+        format.html { redirect_to @kit, notice: 'Kit was successfully updated.' } # rubocop:todo Rails/I18nLocaleTexts
         format.json { render :show, status: :ok, location: @kit }
       else
         format.html { render :edit }
@@ -54,7 +54,7 @@ class KitsController < ApplicationController # rubocop:todo Style/Documentation
   def destroy
     @kit.destroy
     respond_to do |format|
-      format.html { redirect_to kits_url, notice: 'Kit was successfully destroyed.' }
+      format.html { redirect_to kits_url, notice: 'Kit was successfully destroyed.' } # rubocop:todo Rails/I18nLocaleTexts
       format.json { head :no_content }
     end
   end

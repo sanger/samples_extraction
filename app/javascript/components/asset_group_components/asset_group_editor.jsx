@@ -67,41 +67,37 @@ class AssetGroupEditor extends React.Component {
   render() {
     return (
       <Dropzone uploader={new FineUploaderTraditional(uploaderOptions(this.props))}>
-        <div className="form-group">
-          <FormFor
-            url={this.props.assetGroup.updateUrl}
-            data-turbolinks="false"
-            onSubmit={this.onSubmit}
-            className="edit_asset_group"
-          >
-            <div className="panel panel-default">
-              <div className="panel-header barcode-adding-control">
-                <BarcodeReader
-                  activityRunning={this.props.activityRunning}
-                  isShown={this.props.isShown}
-                  onAddBarcodesToAssetGroup={this.props.onAddBarcodesToAssetGroup}
-                  handleChange={this.handleBarcodeReaderChange}
-                  barcodesInputText={this.state.barcodesInputText}
-                  disabledBarcodesInput={this.state.disabledBarcodesInput}
-                  assetGroup={this.props.assetGroup}
-                />
-              </div>
-              <div className="panel-body collapse in" id="collapseAssets">
-                <AssetGroup
-                  uuidsPendingRemoval={this.props.uuidsPendingRemoval}
-                  dataAssetDisplay={this.props.dataAssetDisplay}
-                  activityRunning={this.props.activityRunning}
-                  onCollapseFacts={this.props.onCollapseFacts}
-                  collapsedFacts={this.props.collapsedFacts}
-                  onRemoveAssetFromAssetGroup={this.props.onRemoveAssetFromAssetGroup}
-                  onRemoveAllAssetsFromAssetGroup={this.props.onRemoveAllAssetsFromAssetGroup}
-                  assetGroup={this.props.assetGroup}
-                />
-              </div>
-              <div className="panel-footer"></div>
-            </div>
-          </FormFor>
-        </div>
+        <FormFor
+          url={this.props.assetGroup.updateUrl}
+          data-turbolinks="false"
+          onSubmit={this.onSubmit}
+          className="edit_asset_group"
+        >
+          <div className="panel-header barcode-adding-control">
+            <BarcodeReader
+              activityRunning={this.props.activityRunning}
+              isShown={this.props.isShown}
+              onAddBarcodesToAssetGroup={this.props.onAddBarcodesToAssetGroup}
+              handleChange={this.handleBarcodeReaderChange}
+              barcodesInputText={this.state.barcodesInputText}
+              disabledBarcodesInput={this.state.disabledBarcodesInput}
+              assetGroup={this.props.assetGroup}
+            />
+          </div>
+          <div className="panel-body collapse in" id="collapseAssets">
+            <AssetGroup
+              uuidsPendingRemoval={this.props.uuidsPendingRemoval}
+              dataAssetDisplay={this.props.dataAssetDisplay}
+              activityRunning={this.props.activityRunning}
+              onCollapseFacts={this.props.onCollapseFacts}
+              collapsedFacts={this.props.collapsedFacts}
+              onRemoveAssetFromAssetGroup={this.props.onRemoveAssetFromAssetGroup}
+              onRemoveAllAssetsFromAssetGroup={this.props.onRemoveAllAssetsFromAssetGroup}
+              assetGroup={this.props.assetGroup}
+            />
+          </div>
+          <div className="panel-footer"></div>
+        </FormFor>
       </Dropzone>
     )
   }

@@ -170,7 +170,9 @@ class StepsFinished extends React.Component {
           <th>Step type</th>
           <th>Activity</th>
           <th>Asset Group</th>
-          <th>Num. operations</th> <th>Duration</th> <th>Username</th>
+          <th>Num. operations</th>
+          <th>Duration</th>
+          <th>Username</th>
           <th>Status</th>
         </tr>
       </thead>
