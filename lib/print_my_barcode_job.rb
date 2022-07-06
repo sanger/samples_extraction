@@ -3,7 +3,17 @@
 # Wraps a print job for Print My Barcode
 # https://github.com/sanger/print_my_barcode
 class PrintMyBarcodeJob
-  PrintingError = Class.new(StandardError)
+  # Custom class to indicate issues with Print My Barcode.
+  # Use status code to pass on the same status code as print my barcode, defaults
+  # to a 500.
+  class PrintingError < StandardError
+    attr_reader :status_code
+
+    def initialize(message, status_code = 500)
+      super(message)
+      @status_code = status_code
+    end
+  end
 
   #
   # Build a new print job
@@ -50,7 +60,7 @@ class PrintMyBarcodeJob
       }
     ).save
   rescue JsonApiClient::Errors::ApiError => e
-    raise PrintingError, e.message
+    raise PrintingError.new(e.message, e.env.response.status)
   end
 
   def v1_labels
@@ -67,7 +77,7 @@ class PrintMyBarcodeJob
   def v2_request
     v2_client.post('print_jobs', v2_body)
   rescue Faraday::Error => e
-    raise PrintingError, e.message
+    raise PrintingError.new(e.message, e.response.fetch(:status, 500))
   end
 
   def v2_body

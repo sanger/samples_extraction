@@ -105,6 +105,7 @@ module ActivitiesHelper # rubocop:todo Style/Documentation
       activityId: asset_group.activity_owner.id,
       lastUpdate: asset_group.updated_at,
       updateUrl: Rails.application.routes.url_helpers.activity_asset_group_path(activity, asset_group),
+      printUrl: Rails.application.routes.url_helpers.print_asset_group_path(asset_group),
       condition_group_name: asset_group.condition_group_name,
       name: asset_group.display_name,
       assets_running: activity.steps.running.joins(asset_group: :assets).map(&:assets).flatten.map(&:uuid).uniq,

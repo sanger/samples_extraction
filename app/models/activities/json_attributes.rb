@@ -10,14 +10,19 @@ module Activities::JsonAttributes # rubocop:todo Style/Documentation
         selectedAssetGroup: owned_asset_groups.first.id
       },
       tubePrinter: {
-        optionsData: Printer.for_tube.map { |a| [a.name, a.id] },
-        defaultValue: current_user && current_user.tube_printer ? current_user.tube_printer.id : nil
+        optionsData: Printer.for_tube.pluck(:name, :id),
+        defaultValue: current_user&.tube_printer_id
       },
       platePrinter: {
-        optionsData: Printer.for_plate.map { |a| [a.name, a.id] },
-        defaultValue: current_user && current_user.plate_printer ? current_user.plate_printer.id : nil
-      }
+        optionsData: Printer.for_plate.pluck(:name, :id),
+        defaultValue: current_user&.plate_printer_id
+      },
+      featureFlags: feature_flags(current_user)
     }.merge(websockets_attributes)
+  end
+
+  def feature_flags(current_user)
+    Flipper.features.index_by(&:key).transform_values { |f| f.enabled?(current_user) }
   end
 
   def json_attributes

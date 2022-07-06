@@ -1,5 +1,4 @@
-import React, { Fragment } from 'react'
-import ReactDOM from 'react-dom'
+import React from 'react'
 import { shallow, mount } from 'enzyme'
 
 import '../test_helpers/test_init'

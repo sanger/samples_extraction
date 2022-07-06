@@ -1,4 +1,4 @@
-source 'http://rubygems.org'
+source 'https://rubygems.org'
 
 # Service libraries
 gem 'bootsnap', require: false
@@ -60,6 +60,11 @@ gem 'rb-readline'
 
 # Docs
 gem 'yard'
+
+# Feature flags
+gem 'flipper'
+gem 'flipper-redis'
+gem 'flipper-ui'
 
 group :development, :test do
   # Call 'pry' anywhere in the code to stop execution and get a debugger console
