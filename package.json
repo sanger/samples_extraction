@@ -10,7 +10,7 @@
     "fine-uploader": "^5.16.2",
     "fine-uploader-wrappers": "^1.0.1",
     "jquery": "^3.6.0",
-    "moment": "^2.29.3",
+    "moment": "^2.29.4",
     "node": "^10.24.1",
     "prop-types": "^15.8.1",
     "react": "^16.14.0",
@@ -44,7 +44,7 @@
     "jest-enzyme": "^7.1.2",
     "miragejs": "^0.1.45",
     "postcss-preset-env": "^6.7.1",
-    "prettier": "^2.6.2",
+    "prettier": "^2.7.1",
     "regenerator-runtime": "^0.13.3"
   },
   "scripts": {
