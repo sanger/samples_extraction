@@ -39,13 +39,14 @@ class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documenta
     # @note The array here can contain both asset barcodes, and uuids, or even a mixture of the
     # two.
     asset_uuids, asset_barcodes = assets.partition { |identifier| TokenUtil.is_uuid?(identifier) }
+    asset_human_barcodes = asset_barcodes.map{|barcode| TokenUtil.human_barcode(barcode) }
 
     begin
       uuid_assets = Asset.where(uuid: asset_uuids).to_a
-      barcode_assets = Asset.find_or_import_assets_with_barcodes(asset_barcodes)
+      barcode_assets = Asset.find_or_import_assets_with_barcodes(asset_human_barcodes)
       asset_group.update_with_assets(uuid_assets + barcode_assets)
 
-      missing_barcodes = asset_barcodes - barcode_assets.map(&:barcode)
+      missing_barcodes = asset_human_barcodes - barcode_assets.map(&:barcode)
 
       if missing_barcodes.present?
         asset_group.activity.report_error("Could not find barcodes: #{missing_barcodes.to_sentence}")
