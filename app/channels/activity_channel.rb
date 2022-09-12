@@ -1,5 +1,4 @@
 class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documentation
-
   def self.connection_for_redis
     ActionCable.server.pubsub.redis_connection_for_subscriptions
   end
@@ -28,7 +27,6 @@ class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documenta
     process_activity(strong_params_for_activity(data)) if data['activity']
   end
 
-
   #
   # Struct type class to store the information related to a user provided input
   # input: str, with the contents that we are going to process as input
@@ -40,14 +38,13 @@ class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documenta
     attr_accessor :result
 
     def initialize(options)
-      @input=options[:input]
-      @raw_input=options[:raw_input]
-      @pos=options[:pos]
+      @input = options[:input]
+      @raw_input = options[:raw_input]
+      @pos = options[:pos]
     end
   end
 
-
-  # 
+  #
   # Struct type class to handle assets after it has been resolved
   # together with the failing inputs
   # assets: List<Asset>, list of resolved assets
@@ -60,12 +57,12 @@ class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documenta
     end
   end
 
-  # Class that will handle resolving a user input into an Asset from the 
+  # Class that will handle resolving a user input into an Asset from the
   # database. It supports 3 different types of user inputs:
   # 1. UUID of an asset, which it will be resolved into the Asset it represents
   # 2. Machine barcode of an asset, which it will be converted to human barcode
   # and resolved into the Asset
-  # 3. Human barcode of an asset, which it will be resolved into the Asset it 
+  # 3. Human barcode of an asset, which it will be resolved into the Asset it
   # represents
   class BarcodeInputResolver
     def initialize
@@ -74,7 +71,7 @@ class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documenta
       @pos = 0
     end
 
-    # Next number in position for the new input added. 
+    # Next number in position for the new input added.
     def next_position
       @pos += 1
     end
@@ -94,20 +91,27 @@ class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documenta
     def _add_results_for_input_objects(inputs)
       return unless inputs
       results = yield
-      inputs.zip(results).each{ |input, result| input.result=result }
+      inputs.zip(results).each { |input, result| input.result = result }
     end
-  
-    # Resolves all UUIDs read into Assets
+
+    # Resolves all UUIDs read into Assets sorted by the order they were found, or
+    # with a nil value if they position was not found and maps them together
     def _resolve_objects_uuids
       _add_results_for_input_objects(@input_objects_uuids) do
-        Asset.where(uuid: @input_objects_uuids.map(&:input)).to_a
+        uuids = @input_objects_uuids.map(&:input)
+        assets = Asset.where(uuid: uuids).to_a
+        uuids.map { |uuid| assets.detect { |a| a.uuid == uuid unless a.nil? } }
       end
     end
 
-    # Resolves all human barcodes read into Assets
+    # Resolves all human barcodes read into Assets or return nil if the position
+    # was not found
     def _resolve_objects_human_barcodes
       _add_results_for_input_objects(@input_objects_human_barcodes) do
-        Asset.find_or_import_assets_with_barcodes(@input_objects_human_barcodes.map(&:input))
+        inputs = inputs = @input_objects_human_barcodes.map(&:input)
+        Asset.find_or_import_assets_with_barcodes(inputs)
+        assets = Asset.where(barcode: inputs).to_a
+        inputs.map { |input| assets.detect { |a| a.barcode == input unless a.nil? } }
       end
     end
 
@@ -116,7 +120,7 @@ class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documenta
       @input_objects_uuids.concat(@input_objects_human_barcodes).sort_by(&:pos)
     end
 
-    # Resolves all inputs into the Assets they represent. Caches the value and 
+    # Resolves all inputs into the Assets they represent. Caches the value and
     # returns it in subsequents calls
     def _resolved_objects
       return @resolved_objects if @resolved_objects
@@ -129,15 +133,15 @@ class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documenta
     # from the inputs added
     def resolved_assets
       BarcodeInputResolvedAssets.new(
-        assets: _resolved_objects.reject{|input| input.result.nil?}.map(&:result), 
-        missing_inputs: _resolved_objects.select{|input| input.result.nil?}
+        assets: _resolved_objects.reject { |input| input.result.nil? }.map(&:result),
+        missing_inputs: _resolved_objects.select { |input| input.result.nil? }.map(&:raw_input)
       )
     end
   end
 
   def resolve_assets_from_inputs(inputs)
     resolver = BarcodeInputResolver.new
-    inputs.each {|input| resolver.add_input(input) }
+    inputs.each { |input| resolver.add_input(input) }
     resolver.resolved_assets
   end
 
