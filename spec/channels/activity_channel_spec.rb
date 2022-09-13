@@ -13,13 +13,17 @@ RSpec.describe ActivityChannel, type: :channel do
   context '#receive' do
     context 'when receiving a asset group' do
       let(:instance) { MyTest.new }
-      let(:group) { create :asset_group }
+      let(:activity) { create :activity }
+      let(:group) { create :asset_group, activity_owner: activity }
       let(:assets) { [] }
 
-      before { allow(AssetGroup).to receive(:find).with(group.id).and_return(group) }
+      before do 
+        allow(AssetGroup).to receive(:find).with(group.id).and_return(group) 
+      end
 
-      it 'processes asset group' do
+      it 'processes asset group with no errors' do
         expect(instance).to receive(:process_asset_group)
+        expect(activity).not_to receive(:report_error)
         instance.receive({ 'asset_group' => { id: group.id, assets: assets } })
       end
 
@@ -27,8 +31,9 @@ RSpec.describe ActivityChannel, type: :channel do
         let!(:tubes) { [create(:asset, uuid: assets[0]), create(:asset, uuid: assets[1])] }
         let(:assets) { [SecureRandom.uuid, SecureRandom.uuid] }
         it 'imports uuids' do
-          expect(Asset).to receive(:find_or_import_assets_with_barcodes).with([]).and_return([])
+          expect(Asset).to receive(:find_or_import_assets_with_barcodes).with([])
           expect(group).to receive(:update_with_assets).with(tubes)
+          expect(activity).not_to receive(:report_error)
           instance.receive({ 'asset_group' => { id: group.id, assets: assets } })
         end
       end
@@ -38,20 +43,25 @@ RSpec.describe ActivityChannel, type: :channel do
         let(:assets) { tubes.map(&:barcode) }
 
         it 'imports human barcodes' do
-          expect(Asset).to receive(:find_or_import_assets_with_barcodes).with(assets).and_return(tubes)
+          expect(Asset).to receive(:find_or_import_assets_with_barcodes).with(assets)
           expect(group).to receive(:update_with_assets).with(tubes)
+          expect(activity).not_to receive(:report_error)
           instance.receive({ 'asset_group' => { id: group.id, assets: assets } })
         end
       end
 
       context 'when receiving machine barcodes' do
-        let!(:tubes) { [create(:asset, barcode: 'NT1767662F'), create(:asset, barcode: 'NT1767663G')] }
+        let!(:tubes) do [
+          create(:asset, barcode: 'NT1767662F'), 
+          create(:asset, barcode: 'NT1767663G')
+        ] end
         let(:human_barcodes) { tubes.map(&:barcode) }
         let(:assets) { %w[3981767662700 3981767663714] }
 
         it 'imports machines barcodes' do
-          expect(Asset).to receive(:find_or_import_assets_with_barcodes).with(human_barcodes).and_return(tubes)
+          expect(Asset).to receive(:find_or_import_assets_with_barcodes).with(human_barcodes)
           expect(group).to receive(:update_with_assets).with(tubes)
+          expect(activity).not_to receive(:report_error)
           instance.receive({ 'asset_group' => { id: group.id, assets: assets } })
         end
       end
@@ -76,9 +86,45 @@ RSpec.describe ActivityChannel, type: :channel do
         it 'imports all inputs right' do
           expect(Asset).to receive(:find_or_import_assets_with_barcodes).with(human_barcodes).and_return(human_assets)
           expect(group).to receive(:update_with_assets).with(tubes)
+          expect(activity).not_to receive(:report_error)
           instance.receive({ 'asset_group' => { id: group.id, assets: assets } })
         end
       end
+
+      context 'when receiving missing inputs' do
+        let(:uuids) { [SecureRandom.uuid, SecureRandom.uuid] }
+        let(:uuid_assets) { [create(:asset, uuid: uuids[0]), create(:asset, uuid: uuids[1])] }
+        let(:human_assets) do
+          [
+            create(:asset, barcode: 'human1'),
+            create(:asset, barcode: 'human2'),
+            create(:asset, barcode: 'NT1767662F'),
+            create(:asset, barcode: 'NT1767663G')
+          ]
+        end
+        let(:human_barcodes) { %w[human1 human2 NT1767662F NT1767663G] }
+        let(:missing) { SecureRandom.uuid }
+        let(:assets) { ['human1', 'human2', uuids[0], uuids[1], '3981767662700', '3981767663714', missing] }
+        let(:tubes) do
+          [human_assets[0], human_assets[1], uuid_assets[0], uuid_assets[1], human_assets[2], human_assets[3]]
+        end
+
+        before do
+          expect(Asset).to receive(:find_or_import_assets_with_barcodes)
+        end
+
+        it 'imports all present inputs right' do
+          expect(activity).to receive(:report_error)
+          expect(group).to receive(:update_with_assets).with(tubes)
+          instance.receive({ 'asset_group' => { id: group.id, assets: assets } })
+        end
+        it 'detects the error right' do
+          expect(activity).to receive(:report_error)
+          instance.receive({ 'asset_group' => { id: group.id, assets: assets } })
+        end
+
+      end
+
     end
   end
   context 'ActivityChannel::BarcodeInputResolver' do
