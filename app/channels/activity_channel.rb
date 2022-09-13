@@ -157,8 +157,6 @@ class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documenta
     # currently sure what we expect here. So maintaining existing behaviour.
     return unless inputs
 
-    # @note The array here can contain both asset barcodes, and uuids, or even a mixture of the
-    # two.
     begin
       resolved_inputs = resolve_assets_from_inputs(inputs)
       asset_group.update_with_assets(resolved_inputs.assets)
