@@ -29,6 +29,10 @@ module Messages
       { samples_extraction_activity: samples_extraction_activity, lims: 'SAMPEXT' }
     end
 
+    def headers
+      {}
+    end
+
     private
 
     # Main payload of the message
