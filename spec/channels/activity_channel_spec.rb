@@ -17,9 +17,7 @@ RSpec.describe ActivityChannel, type: :channel do
       let(:group) { create :asset_group, activity_owner: activity }
       let(:assets) { [] }
 
-      before do 
-        allow(AssetGroup).to receive(:find).with(group.id).and_return(group) 
-      end
+      before { allow(AssetGroup).to receive(:find).with(group.id).and_return(group) }
 
       it 'processes asset group with no errors' do
         expect(instance).to receive(:process_asset_group)
@@ -51,10 +49,7 @@ RSpec.describe ActivityChannel, type: :channel do
       end
 
       context 'when receiving machine barcodes' do
-        let!(:tubes) do [
-          create(:asset, barcode: 'NT1767662F'), 
-          create(:asset, barcode: 'NT1767663G')
-        ] end
+        let!(:tubes) { [create(:asset, barcode: 'NT1767662F'), create(:asset, barcode: 'NT1767663G')] }
         let(:human_barcodes) { tubes.map(&:barcode) }
         let(:assets) { %w[3981767662700 3981767663714] }
 
@@ -109,9 +104,7 @@ RSpec.describe ActivityChannel, type: :channel do
           [human_assets[0], human_assets[1], uuid_assets[0], uuid_assets[1], human_assets[2], human_assets[3]]
         end
 
-        before do
-          expect(Asset).to receive(:find_or_import_assets_with_barcodes)
-        end
+        before { expect(Asset).to receive(:find_or_import_assets_with_barcodes) }
 
         it 'imports all present inputs right' do
           expect(activity).to receive(:report_error)
@@ -122,9 +115,7 @@ RSpec.describe ActivityChannel, type: :channel do
           expect(activity).to receive(:report_error)
           instance.receive({ 'asset_group' => { id: group.id, assets: assets } })
         end
-
       end
-
     end
   end
   context 'ActivityChannel::BarcodeInputResolver' do
@@ -163,28 +154,22 @@ RSpec.describe ActivityChannel, type: :channel do
     context 'with mixed content' do
       let(:uuids) { [SecureRandom.uuid, SecureRandom.uuid] }
       let(:inputs) { ['human1', uuids[0], '3981767663714', 'human2', '3981767662700', uuids[1]] }
-      let(:human_barcodes) { ['human1', 'NT1767663G', 'human2', 'NT1767662F'] }
+      let(:human_barcodes) { %w[human1 NT1767663G human2 NT1767662F] }
       let!(:assets) do
         [
           create(:asset, barcode: 'human1'),
           create(:asset, uuid: uuids[0]),
           create(:asset, barcode: 'NT1767663G'), # EAN13: 3981767663714
-          create(:asset, barcode: 'human2'),     
+          create(:asset, barcode: 'human2'),
           create(:asset, barcode: 'NT1767662F'), # EAN13: 3981767662700
           create(:asset, uuid: uuids[1])
         ]
       end
-      let(:obtained_uuid_assets) do 
-        [assets[1], assets[5]]
-      end
-      let!(:obtained_human_assets) do
-        [ assets[0], assets[2], assets[3], assets[4] ]
-      end
+      let(:obtained_uuid_assets) { [assets[1], assets[5]] }
+      let!(:obtained_human_assets) { [assets[0], assets[2], assets[3], assets[4]] }
       let(:machine_barcodes) { %w[3981767663714 3981767662700] }
 
-      before do
-        expect(Asset).to receive(:find_or_import_assets_with_barcodes)
-      end
+      before { expect(Asset).to receive(:find_or_import_assets_with_barcodes) }
 
       context 'without missing assets' do
         it 'can find all elements in order' do
@@ -199,17 +184,11 @@ RSpec.describe ActivityChannel, type: :channel do
         context 'when the asset missing is a barcode' do
           before do
             expect(Asset).to receive(:where).with(uuid: uuids).and_return(obtained_uuid_assets.shuffle)
-            expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return(obtained_human_assets.shuffle)  
+            expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return(obtained_human_assets.shuffle)
           end
-          let(:obtained_human_assets) do
-            [assets[0], nil, assets[3], assets[4]]
-          end
-          let(:obtained_assets) do
-            [assets[0], assets[1], assets[3], assets[4], assets[5]]
-          end
-          let(:missing_inputs) do
-            [inputs[2]]
-          end
+          let(:obtained_human_assets) { [assets[0], nil, assets[3], assets[4]] }
+          let(:obtained_assets) { [assets[0], assets[1], assets[3], assets[4], assets[5]] }
+          let(:missing_inputs) { [inputs[2]] }
           it 'can handle missing barcodes' do
             resolver = ActivityChannel::BarcodeInputResolver.new
             inputs.each { |barcode| resolver.add_input(barcode) }
@@ -220,17 +199,11 @@ RSpec.describe ActivityChannel, type: :channel do
         context 'when the asset missing is an uuid' do
           before do
             expect(Asset).to receive(:where).with(uuid: uuids).and_return(obtained_uuid_assets.shuffle)
-            expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return(obtained_human_assets.shuffle)  
+            expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return(obtained_human_assets.shuffle)
           end
-          let(:obtained_uuid_assets) do
-            [assets[1], nil]
-          end
-          let(:obtained_assets) do
-            [assets[0], assets[1], assets[2], assets[3], assets[4]]
-          end
-          let(:missing_inputs) do
-            [inputs[5]]
-          end
+          let(:obtained_uuid_assets) { [assets[1], nil] }
+          let(:obtained_assets) { [assets[0], assets[1], assets[2], assets[3], assets[4]] }
+          let(:missing_inputs) { [inputs[5]] }
           it 'can handle missing uuids' do
             resolver = ActivityChannel::BarcodeInputResolver.new
             inputs.each { |barcode| resolver.add_input(barcode) }
@@ -243,20 +216,12 @@ RSpec.describe ActivityChannel, type: :channel do
         context 'when there are several elements missing' do
           before do
             expect(Asset).to receive(:where).with(uuid: uuids).and_return(obtained_uuid_assets.shuffle)
-            expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return(obtained_human_assets.shuffle)  
+            expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return(obtained_human_assets.shuffle)
           end
-          let(:obtained_uuid_assets) do
-            [nil, assets[5]]
-          end
-          let(:obtained_human_assets) do
-            [assets[0], nil, nil, assets[4]]
-          end
-          let(:obtained_assets) do
-            [assets[0], assets[4], assets[5]]
-          end
-          let(:missing_inputs) do
-            [inputs[1], inputs[2], inputs[3]]
-          end
+          let(:obtained_uuid_assets) { [nil, assets[5]] }
+          let(:obtained_human_assets) { [assets[0], nil, nil, assets[4]] }
+          let(:obtained_assets) { [assets[0], assets[4], assets[5]] }
+          let(:missing_inputs) { [inputs[1], inputs[2], inputs[3]] }
           it 'can handle missing both uuids and barcodes' do
             resolver = ActivityChannel::BarcodeInputResolver.new
             inputs.each { |barcode| resolver.add_input(barcode) }
@@ -269,14 +234,10 @@ RSpec.describe ActivityChannel, type: :channel do
         context 'when all uuids are missing' do
           before do
             expect(Asset).to receive(:where).with(uuid: uuids).and_return([])
-            expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return(obtained_human_assets.shuffle)  
+            expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return(obtained_human_assets.shuffle)
           end
-          let(:obtained_assets) do
-            [assets[0], assets[2], assets[3], assets[4]]
-          end
-          let(:missing_inputs) do
-            [inputs[1], inputs[5]]
-          end
+          let(:obtained_assets) { [assets[0], assets[2], assets[3], assets[4]] }
+          let(:missing_inputs) { [inputs[1], inputs[5]] }
           it 'can handle all uuids missing' do
             resolver = ActivityChannel::BarcodeInputResolver.new
             inputs.each { |barcode| resolver.add_input(barcode) }
@@ -289,14 +250,10 @@ RSpec.describe ActivityChannel, type: :channel do
         context 'when all barcodes are missing' do
           before do
             expect(Asset).to receive(:where).with(uuid: uuids).and_return(obtained_uuid_assets.shuffle)
-            expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return([])  
+            expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return([])
           end
-          let(:obtained_assets) do
-            [assets[1], assets[5]]
-          end
-          let(:missing_inputs) do
-            [inputs[0], inputs[2], inputs[3], inputs[4]]
-          end
+          let(:obtained_assets) { [assets[1], assets[5]] }
+          let(:missing_inputs) { [inputs[0], inputs[2], inputs[3], inputs[4]] }
           it 'can handle all barcodes missing' do
             resolver = ActivityChannel::BarcodeInputResolver.new
             inputs.each { |barcode| resolver.add_input(barcode) }
@@ -309,14 +266,10 @@ RSpec.describe ActivityChannel, type: :channel do
         context 'when all inputs are missing' do
           before do
             expect(Asset).to receive(:where).with(uuid: uuids).and_return([])
-            expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return([])  
+            expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return([])
           end
-          let(:obtained_assets) do
-            []
-          end
-          let(:missing_inputs) do
-            inputs
-          end
+          let(:obtained_assets) { [] }
+          let(:missing_inputs) { inputs }
           it 'can handle all inputs missing' do
             resolver = ActivityChannel::BarcodeInputResolver.new
             inputs.each { |barcode| resolver.add_input(barcode) }

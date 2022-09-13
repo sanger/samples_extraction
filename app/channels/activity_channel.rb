@@ -139,7 +139,6 @@ class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documenta
       _resolve_objects_human_barcodes
       @resolved_objects = _sorted_input_objects
     end
-
   end
 
   # Process all inputs and resolves them into a BarcodeInputResolvedAssets object
