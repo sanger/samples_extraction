@@ -71,20 +71,31 @@ class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documenta
       @pos = 0
     end
 
-    # Next number in position for the new input added.
-    def next_position
-      @pos += 1
-    end
-
     # Adds a new input to the resolver, classifying it into UUID or human barcode
     def add_input(input)
       if TokenUtil.is_uuid?(input)
-        @input_objects_uuids.push(BarcodeInput.new(input: input, raw_input: input, pos: next_position))
+        @input_objects_uuids.push(BarcodeInput.new(input: input, raw_input: input, pos: _next_position))
       else
         @input_objects_human_barcodes.push(
-          BarcodeInput.new(input: TokenUtil.human_barcode(input), raw_input: input, pos: next_position)
+          BarcodeInput.new(input: TokenUtil.human_barcode(input), raw_input: input, pos: _next_position)
         )
       end
+    end
+
+    # Returns a BarcodeInputResolvedAssets with the resolution of the Assets
+    # from the inputs added
+    def resolved_assets
+      BarcodeInputResolvedAssets.new(
+        assets: _resolved_objects.reject { |input| input.result.nil? }.map(&:result),
+        missing_inputs: _resolved_objects.select { |input| input.result.nil? }.map(&:raw_input)
+      )
+    end
+
+    private
+
+    # Next number in position for the new input added.
+    def _next_position
+      @pos += 1
     end
 
     # Add the results for the resolution of the inputs provided
@@ -129,16 +140,9 @@ class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documenta
       @resolved_objects = _sorted_input_objects
     end
 
-    # Returns a BarcodeInputResolvedAssets with the resolution of the Assets
-    # from the inputs added
-    def resolved_assets
-      BarcodeInputResolvedAssets.new(
-        assets: _resolved_objects.reject { |input| input.result.nil? }.map(&:result),
-        missing_inputs: _resolved_objects.select { |input| input.result.nil? }.map(&:raw_input)
-      )
-    end
   end
 
+  # Process all inputs and resolves them into a BarcodeInputResolvedAssets object
   def resolve_assets_from_inputs(inputs)
     resolver = BarcodeInputResolver.new
     inputs.each { |input| resolver.add_input(input) }
