@@ -116,45 +116,169 @@ RSpec.describe ActivityChannel, type: :channel do
     end
     context 'with mixed content' do
       let(:uuids) { [SecureRandom.uuid, SecureRandom.uuid] }
-
+      let(:inputs) { ['human1', uuids[0], '3981767663714', 'human2', '3981767662700', uuids[1]] }
+      let(:human_barcodes) { ['human1', 'NT1767663G', 'human2', 'NT1767662F'] }
       let!(:assets) do
-        [human_assets[0], uuid_assets[1], human_assets[1], human_assets[2], human_assets[3], uuid_assets[0]]
-      end
-      let(:uuid_assets) { [create(:asset, uuid: uuids[0]), create(:asset, uuid: uuids[1])] }
-      let(:inputs) { ['human1', uuids[1], '3981767663714', 'human2', '3981767662700', uuids[0]] }
-      let!(:human_assets) do
         [
           create(:asset, barcode: 'human1'),
-          create(:asset, barcode: 'NT1767663G'),
-          create(:asset, barcode: 'human2'),
-          create(:asset, barcode: 'NT1767662F')
+          create(:asset, uuid: uuids[0]),
+          create(:asset, barcode: 'NT1767663G'), # EAN13: 3981767663714
+          create(:asset, barcode: 'human2'),     
+          create(:asset, barcode: 'NT1767662F'), # EAN13: 3981767662700
+          create(:asset, uuid: uuids[1])
         ]
       end
-      let!(:human_barcodes) { human_assets.map(&:barcode) }
+      let(:obtained_uuid_assets) do 
+        [assets[1], assets[5]]
+      end
+      let!(:obtained_human_assets) do
+        [ assets[0], assets[2], assets[3], assets[4] ]
+      end
       let(:machine_barcodes) { %w[3981767663714 3981767662700] }
 
-      it 'keeps the order of the input in the resolved assets' do
-        expect(Asset).to receive(:find_or_import_assets_with_barcodes).with(human_barcodes).and_return(human_assets)
-        resolver = ActivityChannel::BarcodeInputResolver.new
-        inputs.each { |barcode| resolver.add_input(barcode) }
-        expect(resolver.resolved_assets.assets).to eq(assets)
+      before do
+        expect(Asset).to receive(:find_or_import_assets_with_barcodes)
       end
 
-      it 'can handle missing barcodes' do
-        human_assets[2] = nil
+      context 'without missing assets' do
+        it 'can find all elements in order' do
+          resolver = ActivityChannel::BarcodeInputResolver.new
+          inputs.each { |barcode| resolver.add_input(barcode) }
+          expect(resolver.resolved_assets.assets).to eq(assets)
+          expect(resolver.resolved_assets.missing_inputs).to eq([])
+        end
+      end
 
-        expect(Asset).to receive(:find_or_import_assets_with_barcodes)
-        expect(Asset).to receive(:where).with(uuid: [uuids[1], uuids[0]]).and_return(uuid_assets)
-        expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return(human_assets)
+      context 'with missing assets' do
+        context 'when the asset missing is a barcode' do
+          before do
+            expect(Asset).to receive(:where).with(uuid: uuids).and_return(obtained_uuid_assets.shuffle)
+            expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return(obtained_human_assets.shuffle)  
+          end
+          let(:obtained_human_assets) do
+            [assets[0], nil, assets[3], assets[4]]
+          end
+          let(:obtained_assets) do
+            [assets[0], assets[1], assets[3], assets[4], assets[5]]
+          end
+          let(:missing_inputs) do
+            [inputs[2]]
+          end
+          it 'can handle missing barcodes' do
+            resolver = ActivityChannel::BarcodeInputResolver.new
+            inputs.each { |barcode| resolver.add_input(barcode) }
+            expect(resolver.resolved_assets.assets).to eq(obtained_assets)
+            expect(resolver.resolved_assets.missing_inputs).to eq(missing_inputs)
+          end
+        end
+        context 'when the asset missing is an uuid' do
+          before do
+            expect(Asset).to receive(:where).with(uuid: uuids).and_return(obtained_uuid_assets.shuffle)
+            expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return(obtained_human_assets.shuffle)  
+          end
+          let(:obtained_uuid_assets) do
+            [assets[1], nil]
+          end
+          let(:obtained_assets) do
+            [assets[0], assets[1], assets[2], assets[3], assets[4]]
+          end
+          let(:missing_inputs) do
+            [inputs[5]]
+          end
+          it 'can handle missing uuids' do
+            resolver = ActivityChannel::BarcodeInputResolver.new
+            inputs.each { |barcode| resolver.add_input(barcode) }
 
-        resolver = ActivityChannel::BarcodeInputResolver.new
-        inputs.each { |barcode| resolver.add_input(barcode) }
-        obtained_assets = [assets[0], assets[1], assets[2], assets[4], assets[5]]
+            expect(resolver.resolved_assets.assets).to eq(obtained_assets)
+            expect(resolver.resolved_assets.missing_inputs).to eq(missing_inputs)
+          end
+        end
 
-        missing_inputs = ['human2']
+        context 'when there are several elements missing' do
+          before do
+            expect(Asset).to receive(:where).with(uuid: uuids).and_return(obtained_uuid_assets.shuffle)
+            expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return(obtained_human_assets.shuffle)  
+          end
+          let(:obtained_uuid_assets) do
+            [nil, assets[5]]
+          end
+          let(:obtained_human_assets) do
+            [assets[0], nil, nil, assets[4]]
+          end
+          let(:obtained_assets) do
+            [assets[0], assets[4], assets[5]]
+          end
+          let(:missing_inputs) do
+            [inputs[1], inputs[2], inputs[3]]
+          end
+          it 'can handle missing both uuids and barcodes' do
+            resolver = ActivityChannel::BarcodeInputResolver.new
+            inputs.each { |barcode| resolver.add_input(barcode) }
 
-        expect(resolver.resolved_assets.assets).to eq(obtained_assets)
-        expect(resolver.resolved_assets.missing_inputs).to eq(missing_inputs)
+            expect(resolver.resolved_assets.assets).to eq(obtained_assets)
+            expect(resolver.resolved_assets.missing_inputs).to eq(missing_inputs)
+          end
+        end
+
+        context 'when all uuids are missing' do
+          before do
+            expect(Asset).to receive(:where).with(uuid: uuids).and_return([])
+            expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return(obtained_human_assets.shuffle)  
+          end
+          let(:obtained_assets) do
+            [assets[0], assets[2], assets[3], assets[4]]
+          end
+          let(:missing_inputs) do
+            [inputs[1], inputs[5]]
+          end
+          it 'can handle all uuids missing' do
+            resolver = ActivityChannel::BarcodeInputResolver.new
+            inputs.each { |barcode| resolver.add_input(barcode) }
+
+            expect(resolver.resolved_assets.assets).to eq(obtained_assets)
+            expect(resolver.resolved_assets.missing_inputs).to eq(missing_inputs)
+          end
+        end
+
+        context 'when all barcodes are missing' do
+          before do
+            expect(Asset).to receive(:where).with(uuid: uuids).and_return(obtained_uuid_assets.shuffle)
+            expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return([])  
+          end
+          let(:obtained_assets) do
+            [assets[1], assets[5]]
+          end
+          let(:missing_inputs) do
+            [inputs[0], inputs[2], inputs[3], inputs[4]]
+          end
+          it 'can handle all barcodes missing' do
+            resolver = ActivityChannel::BarcodeInputResolver.new
+            inputs.each { |barcode| resolver.add_input(barcode) }
+
+            expect(resolver.resolved_assets.assets).to eq(obtained_assets)
+            expect(resolver.resolved_assets.missing_inputs).to eq(missing_inputs)
+          end
+        end
+
+        context 'when all inputs are missing' do
+          before do
+            expect(Asset).to receive(:where).with(uuid: uuids).and_return([])
+            expect(Asset).to receive(:where).with(barcode: human_barcodes).and_return([])  
+          end
+          let(:obtained_assets) do
+            []
+          end
+          let(:missing_inputs) do
+            inputs
+          end
+          it 'can handle all inputs missing' do
+            resolver = ActivityChannel::BarcodeInputResolver.new
+            inputs.each { |barcode| resolver.add_input(barcode) }
+
+            expect(resolver.resolved_assets.assets).to eq(obtained_assets)
+            expect(resolver.resolved_assets.missing_inputs).to eq(missing_inputs)
+          end
+        end
       end
     end
   end
