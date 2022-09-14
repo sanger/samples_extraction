@@ -73,11 +73,14 @@ class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documenta
 
     # Adds a new input to the resolver, classifying it into UUID or human barcode
     def add_input(input)
+      return if input.nil? || input.length.zero?
       if TokenUtil.is_uuid?(input)
         @input_objects_uuids.push(BarcodeInput.new(input: input, raw_input: input, pos: _next_position))
       else
+        human_barcode = TokenUtil.human_barcode(input)
+        transformed_value = human_barcode.length.positive? ? human_barcode : input
         @input_objects_human_barcodes.push(
-          BarcodeInput.new(input: TokenUtil.human_barcode(input), raw_input: input, pos: _next_position)
+          BarcodeInput.new(input: transformed_value, raw_input: input, pos: _next_position)
         )
       end
     end
