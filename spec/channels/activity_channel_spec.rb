@@ -163,6 +163,14 @@ RSpec.describe ActivityChannel, type: :channel do
         inputs.each { |barcode| resolver.add_input(barcode) }
         expect(resolver.resolved_assets.assets).to eq(assets)
       end
+
+      it 'can ignore nil inputs' do
+        expect(Asset).to receive(:find_or_import_assets_with_barcodes).with(human_barcodes).and_return(assets)
+        resolver = ActivityChannel::BarcodeInputResolver.new
+        inputs.each { |barcode| resolver.add_input(barcode) }
+        resolver.add_input(nil)
+        expect(resolver.resolved_assets.assets).to eq(assets)
+      end
     end
     context 'with mixed content' do
       let(:uuids) { [SecureRandom.uuid, SecureRandom.uuid] }
