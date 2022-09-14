@@ -151,6 +151,27 @@ RSpec.describe ActivityChannel, type: :channel do
         expect(resolver.resolved_assets.assets).to eq(assets)
       end
     end
+    context 'with inputs that fail when converting to human barcodes' do
+      let!(:assets) { [create(:asset, barcode: 'NT1767662F'), create(:asset, barcode: 'NT1767663G')] }
+      let(:wrong_human_barcode) { '1234' }
+      let(:human_barcodes) { assets.map(&:barcode).concat([wrong_human_barcode]) }
+      let(:inputs) { ['3981767662700', '3981767663714', wrong_human_barcode] }
+
+      it 'can resolve uuids' do
+        expect(Asset).to receive(:find_or_import_assets_with_barcodes).with(human_barcodes).and_return(assets)
+        resolver = ActivityChannel::BarcodeInputResolver.new
+        inputs.each { |barcode| resolver.add_input(barcode) }
+        expect(resolver.resolved_assets.assets).to eq(assets)
+      end
+
+      it 'can ignore nil inputs' do
+        expect(Asset).to receive(:find_or_import_assets_with_barcodes).with(human_barcodes).and_return(assets)
+        resolver = ActivityChannel::BarcodeInputResolver.new
+        inputs.each { |barcode| resolver.add_input(barcode) }
+        resolver.add_input(nil)
+        expect(resolver.resolved_assets.assets).to eq(assets)
+      end
+    end
     context 'with mixed content' do
       let(:uuids) { [SecureRandom.uuid, SecureRandom.uuid] }
       let(:inputs) { ['human1', uuids[0], '3981767663714', 'human2', '3981767662700', uuids[1]] }
