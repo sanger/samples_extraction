@@ -137,9 +137,9 @@ class TransferTubesToTubeRackByPosition # rubocop:todo Style/Documentation
           return updates unless validate_all_tubes_have_aliquot(tubes, updates)
           return updates unless validate_same_aliquot_between_tubes_and_destination_plate(tubes, rack, updates)
 
-          if ((aliquot_types.uniq.length) == 1) && (aliquot_types.uniq.first == 'DNA')
+          if (aliquot_types.uniq.length == 1) && (aliquot_types.uniq.first == 'DNA')
             purpose_name = 'DNA Stock Plate'
-          elsif ((aliquot_types.uniq.length) == 1) && (aliquot_types.uniq.first == 'RNA')
+          elsif (aliquot_types.uniq.length == 1) && (aliquot_types.uniq.first == 'RNA')
             purpose_name = 'RNA Stock Plate'
           else
             purpose_name = 'Stock Plate'
