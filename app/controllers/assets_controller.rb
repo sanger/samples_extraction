@@ -114,7 +114,7 @@ class AssetsController < ApplicationController # rubocop:todo Style/Documentatio
   end
 
   def valid_indexes
-    params.keys.filter_map { |k| k.match(/^[pq](\d*)$/) }.map { |k| k[1] }
+    params.keys.filter_map { |k| k.match(/^[pq](\d*)$/) }.pluck(1)
   end
 
   def set_queries

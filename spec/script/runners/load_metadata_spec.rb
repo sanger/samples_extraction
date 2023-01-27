@@ -35,11 +35,11 @@ RSpec.describe 'LoadMetadata' do
       expect(added_triples.length).to eq(96 * 2)
     end
     it 'adds the right set of properties' do
-      predicates = added_triples.map { |l| l[1] }.uniq
+      predicates = added_triples.pluck(1).uniq
       expect(predicates).to eq(%w[data1 data2])
     end
     it 'adds to the right number of assets' do
-      assets = added_triples.map { |l| l[0] }.uniq
+      assets = added_triples.pluck(0).uniq
       expect(assets.count).to eq(96)
     end
   end

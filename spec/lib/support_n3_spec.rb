@@ -44,9 +44,9 @@ RSpec.describe SupportN3 do
     SupportN3.parse_string(
       %{
       :activity :activityTypeName "#{testing_name}" .
-      {} => {:step :stepTypeName \"\"\"#{testing_name}\"\"\" .}.
-      {} => {:step :stepTypeName \"\"\"#{testing_name}\"\"\" .}.
-      {} => {:step :stepTypeName \"\"\"#{testing_name}\"\"\" .}.
+      {} => {:step :stepTypeName """#{testing_name}""" .}.
+      {} => {:step :stepTypeName """#{testing_name}""" .}.
+      {} => {:step :stepTypeName """#{testing_name}""" .}.
       }
     )
     @activity_type.reload
