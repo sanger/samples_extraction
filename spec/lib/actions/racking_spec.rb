@@ -123,26 +123,24 @@ RSpec.describe Actions::Racking do
 
     it 'removes all the different studies for this rack when all tubes go out' do
       updates = fact_changes_for_rack_when_unracking_tubes(asset, tubes)
-      expect(
-        updates.to_h[:remove_facts].select { |triple| triple[1] == 'study_name' }.pluck(2).sort
-      ).to eq(%w[STDY1 STDY2])
+      expect(updates.to_h[:remove_facts].select { |triple| triple[1] == 'study_name' }.pluck(2).sort).to eq(
+        %w[STDY1 STDY2]
+      )
     end
 
     context 'when a DNA tube' do
       let(:aliquot_type) { 'DNA' }
       it 'removes the purpose when all tubes go out' do
         updates = fact_changes_for_rack_when_unracking_tubes(asset, tubes)
-        expect(
-          updates.to_h[:remove_facts].select { |triple| triple[1] == 'purpose' }.pluck(2).sort
-        ).to eq(['DNA Stock Plate'])
+        expect(updates.to_h[:remove_facts].select { |triple| triple[1] == 'purpose' }.pluck(2).sort).to eq(
+          ['DNA Stock Plate']
+        )
       end
     end
 
     it 'only returns the studies of the tubes that are going to be removed' do
       updates = fact_changes_for_rack_when_unracking_tubes(asset, tubes[1..])
-      expect(
-        updates.to_h[:remove_facts].select { |triple| triple[1] == 'study_name' }.pluck(2).sort
-      ).to eq(['STDY1'])
+      expect(updates.to_h[:remove_facts].select { |triple| triple[1] == 'study_name' }.pluck(2).sort).to eq(['STDY1'])
     end
   end
 
