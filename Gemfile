@@ -14,7 +14,7 @@ gem 'aasm'
 gem 'activerecord-import'
 gem 'activerecord-session_store'
 gem 'micro_token'
-gem 'rails', '~> 5.2'
+gem 'rails', '~> 6.1'
 gem 'tzinfo-data'
 
 # Rails views and UI
