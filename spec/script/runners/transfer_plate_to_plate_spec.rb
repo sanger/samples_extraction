@@ -56,7 +56,7 @@ RSpec.describe 'TransferPlateToPlate' do
         end
         it 'transfers the contents of all wells' do
           added_facts = instance.process.to_h[:add_facts]
-          destination_well_uuids = added_facts.select { |triple| triple[1] == 'contains' }.map { |t| t[2] }
+          destination_well_uuids = added_facts.select { |triple| triple[1] == 'contains' }.pluck(2)
           added_samples =
             added_facts.select { |triple| triple[1] == 'sample_id' }.map { |triple| [triple[0], triple[2]] }
           expect(added_samples).to eq(destination_well_uuids.each_with_index.map { |uuid, i| [uuid, "Sample #{i}"] })
@@ -69,7 +69,7 @@ RSpec.describe 'TransferPlateToPlate' do
           before { destination_rack.facts << create(:fact, predicate: 'aliquotType', object: 'DNA') }
           it 'transfers the aliquot across plates into rack and wells' do
             added_facts = instance.process.to_h[:add_facts]
-            destination_well_uuids = added_facts.select { |triple| triple[1] == 'contains' }.map { |t| t[2] }
+            destination_well_uuids = added_facts.select { |triple| triple[1] == 'contains' }.pluck(2)
             added_aliquots =
               added_facts.select { |triple| triple[1] == 'aliquotType' }.map { |triple| [triple[0], triple[2]] }
             expect(added_aliquots.sort).to eq(destination_well_uuids.map { |uuid| [uuid, 'DNA'] }.sort)

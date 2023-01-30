@@ -13,13 +13,8 @@ class ActivitiesController < ApplicationController # rubocop:todo Style/Document
     raise ActionController::InvalidAuthenticityToken unless session[:session_id]
   end
 
-  def update
-    @activity.finish if activity_params[:state] == 'finish'
-
-    respond_to do |format|
-      format.html { render :show }
-      format.json { render :show, status: :created, location: @activity }
-    end
+  def index
+    @my_activities = @current_user ? Activity.for_user(@current_user) : []
   end
 
   def show
@@ -27,10 +22,6 @@ class ActivitiesController < ApplicationController # rubocop:todo Style/Document
       format.html { render :show }
       format.json { render :show, status: :created, location: @activity }
     end
-  end
-
-  def index
-    @my_activities = @current_user ? Activity.for_user(@current_user) : []
   end
 
   def create
@@ -44,6 +35,15 @@ class ActivitiesController < ApplicationController # rubocop:todo Style/Document
         format.html { render :new }
         format.json { render json: @activity.errors, status: :unprocessable_entity }
       end
+    end
+  end
+
+  def update
+    @activity.finish if activity_params[:state] == 'finish'
+
+    respond_to do |format|
+      format.html { render :show }
+      format.json { render :show, status: :created, location: @activity }
     end
   end
 

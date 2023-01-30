@@ -47,7 +47,7 @@ RSpec.describe 'TransferTubesToTubeRackByPosition' do
         it 'does not transfer unrelated tubes' do
           added_facts = instance.process.to_h[:add_facts]
           expect(added_facts.count).not_to eq(0)
-          transferred_tubes = added_facts.select { |triple| triple[1] == 'transfer' }.map { |triple| triple[0] }
+          transferred_tubes = added_facts.select { |triple| triple[1] == 'transfer' }.pluck(0)
           expect((unrelated_tubes.map(&:uuid) & transferred_tubes).length).to eq(0)
         end
       end
