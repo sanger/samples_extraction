@@ -7,8 +7,8 @@ RSpec.describe 'BackgroundTasks' do
       @instance = FactoryBot.create(:step, params)
     end
 
-    def self.update_attributes!(params)
-      @instance.update_attributes!(params)
+    def self.update!(params)
+      @instance.update!(params)
     end
   end
 
@@ -52,7 +52,7 @@ RSpec.describe 'BackgroundTasks' do
     it 'returns the list of inference tasks sorted by priority' do
       step_types = 5.times.each_with_index.map { |_i| create :step_type }
       reasoning_step_types = 4.times.each_with_index.map { |i| create :step_type, { for_reasoning: true, priority: i } }
-      activity.activity_type.update_attributes(step_types: step_types.concat(reasoning_step_types))
+      activity.activity_type.update(step_types: step_types.concat(reasoning_step_types))
 
       expect(activity.background_tasks.count).to eq(reasoning_step_types.count)
       expect(activity.background_tasks.map(&:step_type)).to eq(reasoning_step_types.reverse)

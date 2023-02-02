@@ -249,13 +249,13 @@ RSpec.describe 'Assets::Import' do
 
         context 'when the local copy is out of date' do
           before do
-            original_import.update_attributes(remote_digest: 'RANDOM')
+            original_import.update(remote_digest: 'RANDOM')
             @fact_changed = original_import.facts.from_remote_asset.where(predicate: 'contains').first
 
             @well_changed = create :asset
             @dependant_fact = create :fact, predicate: 'some', object: 'Moredata', is_remote?: true
             @well_changed.facts << @dependant_fact
-            @fact_changed.update_attributes(object_asset_id: @well_changed.id)
+            @fact_changed.update(object_asset_id: @well_changed.id)
           end
 
           it 'should destroy any remote facts that has changed' do

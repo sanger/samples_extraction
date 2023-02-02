@@ -31,7 +31,7 @@ class ActivityType < ApplicationRecord # rubocop:todo Style/Documentation
       activity =
         Activity.create({ kit: params[:kit], instrument: params[:instrument], activity_type: self, asset_group: group })
       activities << activity
-      group.update_attributes!(activity_owner: activity)
+      group.update!(activity_owner: activity)
     end
     activity
   end
@@ -41,7 +41,7 @@ class ActivityType < ApplicationRecord # rubocop:todo Style/Documentation
   end
 
   def after_deprecate
-    superceded_by.update_attributes(
+    superceded_by.update(
       activities: superceded_by.activities | activities,
       kit_types: superceded_by.kit_types | kit_types,
       instruments: superceded_by.instruments | instruments

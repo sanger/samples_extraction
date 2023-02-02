@@ -36,7 +36,7 @@ class StepType < ApplicationRecord # rubocop:todo Style/Documentation
 
   def after_deprecate
     superceded_by.activity_types << activity_types
-    update_attributes!(activity_types: [])
+    update!(activity_types: [])
   end
 
   def all_step_templates
@@ -99,12 +99,12 @@ class StepType < ApplicationRecord # rubocop:todo Style/Documentation
       condition_group.conditions.each(&:destroy)
       condition_group.destroy
     end
-    actions.each { |action| action.update_attributes(step_type_id: nil) }
+    actions.each { |action| action.update(step_type_id: nil) }
   end
 
   def condition_group_classification_for(assets, checked_condition_groups = [], wildcard_values = {})
     related_assets = []
-    h = assets.to_h { |asset| [asset, condition_groups_for(asset, related_assets, [], wildcard_values)] }
+    h = assets.index_with { |asset| condition_groups_for(asset, related_assets, [], wildcard_values) }
     related_assets.each { |a| h[a] = condition_groups_for(a, [], checked_condition_groups, wildcard_values) }
     h
   end

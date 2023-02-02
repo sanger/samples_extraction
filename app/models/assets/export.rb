@@ -13,7 +13,7 @@ module Assets::Export # rubocop:todo Style/Documentation
 
       # local (Samples Extraction) updates
       old_barcode = barcode
-      update_attributes(uuid: instance.uuid, barcode: code39_barcode(instance))
+      update(uuid: instance.uuid, barcode: code39_barcode(instance))
 
       update_wells(instance, updates)
 
@@ -60,8 +60,8 @@ module Assets::Export # rubocop:todo Style/Documentation
       if fact
         local_well = fact.object_asset
         if local_well && local_well.uuid != remote_well.uuid
-          local_well.update_attributes(uuid: remote_well.uuid)
-          fact.update_attributes(is_remote?: true)
+          local_well.update(uuid: remote_well.uuid)
+          fact.update(is_remote?: true)
         end
       end
     end

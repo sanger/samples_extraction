@@ -7,8 +7,8 @@ class User < ApplicationRecord # rubocop:todo Style/Documentation
   after_initialize :set_default_printers
 
   def set_default_printers
-    update_attributes(tube_printer: Printer.for_tube.for_default.first) if tube_printer.nil?
-    update_attributes(plate_printer: Printer.for_plate.for_default.first) if plate_printer.nil?
+    update(tube_printer: Printer.for_tube.for_default.first) if tube_printer.nil?
+    update(plate_printer: Printer.for_plate.for_default.first) if plate_printer.nil?
   end
 
   def tube_printer_name
@@ -20,12 +20,12 @@ class User < ApplicationRecord # rubocop:todo Style/Documentation
   end
 
   def generate_token
-    update_attributes!(token: MicroToken.generate(128))
+    update!(token: MicroToken.generate(128))
     token
   end
 
   def clean_session
-    update_attributes(token: nil)
+    update(token: nil)
   end
 
   def session_info

@@ -112,7 +112,7 @@ RSpec.describe Step, type: :model do
 
     describe 'when creating a new step' do
       it 'raises an exception if assets are not compatible with step_type' do
-        @cg1.update_attributes(cardinality: 1)
+        @cg1.update(cardinality: 1)
         expect { @step = create_step }.to raise_error(AASM::InvalidTransition)
       end
     end
@@ -309,7 +309,7 @@ RSpec.describe Step, type: :model do
       unless cwm_engine?
         it 'cardinality restricts the number of assets created when it is below the number of inputs' do
           previous_num = @asset_group.assets.count
-          @cg3.update_attributes(cardinality: 6)
+          @cg3.update(cardinality: 6)
           @step = create_step
 
           @asset_group.reload
@@ -324,7 +324,7 @@ RSpec.describe Step, type: :model do
         it 'cardinality does not restrict the number of assets created when it is over the number of inputs' do
           previous_num = @asset_group.assets.count
           cardinality = @tubes.length + @racks.length + 2
-          @cg3.update_attributes(cardinality: cardinality)
+          @cg3.update(cardinality: cardinality)
           @step = create_step
 
           @asset_group.reload
@@ -428,7 +428,7 @@ RSpec.describe Step, type: :model do
       end
 
       it 'unselects elements from condition group' do
-        @cg1.update_attributes(keep_selected: false)
+        @cg1.update(keep_selected: false)
 
         @asset_group.assets.reload
         assert_equal true, @tubes.all? { |tube| @asset_group.assets.include?(tube) }
@@ -461,7 +461,7 @@ RSpec.describe Step, type: :model do
         end
 
         it 'unselects the overlapped assets' do
-          @cg1.update_attributes(keep_selected: false)
+          @cg1.update(keep_selected: false)
 
           @asset_group.assets.reload
           assert_equal true, [@tubes, @tubes_and_racks].flatten.all? { |tube| @asset_group.assets.include?(tube) }
@@ -596,13 +596,13 @@ RSpec.describe Step, type: :model do
 
         describe 'relating different condition groups' do
           setup do
-            @action.update_attributes(subject_condition_group: @cg1)
-            @action.update_attributes(object_condition_group: @cg2)
+            @action.update(subject_condition_group: @cg1)
+            @action.update(object_condition_group: @cg2)
           end
 
           it 'connects 1 to N if cardinality is set to 1 in the subject condition group' do
-            @asset_group.update_attributes(assets: [@tubes.first, @racks].flatten)
-            @cg1.update_attributes(cardinality: 1)
+            @asset_group.update(assets: [@tubes.first, @racks].flatten)
+            @cg1.update(cardinality: 1)
 
             @step = create_step
 
@@ -622,8 +622,8 @@ RSpec.describe Step, type: :model do
           end
 
           it 'connects N to 1 if cardinality is set to 1 in the object condition group' do
-            @asset_group.update_attributes(assets: [@tubes, @racks.first].flatten)
-            @cg2.update_attributes(cardinality: 1)
+            @asset_group.update(assets: [@tubes, @racks.first].flatten)
+            @cg2.update(cardinality: 1)
 
             @step = create_step
 
@@ -642,9 +642,9 @@ RSpec.describe Step, type: :model do
           end
 
           it 'connects 1 to 1 if cardinality is set to 1 in both subject and object condition groups' do
-            @asset_group.update_attributes(assets: [@tubes.first, @racks.first].flatten)
-            @cg1.update_attributes(cardinality: 1)
-            @cg2.update_attributes(cardinality: 1)
+            @asset_group.update(assets: [@tubes.first, @racks.first].flatten)
+            @cg1.update(cardinality: 1)
+            @cg2.update(cardinality: 1)
 
             @step = create_step
 
@@ -659,7 +659,7 @@ RSpec.describe Step, type: :model do
           end
 
           it 'connects N to N if no cardinality is set' do
-            @asset_group.update_attributes(assets: [@tubes, @racks].flatten)
+            @asset_group.update(assets: [@tubes, @racks].flatten)
 
             @step = create_step
 
@@ -725,8 +725,8 @@ RSpec.describe Step, type: :model do
 
         describe 'for the same condition group' do
           setup do
-            @action.update_attributes(subject_condition_group: @cg1)
-            @action2.update_attributes(subject_condition_group: @cg1)
+            @action.update(subject_condition_group: @cg1)
+            @action2.update(subject_condition_group: @cg1)
           end
           it 'adds all the facts to all the assets of the condition group' do
             create_step
@@ -747,8 +747,8 @@ RSpec.describe Step, type: :model do
 
         describe 'for different condition groups' do
           setup do
-            @action.update_attributes(subject_condition_group: @cg1)
-            @action2.update_attributes(subject_condition_group: @cg2)
+            @action.update(subject_condition_group: @cg1)
+            @action2.update(subject_condition_group: @cg2)
           end
 
           it 'adds the specific facts to the assets of the specific condition group' do
@@ -816,7 +816,7 @@ RSpec.describe Step, type: :model do
 
           assert_equal 1, @tubes.first.facts.count { |f| f.predicate == 'relatesTo' }
 
-          @asset_group.update_attributes(assets: [@tubes.first, @racks.first].flatten)
+          @asset_group.update(assets: [@tubes.first, @racks.first].flatten)
           create_step
 
           @tubes.each(&:reload)
@@ -908,8 +908,8 @@ RSpec.describe Step, type: :model do
 
         describe 'for the same condition group' do
           setup do
-            @action.update_attributes(subject_condition_group: @cg1)
-            @action2.update_attributes(subject_condition_group: @cg1)
+            @action.update(subject_condition_group: @cg1)
+            @action2.update(subject_condition_group: @cg1)
           end
           it 'removes all the facts to all the assets of the condition group' do
             @tubes.each do |asset|
@@ -939,8 +939,8 @@ RSpec.describe Step, type: :model do
 
         describe 'for different condition groups' do
           setup do
-            @action.update_attributes(subject_condition_group: @cg1)
-            @action2.update_attributes(subject_condition_group: @cg2)
+            @action.update(subject_condition_group: @cg1)
+            @action2.update(subject_condition_group: @cg2)
           end
 
           it 'removes the specific facts to the assets of the specific condition group' do

@@ -16,11 +16,11 @@ class Fact < ApplicationRecord
   validates :object_asset_id, presence: false, if: :literal?
 
   def set_to_remove_by(step)
-    update_attributes!(to_remove_by: step)
+    update!(to_remove_by: step)
   end
 
   def set_to_add_by(step)
-    update_attributes!(to_add_by: step)
+    update!(to_add_by: step)
   end
 
   def object_value
