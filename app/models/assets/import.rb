@@ -51,7 +51,7 @@ module Assets::Import # rubocop:todo Style/Documentation
     end
 
     def update_digest_with_remote(remote_asset)
-      update_attributes(remote_digest: Digest::MD5.hexdigest(json_for_remote(remote_asset)))
+      update(remote_digest: Digest::MD5.hexdigest(json_for_remote(remote_asset)))
     end
 
     def changed_remote?(remote_asset)

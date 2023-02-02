@@ -7,7 +7,7 @@ module Activities::State # rubocop:todo Style/Documentation
   end
 
   def finish
-    ActiveRecord::Base.transaction { update_attributes(completed_at: DateTime.now, state: 'finish') }
+    ActiveRecord::Base.transaction { update(completed_at: DateTime.now, state: 'finish') }
     after_finish if respond_to?(:after_finish)
   end
 

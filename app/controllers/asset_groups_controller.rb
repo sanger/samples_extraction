@@ -26,7 +26,7 @@ class AssetGroupsController < ApplicationController # rubocop:todo Style/Documen
   def upload
     @file = UploadedFile.create(filename: params[:qqfilename], data: params[:qqfile].read)
     asset = @file.build_asset(content_type: params[:qqfile].content_type)
-    @asset_group.update_with_assets([].concat(@asset_group.assets).concat([asset]))
+    @asset_group.update_with_assets([].concat(@asset_group.assets).push(asset))
     @asset_group.touch
 
     render json: { success: true }
@@ -65,7 +65,7 @@ class AssetGroupsController < ApplicationController # rubocop:todo Style/Documen
   end
 
   def perform_assets_update
-    @asset_group.update_attributes(
+    @asset_group.update(
       assets:
         params_update_asset_group[:assets].filter_map do |uuid_or_barcode|
           Asset.find_or_import_asset_with_barcode(uuid_or_barcode)

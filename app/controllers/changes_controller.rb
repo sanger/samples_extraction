@@ -3,7 +3,7 @@ class ChangesController < ApplicationController # rubocop:todo Style/Documentati
     @step = Step.create(state: 'running')
     json = params_changes.to_json
     @updates = FactChanges.new(json)
-    @step.update_attributes(state: 'complete') if @updates.apply(@step)
+    @step.update(state: 'complete') if @updates.apply(@step)
     facts_updated = @updates.assets_updated.map(&:facts)
     render json: {
              step: @step,

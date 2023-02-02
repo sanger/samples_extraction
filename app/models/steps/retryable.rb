@@ -4,6 +4,6 @@ module Steps::Retryable # rubocop:todo Style/Documentation
   end
 
   def on_retry
-    ActiveRecord::Base.transaction { job.update_attributes(run_at: job.created_at) }
+    ActiveRecord::Base.transaction { job.update(run_at: job.created_at) }
   end
 end

@@ -55,7 +55,7 @@ module Assets::FactsManagement # rubocop:todo Style/Documentation
 
   def first_value_for(predicate)
     f = facts.with_predicate(predicate).first
-    f ? f.object : nil
+    f&.object
   end
 
   def facts_with_triples(triples)

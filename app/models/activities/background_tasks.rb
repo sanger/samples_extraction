@@ -20,7 +20,7 @@ module Activities
       ActiveRecord::Base.transaction do
         ordered_tasks.reduce([]) do |current_list, actual_task_class|
           actual_step = actual_task_class.create!(reasoning_params)
-          current_list.last.update_attributes!(next_step: actual_step) unless current_list.empty?
+          current_list.last.update!(next_step: actual_step) unless current_list.empty?
           current_list.push(actual_step)
           current_list
         end
@@ -36,7 +36,7 @@ module Activities
         in_progress?: true
       }
       steps = create_background_steps(background_tasks, reasoning_params)
-      step.update_attributes(next_step: steps.first)
+      step.update(next_step: steps.first)
       [step, steps].flatten.compact
     end
   end

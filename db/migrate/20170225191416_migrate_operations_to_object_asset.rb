@@ -5,7 +5,7 @@ class MigrateOperationsToObjectAsset < ActiveRecord::Migration # rubocop:todo St
         .where('object is not null')
         .each do |oper|
           obj_asset = Asset.find_by(uuid: oper.object)
-          oper.update_attributes(object_asset_id: obj_asset.id) if obj_asset
+          oper.update(object_asset_id: obj_asset.id) if obj_asset
         end
     end
   end

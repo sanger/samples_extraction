@@ -143,7 +143,7 @@ RSpec.describe 'TransferTubesToTubeRackByPosition' do
         it 'starts transferring after the last occupied well of the rack' do
           rest_tubes = tubes.slice(1, tubes.length)
           rest_wells = wells.slice(1, wells.length)
-          group.update_attributes(assets: [rest_tubes, rack].flatten)
+          group.update(assets: [rest_tubes, rack].flatten)
 
           added_facts = instance.process.to_h[:add_facts]
           expect(added_facts.count).not_to eq(0)

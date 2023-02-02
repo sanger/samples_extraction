@@ -882,7 +882,7 @@ RSpec.describe FactChanges do
       let(:asset_group) { create :asset_group }
       let(:assets) { create_list :asset, 2 }
       let(:updates) { FactChanges.new }
-      before { step.update_attributes(asset_group: create(:asset_group)) }
+      before { step.update(asset_group: create(:asset_group)) }
 
       context 'when an asset group and a list of assets is provided' do
         before { updates.add_assets([[asset_group, assets]]) }
@@ -908,7 +908,7 @@ RSpec.describe FactChanges do
       let(:asset_group) { create :asset_group }
       let(:assets) { Array.new(2) { create :asset } }
       let(:updates) { FactChanges.new }
-      before { step.update_attributes(asset_group: create(:asset_group)) }
+      before { step.update(asset_group: create(:asset_group)) }
 
       context 'when an asset group and a list of assets is provided' do
         before do

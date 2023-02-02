@@ -465,7 +465,7 @@ class FactChanges # rubocop:todo Style/Documentation
     return unless asset_groups
 
     asset_groups.each do |asset_group|
-      asset_group.update_attributes(
+      asset_group.update(
         name: TokenUtil.to_asset_group_name(wildcard_for_uuid(asset_group.uuid)),
         activity_owner: step.activity
       )
