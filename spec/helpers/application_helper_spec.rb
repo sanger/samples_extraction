@@ -13,7 +13,7 @@ RSpec.describe ApplicationHelper, type: :helper do
   context '#data_asset_display_for_plate' do
     let(:well) do
       w = create_well(location, sample, aliquot)
-      w.update_attributes(barcode: barcode)
+      w.update(barcode: barcode)
       w
     end
     let(:sample) { nil }

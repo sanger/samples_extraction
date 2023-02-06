@@ -139,7 +139,7 @@ class Asset < ApplicationRecord # rubocop:todo Style/Documentation
   def generate_barcode
     save
     if barcode.nil?
-      update_attributes(
+      update(
         {
           barcode:
             SBCF::SangerBarcode.new({ prefix: Rails.application.config.barcode_prefix, number: self.id }).human_barcode

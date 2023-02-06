@@ -1,5 +1,6 @@
 module Api
   module V1
+    # JSON api information for a piece of labware in extraction (asset)
     class AssetResource < JSONAPI::Resource
       primary_key :uuid
       attributes :uuid,

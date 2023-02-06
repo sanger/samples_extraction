@@ -28,7 +28,7 @@ class LabelTemplate < ApplicationRecord # rubocop:todo Style/Documentation
 
     find_by(template_type: type) ||
       raise(
-        "Could not find any label template for type \'#{type}\'. " \
+        "Could not find any label template for type '#{type}'. " \
           'Please contact LIMS support to fix the problem'
       )
   end

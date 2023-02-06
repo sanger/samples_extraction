@@ -55,45 +55,55 @@ module SequencescapeClientV2
     self.sync = true
   end
 
+  # Api V2 TubeRack from Sequencescape
   class SequencescapeClientV2::TubeRack < SequencescapeClientV2::Model
     has_many :racked_tubes
     has_one :purpose
   end
 
+  # Api V2 Purpose from Sequencescape
   class SequencescapeClientV2::Purpose < SequencescapeClientV2::Model
   end
 
+  # Api V2 Receptacle from Sequencescape
   class SequencescapeClientV2::Receptacle < SequencescapeClientV2::Model
   end
 
+  # Api V2 Well from Sequencescape
   class SequencescapeClientV2::Well < SequencescapeClientV2::Model
     has_many :aliquots
   end
 
+  # Api V2 Tube from Sequencescape
   class SequencescapeClientV2::Tube < SequencescapeClientV2::Model
     has_many :aliquots
   end
 
+  # Api V2 RackedTube from Sequencescape
   class SequencescapeClientV2::RackedTube < SequencescapeClientV2::Model
     has_one :tube
     has_one :tube_rack
   end
 
+  # Api V2 Aliquot from Sequencescape
   class SequencescapeClientV2::Aliquot < SequencescapeClientV2::Model
     belongs_to :asset
     has_one :study
     has_one :sample
   end
 
+  # Api V2 TubeRack from Sequencescape
   class SequencescapeClientV2::Study < SequencescapeClientV2::Model
     has_many :samples
   end
 
+  # Api V2 Sample from Sequencescape
   class SequencescapeClientV2::Sample < SequencescapeClientV2::Model
     has_many :studies
     has_one :sample_metadata
   end
 
+  # Api V2 SampleMetadatum from Sequencescape
   class SequencescapeClientV2::SampleMetadatum < SequencescapeClientV2::Model
     belongs_to :sample
   end

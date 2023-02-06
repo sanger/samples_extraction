@@ -140,7 +140,7 @@ module ApplicationHelper # rubocop:todo Style/Documentation
   end
 
   def svg_for_facts(facts)
-    svg(facts.select { |f| f.predicate == 'a' }.pluck(:object).first)
+    svg(facts.select { |f| f.predicate == 'a' }.pick(:object))
   end
 
   def show_alert(data)

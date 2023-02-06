@@ -17,7 +17,7 @@ class UploadedFile < ApplicationRecord # rubocop:todo Style/Documentation
 
   def build_asset(params)
     unless asset
-      update_attributes(asset: Asset.create)
+      update(asset: Asset.create)
       FactChanges
         .new
         .tap do |updates|

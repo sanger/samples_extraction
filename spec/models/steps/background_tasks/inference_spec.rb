@@ -30,7 +30,7 @@ RSpec.describe Steps::BackgroundTasks::Inference do
           .reverse
           .reduce(nil) do |memo, step|
             id = (memo && memo.id) || nil
-            step.update_attributes(next_step_id: id)
+            step.update(next_step_id: id)
 
             # Step is modified by the accumulator. This is actually shown as a
             # 'good' pattern on the Lint/UnmodifiedReduceAccumulator documentation

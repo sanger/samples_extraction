@@ -47,7 +47,7 @@ RSpec.describe 'TransferTubesToTubeRackByPosition' do
         it 'does not transfer unrelated tubes' do
           added_facts = instance.process.to_h[:add_facts]
           expect(added_facts.count).not_to eq(0)
-          transferred_tubes = added_facts.select { |triple| triple[1] == 'transfer' }.map { |triple| triple[0] }
+          transferred_tubes = added_facts.select { |triple| triple[1] == 'transfer' }.pluck(0)
           expect((unrelated_tubes.map(&:uuid) & transferred_tubes).length).to eq(0)
         end
       end
@@ -143,7 +143,7 @@ RSpec.describe 'TransferTubesToTubeRackByPosition' do
         it 'starts transferring after the last occupied well of the rack' do
           rest_tubes = tubes.slice(1, tubes.length)
           rest_wells = wells.slice(1, wells.length)
-          group.update_attributes(assets: [rest_tubes, rack].flatten)
+          group.update(assets: [rest_tubes, rack].flatten)
 
           added_facts = instance.process.to_h[:add_facts]
           expect(added_facts.count).not_to eq(0)

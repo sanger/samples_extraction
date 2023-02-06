@@ -47,7 +47,7 @@ shared_examples_for 'background task' do
       end
 
       context 'when re-running a background task previously failed' do
-        before { step.update_attributes(state: 'error', output: 'previous failure!!') }
+        before { step.update(state: 'error', output: 'previous failure!!') }
         context 'when the step is completed correctly' do
           before do
             allow(step).to receive(:process)

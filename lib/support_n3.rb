@@ -251,7 +251,7 @@ module SupportN3 # rubocop:todo Style/Documentation
       if fragment(p) == 'maxCardinality'
         # Once we have the condition group, we update cardinality
         @c_groups_cardinalities[fragment(p)] = fragment(v)
-        condition_group.update_attributes(cardinality: fragment(v))
+        condition_group.update(cardinality: fragment(v))
       else
         # or we add the new condition
         object_condition_group = condition_group_for(v)
@@ -299,7 +299,7 @@ module SupportN3 # rubocop:todo Style/Documentation
       end
 
       # Remove reference to step type for condition groups without conditions
-      cgr.each { |cg| cg.update_attributes(step_type: nil) if cg.conditions.count == 0 }
+      cgr.each { |cg| cg.update(step_type: nil) if cg.conditions.count == 0 }
     end
 
     def self.activity_type_name(quads)
@@ -369,7 +369,7 @@ module SupportN3 # rubocop:todo Style/Documentation
               if fragment(p) == 'maxCardinality'
                 @c_groups_cardinalities[fragment(k)] = fragment(v)
                 if @c_groups[fragment(k)]
-                  @c_groups[fragment(k)].update_attributes(cardinality: @c_groups_cardinalities[fragment(k)])
+                  @c_groups[fragment(k)].update(cardinality: @c_groups_cardinalities[fragment(k)])
                 end
                 next
               end

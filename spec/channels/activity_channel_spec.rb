@@ -154,7 +154,7 @@ RSpec.describe ActivityChannel, type: :channel do
     context 'with inputs that fail when converting to human barcodes' do
       let!(:assets) { [create(:asset, barcode: 'NT1767662F'), create(:asset, barcode: 'NT1767663G')] }
       let(:wrong_human_barcode) { '1234' }
-      let(:human_barcodes) { assets.map(&:barcode).concat([wrong_human_barcode]) }
+      let(:human_barcodes) { assets.map(&:barcode).push(wrong_human_barcode) }
       let(:inputs) { ['3981767662700', '3981767663714', wrong_human_barcode] }
 
       it 'can resolve uuids' do

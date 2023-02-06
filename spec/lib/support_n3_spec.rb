@@ -42,12 +42,12 @@ RSpec.describe SupportN3 do
     @activity_type.reload
     expect(@activity_type.deprecated?).to eq(false)
     SupportN3.parse_string(
-      %{
-      :activity :activityTypeName "#{testing_name}" .
+      "
+      :activity :activityTypeName \"#{testing_name}\" .
       {} => {:step :stepTypeName \"\"\"#{testing_name}\"\"\" .}.
       {} => {:step :stepTypeName \"\"\"#{testing_name}\"\"\" .}.
       {} => {:step :stepTypeName \"\"\"#{testing_name}\"\"\" .}.
-      }
+      "
     )
     @activity_type.reload
     expect(@activity_type.deprecated?).to eq(true)

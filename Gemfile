@@ -4,9 +4,10 @@ source 'https://rubygems.org'
 gem 'bootsnap', require: false
 gem 'daemons'
 gem 'delayed_job_active_record'
+gem 'hiredis'
 gem 'mysql2'
 gem 'puma'
-gem 'redis'
+gem 'redis', '< 5'
 gem 'sanger_warren' # Wraps bunny and manages connection pools and configuration
 
 # Rails and framework libraries
@@ -14,7 +15,7 @@ gem 'aasm'
 gem 'activerecord-import'
 gem 'activerecord-session_store'
 gem 'micro_token'
-gem 'rails', '~> 5.2'
+gem 'rails', '~> 6.1'
 gem 'tzinfo-data'
 
 # Rails views and UI

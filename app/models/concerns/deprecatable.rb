@@ -13,7 +13,7 @@ module Deprecatable # rubocop:todo Style/Documentation
   end
 
   def deprecate_with(instance)
-    update_attributes!(superceded_by: instance)
+    update!(superceded_by: instance)
     after_deprecate
   end
 end
