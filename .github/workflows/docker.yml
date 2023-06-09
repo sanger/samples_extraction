@@ -13,6 +13,9 @@ on:
 env:
   IMAGE_NAME: ${{ github.repository }}/${{ github.event.repository.name }}
 
+permissions:
+  packages: write
+
 jobs:
   build_and_publish:
     runs-on: ubuntu-latest
@@ -42,13 +45,11 @@ jobs:
         if: github.ref == 'refs/heads/master'
 
       - name: Remove old releases
-        uses: snok/container-retention-policy@v2
+        uses: actions/delete-package-versions@v4
         with:
-          image-names: uat*, dev*
-          cut-off: Six month ago UTC
-          timestamp-to-use: updated_at
-          account-type: org
-          org-name: sanger
-          keep-at-least: 5
-          skip-tags: latest
-          token: ${{ secrets.PAT }}
+          owner: 'github'
+          package-name: '${{ github.event.repository.name }}'
+          package-type: 'container'
+          min-versions-to-keep: 15
+          delete-only-pre-release-versions: 'true'
+          token: ${{ secrets.GITHUB_TOKEN }}
