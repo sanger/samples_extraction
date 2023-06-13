@@ -14,8 +14,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}/${{ github.event.repository.name }}
 
 permissions:
-  write-all
-  # packages: write
+  packages: write
 
 jobs:
   build_and_publish:
@@ -48,6 +47,9 @@ jobs:
       - name: Remove old releases
         uses: actions/delete-package-versions@v4
         with:
-          package-name: '${{ github.event.repository.name }}'
+          owner: 'github'
+          package-name: 'samples_extraction'
           package-type: 'container'
-          num-old-versions-to-delete: 1
+          token: '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'
+          min-versions-to-keep: 5
+          delete-only-pre-release-versions: 'true'
