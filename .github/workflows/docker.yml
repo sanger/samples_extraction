@@ -14,7 +14,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}/${{ github.event.repository.name }}
 
 permissions:
-  packages: delete
+  packages: write
 
 jobs:
   build_and_publish:
