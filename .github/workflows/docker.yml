@@ -14,7 +14,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}/${{ github.event.repository.name }}
 
 permissions:
-  packages: write
+  packages: read/write/delete
 
 jobs:
   build_and_publish:
@@ -51,4 +51,3 @@ jobs:
           package-type: 'container'
           min-versions-to-keep: 15
           delete-only-pre-release-versions: 'true'
-          token: ${{ secrets.DELETE_PACKAGE }}
