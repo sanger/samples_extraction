@@ -45,11 +45,13 @@ jobs:
         if: github.ref == 'refs/heads/master'
 
       - name: Remove old releases
-        uses: actions/delete-package-versions@v4
+        uses: snok/container-retention-policy@v2
         with:
-          owner: 'github'
-          package-name: 'samples_extraction'
-          package-type: 'container'
-          token: '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'
-          min-versions-to-keep: 5
-          delete-only-pre-release-versions: 'true'
+          image-names: samples_extraction/*
+          cut-off: Ten months ago UTC
+          timestamp-to-use: updated_at
+          account-type: org
+          org-name: sanger
+          keep-at-least: 5
+          skip-tags: latest
+          token: ${{ secrets.REMOVE_OLD_IMAGES }}
