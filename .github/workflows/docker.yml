@@ -4,7 +4,6 @@ on:
     branches:
       - develop
       - master
-      - dpl-785-remove-old-releases
     tags:
       - release-*
       - uat-*
@@ -48,7 +47,7 @@ jobs:
         uses: snok/container-retention-policy@v2
         with:
           image-names: ${{ github.event.repository.name }}/*
-          cut-off: Nine months ago UTC
+          cut-off: Ten months ago UTC
           timestamp-to-use: updated_at
           account-type: org
           org-name: sanger
