@@ -47,8 +47,8 @@ jobs:
       - name: Remove old releases
         uses: snok/container-retention-policy@v2
         with:
-          image-names: samples_extraction/*
-          cut-off: Ten months ago UTC
+          image-names: ${{ github.event.repository.name }}/*
+          cut-off: Nine months ago UTC
           timestamp-to-use: updated_at
           account-type: org
           org-name: sanger
