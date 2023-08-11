@@ -12,9 +12,6 @@ on:
 env:
   IMAGE_NAME: ${{ github.repository }}/${{ github.event.repository.name }}
 
-permissions:
-  packages: write
-
 jobs:
   build_and_publish:
     runs-on: ubuntu-latest
