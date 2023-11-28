@@ -8,6 +8,9 @@ module SequencescapeClientV2
     # set the api base url in an abstract base class
     self.site = "#{Rails.configuration.ss_api_v2_uri}/api/v2/"
     self.sync = false
+
+    # set the api key in the header for all requests
+    connection_options[:headers] = { 'X-Sequencescape-Client-Id' => Rails.configuration.ss_authorisation }
   end
 
   class SequencescapeClientV2::Asset < SequencescapeClientV2::Model
