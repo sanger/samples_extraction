@@ -39,7 +39,7 @@ RSpec.describe SequencescapeClientV2 do
       # being successfully stubbed
       stub_request(:get, %r{api/v2/plates})
         # If you changed this header key or value it would fail as it would not reflect reality
-        .with(headers: { 'X-Sequencescape-Client-Id' => 'test' })
+        .with(headers: { 'X-Sequencescape-Client-Id' => Rails.configuration.ss_authorisation })
         .to_return(File.new('./spec/support/responses/sequencescape/v2/plate_uuid_response.txt'))
       plate = SequencescapeClientV2::Plate.first
       expect(plate.type).to eq('plates')
