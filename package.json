@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@babel/preset-env": "^7.23.5",
+    "@babel/preset-env": "^7.23.3",
     "@babel/preset-react": "^7.23.3",
     "@rails/webpacker": "^5.4.4",
     "ajv": "^6.4.0",
@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.23.4",
-    "@babel/core": "^7.23.5",
+    "@babel/core": "^7.23.3",
     "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
     "@prettier/plugin-ruby": "^2.1.0",
     "babel-jest": "^24.9.0",
