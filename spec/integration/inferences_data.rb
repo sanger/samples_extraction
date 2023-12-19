@@ -27,7 +27,7 @@ def inferences_data
           ?y :t ?_val .
         } => {
           :step :addFacts {?x :val ?_val }.
-        }
+        }.
 
     ',
       inputs:
@@ -58,7 +58,7 @@ def inferences_data
           ?y :t ?_pos .
         } => {
           :step :addFacts {?x :relates_with ?y }.
-        }
+        }.
     ',
       inputs:
         '
@@ -95,7 +95,7 @@ def inferences_data
           ?y :a "TubeB" .
         } => {
           :step :addFacts { ?y :transferredFrom ?x . }.
-        }
+        }.
     ',
       inputs:
         '
@@ -284,7 +284,7 @@ def inferences_data
       } => {
         :step :addFacts {?rack :is "TubeRack" .} .
         :step :addFacts {?rack :location ?_position .} .
-      }
+      }.
     ',
       inputs:
         '
