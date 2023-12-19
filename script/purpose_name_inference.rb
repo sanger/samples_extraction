@@ -19,7 +19,7 @@ class PurposeNameInference # rubocop:todo Style/Documentation
         ?asset :contains ?anotherAsset .
         ?anotherAsset :aliquotType """RNA""" .
       }=>{
-        :step :addFacts { ?asset :purpose """RNA Stock Plate""" } .
+        :step :addFacts { ?asset :purpose """Stock RNA Plate""" } .
       } .
 
       @forAll :anotherAsset, :someAliquot .
@@ -53,7 +53,7 @@ class PurposeNameInference # rubocop:todo Style/Documentation
 
   def purpose_for_aliquot(aliquot)
     return 'DNA Stock Plate' if aliquot == 'DNA'
-    return 'RNA Stock Plate' if aliquot == 'RNA'
+    return 'Stock RNA Plate' if aliquot == 'RNA'
 
     return 'Stock Plate'
   end

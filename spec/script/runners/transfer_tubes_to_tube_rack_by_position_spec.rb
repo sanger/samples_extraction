@@ -100,12 +100,12 @@ RSpec.describe 'TransferTubesToTubeRackByPosition' do
           end
           context 'when it is RNA' do
             let(:aliquot) { aliquot_rna }
-            it 'will set up an RNA Stock plate purpose' do
+            it 'will set up a Stock RNA plate purpose' do
               added_facts = instance.process.to_h[:add_facts]
               purposes = added_facts.select { |triple| triple[1] == 'purpose' }
               expect(purposes.size).to eq(1)
               expect(purposes.first[0]).to eq(rack.uuid)
-              expect(purposes.first[2]).to eq('RNA Stock Plate')
+              expect(purposes.first[2]).to eq('Stock RNA Plate')
             end
           end
 
