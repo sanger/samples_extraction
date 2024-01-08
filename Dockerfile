@@ -11,7 +11,7 @@ ADD Gemfile /samples_extraction
 ADD Gemfile.lock /samples_extraction
 ADD package.json /samples_extraction
 ADD yarn.lock /samples_extraction
-RUN gem install bundler
+RUN gem install bundler -v 2.4.22
 RUN bundle install --jobs=5 --deployment --without development test
 RUN yarn install
 
