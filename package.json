@@ -33,7 +33,7 @@
   "devDependencies": {
     "@babel/cli": "^7.23.9",
     "@babel/core": "^7.24.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
+    "@babel/plugin-transform-object-rest-spread": "^7.20.7",
     "@prettier/plugin-ruby": "^2.1.0",
     "babel-jest": "^24.9.0",
     "babel-plugin-react-transform": "^3.0.0",
