@@ -6,7 +6,7 @@ module SupportN3 # rubocop:todo Style/Documentation
     inheritance = {}
     ontology =
       RDF::N3::Reader
-        .new(ontology_file, { validate: false, canonicalize: false })
+        .new(ontology_file, **{ validate: false, canonicalize: false })
         .quads
         .reduce({}) do |memo, quad|
           subject = quad[0].pname
