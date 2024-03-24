@@ -7,9 +7,10 @@ GIT
 
 GIT
   remote: https://github.com/sanger/sanger_barcode_format.git
-  revision: 27409a5af0fd98c0111eac8f545c6005508fbab1
+  revision: 8e93771a9f38e1efb07c1d82dca1a81d74353e11
+  branch: development
   specs:
-    sanger_barcode_format (0.1.2)
+    sanger_barcode_format (0.2.0)
 
 GEM
   remote: https://rubygems.org/
@@ -111,7 +112,7 @@ GEM
     byebug (11.1.3)
     coderay (1.1.3)
     concurrent-ruby (1.2.2)
-    connection_pool (2.3.0)
+    connection_pool (2.4.1)
     crack (0.4.5)
       rexml
     crass (1.0.6)
@@ -130,8 +131,7 @@ GEM
       delayed_job (>= 3.0, < 5)
     diff-lcs (1.5.0)
     docile (1.4.0)
-    domain_name (0.5.20190701)
-      unf (>= 0.0.5, < 1.0.0)
+    domain_name (0.6.20240107)
     dropzonejs-rails (0.8.5)
       rails (> 3.1)
     ebnf (2.3.1)
@@ -212,7 +212,7 @@ GEM
     json (2.6.3)
     json-schema (3.0.0)
       addressable (>= 2.8)
-    json_api_client (1.21.0)
+    json_api_client (1.22.0)
       activemodel (>= 3.2.0)
       activesupport (>= 3.2.0)
       addressable (~> 2.2)
@@ -241,9 +241,9 @@ GEM
     matrix (0.4.2)
     method_source (1.0.0)
     micro_token (0.0.4)
-    mime-types (3.4.1)
+    mime-types (3.5.2)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2022.0105)
+    mime-types-data (3.2024.0305)
     mini_mime (1.1.5)
     mini_portile2 (2.8.5)
     minitest (5.19.0)
@@ -348,7 +348,7 @@ GEM
       execjs
       railties (>= 3.2)
       tilt
-    redis (4.8.0)
+    redis (4.8.1)
     regexp_parser (2.6.2)
     rest-client (2.1.0)
       http-accept (>= 1.7.0, < 2.0)
@@ -467,9 +467,6 @@ GEM
       concurrent-ruby (~> 1.0)
     tzinfo-data (1.2022.7)
       tzinfo (>= 1.0.0)
-    unf (0.1.4)
-      unf_ext
-    unf_ext (0.0.8.2)
     unicode-display_width (2.4.2)
     unicode-types (1.8.0)
     uuid (2.3.9)

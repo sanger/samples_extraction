@@ -49,7 +49,7 @@ gem 'jsonapi-resources'
 
 # Tools
 gem 'pmb-client', git: 'https://github.com/sanger/pmb-client.git'
-gem 'sanger_barcode_format', git: 'https://github.com/sanger/sanger_barcode_format.git'
+gem 'sanger_barcode_format', git: 'https://github.com/sanger/sanger_barcode_format.git', branch: 'development'
 
 # Sequencescspae
 gem 'faraday'
@@ -71,7 +71,6 @@ group :development, :test do
   # Call 'pry' anywhere in the code to stop execution and get a debugger console
   gem 'pry-byebug'
   gem 'pry-rails'
-  gem 'ruby-growl'
 end
 
 group :test do
