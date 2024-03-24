@@ -5,7 +5,7 @@ class AssetsController < ApplicationController # rubocop:todo Style/Documentatio
   # GET /assets
   # GET /assets.json
   def index
-    @assets = Asset.all.includes(:facts).paginate(page: params[:page], per_page: 5)
+    @assets = Asset.includes(:facts).paginate(page: params[:page], per_page: 5)
   end
 
   def print

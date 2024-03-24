@@ -21,7 +21,7 @@ RSpec.describe 'BackgroundTasks' do
     let(:list_of_tasks) { Array.new(5) { DummyBackgroundStep } }
     it 'creates the list of steps' do
       activity.create_background_steps(list_of_tasks, {})
-      expect(Step.all.count).to eq(5)
+      expect(Step.count).to eq(5)
     end
     it 'connects each step with the next one' do
       activity.create_background_steps(list_of_tasks, {})

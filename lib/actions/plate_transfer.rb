@@ -67,7 +67,7 @@ module Actions
               memo[location].push(f.object_asset)
               memo
             end
-        value.each do |_location, assets|
+        value.each_value do |assets|
           asset1, asset2 = assets
           if asset2
             if aliquot

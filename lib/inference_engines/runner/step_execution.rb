@@ -52,9 +52,9 @@ module InferenceEngines
 
       def generate_plan_from_external_process
         if step_action.end_with?('.rb')
-          cmd = ['bin/rails', 'runner', "#{Rails.root.join("script/runners/#{step_action}")}"]
+          cmd = ['bin/rails', 'runner', Rails.root.join("script/runners/#{step_action}").to_s]
         else
-          cmd = "#{Rails.root.join("script/runners/#{step_action}")}"
+          cmd = Rails.root.join("script/runners/#{step_action}").to_s
         end
 
         call_list = [cmd, input_url, step_url].flatten

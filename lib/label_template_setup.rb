@@ -38,7 +38,7 @@ class LabelTemplateSetup
     end
 
     def remove_old_templates!
-      LabelTemplate.where.not(name: registered_names).each(&:destroy)
+      LabelTemplate.where.not(name: registered_names).find_each(&:destroy)
     end
 
     private
