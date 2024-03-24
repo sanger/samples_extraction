@@ -6,7 +6,7 @@ RSpec.describe ChangesController, type: :controller do
       expect do
         post :create, params: { changes: { create_assets: ['?p'], add_facts: [%w[?p a Tube]] } }, as: :json
       end.to change { Step.all.count }.and change { Asset.all.count }.by(1)
-      change = JSON.parse(response.body)
+      change = JSON.parse(response.body)  # rubocop:disable Rails/ResponseParsedBody
       expect(change['assets'].count).to eq(1)
       expect(change['assets'][0]['uuid']).not_to eq(nil)
     end

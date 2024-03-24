@@ -22,7 +22,7 @@ module Assets::Import # rubocop:todo Style/Documentation
         wells = remote_asset.wells.to_a
 
         # aliquots.to_a, same reason
-        aliquots = wells.compact.map(&:aliquots).map(&:to_a)
+        aliquots = wells.compact.map { |x| x.aliquots.to_a }
         samples = aliquots.flatten.compact.map { |al| al.sample }
         distinct += samples.compact.map(&:attributes).to_json
       end
@@ -41,7 +41,7 @@ module Assets::Import # rubocop:todo Style/Documentation
         list_tubes = remote_asset.racked_tubes.map { |racked_tube| racked_tube.tube }.to_a
 
         # aliquots.to_a, same reason
-        aliquots = list_tubes.compact.map(&:aliquots).map(&:to_a)
+        aliquots = list_tubes.compact.map { |x| x.aliquots.to_a }
 
         samples = aliquots.flatten.compact.map { |al| al.sample }
         distinct += samples.compact.map(&:attributes).to_json

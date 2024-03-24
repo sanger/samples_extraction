@@ -65,8 +65,8 @@ gem 'yard'
 # Feature flags
 gem 'flipper', '~> 0.26.0'
 gem 'flipper-active_record', '~> 0.26.0'
-gem 'flipper-ui', '~> 0.26.0'
 gem 'flipper-redis', '~> 0.26.0'
+gem 'flipper-ui', '~> 0.26.0'
 
 # gem 'flipper'
 # gem 'flipper-redis'
