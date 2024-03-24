@@ -118,10 +118,7 @@ class AssetsController < ApplicationController # rubocop:todo Style/Documentatio
   end
 
   def set_queries
-    @queries =
-      valid_indexes.map do |val|
-        OpenStruct.new({ predicate: params['p' + val], object: params['o' + val] }) # rubocop:todo Style/OpenStructUse
-      end
+    @queries = valid_indexes.map { |val| OpenStruct.new(predicate: params['p' + val], object: params['o' + val]) }
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

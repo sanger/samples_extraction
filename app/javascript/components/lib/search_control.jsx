@@ -21,7 +21,7 @@ class SearchControl extends React.Component {
         url: this.props.searchUrl,
         data: this.dataFromInput(),
         dataType: 'html',
-      })
+      }),
     )
   }
   dataFromInput() {

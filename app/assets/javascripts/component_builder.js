@@ -33,11 +33,11 @@
         $('[data-psd-component-class]').each(
           $.proxy(function (pos, node) {
             this.instantiateNode(node)
-          }, this)
+          }, this),
         )
         $(document).trigger('done.builder')
       }, this),
-      100
+      100,
     )
   }
 
@@ -46,7 +46,7 @@
       'registerComponent.builder',
       $.proxy(function (event, data) {
         this.registerComponent(data)
-      }, this)
+      }, this),
     )
   }
 

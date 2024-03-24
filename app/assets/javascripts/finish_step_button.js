@@ -5,7 +5,7 @@
       'click',
       $.proxy(function () {
         $('form', this.node).submit()
-      }, this)
+      }, this),
     )
   }
 

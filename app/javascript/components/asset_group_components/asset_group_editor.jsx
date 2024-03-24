@@ -61,7 +61,7 @@ class AssetGroupEditor extends React.Component {
     return Object.keys(this.state.assets_status).filter(
       $.proxy(function (uuid) {
         return this.state.assets_status[uuid] == 'running'
-      }, this)
+      }, this),
     )
   }
   render() {

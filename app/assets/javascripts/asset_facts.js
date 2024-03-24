@@ -17,7 +17,7 @@
       $.proxy(function () {
         this.initialize(params)
       }, this),
-      0
+      0,
     )
   }
 

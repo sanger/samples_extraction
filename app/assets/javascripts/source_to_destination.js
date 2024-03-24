@@ -33,14 +33,14 @@
         names: this.names,
         pairings: [],
         identifiers: this.identifiers,
-      })
+      }),
     )
     this.inputs = $(
       $(this.names).map(
         $.proxy(function (pos, name) {
           return $('input[name="' + this.identifiers[pos] + '"]', this.node)[0]
-        }, this)
-      )
+        }, this),
+      ),
     )
     this.table = $('table', this.node)
     this.table.hide()
@@ -65,7 +65,7 @@
           memo[input.name] = $(this.inputs[pos]).val()
           return memo
         }, this),
-        {}
+        {},
       )
   }
 

@@ -83,7 +83,7 @@ class Activity extends React.Component {
       },
       {
         received: $.proxy(this.onWebSocketsMessage, this),
-      }
+      },
     )
   }
   getAllAssets() {
@@ -192,7 +192,7 @@ class Activity extends React.Component {
       this.changeStateStep(step, event_name).then(
         $.proxy(() => {
           this.setState({ activityRunning: false })
-        }, this)
+        }, this),
       )
     }
   }
