@@ -62,7 +62,7 @@ module SupportN3 # rubocop:todo Style/Documentation
   def self.parse_string(input, options = {}, step_type = nil)
     options = { validate: false, canonicalize: false }.merge(options)
 
-    RuleGraphAccessor.parse_rules(RDF::N3::Reader.new(input, options).quads, step_type)
+    RuleGraphAccessor.parse_rules(RDF::N3::Reader.new(input, **options).quads, step_type)
   end
 
   def self.parse_file(file_path)
@@ -126,7 +126,7 @@ module SupportN3 # rubocop:todo Style/Documentation
 
     created_assets = [] unless create_assets
 
-    quads = RDF::N3::Reader.new(input, options).quads.clone
+    quads = RDF::N3::Reader.new(input, **options).quads.clone
     quads.map { |quad| create_fact(quad, quads, create_assets, created_assets) }.sort_by { |a| a.name }.uniq
   end
 
