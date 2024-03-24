@@ -230,8 +230,6 @@ GEM
     loofah (2.21.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
-    macaddr (1.7.2)
-      systemu (~> 2.6.5)
     mail (2.8.1)
       mini_mime (>= 0.1.1)
       net-imap
@@ -392,8 +390,6 @@ GEM
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
-    ruby-growl (4.1)
-      uuid (~> 2.3, >= 2.3.5)
     ruby-progressbar (1.11.0)
     ruby2_keywords (0.0.5)
     sanger_warren (0.4.1)
@@ -456,7 +452,6 @@ GEM
     sxp (1.2.3)
       matrix (~> 0.4)
       rdf (~> 3.2)
-    systemu (2.6.5)
     thor (1.2.2)
     tilt (2.0.11)
     timeout (0.4.0)
@@ -469,8 +464,6 @@ GEM
       tzinfo (>= 1.0.0)
     unicode-display_width (2.4.2)
     unicode-types (1.8.0)
-    uuid (2.3.9)
-      macaddr (~> 1.0)
     web-console (4.2.0)
       actionview (>= 6.0.0)
       activemodel (>= 6.0.0)
@@ -547,7 +540,6 @@ DEPENDENCIES
   rubocop
   rubocop-performance
   rubocop-rails
-  ruby-growl
   sanger_barcode_format!
   sanger_warren
   sass-rails
