@@ -133,7 +133,7 @@ class Asset < ApplicationRecord # rubocop:todo Style/Documentation
 
   def build_barcode(index)
     self.barcode =
-      SBCF::SangerBarcode.new({ prefix: Rails.application.config.barcode_prefix, number: index }).human_barcode
+      SBCF::SangerBarcode.new(prefix: Rails.application.config.barcode_prefix, number: index).human_barcode
   end
 
   def generate_barcode
