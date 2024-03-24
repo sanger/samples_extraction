@@ -63,9 +63,14 @@ gem 'rb-readline'
 gem 'yard'
 
 # Feature flags
-gem 'flipper'
-gem 'flipper-redis'
-gem 'flipper-ui'
+gem 'flipper', '~> 0.26.0'
+gem 'flipper-active_record', '~> 0.26.0'
+gem 'flipper-ui', '~> 0.26.0'
+gem 'flipper-redis', '~> 0.26.0'
+
+# gem 'flipper'
+# gem 'flipper-redis'
+# gem 'flipper-ui'
 
 group :development, :test do
   # Call 'pry' anywhere in the code to stop execution and get a debugger console
