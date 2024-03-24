@@ -7,7 +7,7 @@ class CreateSteps < ActiveRecord::Migration # rubocop:todo Style/Documentation
       t.references :activity, index: true, foreign_key: true
       t.references :asset_group, index: true, foreign_key: true
       t.integer :created_asset_group_id, default: nil, index: true, foreign_key: true
-      t.boolean :in_progress?, default: false
+      t.boolean :in_progress?, default: false # rubocop:disable Rails/ThreeStateBooleanColumn
       t.timestamps
     end
   end
