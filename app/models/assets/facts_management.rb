@@ -27,16 +27,16 @@ module Assets::FactsManagement # rubocop:todo Style/Documentation
   def has_fact?(fact)
     facts.any? do |f|
       if f.object.nil?
-        (
+        
           (fact.predicate == f.predicate) && (fact.object_asset == f.object_asset) && (fact.to_add_by == f.to_add_by) &&
             (fact.to_remove_by == f.to_remove_by)
-        )
+        
       else
         other_conds = true
         if fact.respond_to?(:to_add_by)
           other_conds = (fact.to_add_by == f.to_add_by) && (fact.to_remove_by == f.to_remove_by)
         end
-        ((fact.predicate == f.predicate) && (fact.object == f.object) && other_conds)
+        (fact.predicate == f.predicate) && (fact.object == f.object) && other_conds
       end
     end
   end

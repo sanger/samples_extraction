@@ -124,7 +124,7 @@ module Assets::Export # rubocop:todo Style/Documentation
       .each_with_object({}) do |fact, memo|
         case fact.predicate
         when 'sample_tube'
-          memo["#{fact.predicate}_uuid".to_sym] = fact.object_asset.uuid
+          memo[:"#{fact.predicate}_uuid"] = fact.object_asset.uuid
         when 'location'
           memo[fact.predicate.to_sym] = TokenUtil.unpad_location(fact.object)
         when 'aliquotType', 'sanger_sample_id', 'sanger_sample_name', 'sample_uuid'

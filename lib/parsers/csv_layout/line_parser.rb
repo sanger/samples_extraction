@@ -64,7 +64,7 @@ module Parsers
       end
 
       def empty_line?(line)
-        (line.nil? || (line.length == 0) || line.all?(&:nil?))
+        line.nil? || (line.length == 0) || line.all?(&:nil?)
       end
     end
   end

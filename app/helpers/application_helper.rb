@@ -115,7 +115,7 @@ module ApplicationHelper # rubocop:todo Style/Documentation
     is_facts_values = facts.with_predicate('is').map { |f_is| [f_is.predicate, f_is.object].join('-') }
     aliquot_fact = facts.with_predicate('aliquotType').first
     if aliquot_fact
-      css_classes = [(aliquot_fact.object || unknown_aliquot_type), is_facts_values].compact.join(' ')
+      css_classes = [aliquot_fact.object || unknown_aliquot_type, is_facts_values].compact.join(' ')
       url = ((aliquot_fact.class == Fact) ? asset_path(aliquot_fact.asset) : '')
       title = "#{aliquot_fact.asset.short_description}"
     else
