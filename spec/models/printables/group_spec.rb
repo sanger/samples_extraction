@@ -8,7 +8,7 @@ RSpec.describe Printables::Group do
     let(:facts1) { [create(:fact, predicate: 'a', object: 'Tube')] }
     let(:asset1) { create(:asset, facts: facts1) }
     let(:assets) { [asset1, asset2] }
-    let(:group) { create :asset_group, assets: assets }
+    let(:group) { create :asset_group, assets: }
     let(:config) { { 'Tube' => 'printer1', 'Plate' => 'printer2' } }
     let!(:printer1) { create :printer, name: 'printer1' }
     let!(:printer2) { create :printer, name: 'printer2' }
@@ -65,7 +65,7 @@ RSpec.describe Printables::Group do
     let(:asset1) { create(:asset, facts: facts1, barcode: '1') }
     let(:asset2) { create(:asset, facts: facts1, barcode: '2') }
     let(:assets) { [asset1, asset2] }
-    let(:group) { create :asset_group, assets: assets }
+    let(:group) { create :asset_group, assets: }
     let(:config) { { 'Tube' => 'printer1', 'Plate' => 'printer2' } }
     let!(:printer1) { create :printer, name: 'printer1' }
     let!(:printer2) { create :printer, name: 'printer2' }

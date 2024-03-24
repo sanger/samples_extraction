@@ -4,7 +4,7 @@ RSpec.describe Steps::BackgroundTasks::Inference do
   context '#run' do
     let(:activity) { create(:activity, state: 'running') }
     let(:execution) { double('step_execution') }
-    let(:inference) { create :inference, activity: activity }
+    let(:inference) { create :inference, activity: }
 
     before { allow(InferenceEngines::Cwm::StepExecution).to receive(:new).and_return(execution) }
     context 'when there is an error' do
@@ -25,7 +25,7 @@ RSpec.describe Steps::BackgroundTasks::Inference do
       end
 
       it 'executes the rest of next steps' do
-        inferences = create_list :inference, 5, activity: activity
+        inferences = create_list(:inference, 5, activity:)
         inferences
           .reverse
           .reduce(nil) do |memo, step|

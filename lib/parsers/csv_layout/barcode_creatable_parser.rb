@@ -16,7 +16,7 @@ module Parsers
 
       def generate_asset
         Asset
-          .new(barcode: barcode)
+          .new(barcode:)
           .tap do |tube|
             updater.create_assets([tube])
             updater.add(tube, 'barcode', barcode)

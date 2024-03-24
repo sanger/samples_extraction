@@ -5,17 +5,17 @@ describe Steps::Task do
   let(:printer_config) { { 'Plate' => 'plates', 'Tube' => 'tubes', 'TubeRack' => 'plates' } }
   def build_instance
     asset_group = build :asset_group
-    build :step, asset_group: asset_group, printer_config: printer_config
+    build :step, asset_group:, printer_config:
   end
 
   def create_instance(step_type, activity, group)
     create(
       :step,
-      step_type: step_type,
-      activity: activity,
+      step_type:,
+      activity:,
       asset_group: group,
-      user: user,
-      printer_config: printer_config
+      user:,
+      printer_config:
     )
   end
 
@@ -25,7 +25,7 @@ describe Steps::Task do
     let(:step_type) do
       create(
         :step_type,
-        step_action: step_action,
+        step_action:,
         condition_groups: [cg],
         actions: [
           create(:action, action_type: 'createAsset', predicate: 'a', object: 'Tube', subject_condition_group: cg2)
@@ -131,7 +131,7 @@ describe Steps::Task do
         let(:step) { create_instance(step_type, activity, group) }
         before do
           step.operations <<
-            create(:operation, action_type: 'add_facts', asset: asset, predicate: 'a', object: 'tube', cancelled?: true)
+            create(:operation, action_type: 'add_facts', asset:, predicate: 'a', object: 'tube', cancelled?: true)
         end
         it 'does not run the default step execution' do
           allow(InferenceEngines::Default::StepExecution).to receive(:new)

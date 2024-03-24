@@ -2,8 +2,8 @@ module Activities::JsonAttributes # rubocop:todo Style/Documentation
   def initial_json_attributes(current_user = nil)
     {
       activity: {
-        id: id,
-        completed_at: completed_at,
+        id:,
+        completed_at:,
         activity_type_name: activity_type.name,
         instrument_name: instrument ? (instrument.name || instrument.barcode) : nil,
         kit_name: kit ? kit.barcode : nil,

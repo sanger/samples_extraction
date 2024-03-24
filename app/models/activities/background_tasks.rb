@@ -29,10 +29,10 @@ module Activities
 
     def create_connected_tasks(step, asset_group, printer_config = nil, user = nil)
       reasoning_params = {
-        asset_group: asset_group,
+        asset_group:,
         activity: self,
-        printer_config: printer_config,
-        user: user,
+        printer_config:,
+        user:,
         in_progress?: true
       }
       steps = create_background_steps(background_tasks, reasoning_params)

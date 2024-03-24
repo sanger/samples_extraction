@@ -8,7 +8,7 @@ RSpec.describe 'TractionFields' do
       let(:store_uuid) { TokenUtil.quote(uuid) }
       it 'unquotes the uuid' do
         asset = create(:asset)
-        asset.facts << create(:fact, predicate: predicate, object: store_uuid)
+        asset.facts << create(:fact, predicate:, object: store_uuid)
 
         expect(asset.send(method)).to eq(uuid)
       end
@@ -17,7 +17,7 @@ RSpec.describe 'TractionFields' do
       let(:store_uuid) { uuid }
       it 'returns the unquoted uuid' do
         asset = create(:asset)
-        asset.facts << create(:fact, predicate: predicate, object: store_uuid)
+        asset.facts << create(:fact, predicate:, object: store_uuid)
 
         expect(asset.send(method)).to eq(uuid)
       end

@@ -15,7 +15,7 @@ RSpec.describe 'BackgroundTasks' do
   let(:activity) { create :activity }
   let(:step_type) { create :step_type }
   let(:asset_group) { create :asset_group }
-  let(:step) { create :step, step_type: step_type }
+  let(:step) { create :step, step_type: }
 
   context '#create_background_steps' do
     let(:list_of_tasks) { Array.new(5) { DummyBackgroundStep } }
@@ -33,7 +33,7 @@ RSpec.describe 'BackgroundTasks' do
   context '#create_connected_tasks' do
     let(:list_of_tasks) { Array.new(5) { DummyBackgroundStep } }
 
-    let(:other_step) { create :step, step_type: step_type }
+    let(:other_step) { create :step, step_type: }
     context 'when it does not have any background task defined' do
       it 'does not raise an error' do
         allow(activity).to receive(:background_tasks).and_return([])

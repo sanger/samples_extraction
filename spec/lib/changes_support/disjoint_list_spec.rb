@@ -53,8 +53,8 @@ RSpec.describe 'ChangesSupport::DisjointList' do
     end
     it 'can generate same id for different instances of the same model if they have the same uuid' do
       uuid = SecureRandom.uuid
-      asset1 = create(:asset, uuid: uuid)
-      asset2 = create(:asset, uuid: uuid)
+      asset1 = create(:asset, uuid:)
+      asset2 = create(:asset, uuid:)
       expect(list.unique_id_for_element(asset1)).to eq(list.unique_id_for_element(asset2))
     end
     it 'can generate an id for a relation' do
@@ -80,7 +80,7 @@ RSpec.describe 'ChangesSupport::DisjointList' do
       asset = create :asset
       asset2 = create :asset
       somepredicate = 'relation'
-      ob1 = { asset: asset, predicate: somepredicate, object_asset: asset2 }
+      ob1 = { asset:, predicate: somepredicate, object_asset: asset2 }
       ob2 = { id: 123, asset_id: asset.id, predicate: somepredicate, object_asset_id: asset2.id }
       expect(list.unique_id_for_element(ob1)).to eq(list.unique_id_for_element(ob2))
     end
@@ -90,10 +90,10 @@ RSpec.describe 'ChangesSupport::DisjointList' do
       asset3 = build :asset
       somepredicate = 'relation'
 
-      ob1 = { asset: asset, predicate: somepredicate, object_asset: asset2 }
+      ob1 = { asset:, predicate: somepredicate, object_asset: asset2 }
       ob2 = { asset: asset2, predicate: somepredicate, object_asset: asset }
-      ob3 = { asset: asset, predicate: somepredicate, object_asset: asset3 }
-      ob4 = { asset: asset, predicate: somepredicate, object_asset: asset }
+      ob3 = { asset:, predicate: somepredicate, object_asset: asset3 }
+      ob4 = { asset:, predicate: somepredicate, object_asset: asset }
 
       expect(list.unique_id_for_element(ob1)).not_to eq(list.unique_id_for_element(ob2))
       expect(list.unique_id_for_element(ob1)).not_to eq(list.unique_id_for_element(ob3))

@@ -4,9 +4,9 @@ class Fact < ApplicationRecord
   belongs_to :object_asset, class_name: 'Asset'
 
   scope :not_to_remove, -> { where(to_remove_by: nil) }
-  scope :with_predicate, ->(predicate) { where(predicate: predicate) }
+  scope :with_predicate, ->(predicate) { where(predicate:) }
   scope :with_ns_predicate, ->(namespace) { where(ns_predicate: namespace) }
-  scope :with_fact, ->(predicate, object) { where(predicate: predicate, object: object) }
+  scope :with_fact, ->(predicate, object) { where(predicate:, object:) }
   scope :from_remote_asset, -> { where(is_remote?: true) }
   scope :created_before, ->(date) { date.nil? ? all : where('created_at < ?', date) }
 

@@ -13,7 +13,7 @@ RSpec.describe ApplicationHelper, type: :helper do
   context '#data_asset_display_for_plate' do
     let(:well) do
       w = create_well(location, sample, aliquot)
-      w.update(barcode: barcode)
+      w.update(barcode:)
       w
     end
     let(:sample) { nil }
@@ -22,7 +22,7 @@ RSpec.describe ApplicationHelper, type: :helper do
     let(:barcode) { nil }
 
     let(:facts) { [create(:fact, predicate: 'contains', object_asset: well)] }
-    let(:asset) { create :asset, facts: facts }
+    let(:asset) { create :asset, facts: }
     context 'when the well has no location' do
       let(:location) { nil }
       it 'does not display the well' do

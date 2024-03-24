@@ -5,7 +5,7 @@ class Steps::BackgroundTasks::Runner < Step # rubocop:todo Style/Documentation
     runner =
       InferenceEngines::Runner::StepExecution.new(
         step: self,
-        asset_group: asset_group,
+        asset_group:,
         created_assets: {},
         step_types: [step_type]
       )

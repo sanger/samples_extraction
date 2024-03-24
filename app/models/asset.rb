@@ -30,7 +30,7 @@ class Asset < ApplicationRecord # rubocop:todo Style/Documentation
       if loaded?
         with_predicate(predicate).any? { |fact| fact.object == value }
       else
-        exists?(predicate: predicate, object: value)
+        exists?(predicate:, object: value)
       end
     end
   end
@@ -194,7 +194,7 @@ class Asset < ApplicationRecord # rubocop:todo Style/Documentation
 
     if kind_of_plate?
       {
-        barcode: barcode,
+        barcode:,
         top_left: DateTime.now.strftime('%d/%b/%y'),
         top_right: info_line, # username,
         bottom_right: study_and_barcode,

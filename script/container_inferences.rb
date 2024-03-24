@@ -73,4 +73,4 @@ matches = args.match(/(\d*)\.json/)
 out({}) unless matches
 asset_group_id = matches[1]
 asset_group = AssetGroup.find(asset_group_id)
-out(ContainerInferences.new(asset_group: asset_group).process)
+out(ContainerInferences.new(asset_group:).process)

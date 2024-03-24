@@ -73,7 +73,7 @@ class LabelTemplateSetup
   def local_template
     return @local if @local
 
-    @local = LabelTemplate.find_by(name: name) || LabelTemplate.new(name: name, template_type: @template_type)
+    @local = LabelTemplate.find_by(name:) || LabelTemplate.new(name:, template_type: @template_type)
   end
 
   def find_or_create_by_name!

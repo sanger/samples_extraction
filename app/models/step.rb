@@ -30,7 +30,7 @@ class Step < ApplicationRecord # rubocop:todo Style/Documentation
   scope :running_with_asset,
         ->(asset) { includes(:assets).where(asset_groups_assets: { asset_id: asset.id }, state: 'running') }
   scope :for_assets, ->(assets) { joins(asset_group: :assets).where(asset_groups_assets: { asset_id: assets }) }
-  scope :for_step_type, ->(step_type) { where(step_type: step_type) }
+  scope :for_step_type, ->(step_type) { where(step_type:) }
   scope :include_messages, -> { includes(:step_messages) }
 
   delegate :report_error, to: :activity

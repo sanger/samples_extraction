@@ -6,7 +6,7 @@ module SupportN3 # rubocop:todo Style/Documentation
     inheritance = {}
     ontology =
       RDF::N3::Reader
-        .new(ontology_file, **{ validate: false, canonicalize: false })
+        .new(ontology_file, validate: false, canonicalize: false)
         .quads
         .reduce({}) do |memo, quad|
           subject = quad[0].pname
@@ -75,11 +75,11 @@ module SupportN3 # rubocop:todo Style/Documentation
 
   def self.build_asset(name, create_assets = true, created_assets = [])
     if create_assets
-      asset = Asset.find_or_create_by(name: name)
+      asset = Asset.find_or_create_by(name:)
     else
       asset = created_assets.find { |a| a.name == name }
       unless asset
-        asset = Asset.create(name: name)
+        asset = Asset.create(name:)
         created_assets.push(asset)
       end
     end
@@ -158,7 +158,7 @@ module SupportN3 # rubocop:todo Style/Documentation
 
     def self.deprecate_class_by_name(class_type, name, new_instance)
       if name && !name.empty?
-        old_instances = class_type.where(name: name).not_deprecated
+        old_instances = class_type.where(name:).not_deprecated
         old_instances = nil if (old_instances.count > 1) && (old_instances.first == new_instance)
       end
 
@@ -264,7 +264,7 @@ module SupportN3 # rubocop:todo Style/Documentation
             predicate: fragment(p),
             object: fragment(v),
             condition_group_id: condition_group.id,
-            object_condition_group: object_condition_group
+            object_condition_group:
           }
         )
       end
@@ -411,7 +411,7 @@ module SupportN3 # rubocop:todo Style/Documentation
                   object: fragment(v),
                   step_type_id: @step_type.id,
                   subject_condition_group_id: @c_groups[fragment(k)].id,
-                  object_condition_group_id: object_condition_group_id
+                  object_condition_group_id:
                 }
               )
               if action == 'unselectAsset'

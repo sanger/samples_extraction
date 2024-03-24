@@ -10,7 +10,7 @@ RSpec.describe Condition, type: :model do
           facts = [FactoryBot.create(:fact, { predicate: 'a', object: 'Tube' })]
           aliquot = ((i % 2) == 0) ? 'DNA' : 'RNA'
           facts.push(FactoryBot.create(:fact, { predicate: 'aliquotType', object: aliquot }))
-          FactoryBot.create(:asset, facts: facts)
+          FactoryBot.create(:asset, facts:)
         end
 
       @wells =
@@ -19,7 +19,7 @@ RSpec.describe Condition, type: :model do
           aliquot = ((i % 2) == 0) ? 'DNA' : 'RNA'
           aliquot = 'RNA'
           facts.push(FactoryBot.create(:fact, { predicate: 'aliquotType', object: aliquot }))
-          FactoryBot.create(:asset, facts: facts)
+          FactoryBot.create(:asset, facts:)
         end
       @rack = FactoryBot.create :asset
       @rack.facts << (FactoryBot.create(:fact, { predicate: 'a', object: 'Rack' }))
@@ -60,7 +60,7 @@ RSpec.describe Condition, type: :model do
           wildcard_values: wildcards,
           state: Step::STATE_RUNNING
         )
-      @step_execution = StepExecution.new({ step: @step, asset_group: @asset_group, created_assets: created_assets })
+      @step_execution = StepExecution.new({ step: @step, asset_group: @asset_group, created_assets: })
       @step_execution.run
 
       {

@@ -12,7 +12,7 @@ RSpec.describe Parsers::CsvLayout::CsvParser do
     let(:asset_group) { create(:asset_group) }
     let(:step_type) { create(:step_type) }
     let(:step) do
-      create :step, activity: activity, state: Step::STATE_RUNNING, asset_group: asset_group, step_type: step_type
+      create :step, activity:, state: Step::STATE_RUNNING, asset_group:, step_type:
     end
 
     setup do

@@ -19,13 +19,13 @@ RSpec.describe Step, type: :model do
 
   def create_step
     step =
-      FactoryBot.create(:step, { activity: activity, step_type: @step_type, asset_group: @asset_group, user: user })
+      FactoryBot.create(:step, { activity:, step_type: @step_type, asset_group: @asset_group, user: })
     step.run!
     step
   end
 
   def run_step_type(step_type, asset_group)
-    step = create(:step, { activity: activity, step_type: step_type, asset_group: asset_group, user: user })
+    step = create(:step, { activity:, step_type:, asset_group:, user: })
     step.run!
     step
   end
@@ -43,7 +43,7 @@ RSpec.describe Step, type: :model do
     create(
       :action,
       action_type: 'addFacts',
-      predicate: predicate,
+      predicate:,
       subject_condition_group: cg1,
       object_condition_group: cg2
     )
@@ -54,7 +54,7 @@ RSpec.describe Step, type: :model do
   end
 
   def create_condition_group_to_select_asset_type(asset_type, name = nil)
-    create(:condition_group, name: name, conditions: [create_condition_to_select_asset_type(asset_type)])
+    create(:condition_group, name:, conditions: [create_condition_to_select_asset_type(asset_type)])
   end
 
   def create_assets(num, type)
@@ -324,7 +324,7 @@ RSpec.describe Step, type: :model do
         it 'cardinality does not restrict the number of assets created when it is over the number of inputs' do
           previous_num = @asset_group.assets.count
           cardinality = @tubes.length + @racks.length + 2
-          @cg3.update(cardinality: cardinality)
+          @cg3.update(cardinality:)
           @step = create_step
 
           @asset_group.reload
@@ -482,7 +482,7 @@ RSpec.describe Step, type: :model do
 
       shared_examples 'a step type that can connect by position' do
         let(:step_type) do
-          create(:step_type, condition_groups: condition_groups, actions: actions, connect_by: 'position')
+          create(:step_type, condition_groups:, actions:, connect_by: 'position')
         end
         it 'connects origins with destinations 1 to 1 leaving outside assets without associated pair' do
           s = run_step_type(step_type, asset_group)
@@ -496,7 +496,7 @@ RSpec.describe Step, type: :model do
       end
 
       shared_examples 'a step type that can connect N to N' do
-        let(:step_type) { create(:step_type, condition_groups: condition_groups, actions: actions, connect_by: nil) }
+        let(:step_type) { create(:step_type, condition_groups:, actions:, connect_by: nil) }
 
         it 'connects all origins with all destinations' do
           s = run_step_type(step_type, asset_group)

@@ -14,7 +14,7 @@ SupportN3.parse_file('db/workflows/reracking.n3')
 
 reracking_activity_type = ActivityType.last
 kit_type = KitType.create(name: 'Re-Racking', activity_type: reracking_activity_type)
-kit = Kit.create(barcode: '9999', kit_type: kit_type)
+kit = Kit.create(barcode: '9999', kit_type:)
 instrument = Instrument.create(barcode: '9999', name: 'Re-Racking')
 instrument.activity_types << reracking_activity_type
 
@@ -22,7 +22,7 @@ SupportN3.parse_file('db/workflows/qiacube.n3')
 
 activity_type = ActivityType.last
 
-kt = KitType.create(name: 'qiacube', activity_type: activity_type)
+kt = KitType.create(name: 'qiacube', activity_type:)
 
 Kit.create(barcode: '1234', kit_type: kt)
 

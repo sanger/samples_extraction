@@ -46,7 +46,7 @@ module ApplicationHelper # rubocop:todo Style/Documentation
     data_asset_display = {}.tap { |o| o[asset.uuid] = data_asset_display(asset.facts) }
     react_component(
       'FactsSvg',
-      { asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display }
+      { asset:, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display }
     )
   end
 
@@ -71,7 +71,7 @@ module ApplicationHelper # rubocop:todo Style/Documentation
     data_asset_display = {}.tap { |o| o[asset.uuid] = data_asset_display(asset.facts) }
     react_component(
       'Facts',
-      { asset: asset, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display }
+      { asset:, facts: facts_with_object_asset(asset.facts), dataAssetDisplay: data_asset_display }
     )
   end
 
@@ -81,7 +81,7 @@ module ApplicationHelper # rubocop:todo Style/Documentation
       'FactsEditor',
       {
         changesUrl: readonly ? nil : changes_url,
-        asset: asset,
+        asset:,
         facts: facts_with_object_asset(asset.facts),
         dataAssetDisplay: data_asset_display
       }
@@ -123,7 +123,7 @@ module ApplicationHelper # rubocop:todo Style/Documentation
       url = ''
       title = ''
     end
-    { aliquot: { cssClass: css_classes, title: title, url: url } }
+    { aliquot: { cssClass: css_classes, title:, url: } }
   end
 
   def data_asset_display(facts)

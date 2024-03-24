@@ -9,7 +9,7 @@ RSpec.describe Actions::Racking do
   let(:asset) { create :asset, uploaded_file: file, a: 'TubeRack' }
   let(:step_type) { create(:step_type, condition_groups: [condition_group]) }
   let(:step) do
-    create :step, activity: activity, state: Step::STATE_RUNNING, asset_group: asset_group, step_type: step_type
+    create :step, activity:, state: Step::STATE_RUNNING, asset_group:, step_type:
   end
 
   let(:condition) { create(:condition, predicate: 'a', object: 'TubeRack') }
@@ -65,7 +65,7 @@ RSpec.describe Actions::Racking do
           asset_group = AssetGroup.create(assets: [actual_parent])
 
           another_step =
-            Step.new(activity: activity, asset_group: asset_group, step_type: step_type, state: Step::STATE_RUNNING)
+            Step.new(activity:, asset_group:, step_type:, state: Step::STATE_RUNNING)
 
           racking_class.new(asset_group).send(method).apply(another_step)
 
@@ -115,11 +115,11 @@ RSpec.describe Actions::Racking do
 
   describe '#fact_changes_for_rack_when_unracking_tubes' do
     let(:tubes) do
-      [create(:asset, study_name: 'STDY2'), *create_list(:asset, 2, study_name: 'STDY1', aliquot_type: aliquot_type)]
+      [create(:asset, study_name: 'STDY2'), *create_list(:asset, 2, study_name: 'STDY1', aliquot_type:)]
     end
     let(:aliquot_type) { nil }
 
-    before { tubes.each { |tube| create(:fact, asset: asset, predicate: 'contains', object_asset: tube) } }
+    before { tubes.each { |tube| create(:fact, asset:, predicate: 'contains', object_asset: tube) } }
 
     it 'removes all the different studies for this rack when all tubes go out' do
       updates = fact_changes_for_rack_when_unracking_tubes(asset, tubes)
@@ -148,7 +148,7 @@ RSpec.describe Actions::Racking do
     subject(:updates) { fact_changes_for_rack_when_racking_tubes(asset, tubes) }
 
     let(:tubes) do
-      [create(:asset, study_name: 'STDY2'), *create_list(:asset, 2, study_name: 'STDY1', aliquot_type: aliquot_type)]
+      [create(:asset, study_name: 'STDY2'), *create_list(:asset, 2, study_name: 'STDY1', aliquot_type:)]
     end
     let(:aliquot_type) { nil }
 

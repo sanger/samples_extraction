@@ -44,11 +44,11 @@ class SequencescapeClient # rubocop:todo Style/Documentation
   end
 
   def self.find_by_barcode(barcode)
-    find_by(barcode: barcode)
+    find_by(barcode:)
   end
 
   def self.find_by_uuid(uuid)
-    find_by(uuid: uuid)
+    find_by(uuid:)
   end
 
   def self.labware(conditions)

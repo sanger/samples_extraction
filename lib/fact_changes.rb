@@ -118,7 +118,7 @@ class FactChanges # rubocop:todo Style/Documentation
 
   def _build_fact_attributes(asset, predicate, object, options = {})
     literal = !(object.kind_of?(Asset))
-    params = { asset: asset, predicate: predicate, literal: literal }
+    params = { asset:, predicate:, literal: }
     literal ? params[:object] = object : params[:object_asset] = object
     params = params.merge(options) if options
     params
@@ -293,7 +293,7 @@ class FactChanges # rubocop:todo Style/Documentation
 
       # Do not try to find it if it is a new wildcard created
       found = find_instance_from_uuid(klass, uuid) unless create
-      found = ((instances_from_uuid[uuid] ||= klass.new(uuid: uuid))) if !found && create
+      found = ((instances_from_uuid[uuid] ||= klass.new(uuid:))) if !found && create
     elsif TokenUtil.is_uuid?(instance_or_uuid_or_id)
       found = find_instance_from_uuid(klass, instance_or_uuid_or_id)
       if !found && create
@@ -317,7 +317,7 @@ class FactChanges # rubocop:todo Style/Documentation
   end
 
   def find_instance_from_uuid(klass, uuid)
-    found = klass.find_by(uuid: uuid) unless is_new_record?(uuid)
+    found = klass.find_by(uuid:) unless is_new_record?(uuid)
     return found if found
 
     instances_from_uuid[uuid]
@@ -367,7 +367,7 @@ class FactChanges # rubocop:todo Style/Documentation
         asset_ids = elem
       end
       assets = validate_instances(find_assets(asset_ids))
-      assets_to_add << assets.map { |asset| { asset_group: asset_group, asset: asset } }
+      assets_to_add << assets.map { |asset| { asset_group:, asset: } }
     end
     self
   end
@@ -382,7 +382,7 @@ class FactChanges # rubocop:todo Style/Documentation
         asset_ids = elem
       end
       assets = validate_instances(find_assets(asset_ids))
-      assets_to_remove << assets.map { |asset| { asset_group: asset_group, asset: asset } }
+      assets_to_remove << assets.map { |asset| { asset_group:, asset: } }
     end
     self
   end
@@ -510,14 +510,14 @@ class FactChanges # rubocop:todo Style/Documentation
   end
 
   def _asset_group_building_operations(action_type, step, asset_groups)
-    asset_groups.map { |asset_group| Operation.new(action_type: action_type, step: step, object: asset_group.uuid) }
+    asset_groups.map { |asset_group| Operation.new(action_type:, step:, object: asset_group.uuid) }
   end
 
   def _asset_group_operations(action_type, step, asset_group_assets)
     asset_group_assets.map do |asset_group_asset, _index|
       Operation.new(
-        action_type: action_type,
-        step: step,
+        action_type:,
+        step:,
         asset: asset_group_asset.asset,
         object: asset_group_asset.asset_group.uuid
       )
@@ -527,7 +527,7 @@ class FactChanges # rubocop:todo Style/Documentation
   def _asset_operations(action_type, step, assets)
     assets.map do |asset, _index|
       # refer = (action_type == 'deleteAsset' ? nil : asset)
-      Operation.new(action_type: action_type, step: step, object: asset.uuid)
+      Operation.new(action_type:, step:, object: asset.uuid)
     end
   end
 
@@ -541,8 +541,8 @@ class FactChanges # rubocop:todo Style/Documentation
       facts.map do |fact|
         modified_assets.push(fact.object_asset) if listening_to_predicate?(fact.predicate)
         Operation.new(
-          action_type: action_type,
-          step: step,
+          action_type:,
+          step:,
           asset: fact.asset,
           predicate: fact.predicate,
           object: fact.object,

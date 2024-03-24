@@ -73,7 +73,7 @@ module Assets::Import # rubocop:todo Style/Documentation
       remote_asset = SequencescapeClient.find_by_uuid(uuid)
       raise RefreshSourceNotFoundAnymore unless remote_asset
 
-      refresh_from_remote(fact_changes: fact_changes, remote_asset: remote_asset)
+      refresh_from_remote(fact_changes:, remote_asset:)
       self
     end
 
@@ -105,7 +105,7 @@ module Assets::Import # rubocop:todo Style/Documentation
     def _process_refresh(remote_asset, fact_changes)
       fact_changes ||= FactChanges.new
       asset_group = AssetGroup.new
-      @import_step.update(asset_group: asset_group)
+      @import_step.update(asset_group:)
 
       begin
         fact_changes
@@ -147,7 +147,7 @@ module Assets::Import # rubocop:todo Style/Documentation
     def create_local_asset(barcode, updates)
       ActiveRecord::Base.transaction do
         Asset
-          .create!(barcode: barcode)
+          .create!(barcode:)
           .tap do |asset|
             updates.add(asset, 'a', 'Tube')
             updates.add(asset, 'barcodeType', 'Code2D')
@@ -303,13 +303,13 @@ module Assets::Import # rubocop:todo Style/Documentation
 
     def import_remote_asset(remote_asset, barcode, import_step)
       Asset
-        .create!(barcode: barcode, uuid: remote_asset.uuid, facts: [])
+        .create!(barcode:, uuid: remote_asset.uuid, facts: [])
         .tap do |asset|
           # We initialize the asset with an empty facts array, but then modify it indirectly
           # Ideally this wouldn't be the case, and we'd keep the instance in sync. However
           # for now we unload the association to ensure we don't end up working with stale data
           asset.facts.reset
-          asset.refresh_from_remote(remote_asset: remote_asset, step: import_step)
+          asset.refresh_from_remote(remote_asset:, step: import_step)
           asset.update_compatible_activity_type
         end
     end

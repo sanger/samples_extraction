@@ -6,13 +6,13 @@ RSpec.describe Steps::State do
   let(:job) { double('a job', id: 'an id') }
 
   it 'creates a step in pending state' do
-    step = create :step, activity: activity, step_type: step_type
+    step = create(:step, activity:, step_type:)
     expect(step).to have_state(:pending)
   end
 
   context 'a step can run' do
     before { allow(step).to receive(:create_job).and_return(job) }
-    let(:step) { create :step, state: Step::STATE_PENDING, activity: activity, step_type: step_type }
+    let(:step) { create :step, state: Step::STATE_PENDING, activity:, step_type: }
     it 'can transition to run' do
       expect(step).to transition_from(:pending).to(:running).on_event(:run)
       expect(step).to transition_from(:failed).to(:running).on_event(:run)
@@ -22,7 +22,7 @@ RSpec.describe Steps::State do
   context 'a step can stop' do
     before { allow(step).to receive(:create_job).and_return(job) }
 
-    let(:step) { create :step, state: Step::STATE_RUNNING, activity: activity, step_type: step_type }
+    let(:step) { create :step, state: Step::STATE_RUNNING, activity:, step_type: }
     it 'can transition to pending' do
       expect(step).to transition_from(:failed).to(:stopped).on_event(:stop)
       expect(step).to transition_from(:running).to(:stopped).on_event(:stop)
@@ -34,7 +34,7 @@ RSpec.describe Steps::State do
   end
 
   context 'a step can be cancelled' do
-    let(:step) { create :step, state: Step::STATE_COMPLETE, activity: activity, step_type: step_type }
+    let(:step) { create :step, state: Step::STATE_COMPLETE, activity:, step_type: }
     before { allow(step).to receive(:create_job).and_return(job) }
 
     it 'can transition to cancelling' do
@@ -44,7 +44,7 @@ RSpec.describe Steps::State do
   end
 
   context 'a step can be remade' do
-    let(:step) { create :step, state: Step::STATE_CANCELLED, activity: activity, step_type: step_type }
+    let(:step) { create :step, state: Step::STATE_CANCELLED, activity:, step_type: }
     before { allow(step).to receive(:create_job).and_return(job) }
 
     it 'can transition to remaking' do
@@ -54,7 +54,7 @@ RSpec.describe Steps::State do
   end
 
   context 'a step can fail' do
-    let(:step) { create :step, state: Step::STATE_RUNNING, activity: activity, step_type: step_type }
+    let(:step) { create :step, state: Step::STATE_RUNNING, activity:, step_type: }
     before { allow(step).to receive(:create_job).and_return(job) }
 
     it 'can transition to failed' do
@@ -63,7 +63,7 @@ RSpec.describe Steps::State do
   end
 
   context 'a step can be continued' do
-    let(:step) { create :step, state: 'failed', activity: activity, step_type: step_type }
+    let(:step) { create :step, state: 'failed', activity:, step_type: }
     before { allow(step).to receive(:create_job).and_return(job) }
 
     it 'can transition to running' do
@@ -72,7 +72,7 @@ RSpec.describe Steps::State do
   end
 
   context 'a step that can be deprecated' do
-    let(:step) { create :step, state: Step::STATE_PENDING, activity: activity, step_type: step_type }
+    let(:step) { create :step, state: Step::STATE_PENDING, activity:, step_type: }
     before { allow(step).to receive(:create_job).and_return(job) }
 
     it 'can transition to ignored' do
@@ -83,14 +83,14 @@ RSpec.describe Steps::State do
   end
 
   context 'when changing state to complete' do
-    let(:step) { create :step, state: Step::STATE_RUNNING, activity: activity, step_type: step_type }
+    let(:step) { create :step, state: Step::STATE_RUNNING, activity:, step_type: }
     it 'sets the timestamp for finished_at' do
       step.complete!
       expect(step.finished_at.nil?).to eq(false)
     end
   end
   context 'when changing state to running' do
-    let(:step) { create :step, state: Step::STATE_PENDING, activity: activity, step_type: step_type }
+    let(:step) { create :step, state: Step::STATE_PENDING, activity:, step_type: }
     it 'sets the timestamp for started_at' do
       step.run!
       expect(step.started_at.nil?).to eq(false)

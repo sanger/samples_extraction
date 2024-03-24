@@ -22,7 +22,7 @@ RSpec.describe 'ChangesSupport::TransactionScope' do
         uuid = SecureRandom.uuid
         updates.create_assets([uuid])
         updates.add(uuid, 'a', 'Plate')
-        expect(accessor.where(uuid: uuid).first.kind_of?(Asset)).to eq(true)
+        expect(accessor.where(uuid:).first.kind_of?(Asset)).to eq(true)
       end
       it 'does not return deleted elements during transaction' do
         asset = create :asset
@@ -33,7 +33,7 @@ RSpec.describe 'ChangesSupport::TransactionScope' do
       it 'can concat several conditions' do
         uuid = SecureRandom.uuid
         uuid2 = SecureRandom.uuid
-        create(:asset, uuid: uuid, barcode: '1')
+        create(:asset, uuid:, barcode: '1')
         asset2 = create(:asset, uuid: uuid2, barcode: '1')
         expect(accessor.where(barcode: '1').where(uuid: uuid2).first).to eq(asset2)
       end

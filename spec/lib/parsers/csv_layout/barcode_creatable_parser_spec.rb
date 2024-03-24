@@ -6,7 +6,7 @@ require 'parsers/csv_layout/validators/fluidx_barcode_validator'
 RSpec.describe Parsers::CsvLayout::BarcodeCreatableParser do
   before do
     allow(main_parser).to receive(:find_or_import_asset_with_barcode) do |barcode|
-      Asset.find_by(barcode: barcode)
+      Asset.find_by(barcode:)
     end
   end
 
@@ -48,7 +48,7 @@ RSpec.describe Parsers::CsvLayout::BarcodeCreatableParser do
     end
   end
   context 'when the asset exists' do
-    before { @asset = create :asset, barcode: barcode }
+    before { @asset = create :asset, barcode: }
     let(:parser) { Parsers::CsvLayout::BarcodeCreatableParser.new(input, main_parser) }
     it 'validates the instance' do
       expect(parser).to be_valid
@@ -69,7 +69,7 @@ RSpec.describe Parsers::CsvLayout::BarcodeCreatableParser do
   end
 
   context 'when a barcode validator is supplied' do
-    before { create :asset, barcode: barcode }
+    before { create :asset, barcode: }
 
     # Replace with anonymous class (See spec/lib/parsers/csv_layout/barcode_parser_spec.rb)
     class ValidatorReject < ActiveModel::Validator

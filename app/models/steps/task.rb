@@ -9,7 +9,7 @@ module Steps::Task # rubocop:todo Style/Documentation
       # InferenceEngines::Default::StepExecution depending on the configuration
       # parameter Rails.configuration.inference_engine which appears to be set to
       # Default.
-      step_execution = StepExecution.new(step: self, asset_group: asset_group)
+      step_execution = StepExecution.new(step: self, asset_group:)
       updates = step_execution.plan
       return stop! unless apply_changes(updates)
     end
@@ -22,7 +22,7 @@ module Steps::Task # rubocop:todo Style/Documentation
       runner =
         InferenceEngines::Runner::StepExecution.new(
           step: self,
-          asset_group: asset_group,
+          asset_group:,
           created_assets: {},
           step_types: [step_type]
         )

@@ -23,7 +23,7 @@ RSpec.describe Condition, type: :model do
           facts = [FactoryBot.create(:fact, { predicate: 'a', object: 'Tube' })]
           aliquot = ((i % 2) == 0) ? 'DNA' : 'RNA'
           facts.push(FactoryBot.create(:fact, { predicate: 'aliquotType', object: aliquot }))
-          FactoryBot.create(:asset, facts: facts)
+          FactoryBot.create(:asset, facts:)
         end
 
       @wells =
@@ -31,7 +31,7 @@ RSpec.describe Condition, type: :model do
           facts = [FactoryBot.create(:fact, { predicate: 'a', object: 'Well' })]
           aliquot = ((i % 2) == 0) ? 'DNA' : 'RNA'
           facts.push(FactoryBot.create(:fact, { predicate: 'aliquotType', object: aliquot }))
-          FactoryBot.create(:asset, facts: facts)
+          FactoryBot.create(:asset, facts:)
         end
       @rack = FactoryBot.create :asset
       @rack.facts << (FactoryBot.create(:fact, { predicate: 'a', object: 'Rack' }))

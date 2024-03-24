@@ -75,7 +75,7 @@ class ActivityChannel < ApplicationCable::Channel # rubocop:todo Style/Documenta
     def add_input(input)
       return if input.blank?
       if TokenUtil.is_uuid?(input)
-        @input_objects_uuids.push(BarcodeInput.new(input: input, raw_input: input, pos: _next_position))
+        @input_objects_uuids.push(BarcodeInput.new(input:, raw_input: input, pos: _next_position))
       else
         human_barcode = TokenUtil.human_barcode(input)
         transformed_value = human_barcode.length.positive? ? human_barcode : input

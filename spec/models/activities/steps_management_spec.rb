@@ -26,7 +26,7 @@ RSpec.describe 'Activities::StepsManagement' do
     end
     let(:step_type2) { create :step_type, name: 'Step A' }
     let(:activity_type) { create :activity_type, step_types: [step_type, step_type2] }
-    let(:activity) { create :activity, activity_type: activity_type }
+    let(:activity) { create :activity, activity_type: }
 
     let(:asset_group) { create :asset_group, assets: [asset] }
 

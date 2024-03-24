@@ -14,7 +14,7 @@ end
 
 def plate_barcode_definition(name, type_id, barcode_type)
   {
-    name: name,
+    name:,
     label_type_id: type_id, # Plate
     labels_attributes: [
       {
@@ -33,7 +33,7 @@ def plate_barcode_definition(name, type_id, barcode_type)
         barcodes_attributes: [
           {
             field_name: 'barcode',
-            barcode_type: barcode_type,
+            barcode_type:,
             one_module_width: '02',
             height: '0070',
             rotational_angle: nil,

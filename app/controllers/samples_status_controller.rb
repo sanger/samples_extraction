@@ -32,7 +32,7 @@ class SamplesStatusController < ApplicationController
   def set_assets_for_activity_types
     @assets_for_activity_types =
       @activity_types.map do |activity_type|
-        { activity_type: activity_type, assets: get_assets_for_activity_type(activity_type) }
+        { activity_type:, assets: get_assets_for_activity_type(activity_type) }
       end
   end
 end

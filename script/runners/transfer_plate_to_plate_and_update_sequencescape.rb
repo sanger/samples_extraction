@@ -16,9 +16,9 @@ updates = FactChanges.new
 
 require "#{Rails.root}/script/runners/transfer_plate_to_plate"
 
-updates.parse_json(TransferPlateToPlate.new(asset_group: asset_group).process.to_json)
+updates.parse_json(TransferPlateToPlate.new(asset_group:).process.to_json)
 updates.apply(step)
 
 require "#{Rails.root}/script/runners/update_sequencescape"
 
-puts UpdateSequencescape.new(asset_group: asset_group, step: step).process.to_json
+puts UpdateSequencescape.new(asset_group:, step:).process.to_json

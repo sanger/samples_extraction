@@ -6,7 +6,7 @@ module RemoteAssetsHelper
       {
         uuid: SecureRandom.uuid,
         wells: [build_remote_well('A1'), build_remote_well('A4')],
-        purpose: purpose,
+        purpose:,
         type: 'plates'
       }.merge(opts)
 
@@ -23,7 +23,7 @@ module RemoteAssetsHelper
       {
         uuid: SecureRandom.uuid,
         wells: [build_remote_well('A1'), build_remote_well('A4')],
-        purpose: purpose,
+        purpose:,
         type: 'plates',
         sync?: true
       }.merge(opts)
@@ -40,7 +40,7 @@ module RemoteAssetsHelper
       'well',
       {
         aliquots: [build_remote_aliquot],
-        location: location,
+        location:,
         position: {
           'name' => location
         },
@@ -56,7 +56,7 @@ module RemoteAssetsHelper
       {
         uuid: SecureRandom.uuid,
         racked_tubes: [build_remote_racked_tube('A1'), build_remote_racked_tube('A4')],
-        purpose: purpose,
+        purpose:,
         type: 'tube_racks',
         sync?: true
       }.merge(opts)
@@ -68,7 +68,7 @@ module RemoteAssetsHelper
   end
 
   def build_remote_racked_tube(coordinate, tube = nil)
-    obj = { coordinate: coordinate, tube: tube || build_remote_tube }
+    obj = { coordinate:, tube: tube || build_remote_tube }
 
     my_double = double('racked_tube', obj)
   end

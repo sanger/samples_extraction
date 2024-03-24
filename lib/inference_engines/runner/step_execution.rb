@@ -65,7 +65,7 @@ module InferenceEngines
         Open3.popen3(*[call_list].flatten) do |_stdin, stdout, stderror, thr|
           @content = stdout.read
           output = [line, content].join("\n")
-          step.update(output: output)
+          step.update(output:)
           unless thr.value == 0
             # rubocop:todo Layout/LineLength
             raise "runner execution failed\nCODE: #{thr.value}\nCMD: #{line}\nSTDOUT: #{content}\nSTDERR: #{stderror.read}\n"
@@ -120,7 +120,7 @@ module InferenceEngines
 
       def select_asset(uuids)
         FactChanges.new.tap do |updates|
-          assets = uuids.map { |uuid| Asset.find_by(uuid: uuid) }
+          assets = uuids.map { |uuid| Asset.find_by(uuid:) }
           updates.add_assets(@step.asset_group.id, uuids)
           # @step.asset_group.add_assets(assets)
         end
@@ -128,7 +128,7 @@ module InferenceEngines
 
       def unselect_asset(uuids)
         FactChanges.new.tap do |updates|
-          assets = uuids.map { |uuid| Asset.find_by(uuid: uuid) }
+          assets = uuids.map { |uuid| Asset.find_by(uuid:) }
           updates.remove_assets(@step.asset_group.id, uuids)
           # @step.asset_group.remove_assets(assets)
         end

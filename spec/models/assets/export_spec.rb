@@ -72,7 +72,7 @@ RSpec.describe 'Assets::Export' do
 
   context '#update_wells' do
     let(:step_type) { create :step_type }
-    let(:step) { create :step, step_type: step_type, state: Step::STATE_RUNNING }
+    let(:step) { create :step, step_type:, state: Step::STATE_RUNNING }
     let(:updates) { FactChanges.new }
     let(:plate) { build_remote_plate }
     let(:asset) { create :asset }
@@ -100,7 +100,7 @@ RSpec.describe 'Assets::Export' do
 
   context '#update_sequencescape' do
     let(:step_type) { create :step_type }
-    let(:step) { create :step, step_type: step_type, state: Step::STATE_RUNNING }
+    let(:step) { create :step, step_type:, state: Step::STATE_RUNNING }
     let(:user) { create :user, username: 'test' }
     let(:print_config) { { 'Plate' => 'Pum', 'Tube' => 'Pim' } }
     let(:plate) { build_remote_plate }

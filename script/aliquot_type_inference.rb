@@ -61,5 +61,5 @@ out({}) unless matches
 asset_group_id = matches[1]
 asset_group = AssetGroup.find(asset_group_id)
 
-out(AliquotTypeInference.new(asset_group: asset_group).process)
+out(AliquotTypeInference.new(asset_group:).process)
 # rubocop:enable Naming/MethodName
