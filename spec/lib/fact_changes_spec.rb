@@ -773,13 +773,13 @@ RSpec.describe FactChanges do
 
   describe '#apply' do
     it 'applies the changes in the database' do
-      expect(Operation.all.count).to eq(0)
+      expect(Operation.count).to eq(0)
       expect(updates1.facts_to_add.length).to eq(0)
       expect(asset1.facts.count).to eq(0)
       updates1.add(asset1, relation, asset2)
       updates1.apply(step)
       expect(asset1.facts.count).to eq(1)
-      expect(Operation.all.count).to eq(1)
+      expect(Operation.count).to eq(1)
     end
     context 'with create_asset_groups' do
       before do

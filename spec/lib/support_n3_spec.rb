@@ -413,7 +413,7 @@ RSpec.describe SupportN3 do
           ]
         }
       )
-      expect(StepType.all.count).to eq(2)
+      expect(StepType.count).to eq(2)
       expect(StepType.first.condition_groups.count).to eq(1)
       expect(StepType.last.condition_groups.count).to eq(1)
 
@@ -442,7 +442,7 @@ RSpec.describe SupportN3 do
           ]
         }
       )
-      expect(StepType.all.count).to eq(2)
+      expect(StepType.count).to eq(2)
       expect(StepType.first.condition_groups.count).to eq(1)
       expect(StepType.last.condition_groups.count).to eq(1)
 

@@ -12,7 +12,7 @@ class Fact < ApplicationRecord
 
   # Confirm test coverage before correcting this one, as its unclear how optional presence validation
   # plays with belongs_to_required_by_default.
-  validates :object_asset_id, presence: true, unless: :literal? # rubocop:todo Rails/RedundantPresenceValidationOnBelongsTo
+  validates :object_asset_id, presence: true, unless: :literal?
   validates :object_asset_id, presence: false, if: :literal?
 
   def set_to_remove_by(step)
@@ -32,7 +32,7 @@ class Fact < ApplicationRecord
   end
 
   def object_label
-    return object unless object_asset
+    object unless object_asset
   end
 
   def canonical_comparison_for_sorting(f2)

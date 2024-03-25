@@ -1,6 +1,9 @@
 class ApplicationController < ActionController::Base # rubocop:todo Style/Documentation
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
+
+  NO_RECORD_FOUND = 'No record found'.freeze
+
   protect_from_forgery with: :exception
 
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
@@ -10,7 +13,7 @@ class ApplicationController < ActionController::Base # rubocop:todo Style/Docume
   attr_reader :current_user
 
   def record_not_found(_exception)
-    flash.now[:error] = 'No record found'
+    flash.now[:error] = NO_RECORD_FOUND
     redirect_to action: 'index'
   end
 

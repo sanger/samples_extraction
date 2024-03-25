@@ -100,7 +100,7 @@ class AssetGroup < ApplicationRecord # rubocop:todo Style/Documentation
 
   def select_barcodes(barcodes)
     barcodes.each do |barcode|
-      if assets.select { |a| a.barcode == barcode }.empty?
+      if assets.none? { |a| a.barcode == barcode }
         asset = Asset.find_or_import_asset_with_barcode(barcode)
         return false if asset.nil?
 

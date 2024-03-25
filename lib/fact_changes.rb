@@ -59,8 +59,8 @@ class FactChanges # rubocop:todo Style/Documentation
 
     list1.add_disjoint_list(list2)
 
-    send("#{list}=", list1)
-    send("#{opposite}=", list2)
+    send(:"#{list}=", list1)
+    send(:"#{opposite}=", list2)
   end
 
   def asset_group_asset_to_h(asset_group_asset_str)
@@ -126,7 +126,7 @@ class FactChanges # rubocop:todo Style/Documentation
 
   def add(s, p, o, options = {})
     s = find_asset(s)
-    o = (options[:literal] == true) ? o : find_asset(o)
+    o = find_asset(o) unless options[:literal] == true
 
     fact = _build_fact_attributes(s, p, o, options)
 
