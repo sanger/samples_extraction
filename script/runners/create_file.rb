@@ -10,7 +10,7 @@ barcodes = []
 while num < NUM_BARCODES
   number = (rand * 999_999).floor.to_s
   barcode = ['FR'].concat(Array.new((6 - number.length)) { '0' }).push(number).join
-  found = Asset.find_by(barcode: barcode)
+  found = Asset.find_by(barcode:)
   unless found
     barcodes.push(barcode)
     num = num + 1

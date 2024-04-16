@@ -28,7 +28,7 @@ RSpec.describe Parsers::CsvLayout::LineParser do
     @asset1 = create :asset, barcode: 'F1234'
     @asset2 = create :asset, barcode: 'F5678'
     allow(main_parser).to receive(:find_or_import_asset_with_barcode) do |barcode|
-      Asset.find_by(barcode: barcode)
+      Asset.find_by(barcode:)
     end
   end
 

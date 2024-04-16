@@ -14,7 +14,7 @@
         $.proxy(function () {
           this.initializeConditionGroups(params)
         }, this),
-        0
+        0,
       )
     }
   }
@@ -68,7 +68,7 @@
   proto.checkFactToN3 = function (group, fact) {
     return (
       ['?' + group.getName(), ':' + fact.predicate, fact.object ? '"""' + fact.object + '"""' : fact.literal].join(
-        '\t '
+        '\t ',
       ) + ' .'
     )
   }
@@ -113,14 +113,14 @@
       this.conditionGroups,
       $.proxy(function (group) {
         return $.map(group.getCheckFacts(), $.proxy(this.checkFactToN3, this, group))
-      }, this)
+      }, this),
     ).join('\n\t')
 
     var actionsN3 = $.map(
       this.conditionGroups,
       $.proxy(function (group) {
         return $.map(group.getActionFacts(), $.proxy(this.actionFactToN3, this, group))
-      }, this)
+      }, this),
     ).join('\t')
 
     var selectsN3 = $.map(
@@ -131,7 +131,7 @@
         } else {
           return ''
         }
-      })
+      }),
     ).join('')
 
     var n3 = this.renderRuleN3(checksN3, actionsN3, selectsN3)
@@ -203,13 +203,13 @@
       'click',
       $.proxy(function () {
         this.addGroup(this.generateGroupName(), {})
-      }, this)
+      }, this),
     )
     $(this.buttonNewAsset).on(
       'click',
       $.proxy(function () {
         this.addGroup(this.generateAssetName(), {}, this.assetFactsTemplate())
-      }, this)
+      }, this),
     )
     $(this.node).on('registered.condition-group', $.proxy(this.storeConditionGroup, this))
     $(this.node).on('destroyed.condition-group', $.proxy(this.destroyConditionGroup, this))
@@ -225,7 +225,7 @@
         e.preventDefault()
         this.showEditor()
         //return false;
-      }, this)
+      }, this),
     )
     $('.update-n3').on(
       'click',
@@ -233,7 +233,7 @@
         if (this.getEditorContent().length > 0) {
           $('input#step_type_n3_definition').val(this.getEditorContent())
         }
-      }, this)
+      }, this),
     )
   }
 

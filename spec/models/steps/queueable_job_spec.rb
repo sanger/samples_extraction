@@ -7,7 +7,7 @@ RSpec.describe 'Steps::QueuableJob' do
   let(:user) { create :user, username: 'test' }
 
   def build_instance_with_activity
-    step = create(:step, { activity: activity, step_type: step_type, asset_group: asset_group, user: user })
+    step = create(:step, { activity:, step_type:, asset_group:, user: })
   end
 
   context 'when a background step is completed' do
@@ -35,7 +35,7 @@ RSpec.describe 'Steps::QueuableJob' do
           my_steps
             .reverse
             .reduce(nil) do |next_step, step|
-              step.update(next_step: next_step)
+              step.update(next_step:)
               allow(step).to receive(:process)
 
               # Step is modified by the accumulator. This is actually shown as a
@@ -117,7 +117,7 @@ RSpec.describe 'Steps::QueuableJob' do
             my_steps
               .reverse
               .reduce(nil) do |next_step, step|
-                step.update(next_step: next_step)
+                step.update(next_step:)
                 allow(step).to receive(:run!) do
                   step.update(state: 'complete')
                 end
@@ -135,14 +135,14 @@ RSpec.describe 'Steps::QueuableJob' do
         context 'when one of the steps has a failure' do
           def mock_step_completion(s, state)
             allow(s).to receive(:run!) do
-              s.update(state: state)
+              s.update(state:)
             end
           end
           before do
             my_steps
               .reverse
               .reduce(nil) do |next_step, step|
-                step.update(next_step: next_step)
+                step.update(next_step:)
 
                 # Step is modified by the accumulator. This is actually shown as a
                 # 'good' pattern on the Lint/UnmodifiedReduceAccumulator documentation

@@ -40,7 +40,7 @@
         var locationPos = this.locationToPos(this.getLocationFromCell(cell))
         $(cell).on('click', $.proxy(this.modifyCell, this, locationPos + 1))
         this.cleanCellCss(cell)
-      }, this)
+      }, this),
     )
     this.racking = {}
     this.renderTable()
@@ -68,7 +68,7 @@
           params.error_params,
           $.proxy(function (pos, v) {
             $('.' + v, this.node).addClass(STATUS_CLASSES.error)
-          }, this)
+          }, this),
         )
       }
     }

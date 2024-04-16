@@ -62,7 +62,7 @@
           return 'is:' + keyword
         }
         return keyword
-      }).join('')
+      }).join(''),
     )
   }
   ;(proto.concatNodes = function (nodesList) {
@@ -145,7 +145,7 @@
       $.proxy(function (pos, node) {
         this.addHiddenInput('p' + (pos + 1), $(node).data('psd-fact-predicate').replace(/\|/, ''))
         this.addHiddenInput('o' + (pos + 1), $(node).data('psd-fact-object').toString().replace(/\|/, ''))
-      }, this)
+      }, this),
     )
   }
 
@@ -154,7 +154,7 @@
     if (selectedText.length > 0) {
       text = text.replace(
         new RegExp('</span>' + selectedText),
-        "</span><span id='select' class='selection'>" + selectedText + '</span>'
+        "</span><span id='select' class='selection'>" + selectedText + '</span>',
       )
     }
     return text
@@ -198,10 +198,10 @@
           $.proxy(function () {
             this.showCursor()
           }, this),
-          325
+          325,
         )
       }, this),
-      650
+      650,
     )
   }
 
@@ -255,7 +255,7 @@
         }
         currentPos += keyword.length
         return keyword
-      }, this)
+      }, this),
     )
   }
 

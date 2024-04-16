@@ -92,7 +92,7 @@ module ChangesSupport::TransactionScope # rubocop:todo Style/Documentation
     end
 
     def find(id)
-      where(id: id).first
+      where(id:).first
     end
 
     def find_by(opts)

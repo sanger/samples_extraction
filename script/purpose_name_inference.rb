@@ -92,4 +92,4 @@ matches = args.match(/(\d*)\.json/)
 out({}) unless matches
 asset_group_id = matches[1]
 asset_group = AssetGroup.find(asset_group_id)
-out(PurposeNameInference.new(asset_group: asset_group).process)
+out(PurposeNameInference.new(asset_group:).process)

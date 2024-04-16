@@ -1,10 +1,10 @@
 module Assets::FactsManagement # rubocop:todo Style/Documentation
   def self.included(klass)
     klass.instance_eval do
-      scope :with_fact, ->(predicate, object) { joins(:facts).where(facts: { predicate: predicate, object: object }) }
+      scope :with_fact, ->(predicate, object) { joins(:facts).where(facts: { predicate:, object: }) }
       scope :with_field, ->(predicate, object) { where(predicate => object) }
 
-      scope :with_predicate, ->(predicate) { joins(:facts).where(facts: { predicate: predicate }) }
+      scope :with_predicate, ->(predicate) { joins(:facts).where(facts: { predicate: }) }
     end
   end
 
@@ -27,16 +27,16 @@ module Assets::FactsManagement # rubocop:todo Style/Documentation
   def has_fact?(fact)
     facts.any? do |f|
       if f.object.nil?
-        (
+        
           (fact.predicate == f.predicate) && (fact.object_asset == f.object_asset) && (fact.to_add_by == f.to_add_by) &&
             (fact.to_remove_by == f.to_remove_by)
-        )
+        
       else
         other_conds = true
         if fact.respond_to?(:to_add_by)
           other_conds = (fact.to_add_by == f.to_add_by) && (fact.to_remove_by == f.to_remove_by)
         end
-        ((fact.predicate == f.predicate) && (fact.object == f.object) && other_conds)
+        (fact.predicate == f.predicate) && (fact.object == f.object) && other_conds
       end
     end
   end
@@ -61,9 +61,9 @@ module Assets::FactsManagement # rubocop:todo Style/Documentation
   def facts_with_triples(triples)
     uuid, predicate, object = triples
     if object.kind_of? String
-      asset.facts.where(predicate: predicate, object: object)
+      asset.facts.where(predicate:, object:)
     else
-      asset.facts.where(predicate: predicate, object_asset: object)
+      asset.facts.where(predicate:, object_asset: object)
     end
   end
 end

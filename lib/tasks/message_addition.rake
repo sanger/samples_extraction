@@ -31,7 +31,7 @@ namespace :message_addition do
         slice.filter_map do |asset_id, sanger_sample_id|
           next if uuid_hash[sanger_sample_id].nil?
 
-          { asset_id: asset_id, predicate: 'sample_uuid', object: uuid_hash[sanger_sample_id] }
+          { asset_id:, predicate: 'sample_uuid', object: uuid_hash[sanger_sample_id] }
         end
       puts 'Creating facts'
       Fact.create!(fact_attributes)

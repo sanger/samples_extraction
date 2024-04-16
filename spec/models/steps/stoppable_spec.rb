@@ -9,9 +9,9 @@ RSpec.describe 'Steps::Stoppable' do
       :step,
       2,
       state: Step::STATE_RUNNING,
-      activity: activity,
-      asset_group: asset_group,
-      step_type: step_type
+      activity:,
+      asset_group:,
+      step_type:
     )
   end
   let(:next_steps) do
@@ -19,14 +19,14 @@ RSpec.describe 'Steps::Stoppable' do
       :step,
       2,
       state: Step::STATE_RUNNING,
-      activity: activity,
-      asset_group: asset_group,
-      step_type: step_type
+      activity:,
+      asset_group:,
+      step_type:
     )
   end
 
   let(:step) do
-    create(:step, state: previous_state, activity: activity, asset_group: asset_group, step_type: step_type)
+    create(:step, state: previous_state, activity:, asset_group:, step_type:)
   end
 
   context 'when a step is stopped' do
@@ -83,9 +83,9 @@ RSpec.describe 'Steps::Stoppable' do
         :step,
         2,
         state: Step::STATE_STOPPED,
-        activity: activity,
-        asset_group: asset_group,
-        step_type: step_type
+        activity:,
+        asset_group:,
+        step_type:
       )
     end
     let(:next_steps_not_stopped) do
@@ -93,9 +93,9 @@ RSpec.describe 'Steps::Stoppable' do
         :step,
         2,
         state: Step::STATE_FAILED,
-        activity: activity,
-        asset_group: asset_group,
-        step_type: step_type
+        activity:,
+        asset_group:,
+        step_type:
       )
     end
     let(:next_steps) { [next_steps_stopped, next_steps_not_stopped].flatten }

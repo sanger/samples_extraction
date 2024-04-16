@@ -39,7 +39,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
 
   shared_examples_for 'a response with the required fields for Traction' do
     it 'contains the required fields for traction' do
-      @body = JSON.parse(response.body)
+      @body = JSON.parse(response.body) # rubocop:disable Rails/ResponseParsedBody
       data = @body['data'].kind_of?(Array) ? @body['data'][0] : @body['data']
       test_attrs_for_asset.keys.each { |k| expect(data['attributes'][k.to_s]).to eq(test_attrs_for_asset[k]) }
     end
@@ -83,7 +83,7 @@ RSpec.describe 'Api::V1::Sets', type: :request do
             }
       end
       it 'returns the asset' do
-        data = JSON.parse(response.body).fetch('data')
+        data = JSON.parse(response.body).fetch('data') # rubocop:disable Rails/ResponseParsedBody
         expect(data.length).to eq 1
         barcodes = data.map { |o| o['attributes']['barcode'] }
         expect(barcodes.include?('F02')).to eq(true)

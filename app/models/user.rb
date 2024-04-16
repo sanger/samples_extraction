@@ -30,12 +30,12 @@ class User < ApplicationRecord # rubocop:todo Style/Documentation
 
   def session_info
     {
-      username: username,
-      fullname: fullname,
-      barcode: barcode,
-      role: role,
-      tube_printer_name: tube_printer_name,
-      plate_printer_name: plate_printer_name
+      username:,
+      fullname:,
+      barcode:,
+      role:,
+      tube_printer_name:,
+      plate_printer_name:
     }
   end
 

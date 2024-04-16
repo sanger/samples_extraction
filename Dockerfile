@@ -1,10 +1,9 @@
-FROM ruby:2.7
-ENV BUNDLER_VERSION=2.2.26
+FROM ruby:3.1.4
 RUN apt-get update -qq && apt-get install -y
 # Install node and Yarn
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y nodejs
-RUN apt-get install -y python2
+RUN apt-get install -y python3
 RUN npm install -g yarn
 WORKDIR /samples_extraction
 ADD Gemfile /samples_extraction

@@ -53,10 +53,10 @@ RSpec.describe StepTypesController, type: :controller do
   context '#create' do
     let(:params) { { step_type: { name: 'My task' } } }
     it 'creates a new step type' do
-      expect { post :create, params: params }.to change { StepType.all.count }.by(1)
+      expect { post :create, params: }.to change { StepType.all.count }.by(1)
     end
     it 'redirects to the step type url' do
-      post :create, params: params
+      post(:create, params:)
       expect(response.redirect?).to eq(true)
     end
   end

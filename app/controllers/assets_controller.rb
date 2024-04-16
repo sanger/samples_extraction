@@ -5,7 +5,7 @@ class AssetsController < ApplicationController # rubocop:todo Style/Documentatio
   # GET /assets
   # GET /assets.json
   def index
-    @assets = Asset.all.includes(:facts).paginate(page: params[:page], per_page: 5)
+    @assets = Asset.includes(:facts).paginate(page: params[:page], per_page: 5)
   end
 
   def print
@@ -118,10 +118,7 @@ class AssetsController < ApplicationController # rubocop:todo Style/Documentatio
   end
 
   def set_queries
-    @queries =
-      valid_indexes.map do |val|
-        OpenStruct.new({ predicate: params['p' + val], object: params['o' + val] }) # rubocop:todo Style/OpenStructUse
-      end
+    @queries = valid_indexes.map { |val| OpenStruct.new({predicate: params['p' + val], object: params['o' + val]})} # rubocop:todo Style/OpenStructUse
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

@@ -14,7 +14,7 @@ RSpec.describe FactChanges do
   let(:updates2) { FactChanges.new }
   let(:fact1) { create :fact, asset: asset1, predicate: property, object: value }
   let(:fact2) { create :fact, asset: asset1, predicate: relation, object_asset: asset2 }
-  let(:step) { create :step, activity: activity, state: Step::STATE_RUNNING }
+  let(:step) { create :step, activity:, state: Step::STATE_RUNNING }
   let(:json) { { create_assets: %w[?p ?q], add_facts: [%w[?p a Plate]] }.to_json }
 
   describe '#new' do
@@ -30,7 +30,7 @@ RSpec.describe FactChanges do
       it 'returns assets created' do
         uuid = SecureRandom.uuid
         updates.create_assets([uuid]).apply(step)
-        asset = Asset.find_by(uuid: uuid)
+        asset = Asset.find_by(uuid:)
         expect(updates.assets_for_printing).to eq([asset])
       end
       it 'returns assets ready for print' do
@@ -48,7 +48,7 @@ RSpec.describe FactChanges do
         updates.add(asset3, 'color', 'Red')
         updates.apply(step)
 
-        asset = Asset.find_by(uuid: uuid)
+        asset = Asset.find_by(uuid:)
 
         expect(updates.assets_for_printing.sort).to eq([asset, asset2].sort)
       end
@@ -773,13 +773,13 @@ RSpec.describe FactChanges do
 
   describe '#apply' do
     it 'applies the changes in the database' do
-      expect(Operation.all.count).to eq(0)
+      expect(Operation.count).to eq(0)
       expect(updates1.facts_to_add.length).to eq(0)
       expect(asset1.facts.count).to eq(0)
       updates1.add(asset1, relation, asset2)
       updates1.apply(step)
       expect(asset1.facts.count).to eq(1)
-      expect(Operation.all.count).to eq(1)
+      expect(Operation.count).to eq(1)
     end
     context 'with create_asset_groups' do
       before do

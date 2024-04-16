@@ -87,7 +87,7 @@ This installation procedure is prepared for a MacOS environment:
 1. Install all the dependencies for the project
 
 ```
-  # gem install bundler
+  # gem install bundler -v 2.4.22
 
   # bundle install
 
@@ -96,7 +96,9 @@ This installation procedure is prepared for a MacOS environment:
   # yarn
 ```
 
-2. From the project folder, run the command
+Note that for ruby 2.7, the latest supported version of bundler is 2.4.22
+
+1. From the project folder, run the command
 
 ```
   # rake secret

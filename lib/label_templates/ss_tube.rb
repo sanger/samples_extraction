@@ -4,7 +4,7 @@ require './lib/label_template_setup'
 
 def tube_barcode_definition(name, type_id, barcode_type)
   {
-    name: name,
+    name:,
     label_type_id: type_id,
     labels_attributes: [
       {
@@ -76,7 +76,7 @@ def tube_barcode_definition(name, type_id, barcode_type)
             field_name: 'barcode2d'
           },
           {
-            barcode_type: barcode_type,
+            barcode_type:,
             one_module_width: '01',
             height: '0100',
             rotational_angle: nil,

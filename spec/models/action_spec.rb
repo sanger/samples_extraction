@@ -1,7 +1,7 @@
 require 'rails_helper'
 RSpec.describe Action, type: :model do
   context '#each_connected_asset' do
-    let(:action) { create(:action, step_type: step_type, predicate: 'some verb', action_type: 'something') }
+    let(:action) { create(:action, step_type:, predicate: 'some verb', action_type: 'something') }
 
     shared_examples 'a connector by position' do
       let(:step_type) { create(:step_type, connect_by: 'position') }

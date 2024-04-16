@@ -12,12 +12,12 @@ RSpec.describe Parsers::CsvMetadata::CsvParser do
     let(:asset_group) { create(:asset_group) }
     let(:step_type) { create(:step_type) }
     let(:step) do
-      create :step, activity: activity, state: Step::STATE_RUNNING, asset_group: asset_group, step_type: step_type
+      create :step, activity:, state: Step::STATE_RUNNING, asset_group:, step_type:
     end
 
     setup do
       allow(Asset).to receive(:find_or_import_asset_with_barcode) do |barcode|
-        Asset.find_by(barcode: barcode)
+        Asset.find_by(barcode:)
       end
 
       @content = File.read('test/data/metadata.csv')

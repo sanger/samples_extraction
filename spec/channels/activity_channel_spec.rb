@@ -22,7 +22,7 @@ RSpec.describe ActivityChannel, type: :channel do
       it 'processes asset group with no errors' do
         expect(instance).to receive(:process_asset_group)
         expect(activity).not_to receive(:report_error)
-        instance.receive({ 'asset_group' => { id: group.id, assets: assets } })
+        instance.receive({ 'asset_group' => { id: group.id, assets: } })
       end
 
       context 'when receiving uuids' do
@@ -32,7 +32,7 @@ RSpec.describe ActivityChannel, type: :channel do
           expect(Asset).to receive(:find_or_import_assets_with_barcodes).with([])
           expect(group).to receive(:update_with_assets).with(tubes)
           expect(activity).not_to receive(:report_error)
-          instance.receive({ 'asset_group' => { id: group.id, assets: assets } })
+          instance.receive({ 'asset_group' => { id: group.id, assets: } })
         end
       end
 
@@ -44,7 +44,7 @@ RSpec.describe ActivityChannel, type: :channel do
           expect(Asset).to receive(:find_or_import_assets_with_barcodes).with(assets)
           expect(group).to receive(:update_with_assets).with(tubes)
           expect(activity).not_to receive(:report_error)
-          instance.receive({ 'asset_group' => { id: group.id, assets: assets } })
+          instance.receive({ 'asset_group' => { id: group.id, assets: } })
         end
       end
 
@@ -57,7 +57,7 @@ RSpec.describe ActivityChannel, type: :channel do
           expect(Asset).to receive(:find_or_import_assets_with_barcodes).with(human_barcodes)
           expect(group).to receive(:update_with_assets).with(tubes)
           expect(activity).not_to receive(:report_error)
-          instance.receive({ 'asset_group' => { id: group.id, assets: assets } })
+          instance.receive({ 'asset_group' => { id: group.id, assets: } })
         end
       end
 
@@ -82,7 +82,7 @@ RSpec.describe ActivityChannel, type: :channel do
           expect(Asset).to receive(:find_or_import_assets_with_barcodes).with(human_barcodes).and_return(human_assets)
           expect(group).to receive(:update_with_assets).with(tubes)
           expect(activity).not_to receive(:report_error)
-          instance.receive({ 'asset_group' => { id: group.id, assets: assets } })
+          instance.receive({ 'asset_group' => { id: group.id, assets: } })
         end
       end
 
@@ -109,11 +109,11 @@ RSpec.describe ActivityChannel, type: :channel do
         it 'imports all present inputs right' do
           expect(activity).to receive(:report_error)
           expect(group).to receive(:update_with_assets).with(tubes)
-          instance.receive({ 'asset_group' => { id: group.id, assets: assets } })
+          instance.receive({ 'asset_group' => { id: group.id, assets: } })
         end
         it 'detects the error right' do
           expect(activity).to receive(:report_error)
-          instance.receive({ 'asset_group' => { id: group.id, assets: assets } })
+          instance.receive({ 'asset_group' => { id: group.id, assets: } })
         end
       end
     end

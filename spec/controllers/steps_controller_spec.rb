@@ -45,19 +45,19 @@ RSpec.describe StepsController, type: :controller do
     end
   end
   context '#update' do
-    let(:step) { create(:step, activity: activity, asset_group: asset_group, step_type: step_type) }
+    let(:step) { create(:step, activity:, asset_group:, step_type:) }
 
     let(:event_name) { Step::EVENT_RUN }
 
     it 'changes the state for the step' do
-      post :update, params: { id: step.id, step: { event_name: event_name } }
+      post :update, params: { id: step.id, step: { event_name: } }
       step.reload
       expect(step.state).to eq('complete')
       expect(response.status).to eq(200)
     end
 
     context 'when a step is running' do
-      let(:step) { create :step, activity: activity, asset_group: asset_group, step_type: step_type }
+      let(:step) { create :step, activity:, asset_group:, step_type: }
 
       let(:run_step) do
         # We want to simulate that during a running process a 'stop' event is received so we

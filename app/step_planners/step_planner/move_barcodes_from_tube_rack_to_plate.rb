@@ -80,7 +80,7 @@ module StepPlanner
             updates.add(well_from_tube_rack, 'previousBarcode', barcode)
             updates.add(well_from_tube_rack, 'appliedBarcodeTo', well_from_plate)
             well_from_tube_rack.update(barcode: nil)
-            well_from_plate.update(barcode: barcode)
+            well_from_plate.update(barcode:)
             updates.add(well_from_plate, 'barcode', barcode)
           end
 

@@ -59,12 +59,12 @@ module Parsers
           next if barcode_parser.no_read_barcode?
 
           location_parser = @parser.components[:location_parser].new(line, @parser)
-          { location_parser: location_parser, barcode_parser: barcode_parser, num_line: num_line }
+          { location_parser:, barcode_parser:, num_line: }
         end
       end
 
       def empty_line?(line)
-        (line.nil? || (line.length == 0) || line.all?(&:nil?))
+        line.nil? || (line.length == 0) || line.all?(&:nil?)
       end
     end
   end

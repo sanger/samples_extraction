@@ -304,7 +304,7 @@ RSpec.describe 'Assets::Import' do
 
     context 'when importing a local asset via its barcode' do
       let(:barcode) { generate(:barcode) }
-      let!(:local_asset) { Asset.create!(barcode: barcode) }
+      let!(:local_asset) { Asset.create!(barcode:) }
 
       it { is_expected.to eq local_asset }
     end
@@ -406,7 +406,7 @@ RSpec.describe 'Assets::Import' do
               ]
             )
           ]
-          build_remote_v2_plate(barcode: generate(:barcode), wells: wells)
+          build_remote_v2_plate(barcode: generate(:barcode), wells:)
         end
 
         it_behaves_like 'a partial import of samples'
@@ -415,7 +415,7 @@ RSpec.describe 'Assets::Import' do
       context 'when the plate does not have aliquots in its wells' do
         let(:remote_asset) do
           wells = %w[A1 B1].map { |l| build_remote_well(l, aliquots: []) }
-          build_remote_v2_plate(barcode: generate(:barcode), wells: wells)
+          build_remote_v2_plate(barcode: generate(:barcode), wells:)
         end
 
         it 'creates the wells with the same uuid as in the remote asset' do
@@ -427,7 +427,7 @@ RSpec.describe 'Assets::Import' do
       context 'when the plate does not have samples in its wells' do
         let(:remote_asset) do
           wells = %w[A1 B1].map { |l| build_remote_well(l, aliquots: [build_remote_aliquot(sample: nil)]) }
-          build_remote_v2_plate(barcode: generate(:barcode), wells: wells)
+          build_remote_v2_plate(barcode: generate(:barcode), wells:)
         end
 
         it 'creates the wells with the same uuid as in the remote asset' do
@@ -492,7 +492,7 @@ RSpec.describe 'Assets::Import' do
                 )
               )
             ]
-            build_remote_tube_rack(barcode: generate(:barcode), racked_tubes: racked_tubes)
+            build_remote_tube_rack(barcode: generate(:barcode), racked_tubes:)
           end
 
           it_behaves_like 'a partial import of samples'

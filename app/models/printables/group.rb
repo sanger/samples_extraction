@@ -32,7 +32,7 @@ module Printables::Group # rubocop:todo Style/Documentation
         body_print = assets.filter_map(&:printable_object).reverse
         next if body_print.empty?
 
-        PrintMyBarcodeJob.new(printer_name: printer_name, label_template: label_template, labels: body_print).save
+        PrintMyBarcodeJob.new(printer_name:, label_template:, labels: body_print).save
         summary.add_labels(printer_name, body_print.length)
       end
     end

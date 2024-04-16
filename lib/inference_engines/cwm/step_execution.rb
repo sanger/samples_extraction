@@ -56,7 +56,7 @@ module InferenceEngines
         Open3.popen3(*[env_vars, call_list].flatten) do |_stdin, stdout, stderror, thr|
           content = stdout.read
           output = [line, content].join("\n")
-          step.update(output: output)
+          step.update(output:)
           unless thr.value == 0
             # rubocop:todo Layout/LineLength
             raise "cwm execution failed\nCODE: #{thr.value}\nCMD: #{line}\nSTDOUT: #{content}\nSTDERR: #{stderror.read}\n"

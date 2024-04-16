@@ -30,7 +30,7 @@ FactoryBot.define do
 
     facts do
       _fact_attributes.map do |predicate, (object, options)|
-        build(:fact, { asset: instance, predicate: predicate, object: object, **(options || {}) })
+        build(:fact, { asset: instance, predicate:, object:, **(options || {}) })
       end
     end
 
@@ -45,7 +45,7 @@ FactoryBot.define do
       facts do
         _fact_attributes
           .map do |predicate, (object, options)|
-            build(:fact, { predicate: predicate, object: object, **(options || {}) })
+            build(:fact, { predicate:, object:, **(options || {}) })
           end
           .concat(
             well_attributes.map do |attributes|

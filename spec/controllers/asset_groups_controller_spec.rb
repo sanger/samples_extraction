@@ -6,7 +6,7 @@ RSpec.describe AssetGroupsController, type: :controller do
 
   let(:asset_group) { create :asset_group }
   let(:activity_type) { create :activity_type }
-  let(:activity) { create :activity, { activity_type: activity_type, asset_group: asset_group } }
+  let(:activity) { create :activity, { activity_type:, asset_group: } }
 
   context '#upload' do
     let(:file) { fixture_file_upload('test/data/layout.csv', 'text/csv') }
@@ -30,7 +30,7 @@ RSpec.describe AssetGroupsController, type: :controller do
 
   context 'adding a new asset to the asset group' do
     let(:barcode) { generate :barcode }
-    let(:asset) { create :asset, barcode: barcode }
+    let(:asset) { create :asset, barcode: }
 
     context 'when the asset is in the database' do
       context 'finding by uuid' do
@@ -66,7 +66,7 @@ RSpec.describe AssetGroupsController, type: :controller do
     context 'when the asset is not in the database' do
       let(:barcode) { generate :barcode }
       let(:uuid) { SecureRandom.uuid }
-      let(:remote_asset) { build_remote_tube(barcode: barcode, uuid: uuid) }
+      let(:remote_asset) { build_remote_tube(barcode:, uuid:) }
 
       before { stub_client_with_asset(SequencescapeClient, remote_asset) }
 
@@ -124,10 +124,10 @@ RSpec.describe AssetGroupsController, type: :controller do
   end
 
   describe '#print' do
-    subject(:request) { post :print, params: params, format: format, session: { token: user.token } }
+    subject(:request) { post :print, params:, format:, session: { token: user.token } }
 
     let(:asset_group) { instance_double(AssetGroup, print: 'Printed') }
-    let(:user) { create :user, token: 'test', tube_printer: tube_printer, plate_printer: plate_printer }
+    let(:user) { create :user, token: 'test', tube_printer:, plate_printer: }
     let(:tube_printer) { create :tube_printer }
     let(:plate_printer) { create :plate_printer }
 

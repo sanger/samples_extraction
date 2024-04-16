@@ -19,13 +19,13 @@ RSpec.describe Step, type: :model do
 
   def create_step
     step =
-      FactoryBot.create(:step, { activity: activity, step_type: @step_type, asset_group: @asset_group, user: user })
+      FactoryBot.create(:step, { activity:, step_type: @step_type, asset_group: @asset_group, user: })
     step.run!
     step
   end
 
   def run_step_type(step_type, asset_group)
-    step = create(:step, { activity: activity, step_type: step_type, asset_group: asset_group, user: user })
+    step = create(:step, { activity:, step_type:, asset_group:, user: })
     step.run!
     step
   end
@@ -43,7 +43,7 @@ RSpec.describe Step, type: :model do
     create(
       :action,
       action_type: 'addFacts',
-      predicate: predicate,
+      predicate:,
       subject_condition_group: cg1,
       object_condition_group: cg2
     )
@@ -54,7 +54,7 @@ RSpec.describe Step, type: :model do
   end
 
   def create_condition_group_to_select_asset_type(asset_type, name = nil)
-    create(:condition_group, name: name, conditions: [create_condition_to_select_asset_type(asset_type)])
+    create(:condition_group, name:, conditions: [create_condition_to_select_asset_type(asset_type)])
   end
 
   def create_assets(num, type)
@@ -140,7 +140,7 @@ RSpec.describe Step, type: :model do
         @racks.each(&:reload)
 
         @racks.each { |rack| assert_equal true, rack.has_fact?(@action) }
-        expect(Operation.all.count).to eq(@racks.count)
+        expect(Operation.count).to eq(@racks.count)
       end
 
       describe 'with wildcards' do
@@ -159,7 +159,7 @@ RSpec.describe Step, type: :model do
             @racks.each(&:reload)
 
             @racks.each { |rack| assert_equal false, rack.has_fact?(@action) }
-            expect(Operation.all.count).to eq(0)
+            expect(Operation.count).to eq(0)
           end
         end
 
@@ -178,7 +178,7 @@ RSpec.describe Step, type: :model do
             @racks.each(&:reload)
 
             @racks.each { |rack| assert_equal true, rack.has_fact?(@action) }
-            expect(Operation.all.count).to eq(@racks.count)
+            expect(Operation.count).to eq(@racks.count)
           end
 
           it 'uses the value of the condition group evaluated for the same cg' do
@@ -201,7 +201,7 @@ RSpec.describe Step, type: :model do
             @racks.each(&:reload)
 
             @racks.each_with_index { |rack, pos| assert_equal true, rack.has_literal?('value', pos.to_s) }
-            expect(Operation.all.count).to eq(2 * @racks.count)
+            expect(Operation.count).to eq(2 * @racks.count)
           end
 
           it 'uses the value of the condition group to relate different groups' do
@@ -298,7 +298,7 @@ RSpec.describe Step, type: :model do
         # expect(assets_created.length).to eq(previous_num)
         if cwm_engine?
           expect(assets_created.length).to eq(@tubes.count * @racks.count)
-          expect(Operation.all.count).to eq(assets_created.count * 3)
+          expect(Operation.count).to eq(assets_created.count * 3)
         else
           expect(assets_created.length).to eq(previous_num)
           expect(Operation.all.count { |o| o.action_type == 'createAssets' }).to eq(assets_created.count)
@@ -324,7 +324,7 @@ RSpec.describe Step, type: :model do
         it 'cardinality does not restrict the number of assets created when it is over the number of inputs' do
           previous_num = @asset_group.assets.count
           cardinality = @tubes.length + @racks.length + 2
-          @cg3.update(cardinality: cardinality)
+          @cg3.update(cardinality:)
           @step = create_step
 
           @asset_group.reload
@@ -356,7 +356,7 @@ RSpec.describe Step, type: :model do
         expect(previous_num).not_to eq(@asset_group.assets.count)
         if cwm_engine?
           expect(assets_created.length).to eq(@tubes.count * @racks.count)
-          expect(Operation.all.count).to eq(4 * assets_created.count)
+          expect(Operation.count).to eq(4 * assets_created.count)
         else
           expect(assets_created.length).to eq(previous_num)
         end
@@ -408,7 +408,7 @@ RSpec.describe Step, type: :model do
             # asset themselves wont happen twice (this is the case only for the @tubes_and_racks
             # overlapped assets), so its 7
             total_operations = (assets_created.count * 3) - @tubes_and_racks.count
-            expect(Operation.all.count).to eq(total_operations)
+            expect(Operation.count).to eq(total_operations)
           else
             expect(assets_created.length).to eq(previous_num)
           end
@@ -482,7 +482,7 @@ RSpec.describe Step, type: :model do
 
       shared_examples 'a step type that can connect by position' do
         let(:step_type) do
-          create(:step_type, condition_groups: condition_groups, actions: actions, connect_by: 'position')
+          create(:step_type, condition_groups:, actions:, connect_by: 'position')
         end
         it 'connects origins with destinations 1 to 1 leaving outside assets without associated pair' do
           s = run_step_type(step_type, asset_group)
@@ -496,7 +496,7 @@ RSpec.describe Step, type: :model do
       end
 
       shared_examples 'a step type that can connect N to N' do
-        let(:step_type) { create(:step_type, condition_groups: condition_groups, actions: actions, connect_by: nil) }
+        let(:step_type) { create(:step_type, condition_groups:, actions:, connect_by: nil) }
 
         it 'connects all origins with all destinations' do
           s = run_step_type(step_type, asset_group)
@@ -591,7 +591,7 @@ RSpec.describe Step, type: :model do
           @tubes.each { |asset| assert_equal true, asset.has_fact?(@action) }
           @racks.each(&:reload)
           @racks.each { |asset| assert_equal false, asset.has_fact?(@action) }
-          expect(Operation.all.count).to eq(@tubes.length)
+          expect(Operation.count).to eq(@tubes.length)
         end
 
         describe 'relating different condition groups' do
@@ -618,7 +618,7 @@ RSpec.describe Step, type: :model do
                          @tubes.last.has_fact?(
                            build(:fact, predicate: @action.predicate, object_asset_id: @racks.first.id)
                          )
-            expect(Operation.all.count).to eq(@racks.length)
+            expect(Operation.count).to eq(@racks.length)
           end
 
           it 'connects N to 1 if cardinality is set to 1 in the object condition group' do
@@ -638,7 +638,7 @@ RSpec.describe Step, type: :model do
                          @tubes.first.has_fact?(
                            build(:fact, predicate: @action.predicate, object_asset_id: @racks.last.id)
                          )
-            expect(Operation.all.count).to eq(@tubes.length)
+            expect(Operation.count).to eq(@tubes.length)
           end
 
           it 'connects 1 to 1 if cardinality is set to 1 in both subject and object condition groups' do
@@ -655,7 +655,7 @@ RSpec.describe Step, type: :model do
                          @tubes.first.has_fact?(
                            build(:fact, predicate: @action.predicate, object_asset_id: @racks.first.id)
                          )
-            expect(Operation.all.count).to eq(1)
+            expect(Operation.count).to eq(1)
           end
 
           it 'connects N to N if no cardinality is set' do
@@ -671,7 +671,7 @@ RSpec.describe Step, type: :model do
                 assert_equal true, tube.has_fact?(build(:fact, predicate: @action.predicate, object_asset_id: rack.id))
               end
             end
-            expect(Operation.all.count).to eq(@racks.length * @tubes.length)
+            expect(Operation.count).to eq(@racks.length * @tubes.length)
           end
 
           describe 'with overlapping assets' do
@@ -706,7 +706,7 @@ RSpec.describe Step, type: :model do
                                tube.has_fact?(build(:fact, predicate: @action.predicate, object_asset_id: rack.id))
                 end
               end
-              expect(Operation.all.count).to eq(
+              expect(Operation.count).to eq(
                 (@racks.length + @tubes_and_racks.length) * (@tubes.length + @tubes_and_racks.length)
               )
             end
@@ -741,7 +741,7 @@ RSpec.describe Step, type: :model do
               assert_equal false, asset.has_fact?(@action2)
             end
 
-            expect(Operation.all.count).to eq(2 * @tubes.length)
+            expect(Operation.count).to eq(2 * @tubes.length)
           end
         end
 
@@ -763,7 +763,7 @@ RSpec.describe Step, type: :model do
               assert_equal false, asset.has_fact?(@action)
               assert_equal true, asset.has_fact?(@action2)
             end
-            expect(Operation.all.count).to eq(@racks.length + @tubes.length)
+            expect(Operation.count).to eq(@racks.length + @tubes.length)
           end
         end
       end
@@ -788,7 +788,7 @@ RSpec.describe Step, type: :model do
           @tubes.each { |asset| assert_equal false, asset.has_fact?(@action) }
           @racks.each(&:reload)
           @racks.each { |asset| assert_equal false, asset.has_fact?(@action) }
-          expect(Operation.all.count).to eq(@tubes.length)
+          expect(Operation.count).to eq(@tubes.length)
         end
       end
       describe 'relating different condition groups' do
@@ -822,7 +822,7 @@ RSpec.describe Step, type: :model do
           @tubes.each(&:reload)
           @racks.each(&:reload)
           assert_equal 0, @tubes.first.facts.count { |f| f.predicate == 'relatesTo' }
-          expect(Operation.all.count).to eq(1)
+          expect(Operation.count).to eq(1)
         end
         describe 'relating several assets' do
           it 'removes the link between all assets', last: true do
@@ -847,7 +847,7 @@ RSpec.describe Step, type: :model do
             @racks.each(&:reload)
 
             @tubes.each { |tube| assert_equal 0, tube.facts.count { |f| f.predicate == 'relatesTo' } }
-            expect(Operation.all.count).to eq(@racks.length * @tubes.length)
+            expect(Operation.count).to eq(@racks.length * @tubes.length)
           end
 
           it 'removes the link just between the matched assets', last: true do
@@ -893,7 +893,7 @@ RSpec.describe Step, type: :model do
 
             @racks.each { |rack| assert_equal 1, rack.facts.count { |f| f.predicate == 'relatesTo' } }
 
-            expect(Operation.all.count).to eq(@tubes.length)
+            expect(Operation.count).to eq(@tubes.length)
           end
         end
       end
@@ -933,7 +933,7 @@ RSpec.describe Step, type: :model do
               assert_equal false, asset.has_fact?(@action)
               assert_equal true, asset.has_fact?(@action2)
             end
-            expect(Operation.all.count).to eq(2 * @tubes.length)
+            expect(Operation.count).to eq(2 * @tubes.length)
           end
         end
 
@@ -967,7 +967,7 @@ RSpec.describe Step, type: :model do
               assert_equal false, asset.has_fact?(@action)
               assert_equal false, asset.has_fact?(@action2)
             end
-            expect(Operation.all.count).to eq(@tubes.length + @racks.length)
+            expect(Operation.count).to eq(@tubes.length + @racks.length)
           end
         end
       end

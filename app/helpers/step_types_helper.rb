@@ -23,7 +23,7 @@ module StepTypesHelper # rubocop:todo Style/Documentation
               condition_group.conditions.map do |condition|
                 {
                   cssClasses: fact_css_classes['checkFacts'],
-                  name: name,
+                  name:,
                   actionType: 'checkFacts',
                   predicate: condition.predicate,
                   object: condition.object
@@ -45,7 +45,7 @@ module StepTypesHelper # rubocop:todo Style/Documentation
           memo[name][:facts].push(
             {
               cssClasses: fact_css_classes[action.action_type],
-              name: name,
+              name:,
               actionType: action.action_type,
               predicate: action.predicate,
               object: action.object

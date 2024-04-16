@@ -79,7 +79,7 @@ class Condition < ApplicationRecord # rubocop:todo Style/Documentation
       # Either objects are equal, or both of them are relations to something. We
       # do not check the relations values, because we consider them as wildcards
       if object_condition_group_id.nil? || (fact.respond_to?(:object_asset_id) && fact.object_asset_id.nil?)
-        ((fact.predicate == predicate) && (fact.object == object))
+        (fact.predicate == predicate) && (fact.object == object)
       else
         check_related_condition_group(
           object_condition_group,

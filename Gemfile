@@ -49,7 +49,7 @@ gem 'jsonapi-resources'
 
 # Tools
 gem 'pmb-client', git: 'https://github.com/sanger/pmb-client.git'
-gem 'sanger_barcode_format', git: 'https://github.com/sanger/sanger_barcode_format.git'
+gem 'sanger_barcode_format', git: 'https://github.com/sanger/sanger_barcode_format.git', branch: 'development'
 
 # Sequencescspae
 gem 'faraday'
@@ -63,15 +63,15 @@ gem 'rb-readline'
 gem 'yard'
 
 # Feature flags
-gem 'flipper'
-gem 'flipper-redis'
-gem 'flipper-ui'
+gem 'flipper', '~> 0.26.0'
+gem 'flipper-active_record', '~> 0.26.0'
+gem 'flipper-redis', '~> 0.26.0'
+gem 'flipper-ui', '~> 0.26.0'
 
 group :development, :test do
   # Call 'pry' anywhere in the code to stop execution and get a debugger console
   gem 'pry-byebug'
   gem 'pry-rails'
-  gem 'ruby-growl'
 end
 
 group :test do

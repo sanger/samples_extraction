@@ -50,7 +50,7 @@ module ActivitiesHelper # rubocop:todo Style/Documentation
         assetGroup: step.asset_group,
         step_type: step.step_type,
         operations: operations_data(step.operations),
-        username: username
+        username:
       }.merge(step.attributes)
     end
   end

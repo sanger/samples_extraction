@@ -50,7 +50,7 @@
 
         this.addHiddenInput('p' + pos, list[0])
         this.addHiddenInput('o' + pos, list[1])
-      }, this)
+      }, this),
     )
   }
 

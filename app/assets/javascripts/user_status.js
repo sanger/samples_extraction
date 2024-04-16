@@ -192,13 +192,13 @@
       'login.user_status',
       $.proxy(function (e, data) {
         this.updateLogin(data)
-      }, this)
+      }, this),
     )
     $(document).on(
       'logout.user_status',
       $.proxy(function () {
         this.updateLogin({})
-      }, this)
+      }, this),
     )
 
     $(this.logoutButton).on('click', $.proxy(this.logout, this))

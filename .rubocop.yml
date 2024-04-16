@@ -22,7 +22,7 @@ AllCops:
 Metrics/BlockLength:
   Exclude:
     - Gemfile
-  IgnoredMethods:
+  AllowedMethods:
     - describe
     - context
     - background

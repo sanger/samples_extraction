@@ -1,9 +1,9 @@
 module TokenUtil # rubocop:todo Style/Documentation
-  LOCATION_REGEXP = /^([A-H])(\d{1,2})$/.freeze
-  UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.freeze
-  MACHINE_BARCODE = /^\d*$/.freeze
-  HUMAN_BARCODE = /^\w*$/.freeze
-  WILDCARD_REGEXP = /\?\w*/.freeze
+  LOCATION_REGEXP = /^([A-H])(\d{1,2})$/
+  UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+  MACHINE_BARCODE = /^\d*$/
+  HUMAN_BARCODE = /^\w*$/
+  WILDCARD_REGEXP = /\?\w*/
 
   def self.fluidx_barcode_prefix
     'F'

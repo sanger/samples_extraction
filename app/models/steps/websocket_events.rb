@@ -1,6 +1,6 @@
 module Steps::WebsocketEvents # rubocop:todo Style/Documentation
   def can_unset_activity_running?
-    (self.kind_of?(Step) && completed? && next_step.nil? && activity)
+    self.kind_of?(Step) && completed? && next_step.nil? && activity
   end
 
   def unset_activity_running

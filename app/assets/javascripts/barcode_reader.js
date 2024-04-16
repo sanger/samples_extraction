@@ -31,7 +31,7 @@
     this.readBarcodes(this.input.val()).forEach(
       $.proxy(function (barcode) {
         $(this.node).trigger('barcode.barcode_reader', { barcode: barcode })
-      }, this)
+      }, this),
     )
     this.input.val('')
   }

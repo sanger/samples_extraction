@@ -31,8 +31,8 @@ module ViewsSchema
 
   # rubocop:todo Layout/LineLength
   REGEXP = /\ACREATE ALGORITHM=(?<algorithm>\w*) DEFINER=`[^`]*`@`[^`]*` SQL SECURITY (?<security>\w*) VIEW `[^`]+` AS (?<statement>.*)\z/i
-    # rubocop:enable Layout/LineLength
-    .freeze
+
+  # rubocop:enable Layout/LineLength
 
   def self.each_view
     all_views.each do |name|
@@ -70,7 +70,7 @@ module ViewsSchema
   #
   # @return [Void]
   def self.create_view(name, statement, algorithm: ALGORITHMS.first, security: SECURITIES.first)
-    execute(action: 'CREATE', name: name, statement: statement, algorithm: algorithm, security: security)
+    execute(action: 'CREATE', name:, statement:, algorithm:, security:)
   end
 
   #
@@ -82,7 +82,7 @@ module ViewsSchema
   #
   # @return [Void]
   def self.update_view(name, statement, algorithm: ALGORITHMS.first, security: SECURITIES.first)
-    execute(action: 'CREATE OR REPLACE', name: name, statement: statement, algorithm: algorithm, security: security)
+    execute(action: 'CREATE OR REPLACE', name:, statement:, algorithm:, security:)
   end
 
   #

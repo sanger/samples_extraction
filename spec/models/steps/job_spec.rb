@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Steps::Job do
   let(:activity) { create :activity }
-  let(:step) { create(:step, activity: activity) }
+  let(:step) { create(:step, activity:) }
 
   context '#execute_actions' do
     let(:job_double) { double('job') }

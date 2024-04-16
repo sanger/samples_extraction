@@ -51,7 +51,7 @@ class Facts extends React.Component {
         render = render.concat(
           classifiedFacts.map((fact, pos) => {
             return this.renderFact(fact, posPredicate + '-' + pos)
-          })
+          }),
         )
       }
       return render

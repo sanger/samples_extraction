@@ -59,7 +59,7 @@ module InferencesHelper
 
     user = FactoryBot.create :user, username: 'test'
 
-    FactoryBot.create(:step, { step_type: step_type, asset_group: asset_group, user_id: user.id }.merge(options))
+    FactoryBot.create(:step, { step_type:, asset_group:, user_id: user.id }.merge(options))
   end
 
   def compare_n3_output(expected_n3, obtained_n3)

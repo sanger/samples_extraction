@@ -32,7 +32,7 @@ class PrintBarcodes # rubocop:todo Style/Documentation
           asset.print(printer_config)
 
           # Do not print again unless the step fails
-          updates.remove(Fact.where(asset: asset, predicate: 'is', object: 'readyForPrint'))
+          updates.remove(Fact.where(asset:, predicate: 'is', object: 'readyForPrint'))
         end
       end
     end
@@ -44,4 +44,4 @@ return unless ARGV.any? { |s| s.match('.json') }
 args = ARGV[0]
 asset_group_id = args.match(/(\d*)\.json/)[1]
 asset_group = AssetGroup.find(asset_group_id)
-puts PrintBarcodes.new(asset_group: asset_group).process.to_json
+puts PrintBarcodes.new(asset_group:).process.to_json

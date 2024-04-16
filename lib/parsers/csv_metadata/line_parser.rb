@@ -44,7 +44,7 @@ module Parsers
             else
               unless empty_line?(line)
                 data_parser = @parser.components[:data_parser].new(line, @parser)
-                memo.push(num_line: num_line, data_parser: data_parser)
+                memo.push(num_line:, data_parser:)
               end
             end
             num_line = num_line + 1
@@ -56,7 +56,7 @@ module Parsers
       end
 
       def empty_line?(line)
-        (line.nil? || (line.length == 0) || line.all?(&:nil?))
+        line.nil? || (line.length == 0) || line.all?(&:nil?)
       end
     end
   end
