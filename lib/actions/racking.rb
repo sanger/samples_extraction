@@ -8,7 +8,7 @@ class InvalidDataParams < StandardError # rubocop:todo Style/Documentation
   attr_accessor :errors
 
   def initialize(message = nil)
-    super(message)
+    super
     @errors = message
   end
 

@@ -8,7 +8,7 @@ class Fact < ApplicationRecord
   scope :with_ns_predicate, ->(namespace) { where(ns_predicate: namespace) }
   scope :with_fact, ->(predicate, object) { where(predicate:, object:) }
   scope :from_remote_asset, -> { where(is_remote?: true) }
-  scope :created_before, ->(date) { date.nil? ? all : where('created_at < ?', date) }
+  scope :created_before, ->(date) { date.nil? ? all : where(created_at: ...date) }
 
   # Confirm test coverage before correcting this one, as its unclear how optional presence validation
   # plays with belongs_to_required_by_default.
