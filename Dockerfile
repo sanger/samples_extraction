@@ -17,7 +17,7 @@ RUN yarn install
 ADD . /samples_extraction/
 
 # Compiling assets
-RUN SE_REDIS_URI= SECRET_KEY_BASE=`bin/rake secret` WARREN_TYPE=log RAILS_ENV=production bundle exec rake assets:precompile
+RUN SE_REDIS_URI= SECRET_KEY_BASE=`bin/rails secret` WARREN_TYPE=log RAILS_ENV=production bundle exec rake assets:precompile
 
 # Generating sha
 RUN git rev-parse HEAD > REVISION
