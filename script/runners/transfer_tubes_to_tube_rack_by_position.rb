@@ -140,7 +140,7 @@ class TransferTubesToTubeRackByPosition # rubocop:todo Style/Documentation
           if (aliquot_types.uniq.length == 1) && (aliquot_types.uniq.first == 'DNA')
             purpose_name = 'DNA Stock Plate'
           elsif (aliquot_types.uniq.length == 1) && (aliquot_types.uniq.first == 'RNA')
-            purpose_name = 'RNA Stock Plate'
+            purpose_name = 'Stock RNA Plate'
           else
             purpose_name = 'Stock Plate'
           end
