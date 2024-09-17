@@ -1,4 +1,4 @@
-FROM ruby:3.1.4
+FROM ruby:3.3.5
 RUN apt-get update -qq && apt-get install -y
 # Install node and Yarn
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
@@ -10,14 +10,14 @@ ADD Gemfile /samples_extraction
 ADD Gemfile.lock /samples_extraction
 ADD package.json /samples_extraction
 ADD yarn.lock /samples_extraction
-RUN gem install bundler -v 2.2.26
+RUN gem install bundler -v 2.5.18
 RUN bundle install --jobs=5 --deployment --without development test
 RUN yarn install
 
 ADD . /samples_extraction/
 
 # Compiling assets
-RUN SE_REDIS_URI= SECRET_KEY_BASE=`bin/rake secret` WARREN_TYPE=log RAILS_ENV=production bundle exec rake assets:precompile
+RUN SE_REDIS_URI= SECRET_KEY_BASE=`bin/rails secret` WARREN_TYPE=log RAILS_ENV=production bundle exec rake assets:precompile
 
 # Generating sha
 RUN git rev-parse HEAD > REVISION

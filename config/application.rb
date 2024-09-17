@@ -12,7 +12,9 @@ module SamplesExtraction
     # Application configuration can go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded after loading
     # the framework and any gems in your application.
+    config.load_defaults 7.0
 
+    config.active_record.belongs_to_required_by_default = false
     config.active_job.queue_adapter = :delayed_job
 
     config.team_name = 'LIMS and Informatics'
