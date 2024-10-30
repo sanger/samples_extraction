@@ -15,7 +15,7 @@ class ContainerInferences # rubocop:todo Style/Documentation
 
   def purpose_for_aliquot(aliquot)
     return 'DNA Stock Plate' if aliquot == 'DNA'
-    return 'RNA Stock Plate' if aliquot == 'RNA'
+    return 'Stock RNA Plate' if aliquot == 'RNA'
 
     return 'Stock Plate'
   end

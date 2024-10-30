@@ -20,7 +20,7 @@ end
 module Actions
   module Racking # rubocop:todo Style/Documentation
     DNA_STOCK_PLATE_PURPOSE = 'DNA Stock Plate'
-    RNA_STOCK_PLATE_PURPOSE = 'RNA Stock Plate'
+    RNA_STOCK_PLATE_PURPOSE = 'Stock RNA Plate'
     STOCK_PLATE_PURPOSE = 'Stock Plate'
     DNA_ALIQUOT = 'DNA'
     RNA_ALIQUOT = 'RNA'
