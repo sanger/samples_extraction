@@ -8,13 +8,11 @@ require:
 
 AllCops:
   NewCops: enable
-  SuggestExtensions: false
   inherit_mode:
     merge:
       - Exclude
   Exclude:
     - 'db/views_schema.rb'
-    - db/migrate/*
 
 # Blocks are used to structure tests and are part of the rspec dsl.
 # The standard BlockLength limits are too stringent for this purpose.
