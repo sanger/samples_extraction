@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@babel/preset-env": "^7.24.4",
+    "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.23.3",
     "@rails/webpacker": "^5.4.4",
     "ajv": "^6.4.0",
