@@ -1,4 +1,4 @@
-FROM ruby:3.3.8
+FROM ruby:3.4.4
 RUN apt-get update -qq && apt-get install -y
 # Install node and Yarn
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
