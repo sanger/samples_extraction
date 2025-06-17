@@ -1,3 +1,10 @@
+> **⚠️ This repository is archived and no longer maintained.**
+>
+> As of June 2025, this repository is archived and will not receive any further updates or support.
+>
+> See [Y25-288](https://github.com/sanger/General-Backlog-Items/issues/563) for more information.
+> Issues and pull requests will not be reviewed. Use at your own risk.
+
 # samples_extraction
 
 A workflow processor and management tool supported in metadata annotations that allows a user to specifiy the decisions to make during the process of a group of labware. Actions can be specified as metadata changes definition or as external scripts, allowing it to interact with external persistance applications.
