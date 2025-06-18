@@ -169,8 +169,8 @@ RSpec.describe Actions::Racking do
     context 'when an RNA tube' do
       let(:aliquot_type) { 'RNA' }
 
-      it 'generates the RNA stock plate purpose' do
-        expect(updates.to_h[:add_facts].find { |triple| triple[1] == 'purpose' }[2]).to eq('RNA Stock Plate')
+      it 'generates the stock RNA plate purpose' do
+        expect(updates.to_h[:add_facts].find { |triple| triple[1] == 'purpose' }[2]).to eq('Stock RNA Plate')
       end
     end
   end
